@@ -171,9 +171,9 @@ Arcadia_Engine_Demo_Application_create
     Arcadia_Thread* thread
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Engine_Demo_Application);
   Arcadia_ValueStack_pushNatural8Value(thread, 0);
-  ARCADIA_CREATEOBJECT(Arcadia_Engine_Demo_Application);
+  _Arcadia_EndCreate(Arcadia_Engine_Demo_Application);
 }
 
 static Arcadia_BooleanValue

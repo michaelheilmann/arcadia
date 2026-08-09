@@ -1,24 +1,25 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_RING1_MODULE (1)
 #include "Arcadia/Ring1/Implementation/Object.h"
 
-#include <assert.h>
 #include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Ring1/Implementation/TypeSystem/Names.h"
+#include <assert.h>
 
 static void*
 Arcadia_allocateObject
@@ -197,20 +198,6 @@ getHash
   Arcadia_ValueStack_pushSizeValue(thread, (Arcadia_SizeValue)(uintptr_t)Arcadia_Value_getObjectReferenceValue(&x));
 }
 
-static void
-isNotEqualTo
-  (
-    Arcadia_Thread* thread
-  )
-{
-  BINARY_OPERATION();
-  if (Arcadia_Value_isObjectReferenceValue(&y)) {
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_Value_getObjectReferenceValue(&x) != Arcadia_Value_getObjectReferenceValue(&y));
-  } else {
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_True);
-  }
-}
-
 #define ObjectTypeName u8"Arcadia.Object"
 
 typedef struct ObjectTag ObjectTag;
@@ -334,7 +321,7 @@ Arcadia_allocateObject
 }
 
 void*
-ARCADIA_CREATEOBJECT0
+_Arcadia_EndCreate0
   (
     Arcadia_Thread* thread,
     Arcadia_Type* type,
@@ -375,7 +362,6 @@ _Arcadia_Object_initializeDispatchImpl
   self->isIdenticalTo = &isIdenticalTo;
   self->isEqualTo = &isEqualTo;
   self->getHash = &getHash;
-  self->isNotEqualTo = &isNotEqualTo;
 }
 
 static void
@@ -558,6 +544,39 @@ Arcadia_Object_getType
   return objectTag->type;
 }
 
+Arcadia_Object*
+Arcadia_Object_clone
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self
+  )
+{
+  assert(NULL != self);
+
+  Arcadia_TypeValue type = Arcadia_Object_getType(thread, self);
+  assert(NULL != type);
+  Arcadia_ObjectDispatch* objectDispatch = (Arcadia_ObjectDispatch*)Arcadia_ObjectType_getDispatch(type);
+  assert(NULL != objectDispatch);
+  assert(((Arcadia_ObjectDispatch*)objectDispatch)->type == type);
+  assert(NULL != objectDispatch->clone);
+
+  Arcadia_Value temporary = Arcadia_Value_makeObjectReferenceValue(self);
+  Arcadia_Natural8Value n = Arcadia_ValueStack_getSize(thread);
+  Arcadia_ValueStack_pushValue(thread, &temporary);
+  Arcadia_ValueStack_pushNatural8Value(thread, 1);
+
+  objectDispatch->clone(thread);
+
+  if (n + 1 != Arcadia_ValueStack_getSize(thread)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_StackCorruption);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Object* returnValue = Arcadia_ValueStack_getObjectReferenceValue(thread, 0);
+  Arcadia_ValueStack_popValues(thread, 1);
+
+  return returnValue;
+}
+
 Arcadia_BooleanValue
 Arcadia_Object_isEqualTo
   (
@@ -583,42 +602,6 @@ Arcadia_Object_isEqualTo
   Arcadia_ValueStack_pushNatural8Value(thread, 2);
 
   objectDispatch->isEqualTo(thread);
-
-  if (n + 1 != Arcadia_ValueStack_getSize(thread)) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_StackCorruption);
-    Arcadia_Thread_jump(thread);
-  }
-  Arcadia_BooleanValue returnValue = Arcadia_ValueStack_getBooleanValue(thread, 0);
-  Arcadia_ValueStack_popValues(thread, 1);
-
-  return returnValue;
-}
-
-Arcadia_BooleanValue
-Arcadia_Object_isNotEqualTo
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Object* self,
-    Arcadia_Value const* other
-  )
-{
-  assert(NULL != self);
-  assert(NULL != other);
-
-  Arcadia_TypeValue type = Arcadia_Object_getType(thread, self);
-  assert(NULL != type);
-  Arcadia_ObjectDispatch* objectDispatch = (Arcadia_ObjectDispatch*)Arcadia_ObjectType_getDispatch(type);
-  assert(NULL != objectDispatch);
-  assert(((Arcadia_ObjectDispatch*)objectDispatch)->type == type);
-  assert(NULL != objectDispatch->isNotEqualTo);
-
-  Arcadia_Value temporary = Arcadia_Value_makeObjectReferenceValue(self);
-  Arcadia_Natural8Value n = Arcadia_ValueStack_getSize(thread);
-  Arcadia_ValueStack_pushValue(thread, &temporary);
-  Arcadia_ValueStack_pushValue(thread, other);
-  Arcadia_ValueStack_pushNatural8Value(thread, 2);
-
-  objectDispatch->isNotEqualTo(thread);
 
   if (n + 1 != Arcadia_ValueStack_getSize(thread)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_StackCorruption);

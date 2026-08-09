@@ -1,0 +1,19 @@
+
+class MyClassB extends MyClassA {
+
+  variable myVariable1 : Integer
+
+  constructor {
+  }
+
+  constructor(variable myVariable2 : Integer, variable b : Integer) {
+    variable myVariable3
+  }
+
+  method MyMethodA : Void {
+  }
+
+  method MyMethodB(variable a : Integer, variable b : Integer) : Void {
+  }
+
+}

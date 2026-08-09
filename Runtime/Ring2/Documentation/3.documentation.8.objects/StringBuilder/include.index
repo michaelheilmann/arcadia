@@ -1,3 +1,4 @@
+<li>String Builder</li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_StringBuilder">Arcadia_StringBuilder</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_StringBuilder_clear">Arcadia_StringBuilder_clear</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_StringBuilder_create">Arcadia_StringBuilder_create</a></li>

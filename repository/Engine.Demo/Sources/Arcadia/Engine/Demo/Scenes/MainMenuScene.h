@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #if !defined(ARCADIA_ENGINE_DEMO_SCENES_MAINMENUSCENE_H_INCLUDED)
 #define ARCADIA_ENGINE_DEMO_SCENES_MAINMENUSCENE_H_INCLUDED
@@ -19,6 +20,8 @@
 #include "Arcadia/Engine/Include.h"
 #include "Arcadia/Engine/Demo/Scene.h"
 #include "Arcadia/ADL/Include.h"
+#include "Arcadia/Engine/UI/Include.h"
+#include "Arcadia/Starship/Viewer3D.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.MainMenuScene", Arcadia_Engine_Demo_MainMenuScene,
                           u8"Arcadia.Engine.Demo.Scene");
@@ -43,44 +46,28 @@ struct Arcadia_Engine_Demo_MainMenuScene {
   // The models, thee of them.
   Arcadia_Engine_Visuals_ModelNode* modelNode;
 
-  // The 'W', 'A', 'S', and 'D' latches.
-  Arcadia_BooleanValue latches[4];
+  // The 'W' (index 0), 'A' (index 1), 'S' (index 2), and 'D' (index 3) latches.
+  // The 'Q' (index 4) and 'E' (index 5) latches.
+  Arcadia_BooleanValue latches[6];
   struct {
-    Arcadia_Real32Value oldx;
-    Arcadia_Real32Value oldy;
-  } mousePosition;
-  Arcadia_BooleanValue mouseInWindow;
+    struct {
+      Arcadia_Real32Value x;
+      Arcadia_Real32Value y;
+    } oldPosition;
+    struct {
+      Arcadia_Real32Value x;
+      Arcadia_Real32Value y;
+    } delta;
+    Arcadia_BooleanValue inWindow;
+  } mouse;
 
   // The sound source for some background sound effects.
   Arcadia_Engine_Audials_SoundSourceNode* soundSourceNode;
 
-  struct {
+  // The user interface.
+  Arcadia_Engine_UI_CanvasNode* uiCanvasNode;
 
-    /// The forward vector of the viewer.
-    Arcadia_Math_Vector3Real32* forward;
-
-    /// The up vector of the viewer.
-    Arcadia_Math_Vector3Real32* up;
-
-    /// The right vector of the viewer.
-    Arcadia_Math_Vector3Real32* right;
-
-    /// The position of the viewer.
-    Arcadia_Math_Vector3Real32* position;
-
-    /// "pitch" is the angle, in degrees, of a counter-clockwise rotation of the camera around its local x-axis
-    /// The initial value is @a 0.
-    Arcadia_Real32Value pitch;
-
-    /// "yaw" is the angle, in degrees, of a counter-clockwise rotation of the camera around its local y-axis.
-    /// The initial value is @a 0.
-    Arcadia_Real32Value yaw;
-
-    /// "roll" is the angle, in degrees, of a counter-clockwise rotation of the camera around its local z-axis
-    /// The initial value is @a 0.
-    Arcadia_Real32Value roll;
-
-  } viewer;
+  Arcadia_Starship_Viewer3D* viewer3D;
 };
 
 Arcadia_Engine_Demo_MainMenuScene*

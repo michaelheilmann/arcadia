@@ -1,1 +1,0 @@
-procedure native "print" Print (variable a : String)

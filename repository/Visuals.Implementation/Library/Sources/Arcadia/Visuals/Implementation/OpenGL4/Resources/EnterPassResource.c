@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/Visuals/Implementation/OpenGL4/Resources/EnterPassResource.h"
 
@@ -98,7 +99,7 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.EnterPassResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource,
-                         u8"Arcadia.Visuals.Implementation.EnterPassResource", Arcadia_Engine_Visuals_Implementation_EnterPassResource,
+                         u8"Arcadia.Visuals.EnterPassResource", Arcadia_Engine_Visuals_EnterPassResource,
                          &_typeOperations);
 
 static void
@@ -130,11 +131,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_initializeDispat
     Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResourceDispatch* self
   )
 {
-  ((Arcadia_Engine_Visuals_Implementation_ResourceDispatch*)self)->load = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_loadImpl;
-  ((Arcadia_Engine_Visuals_Implementation_ResourceDispatch*)self)->unload = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_unloadImpl;
-  ((Arcadia_Engine_Visuals_Implementation_ResourceDispatch*)self)->unlink = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_unlinkImpl;
-  ((Arcadia_Engine_Visuals_Implementation_ResourceDispatch*)self)->render = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_Resource*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_renderImpl;
-  ((Arcadia_Engine_Visuals_Implementation_EnterPassResourceDispatch*)self)->setTargetFrameBuffer = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*, Arcadia_Engine_Visuals_Implementation_FrameBufferResource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_setTargetFrameBufferImpl;
+  ((Arcadia_Engine_Visuals_ResourceDispatch*)self)->load = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_loadImpl;
+  ((Arcadia_Engine_Visuals_ResourceDispatch*)self)->unload = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_unloadImpl;
+  ((Arcadia_Engine_Visuals_ResourceDispatch*)self)->unlink = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_unlinkImpl;
+  ((Arcadia_Engine_Visuals_ResourceDispatch*)self)->render = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Resource*, Arcadia_Engine_Visuals_EnterPassResource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_renderImpl;
+  ((Arcadia_Engine_Visuals_EnterPassResourceDispatch*)self)->setTargetFrameBuffer = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Engine_Visuals_FrameBufferResource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_setTargetFrameBufferImpl;
 }
 
 static void
@@ -160,16 +161,16 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_loadImpl
     Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource* self
   )
 {
-  static const Arcadia_Natural8Value matrixMask = Arcadia_Engine_Visuals_Implementation_EnterPassResource_ViewToProjectionMatrixDirty
-                                                | Arcadia_Engine_Visuals_Implementation_EnterPassResource_WorldToViewMatrixDirty
+  static const Arcadia_Natural8Value matrixMask = Arcadia_Engine_Visuals_EnterPassResource_ViewToProjectionMatrixDirty
+                                                | Arcadia_Engine_Visuals_EnterPassResource_WorldToViewMatrixDirty
                                                 ;
-  if (((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->dirty & matrixMask) {
-    Arcadia_Engine_Visuals_Implementation_ConstantBufferResource_clear(thread, (Arcadia_Engine_Visuals_Implementation_ConstantBufferResource*)((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer);
-    Arcadia_Engine_Visuals_Implementation_ConstantBufferResource_writeMatrix4x4Real32(thread, (Arcadia_Engine_Visuals_Implementation_ConstantBufferResource*)((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer, Arcadia_BooleanValue_True, ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewToProjectionMatrix);
-    Arcadia_Engine_Visuals_Implementation_ConstantBufferResource_writeMatrix4x4Real32(thread, (Arcadia_Engine_Visuals_Implementation_ConstantBufferResource*)((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer, Arcadia_BooleanValue_True, ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->worldToViewMatrix);
-    ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->dirty &= ~matrixMask;
+  if (((Arcadia_Engine_Visuals_EnterPassResource*)self)->dirty & matrixMask) {
+    Arcadia_Engine_Visuals_ConstantBufferResource_clear(thread, (Arcadia_Engine_Visuals_ConstantBufferResource*)((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer);
+    Arcadia_Engine_Visuals_ConstantBufferResource_writeMatrix4x4Real32(thread, (Arcadia_Engine_Visuals_ConstantBufferResource*)((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer, Arcadia_BooleanValue_True, ((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewToProjectionMatrix);
+    Arcadia_Engine_Visuals_ConstantBufferResource_writeMatrix4x4Real32(thread, (Arcadia_Engine_Visuals_ConstantBufferResource*)((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer, Arcadia_BooleanValue_True, ((Arcadia_Engine_Visuals_EnterPassResource*)self)->worldToViewMatrix);
+    ((Arcadia_Engine_Visuals_EnterPassResource*)self)->dirty &= ~matrixMask;
   }
-  Arcadia_Engine_Visuals_Implementation_Resource_load(thread, (Arcadia_Engine_Visuals_Implementation_Resource*)((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer);
+  Arcadia_Engine_Visuals_Resource_load(thread, (Arcadia_Engine_Visuals_Resource*)((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer);
 }
 
 static void
@@ -187,11 +188,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_unlinkImpl
     Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource* self
   )
 {
-  if (((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer) {
-    Arcadia_Engine_Visuals_Implementation_Resource_unref(thread, (Arcadia_Engine_Visuals_Implementation_Resource*)((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer);
-    ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer = NULL;
+  if (((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer) {
+    Arcadia_Engine_Visuals_Resource_unref(thread, (Arcadia_Engine_Visuals_Resource*)((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer);
+    ((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer = NULL;
   }
-  ((Arcadia_Engine_Visuals_Implementation_Resource*)self)->context = NULL;
+  ((Arcadia_Engine_Visuals_Resource*)self)->context = NULL;
 }
 
 static void
@@ -202,39 +203,39 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_renderImpl
     Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource* enterPassResource
   )
 {
-  static const Arcadia_Natural8Value matrixMask = Arcadia_Engine_Visuals_Implementation_EnterPassResource_ViewToProjectionMatrixDirty
-                                                | Arcadia_Engine_Visuals_Implementation_EnterPassResource_WorldToViewMatrixDirty
+  static const Arcadia_Natural8Value matrixMask = Arcadia_Engine_Visuals_EnterPassResource_ViewToProjectionMatrixDirty
+                                                | Arcadia_Engine_Visuals_EnterPassResource_WorldToViewMatrixDirty
                                                 ;
 
-  if (((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->dirty & matrixMask) {
-    Arcadia_Engine_Visuals_Implementation_ConstantBufferResource_clear(thread, (Arcadia_Engine_Visuals_Implementation_ConstantBufferResource*)((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer);
-    Arcadia_Engine_Visuals_Implementation_ConstantBufferResource_writeMatrix4x4Real32(thread, (Arcadia_Engine_Visuals_Implementation_ConstantBufferResource*)((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer, Arcadia_BooleanValue_True, ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewToProjectionMatrix);
-    Arcadia_Engine_Visuals_Implementation_ConstantBufferResource_writeMatrix4x4Real32(thread, (Arcadia_Engine_Visuals_Implementation_ConstantBufferResource*)((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer, Arcadia_BooleanValue_True, ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->worldToViewMatrix);
-    ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->dirty &= ~matrixMask;
+  if (((Arcadia_Engine_Visuals_EnterPassResource*)self)->dirty & matrixMask) {
+    Arcadia_Engine_Visuals_ConstantBufferResource_clear(thread, (Arcadia_Engine_Visuals_ConstantBufferResource*)((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer);
+    Arcadia_Engine_Visuals_ConstantBufferResource_writeMatrix4x4Real32(thread, (Arcadia_Engine_Visuals_ConstantBufferResource*)((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer, Arcadia_BooleanValue_True, ((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewToProjectionMatrix);
+    Arcadia_Engine_Visuals_ConstantBufferResource_writeMatrix4x4Real32(thread, (Arcadia_Engine_Visuals_ConstantBufferResource*)((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer, Arcadia_BooleanValue_True, ((Arcadia_Engine_Visuals_EnterPassResource*)self)->worldToViewMatrix);
+    ((Arcadia_Engine_Visuals_EnterPassResource*)self)->dirty &= ~matrixMask;
   }
-  Arcadia_Engine_Visuals_Implementation_Resource_load(thread, (Arcadia_Engine_Visuals_Implementation_Resource*)((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->viewerConstantBuffer);
+  Arcadia_Engine_Visuals_Resource_load(thread, (Arcadia_Engine_Visuals_Resource*)((Arcadia_Engine_Visuals_EnterPassResource*)self)->viewerConstantBuffer);
 
-  Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Implementation_Resource*)self)->context;
+  Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Resource*)self)->context;
   _Arcadia_Engine_Visuals_Implementation_OpenGL4_Functions* gl = Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext_getFunctions(thread, context);
-  Arcadia_Real32Value l = ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->canvasSize.width * ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->relativeViewportRectangle.left,
-                      b = ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->canvasSize.height * ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->relativeViewportRectangle.bottom,
-                      w = ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->canvasSize.width * ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->relativeViewportRectangle.right
-                        - ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->canvasSize.width * ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->relativeViewportRectangle.left,
-                      h = ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->canvasSize.height * ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->relativeViewportRectangle.top
-                        - ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->canvasSize.height * ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->relativeViewportRectangle.bottom;
+  Arcadia_Real32Value l = ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.width * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.left,
+                      b = ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.height * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.bottom,
+                      w = ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.width * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.right
+                        - ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.width * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.left,
+                      h = ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.height * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.top
+                        - ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.height * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.bottom;
   gl->glViewport(l, b, w, h);
   gl->glEnable(GL_SCISSOR_TEST);
   gl->glScissor(l, b, w, h);
 
-  if (((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->clearDepthBuffer) {
-    gl->glClearDepth(((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->clearDepth);
+  if (((Arcadia_Engine_Visuals_EnterPassResource*)self)->clearDepthBuffer) {
+    gl->glClearDepth(((Arcadia_Engine_Visuals_EnterPassResource*)self)->clearDepth);
     gl->glClear(GL_DEPTH_BUFFER_BIT);
   }
-  if (((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->clearColorBuffer) {
-    gl->glClearColor(((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->clearColor->components[0],
-                     ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->clearColor->components[1],
-                     ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->clearColor->components[2],
-                     ((Arcadia_Engine_Visuals_Implementation_EnterPassResource*)self)->clearColor->components[3]);
+  if (((Arcadia_Engine_Visuals_EnterPassResource*)self)->clearColorBuffer) {
+    gl->glClearColor(((Arcadia_Engine_Visuals_EnterPassResource*)self)->clearColor->components[0],
+                     ((Arcadia_Engine_Visuals_EnterPassResource*)self)->clearColor->components[1],
+                     ((Arcadia_Engine_Visuals_EnterPassResource*)self)->clearColor->components[2],
+                     ((Arcadia_Engine_Visuals_EnterPassResource*)self)->clearColor->components[3]);
     gl->glClear(GL_COLOR_BUFFER_BIT);
   }
 
@@ -247,10 +248,10 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_create
     Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* backendContext
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource);
   if (backendContext) Arcadia_ValueStack_pushObjectReferenceValue(thread, backendContext); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource);
+  _Arcadia_EndCreate(Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource);
 }
 
 static void
@@ -261,7 +262,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_setTargetFrameBu
     Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource* frameBuffer
   )
 {
-  Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Implementation_Resource*)self)->context;
+  Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Resource*)self)->context;
   _Arcadia_Engine_Visuals_Implementation_OpenGL4_Functions* gl = Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext_getFunctions(thread, context);
   if (frameBuffer) {
     gl->glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->frameBufferID);

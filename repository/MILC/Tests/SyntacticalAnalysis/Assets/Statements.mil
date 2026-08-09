@@ -1,0 +1,62 @@
+procedure hello : Void {
+  set a, "Hello, "
+  set b, "World!\n"
+  concatenate c, a, b
+  concatenate c, "Hello ", b
+  concatenate c, a, "World!\n"
+
+  set a, 7
+  set b, 5
+  add c, a, b
+  add c, 7, b
+  add c, a, 7
+
+  set a, 7
+  set b, 5
+  subtract c, a, b
+  subtract c, 7, b
+  subtract c, a, 7
+
+  set a, 7
+  set b, 5
+  multiply c, a, b
+  multiply c, 7, b
+  multiply c, a, 7
+
+  set a, 7
+  set b, 5
+  divide c, a, b
+  divide c, 7, b
+  divide c, a, 7
+
+  set a, 7
+  negate c, a
+  negate c, 7
+  negate c, 5
+
+  set a, true
+  set b, false
+  and c, a, b
+  and c, true, b
+  and c, b, false
+
+  set a, true
+  set b, false
+  or c, a, b
+  or c, true, b
+  or c, b, false
+
+  set a, true
+  not c, a
+  not c, true
+  not c, false
+
+  isEqualTo c, a, b
+  isNotEqualTo c, a, b
+  isLowerThan c, a, b
+  isLowerThanOrEqualTo c, a, b
+  isGreaterThan c, a, b
+  isGreaterThanOrEqualTo c, a, b
+
+  return c
+}

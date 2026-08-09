@@ -16,14 +16,14 @@
 // https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Visuals_CullMode
 enumeration Arcadia.Engine.Visuals.CullMode {
 
-  None
+  None = 0
 
-  Front
+  Front = 1
 
-  Back
+  Back = 2
 
-  FrontAndBack
+  FrontAndBack = 3
 
-  BackAndFront
+  BackAndFront = 4
 
 }

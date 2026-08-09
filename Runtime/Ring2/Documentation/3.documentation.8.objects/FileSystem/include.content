@@ -1,7 +1,0 @@
-@{include("./3.documentation.8.objects/FileSystem/ExistingFilePolicy.i")}
-@{include("./3.documentation.8.objects/FileSystem/FileAccessMode.i")}
-@{include("./3.documentation.8.objects/FileSystem/FileHandle.i")}
-@{include("./3.documentation.8.objects/FileSystem/FilePath.i")}
-@{include("./3.documentation.8.objects/FileSystem/FileSystem.i")}
-@{include("./3.documentation.8.objects/FileSystem/FileType.i")}
-@{include("./3.documentation.8.objects/FileSystem/NonExistingFilePolicy.i")}

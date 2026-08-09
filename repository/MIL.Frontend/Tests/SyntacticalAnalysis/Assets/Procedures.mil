@@ -1,7 +1,0 @@
-procedure MyProcedure
-{}
-
-procedure MyProcedure (variable a : Integer, variable b : Integer)
-{}
-
-procedure native "print" print (variable a : String)

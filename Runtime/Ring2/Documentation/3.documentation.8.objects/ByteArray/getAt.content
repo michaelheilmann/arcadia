@@ -14,7 +14,7 @@
 
   <my-summary>
   Get the Byte value at the specified index.
-  Remarks: The size of a Byte buffer is the length of the Byte sequence it contains.
+  Remarks: The size of a Byte array is the length of the Byte sequence it contains.
   </my-summary>
 
   <section class="cxx parameters">
@@ -25,11 +25,11 @@
     </div>
     <div>
       <div>Arcadia_ByteArray* self</div>
-      <div>A pointer to this Byte buffer.</div>
+      <div>A pointer to this Byte array.</div>
     </div>
     <div>
       <div>Arcadia_SizeValue index</div>
-      <div>The index. Must be within the bounds <code>[0,n)</code> where <code>n</code> is the size of this Byte buffer.</div>
+      <div>The index. Must be within the bounds <code>[0,n)</code> where <code>n</code> is the size of this Byte array.</div>
     </div>
   </section>
 

@@ -116,10 +116,10 @@ Arcadia_CommandLineArgument_create
     Arcadia_String* value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_CommandLineArgument);
   Arcadia_ValueStack_pushBooleanValue(thread, syntacticalError);
   if (name) Arcadia_ValueStack_pushObjectReferenceValue(thread, name); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   if (value) Arcadia_ValueStack_pushObjectReferenceValue(thread, value); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   Arcadia_ValueStack_pushNatural8Value(thread, 3);
-  ARCADIA_CREATEOBJECT(Arcadia_CommandLineArgument);
+  _Arcadia_EndCreate(Arcadia_CommandLineArgument);
 }

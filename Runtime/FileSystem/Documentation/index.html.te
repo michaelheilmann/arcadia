@@ -1,0 +1,27 @@
+@{include("header.i")}
+
+  <div class="center-column">
+  <h1>Michael Heilmann's Arcadia Ring 2</h1>
+  <p>
+  This is the documentation for Michael  Heilmann's Arcadia Ring 2.
+  Arcadia Ring 2 facilitates the creation of C programs - in particular interpreters - that are portable, maintainable, as well as safe.
+  Arcadia Ring 2 is available at <a href="@{siteAddress}/Arcadia/Ring1">michaelheilmann.com/Arcadia/Ring2</a>.
+  </p>
+  
+  <p>Features:</p>
+  <ul>
+    <li>UTF-8 strings and string buffers, decoders and encoders</li>
+    <li>32 and 64 Bit IEEE 754 floating point <=> UTF-8 string conversions based on the works of Steele &amp; White, Gay, Clinger, Lemire &amp; Musthak.</li>
+    <li>Other scalar types (Void, Boolean, Integer, Natural) <=> UTF-8 string conversions</li>
+    <li>aggregates (array lists, array deques, hash maps)</li>
+    <li>File System implementation for Windows and Linux supporting creation and deletation of files, reading and writing files, enumerating contents of folder</li>  
+  </ul>
+
+@{include("1.files.i")}
+@{include("2.further-references.i")}
+<h2>Documentation</h2>
+@{include("FileSystem/include.content")}
+
+  </div>
+
+@{include("footer.i")}

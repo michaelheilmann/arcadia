@@ -1,0 +1,7 @@
+procedure MyProcedure : Void
+{}
+
+procedure MyProcedure (variable a : Integer, variable b : Integer) : Void
+{}
+
+procedure native "print" print (variable a : String) : Void

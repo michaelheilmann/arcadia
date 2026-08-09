@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_FILESYSTEM_MODULE (1)
 #include "Arcadia/FileSystem/FilePath.h"
@@ -451,14 +452,14 @@ Arcadia_FilePath_initializeDispatchImpl
   );
 
 static void
-Arcadia_FilePath_destruct
+Arcadia_FilePath_destructImpl
   (
     Arcadia_Thread* thread,
     Arcadia_FilePath* self
   );
 
 static void
-Arcadia_FilePath_visit
+Arcadia_FilePath_visitImpl
   (
     Arcadia_Thread* thread,
     Arcadia_FilePath* self
@@ -467,8 +468,8 @@ Arcadia_FilePath_visit
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_FilePath_constructImpl,
-  .destruct = (Arcadia_Object_DestructCallbackFunction*)&Arcadia_FilePath_destruct,
-  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_FilePath_visit,
+  .destruct = (Arcadia_Object_DestructCallbackFunction*)&Arcadia_FilePath_destructImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_FilePath_visitImpl,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_FilePath_initializeDispatchImpl,
 };
 
@@ -529,7 +530,7 @@ Arcadia_FilePath_initializeDispatchImpl
 {/*Intentionally empty.*/}
 
 static void
-Arcadia_FilePath_destruct
+Arcadia_FilePath_destructImpl
   (
     Arcadia_Thread* thread,
     Arcadia_FilePath* self
@@ -537,7 +538,7 @@ Arcadia_FilePath_destruct
 {/*Intentionally empty.*/}
 
 static void
-Arcadia_FilePath_visit
+Arcadia_FilePath_visitImpl
   (
     Arcadia_Thread* thread,
     Arcadia_FilePath* self
@@ -557,9 +558,9 @@ Arcadia_FilePath_create
     Arcadia_Thread* thread
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_FilePath);
   Arcadia_ValueStack_pushNatural8Value(thread, 0);
-  ARCADIA_CREATEOBJECT(Arcadia_FilePath);
+  _Arcadia_EndCreate(Arcadia_FilePath);
 }
 
 Arcadia_FilePath*
@@ -752,10 +753,7 @@ Arcadia_FilePath_toGeneric
     i++;
 
     for (; i < n; ++i) {
-      Arcadia_Natural32Value x;
-      x = '/';
-      Arcadia_Unicode_Encoder_encodeCodePoints(thread, encoder, &x, 1, temporaryBuffer);
-
+      Arcadia_Unicode_Encoder_encodeString(thread, encoder, directorySeparator, temporaryBuffer);
       Arcadia_Value e = Arcadia_List_getAt(thread, self->fileNames, i);
       Arcadia_String* fileName = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&e);
       Arcadia_Unicode_Encoder_encodeString(thread, encoder, fileName, temporaryBuffer);

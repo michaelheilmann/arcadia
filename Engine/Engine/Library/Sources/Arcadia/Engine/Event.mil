@@ -16,4 +16,9 @@
 // https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Event
 class Arcadia.Engine.Event extends Arcadia.Object {
   variable timestamp : Arcadia.Natural64
+
+  constructor
+    (
+      variable timestamp : Arcadia.Natural64
+    )
 }

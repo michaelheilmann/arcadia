@@ -21,15 +21,9 @@
 @{include("2.further-references.i")}
 @{include("3.documentation.i")}
 @{include("3.documentation.8.objects.i")}
-@{include("3.documentation.8.objects/object.i")}
+@{include("3.documentation.8.objects/Object/include.content")}
 @{include("3.documentation.8.objects/ByteArray/include.content")}
 @{include("3.documentation.8.objects/ByteArrayBuilder/include.content")}
-@{include("3.documentation.8.objects/FileSystem/include.content")}
-@{include("3.documentation.8.objects/Collection/include.content")}
-@{include("3.documentation.8.objects/List/include.content")}
-@{include("3.documentation.8.objects/Map/include.content")}
-@{include("3.documentation.8.objects/Set/include.content")}
-@{include("3.documentation.8.objects/Stack/include.content")}
 @{include("3.documentation.8.objects/String/include.content")}
 @{include("3.documentation.8.objects/StringBuilder/include.content")}
 

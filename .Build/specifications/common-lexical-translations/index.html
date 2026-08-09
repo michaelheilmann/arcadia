@@ -1,0 +1,601 @@
+  <!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+
+  <style>
+  /* the left-hand side of a grammar rule */
+my-lhs {
+  display: block;
+}
+
+/* the right-hand side of a grammar rule */
+my-rhs {
+  display: block;
+  margin-left: 1rem;
+}
+
+/* A box used to surround out of text contents e.g., theorems, lemmas, examples, etc. */
+div.box {
+  --base-color: rgb(219, 212, 205);
+  --background-color: color-mix(in srgb, var(--base-color) 20%, white 100%);
+  --border-color: color-mix(in srgb, var(--base-color) 100%, white 20%);
+
+  padding-bottom: 8px;
+  padding-top: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  border-width: 1.75px;
+  border-style: solid;
+  border-radius: 4px;
+
+  border-color: var(--border-color);
+  background-color: var(--background-color);
+}
+
+div.box.todo {
+  --todo-base-color: rgb(234, 136, 145);
+  --todo-background-color: color-mix(in srgb, var(--todo-base-color) 20%, white 100%);
+  --todo-border-color: color-mix(in srgb, var(--todo-base-color) 100%, white 20%);
+
+  padding-bottom: 8px;
+  padding-top: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  border-width: 1.75px;
+  border-style: solid;
+  border-radius: 4px;
+
+  border-color: var(--todo-border-color);
+  background-color: var(--todo-background-color);
+}
+
+div.box > div.header
+{/*Intentionally empty.*/}
+
+div.box > div.body
+{/*Intentionally empty.*/}
+
+div.box code {
+  /*background-color: rgb(215, 210, 203);*/
+}
+
+my-formula-box.align-left > mjx-container {
+  text-align: left!important;
+}
+my-formula-box.align-right > mjx-container {
+  text-align: right!important;
+}
+
+table.syntax-directed-translation {
+  width: 80%;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+table.syntax-directed-translation, tr, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+table.syntax-directed-translation td {
+  padding: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+table.syntax-directed-translation td:nth-child(2)  {
+  width: 50%;
+  text-align: right;
+}
+
+div.abstract {
+  font-style: italic;
+}
+
+my-formula-box.align-left > mjx-container {
+  text-align: left!important;
+}
+
+my-sem, my-syn, my-lex {
+  font-family: my-code-font, monospace;
+}
+my-syn::after {
+  content: "<sub>syn/sub>"
+}
+my-sem {
+  font-style: italic;
+  font-family: my-default-font;
+}
+my-sem::after {
+  content: "<sub>sem</sub>"
+}
+
+my-sem, my-syn, my-lex {
+  font-family: my-code-font, monospace;
+}
+my-syn::after {
+  content: "<sub>syn/sub>"
+}
+my-sem {
+  font-style: italic;
+  font-family: my-default-font;
+}
+my-sem::before {
+  content: "sem:"
+}
+
+  </style>
+
+  <link rel='canonical' href='https://michaelheilmann.com/specifications/common-lexical-translations/index.html'>  
+  <title>Common Lexical Translations</title>
+</head>
+<body class="my-content-page-1">
+  <header>
+  <div style="display:none">
+\[
+\newcommand{\ListType}{{\text{List}}}
+\newcommand{\ListEmpty}{{\left[\right]}}
+\newcommand{\ListLength}[1]{{\ell\left(#1\right)}}
+\newcommand{\ListAt}[2]{{{#1}_{#2}}}
+\]
+</div>
+
+  <div>
+  <a href="https://michaelheilmann.com/">Home</a>
+  </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+    <h1>Common Lexical Translations</h1>
+    <div class="abstract"><p>The <em>Common Lexical Translations</em> specification a lexical translation, that is, it defines translations rules for
+how an input sequence of Unicode code points is translated into an output sequence of transformed and classified sequences
+of Unicode code points called words. The rules for provided by the <em>Common Lexical Translations</em> specification  are
+reused by other specifications within <em>Michael Heilmann’s Arcadia</em>.</p>
+</div>
+
+    <h2 id="introduction">1. Introduction</h2>
+<p>The <em>Common Lexical Translations</em> specification a lexical translation, that is, it defines translations rules for
+how an input sequence of Unicode code points is translated into an output sequence of transformed and classified sequences
+of Unicode code points called words. The rules for provided by the <em>Common Lexical Translations</em> specification  are
+reused by other specifications within <em>Michael Heilmann’s Arcadia</em>.</p>
+
+
+<p>The rules layed out here are described in terms of the concepts and notations of the <em>Context-Free Grammars</em>
+specification (see <a href="https://michaelheilmann.com/specifications/context-free-grammars">https://michaelheilmann.com/specifications/context-free-grammars</a> for more information).</p>
+
+<p>A grammar incorporating these rules must have the set of all Unicode code points as its input alphabet.
+Furthermore, the grammar must ensure that ambiguities are resolved.</p>
+
+    <h2 id="standard-profile">2 Standard Profile</h2>
+<p>The <em>Full Profile</em> contains all possible rules.
+   Other profiles may be added in future versions.
+   Language designers are encouraged to create their own profiles.</p>
+
+<h3 id="standard-profile-word">2.1 word</h3>
+<p>The word <code>word</code> is defined by</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+Lexical.Word : Lexical.Period<br>
+Lexical.Word : Lexical.Semicolon<br>
+Lexical.Word : Lexical.Boolean<br>
+Lexical.Word : Lexical.Number<br>
+Lexical.Word : Lexical.String<br>
+Lexical.Word : Lexical.Void<br>
+Lexical.Word : Lexical.Name<br>
+Lexical.Word : Lexical.LeftCurlyBracket<br>
+Lexical.Word : Lexical.RightCurlyBracket<br>
+Lexical.Word : Lexical.LeftSquareBracket<br>
+Lexical.Word : Lexical.RightSquareBracket<br>
+Lexical.Word : Lexical.Comma<br>
+Lexical.Word : Lexical.Colon<br>
+Lexical.Word : Lexical.Whitespace<br>
+Lexical.Word : Lexical.Newline<br>
+Lexical.Word : Lexical.Comment<br>
+</code></p>
+</div>
+</div>
+
+<h3 id="standard-profile-whitespace">2.2 whitespace</h3>
+<p>The word <code>whitespace</code> is defined by</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+/* #9 is also known as "CHARACTER TABULATION" */<br>
+Lexical.Whitespace : #9<br>
+/* #20 is also known as "SPACE" */<br>
+Lexial.Whitespace : #20
+</code></p>
+</div>
+</div>
+
+<h3 id="standard-profile-line-terminator">2.3 line terminator</h3>
+<p>The word <code>Lexical.LineTerminator</code> is defined by</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+/* #a is also known as "LINEFEED (LF)" */<br>
+/* #d is also known as "CARRIAGE RETURN (CR)" */<br>
+Lexical.LineTerminator : #a {#d}<br>
+Lexical.LineTerminator : #d {#a}
+</code></p>
+</div>
+</div>
+
+<h3 id="standard-profile-comments">2.4 comments</h3>
+<p>
+The language using the Common Lexical Specification may use both single-line comments and multi-line comments.
+A <code>Lexical.Comment</code> is either a <code>single_line_comment</code> or a <code>Lexical.MultiLineComment</code>.
+<code>Lexical.MultiLineComment</code> is defined by
+</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+Lexical.Comment : Lexical.SingleLineComment
+Lexical.Comment : Lexical.MultiLineComment
+</code></p>
+</div>
+</div>
+
+<p>
+A <code>Lexical.SingleLineComment</code> starts with two solidi.
+It extends to the end of the line.
+<code>Lexical.SingleLinecomment</code> is defined by</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+/* #2f is also known as SOLIDUS */
+Lexical.SingleLineComment :
+#2f #2f
+/* any sequence of characters except for line_terminator */
+</code></p>
+</div>
+</div>
+
+<p>The <code>Lexical.LineTerminator</code> is not considered as part of the comment text.</p>
+
+<p>
+A <code>Lexical.MultiLineComment</code> is opened by a solidus and an asterisk and closed by an asterisk and a solidus.
+<code>Lexical.MultiLineComment</code> is defined by
+</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+/* #2f is also known as SOLIDUS */<br>
+/* #2a is also known as ASTERISK */<br>
+Lexical.MultiLineComment :<br>
+#2f #2a<br>
+/* any sequence of characters except except for #2a #2f */<br>
+#2a #2f
+</code></p>
+</div>
+</div>
+
+<p>The <code>#2f #2a</code> and <code>#2a #2f</code> sequences are not considered as part of the comment text.</p>
+
+<p>This implies:</p>
+
+<ul>
+  <li><code>#2f #2f</code> has no special meaning either comment.</li>
+  <li><code>#2f #2a</code> and <code>#2a #2f</code> have no special meaning in single-line comments.</li>
+  <li>Multi-line comments do not nest.</li>
+</ul>
+
+<h3 id="standard-profile-parentheses">2.5 parentheses</h3>
+<p>The words <code>Lexical.LeftParenthesis</code> and <code>Lexical.RightParenthesis</code>, respectively, are defined by</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+/* #28 is also known as "LEFT PARENTHESIS" */<br>
+Lexical.LeftParenthesis : #28<br>
+/* #29 is also known as "RIGHT PARENTHESIS" */<br>
+Lexical.RightParenthesis : #29
+</code></p>
+</div>
+</div>
+
+<h3 id="standard-profile-curly-brackets">2.6 curly brackets</h3>
+<p>The words <code>Lexical.LeftCurlyBracket</code> and <code>Lexical.RightCurlyBracket</code>, respectively, are defined by</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+/* #7b is also known as "LEFT CURLY BRACKET" */<br>
+Lexical.LeftCurlyBracket : #7b<br>
+/* #7d is also known as "RIGHT CURLY BRACKET" */<br>
+Lexical.RightCurlyBracket : #7d
+</code></p>
+</div>
+</div>
+
+<h3 id="standard-profile-colon">2.7 colon</h3>
+<p>The word <code>Lexical.Colon</code> is defined by</code>
+
+<div class="box">
+<p><code>
+/* #3a is also known as "COLON" */<br>
+Lexical.Colon : #3a
+</code></p>
+</div>
+
+<h3 id="standard-profile-square-brackets">2.8 square brackets</h3>
+<p>The words <code>Lexical.LeftSquareBracket</code> and <code>Lexica.RightSquareBracket</code>, respectively, are defined by</p>
+
+<div class="box">
+<p><code>
+/* #5b is also known as "LEFT SQUARE BRACKET" */<br>
+Lexical.LeftSquareBracket : #5b<br>
+/* #5d is also known as "RIGHT SQUARE BRACKET" */<br>
+Lexical.RightSquareBracket : #5d
+</code></p>
+</div>
+
+<h3 id="standard-profile-comma">2.9 comma</h3>
+<p>The word <code>Lexical.Comma</code> is defined by</p>
+
+<div class="box">
+<p><code>
+/* #2c is also known as "COMMA" */<br>
+Lexical.Comma : #2c
+</code></p>
+</div>
+
+<h3 id="standard-profile-name">2.10 name</h3>
+<p>The word <code>Lexical.Name</code> is defined by</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+Lexical.Name : {Lexical.Underscore} Lexical.Alphabetic {Lexical.NameSuffixCharacter}<br>
+<br>
+/* #41 is also known as "LATIN CAPITAL LETTER A" */<br>
+/* #5a is also known as "LATIN CAPITAL LETTER Z" */<br>
+/* #61 is also known as "LATIN SMALL LETTER A" */<br>
+/* #7a is also known as "LATIN SMALLER LETTER Z" */<br>
+Lexical.NameSuffixCharacter : /* The unicode characters from #41 to #5a and from #61 to #7a. */<br>
+<br>
+/* #30 is also known as "DIGIT ZERO" */<br>
+/* #39 is also known as "DIGIT NINE" */<br>
+Lexical.NameSuffixCharacter : /* The unicode characters from #30 to #39. */<br>
+<br>
+/* #5f is also known as "LOW LINE" */<br>
+Lexical.NameSuffixCharacter : #5f<br>
+</code></p>
+</div>
+</div>
+
+<h3 id="standard-profile-number-literal">2.10 number literal</h3>
+<p>The word <code>Lexical.Number</code> is defined by</p>
+
+<div class="box">
+<p><code>
+Lexical.Number : Lexical.IntegerNumber<br>
+Lexical.Number : Lexical.RealNumber<br>
+Lexical.IntegerNumber : [Lexical.Sign] Lexical.Digit {Lexical.Digit}<br>
+Lexical.RealNumber : [Lexical.Sign] Lexical.Period Lexical.Digit {Lexical.Digit} [Lexical.Exponent]<br>
+Lexical.RealNumber : [Lexical.Sign] Lexical.Digit {Lexical.Digit} [Lexical.Period {Lexical.Digit}] [Lexical.Exponent]<br>
+Lexical.Exponent : Lexical.ExponentPrefix [Lexical.Sign] Lexical.Digit {Lexical.Digit}<br>
+<br>
+/* #2b is also known as "PLUS SIGN" */<br>
+Lexical.Sign : #2b<br>
+/* #2d is also known as "MINUS SIGN" */<br>
+Lexical.Sign : #2d<br>
+/* #65 is also known as "LATIN SMALL LETTER E" */<br>
+Lexical.ExponentPrefix : #65<br>
+/* #45 is also known as "LATIN CAPITAL LETTER E" */<br>
+Lexical.ExponentPrefix : #45<br>
+</code></p>
+</div>
+
+<h3 id="standard-profile-string-literal">2.11 string literal</h2
+<p>The word <code>Lexical.String</code> is defined by</p>
+
+<div class="box">
+<p><code>
+Lexical.String : Lexical.SingleQuotedString<br>
+Lexical.String : Lexical.DoubleQuotedString<br>
+<br>
+Lexical.DoubleQuotedString : Lexical.DoubleQuote {Lexical.DoubleQuotedStringCharacter} Lexical.DoubleQuote<br>
+Lexical.DoubleQuotedStringCharacter : /* any character except for Lexical.Newline and Lexical.DoubleQuote and characters in [0,1F]*/<br>
+Lexical.DoubleQuotedStringCharacter : Lexical.EscapeSequence<br>
+Lexical.DoubleQuotedStringCharacter : #5c Lexical.DoubleQuote<br>
+/* #22 is also known as "QUOTATION MARK" */<br>
+Lexical.DoubleQuote : #22<br>
+<br>
+Lexical.SingleQuotedString : Lexical.SingleQuote {Lexical.SingleQuotedStringCharacter} Lexical.SingleQuote<br>
+Lexical.SingleQuotedStringCharacter : /* any character except for Lexical.Newline and Lexical.SingleQuote and characters in [0,1F]*/<br>
+Lexical.SingleQuotedStringCharacter : Lexical.EscapeSequence<br>
+Lexical.SingleQuotedStringCharacter : #5c Lexical.SingleQuote <br>
+/* #27 is also known as "APOSTROPHE" */<br>
+Lexical.SingleQuote : #27<br>
+<br>
+
+/* #5c is also known as "REVERSE SOLIDUS", #75 is also known as 'LATIN SMALL LETTER U*/<br>
+Lexical.EscapeSequence : #5c 'u' Lexical.HexadecimalDigit Lexical.HexadecimalDigit Lexical.HexadecimalDigit Lexical.HexadecimalDigit<br>
+/* #5c is also known as "REVERSE SOLIDUS" */<br>
+Lexical.EscapeSequence : #5c #5c<br>
+/* #64 is also known as "LATIN SMALL LETTER B" */<br>
+Lexical.EscapeSequence : #5c #64<br>
+/* #66 is also known as "LATIN SMALL LETTER F" */<br>
+Lexical.EscapeSequence : #5c #66<br>
+/* #6e is also known as "LATIN SMALL LETTER N" */<br>
+Lexical.EscapeSequence : #5c #6e<br>
+/* #72 is also known as "LATIN SMALL LETTER R" */<br>
+Lexical.EscapeSequence : #5c #72<br>
+/* #74 is also known as "LATIN SMALL LETTER T" */<br>
+Lexical.EscapeSequence : #5c #75
+
+</code></p>
+</div>
+
+<p>In the lexical translation, several transformations are performed upon the word:</p>
+
+<ul>
+  <li><code>Lexical.DoubleQuote {Lexical.DoubleQuotedStringCharacter} Lexical.DoubleQuote</code> has the leading double quote and the trailing double quote removed.</li>
+  <li><code>Lexical.SingleQuote {Lexical.SingleQuotedStringCharacter} Lexical.SingleQuote</code> has the leading single quote and the trailing single quote removed.</li>
+  <li><code>#5c #5c</code> (double "REVERSE SOLIDUS") are replaced by <code>#5c</code> ("REVERSE SOLIDUS")</li>
+  <li><code>#5c #64</code> ("REVERSE SOLIDUS" followed by "LATIN SMALL LETTER B") are replaced by <code>#7</code> ("BELL")</li>
+  <li><code>#5c #66</code> ("REVERSE SOLIDUS" followed by "LATIN SMALL LETTER F") are replaced by <code>#c</code> ("FORM FEED")</li>
+  <li><code>#5c #6e</code> ("REVERSE SOLIDUS" followed by "LATIN SMALL LETTER N") are replaced by <code>#a</code> ("LINE FEED")</li>
+  <li><code>#5c #72</code> ("REVERSE SOLIDUS" followed by "LATIN SMALL LETTER R") are replaced by <code>#d</code> ("CARRIAGE RETURN")</li>
+  <li><code>#5c #72</code> ("REVERSE SOLIDUS" followed by "LATIN SMALL LETTER T") are replaced by <code>#9</code> ("TAB")</li>
+  <li><code>#5c 'u' Lexical.HexadecimalDigit Lexical.HexadecimalDigit Lexical.HexadecimalDigit Lexical.HexadecimalDigit</code> is replaced
+  by the corresponding Unicode code point. That Unicode code point is computed as follows: Let \(a\), \(b\), \(c\), and \(d\)  denote the
+  first, second, third, and fourth hexadecimal digit from left to right following <code>'u'</code>. Then the Unicode code point is given by
+  \[
+  c := (a \cdot 16^3) + (b*16^2) + (c*16^1) + (d*16^0)
+  \]
+  If \(c\) is outside of the set of Unicode code points, then the lexical translation shall fail.
+  </li>
+<ul>
+
+
+
+<h3 id="standard-profile-boolean">2.12 boolean literal</h3>
+<p>The word <code>Lexical.Boolean</code> is defined by</p>
+
+<div class="box">
+<p><code>
+Lexical.Boolean : Lexical.True<br>
+Lexical.Boolean : Lexical.False<br>
+true : #74 #72 #75 #65<br>
+false : #66 #61 #6c #73 #65
+</code></p>
+</div>
+
+<p>Remark: The word <code>Lexical.Boolean</code> is a so called <em>keyword</em>.
+It takes priority over the <code>Lexical.Name</code>.</p>
+
+<h3 id="standard-profile-void">2.13 void literal</h3>
+<p>The word <code>Lexical.Void</code> is defined by</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+Lexical.Void : #76 #6f # #69 #64
+</code></p>
+</div>
+</div>
+
+<p>Remark: The word <code>Lexical.Void</code> is a so called <em>keyword</em>.
+It takes priority over the <code>Lexical.Name</code>.</p>
+
+<h3 id="standard-profile-decimal-digit">2.14 decimal digit</h3>
+<p>The word <code>Lexical.DecimalDigit</code> is defined by</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+Lexical.DecimalDigit : /* A single Unicode character from the code point range +U0030 to +U0039. */
+</code></p>
+</div>
+</div>
+
+<h3 id="standard-profile-hexadecimal-digit">2.15 hexadecimal digit</h3>
+<p>The word <code>Lexical.HexadecimalDigit</code> is defined by</p>
+
+<div class="box">
+<div class="body">
+<p><code>
+Lexical.HexadecimalDigit : /* A single Unicode character from the code point range +U0030 to +U0039,  +U0061 to +U007A,  U+0041 to U+005A*/
+</code></p>
+</div>
+</div>
+
+<h3 id="standard-profile-alphanumeric">2.16 alphanumeric</h3>
+<p>The word <code>Lexical.Alphanumeric</code> is reserved for future use.</p>
+
+<h3 id="standard-profile-period">2.17 period</h3>
+<p>The word <code>Lexical.Period</code> is defined by</p>
+
+<div class="box">
+<p><code>
+/* #2e is also known as "FULL STOP" */<br>
+Lexical.Period : 2e
+</code></p>
+</div>
+
+
+  </div>
+  <div class="right-column">
+    <nav>
+      <ul style="list-style: none">
+        <li><a href="#introduction">1. Introduction</a></li>
+        <li><a href="#standard-profile">2 Standard Profile</a></li>
+        <li><a href="#standard-profile-word">2.1 word</a></li>
+        <li><a href="#standard-profile-whitespace">2.2 whitespace</a></li>
+        <li><a href="#standard-profile-line-terminator">2.3 line terminator</a></li>
+        <li><a href="#standard-profile-comment">2.4 comment</a></li>
+        <li><a href="#standard-profile-parentheses">2.5 parentheses</a></li>
+        <li><a href="#standard-profile-curly-brackets">2.6 curly brackets</a></li>
+        <li><a href="#standard-profile-colon">2.7 colon</a></li>
+        <li><a href="#standard-profile-comma">2.9 comma</a></li>
+        <li><a href="#standard-profile-number-literal">2.10 number literal</a></li>
+        <li><a href="#standard-profile-string-literal">2.11 string literal</a></li>
+        <li><a href="#standard-profile-boolean-literal">2.12 boolean literal</a></li>
+        <li><a href="#standard-profile-void-literal">2.13 void literal</a></li>
+        <li><a href="#standard-profile-digit">2.14 decimal digit</a></li>
+        <li><a href="#standard-profile-digit">2.15 hexadecimal digit</a></li>
+        <li><a href="#standard-profile-alphanumeric">2.16 alphanumeric</a></li>
+        <li><a href="#standard-profile-period">2.17 period</a></li>
+      </ul>
+    </nav>
+  </div>
+  </main>
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column"></div>
+    <div class="right-column">
+      <div>Website maintained by Michael Heilmann.</div>
+      <div>Last modified on 14 September 2026.</div>
+    </div>
+  </footer>
+</body>
+</html>

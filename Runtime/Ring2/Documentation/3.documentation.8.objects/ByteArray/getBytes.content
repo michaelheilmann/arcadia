@@ -1,19 +1,19 @@
 <section class="cxx entity method">
 
-  <h1 id="Arcadia_ByteArrayBuilder_getBytes">Arcadia_ByteArrayBuilder_getBytes</h1>
+  <h1 id="Arcadia_ByteArray_getBytes">Arcadia_ByteArray_getBytes</h1>
 
   <my-signature><code>
   void const*<br>
-  Arcadia_ByteArrayBuilder_getBytes<br>
+  Arcadia_ByteArray_getBytes<br>
   &nbsp;&nbsp;(<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder const* self<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
   &nbsp;&nbsp;)
   </code></my-signature>
 
   <my-summary>
-  Get a pointer to the Bytes in this Byte buffer.
-  Warning: The Bytes must not be modified. The pointer is valid only as long as the Byte buffer object is valid and is not modified.
+  Get a pointer to the Bytes in this Byte array.
+  Warning: The Bytes must not be modified. The pointer is valid only as long as the Byte array object is valid and is not modified.
   </my-summary>
 
   <section class="cxx parameters">
@@ -23,14 +23,14 @@
       <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
     </div>
     <div>
-      <div>Arcadia_ByteArrayBuilder* self</div>
-      <div>A pointer to this Byte buffer.</div>
+      <div>Arcadia_ByteArray* self</div>
+      <div>A pointer to this Byte array.</div>
     </div>
   </section>
 
   <section class="cxx return-value">
     <h1>Return value</h1>
-    <p>A pointer to the Bytes in this Byte buffer.</p>
+    <p>A pointer to the Bytes in this Byte array.</p>
   </section>
 
 </section>

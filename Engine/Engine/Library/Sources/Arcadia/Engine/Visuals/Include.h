@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #if !defined(ARCADIA_ENGINE_VISUALS_INCLUDE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_INCLUDE_H_INCLUDED
@@ -56,19 +57,19 @@
 
 #include "Arcadia/Engine/Visuals/Diagnostics.h"
 
-#include "Arcadia/Engine/Visuals/Events/ApplicationQuitRequestedEvent.h"
+#include "Arcadia/Engine/Visuals/ApplicationQuitRequestedEvent.h"
 
-#include "Arcadia/Engine/Visuals/Events/CanvasActivationStateChangedEvent.h"
-#include "Arcadia/Engine/Visuals/Events/CanvasDPIChangedEvent.h"
-#include "Arcadia/Engine/Visuals/Events/CanvasEvent.h"
-#include "Arcadia/Engine/Visuals/Events/CanvasSizeChangedEvent.h"
-#include "Arcadia/Engine/Visuals/Events/WindowClosedEvent.h"
-#include "Arcadia/Engine/Visuals/Events/WindowPositionChangedEvent.h"
-#include "Arcadia/Engine/Visuals/Events/WindowSizeChangedEvent.h"
+#include "Arcadia/Engine/Visuals/CanvasActivationStateChangedEvent.h"
+#include "Arcadia/Engine/Visuals/CanvasDPIChangedEvent.h"
+#include "Arcadia/Engine/Visuals/CanvasEvent.h"
+#include "Arcadia/Engine/Visuals/CanvasSizeChangedEvent.h"
+#include "Arcadia/Engine/Visuals/WindowClosedEvent.h"
+#include "Arcadia/Engine/Visuals/WindowPositionChangedEvent.h"
+#include "Arcadia/Engine/Visuals/WindowSizeChangedEvent.h"
 
-#include "Arcadia/Engine/Visuals/Events/KeyboardKeyEvent.h"
-#include "Arcadia/Engine/Visuals/Events/MouseButtonEvent.h"
-#include "Arcadia/Engine/Visuals/Events/MousePointerEvent.h"
+#include "Arcadia/Engine/Input/KeyboardKeyEvent.h"
+#include "Arcadia/Engine/Input/MouseButtonEvent.h"
+#include "Arcadia/Engine/Input/MousePointerEvent.h"
 
 #include "Arcadia/Engine/Visuals/DisplayDevice.h"
 #include "Arcadia/Engine/Visuals/DisplayMode.h"

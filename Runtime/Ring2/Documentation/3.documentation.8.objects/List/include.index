@@ -1,6 +1,0 @@
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_List">Arcadia_List</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_List_getAt">Arcadia_List_getAt</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_List_insertAt">Arcadia_List_insertAt</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_List_insertBack">Arcadia_List_insertBack</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_List_insertFront">Arcadia_List_insertFront</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_List_removeAt">Arcadia_List_removeAt</a></li>

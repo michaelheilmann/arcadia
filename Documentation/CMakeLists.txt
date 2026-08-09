@@ -1,17 +1,18 @@
-# The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+# Arcadia
+# Copyright (C) 2024-2026 Michael Heilmann
 #
-# Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# Permission to use, copy, modify, and distribute this software for any
-# purpose without fee is hereby granted, provided that this entire notice
-# is included in all copies of any software which is or includes a copy
-# or modification of this software and in all copies of the supporting
-# documentation for such software.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 #
-# THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-# WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-# REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-# OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.29)
 
@@ -19,45 +20,45 @@ BeginTemplateEngine(${MyProjectName}.Website.Generate "Website")
 
   # Build "index.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/../.build/index.html"
+                   "${REPOSITORY_SOURCE_DIR}/.Build/index.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
   # Build "error.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/error.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/../.build/error.html"
+                   "${REPOSITORY_SOURCE_DIR}/.Build/error.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
   # Build "index.css".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.css.te"
-                   "${REPOSITORY_SOURCE_DIR}/../.build/assets/index.css"
+                   "${REPOSITORY_SOURCE_DIR}/.Build/assets/index.css"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
   # Build "reset.css".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/reset.css.te"
-                   "${REPOSITORY_SOURCE_DIR}/../.build/assets/reset.css"
+                   "${REPOSITORY_SOURCE_DIR}/.Build/assets/reset.css"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
   # Build "cxx-docs.css".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/cxx-doc.css.te"
-                   "${REPOSITORY_SOURCE_DIR}/../.build/assets/cxx-doc.css"
+                   "${REPOSITORY_SOURCE_DIR}/.Build/assets/cxx-doc.css"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
   # Build "imprint.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/imprint.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/../.build/imprint.html"
+                   "${REPOSITORY_SOURCE_DIR}/.Build/imprint.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
   # Build "data-protection-statement.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/data-protection-statement.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/../.build/data-protection-statement.html"
+                   "${REPOSITORY_SOURCE_DIR}/.Build/data-protection-statement.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
   # Build "sitemap.xml" and ".htaccess".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/sitemap.xml.te"
-                   "${REPOSITORY_SOURCE_DIR}/../.build/sitemap.xml"
+                   "${REPOSITORY_SOURCE_DIR}/.Build/sitemap.xml"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/.htaccess.te"
-                   "${REPOSITORY_SOURCE_DIR}/../.build/.htaccess"
+                   "${REPOSITORY_SOURCE_DIR}/.Build/.htaccess"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
 EndTemplateEngine()
@@ -65,7 +66,6 @@ EndTemplateEngine()
 add_subdirectory("Arcadia")
 add_subdirectory("Specifications/Common Lexical Translations")
 add_subdirectory("Specifications/MDNP")
-add_subdirectory("Specifications/DDL")
-add_subdirectory("Specifications/DDLS")
-add_subdirectory("InformationSecurity")
+add_subdirectory("Specifications/Data Definition Language")
+add_subdirectory("Specifications/Data Definition Language Schema")
 add_subdirectory("Specifications/MIL")

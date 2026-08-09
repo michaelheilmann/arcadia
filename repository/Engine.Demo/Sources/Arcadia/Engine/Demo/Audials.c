@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/Engine/Demo/Audials.h"
 
@@ -96,7 +97,7 @@ Arcadia_Engine_Application_startupAudials
         Arcadia_Thread_jump(thread);
       }
       Arcadia_ValueStack_pushNatural8Value(thread, 0);
-      backend = (Arcadia_Engine_Backend*)ARCADIA_CREATEOBJECT0(thread, backendType, Arcadia_ValueStack_getSize(thread) - 1);
+      backend = (Arcadia_Engine_Backend*)_Arcadia_EndCreate0(thread, backendType, Arcadia_ValueStack_getSize(thread) - 1);
       Arcadia_Thread_popJumpTarget(thread);
     } else {
       Arcadia_Thread_popJumpTarget(thread);
@@ -113,7 +114,7 @@ Arcadia_Engine_Application_startupAudials
         Arcadia_Thread_jump(thread);
       }
       Arcadia_ValueStack_pushNatural8Value(thread, 0);
-      backend = (Arcadia_Engine_Backend*)ARCADIA_CREATEOBJECT0(thread, backendType, Arcadia_ValueStack_getSize(thread) - 1);
+      backend = (Arcadia_Engine_Backend*)_Arcadia_EndCreate0(thread, backendType, Arcadia_ValueStack_getSize(thread) - 1);
     }
     Arcadia_Engine_Audials_BackendContext* temporary = (Arcadia_Engine_Audials_BackendContext*)Arcadia_Engine_Backend_createBackendContext(thread, backend);
     Arcadia_Object_lock(thread, (Arcadia_Object*)temporary);
@@ -155,7 +156,7 @@ Arcadia_Engine_Application_startupAudials
         Arcadia_Thread_jump(thread);
       }
       Arcadia_ValueStack_pushNatural8Value(thread, 0);
-      nodeFactory = (Arcadia_Engine_NodeFactory*)ARCADIA_CREATEOBJECT0(thread, scneNodeFactoryType, Arcadia_ValueStack_getSize(thread) - 1);
+      nodeFactory = (Arcadia_Engine_NodeFactory*)_Arcadia_EndCreate0(thread, scneNodeFactoryType, Arcadia_ValueStack_getSize(thread) - 1);
       Arcadia_Thread_popJumpTarget(thread);
     } else {
       Arcadia_Thread_popJumpTarget(thread);

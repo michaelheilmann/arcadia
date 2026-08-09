@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_ENGINE_PRIVATE (1)
 #include "Arcadia/Engine/Visuals/BackendContext.h"
@@ -118,7 +119,7 @@ Arcadia_Engine_Visuals_BackendContext_getDisplayDevices
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, getDisplayDevices, self); }
 
-Arcadia_Engine_Visuals_Implementation_ConstantBufferResource*
+Arcadia_Engine_Visuals_ConstantBufferResource*
 Arcadia_Engine_Visuals_BackendContext_createConstantBufferResource
   (
     Arcadia_Thread* thread,
@@ -126,7 +127,7 @@ Arcadia_Engine_Visuals_BackendContext_createConstantBufferResource
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, createConstantBufferResource, self); }
 
-Arcadia_Engine_Visuals_Implementation_FrameBufferResource*
+Arcadia_Engine_Visuals_FrameBufferResource*
 Arcadia_Engine_Visuals_BackendContext_createFrameBufferResource
   (
     Arcadia_Thread* thread,
@@ -134,7 +135,7 @@ Arcadia_Engine_Visuals_BackendContext_createFrameBufferResource
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, createFrameBufferResource, self); }
 
-Arcadia_Engine_Visuals_Implementation_EnterPassResource*
+Arcadia_Engine_Visuals_EnterPassResource*
 Arcadia_Engine_Visuals_BackendContext_createEnterPassResource
   (
     Arcadia_Thread* thread,
@@ -142,29 +143,29 @@ Arcadia_Engine_Visuals_BackendContext_createEnterPassResource
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, createEnterPassResource, self); }
 
-Arcadia_Engine_Visuals_Implementation_MaterialResource*
+Arcadia_Engine_Visuals_MaterialResource*
 Arcadia_Engine_Visuals_BackendContext_createMaterialResource
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_BackendContext* self,
-    Arcadia_Engine_Visuals_Implementation_MaterialResource_AmbientColorSource ambientColorSource,
-    Arcadia_Engine_Visuals_Implementation_TextureResource* ambientTexture,
-    Arcadia_Engine_Visuals_Implementation_ProgramResource* program
+    Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource ambientColorSource,
+    Arcadia_Engine_Visuals_TextureResource* ambientTexture,
+    Arcadia_Engine_Visuals_ProgramResource* program
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, createMaterialResource, self, ambientColorSource, ambientTexture, program); }
 
-Arcadia_Engine_Visuals_Implementation_ModelResource*
+Arcadia_Engine_Visuals_ModelResource*
 Arcadia_Engine_Visuals_BackendContext_createModelResource
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_BackendContext* self,
-    Arcadia_Engine_Visuals_Implementation_ConstantBufferResource* meshConstantBufferResource,
-    Arcadia_Engine_Visuals_Implementation_VertexBufferResource* vertexBufferResource,
-    Arcadia_Engine_Visuals_Implementation_MaterialResource* material
+    Arcadia_Engine_Visuals_ConstantBufferResource* meshConstantBufferResource,
+    Arcadia_Engine_Visuals_VertexBufferResource* vertexBufferResource,
+    Arcadia_Engine_Visuals_MaterialResource* material
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, createModelResource, self, meshConstantBufferResource, vertexBufferResource, material); }
 
-Arcadia_Engine_Visuals_Implementation_ProgramResource*
+Arcadia_Engine_Visuals_ProgramResource*
 Arcadia_Engine_Visuals_BackendContext_createProgramResource
   (
     Arcadia_Thread* thread,
@@ -173,7 +174,7 @@ Arcadia_Engine_Visuals_BackendContext_createProgramResource
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, createProgramResource, self, program); }
 
-Arcadia_Engine_Visuals_Implementation_TextureResource*
+Arcadia_Engine_Visuals_TextureResource*
 Arcadia_Engine_Visuals_BackendContext_createTextureResource
   (
     Arcadia_Thread* thread,
@@ -181,7 +182,7 @@ Arcadia_Engine_Visuals_BackendContext_createTextureResource
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, createTextureResource, self); }
 
-Arcadia_Engine_Visuals_Implementation_VertexBufferResource*
+Arcadia_Engine_Visuals_VertexBufferResource*
 Arcadia_Engine_Visuals_BackendContext_createVertexBufferResource
   (
     Arcadia_Thread* thread,

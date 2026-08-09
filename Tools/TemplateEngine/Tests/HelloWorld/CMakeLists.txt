@@ -1,33 +1,34 @@
-# The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+# Arcadia
+# Copyright (C) 2024-2026 Michael Heilmann
 #
-# Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# Permission to use, copy, modify, and distribute this software for any
-# purpose without fee is hereby granted, provided that this entire notice
-# is included in all copies of any software which is or includes a copy
-# or modification of this software and in all copies of the supporting
-# documentation for such software.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 #
-# THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-# WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-# REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-# OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.29)
 
-set(this ${MyProjectName}.Tools.TemplateEngine.Tests.HelloWorld)
+set(this ${MyProjectName}.TemplateEngine.Tests.HelloWorld)
 
 # Create test executable.
 BeginProduct(${this} test)
 
 # Configuration files.
-OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia.Tools.TemplateEngine.Tests.HelloWorld/Configure.h  ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.Tools.TemplateEngine.Tests.HelloWorld/Configure.h.i)
+OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia.TemplateEngine.Tests.HelloWorld/Configure.h  ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.TemplateEngine.Tests.HelloWorld/Configure.h.i)
 
 # Source and header files.
-OnSourceFile(${this} Arcadia.Tools.TemplateEngine.Tests.HelloWorld/Main.c)
+OnSourceFile(${this} Arcadia.TemplateEngine.Tests.HelloWorld/Main.c)
 
 # Module dependencies.
-OnModuleDependency(${this} ${MyProjectName}.Tools.TemplateEngine.Library PRIVATE)
+OnModuleDependency(${this} ${MyProjectName}.TemplateEngine PRIVATE)
 
 EndProduct(${this})
 # Copy assets.
@@ -35,4 +36,4 @@ add_custom_command(TARGET ${this} POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${${this}.WorkingDirectory})
 # Adjust working directory.
 set(${this}.WorkingDirectory $<TARGET_FILE_DIR:${this}>)
-set_target_properties(${this} PROPERTIES FOLDER "Tools/TemplateEngine")
+set_target_properties(${this} PROPERTIES FOLDER "TemplateEngine")

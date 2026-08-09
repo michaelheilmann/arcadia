@@ -1,22 +1,24 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_RING1_MODULE (1)
 #include "Arcadia/Ring1/Implementation/Objects/ByteReader.UnicodeCodePointReader.h"
 
 #include "Arcadia/Ring1/Include.h"
+#include <memory.h>
 
 static void
 Arcadia_ByteReader_UnicodeCodePointReader_constructImpl
@@ -99,10 +101,10 @@ Arcadia_defineObjectType(u8"Arcadia.ByteReader.UnicodeCodePointReader", Arcadia_
                          u8"Arcadia.UnicodeCodePointReader", Arcadia_UnicodeCodePointReader,
                          &_typeOperations);
                          
-#define FlagsNone (Arcadia_Natural32Value_Maximum - 4)
-#define FlagsEnd (Arcadia_Natural32Value_Maximum - 4)
-#define FlagsShortRead (Arcadia_Natural32Value_Maximum - 2)
-#define FlagsError (Arcadia_Natural32Value_Maximum - 1)                         
+#define FlagsNone (1<<0)
+#define FlagsEnd (1<<1)
+#define FlagsShortRead (1<<2)
+#define FlagsError (1<<3)                         
 
 static void
 Arcadia_ByteReader_UnicodeCodePointReader_constructImpl
@@ -120,7 +122,8 @@ Arcadia_ByteReader_UnicodeCodePointReader_constructImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  self->codePoint = FlagsNone;
+  self->flags = FlagsNone;
+  self->codePoint = 0xfffd;
   self->codePointByteIndex = 0;
   self->codePointByteLength = 0;
   self->source = (Arcadia_ByteReader*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_ByteReader_getType(thread));
@@ -156,8 +159,6 @@ Arcadia_ByteReader_UnicodeCodePointReader_visit
   }
 }
 
-#include <memory.h>
-
 static void
 next
   (
@@ -165,19 +166,25 @@ next
     Arcadia_ByteReader_UnicodeCodePointReader* self
   )
 { 
-  if (self->codePoint == FlagsError) {
-    // If we are in an error state, we do nothing.
-    return;
-  }
-  if (self->codePoint != FlagsShortRead) {
-    // If we are not in a short read or an error state.
+  if (self->flags == FlagsError || self->flags == FlagsShortRead) {
+    // Advance to the next Byte.
+    // Clear the error flag.
+    self->flags = FlagsNone;
     self->codePointByteIndex += self->codePointByteLength;
     self->codePointByteLength = 0;
+  } else if (self->flags == FlagsNone) {
+    // Advance to the next Byte.
+    self->codePointByteIndex += self->codePointByteLength;
+    self->codePointByteLength = 0;
+  } else if (self->flags == FlagsEnd) {
+    return;
   }
+
   // Try to read at least one Byte.
   if (!self->numberOfBytes) {
     if (!Arcadia_ByteReader_hasValue(thread, self->source)) {
-      self->codePoint = FlagsEnd;
+      self->flags = FlagsEnd;
+      self->codePoint = 0xfffd;
       self->codePointByteLength = 0;
       return;
     }
@@ -187,10 +194,14 @@ next
   // If there are no Bytes, we reached the end or have an error. */
   if (self->numberOfBytes == 0) {
     if (Arcadia_ByteReader_hasError(thread, self->source)) {
-      self->codePoint = FlagsError;
+      self->flags = FlagsError;
+      self->codePoint = 0xfffd;
     } else {
-      self->codePoint = FlagsEnd;
+      self->flags = FlagsEnd;
+      self->codePoint = 0xfffd;
     }
+    memmove(&self->bytes[0], &self->bytes[self->codePointByteLength], self->numberOfBytes - self->codePointByteLength);
+    self->numberOfBytes -= self->codePointByteLength;
     return;
   }
   uint8_t byte = self->bytes[0];
@@ -216,8 +227,10 @@ next
     // then the first Byte is in th range 1111 0xxx.
     self->codePointByteLength = 4;
   } else {
-    self->codePoint = FlagsError;
-    self->codePointByteLength = 0;
+    // This ensures that we skip this Byte.
+    self->flags = FlagsError;
+    self->codePoint = 0xfffd;
+    self->codePointByteLength = 1;
     return;
   }
   while (self->codePointByteLength > self->numberOfBytes && Arcadia_ByteReader_hasValue(thread, self->source)) {
@@ -226,7 +239,8 @@ next
   }
   if (self->codePointByteLength > self->numberOfBytes) {
     // This is actually a short read and might be recoverable.
-    self->codePoint = FlagsShortRead;
+    self->flags = FlagsShortRead;
+    self->codePoint = 0xfffd;
     self->codePointByteLength = 0;
     return;  
   }
@@ -243,8 +257,11 @@ next
   for (Arcadia_SizeValue i = 1; i < self->codePointByteLength; ++i) {
     byte = self->bytes[0 + i]; // We need to mask with 0011 1111
     if (0x80 != (byte & 0xC0)) {
-      self->codePoint = FlagsError;
+      self->flags = FlagsError; // Invalid 
+      self->codePoint = 0xfffd;
       self->codePointByteLength = 0;
+      memmove(&self->bytes[0], &self->bytes[self->codePointByteLength], self->numberOfBytes - self->codePointByteLength);
+      self->numberOfBytes -= self->codePointByteLength;
       return;
     }
     byte &= 0x3F;
@@ -257,8 +274,10 @@ next
   } else if (self->codePointByteLength == 3 && 0x800 <= self->codePoint && self->codePoint <= 0xffff) {
   } else if (self->codePointByteLength == 4 && 0x10000 <= self->codePoint && self->codePoint > 0x10ffff) {
   } else {
-    self->codePoint = FlagsError;
-    self->codePointByteLength = 0;
+    self->flags = FlagsError; // Overlong encoding error.
+    self->codePoint = 0xfffd;
+    memmove(&self->bytes[0], &self->bytes[self->codePointByteLength], self->numberOfBytes - self->codePointByteLength);
+    self->numberOfBytes -= self->codePointByteLength;
     return;
   }
   memmove(&self->bytes[0], &self->bytes[self->codePointByteLength], self->numberOfBytes - self->codePointByteLength);
@@ -272,7 +291,7 @@ Arcadia_ByteReader_UnicodeCodePointReader_nextValueImpl
     Arcadia_ByteReader_UnicodeCodePointReader* self
   )
 {
-  if (self->codePoint == FlagsError || self->codePoint == FlagsEnd) {
+  if (self->flags == FlagsEnd) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
     Arcadia_Thread_jump(thread);
   }
@@ -286,7 +305,7 @@ Arcadia_ByteReader_UnicodeCodePointReader_getValueImpl
     Arcadia_ByteReader_UnicodeCodePointReader* self
   )
 {
-  if (self->codePoint == FlagsShortRead || self->codePoint == FlagsError || self->codePoint == FlagsEnd || self->codePoint == FlagsNone) {
+  if (self->flags == FlagsShortRead || self->flags == FlagsError || self->flags == FlagsEnd) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
     Arcadia_Thread_jump(thread);
   }
@@ -300,7 +319,7 @@ Arcadia_ByteReader_UnicodeCodePointReader_hasValueImpl
     Arcadia_ByteReader_UnicodeCodePointReader* self
   )
 {
-  return !(self->codePoint == FlagsShortRead || self->codePoint == FlagsError || self->codePoint == FlagsEnd || self->codePoint == FlagsNone);
+  return !(self->flags == FlagsShortRead || self->flags == FlagsError || self->flags == FlagsEnd);
 }
 
 static Arcadia_BooleanValue
@@ -309,7 +328,10 @@ Arcadia_ByteReader_UnicodeCodePointReader_hasErrorImpl
     Arcadia_Thread* thread,
     Arcadia_ByteReader_UnicodeCodePointReader* self
   )
-{ return self->codePoint == FlagsError; }
+{
+  return self->flags == FlagsError
+      || self->flags == FlagsShortRead;
+}
 
 static void
 Arcadia_ByteReader_UnicodeCodePointReader_getByteRangeImpl
@@ -331,8 +353,8 @@ Arcadia_ByteReader_UnicodeCodePointReader_create
     Arcadia_ByteReader* source
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_ByteReader_UnicodeCodePointReader);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)source);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_ByteReader_UnicodeCodePointReader);
+  _Arcadia_EndCreate(Arcadia_ByteReader_UnicodeCodePointReader);
 }

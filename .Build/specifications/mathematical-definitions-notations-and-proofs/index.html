@@ -1,0 +1,455 @@
+  <!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+
+  <style>
+  /* the left-hand side of a grammar rule */
+my-lhs {
+  display: block;
+}
+
+/* the right-hand side of a grammar rule */
+my-rhs {
+  display: block;
+  margin-left: 1rem;
+}
+
+/* A box used to surround out of text contents e.g., theorems, lemmas, examples, etc. */
+div.box {
+  --base-color: rgb(219, 212, 205);
+  --background-color: color-mix(in srgb, var(--base-color) 20%, white 100%);
+  --border-color: color-mix(in srgb, var(--base-color) 100%, white 20%);
+
+  padding-bottom: 8px;
+  padding-top: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  border-width: 1.75px;
+  border-style: solid;
+  border-radius: 4px;
+
+  border-color: var(--border-color);
+  background-color: var(--background-color);
+}
+
+div.box.todo {
+  --todo-base-color: rgb(234, 136, 145);
+  --todo-background-color: color-mix(in srgb, var(--todo-base-color) 20%, white 100%);
+  --todo-border-color: color-mix(in srgb, var(--todo-base-color) 100%, white 20%);
+
+  padding-bottom: 8px;
+  padding-top: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  border-width: 1.75px;
+  border-style: solid;
+  border-radius: 4px;
+
+  border-color: var(--todo-border-color);
+  background-color: var(--todo-background-color);
+}
+
+div.box > div.header
+{/*Intentionally empty.*/}
+
+div.box > div.body
+{/*Intentionally empty.*/}
+
+div.box code {
+  /*background-color: rgb(215, 210, 203);*/
+}
+
+my-formula-box.align-left > mjx-container {
+  text-align: left!important;
+}
+my-formula-box.align-right > mjx-container {
+  text-align: right!important;
+}
+
+table.syntax-directed-translation {
+  width: 80%;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+table.syntax-directed-translation, tr, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+table.syntax-directed-translation td {
+  padding: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+table.syntax-directed-translation td:nth-child(2)  {
+  width: 50%;
+  text-align: right;
+}
+
+div.abstract {
+  font-style: italic;
+}
+
+my-formula-box.align-left > mjx-container {
+  text-align: left!important;
+}
+
+my-sem, my-syn, my-lex {
+  font-family: my-code-font, monospace;
+}
+my-syn::after {
+  content: "<sub>syn/sub>"
+}
+my-sem {
+  font-style: italic;
+  font-family: my-default-font;
+}
+my-sem::after {
+  content: "<sub>sem</sub>"
+}
+
+my-sem, my-syn, my-lex {
+  font-family: my-code-font, monospace;
+}
+my-syn::after {
+  content: "<sub>syn/sub>"
+}
+my-sem {
+  font-style: italic;
+  font-family: my-default-font;
+}
+my-sem::before {
+  content: "sem:"
+}
+
+  </style>
+
+  <link rel='canonical' href='https://michaelheilmann.com/specifications/context-free-grammars/index.html'>
+  <title>Mathematical Definitions and Notations</title>
+</head>
+<body class="my-content-page-1">
+  <header>
+  <div style="display:none">
+\[
+\newcommand{\ListType}{{\text{List}}}
+\newcommand{\ListEmpty}{{\left[\right]}}
+\newcommand{\ListLength}[1]{{\ell\left(#1\right)}}
+\newcommand{\ListAt}[2]{{{#1}_{#2}}}
+\]
+</div>
+
+  <div>
+  <a href="https://michaelheilmann.com/">Home</a>
+  </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+    <h1>Mathematical Definitions and Notations</h1>
+    <p>
+    In the realm of <em>Michael Heilmann's Arcadia</em>,
+    understanding the mathematical definitions and notations is crucial for grasping the underlying concepts.
+    This document covers fundamental definitions and notations used in mathematical contexts relevant to <em>Michael Heilmann's Arcadia</em>.
+    </p>
+    <h2 id="list">1 Lists</h2>
+
+<h2>1.1 List</h2>
+<p>
+A list is an ordered list of mathematical objects.
+A list is written starting with an opening square bracket \([\), followd by the elements where two consecutive elments are separated by a comma \(,\), followed by a closing square bracket \(]\).
+For example, \(\left[1,2,3\right]\) is the list with three elements, the first one being \(1\), the second one being \(2\), and the third one being \(3\).
+The empty list is denoted by \(\ListEmpty\).
+The length of the list is usually denoted by \(\ListLength{a}\).
+Elements of a list can be referenced in terms of their 1-based position. If \(a\) is a list then the i-th element of that list is usually denoted by \(\ListAt{a}{i}\).
+The set of lists is denoted by \(\ListType\).
+</p>
+
+<h2>1.2 Identity of Lists</h2>
+<p>
+The general for for the identity of two lists \(a, b \in \ListType\) is defined by:
+</p>
+\[
+  a = b \Leftrightarrow \ListLength{a} = \ListLength{b} \wedge \forall 1 \leq i \leq \ListLength{a} : a_i = b_i
+\]
+
+<h2>1.3 Concatenation of Lists</h2>
+<p>
+The concatenation of two lists \(a,b \in \ListType\) is defined indictutively:
+</p>
+
+<p>Fist, the special cases in which at least one of \(a\) and \(b\) is an empty list:
+<ol>
+  <li>If \(b = \ListEmpty\), then \(a \circ b = a\).</li>
+  <li>If \(a = \ListEmpty\), then \(a \circ b = b\).</li>
+</ol>
+
+<p>
+Otherwise both \(a\) and \(b\) each have at least one element.
+Their concatenation \(c\) is then defined by \(c = a \circ b\) such that
+\[
+  \forall 1 \leq i \leq \ListLength{a} : \ListAt{c}{i} = \ListAt{a}{i}
+  \wedge
+  \forall 1 \leq j \leq \ListLength{b} : \ListAt{c}{\ListLength{a} + j} = \ListAt{b}{j}
+\]
+</p>
+
+    <h2 id="context-free-grammars">2 Context-Free Grammars</h2>
+<p>A context-free grammar \(G\) is a 4-tuple \(G = (V,\Sigma,P,S)\), where</p>
+<ol>
+  <li>\(V\) is a finite set; each element \(v \in V\) is called a nonterminal element.</li>
+  <li>\(\Sigma\) is a finite set of terminals, disjoint vom \(V\).</li>
+  <li>\(P\) is a finite relation in \(V \times (V \cup T)^*\), where the asterisk
+       represents the Kleene star operation. The members of \(R\) are called
+       productions of the grammar.</li>
+  <li>\(S\) is the start element. \(S\) must be an element of \(V\).</li>
+</ol>
+
+<p>A production rule in \(P\) is an ordered pair \((\alpha,\beta)\in P\), where \(a \in V\)
+is a nonterminal and \(\beta \in (V \cup \Sigma)^*\) is a string of nonterminals     and/or
+terminals; rather than using an ordered pair notation, production rules are usually written
+using an arrow operator with \(\alpha\) as its left hand side and \(\beta\) as its right hand
+side \(\alpha \rightarrow \beta\).</p>
+
+<p>It is allow for \(\beta\) to be the empty string and in this case it is denoted by
+it by \(\epsilon\). The form \(\alpha \rightarrow \epsilon\) is called             an
+\(\epsilon\)-production.</p>
+
+<h3>2.1 Direct derivation</h3>
+<p>The operation of a context-free grammar is defined in terms of the relation of two strings.
+For any two strings \(u,v \in \left(V \cup \Sigma\right)^*\), we say \(v\) directly    derives
+from \(u\), written as \(u \Rightarrow v\) if there exists a production \((\alpha   \rightarrow
+\beta) \in P\) with \(\alpha \in V\) and \(u_1, u_2 \in \left(V \cup \Sigma\right)^*\) such that
+\(u = u_1 \alpha u_2\) and \(v = u_1 \beta u_2\). Thus, \(v\) is a result of applying the rule
+\(\alpha \rightarrow \beta\) to \(u\).</p>
+
+<h3>2.2 Indirect derivation</h2>
+<p>For any two string \(u,v\in (V \cup \Sigma)^*\), we say \(v\) indirectly drives from \(u\)   if
+there is a positive integer \(k\) and string \(u_1, \ldots, u_k \in \left(V \cup \Sigma\right)^*\)
+such that \(u = u_1 \Rightarrow u_2 \Rightarrow \ldots \Rightarrow u_k = v\), that is,         the
+$\Rightarrow$ operator is applied \(k-1\) times.</p>
+
+<p>To express that the operator is applied zero or more times to derive \(v\) from \(u\) one
+   writes \(u \stackrel{*}{\Rightarrow} v\).</p>
+<p>To express that the operator is applied zero or one times  to derive \(v\) from \(u\) one
+   writes \(u \stackrel{?}{\Rightarrow} v\).</p>
+<p>To express that the operator is applied one or more times  to derive \(v\) from \(u\) one
+   writes \(u \stackrel{+}{\Rightarrow} v\).<p>
+
+<p>The language \(L(G)\) of a grammar \(G = \left(V,\Sigma,P,S\right)\) is the set
+\[
+L(G) = \left\{ w \in \Sigma^* : S \stackrel{*}{\Rightarrow} w \right\}
+\]
+</p>
+
+<h3>2.3 Notational convenience</h3>
+<p>One may use a colon instead of the rightarrows such that \(\alpha \rightarrow \beta\) becomes \(\alpha\) <code>:</code> \(\beta\).</p>
+
+<p>Terminals which are Unicode code points may be written starting with a shebang <code>#</code> followed by a hexadecimal number denoting the code point.<p>
+
+<div class="box">
+<div class="header">
+Example
+</div>
+<div class="body">
+<p>The following productions define non-terminals for the Unicode code symbols "PLUS SIGN" and "MINUS SIGN":</p>
+<my-formula-box class="align-left">
+\[\begin{aligned}
+&\text{/* \#2b is also known as "PLUS SIGN" */}\\
+&\text{PlusSign} : \text{\#2b}\\
+&\text{/* \#2d is also known as "MINUS SIGN" */}\\
+&\text{MinusSign} : \text{\#2b}\\
+\end{aligned}\]
+</my-formula-box>
+</div>
+</div>
+
+<p>The syntax <code>{x}</code> on the right-hand side of a production denotes zero or more occurrences of <code>x</code>.</p>
+
+<div class="box">
+<div class="header">
+Example
+</div>
+<div class="body">
+<p>The following production defines a possibly empty sequence of digits:</p>
+<my-formula-box class="align-left">
+\[\begin{aligned}
+&\text{ZeroOrMoreDigits}:\left\{\text{Digit}\right\}
+\end{aligned}\]
+</my-formula-box>
+</div>
+</div>
+
+<p>The syntax <code>[x]</code> on the right-hand side of a production denotes zero or one occurrences of <code>x</code>.</p>
+
+<div class="box">
+<div class="header">Example</div>
+<div class="body">
+<p>The following productions denotes a possible definition of an integer numeral.
+It consists of an optional sign followed by a digit followed by zero or more digits:</p>
+<my-formula-box class="align-left">
+\[\begin{aligned}
+&\text{Integer}:\left[\text{Sign}\right]\;\text{Digit}\;\text{ZeroOrMoreDigits}
+\end{aligned}\]
+</my-formula-box>
+</div>
+</div>
+
+    <h2 id="computer-arithmetic">3 Computer Arithmetic</h2>
+
+<h3>Natural Number</h3>
+<p>Natural numbers can be represented by a sequence of bits \(x_{n-1} \ldots x_{0}, n > 0\).
+To obtain the natural number it represents compute \(\sum_{i=0}^{n-1} x_{i} 2^{i}\).
+For example, the number \(5\) can be represented by \(101\) that is \(1 \cdot 2^2 + 0 \cdot 2^1 + 1 \cdot 2^0 = 5\).
+We can prepend zeroes to a binary string without changing the value it represents by the above formula.
+For example 101, 0101, 00101, ... all represent the value 5 by the above formula.
+</p>
+
+<h3>Addition, Subtraction, and Multiplication</h3>
+<ul>
+  <li>Let \(x\) and \(y\) be natural number binary strings representing natural numbers \(a\) and \(b\).</li>
+  <li>Let the width of \(x\) be \(n\) and the width of \(y\) be \(m\), respectively, where \(n, m &gt; 0\).</li>
+  <li>Let \(k = \textit{max}\left(n, m\right)\).</li>
+  <li>
+  Compute
+  \[
+  c := a \circ b \mod 2^k
+  \]
+  where \(\circ\) is the operation \(+\) (for addition), \(-\) (for subtraction), and \(\circ\) (for multiplication).
+  </li>
+  <li>
+  \(c\) is in the bounds of \([0,2^k-1]\) and hence can be represented by binary string of \(k\) bits.
+  </li>
+  <li>
+  The result of the operation is \(z\) the binary string representation of \(c\) by \(k\) bits.
+  </li>
+</ul>
+
+<h3>Division</h3>
+<ul>
+  <li>Let \(x\) and \(y\) be binary strings representing natural numbers \(a\) and \(b\).</li>
+  <li>Let the width of \(x\) be \(n\) and the width of \(y\) be \(m\), respectively, where \(n, m &gt; 0\).</li>
+  <li>Let \(k = \textit{max}\left(n, m\right)\).</li>
+  <li>Perform a width-extension to \(k\) to obtain \(x'\) and \(y'\), respectively.</li>
+  <li>
+  Compute
+  \[
+  c := \textit{floor}(a / b) \mod 2^k*
+  \]
+  where \(/\) is the normal division and \(\textit{floor}\) is the floor function. Observe that \(mod 2^k\) is redundant.
+  Furthermore this is undefined if \(b is zero\).
+  \(c\) is representable by a binary string of length \(k\).
+  </li>
+  <li>
+  The result of the operation is either undefined or \(z\) the representation of \(c\) by \(k\) bits.
+  </li>
+</ul>
+
+<h3>Integer Numbers</h3>
+<p>Integer numbers can represented by sequences of bits \(x_{n-1} \ldots x_{0}, n > 1\).
+To obtain the integer number it represents compute \(- x_{n-1} 2^{n-1} + \sum_{i=0}^{n-2} x_i 2^i\).
+</p>
+
+<h3>Addition and Multiplication</h3>
+<ul>
+  <li>
+  Let \(x\) and \(y\) be integer number binary strings representing integer numbers \(a\) and \(b\).
+  </li>
+  <li>
+  Perform sign-extension of \(x\) and \(y\) to obtain \(x'\) and \(y'\), respectively.
+  </li>
+  <li>
+  Let the width of \(x'\) be \(n\) and the width of \(y'\) be \(m\), respectively, where \(n, m &gt; 0\).
+  </li>
+  <li>
+  Let \(k = \textit{max}\left(n, m\right)\).
+  </li>
+  <li>
+  Compute
+  \[
+  c := a \circ b \mod 2^k
+  \]
+  where \(\circ\) is the operation \(+\) (for addition) and \(\circ\) (for multiplication).
+  \(c\) is in the bounds of \([-(2^{k-1}), (2^{k-1} -1)]\) and hence can be represented by \(k\) bits.
+  </li>
+  <li>
+  The result of the operation is \(z\) the representation of \(c\) by \(k\) bits.
+  </li>
+</ul>
+
+<h3>Division</h3>
+<ul>
+  <li>Let \(x\) and \(y\) be integer number binary strings representing integer numbers \(a\) and \(b\).</li>
+  <li>Perform sign-extension of \(x\) and \(y\) to obtain \(x'\) and \(y'\), respectively.</li>
+  <li>Let the width of \(x'\) be \(n\) and the width of \(y'\) be \(m\), respectively, where \(n, m &gt; 0\).</li>
+  <li>Let \(k = \textit{max}\left(n, m\right)\).</li>
+  <li>
+  Compute
+  \[
+  c := \textit{floor}(a / b) \mod 2^k
+  \]
+  where \(/\) is the normal division and \(\textit{floor}\) is the floor function. Observe that \(mod 2^k\) is redundant.
+  Furthermore this is undefined if \(b is zero\).
+  </li>
+  <li>
+  \(c\) is in the bounds of \([-(2^{k-1}), (2^{k-1} -1)]\) and hence can be represented by \(k\) bits.
+  </li>
+  <li>The result of the operation is \(z\) the representation of \(c\) by \(k\) bits.</li>
+</ul>
+
+  </div>
+  <div class="right-column">
+    <nav>
+    </nav>
+  </div>
+  </main>
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column"></div>
+    <div class="right-column">
+      <div>Website maintained by Michael Heilmann.</div>
+      <div>Last modified on 14 September 2026.</div>
+    </div>
+  </footer>
+</body>
+</html>

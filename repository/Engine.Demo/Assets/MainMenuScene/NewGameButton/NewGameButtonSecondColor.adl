@@ -1,0 +1,7 @@
+{
+  type : "Color",
+  name : "MainMenuScene.NewGameButtonSecondColor",
+  red : 128,
+  green : 255,
+  blue : 128,
+}

@@ -1,3 +1,4 @@
+<li>Collection</li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Collection_clear">Arcadia_Collection_clear</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Collection_getSize">Arcadia_Collection_getSize</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Collection_isEmpty">Arcadia_Collection_isEmpty</a></li>

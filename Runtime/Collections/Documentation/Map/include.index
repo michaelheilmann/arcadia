@@ -1,3 +1,4 @@
+<li>Map</li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Map">Arcadia_Map</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Map_get">Arcadia_Map_get</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Map_set">Arcadia_Map_set</a></li>

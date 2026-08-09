@@ -1,0 +1,3 @@
+@{include("header.i")}
+<h2>Documentation</h2>
+@{include("footer.i")}

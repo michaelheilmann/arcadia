@@ -1,4 +1,4 @@
-# AppVeyor configuration for AppVeyor project "primordialmachine".
+# AppVeyor configuration for AppVeyor project "Arcadia".
 clone_depth: 1
 
 # Build worker image (VM template).
@@ -42,9 +42,9 @@ before_build:
 
         cd ${env:BUILD_DIRECTORY}; cmake -D"Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled"=TRUE -D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=TRUE ${env:CLONE_DIRECTORY}\CMakeLists.txt
 
-        ${env:RELEASE_NAME}="michaelheilmann.com-linux-$(${env:APPVEYOR_REPO_BRANCH})-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())"
+        ${env:RELEASE_NAME}="arcadia-linux-$(${env:APPVEYOR_REPO_BRANCH})-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())"
 
-        ${env:ARCHIVE_FILENAME}="michaelheilmann.com-${env:APPVEYOR_REPO_BRANCH}";
+        ${env:ARCHIVE_FILENAME}="arcadia-${env:APPVEYOR_REPO_BRANCH}";
         ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}-linux"
 
         ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())";
@@ -74,10 +74,10 @@ matrix:
 deploy:
     release: $(RELEASE_NAME)
     tag: $(RELEASE_NAME)
-    description: 'michaelheilmann.com $(APPVEYOR_REPO_BRANCH) branch v$(APPVEYOR_BUILD_VERSION)'
+    description: "Michael Heilmann's Arcadia $(APPVEYOR_REPO_BRANCH) branch v$(APPVEYOR_BUILD_VERSION)"
     provider: GitHub
     auth_token:
-        secure: iTg7jon0UCvoGT5y2flVxPISxfLS3oU+/gtUJ4KpwKU+PGCN0rLFQDJUFEMGsY9kTpCd/smtYBT4BxClRpkc0VYZPPlyYQWnN6iSDzJOd8gp7pY1OPbzPGBS/OZiuNZa # encrypted token from GitHub
+        secure: iTg7jon0UCvoGT5y2flVxD+NxPVU7uUV5dGZYhUuaUmMZHW1Fa35A34q4ab1AH+26aSnKZMPggvjms206GEmcEF/ZkZbXhi9fniN2fHXjmwKe6zJhWBwBl+/7B+qwLPl # encrypted token from GitHub
         #artifact: $(ARCHIVE_FILENAME) # name (not path) of the artifact
     draft: true
     prerelease: false

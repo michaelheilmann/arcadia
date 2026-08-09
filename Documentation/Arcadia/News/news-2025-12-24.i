@@ -28,7 +28,7 @@
       <li>opengl</li>
       <li>zlib</li>
     </ul>
-    <p>The binary archive is available as a <a href="https://github.com/michaelheilmann/michaelheilmann.com-dependencies/releases/tag/michaelheilmann.com-dependencies-v1.0.62">release</a>.</p>
+    <p>The binary archive is available as a <a href="@{arcadiaGitHubAddress}-dependencies/releases/tag/michaelheilmann.com-dependencies-v1.0.62">release</a>.</p>
 
   </div>
 

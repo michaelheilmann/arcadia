@@ -1,0 +1,3263 @@
+  <!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/cxx-doc.css?v=5'>
+  <link rel='canonical' href='https://michaelheilmann.com/Arcadia/Ring2/'>
+  <title>Michael Heilmann's Arcadia Ring 2</title>
+  <style>
+  </style>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div style="display:none">
+\[
+\newcommand{\ListType}{{\text{List}}}
+\newcommand{\ListEmpty}{{\left[\right]}}
+\newcommand{\ListLength}[1]{{\ell\left(#1\right)}}
+\newcommand{\ListAt}[2]{{{#1}_{#2}}}
+\]
+</div>
+
+    <div>
+    <a href="https://michaelheilmann.com/">Home</a>
+    </div>
+  </header>
+<main>
+  <div class="left-column"></div>
+
+
+  <div class="center-column">
+  <h1>Michael Heilmann's Arcadia Ring 2</h1>
+  <p>
+  This is the documentation for Michael  Heilmann's Arcadia Ring 2.
+  Arcadia Ring 2 facilitates the creation of C programs - in particular interpreters - that are portable, maintainable, as well as safe.
+  Arcadia Ring 2 is available at <a href="https://michaelheilmann.com/Arcadia/Ring1">michaelheilmann.com/Arcadia/Ring2</a>.
+  </p>
+  
+  <p>Features:</p>
+  <ul>
+    <li>UTF-8 strings and string buffers, decoders and encoders</li>
+    <li>32 and 64 Bit IEEE 754 floating point <=> UTF-8 string conversions based on the works of Steele &amp; White, Gay, Clinger, Lemire &amp; Musthak.</li>
+    <li>Other scalar types (Void, Boolean, Integer, Natural) <=> UTF-8 string conversions</li>
+    <li>aggregates (array lists, array deques, hash maps)</li>
+    <li>File System implementation for Windows and Linux supporting creation and deletation of files, reading and writing files, enumerating contents of folder</li>  
+  </ul>
+
+<h2>Files</h2>
+<p>
+You can find the sources of Arcadia Ring 2 in my GitHub repository <a href="https://github.com/michaelheilmann/arcadia">https://github.com/michaelheilmann/arcadia</a>.
+The subdirectory of Arcadia Ring 2 in the repository is here <a href="https://github.com/michaelheilmann/arcadia/tree/main/Runtime/Ring2">https://github.com/michaelheilmann/arcadia/tree/main/Runtime/Ring2</a>.</p>
+</p>
+
+<ul>
+  <li>The (sources of the) library resides in the directory
+  <a href="https://github.com/michaelheilmann/arcadia/tree/main/Runtime/Ring2/Library">https://github.com/michaelheilmann/arcadia/tree/main/Runtime/Ring2/Library</a>
+  </li>
+  <li>The (sources of) tests reside in the directory
+  <a href="https://github.com/michaelheilmann/arcadia/tree/main/Arcadia/Ring2/Tests">https://github.com/michaelheilmann/arcadia/tree/main/Runtime/Ring2/Tests</a>
+  </li>
+  <li>The (sources of this very documentation you are reading) documentation reside in the directory
+  <a href="https://github.com/michaelheilmann/arcadia/tree/main/Runtime/Ring2/Documentation">https://github.com/michaelheilmann/arcadia/tree/main/Runtime/Ring2/Documentation</a>
+  </li>
+</ul>
+
+<p>
+Arcadia Ring 2 supports various platforms (including but not restricted to Windows, Linux, and many more), however, we currently only officially support Windows.
+For instructions on how to build, test, and use Arcadia Ring 1,
+refer to <a href="https://github.com/michaelheilmann/arcadia/tree/main/README.md">README.md</a> in the root folder of the repository.
+</p>
+
+<h2>Further References</h2>
+<p>Arcadia Ring 2 relies on <a href="https://michaelheilmann.com/Arcadia/Ring1">Arcadia Ring 1</a> and <a href="https://michaelheilmann.com/Arcadia/ARMS">Arcadia ARMS</a>.</p>
+
+  <h2>Documentation</h2>
+
+<h3>Objects</h3>
+
+<section class="cxx entity object">
+<h1 id="Arcadia_Object">Arcadia_Object</h1>
+<p>
+<code>Arcadia_Object</code> is the ancestor type from which so called object types derive from.
+</p>
+<p>
+<code>Arcadia_Object</code> types are allocated on the <em>heap</em> and can are referenced by <code>Arcadia_Object*</code> pointers.
+</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Object_getHash">Arcadia_Object_getHash</h1>
+
+  <my-signature><code>
+  Arcadia_SizeValue<br>
+  Arcadia_Object_getHash<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Object* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the hash of this <code>Arcadia_Object</code> or derived type value.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_Object* self</div>
+      <div>A pointer to this code>Arcadia_Object</code> or derived type value.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The hash of this code>Arcadia_Object</code> or derived type value.</p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Object_isEqualTo">Arcadia_Object_isEqualTo</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_Object_isEqualTo_pn<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Object* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value other<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if this <code>Arcadia_Object</code> or derived type value is equal to the specified value <code>other</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_Object* self</div>
+      <div>A pointer to this code>Arcadia_Object</code> or derived type value.</div>
+    </div>
+    <div>
+      <div>Arcadia_Value other</div>
+      <div>The other value.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if this code>Arcadia_Object</code> or derived type value is equal to the other value.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Object_isNotEqualTo">Arcadia_Object_isNotEqualTo</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_Object_isEqualTo_pn<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Object* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value other<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if this <code>Arcadia_Object</code> or derived type value is not equal to the specified value <code>other</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_Object* self</div>
+      <div>A pointer to this code>Arcadia_Object</code> or derived type value.</div>
+    </div>
+    <div>
+      <div>Arcadia_Value other</div>
+      <div>The other value.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if this code>Arcadia_Object</code> or derived type value is not equal to the other value.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+</section>
+
+<section class="cxx entity object">
+<h1 id="Arcadia_ByteArray">Arcadia_ByteArray</h1>
+<p><code>Arcadia_ByteArray</code> extends <code>Arcadia_Object</code>.</p>
+<p><code>Arcadia_ByteArray</code> represents a mutable sequence of Bytes.</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_getAt">Arcadia_ByteArray_getAt</h1>
+
+  <my-signature><code>
+  Arcadia_Natural8Value<br>
+  Arcadia_ByteArray_getAt<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the Byte value at the specified index.
+  Remarks: The size of a Byte array is the length of the Byte sequence it contains.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArray* self</div>
+      <div>A pointer to this Byte array.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue index</div>
+      <div>The index. Must be within the bounds <code>[0,n)</code> where <code>n</code> is the size of this Byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The Byte value.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_getBytes">Arcadia_ByteArray_getBytes</h1>
+
+  <my-signature><code>
+  void const*<br>
+  Arcadia_ByteArray_getBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get a pointer to the Bytes in this Byte array.
+  Warning: The Bytes must not be modified. The pointer is valid only as long as the Byte array object is valid and is not modified.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArray* self</div>
+      <div>A pointer to this Byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the Bytes in this Byte array.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_getNumberOfBytes">Arcadia_ByteArray_getNumberOfBytes</h1>
+
+  <my-signature><code>
+  Arcadia_SizeValue<br>
+  Arcadia_ByteArray_getNumberOfBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the number of Bytes in this Byte array.
+  Remarks: This is an alias of Arcadia_ByteArray_getSize.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArray* self</div>
+      <div>A pointer to this Byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The size of this Byte array.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_getSize">Arcadia_ByteArray_getSize</h1>
+
+  <my-signature><code>
+  Arcadia_SizeValue<br>
+  Arcadia_ByteArray_getSize<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the size of this Byte array.
+  Remarks:
+  The size of a Byte array is the number of Bytes in that Byte array.
+  This is an alias of Arcadia_ByteArray_getNumberOfBytes.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArray* self</div>
+      <div>A pointer to this Byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The size of this Byte array.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_isEmpty">Arcadia_ByteArray_isEmpty</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_ByteArray_isEmpty<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Get if this Byte array is empty.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArray* self</div>
+      <div>A pointer to this Byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p><code>Arcadia_BooleanValue_True</code> if this Byte array is empty. <code>Arcadia_BooleanValue_False</code> otherwise.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_create">Arcadia_ByteArrayBuilder_create</h1>
+
+  <my-signature><code>
+  Arcadia_ByteArrayBuilder*<br>
+  Arcadia_ByteArrayBuilder_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create a Byte buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_ByteArrayBuilder</code> object.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity object">
+<h1 id="Arcadia_ByteArrayBuilder">Arcadia_ByteArrayBuilder</h1>
+<p><code>Arcadia_ByteArrayBuilder</code> extends <code>Arcadia_Object</code>.</p>
+<p><code>Arcadia_ByteArrayBuilder</code> represents a mutable sequence of Bytes.</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_clear">Arcadia_ByteArrayBuilder_clear</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_ByteArrayBuilder_clear<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Set the number of elements of this Byte buffer to zero.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_create">Arcadia_ByteArrayBuilder_create</h1>
+
+  <my-signature><code>
+  Arcadia_ByteArrayBuilder*<br>
+  Arcadia_ByteArrayBuilder_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create a Byte buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_ByteArrayBuilder</code> object.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_getBytes">Arcadia_ByteArrayBuilder_getBytes</h1>
+
+  <my-signature><code>
+  void const*<br>
+  Arcadia_ByteArrayBuilder_getBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get a pointer to the Bytes in this Byte buffer.
+  Warning: The Bytes must not be modified. The pointer is valid only as long as the Byte buffer object is valid and is not modified.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the Bytes in this Byte buffer.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_getSize">Arcadia_ByteArrayBuilder_getNumberOfBytes</h1>
+
+  <my-signature><code>
+  Arcadia_SizeValue<br>
+  Arcadia_ByteArrayBuilder_getNumberOfBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the number of Bytes in this Byte buffer.
+  Remarks: This is an alias of Arcadia_ByteArrayBuilder_getSize.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The size of this Byte buffer.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_getSize">Arcadia_ByteArrayBuilder_getSize</h1>
+
+  <my-signature><code>
+  Arcadia_SizeValue<br>
+  Arcadia_ByteArrayBuilder_getSize<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the size of this Byte buffer.
+  Remarks:
+  The size of a Byte buffer is the number of Bytes in that Byte buffer.
+  This is an alias of Arcadia_ByteArrayBuilder_getNumberOfBytes.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The size of this Byte buffer.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_insertBackBytes">Arcadia_ByteArrayBuilder_insertBackBytes</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_ByteArrayBuilder_insertBackBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Append Bytes to this Byte buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+    <div>
+      <div>void const* bytes</div>
+      <div>A pointer to an array of <code>n</code> Bytes.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>p</code>.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>bytes</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_insertBytes">Arcadia_ByteArrayBuilder_insertBytes</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_ByteArrayBuilder_insertBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* p,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue n<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Insert Bytes into this Byte buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue index</div>
+      <div>The index at which to insert the Bytes. Must be within the bounds of <code>[0,n)</code> where <code>n</code> is the size of this Byte buffer.</div>
+    </div>
+    <div>
+      <div>void const* p</div>
+      <div>A pointer to an array of <code>n</code> Bytes.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue n</div>
+      <div>The number of Bytes in the array pointed to by <code>p</code>.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>bytes</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_insertFrontBytes">Arcadia_ByteArrayBuilder_insertFrontBytes</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_ByteArrayBuilder_insertFrontBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* p,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue n<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Prepend Bytes to this Byte buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+    <div>
+      <div>void const* p</div>
+      <div>A pointer to an array of <code>n</code> Bytes.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue n</div>
+      <div>The number of Bytes in the array pointed to by <code>p</code>.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>bytes</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_endsWith_pn">Arcadia_ByteArrayBuilder_endsWith_pn</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_ByteArrayBuilder_endsWith_pn<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder const* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if a sequence of Bytes is a suffix of this Byte buffer's sequence of Bytes.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+    <div>
+      <div>void const* bytes</div>
+      <div>A pointer to an array of <code>n</code> Bytes.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>p</code>.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if the sequence of Bytes is a suffix of this byte buffer's sequence of Bytes.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_startsWith_pn">Arcadia_ByteArrayBuilder_startsWith_pn</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_ByteArrayBuilder_startsWith_pn<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if a sequence of Bytes is a prefix of this Byte buffer's sequence of Bytes.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+    <div>
+      <div>void const* bytes</div>
+      <div>A pointer to an array of <code>n</code> Bytes.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>p</code>.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if the sequence of Bytes is a prefix of this byte buffer's sequence of Bytes.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_isEqualTo_pn">Arcadia_isEqualTo_pn</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_ByteArrayBuilder_isEqualTo_pn<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if a sequence of Bytes is this Byte buffer's sequence of Bytes.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+    <div>
+      <div>void const* bytes</div>
+      <div>A pointer to an array of <code>n</code> Bytes.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>p</code>.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if the sequence of Bytes is this byte buffer's sequence of Bytes.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_isEqualTo">Arcadia_ByteArrayBuilder_isEqualTo</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_ByteArrayBuilder_isEqualTo<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder const* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder const* other<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Compare this Byte buffer with another Byte buffer for equality.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder const* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder const* other</div>
+      <div>A pointer to the other Byte buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if this Byte buffer is equal to the other Byte buffer.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_getAt">Arcadia_ByteArrayBuilder_getAt</h1>
+
+  <my-signature><code>
+  Arcadia_Natural8Value<br>
+  Arcadia_ByteArrayBuilder_getAt<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder const* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the Byte value at the specified index.
+  Remarks: The size of a Byte buffer is the length of the Byte sequence it contains.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue index</div>
+      <div>The index. Must be within the bounds <code>[0,n)</code> where <code>n</code> is the size of this Byte buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The Byte value.</p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_isEmpty">Arcadia_ByteArrayBuilder_isEmpty</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_ByteArrayBuilder_isEmpty<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Get if this Byte buffer is empty.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p><code>Arcadia_BooleanValue_True</code> if this Byte buffer is empty. <code>Arcadia_BooleanValue_False</code> otherwise.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_swap">Arcadia_ByteArrayBuilder_swap</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_ByteArrayBuilder_swap<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* other<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Swap the contents of this Byte buffer with the contents of another Byte buffer.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to the other Byte buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>other</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity object">
+<h1 id="Arcadia_String">Arcadia_String</h1>
+<p><code>Arcadia_String</code> extends <code>Arcadia_Object</code>.</p>
+<p><code>Arcadia_String</code> represents an immutable sequence of Unicode code points in UTF8 encoding.</p>
+
+<p>Arcadia_String derives fro Arcadia_Object and overrides the following methods:</p>
+<ul>
+  <li>Arcadia_Object_isEqualTo</li>
+  <li>Arcadia_Object_isNotEqualTo</li>
+  <li>Arcadia_Object_getHash</li>
+</ul>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromBoolean">
+    Arcadia_String_createFromBoolean
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromBoolean<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_BooleanValue booleanValue<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_BooleanValue</code> value.
+    The <code>Arcadia_BooleanValue</code> value is converted to the strings <code>true</code>, if its value is <code>Arcadia_BooleanValue_True</code>, and <code>false</code>, if its value is <code>Arcadia_BooleanValue_False</code>, respectively.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_BooleanValue booleanValue</td><td>The <code>Arcadia_BooleanValue</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromInteger16">
+    Arcadia_String_createFromInteger16
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromInteger16<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Integer16Value integer16Value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_Integer16Value</code> value.
+    The <code>Arcadia_Integer16Value</code> value is converted to the decimal integer number literal string.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_Integer16Value integer16Value</td><td>The <code>Arcadia_Integer16Value</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromInteger32">
+    Arcadia_String_createFromInteger32
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromInteger32<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Integer32Value integer32Value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_Integer32Value</code> value.
+    The <code>Arcadia_Integer32Value</code> value is converted to the decimal integer number literal string.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_Integer32Value integer32Value</td><td>The <code>Arcadia_Integer32Value</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromInteger64">
+    Arcadia_String_createFromInteger64
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromInteger64<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Integer64Value integer64Value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_Integer64Value</code> value.
+    The <code>Arcadia_Integer64Value</code> value is converted to the decimal integer number literal string.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_Integer64Value integer64Value</td><td>The <code>Arcadia_Integer64Value</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromInteger8">
+    Arcadia_String_createFromInteger8
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromInteger8<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Integer8Value integer8Value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_Integer8Value</code> value.
+    The <code>Arcadia_Integer8Value</code> value is converted to the decimal integer number literal string.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_Integer8Value integer8Value</td><td>The <code>Arcadia_Integer8Value</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromNatural16">
+    Arcadia_String_createFromNatural16
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromNatural16<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Natural16Value natural64Value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_Natural16Value</code> value.
+    The <code>Arcadia_Natural16Value</code> value is converted to the decimal natural number literal string.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_Natural16Value natural16Value</td><td>The <code>Arcadia_Natural16Value</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromNatural32">
+    Arcadia_String_createFromNatural32
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromNatural32<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Natural32Value natural64Value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_Natural32Value</code> value.
+    The <code>Arcadia_Natural32Value</code> value is converted to the decimal natural number literal string.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_Natural32Value natural32Value</td><td>The <code>Arcadia_Natural32Value</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromNatural64">
+    Arcadia_String_createFromNatural64
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromNatural64<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Natural64Value natural64Value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_Natural64Value</code> value.
+    The <code>Arcadia_Natural64Value</code> value is converted to the decimal natural number literal string.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_Natural64Value natural64Value</td><td>The <code>Arcadia_Natural64Value</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromNatural8">
+    Arcadia_String_createFromNatural8
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromNatural8<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value natural64Value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_Natural8Value</code> value.
+    The <code>Arcadia_Natural8Value</code> value is converted to the decimal natural number literal string.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_Natural8Value natural8Value</td><td>The <code>Arcadia_Natural8Value</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromReal32">
+    Arcadia_String_createFromReal32
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromReal32<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Real32Value real32Value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_Real3lValue</code> value.
+    The <code>Arcadia_Real32Value</code> value is converted to the decimal real number literal string.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_Real32Value real32Value</td><td>The <code>Arcadia_Real32Value</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromReal64">
+    Arcadia_String_createFromReal64
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromReal64<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Real64Value real64Value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_Real64Value</code> value.
+    The <code>Arcadia_Real64Value</code> value is converted to the decimal real number literal string.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_Real64Value real64Value</td><td>The <code>Arcadia_Real64Value</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_createFromVoid">
+    Arcadia_String_createFromVoid
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_createFromBoolean<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_VoidValue voidValue<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an <code>Arcadia_VoidValue</code> value.
+    The <code>Arcadia_VoidValue</code> value is converted to the string <code>void</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_VoidValue voidValue</td><td>The <code>Arcadia_VoidValue</code> to be converted into the string value.</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_create_pn">
+    Arcadia_String_create_pn
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_create_pn<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ImmutableByteArray* immutableByteArray<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a string from an immutable Byte array.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_ImmutableByteBuffer* immutableByteArray</td><td>A pointer to the <code>Arcadia_ImmutableByteArray</code> object</td></tr>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_String</code> object.</p>
+
+  </section>
+
+  <section class="cxx errors">
+
+    <h1>Errors</h1>
+
+    <tr><td>Arcadia_Status_ArgumentValueInvalid</td><td><code>immutableByteArray</code> is a null pointer.</td></tr>
+    <tr><td>Arcadia_Status_EncodingInvalid     </td><td>The sequence of Bytes does not represented a UTF-8-NO-BOM string.</td></tr>
+
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_create">
+    Arcadia_String_create
+  </h1>
+
+  <my-signature><code>
+    Arcadia_String*<br>
+    Arcadia_String_create<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+
+    <p>Create a string from a value.</p>
+
+    <p>The following values are accepted:</p>
+
+    <p>
+    The specified value may contain a <code>Arcadia_ByteBuffer</code> object.
+    In that case, the string is created from the Bytes of the Byte buffer object.
+    A <code>Arcadia_Status_EncodingInvalid</code> is raised if the Byte sequence of that <code>Arcada_ByteBuffer</code> object is not a UTF8 Byte sequence.
+    </p>
+
+    <p>
+    The specified value may contain a <code>Arcadia_ImmutableByteArray</code> object.
+    In that case, the string is created from the <code>Arcadia_ImmutableByteArray</code> object.
+    A <code>Arcadia_Status_EncodingInvalid</code> is raised if the Byte sequence of that <code>Arcada_ImmutableByteArray</code> object is not a UTF8 Byte sequence.
+    </p>
+
+    <p>
+    The specified value may contain a <code>Arcadia_String</code> object.
+    In that case, the string is created from the <code>Arcadia_String</code> object.
+    </p>
+
+    <p>
+    The specified value may contain a <code>Arcadia_StringBuffer</code> object.
+    In that case, the string is created from the <code>Arcadia_StringBuffer</code> object.
+    </p>
+
+    <p>
+    The specified value may contain a <code>Arcadia_ImmutableUtf8String</code> object.
+    In that case, the string is created from the <code>Arcadia_ImmutableUtf8String</code> object.
+    </p>
+
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div>
+      <div>
+        <a href="#">Arcadia_Thread</a>* thread
+      </div>
+      <div>
+        A pointer to the <code>Arcadia_Thread</code> object.
+      </div>
+    </div>
+    <div>
+      <div>Arcadia_Value value</div>
+      <div>The value.</div>
+    </div>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+    <p>A pointer to the string.</p>
+
+  </section>
+
+  <section class="cxx errors">
+
+    <h1>Errors</h1>
+
+    <div>
+      <div>
+        Arcadia_Status_ArgumentTypeInvalid
+      </div>
+      <div>
+        The value is not of type <code>Arcadia_ByteBuffer</code>, <code>Arcadia_String</code>, <code>Arcadia_StringBuffer</code>, or <code>Arcadia_ImmutableByteArray</code>.
+      </div>
+    </div>
+    <div>
+      <div>
+        Arcadia_Status_EncodingInvalid
+      </div>
+      <div>
+        The value is a <code>Arcadia_ByteBuffer</code> or <code>Arcadia_ImmutableByteArray</code>.
+        However, the Byte sequence of that <code>Arcadia_ByteBuffer</code> or <code>Arcadia_ImmutableByteArray</code> object is not a UTF8 Byte sequence.
+      </div>
+    </div>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_endsWith_pn">Arcadia_String_endsWith_pn</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_String_endsWith_pn<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if a sequence of Bytes is a suffix of this string's sequence of Bytes.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+    <div>
+      <div>void const* bytes</div>
+      <div>A pointer to an array of <code>n</code> Bytes.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>p</code>.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</my-return-value>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if the sequence of Bytes is a suffix of this string's sequence of Bytes.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_startsWith_pn">Arcadia_String_startsWith_pn</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_String_startsWith_pn<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if a sequence of Bytes is a prefix of this string's sequence of Bytes.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+    <div>
+      <div>void const* bytes</div>
+      <div>A pointer to an array of <code>n</code> Bytes.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>p</code>.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if the sequence of Bytes is a prefix of this string's sequence of Bytes.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_isEqualTo_pn">Arcadia_String_isEqualTo_pn</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_String_isEqualTo_pn<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if a sequence of Bytes is this string's sequence of Bytes.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+    <div>
+      <div>void const* bytes</div>
+      <div>A pointer to an array of <code>n</code> Bytes.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>p</code>.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if the sequence of Bytes is this string's sequence of Bytes.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_getNumberOfBytes">Arcadia_String_getNumberOfBytes</h1>
+
+  <my-signature><code>
+  Arcadia_SizeValue<br>
+  Arcadia_String_getNumberOfBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the size, in Bytes, of this string.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The size, in Bytes, of this string.</p>
+  </section>
+
+</section>
+
+                                                                           
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_getByteAt">Arcadia_String_getByteAt</h1>
+
+  <my-signature><code>
+  Arcadia_Natural8Value<br>
+  Arcadia_String_getByteAt<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the Byte value at the specified index.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue index</div>
+      <div>The index. Must be within the bounds <code>[0,n)</code> where <code>n</code> is the size, in Bytes, of this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The Byte value.</p>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toBoolean">Arcadia_String_toBoolean</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_String_toBoolean<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as boolean literal and convert the boolean represented by that literal into an <code>Arcadia_BooleanValue</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The boolean value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <tr>
+      <td>Arcadia_Status_ArgumentTypeInvalid</td>
+      <td><code>self</code> is a null pointer.</td>
+    </tr>
+    <tr>
+      <td>Arcadia_Status_ConversionFailed</td>
+      <td>The symbols of this string cannot be interpreted as a boolean literal. Valid boolean literals are <code>true</code> and <code>false</code>, both case sensitve.</td>
+    </tr>
+  </<section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toInteger16">Arcadia_String_toInteger16</h1>
+
+  <my-signature><code>
+  Arcadia_Integer16Value<br>
+  Arcadia_String_toInteger16<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as decimal integer literal and convert the number represented by that integer literal into an <code>Arcadia_Integer16Value</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_String* self</td><td>A pointer to this string.</td></tr>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The integer value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ConversionFailed</div>
+      <div>The symbols of this string cannot be interpreted as a decimal integer literal or
+      the number represented by the literal cannot be represented a value of type <code>Arcadia_Integer16Value</code>.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toInteger32">Arcadia_String_toInteger32</h1>
+
+  <my-signature><code>
+  Arcadia_Integer32Value<br>
+  Arcadia_String_toInteger32<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as decimal integer literal and convert the number represented by that literal into an <code>Arcadia_Integer32Value</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The integer value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ConversionFailed</div>
+      <div>The symbols of this string cannot be interpreted as a decimal integer literal or
+      the number represented by the literal cannot be represented a value of type <code>
+      Arcadia_Integer32Value</code>.
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toInteger64">Arcadia_String_toInteger64</h1>
+
+  <my-signature><code>
+  Arcadia_Integer64Value<br>
+  Arcadia_String_toInteger64<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as decimal integer literal and convert the number represented by that literal into an <code>Arcadia_Integer64Value</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The integer value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ConversionFailed</div>
+      <div>The symbols of this string cannot be interpreted as a decimal integer literal or
+           the number represented by the literal cannot be represented a value of type <code>
+           Arcadia_Integer64Value</code>.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toInteger8">Arcadia_String_toInteger8</h1>
+
+  <my-signature><code>
+  Arcadia_Integer8Value<br>
+  Arcadia_String_toInteger8<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as decimal integer literal and convert the number represented by that literal into an <code>Arcadia_Integer8Value</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <div>
+      <div>Arcadia_String* self</div><div>A pointer to this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The integer value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>self</code> is a null pointer.</dov>
+    </div>
+    <div>
+      <div>Arcadia_Status_ConversionFailed</div>
+      <div>The symbols of this string cannot be interpreted as a decimal integer literal or
+      the number represented by the integer literal cannot be represented a value of type <code>Arcadia_Integer8Value</code>.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toNatural16">Arcadia_String_toNatural16</h1>
+
+  <my-signature><code>
+  Arcadia_Natural16Value<br>
+  Arcadia_Stringg_toNatural16<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as decimal natural literal and convert the number represented by that literal into an <code>Arcadia_Natural16Value</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The natural value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ConversionFailed</td>
+      <div>The symbols of this string cannot be interpreted as a decimal natural literal or
+      the number represented by the literal cannot be represented a value of type <code>Arcadia_Natural16Value</code>.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toNatural32">Arcadia_String_toNatural32</h1>
+
+  <my-signature><code>
+  Arcadia_Natural32Value<br>
+  Arcadia_String_toNatural32<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as decimal natural literal and convert the number represented by that literal into an <code>Arcadia_Natural32Value</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_String* self</td><td>A pointer to this string.</td></tr>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The natural value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ConversionFailed</div>
+      <div>The symbols of this string cannot be interpreted as a decimal natural literal or
+      the number represented by the literal cannot be represented a value of type <code>Arcadia_Natural32Value</code>.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toNatural64">Arcadia_String_toNatural64</h1>
+
+  <my-signature><code>
+  Arcadia_Natural64Value<br>
+  Arcadia_String_toNatural64<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as a decimal natural literal and convert the number represented by that literal into an <code>Arcadia_Natural64Value</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The natural value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+    <div>Arcadia_Status_ArgumentTypeInvalid</div>
+    <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+    <div>Arcadia_Status_ConversionFailed</td>
+    <div>The symbols of this string cannot be interpreted as a decimal natural literal or
+    the number represented by the literal cannot be represented a value of type <code>Arcadia_Natural64Value</code>.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toNatural8">Arcadia_String_toNatural8</h1>
+
+  <my-signature><code>
+  Arcadia_Natural8Value<br>
+  Arcadia_String_toNatural8<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as a decimal natural literal and convert the number represented by that literal into an <code>Arcadia_Natural8Value</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The natural value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ConversionFailed</td>
+      <div>The symbols of this string cannot be interpreted as a decimal natural literal or
+      the number represented by the literal cannot be represented a value of type <code>Arcadia_Natural8Value</code>.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toReal32">Arcadia_String_toReal32</h1>
+
+  <my-signature><code>
+  Arcadia_Real32Value<br>
+  Arcadia_String_toReal32<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as a decimal real literal and convert the number represented by that literal into an <code>Arcadia_Real32Value</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The <code>Arcadia_Real32Value</code> value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ConversionFailed</div>
+      <div>The symbols of this string cannot be interpreted as a decimal real literal or
+      the number represented by the literal cannot be represented a value of type <code>Arcadia_Real32Value</code>.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toReal64">Arcadia_String_toReal64</h1>
+
+  <my-signature><code>
+  Arcadia_Real64Value<br>
+  Arcadia_String_toReal64<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as a decimal real literal and convert the number represented by that literal into an <code>Arcadia_Real64Value</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_String* self</div>
+      <div>A pointer to this string.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The <code>Arcadia_Real64Value</code> value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ConversionFailed</div>
+      <div>The symbols of this string cannot be interpreted as a decimal real literal or
+      the number represented by the literal cannot be represented a value of type <code>Arcadia_Real64Value</code>.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_String_toVoid">Arcadia_String_toVoid</h1>
+
+  <my-signature><code>
+  Arcadia_VoidValue<br>
+  Arcadia_String_toVoid<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_String const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Interprete the symbols of this string as a void literal and convert the void value represented by that literal into an <code>Arcadia_VoidValue</code>.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
+    <tr><td>Arcadia_String* self</td><td>A pointer to this string.</td></tr>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The void value.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ConversionFailed</div>
+      <div>The symbols of this string cannot be interpreted as a void literal. The valid void literal is <code>void</code>, case sensitve.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<section class="cxx entity object">
+<h1 id="Arcadia_StringBuilder">Arcadia_StringBuilder</h1>
+<p><code>Arcadia_StringBuilder</code> extends <code>Arcadia_Object</code>.</p>
+<p>
+<code>Arcadia_StringBuilder</code> represents a mutable sequence of code points in UTF8 encoding.
+</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_StringBuilder_clear">Arcadia_StringBuilder_clear</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_StringBuilder_clear<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Clear this string buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_StringBuilder self</div>
+      <div>A pointer to this string buffer.</div>
+    </div>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_StringBuilder_create">Arcadia_StringBuilder_create</h1>
+
+  <my-signature><code>
+  Arcadia_StringBuilder*<br>
+  Arcadia_StringBuilder_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create a string buffer.
+  </my-summary>
+
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_StringBuilder</code> value.</p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_StringBuilder_compareTo">Arcadia_StringBuilder_compareTo</h1>
+
+  <my-signature><code>
+  Arcadia_Integer32Value*<br>
+  Arcadia_StringBuilder_compareTo<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value other<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Compare the string in this string buffer with another string lexicographically.
+  </my-summary>
+
+  <section class="cxx parameters">
+    
+    <h1>Parameters</h1>
+    
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+
+    <div>
+      <div>Arcadia_StringBuilder* self</div>
+      <div>A pointer to this string buffer.</div>
+    </div>
+    
+    <div>
+      <div>Arcadia_Value other</div>
+      <div>
+      The value to compare the UTF-8 string in this string buffer to.
+      The value must be one of <code>Arcadia.ImmutableUtf8String</code>, <code>Arcadia.StringBuilder</code>, or <code>Arcadia.String</code>.
+      </div>
+    </div>
+    
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <ul>
+      <li>A negative value is returned if the string in this string buffer is lexicographically less than the other string.</li>
+      <li>A positive value is returned if the string in this string buffer is lexicographically greater than the other string.</li>
+      <li>If both strings are lexicographically equal, then zero is returned.</li>
+    </ul>
+    <p>
+  </section>
+  
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    Let <code>a</code> and <code>b</code> be UTF-8 strings of n and m Bytes, respectively.
+    Denote the <code>i</code>-th Byte of a by <code>a[i]</code> (given <code>a</code> is not empty) and the <code>i</code>-th Byte of <code>b</code> by <code>b[i]</code> (given that <code>b</code> is not empty), respectively.
+    Then comparing <code>a</code> and <code>b</code> lexicographically means:
+    Let <code>l := min(n,m)</code>.
+    If <code>l</code> is <code>0</code> or <code>a[i] = b[i]</code> for all <code>i in [0, l-1]</code>, then
+    </p>
+    <ul>
+      <li><code>a</code> is lexicographically less than <code>b</code> if <code>n &lt; m</code></li>
+      <li><code>a</code> is lexicographically greater than <code>b</code> if <code>n &gt; m</code></li>
+      <li><code>a</code> and <code>b</code> are lexicographically equal if <code>n = m</code></li>
+    </ul>
+    <p>
+    Otherwise there exists an <code>i in [0, l - 1]</code> such that for all <code>a[j] = b[j]</code> for all <code>j &lt; i</code> holds and <code>a[i] != b[i]</code>.
+    In that case:
+    </p> 
+    <ul>
+      <li><code>a</code> is lexicographically less than <code>b</code> if <code>a[i] &lt; b[i]</code></li>
+      <li><code>a</code> is lexicographically greater than <code>b</code> if <code>a[i] &gt; b[i]</code></li>
+    </ul>  
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_StringBuilder_getNumberOfBytes">Arcadia_StringBuilder_getNumberOfBytes</h1>
+
+  <my-signature><code>
+  Arcadia_SizeValue<br>
+  Arcadia_StringBuilder_getNumberOfBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the number of Bytes in this string buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_StringBuilder* self</div>
+      <div>A pointer to this string buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The number of Bytes in this string buffer.</p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_StringBuilder_insertAt">Arcadia_StringBuilder_insertAt</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_StringBuilder_insertAt<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Insert a value at a code point index of string buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_StringBuilder* self</div>
+      <div>A pointer to this string buffer.</div>
+    </div>
+    <div>
+      <div>Arcadia_SizeValue index</div>
+      <div>
+      The code point index at which to insert the value.
+      Must be within the bounds of [0,n] where n is the number of code points in this string buffer.
+      If index is 0, then this call is equivalent to a call to Arcadia_StringBuilder_insertFront.
+      If index is n, then this call is equivalent to a call to Arcadia_StringBuilder_insertBack.
+      </div>
+    </div>
+    <div>
+      <div>Arcadia_Value value</div>
+      <div>
+      The value to insert at the code point index.
+      The value must be of one of the following types:
+      <code>Arcadia.ImmutableByteArray</code>, <code>Arcadia.ImmutableUtf8String</code>,
+      <code>Arcadia.ByteBuffer</code>, <code>Arcadia.StringBuilder</code>, or <code>Arcadia.String</code>.
+      </div>
+    </div>
+  </<section>
+  
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>value</code> is not of an accepted type.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>index</code> is not within the bounds of [0,n] where n is the number of code points in this string buffer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_EncodingInvalid</div>
+      <div><code>value</code> is of type <code>Arcadia.ImmutableByteArray</code> or <code>Arcadia.ByteBuffer</code> and the Bytes are not a valid UTF-8 Byte sequence.</div>
+    </div>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_StringBuilder_insertBack">Arcadia_StringBuilder_insertBack</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_StringBuilder_insertFront<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Insert a value at the back of this string buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_StringBuilder* self</div>
+      <div>A pointer to this string buffer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Value value</div>
+      <div>
+      The value to insert at the back.
+      The value must be of one of the following types:
+      <code>Arcadia.ImmutableByteArray</code>, <code>Arcadia.ImmutableUtf8String</code>,
+      <code>Arcadia.ByteBuffer</code>, <code>Arcadia.StringBuilder</code>, or <code>Arcadia.String</code>.
+      </div>
+    </div>
+  </<section>
+  
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>value</code> is not of an accepted type.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_EncodingInvalid</div>
+      <div><code>value</code> is of type <code>Arcadia.ImmutableByteArray</code> or <code>Arcadia.ByteBuffer</code> and the Bytes are not a valid UTF-8 Byte sequence.</div>
+    </div>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_StringBuilder_insertFront">Arcadia_StringBuilder_insertFront</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_StringBuilder_insertFront<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Insert a value at the front of this string buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_StringBuilder* self</div>
+      <div>A pointer to this string buffer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Value value</div>
+      <div>
+      The value to insert at the front.
+      The value must be of one of the following types:
+      <code>Arcadia.ImmutableByteArray</code>, <code>Arcadia.ImmutableUtf8String</code>,
+      <code>Arcadia.ByteBuffer</code>, <code>Arcadia.StringBuilder</code>, or <code>Arcadia.String</code>.
+      </div>
+    </div>
+  </<section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentTypeInvalid</div>
+      <div><code>value</code> is not of an accepted type.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_EncodingInvalid</div>
+      <div><code>value</code> is of type <code>Arcadia.ImmutableByteArray</code> or <code>Arcadia.ByteBuffer</code> and the Bytes are not a valid UTF-8 Byte sequence.</div>
+    </div>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_StringBuilder_isEmpty">Arcadia_StringBuilder_isEmpty</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_StringBuilder_isEmpty<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if this string buffer is empty.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_StringBuilder* self</div>
+      <div>A pointer to this string buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p><code>Arcadia_BooleanValue_True</code> if this string buffer is empty. <code>Arcadia_BooleanValue_False</code> otherwise.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+
+  </div>
+
+  <div class="right-column">
+    <nav>
+      <ul style="list-style: none">
+
+        <li>Object</li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_Object">Arcadia_Object</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_Object_getHash">Arcadia_Object_getHash</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_Object_isEqualTo">Arcadia_Object_isEqualTo</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_Object_isNotEqualTo">Arcadia_Object_isNotEqualTo</a></li>
+
+        <li>Byte Array</li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArray">Arcadia_ByteArray</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArray_getAt">Arcadia_ByteArray_create</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArray_getBytes">Arcadia_ByteArray_getBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArray_getNumberOfBytes">Arcadia_ByteArray_getNumberOfBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArray_getSize">Arcadia_ByteArray_getNumberOfBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArray_make">Arcadia_ByteArray_make</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArray_isEmpty">Arcadia_ByteArray_isEmpty</a></li>
+
+        <li>Byte Array Builder</li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArrayBuilder">Arcadia_ByteArrayBuilder</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArrayBuilder_clear">Arcadia_ByteArrayBuilder_clear</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArrayBuilder_create">Arcadia_ByteArrayBuilder_create</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArrayBuilder_getBytes">Arcadia_ByteArrayBuilder_getBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArrayBuilder_getNumberOfBytes">Arcadia_ByteArrayBuilder_getNumberOfBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArrayBuilder_getSize">Arcadia_ByteArrayBuilder_getNumberOfBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArrayBuilder_insertBackBytes">Arcadia_ByteArrayBuilder_insertBackBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArrayBuilder_insertBytes">Arcadia_ByteArrayBuilder_insertBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ByteArrayBuilder_insertFrontBytes">Arcadia_ByteArrayBuilder_insertFrontBytes</a></li>
+        <li>String</li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String">Arcadia_String</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromBoolean">Arcadia_String_createFromBoolean</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromInteger16">Arcadia_String_createFromInteger16</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromInteger32">Arcadia_String_createFromInteger32</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromInteger64">Arcadia_String_createFromInteger64</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromInteger8">Arcadia_String_createFromInteger8</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromNatural16">Arcadia_String_createFromNatural16</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromNatural32">Arcadia_String_createFromNatural32</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromNatural64">Arcadia_String_createFromNatural64</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromNatural8">Arcadia_String_createFromNatural8</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromReal32">Arcadia_String_createFromReal32</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromReal64">Arcadia_String_createFromReal64</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_createFromVoid">Arcadia_String_createFromVoid</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_create_pn">Arcadia_String_create_pn</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_create">Arcadia_String_create</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_endsWith_pn">Arcadia_String_endsWith_pn</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_startsWith_pn">Arcadia_Strings_startsWith_pn</a></li>
+
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_getNumberOfBytes">Arcadia_String_getNumberOfBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_getBytes">Arcadia_String_getBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_getByteAt">Arcadia_String_getByteAt</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_Sting_isEmpty">Arcadia_String_isEmpty</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_isEqualTo">Arcadia_String_isEqualTo</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toBoolean">Arcadia_String_toBoolean</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toInteger16">Arcadia_String_toInteger16</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toInteger32">Arcadia_String_toInteger32</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toInteger64">Arcadia_String_toInteger64</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toInteger8">Arcadia_String_toInteger8</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toNatural16">Arcadia_String_toNatural16</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toNatural32">Arcadia_String_toNatural32</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toNatural64">Arcadia_String_toNatural64</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toNatural8">Arcadia_String_toNatural8</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toReal32">Arcadia_String_toReal32</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toReal64">Arcadia_String_toReal64</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_String_toVoid">Arcadia_String_toVoid</a></li>
+
+        <li>String Builder</li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_StringBuilder">Arcadia_StringBuilder</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_StringBuilder_clear">Arcadia_StringBuilder_clear</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_StringBuilder_create">Arcadia_StringBuilder_create</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_StringBuilder_compareTo">Arcadia_StringBuilder_compareTo</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_StringBuilder_getNumberOfBytes">Arcadia_StringBuilder_getNumberOfBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_StringBuilder_insertAt">Arcadia_StringBuilder_insertAt</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_StringBuilder_insertBack">Arcadia_StringBuilder_insertBack</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_StringBuilder_insertFront">Arcadia_StringBuilder_insertFront</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_StingBuffer_isEmpty">Arcadia_StringBuilder_isEmpty</a></li>
+
+
+      </ul>
+    </nav>
+  </div>
+  </main>
+  <footer>
+  <div class="left-column">
+    <div>
+    <div>Website maintained by Michael Heilmann.</div>
+    <div>Last modified on 14 September 2026.</div> 
+    </div>
+  </div>
+  <div class="center-column">
+    <div>
+      <div><a href="https://michaelheilmann.com/imprint">Imprint</a></div>
+      <div><a href="https://michaelheilmann.com/data-protection-statement">Data Protection Statement</a></div>
+    </div>
+  </div>
+  <div class="right-column">
+    <div>
+      <div><a href='https://github.com/michaelheilmann'>GitHub</a></div>
+      <div><a href='https://discord.gg/XtPA6pwAsp'>Discord</a></div>
+      <div><a href='mailto:contact@michaelheilmann.com'>contact@michaelheilmann.com</a></div>
+    </div>
+  </div>
+</footer>
+
+  </body>
+</html>
+

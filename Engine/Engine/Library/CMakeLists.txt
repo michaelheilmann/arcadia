@@ -1,17 +1,18 @@
-# The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+# Arcadia
+# Copyright (C) 2024-2026 Michael Heilmann
 #
-# Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# Permission to use, copy, modify, and distribute this software for any
-# purpose without fee is hereby granted, provided that this entire notice
-# is included in all copies of any software which is or includes a copy
-# or modification of this software and in all copies of the supporting
-# documentation for such software.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 #
-# THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-# WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-# REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-# OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.29)
 
@@ -114,40 +115,40 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Engine/Visuals/WindingMode.c)
   OnHeaderFile(${this} Arcadia/Engine/Visuals/WindingMode.h)
 
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/ApplicationEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/ApplicationEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/ApplicationQuitRequestedEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/ApplicationQuitRequestedEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/CanvasEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/CanvasEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/CanvasActivationStateChangedEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/CanvasActivationStateChangedEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/CanvasDPIChangedEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/CanvasDPIChangedEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/CanvasSizeChangedEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/CanvasSizeChangedEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/KeyboardKey.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/KeyboardKey.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/KeyboardKey.i)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/KeyboardKeyAction.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/KeyboardKeyAction.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/KeyboardKeyEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/KeyboardKeyEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/MouseButtonAction.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/MouseButtonAction.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/MouseButtonEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/MouseButtonEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/MousePointerAction.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/MousePointerAction.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/MousePointerEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/MousePointerEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/WindowClosedEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/WindowClosedEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/WindowPositionChangedEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/WindowPositionChangedEvent.h)
-  OnSourceFile(${this} Arcadia/Engine/Visuals/Events/WindowSizeChangedEvent.c)
-  OnHeaderFile(${this} Arcadia/Engine/Visuals/Events/WindowSizeChangedEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Visuals/ApplicationEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/ApplicationEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Visuals/ApplicationQuitRequestedEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/ApplicationQuitRequestedEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Visuals/CanvasEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/CanvasEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Visuals/CanvasActivationStateChangedEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/CanvasActivationStateChangedEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Visuals/CanvasDPIChangedEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/CanvasDPIChangedEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Visuals/CanvasSizeChangedEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/CanvasSizeChangedEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Visuals/WindowClosedEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/WindowClosedEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Visuals/WindowPositionChangedEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/WindowPositionChangedEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Visuals/WindowSizeChangedEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/WindowSizeChangedEvent.h)
 
+  OnSourceFile(${this} Arcadia/Engine/Input/KeyboardKey.c)
+  OnHeaderFile(${this} Arcadia/Engine/Input/KeyboardKey.h)
+  OnSourceFile(${this} Arcadia/Engine/Input/KeyboardKey.i)
+  OnSourceFile(${this} Arcadia/Engine/Input/KeyboardKeyAction.c)
+  OnHeaderFile(${this} Arcadia/Engine/Input/KeyboardKeyAction.h)
+  OnSourceFile(${this} Arcadia/Engine/Input/KeyboardKeyEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Input/KeyboardKeyEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Input/MouseButtonAction.c)
+  OnHeaderFile(${this} Arcadia/Engine/Input/MouseButtonAction.h)
+  OnSourceFile(${this} Arcadia/Engine/Input/MouseButtonEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Input/MouseButtonEvent.h)
+  OnSourceFile(${this} Arcadia/Engine/Input/MousePointerAction.c)
+  OnHeaderFile(${this} Arcadia/Engine/Input/MousePointerAction.h)
+  OnSourceFile(${this} Arcadia/Engine/Input/MousePointerEvent.c)
+  OnHeaderFile(${this} Arcadia/Engine/Input/MousePointerEvent.h)
 
   OnSourceFile(${this} Arcadia/Engine/Visuals/Diagnostics.c)
   OnHeaderFile(${this} Arcadia/Engine/Visuals/Diagnostics.h)

@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/Visuals/Implementation/OpenGL4/Resources/VertexBufferResource.h"
 
@@ -72,7 +73,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_renderImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource* self,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* enterPassResource
+    Arcadia_Engine_Visuals_EnterPassResource* enterPassResource
   );
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
@@ -89,7 +90,7 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.VertexBufferResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource,
-                         u8"Arcadia.Visuals.Implementation.VertexBufferResource", Arcadia_Engine_Visuals_Implementation_VertexBufferResource,
+                         u8"Arcadia.Visuals.VertexBufferResource", Arcadia_Engine_Visuals_VertexBufferResource,
                          &_typeOperations);
 
 static void
@@ -125,10 +126,10 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_initializeDis
     Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResourceDispatch* self
   )
 {
-  ((Arcadia_Engine_Visuals_Implementation_ResourceDispatch*)self)->load = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_loadImpl;
-  ((Arcadia_Engine_Visuals_Implementation_ResourceDispatch*)self)->unload = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_unloadImpl;
-  ((Arcadia_Engine_Visuals_Implementation_ResourceDispatch*)self)->unlink = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_unlinkImpl;
-  ((Arcadia_Engine_Visuals_Implementation_ResourceDispatch*)self)->render = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_Resource*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_renderImpl;
+  ((Arcadia_Engine_Visuals_ResourceDispatch*)self)->load = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_loadImpl;
+  ((Arcadia_Engine_Visuals_ResourceDispatch*)self)->unload = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_unloadImpl;
+  ((Arcadia_Engine_Visuals_ResourceDispatch*)self)->unlink = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_unlinkImpl;
+  ((Arcadia_Engine_Visuals_ResourceDispatch*)self)->render = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Resource*, Arcadia_Engine_Visuals_EnterPassResource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_renderImpl;
 }
 
 static void
@@ -140,7 +141,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_destructImpl
 {
   assert(0 == self->vertexArrayID);
   assert(0 == self->vertexBufferID);
-  assert(NULL == ((Arcadia_Engine_Visuals_Implementation_Resource*)self)->context);
+  assert(NULL == ((Arcadia_Engine_Visuals_Resource*)self)->context);
 }
 
 static void
@@ -158,7 +159,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_loadImpl
     Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource* self
   )
 {
-  Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Implementation_Resource*)self)->context;
+  Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Resource*)self)->context;
   _Arcadia_Engine_Visuals_Implementation_OpenGL4_Functions* gl = Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext_getFunctions(thread, context);
 
   if (0 == self->vertexBufferID) {
@@ -172,19 +173,19 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_loadImpl
     }
   }
 
-  if (((Arcadia_Engine_Visuals_Implementation_VertexBufferResource*)self)->dirty & Arcadia_Engine_Visuals_Implementation_VertexBufferResource_VertexDataDirty) {
+  if (((Arcadia_Engine_Visuals_VertexBufferResource*)self)->dirty & Arcadia_Engine_Visuals_VertexBufferResource_VertexDataDirty) {
     // (1) bind the buffer
     gl->glBindBuffer(GL_ARRAY_BUFFER, self->vertexBufferID);
     if (GL_NO_ERROR != gl->glGetError()) {
       return;
     }
     // (2) upload the data
-    gl->glBufferData(GL_ARRAY_BUFFER, ((Arcadia_Engine_Visuals_Implementation_VertexBufferResource*)self)->numberOfBytes,
-                                      ((Arcadia_Engine_Visuals_Implementation_VertexBufferResource*)self)->bytes, GL_STATIC_DRAW);
+    gl->glBufferData(GL_ARRAY_BUFFER, ((Arcadia_Engine_Visuals_VertexBufferResource*)self)->numberOfBytes,
+                                      ((Arcadia_Engine_Visuals_VertexBufferResource*)self)->bytes, GL_STATIC_DRAW);
     if (GL_NO_ERROR != gl->glGetError()) {
       return;
     }
-    ((Arcadia_Engine_Visuals_Implementation_VertexBufferResource*)self)->dirty &= ~Arcadia_Engine_Visuals_Implementation_VertexBufferResource_VertexDataDirty;
+    ((Arcadia_Engine_Visuals_VertexBufferResource*)self)->dirty &= ~Arcadia_Engine_Visuals_VertexBufferResource_VertexDataDirty;
   }
 
   if (0 == self->vertexArrayID) {
@@ -197,16 +198,16 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_loadImpl
       return;
     }
   }
-  if (((Arcadia_Engine_Visuals_Implementation_VertexBufferResource*)self)->dirty & Arcadia_Engine_Visuals_Implementation_VertexBufferResource_VertexDescriptorDirty) {
-    Arcadia_SizeValue stride = ((Arcadia_Engine_Visuals_Implementation_VertexBufferResource*)self)->vertexDescriptor->stride;
+  if (((Arcadia_Engine_Visuals_VertexBufferResource*)self)->dirty & Arcadia_Engine_Visuals_VertexBufferResource_VertexDescriptorDirty) {
+    Arcadia_SizeValue stride = ((Arcadia_Engine_Visuals_VertexBufferResource*)self)->vertexDescriptor->stride;
     // (1) bind the vertex array
     gl->glBindVertexArray(self->vertexArrayID);
     if (GL_NO_ERROR != gl->glGetError()) {
       return;
     }
     // (2) specify the vertex element elements and the buffer they are originated from.
-    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)((Arcadia_Engine_Visuals_Implementation_VertexBufferResource*)self)->vertexDescriptor->vertexElementDescriptors); i < n; ++i) {
-      Arcadia_Media_VertexElementDescriptor* vertexElementDescriptor = (Arcadia_Media_VertexElementDescriptor*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, (Arcadia_List*)((Arcadia_Engine_Visuals_Implementation_VertexBufferResource*)self)->vertexDescriptor->vertexElementDescriptors, i, _Arcadia_Media_VertexElementDescriptor_getType(thread));
+    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)((Arcadia_Engine_Visuals_VertexBufferResource*)self)->vertexDescriptor->vertexElementDescriptors); i < n; ++i) {
+      Arcadia_Media_VertexElementDescriptor* vertexElementDescriptor = (Arcadia_Media_VertexElementDescriptor*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, (Arcadia_List*)((Arcadia_Engine_Visuals_VertexBufferResource*)self)->vertexDescriptor->vertexElementDescriptors, i, _Arcadia_Media_VertexElementDescriptor_getType(thread));
       GLint glType;
       GLsizei glSize;
       switch (vertexElementDescriptor->syntactics) {
@@ -247,7 +248,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_loadImpl
         return;
       }
     }
-    ((Arcadia_Engine_Visuals_Implementation_VertexBufferResource*)self)->dirty &= ~Arcadia_Engine_Visuals_Implementation_VertexBufferResource_VertexDescriptorDirty;
+    ((Arcadia_Engine_Visuals_VertexBufferResource*)self)->dirty &= ~Arcadia_Engine_Visuals_VertexBufferResource_VertexDescriptorDirty;
   }
 }
 
@@ -259,13 +260,13 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_unloadImpl
   )
 {
   if (self->vertexArrayID) {
-    Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Implementation_Resource*)self)->context;
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Resource*)self)->context;
     _Arcadia_Engine_Visuals_Implementation_OpenGL4_Functions* gl = Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext_getFunctions(thread, context);
     gl->glDeleteVertexArrays(1, &self->vertexArrayID);
     self->vertexArrayID = 0;
   }
   if (self->vertexBufferID) {
-    Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Implementation_Resource*)self)->context;
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Resource*)self)->context;
     _Arcadia_Engine_Visuals_Implementation_OpenGL4_Functions* gl = Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext_getFunctions(thread, context);
     gl->glDeleteBuffers(1, &self->vertexBufferID);
     self->vertexBufferID = 0;
@@ -281,7 +282,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_unlinkImpl
 {
   assert(0 == self->vertexArrayID);
   assert(0 == self->vertexBufferID);
-  ((Arcadia_Engine_Visuals_Implementation_Resource*)self)->context = NULL;
+  ((Arcadia_Engine_Visuals_Resource*)self)->context = NULL;
 }
 
 static void
@@ -289,10 +290,10 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_renderImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource* self,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* enterPassResource
+    Arcadia_Engine_Visuals_EnterPassResource* enterPassResource
   )
 {
-  Arcadia_Engine_Visuals_Implementation_Resource_load(thread, (Arcadia_Engine_Visuals_Implementation_Resource*)self);
+  Arcadia_Engine_Visuals_Resource_load(thread, (Arcadia_Engine_Visuals_Resource*)self);
 }
 
 Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource*
@@ -302,8 +303,8 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_create
     Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* backendContext
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource);
   if (backendContext) Arcadia_ValueStack_pushObjectReferenceValue(thread, backendContext); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource);
+  _Arcadia_EndCreate(Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource);
 }

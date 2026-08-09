@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_ENGINE_PRIVATE (1)
 #include "Arcadia/Engine/Visuals/Resources/EnterPassResource.h"
@@ -20,86 +21,86 @@
 #include <assert.h>
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_constructImpl
+Arcadia_Engine_Visuals_EnterPassResource_constructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self
+    Arcadia_Engine_Visuals_EnterPassResource* self
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_initializeDispatchImpl
+Arcadia_Engine_Visuals_EnterPassResource_initializeDispatchImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResourceDispatch* self
+    Arcadia_Engine_Visuals_EnterPassResourceDispatch* self
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_destructImpl
+Arcadia_Engine_Visuals_EnterPassResource_destructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self
+    Arcadia_Engine_Visuals_EnterPassResource* self
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_visitImpl
+Arcadia_Engine_Visuals_EnterPassResource_visitImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self
+    Arcadia_Engine_Visuals_EnterPassResource* self
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setViewToProjectionMatrixImpl
+Arcadia_Engine_Visuals_EnterPassResource_setViewToProjectionMatrixImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Math_Matrix4Real32* viewToProjectionMatrix
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setWorldToViewMatrixImpl
+Arcadia_Engine_Visuals_EnterPassResource_setWorldToViewMatrixImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Math_Matrix4Real32* worldToViewMatrix
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearColorBufferImpl
+Arcadia_Engine_Visuals_EnterPassResource_setClearColorBufferImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_BooleanValue clearColorBuffer
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearColorImpl
+Arcadia_Engine_Visuals_EnterPassResource_setClearColorImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Math_Color4Real32* clearColor
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearDepthBufferImpl
+Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBufferImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_BooleanValue clearDepthBuffer
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearDepthImpl
+Arcadia_Engine_Visuals_EnterPassResource_setClearDepthImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Real32Value clearDepth
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setRelativeViewportRectangleImpl
+Arcadia_Engine_Visuals_EnterPassResource_setRelativeViewportRectangleImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Real32Value left,
     Arcadia_Real32Value bottom,
     Arcadia_Real32Value right,
@@ -107,20 +108,20 @@ Arcadia_Engine_Visuals_Implementation_EnterPassResource_setRelativeViewportRecta
   );
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setCanvasSizeImpl
+Arcadia_Engine_Visuals_EnterPassResource_setCanvasSizeImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Real32Value width,
     Arcadia_Real32Value height
   );
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
-  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_Visuals_Implementation_EnterPassResource_constructImpl,
-  .destruct = (Arcadia_Object_DestructCallbackFunction*)&Arcadia_Engine_Visuals_Implementation_EnterPassResource_destructImpl,
-  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_Visuals_Implementation_EnterPassResource_visitImpl,
-  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_Visuals_Implementation_EnterPassResource_initializeDispatchImpl,
+  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_Visuals_EnterPassResource_constructImpl,
+  .destruct = (Arcadia_Object_DestructCallbackFunction*)&Arcadia_Engine_Visuals_EnterPassResource_destructImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_Visuals_EnterPassResource_visitImpl,
+  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_Visuals_EnterPassResource_initializeDispatchImpl,
 };
 
 static const Arcadia_Type_Operations _typeOperations = {
@@ -128,18 +129,18 @@ static const Arcadia_Type_Operations _typeOperations = {
   .objectTypeOperations = &_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.Visuals.Implementation.EnterPassResource", Arcadia_Engine_Visuals_Implementation_EnterPassResource,
-                         u8"Arcadia.Visuals.Implementation.Resource", Arcadia_Engine_Visuals_Implementation_Resource,
+Arcadia_defineObjectType(u8"Arcadia.Visuals.EnterPassResource", Arcadia_Engine_Visuals_EnterPassResource,
+                         u8"Arcadia.Visuals.Resource", Arcadia_Engine_Visuals_Resource,
                          &_typeOperations);
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_constructImpl
+Arcadia_Engine_Visuals_EnterPassResource_constructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self
+    Arcadia_Engine_Visuals_EnterPassResource* self
   )
 {
-  Arcadia_EnterConstructor(Arcadia_Engine_Visuals_Implementation_EnterPassResource);
+  Arcadia_EnterConstructor(Arcadia_Engine_Visuals_EnterPassResource);
   if (1 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
@@ -154,7 +155,7 @@ Arcadia_Engine_Visuals_Implementation_EnterPassResource_constructImpl
 
   self->viewerConstantBuffer = NULL;
 
-  self->dirty = Arcadia_Engine_Visuals_Implementation_EnterPassResource_AllDirty;
+  self->dirty = Arcadia_Engine_Visuals_EnterPassResource_AllDirty;
 
   self->viewToProjectionMatrix = Arcadia_Math_Matrix4Real32_create(thread);
   Arcadia_Math_Matrix4Real32_setIdentity(thread, self->viewToProjectionMatrix);
@@ -177,45 +178,45 @@ Arcadia_Engine_Visuals_Implementation_EnterPassResource_constructImpl
   self->clearDepth = 1.f;
 
   Arcadia_Engine_Visuals_BackendContext* backendContext = (Arcadia_Engine_Visuals_BackendContext*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_Visuals_BackendContext_getType(thread));
-  self->viewerConstantBuffer = (Arcadia_Engine_Visuals_Implementation_ConstantBufferResource*)Arcadia_Engine_Visuals_BackendContext_createConstantBufferResource(thread, backendContext);
+  self->viewerConstantBuffer = (Arcadia_Engine_Visuals_ConstantBufferResource*)Arcadia_Engine_Visuals_BackendContext_createConstantBufferResource(thread, backendContext);
 
-  Arcadia_Engine_Visuals_Implementation_Resource_ref(thread, (Arcadia_Engine_Visuals_Implementation_Resource*)self->viewerConstantBuffer);
-  Arcadia_LeaveConstructor(Arcadia_Engine_Visuals_Implementation_EnterPassResource);
+  Arcadia_Engine_Visuals_Resource_ref(thread, (Arcadia_Engine_Visuals_Resource*)self->viewerConstantBuffer);
+  Arcadia_LeaveConstructor(Arcadia_Engine_Visuals_EnterPassResource);
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_initializeDispatchImpl
+Arcadia_Engine_Visuals_EnterPassResource_initializeDispatchImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResourceDispatch* self
+    Arcadia_Engine_Visuals_EnterPassResourceDispatch* self
   )
 {
-  self->setViewToProjectionMatrix = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*, Arcadia_Math_Matrix4Real32*)) & Arcadia_Engine_Visuals_Implementation_EnterPassResource_setViewToProjectionMatrixImpl;
-  self->setWorldToViewMatrix = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*, Arcadia_Math_Matrix4Real32*)) & Arcadia_Engine_Visuals_Implementation_EnterPassResource_setWorldToViewMatrixImpl;
+  self->setViewToProjectionMatrix = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Math_Matrix4Real32*)) & Arcadia_Engine_Visuals_EnterPassResource_setViewToProjectionMatrixImpl;
+  self->setWorldToViewMatrix = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Math_Matrix4Real32*)) & Arcadia_Engine_Visuals_EnterPassResource_setWorldToViewMatrixImpl;
 
-  self->setCanvasSize = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*, Arcadia_Real32Value, Arcadia_Real32Value)) & Arcadia_Engine_Visuals_Implementation_EnterPassResource_setCanvasSizeImpl;
-  self->setClearColorBuffer = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*, Arcadia_BooleanValue)) & Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearColorBufferImpl;
-  self->setClearColor = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*, Arcadia_Math_Color4Real32*)) & Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearColorImpl;
-  self->setClearDepthBuffer = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*, Arcadia_BooleanValue)) & Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearDepthBufferImpl;
-  self->setClearDepth = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*, Arcadia_Real32Value)) & Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearDepthImpl;
-  self->setRelativeViewportRectangle = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Implementation_EnterPassResource*, Arcadia_Real32Value, Arcadia_Real32Value, Arcadia_Real32Value, Arcadia_Real32Value)) & Arcadia_Engine_Visuals_Implementation_EnterPassResource_setRelativeViewportRectangleImpl;
+  self->setCanvasSize = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Real32Value, Arcadia_Real32Value)) & Arcadia_Engine_Visuals_EnterPassResource_setCanvasSizeImpl;
+  self->setClearColorBuffer = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_BooleanValue)) & Arcadia_Engine_Visuals_EnterPassResource_setClearColorBufferImpl;
+  self->setClearColor = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Math_Color4Real32*)) & Arcadia_Engine_Visuals_EnterPassResource_setClearColorImpl;
+  self->setClearDepthBuffer = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_BooleanValue)) & Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBufferImpl;
+  self->setClearDepth = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Real32Value)) & Arcadia_Engine_Visuals_EnterPassResource_setClearDepthImpl;
+  self->setRelativeViewportRectangle = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Real32Value, Arcadia_Real32Value, Arcadia_Real32Value, Arcadia_Real32Value)) & Arcadia_Engine_Visuals_EnterPassResource_setRelativeViewportRectangleImpl;
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_destructImpl
+Arcadia_Engine_Visuals_EnterPassResource_destructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self
+    Arcadia_Engine_Visuals_EnterPassResource* self
   )
 {
   assert(NULL == self->viewerConstantBuffer);
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_visitImpl
+Arcadia_Engine_Visuals_EnterPassResource_visitImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self
+    Arcadia_Engine_Visuals_EnterPassResource* self
   )
 {
   if (self->clearColor) {
@@ -230,100 +231,100 @@ Arcadia_Engine_Visuals_Implementation_EnterPassResource_visitImpl
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setViewToProjectionMatrixImpl
+Arcadia_Engine_Visuals_EnterPassResource_setViewToProjectionMatrixImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Math_Matrix4Real32* viewToProjectionMatrix
   )
 {
   Arcadia_Value other = Arcadia_Value_makeObjectReferenceValue(self->viewToProjectionMatrix);
-  Arcadia_BooleanValue changed = Arcadia_Object_isNotEqualTo(thread, (Arcadia_Object*)viewToProjectionMatrix, &other);
+  Arcadia_BooleanValue changed = !Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)viewToProjectionMatrix, &other);
   Arcadia_Math_Matrix4Real32_assign(thread, self->viewToProjectionMatrix, viewToProjectionMatrix);
   if (changed) {
-    self->dirty |= Arcadia_Engine_Visuals_Implementation_EnterPassResource_ViewToProjectionMatrixDirty;
+    self->dirty |= Arcadia_Engine_Visuals_EnterPassResource_ViewToProjectionMatrixDirty;
   }
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setWorldToViewMatrixImpl
+Arcadia_Engine_Visuals_EnterPassResource_setWorldToViewMatrixImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Math_Matrix4Real32* worldToViewMatrix
   )
 {
   Arcadia_Value other = Arcadia_Value_makeObjectReferenceValue(self->worldToViewMatrix);
-  Arcadia_BooleanValue changed = Arcadia_Object_isNotEqualTo(thread, (Arcadia_Object*)worldToViewMatrix, &other);
+  Arcadia_BooleanValue changed = !Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)worldToViewMatrix, &other);
   Arcadia_Math_Matrix4Real32_assign(thread, self->worldToViewMatrix, worldToViewMatrix);
   if (changed) {
-    self->dirty |= Arcadia_Engine_Visuals_Implementation_EnterPassResource_WorldToViewMatrixDirty;
+    self->dirty |= Arcadia_Engine_Visuals_EnterPassResource_WorldToViewMatrixDirty;
   }
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearColorBufferImpl
+Arcadia_Engine_Visuals_EnterPassResource_setClearColorBufferImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_BooleanValue clearColorBuffer
   )
 {
   Arcadia_BooleanValue changed = self->clearColorBuffer != clearColorBuffer;
   self->clearColorBuffer = clearColorBuffer;
   if (changed) {
-    self->dirty |= Arcadia_Engine_Visuals_Implementation_EnterPassResource_ClearColorDirty;
+    self->dirty |= Arcadia_Engine_Visuals_EnterPassResource_ClearColorDirty;
   }
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearColorImpl
+Arcadia_Engine_Visuals_EnterPassResource_setClearColorImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Math_Color4Real32* clearColor
   )
 {
   // @todo Provide a comparison function.
   Arcadia_Math_Color4Real32_assign(thread, self->clearColor, clearColor);
-  self->dirty |= Arcadia_Engine_Visuals_Implementation_EnterPassResource_ClearColorDirty;
+  self->dirty |= Arcadia_Engine_Visuals_EnterPassResource_ClearColorDirty;
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearDepthBufferImpl
+Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBufferImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_BooleanValue clearDepthBuffer
   )
 {
   Arcadia_BooleanValue changed = self->clearDepthBuffer != clearDepthBuffer;
   self->clearDepthBuffer = clearDepthBuffer;
   if (changed) {
-    self->dirty |= Arcadia_Engine_Visuals_Implementation_EnterPassResource_ClearDepthDirty;
+    self->dirty |= Arcadia_Engine_Visuals_EnterPassResource_ClearDepthDirty;
   }
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearDepthImpl
+Arcadia_Engine_Visuals_EnterPassResource_setClearDepthImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Real32Value clearDepth
   )
 {
   Arcadia_BooleanValue changed = self->clearDepth != clearDepth;
   self->clearDepth = clearDepth;
   if (changed) {
-    self->dirty |= Arcadia_Engine_Visuals_Implementation_EnterPassResource_ClearDepthDirty;
+    self->dirty |= Arcadia_Engine_Visuals_EnterPassResource_ClearDepthDirty;
   }
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setRelativeViewportRectangleImpl
+Arcadia_Engine_Visuals_EnterPassResource_setRelativeViewportRectangleImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Real32Value left,
     Arcadia_Real32Value bottom,
     Arcadia_Real32Value right,
@@ -340,15 +341,15 @@ Arcadia_Engine_Visuals_Implementation_EnterPassResource_setRelativeViewportRecta
   self->relativeViewportRectangle.right = right;
   self->relativeViewportRectangle.top = top;
   if (changed) {
-    self->dirty |= Arcadia_Engine_Visuals_Implementation_EnterPassResource_RelativeViewportRectangleDirty;
+    self->dirty |= Arcadia_Engine_Visuals_EnterPassResource_RelativeViewportRectangleDirty;
   }
 }
 
 static void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setCanvasSizeImpl
+Arcadia_Engine_Visuals_EnterPassResource_setCanvasSizeImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Real32Value width,
     Arcadia_Real32Value height
   )
@@ -357,91 +358,91 @@ Arcadia_Engine_Visuals_Implementation_EnterPassResource_setCanvasSizeImpl
   self->canvasSize.width = width;
   self->canvasSize.height = height;
   if (changed) {
-    self->dirty |= Arcadia_Engine_Visuals_Implementation_EnterPassResource_CanvasSizeDirty;
+    self->dirty |= Arcadia_Engine_Visuals_EnterPassResource_CanvasSizeDirty;
   }
 }
 
 void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setTargetFrameBuffer
+Arcadia_Engine_Visuals_EnterPassResource_setTargetFrameBuffer
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
-    Arcadia_Engine_Visuals_Implementation_FrameBufferResource* frameBuffer
+    Arcadia_Engine_Visuals_EnterPassResource* self,
+    Arcadia_Engine_Visuals_FrameBufferResource* frameBuffer
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_Implementation_EnterPassResource, setTargetFrameBuffer, self, frameBuffer); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setTargetFrameBuffer, self, frameBuffer); }
 
 void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setViewToProjectionMatrix
+Arcadia_Engine_Visuals_EnterPassResource_setViewToProjectionMatrix
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Math_Matrix4Real32* viewToProjectionMatrix
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_Implementation_EnterPassResource, setViewToProjectionMatrix, self, viewToProjectionMatrix); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setViewToProjectionMatrix, self, viewToProjectionMatrix); }
 
 void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setWorldToViewMatrix
+Arcadia_Engine_Visuals_EnterPassResource_setWorldToViewMatrix
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Math_Matrix4Real32* worldToViewMatrix
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_Implementation_EnterPassResource, setWorldToViewMatrix, self, worldToViewMatrix); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setWorldToViewMatrix, self, worldToViewMatrix); }
 
 void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearColorBuffer
+Arcadia_Engine_Visuals_EnterPassResource_setClearColorBuffer
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_BooleanValue clearColorBuffer
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_Implementation_EnterPassResource, setClearColorBuffer, self, clearColorBuffer); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setClearColorBuffer, self, clearColorBuffer); }
 
 void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearColor
+Arcadia_Engine_Visuals_EnterPassResource_setClearColor
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Math_Color4Real32* clearColor
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_Implementation_EnterPassResource, setClearColor, self, clearColor); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setClearColor, self, clearColor); }
 
 void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearDepthBuffer
+Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBuffer
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_BooleanValue clearDepthBuffer
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_Implementation_EnterPassResource, setClearDepthBuffer, self, clearDepthBuffer); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setClearDepthBuffer, self, clearDepthBuffer); }
 
 void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setClearDepth
+Arcadia_Engine_Visuals_EnterPassResource_setClearDepth
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Real32Value clearDepth
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_Implementation_EnterPassResource, setClearDepth, self, clearDepth); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setClearDepth, self, clearDepth); }
 
 void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setRelativeViewportRectangle
+Arcadia_Engine_Visuals_EnterPassResource_setRelativeViewportRectangle
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Real32Value left,
     Arcadia_Real32Value bottom,
     Arcadia_Real32Value right,
     Arcadia_Real32Value top
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_Implementation_EnterPassResource, setRelativeViewportRectangle, self, left, bottom, right, top); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setRelativeViewportRectangle, self, left, bottom, right, top); }
 
 void
-Arcadia_Engine_Visuals_Implementation_EnterPassResource_setCanvasSize
+Arcadia_Engine_Visuals_EnterPassResource_setCanvasSize
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_EnterPassResource* self,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_Real32Value width,
     Arcadia_Real32Value height
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_Implementation_EnterPassResource, setCanvasSize, self, width, height); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setCanvasSize, self, width, height); }

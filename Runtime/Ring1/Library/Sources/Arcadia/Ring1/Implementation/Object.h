@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #if !defined(ARCADIA_RING1_IMPLEMENTATION_OBJECT_H_INCLUDED)
 #define ARCADIA_RING1_IMPLEMENTATION_OBJECT_H_INCLUDED
@@ -27,6 +28,7 @@ typedef struct Arcadia_ObjectDispatch {
 
   Arcadia_ForeignProcedure* add;
   Arcadia_ForeignProcedure* and;
+  Arcadia_ForeignProcedure* clone;
   Arcadia_ForeignProcedure* concatenate;
   Arcadia_ForeignProcedure* divide;
   Arcadia_ForeignProcedure* getHash;
@@ -39,7 +41,6 @@ typedef struct Arcadia_ObjectDispatch {
   Arcadia_ForeignProcedure* multiply;
   Arcadia_ForeignProcedure* negate;
   Arcadia_ForeignProcedure* not;
-  Arcadia_ForeignProcedure* isNotEqualTo;
   Arcadia_ForeignProcedure* or;
   Arcadia_ForeignProcedure* subtract;
   Arcadia_ForeignProcedure* toString;
@@ -133,16 +134,22 @@ struct Arcadia_Object {
 ///
 /// e) Assert the stack is not corrupted if a) - c) are successfull. Otherwise raise Arcadia.Status.StackCorruption.
 void*
-ARCADIA_CREATEOBJECT0
+_Arcadia_EndCreate0
   (
     Arcadia_Thread* thread,
     Arcadia_Type* type,
     Arcadia_SizeValue oldValueStackSize
   );
 
-/// @transitional
-#define ARCADIA_CREATEOBJECT(type) \
-  return ARCADIA_CREATEOBJECT0(thread, _##type##_getType(thread), oldValueStackSize);
+/// @deprecated
+#define _Arcadia_EndCreate(type) \
+  return _Arcadia_EndCreate0(thread, _##type##_getType(thread), oldValueStackSize);
+
+#define _Arcadia_BeginCreate(type) \
+  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+
+#define _Arcadia_EndCreate(type) \
+  return _Arcadia_EndCreate0(thread, _##type##_getType(thread), oldValueStackSize);
 
 void
 Arcadia_Object_setType
@@ -244,18 +251,17 @@ Arcadia_Object_isInstanceOf
   )
 { return Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, object), type); }
 
+// "clone"
+Arcadia_Object*
+Arcadia_Object_clone
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self
+  );
+
 /// "isEqualTo"
 Arcadia_BooleanValue
 Arcadia_Object_isEqualTo
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Object* self,
-    Arcadia_Value const* other
-  );
-
-/// "isNotEqualTo"
-Arcadia_BooleanValue
-Arcadia_Object_isNotEqualTo
   (
     Arcadia_Thread* thread,
     Arcadia_Object* self,

@@ -1,8 +1,0 @@
-class KeyboardKeyMessage {
-
-  constructor native "KeyboardKeyMessage_construct" ()
-
-  method native "KeyboardKeyMessage_getAction" getAction()
-
-  method native "KeyboardKeyMessage_getKey" getKey()
-}

@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_DDL_NODES_PRIVATE (1)
 #include "Arcadia/DDL/Nodes/NumberNode.h"
@@ -194,10 +195,10 @@ Arcadia_DDL_NumberNode_createInteger16
     Arcadia_Integer16Value integer16Value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   Arcadia_ValueStack_pushInteger16Value(thread, integer16Value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }
 
 Arcadia_DDL_NumberNode*
@@ -207,10 +208,10 @@ Arcadia_DDL_NumberNode_createInteger32
     Arcadia_Integer32Value integer32Value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   Arcadia_ValueStack_pushInteger32Value(thread, integer32Value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }
 
 Arcadia_DDL_NumberNode*
@@ -220,10 +221,10 @@ Arcadia_DDL_NumberNode_createInteger64
     Arcadia_Integer64Value integer64Value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   Arcadia_ValueStack_pushInteger64Value(thread, integer64Value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }
 
 Arcadia_DDL_NumberNode*
@@ -233,10 +234,10 @@ Arcadia_DDL_NumberNode_createInteger8
     Arcadia_Integer8Value integer8Value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   Arcadia_ValueStack_pushInteger8Value(thread, integer8Value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }
 
 Arcadia_DDL_NumberNode*
@@ -246,10 +247,10 @@ Arcadia_DDL_NumberNode_createNatural16
     Arcadia_Natural16Value natural16Value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   Arcadia_ValueStack_pushNatural16Value(thread, natural16Value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }
 
 Arcadia_DDL_NumberNode*
@@ -259,10 +260,10 @@ Arcadia_DDL_NumberNode_createNatural32
     Arcadia_Natural32Value natural32Value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   Arcadia_ValueStack_pushNatural32Value(thread, natural32Value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }
 
 Arcadia_DDL_NumberNode*
@@ -272,10 +273,10 @@ Arcadia_DDL_NumberNode_createNatural64
     Arcadia_Natural64Value natural64Value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   Arcadia_ValueStack_pushNatural64Value(thread, natural64Value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }
 
 Arcadia_DDL_NumberNode*
@@ -285,10 +286,10 @@ Arcadia_DDL_NumberNode_createNatural8
     Arcadia_Natural8Value natural8Value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   Arcadia_ValueStack_pushNatural8Value(thread, natural8Value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }
 
 Arcadia_DDL_NumberNode*
@@ -298,10 +299,10 @@ Arcadia_DDL_NumberNode_createReal32
     Arcadia_Real32Value real32Value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   Arcadia_ValueStack_pushReal32Value(thread, real32Value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }
 
 Arcadia_DDL_NumberNode*
@@ -311,10 +312,10 @@ Arcadia_DDL_NumberNode_createReal64
     Arcadia_Real64Value real64Value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   Arcadia_ValueStack_pushReal64Value(thread, real64Value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }
 
 Arcadia_DDL_NumberNode*
@@ -324,12 +325,12 @@ Arcadia_DDL_NumberNode_createString
     Arcadia_String* stringValue
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_DDL_NumberNode);
   if (stringValue) {
     Arcadia_ValueStack_pushObjectReferenceValue(thread, stringValue);
   } else {
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_DDL_NumberNode);
+  _Arcadia_EndCreate(Arcadia_DDL_NumberNode);
 }

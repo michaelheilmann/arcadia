@@ -10,13 +10,7 @@
 @{include("DepthCompareFunction.i")}
 @{include("Event.i")}
 @{include("FillMode.i")}
-@{include("KeyboardKey.i")}
-@{include("KeyboardKeyAction.i")}
-@{include("KeyboardKeyEvent.i")}
-@{include("MouseButtonAction.i")}
-@{include("MouseButtonEvent.i")}
-@{include("MousePointerAction.i")}
-@{include("MousePointerEvent.i")}
+@{include("./Input/include.content")}
 @{include("TextureAddressMode.i")}
 @{include("TextureFilter.i")}
 @{include("VertexElementSemantics.i")}
