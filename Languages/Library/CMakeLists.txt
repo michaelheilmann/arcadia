@@ -1,17 +1,18 @@
-# The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+# Arcadia
+# Copyright (C) 2024-2026 Michael Heilmann
 #
-# Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# Permission to use, copy, modify, and distribute this software for any
-# purpose without fee is hereby granted, provided that this entire notice
-# is included in all copies of any software which is or includes a copy
-# or modification of this software and in all copies of the supporting
-# documentation for such software.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 #
-# THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-# WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-# REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-# OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.29)
 
@@ -27,6 +28,12 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia/Languages/Include.h)
   OnSourceFile(${this} Arcadia/Languages/StringTable.c)
   OnHeaderFile(${this} Arcadia/Languages/StringTable.h)
+  OnSourceFile(${this} Arcadia/Languages/EncodingErrorException.c)
+  OnHeaderFile(${this} Arcadia/Languages/EncodingErrorException.h)
+  OnSourceFile(${this} Arcadia/Languages/LexicalErrorException.c)
+  OnHeaderFile(${this} Arcadia/Languages/LexicalErrorException.h)
+  OnSourceFile(${this} Arcadia/Languages/SyntacticalErrorException.c)
+  OnHeaderFile(${this} Arcadia/Languages/SyntacticalErrorException.h)
   OnSourceFile(${this} Arcadia/Languages/Scanner.c)
   OnHeaderFile(${this} Arcadia/Languages/Scanner.h)
   OnSourceFile(${this} Arcadia/Languages/Scope.c)
@@ -41,6 +48,12 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia/Languages/DiagnosticType.h)
   OnSourceFile(${this} Arcadia/Languages/Parser.c)
   OnHeaderFile(${this} Arcadia/Languages/Parser.h)
+  OnSourceFile(${this} Arcadia/Languages/InputFileManager.c)
+  OnHeaderFile(${this} Arcadia/Languages/InputFileManager.h)
+  OnSourceFile(${this} Arcadia/Languages/InputFile.c)
+  OnHeaderFile(${this} Arcadia/Languages/InputFile.h)
+  OnSourceFile(${this} Arcadia/Languages/LineMap.c)
+  OnHeaderFile(${this} Arcadia/Languages/LineMap.h)
   OnSourceFile(${this} Arcadia/Languages/mangleName.c)
   OnHeaderFile(${this} Arcadia/Languages/mangleName.h)
 
@@ -48,6 +61,7 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.Logging)
   OnModuleDependency(${this} ${MyProjectName}.FileSystem)
   OnModuleDependency(${this} ${MyProjectName}.Ring2)
+  OnModuleDependency(${this} ${MyProjectName}.Ring1)
 
   if (${${this}_OperatingSystem} STREQUAL ${${this}_OperatingSystem_Linux})
     list(APPEND ${this}.Libraries m)

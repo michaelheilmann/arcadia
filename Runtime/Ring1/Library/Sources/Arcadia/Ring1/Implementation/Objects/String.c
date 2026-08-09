@@ -1,23 +1,24 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_RING1_MODULE (1)
 #include "Arcadia/Ring1/Implementation/Objects/String.h"
 
-#include <assert.h>
 #include "Arcadia/Ring1/Include.h"
+#include <assert.h>
 
 static void
 Arcadia_String_constructImpl
@@ -41,12 +42,6 @@ isEqualToImpl
 
 static void
 getHashImpl
-  (
-    Arcadia_Thread* thread
-  );
-
-static void
-isNotEqualToImpl
   (
     Arcadia_Thread* thread
   );
@@ -231,7 +226,6 @@ Arcadia_String_initializeDispatchImpl
 {
   ((Arcadia_ObjectDispatch*)self)->isEqualTo = &isEqualToImpl;
   ((Arcadia_ObjectDispatch*)self)->getHash = &getHashImpl;
-  ((Arcadia_ObjectDispatch*)self)->isNotEqualTo = &isNotEqualToImpl;
 }
 
 static void
@@ -291,49 +285,6 @@ getHashImpl
 }
 
 static void
-isNotEqualToImpl
-  (
-    Arcadia_Thread* thread
-  )
-{
-  BINARY_OPERATION();
-  Arcadia_Object* a0 = Arcadia_Value_getObjectReferenceValue(&x);
-  if (!Arcadia_Value_isObjectReferenceValue(&y)) {
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_True);
-    return;
-  }
-  Arcadia_Object* b0 = Arcadia_Value_getObjectReferenceValue(&y);
-  if (a0 == b0) {
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_False);
-    return;
-  }
-  if (!Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, b0), _Arcadia_String_getType(thread))) {
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_True);
-    return;
-  }
-  Arcadia_String* a1 = (Arcadia_String*)a0;
-  Arcadia_String* b1 = (Arcadia_String*)b0;
-  if (Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, a1->immutableUTF8String) !=
-      Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, b1->immutableUTF8String) ||
-      Arcadia_RuntimeUTF8String_getHash(thread, a1->immutableUTF8String) !=
-      Arcadia_RuntimeUTF8String_getHash(thread, b1->immutableUTF8String)) {
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_True);
-    return;
-  }
-  Arcadia_ValueStack_pushBooleanValue
-    (
-      thread,
-      Arcadia_Memory_compare
-        (
-          thread,
-          Arcadia_RuntimeUTF8String_getBytes(thread, a1->immutableUTF8String),
-          Arcadia_RuntimeUTF8String_getBytes(thread, b1->immutableUTF8String),
-          Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, a1->immutableUTF8String)
-        )
-    );
-}
-
-static void
 Arcadia_String_visit
   (
     Arcadia_Thread* thread,
@@ -350,10 +301,10 @@ Arcadia_String_create_pn
     Arcadia_RuntimeByteArray* runtimeByteArray
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_String);
   Arcadia_ValueStack_pushRuntimeByteArrayValue(thread, runtimeByteArray);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_String);
+  _Arcadia_EndCreate(Arcadia_String);
 }
 
 Arcadia_String*
@@ -363,10 +314,10 @@ Arcadia_String_create
     Arcadia_Value value
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_String);
   Arcadia_ValueStack_pushValue(thread, &value);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_String);
+  _Arcadia_EndCreate(Arcadia_String);
 }
 
 Arcadia_BooleanValue

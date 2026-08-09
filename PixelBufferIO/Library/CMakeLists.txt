@@ -1,17 +1,18 @@
-# The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+# Arcadia
+# Copyright (C) 2024-2026 Michael Heilmann
 #
-# Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# Permission to use, copy, modify, and distribute this software for any
-# purpose without fee is hereby granted, provided that this entire notice
-# is included in all copies of any software which is or includes a copy
-# or modification of this software and in all copies of the supporting
-# documentation for such software.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 #
-# THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-# WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-# REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-# OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.29)
 
@@ -33,10 +34,10 @@ if (NOT TARGET ${this})
   if (${${this}_OperatingSystem} STREQUAL ${${this}_OperatingSystem_Windows})
     # zlib.
     if (${${this}_InstructionSetArchitecture} STREQUAL ${${this}_InstructionSetArchitecture_X64})
-      set(${this}.zlib.Libraries ${MyDependenciesDirectory}/x64/$<LOWER_CASE:$<CONFIG>>/zlib/lib/$<IF:$<STREQUAL:$<LOWER_CASE:$<CONFIG>>,debug>,zsd.lib,zs.lib>)
+      set(${this}.zlib.Libraries ${MyDependenciesDirectory}/x64/$<LOWER_CASE:$<CONFIG>>/zlib/lib/$<IF:$<STREQUAL:$<LOWER_CASE:$<CONFIG>>,debug>,libzsd.lib,libzs.lib>)
       set(${this}.zlib.HeaderFilesDirectory ${MyDependenciesDirectory}/x64/$<LOWER_CASE:$<CONFIG>>/zlib/include)
     elseif (${${this}_InstructionSetArchitecture} STREQUAL ${${this}_InstructionSetArchitecture_X86})
-      set(${this}.zlib.Libraries ${MyDependenciesDirectory}/x86/$<LOWER_CASE:$<CONFIG>>/zlib/lib/$<IF:$<STREQUAL:$<LOWER_CASE:$<CONFIG>>,debug>,zsd.lib,zs.lib>)
+      set(${this}.zlib.Libraries ${MyDependenciesDirectory}/x86/$<LOWER_CASE:$<CONFIG>>/zlib/lib/$<IF:$<STREQUAL:$<LOWER_CASE:$<CONFIG>>,debug>,libzsd.lib,libzs.lib>)
       set(${this}.zlib.HeaderFilesDirectory ${MyDependenciesDirectory}/x86/$<LOWER_CASE:$<CONFIG>>/zlib/include)
     else()
       message(FATAL_ERROR " - unsupported instruction set architecture")
@@ -107,7 +108,6 @@ if (NOT TARGET ${this})
   endif()
 
   OnModuleDependency(${this} ${MyProjectName}.Media)
-  OnModuleDependency(${this} ${MyProjectName}.ADL)
 
   EndProduct(${this})
 

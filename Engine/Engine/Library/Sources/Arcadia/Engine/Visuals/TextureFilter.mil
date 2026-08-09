@@ -16,8 +16,8 @@
 // https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Visuals_TextureFilter
 enumeration Arcadia.Engine.Visuals.TextureFilter {
 
-  Linear
+  Linear = 0
 
-  Nearest
+  Nearest = 1
 
 }

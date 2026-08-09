@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_RING1_MODULE (1)
 #include "Arcadia/Ring1/Implementation/Value.h"
@@ -259,51 +260,7 @@ Arcadia_Value_isNotEqualTo
     Arcadia_Value const* self,
     Arcadia_Value const* other
   )
-{
-  switch (self->tag) {
-    case Arcadia_ValueTag_Atom: {
-      // TODO: Add and use notEqualTo similar to BigInteger, RuntimeByteArray, RuntimeUTF8String, etc.
-      if (!Arcadia_Value_isAtomValue(other)) {
-        return Arcadia_BooleanValue_True;
-      }
-      return self->atomValue != other->atomValue;
-    } break;
-    OnRelational(BigInteger, isNotEqualTo);
-    OnRelational(Boolean, isNotEqualTo);
-    OnRelational(ForeignProcedure, isNotEqualTo);
-    OnRelational(RuntimeByteArray, isNotEqualTo);
-    OnRelational(RuntimeUTF8String, isNotEqualTo);
-    OnRelational(Integer16, isNotEqualTo);
-    OnRelational(Integer32, isNotEqualTo);
-    OnRelational(Integer64, isNotEqualTo);
-    OnRelational(Integer8, isNotEqualTo);
-    OnRelational(Natural16, isNotEqualTo);
-    OnRelational(Natural32, isNotEqualTo);
-    OnRelational(Natural64, isNotEqualTo);
-    OnRelational(Natural8, isNotEqualTo);
-    OnRelational(Real32, isNotEqualTo);
-    OnRelational(Real64, isNotEqualTo);
-    OnRelational(Size, isNotEqualTo);
-    OnRelational(Void, isNotEqualTo);
-    case Arcadia_ValueTag_ObjectReference: {
-      return Arcadia_Object_isNotEqualTo(thread, self->objectReferenceValue, other);
-    } break;
-    case Arcadia_ValueTag_Type: {
-      if (!Arcadia_Value_isTypeValue(other)) {
-        return Arcadia_BooleanValue_True;
-      }
-      return self->typeValue != other->typeValue;
-    } break;
-    case Arcadia_ValueTag_Enumeration: {
-      return self->enumerationValue.type != other->enumerationValue.type
-          || self->enumerationValue.value != other->enumerationValue.value;
-    } break;
-    default: {
-      Arcadia_logf(Arcadia_LogFlags_Error, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-    } break;
-  };
-}
+{ return !Arcadia_Value_isEqualTo(thread, self, other); }
 
 Arcadia_BooleanValue
 Arcadia_Value_isLowerThan

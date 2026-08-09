@@ -1,0 +1,74 @@
+// The author of this software is Michael Heilmann (contact@@michaelheilmann.com).
+//
+// Copyright(c) 2024-@{year()} Michael Heilmann (contact@@michaelheilmann.com).
+//
+// Permission to use, copy, modify, and distribute this software for any
+// purpose without fee is hereby granted, provided that this entire notice
+// is included in all copies of any software which is or includes a copy
+// or modification of this software and in all copies of the supporting
+// documentation for such software.
+//
+// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
+// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
+// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
+// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+
+#if !defined(ARCADIA_MATH_AXISANGLE@{dimensionality}@{scalarSuffixUppercase}_H_INCLUDED)
+#define ARCADIA_MATH_AXISANGLE@{dimensionality}@{scalarSuffixUppercase}_H_INCLUDED
+
+#include "Arcadia/Ring1/Include.h"
+typedef struct Arcadia_Math_Vector@{dimensionality}@{scalarSuffix} Arcadia_Math_Vector@{dimensionality}@{scalarSuffix};
+
+Arcadia_declareObjectType(u8"Arcadia.Math.AxisAngle@{dimensionality}@{scalarSuffix}", Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix},
+                          u8"Arcadia.Object");
+
+struct Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix}Dispatch {
+  Arcadia_ObjectDispatch _parent;
+};
+
+struct Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix} {
+  Arcadia_Object _parent;
+  Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* axis;
+  @{scalarType} angle;
+};
+
+/// @@brief Create an axis-angle representation from a direction vector and an angle.
+/// @@param thread A pointer to this thread.
+/// @@param self A pointer to this ray.
+/// @@param direction The direction vector representing the axis of rotation. Must be a non-zero vector.
+/// @@param angle The angle of rotation, in degrees.
+/// @@remarks The direction vector is not modified by this function and is no longer required after the function terminates.
+Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix}*
+Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix}_create
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* direction,
+    @{scalarType} angle
+  );
+
+/// @@brief Get the axis vector.
+/// @@param thread A pointer to this thread.
+/// @@param self A pointer to this axis-angle.
+/// @@return The axis vector.
+/// @@remarks A copy of the object is returned.
+/// @@remarks The axis vector is a unit vector.
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}*
+Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix}_getAxis
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix}* self
+  );
+
+/// @@brief Get the angle.
+/// @@param thread A pointer to this thread.
+/// @@param self A pointer to this axis-angle.
+/// @@return The angle.
+/// @@remarks The angle is guaranteed to be within the bounds of [0,360).
+@{scalarType}
+Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix}_getAngle
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix}* self
+  );
+
+#endif // ARCADIA_MATH_AXISANGLE@{dimensionality}@{scalarSuffixUppercase}_H_INCLUDED

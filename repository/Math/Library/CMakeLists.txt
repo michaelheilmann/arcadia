@@ -1,17 +1,18 @@
-# The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+# Arcadia
+# Copyright (C) 2024-2026 Michael Heilmann
 #
-# Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# Permission to use, copy, modify, and distribute this software for any
-# purpose without fee is hereby granted, provided that this entire notice
-# is included in all copies of any software which is or includes a copy
-# or modification of this software and in all copies of the supporting
-# documentation for such software.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
 #
-# THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-# WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-# REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-# OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.29)
 
@@ -21,14 +22,30 @@ set(this ${MyProjectName}.Math)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
-  OnTemplateFile(${this} Arcadia/Math/Implementation/Matrix.c.te)
-  OnTemplateFile(${this} Arcadia/Math/Implementation/Matrix.h.te)
-  OnTemplateFile(${this} Arcadia/Math/Implementation/Color.c.te)
-  OnTemplateFile(${this} Arcadia/Math/Implementation/Color.h.te)
-  OnTemplateFile(${this} Arcadia/Math/Implementation/Vector.c.te)
-  OnTemplateFile(${this} Arcadia/Math/Implementation/Vector.h.te)
+  OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle.c.te PRIVATE)
+  OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle.h.te PRIVATE)
+  OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Matrix.c.te PRIVATE)
+  OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Matrix.h.te PRIVATE)
+  OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Color.c.te PRIVATE)
+  OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Color.h.te PRIVATE)
+  OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector.c.te PRIVATE)
+  OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector.h.te PRIVATE)
 
   BeginTemplateEngine(${this}.GenerateFiles "Math")
+
+    OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle.c.te"
+                     "${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle3Real32.c"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle3Real32.env")
+    OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle.h.te"
+                     "${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle3Real32.h"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle3Real32.env")
+
+    OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle.c.te"
+                     "${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle3Real64.c"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle3Real64.env")
+    OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle.h.te"
+                     "${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle3Real64.h"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle3Real64.env")
 
     OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector.c.te"
                      "${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Math/Implementation/Vector3Real32.c"
@@ -122,6 +139,8 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia/Math/Implementation/setOrthographicProjection.h)
   OnSourceFile(${this} Arcadia/Math/Implementation/setPerspectiveProjection.c)
   OnHeaderFile(${this} Arcadia/Math/Implementation/setPerspectiveProjection.h)
+  OnSourceFile(${this} Arcadia/Math/Implementation/setLookAt.c)
+  OnHeaderFile(${this} Arcadia/Math/Implementation/setLookAt.h)
   OnSourceFile(${this} Arcadia/Math/Implementation/setRotationX.c)
   OnHeaderFile(${this} Arcadia/Math/Implementation/setRotationX.h)
   OnSourceFile(${this} Arcadia/Math/Implementation/setRotationY.c)

@@ -1,4 +1,4 @@
-# AppVeyor configuration for AppVeyor project "primordialmachine".
+# AppVeyor configuration for AppVeyor project "Arcadia".
 clone_depth: 1
 
 # Build worker image (VM template).
@@ -51,16 +51,7 @@ install:
     - move C:\projects\deps\cmake-* C:\projects\deps\cmake # Move to a version-agnostic directory
     - set PATH=C:\projects\deps\cmake\bin;%PATH%
     - cmake --version
-    # Install dependencies.
-    - ps: |
-        Write-Host "APPVEYOR_BUILD_FOLDER:   ${env:APPVEYOR_BUILD_FOLDER}"
-        ${env:INSTALL_DEPENDENCIES_SCRIPT}="${env:APPVEYOR_BUILD_FOLDER}/install-dependencies.ps1"
-        if (Test-Path -Path ${env:INSTALL_DEPENDENCIES_SCRIPT}) {
-            Write-Host "${env:INSTALL_DEPENDENCIES_SCRIPT} found"
-        } else {
-            Write-Host "${env:INSTALL_DEPENDENCIES_SCRIPT} NOT found"
-        }
-        . "${env:INSTALL_DEPENDENCIES_SCRIPT}"
+
 
 # Generate solution and project files.
 before_build:
@@ -69,11 +60,11 @@ before_build:
         # The name of the CMake generator, for example "Visual Studio 17 2022".
         ${env:CMAKE_GENERATOR_NAME}="Visual Studio 17 2022" ;
 
-        # The name of the release, for example "michaelheilmann.com-windows-debug-10.1.9".
-        ${env:RELEASE_NAME}="michaelheilmann.com-windows-$(${env:APPVEYOR_REPO_BRANCH})-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())"
+        # The name of the release, for example "arcadia-windows-debug-10.1.9".
+        ${env:RELEASE_NAME}="arcadia-windows-$(${env:APPVEYOR_REPO_BRANCH})-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())"
 
-        # The name of the zip file, for example "michaelheilmann.com-debug-windows-x86-debug-10.1.9.zip".
-        ${env:ARCHIVE_FILENAME}="michaelheilmann.com-${env:APPVEYOR_REPO_BRANCH}";
+        # The name of the zip file, for example "arcadia-debug-windows-x86-debug-10.1.9.zip".
+        ${env:ARCHIVE_FILENAME}="arcadia-${env:APPVEYOR_REPO_BRANCH}";
         ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}-windows"
 
         # The name of the CMake architecture, for example "Win32" or "x64".
@@ -101,7 +92,10 @@ before_build:
         Write-Host "CMake Architecture:     ${env:CMAKE_ARCHITECTURE_NAME}"
     # Generate build files.
     - ps: |
+        # Generate the build files.
         cd ${env:BUILD_DIRECTORY}; cmake -G ${env:CMAKE_GENERATOR_NAME} -A ${env:CMAKE_ARCHITECTURE_NAME} -D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=TRUE -D"Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled"=TRUE ${env:CLONE_DIRECTORY}\CMakeLists.txt
+        # Install dependencies.
+        cd ${env:BUILD_DIRECTORY}; cmake --build . --target "Arcadia.InstallDependencies"
 
 build:
     parallel: true # enable MSBuild parallel builds
@@ -110,8 +104,8 @@ build:
 after_build:
     - ps: New-Item ${env:BUILD_DIRECTORY}\.keepme -type file
     - ps: 7z a .\..\Package\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\.keepme
-    - ps: 7z a .\..\Package\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\Tools\TemplateEngine\Tool\${env:CONFIGURATION}\Arcadia.Tools.TemplateEngine.exe
-    - ps: 7z rn .\..\Package\${env:ARCHIVE_FILENAME} Arcadia.Tools.TemplateEngine.exe TemplateEngine\Binaries\Arcadia.Tools.TemplateEngine.exe
+    - ps: 7z a .\..\Package\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\Tools\TemplateEngine\Tool\${env:CONFIGURATION}\Arcadia.TemplateEngine.CLI.exe
+    - ps: 7z rn .\..\Package\${env:ARCHIVE_FILENAME} Arcadia.TemplateEngine.CLI.exe TemplateEngine\Binaries\Arcadia.TemplateEngine.CLI.exe
     - ps: Push-AppveyorArtifact .\..\Package\${env:ARCHIVE_FILENAME} -FileName ${env:ARCHIVE_FILENAME} -DeploymentName ${env:ARCHIVE_FILENAME}
 
 test_script:
@@ -135,10 +129,10 @@ matrix:
 deploy:
     release: $(RELEASE_NAME)
     tag: $(RELEASE_NAME)
-    description: 'michaelheilmann.com $(APPVEYOR_REPO_BRANCH) branch v$(APPVEYOR_BUILD_VERSION)'
+    description: "Michael Heilmann's Arcadia $(APPVEYOR_REPO_BRANCH) branch v$(APPVEYOR_BUILD_VERSION)"
     provider: GitHub
     auth_token:
-        secure: iTg7jon0UCvoGT5y2flVxPISxfLS3oU+/gtUJ4KpwKU+PGCN0rLFQDJUFEMGsY9kTpCd/smtYBT4BxClRpkc0VYZPPlyYQWnN6iSDzJOd8gp7pY1OPbzPGBS/OZiuNZa # encrypted token from GitHub
+        secure: iTg7jon0UCvoGT5y2flVxD+NxPVU7uUV5dGZYhUuaUmMZHW1Fa35A34q4ab1AH+26aSnKZMPggvjms206GEmcEF/ZkZbXhi9fniN2fHXjmwKe6zJhWBwBl+/7B+qwLPl # encrypted token from GitHub
         artifact: $(ARCHIVE_FILENAME) # name (not path) of the artifact
     draft: true
     prerelease: false

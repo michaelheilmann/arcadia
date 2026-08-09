@@ -1,3 +1,4 @@
+<li>Stack</li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Stack">Arcadia_Stack</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Stack_create">Arcadia_Stack_create</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Stack_peek">Arcadia_Stack_peek</a></li>

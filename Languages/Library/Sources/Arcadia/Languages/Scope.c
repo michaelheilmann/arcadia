@@ -92,10 +92,10 @@ Arcadia_Languages_Scope_create
     Arcadia_Languages_Scope* enclosing
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Languages_Scope);
   if (enclosing) Arcadia_ValueStack_pushObjectReferenceValue(thread, enclosing); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_Languages_Scope);
+  _Arcadia_EndCreate(Arcadia_Languages_Scope);
 }
 
 void

@@ -16,8 +16,8 @@
 // https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Visuals_WindingMode
 enumeration Arcadia.Engine.Visuals.WindingMode {
 
-  Clockwise
+  Clockwise = 0
 
-  CounterClockwise
+  CounterClockwise = 1
 
 }

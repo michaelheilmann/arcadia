@@ -1,0 +1,11 @@
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+
+.vs
+*.vcxproj*
+Debug
+MinSizeRel
+Release
+RelWithDebInfo
+*.sln

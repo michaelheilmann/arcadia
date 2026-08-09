@@ -1,6 +1,6 @@
 <h2>Files</h2>
 <p>
-You can find the sources of Arcadia Ring 1 in my GitHub repository <a href="https://github.com/michaelheilmann/michaelheilmann.com">https://github.com/michaelheilmann/michaelheilmann.com</a>.
+You can find the sources of Arcadia Ring 1 in my GitHub repository <a href="@{arcadiaGitHubAddress}">@{arcadiaGitHubAddress}</a>.
 The subdirectory of Arcadia Ring 1 in the repository is here <a href="@{arcadiaGitHubAddress}/tree/main/Runtime/Ring1">@{arcadiaGitHubAddress}/tree/main/Runtime/Ring1</a>.</p>
 </p>
 

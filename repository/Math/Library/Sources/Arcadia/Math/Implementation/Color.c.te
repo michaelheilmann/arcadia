@@ -1,6 +1,6 @@
 // The author of this software is Michael Heilmann (contact@@michaelheilmann.com).
 //
-// Copyright(c) 2024-2025 Michael Heilmann (contact@@michaelheilmann.com).
+// Copyright(c) 2024-@{year()} Michael Heilmann (contact@@michaelheilmann.com).
 //
 // Permission to use, copy, modify, and distribute this software for any
 // purpose without fee is hereby granted, provided that this entire notice
@@ -38,12 +38,6 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_isEqualTo
     Arcadia_Thread* thread
   );
 
-static void
-Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_isNotEqualTo
-  (
-    Arcadia_Thread* thread
-  );
-
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_constructImpl,
@@ -65,9 +59,9 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_create
     Arcadia_Thread* thread
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Math_Color@{numberOfComponents}@{componentSuffix});
   Arcadia_ValueStack_pushNatural8Value(thread, 0);
-  ARCADIA_CREATEOBJECT(Arcadia_Math_Color@{numberOfComponents}@{componentSuffix});
+  _Arcadia_EndCreate(Arcadia_Math_Color@{numberOfComponents}@{componentSuffix});
 }
 
 Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}*
@@ -80,15 +74,14 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_create4
     @{componentType} a
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Math_Color@{numberOfComponents}@{componentSuffix});
   Arcadia_ValueStack_push@{componentSuffix}Value(thread, r);
   Arcadia_ValueStack_push@{componentSuffix}Value(thread, g);
   Arcadia_ValueStack_push@{componentSuffix}Value(thread, b);
   Arcadia_ValueStack_push@{componentSuffix}Value(thread, a);
   Arcadia_ValueStack_pushNatural8Value(thread, @{numberOfComponents});
-  ARCADIA_CREATEOBJECT(Arcadia_Math_Color@{numberOfComponents}@{componentSuffix});
+  _Arcadia_EndCreate(Arcadia_Math_Color@{numberOfComponents}@{componentSuffix});
 }
-
 
 Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}*
 Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_create4v
@@ -97,12 +90,12 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_create4v
     @{componentType} const* values
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Math_Color@{numberOfComponents}@{componentSuffix});
   for (Arcadia_SizeValue i = 0, n = @{numberOfComponents}; i < n; ++i) {
     Arcadia_ValueStack_push@{componentSuffix}Value(thread, values[i]);
   }
   Arcadia_ValueStack_pushNatural8Value(thread, @{numberOfComponents});
-  ARCADIA_CREATEOBJECT(Arcadia_Math_Color@{numberOfComponents}@{componentSuffix});
+  _Arcadia_EndCreate(Arcadia_Math_Color@{numberOfComponents}@{componentSuffix});
 }
 
 static void
@@ -140,7 +133,6 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_initializeDispatchImpl
   )
 {
   ((Arcadia_ObjectDispatch*)self)->isEqualTo = &Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_isEqualTo;
-  ((Arcadia_ObjectDispatch*)self)->isNotEqualTo = &Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_isNotEqualTo;
 }
 
 static void
@@ -176,41 +168,6 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_isEqualTo
   }
   Arcadia_ValueStack_popValues(thread, 3);
   Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_True);
-}
-
-static void
-Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_isNotEqualTo
-  (
-    Arcadia_Thread* thread
-  )
-{
-  Arcadia_Natural8Value numberOfArguments = Arcadia_ValueStack_getNatural8Value(thread, 0);
-  if (2 != numberOfArguments) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-  Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_getType(thread));
-  if (!Arcadia_ValueStack_isObjectReferenceValue(thread, 1)) {
-    Arcadia_ValueStack_popValues(thread, 3);
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_True);
-    return;
-  }
-  Arcadia_Object* otherObject = Arcadia_ValueStack_getObjectReferenceValue(thread, 1);
-  if (!Arcadia_Object_isInstanceOf(thread, otherObject, _Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_getType(thread))) {
-    Arcadia_ValueStack_popValues(thread, 3);
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_True);
-    return;
-  }
-  Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* other = (Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}*)otherObject;
-  for (Arcadia_SizeValue i = 0, n = @{numberOfComponents}; i < n; ++i) {
-    if (self->components[i] != other->components[i]) {
-      Arcadia_ValueStack_popValues(thread, 3);
-      Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_True);
-      return;
-    }
-  }
-  Arcadia_ValueStack_popValues(thread, 3);
-  Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_False);
 }
 
 void

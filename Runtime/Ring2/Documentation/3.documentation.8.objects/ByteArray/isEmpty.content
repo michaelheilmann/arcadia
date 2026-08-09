@@ -11,7 +11,7 @@
   &nbsp;&nbsp;)
   </code></my-signature>
 
-  <my-summary>Get if this Byte buffer is empty.</my-summary>
+  <my-summary>Get if this Byte array is empty.</my-summary>
 
   <section class="cxx parameters">
     <h1>Parameters</h1>
@@ -21,13 +21,13 @@
     </div>
     <div>
       <div>Arcadia_ByteArray* self</div>
-      <div>A pointer to this Byte buffer.</div>
+      <div>A pointer to this Byte array.</div>
     </div>
   </section>
 
   <section class="cxx return-value">
     <h1>Return value</h1>
-    <p><code>Arcadia_BooleanValue_True</code> if this Byte buffer is empty. <code>Arcadia_BooleanValue_False</code> otherwise.</p>
+    <p><code>Arcadia_BooleanValue_True</code> if this Byte array is empty. <code>Arcadia_BooleanValue_False</code> otherwise.</p>
   </section>
 
   <section class="cxx errors">

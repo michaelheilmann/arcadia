@@ -16,8 +16,8 @@
 # This script removes all releases from https://github.com/michaelheilmann/arcadia'.
 # You need to be signed in into GitHub shell and have the proper permissions.
 
-$ids = gh api --method GET -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" --paginate /repos/michaelheilmann/michaelheilmann.com-arcadia/releases --jq '.[].id'
+$ids = gh api --method GET -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" --paginate /repos/michaelheilmann/arcadia/releases --jq '.[].id'
 $ids | ForEach-Object {
-  gh api --method DELETE -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "/repos/michaelheilmann/michaelheilmann.com-arcadia/releases/$_"
+  gh api --method DELETE -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "/repos/michaelheilmann/arcadia/releases/$_"
   Write-Host "deleted $_"
 }

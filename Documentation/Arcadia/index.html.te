@@ -44,6 +44,8 @@
           <a href='@{siteAddress}/Arcadia/ARMS'>Arcadia ARMS</a>
           <a href='@{siteAddress}/Arcadia/Ring1'>Arcadia Ring1</a>
           <a href='@{siteAddress}/Arcadia/Ring2'>Arcadia Ring2</a>
+          <a href='@{siteAddress}/Arcadia/Collections'>Arcadia Collections</a>
+          <a href='@{siteAddress}/Arcadia/FileSystem'>Arcadia FileSystem</a>
           <a href='@{siteAddress}/Arcadia/Media'>Arcadia Media</a>
           <a href='@{siteAddress}/Arcadia/Engine'>Arcadia Engine</a>
           <a href='@{siteAddress}/Arcadia/TemplateEngine'>Arcadia Template Engine</a>

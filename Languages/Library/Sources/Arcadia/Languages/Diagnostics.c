@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/Languages/Diagnostics.h"
 
@@ -43,6 +44,14 @@ visitImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Languages_Diagnostics* self
+  );
+
+static void
+emitLocation  
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_Diagnostics* self,
+    Arcadia_Languages_Diagnostic* diagnostic
   );
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
@@ -121,10 +130,10 @@ Arcadia_Languages_Diagnostics_create
     Arcadia_Log* log
   )
 { 
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Languages_Diagnostics);
   if (log) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)log); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_Languages_Diagnostics);
+  _Arcadia_EndCreate(Arcadia_Languages_Diagnostics);
 }
 
 Arcadia_BooleanValue
@@ -154,6 +163,28 @@ Arcadia_Languages_Diagnostics_add
   Arcadia_List_insertBackObjectReferenceValue(thread, self->diagnostics, diagnostic);    
 }
 
+static void 
+emitLocation
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_Diagnostics* self,
+    Arcadia_Languages_Diagnostic* diagnostic
+  )
+{ 
+  Arcadia_Languages_InputFile* file = Arcadia_Languages_Diagnostic_getInputFile(thread, diagnostic);
+  if (file) {
+    Arcadia_Log_error(thread, self->log, Arcadia_FilePath_toNative(thread, Arcadia_Languages_InputFile_getPath(thread, file), Arcadia_BooleanValue_False));
+    Arcadia_Log_error(thread, self->log, Arcadia_String_createFromCxxString(thread, u8": "));
+    if (Arcadia_Value_isSizeValue(&diagnostic->inputPosition)) {
+      Arcadia_SizeValue offset = Arcadia_Value_getSizeValue(&diagnostic->inputPosition);
+      Arcadia_SizeValue line = Arcadia_Languages_InputFile_getLine(thread, file, offset);
+      Arcadia_Log_error(thread, self->log, Arcadia_String_createFromSize(thread, line));
+      Arcadia_Log_error(thread, self->log, Arcadia_String_createFromCxxString(thread, u8": "));
+
+    }
+  }
+}
+
 void
 Arcadia_Languages_Diagnostics_emit
   (
@@ -165,12 +196,15 @@ Arcadia_Languages_Diagnostics_emit
     Arcadia_Languages_Diagnostic* diagnostic = (Arcadia_Languages_Diagnostic*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, self->diagnostics, i, _Arcadia_Languages_Diagnostic_getType(thread));
     switch (diagnostic->type) {
       case Arcadia_Languages_DiagnosticType_Error: {
+        emitLocation(thread, self, diagnostic);
         Arcadia_Log_error(thread, self->log, Arcadia_Languages_Diagnostic_getMessage(thread, diagnostic));
       } break;
       case Arcadia_Languages_DiagnosticType_Warning: {
+        emitLocation(thread, self, diagnostic);
         Arcadia_Log_warning(thread, self->log, Arcadia_Languages_Diagnostic_getMessage(thread, diagnostic));
       } break;
       case Arcadia_Languages_DiagnosticType_Information: {
+        emitLocation(thread, self, diagnostic);
         Arcadia_Log_information(thread, self->log, Arcadia_Languages_Diagnostic_getMessage(thread, diagnostic));
       } break;
       default: {

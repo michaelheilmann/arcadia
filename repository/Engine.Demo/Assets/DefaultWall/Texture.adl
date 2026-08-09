@@ -1,0 +1,5 @@
+{
+  type  : "Texture",
+  name  : "Assets.DefaultWall.Texture",
+  pixelBuffer : "Assets.DefaultWall.PixelBuffer",
+}

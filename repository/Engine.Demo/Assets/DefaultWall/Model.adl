@@ -1,0 +1,6 @@
+{
+  type : "Model",
+  name : "Assets.DefaultWall.Model",
+  mesh : "Assets.DefaultWall.Mesh",
+  material : "Assets.DefaultWall.Material",
+}

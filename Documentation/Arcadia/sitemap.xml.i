@@ -17,6 +17,18 @@
         <priority>0.3</priority>
     </url>
     <url>
+        <loc>@{siteAddress}/Arcadia/Collections/</loc>
+        <lastmod>2026-01-01</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.3</priority>
+    </url>
+    <url>
+        <loc>@{siteAddress}/Arcadia/FileSystem/</loc>
+        <lastmod>2026-01-01</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.3</priority>
+    </url>
+    <url>
         <loc>@{siteAddress}/Arcadia/ARMS/</loc>
         <lastmod>2026-01-01</lastmod>
         <changefreq>daily</changefreq>

@@ -16,10 +16,10 @@
 // https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Visuals_FillMode
 enumeration Arcadia.Engine.Visuals.FillMode {
 
-  Point
+  Point = 0
 
-  Line
+  Line = 1
 
-  Solid
+  Solid = 2
 
 }

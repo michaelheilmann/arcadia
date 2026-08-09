@@ -14,9 +14,9 @@ struct Arcadia_Engine_Demo_SceneDispatch {
   void (*updateLogics)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value tick);
   void (*updateVisuals)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value);
 
-  void (*handleKeyboardKeyEvent)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Visuals_KeyboardKeyEvent*);
-  void (*handleMouseButtonEvent)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Visuals_MouseButtonEvent*);
-  void (*handleMousePointerEvent)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Visuals_MousePointerEvent*);
+  void (*handleKeyboardKeyEvent)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*);
+  void (*handleMouseButtonEvent)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_MouseButtonEvent*);
+  void (*handleMousePointerEvent)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_MousePointerEvent*);
 };
 
 struct Arcadia_Engine_Demo_Scene {
@@ -63,7 +63,7 @@ Arcadia_Engine_Demo_Scene_handleKeyboardKeyEvent
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_KeyboardKeyEvent* event
+    Arcadia_Engine_Input_KeyboardKeyEvent* event
   );
 
 void
@@ -71,7 +71,7 @@ Arcadia_Engine_Demo_Scene_handleMouseButtonEvent
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_MouseButtonEvent* event
+    Arcadia_Engine_Input_MouseButtonEvent* event
   );
 
 void
@@ -79,7 +79,7 @@ Arcadia_Engine_Demo_Scene_handleMousePointerEvent
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_MousePointerEvent* event
+    Arcadia_Engine_Input_MousePointerEvent* event
   );
 
 #endif // ARCADIA_ENGINE_DEMO_SCENE_H_INCLUDED

@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/Languages/Diagnostic.h"
 
@@ -74,16 +75,22 @@ constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (1 != _numberOfArguments) {
+  if (3 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_EnumerationValue enumerationValue = Arcadia_ValueStack_getEnumerationValue(thread, 1);
+  Arcadia_EnumerationValue enumerationValue = Arcadia_ValueStack_getEnumerationValue(thread, 3);
   if (enumerationValue.type != _Arcadia_Languages_DiagnosticType_getType(thread)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
     Arcadia_Thread_jump(thread);
   }
   self->type = (Arcadia_Languages_DiagnosticType)enumerationValue.value;
+  if (Arcadia_ValueStack_isVoidValue(thread, 2)) {
+    self->inputFile = NULL;
+  } else {
+    self->inputFile = (Arcadia_Languages_InputFile*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Languages_InputFile_getType(thread));
+  }
+  self->inputPosition = Arcadia_ValueStack_getValue(thread, 1);
   Arcadia_LeaveConstructor(Arcadia_Languages_Diagnostic);
 }
 
@@ -109,21 +116,27 @@ visitImpl
     Arcadia_Thread* thread,
     Arcadia_Languages_Diagnostic* self
   )
-{/*Intentionally empty.*/}
+{
+  if (self->inputFile) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->inputFile);
+  }
+}
 
-Arcadia_Languages_Diagnostic*
-Arcadia_Languages_Diagnostic_create
+Arcadia_Languages_InputFile*
+Arcadia_Languages_Diagnostic_getInputFile
   (
     Arcadia_Thread* thread,
-    Arcadia_Languages_DiagnosticType type,
-    Arcadia_String* string
+    Arcadia_Languages_Diagnostic* self
   )
-{ 
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
-  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_Languages_DiagnosticType_getType(thread), type));
-  Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_Languages_Diagnostic);
-}
+{ return self->inputFile; }
+
+Arcadia_Value
+Arcadia_Languages_Diagnostic_getInputPosition
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_Diagnostic* self
+  )
+{ return self->inputPosition; }
 
 Arcadia_Languages_DiagnosticType
 Arcadia_Languages_Diagnostic_getType

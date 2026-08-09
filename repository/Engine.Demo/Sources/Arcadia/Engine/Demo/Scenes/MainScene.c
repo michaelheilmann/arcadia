@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/Engine/Demo/Scenes/MainScene.h"
 
@@ -71,7 +72,7 @@ Arcadia_Engine_Demo_MainScene_handleKeyboardKeyEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_MainScene* self,
-    Arcadia_Visuals_KeyboardKeyEvent* event
+    Arcadia_Engine_Input_KeyboardKeyEvent* event
   );
 
 static void
@@ -79,7 +80,7 @@ Arcadia_Engine_Demo_MainScene_handleMouseButtonEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_MainScene* self,
-    Arcadia_Visuals_MouseButtonEvent* event
+    Arcadia_Engine_Input_MouseButtonEvent* event
   );
 
 static void
@@ -87,7 +88,7 @@ Arcadia_Engine_Demo_MainScene_handleMousePointerEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_MainScene* self,
-    Arcadia_Visuals_MousePointerEvent* event
+    Arcadia_Engine_Input_MousePointerEvent* event
   );
 
 static const Arcadia_ObjectType_Operations _Arcadia_Engine_Demo_MainScene_objectTypeOperations = {
@@ -127,7 +128,7 @@ Arcadia_Engine_Demo_MainScene_constructImpl
     Arcadia_Thread_jump(thread);
   }
   //
-  self->definitions = Arcadia_ADL_Definitions_create(thread);
+  self->definitions = NULL;
   //
   self->cameraNode = NULL;
   self->enterPassNode = NULL;
@@ -152,9 +153,9 @@ Arcadia_Engine_Demo_MainScene_initializeDispatchImpl
   ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateLogics = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value)) & Arcadia_Engine_Demo_MainScene_updateLogics;
   ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateVisuals = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Demo_MainScene_updateVisuals;
 
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Visuals_KeyboardKeyEvent*)) & Arcadia_Engine_Demo_MainScene_handleKeyboardKeyEventImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Visuals_MouseButtonEvent*)) & Arcadia_Engine_Demo_MainScene_handleMouseButtonEventImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Visuals_MousePointerEvent*)) & Arcadia_Engine_Demo_MainScene_handleMousePointerEventImpl;
+  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*)) & Arcadia_Engine_Demo_MainScene_handleKeyboardKeyEventImpl;
+  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_MouseButtonEvent*)) & Arcadia_Engine_Demo_MainScene_handleMouseButtonEventImpl;
+  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_MousePointerEvent*)) & Arcadia_Engine_Demo_MainScene_handleMousePointerEventImpl;
 }
 
 static void
@@ -191,6 +192,41 @@ Arcadia_Engine_Demo_MainScene_visit
 }
 
 static void
+load
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Demo_MainScene* self
+  )
+{ 
+  if (!self->definitions) {
+    Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+    Arcadia_FileSystem* fileSystem = Arcadia_FileSystem_getOrCreate(thread);
+    Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+    Arcadia_List* files = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+    Arcadia_Engine_Demo_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/MainScene")), files);
+    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)files); i < n; ++i) {
+      Arcadia_FilePath* filePath = (Arcadia_FilePath*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, files, i, _Arcadia_FilePath_getType(thread));
+      Arcadia_ByteArrayBuilder* fileBytes = Arcadia_FileSystem_getFileContents(thread, fileSystem, filePath);
+      Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(fileBytes)), Arcadia_BooleanValue_True);
+    }
+    Arcadia_Engine_Demo_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Colors")), files);
+    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)files); i < n; ++i) {
+      Arcadia_FilePath* filePath = (Arcadia_FilePath*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, files, i, _Arcadia_FilePath_getType(thread));
+      Arcadia_ByteArrayBuilder* fileBytes = Arcadia_FileSystem_getFileContents(thread, fileSystem, filePath);
+      Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(fileBytes)), Arcadia_BooleanValue_True);
+    }
+    Arcadia_Engine_Demo_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/DefaultWall")), files);
+    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)files); i < n; ++i) {
+      Arcadia_FilePath* filePath = (Arcadia_FilePath*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, files, i, _Arcadia_FilePath_getType(thread));
+      Arcadia_ByteArrayBuilder* fileBytes = Arcadia_FileSystem_getFileContents(thread, fileSystem, filePath);
+      Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(fileBytes)), Arcadia_BooleanValue_True);
+    }
+
+    self->definitions = definitions;
+  }
+}
+
+static void
 Arcadia_Engine_Demo_MainScene_updateAudials
   (
     Arcadia_Thread* thread,
@@ -200,6 +236,7 @@ Arcadia_Engine_Demo_MainScene_updateAudials
     Arcadia_Integer32Value height
   )
 {
+  load(thread, self);
   Arcadia_Engine* engine = ((Arcadia_Engine_Demo_Scene*)self)->engine;
   if (!self->soundSourceNode) {
     Arcadia_ADL_SampleBufferDefinition* SAMPLEBUFFERS[] =
@@ -246,18 +283,8 @@ Arcadia_Engine_Demo_MainScene_updateVisuals
     Arcadia_Integer32Value height
   )
 {
+  load(thread, self);
   Arcadia_Engine* engine = ((Arcadia_Engine_Demo_Scene*)self)->engine;
-
-  Arcadia_FileSystem* fileSystem = Arcadia_FileSystem_getOrCreate(thread);
-  Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
-  Arcadia_List* files = (Arcadia_List*)Arcadia_ArrayList_create(thread);
-  Arcadia_Engine_Demo_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/LogoScene")), files);
-  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)files); i < n; ++i) {
-    Arcadia_FilePath* filePath = (Arcadia_FilePath*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, files, i, _Arcadia_FilePath_getType(thread));
-    Arcadia_ByteArrayBuilder* fileBytes = Arcadia_FileSystem_getFileContents(thread, fileSystem, filePath);
-    Arcadia_ADL_Context_readFromString(thread, context, self->definitions, Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(fileBytes)), Arcadia_BooleanValue_True);
-  }
-
   if (!self->enterPassNode) {
     self->enterPassNode =
       Arcadia_Engine_Visuals_NodeFactory_createEnterPassNode
@@ -292,12 +319,12 @@ Arcadia_Engine_Demo_MainScene_updateVisuals
 
   Arcadia_ADL_ModelDefinition* MODELS[] =
     {
-      getModelDefinition(thread, self->definitions, Arcadia_String_createFromCxxString(thread, "Assets/LogoScene/MeshColorModel.adl"),
-                                                    Arcadia_String_createFromCxxString(thread, "LogoScene.MeshColorModel")),
-      getModelDefinition(thread, self->definitions, Arcadia_String_createFromCxxString(thread, "Assets/LogoScene/VertexColorModel.adl"),
-                                                    Arcadia_String_createFromCxxString(thread, "LogoScene.VertexColorModel")),
-      getModelDefinition(thread, self->definitions, Arcadia_String_createFromCxxString(thread, "Assets/LogoScene/TextureColorModel.adl"),
-                                                    Arcadia_String_createFromCxxString(thread, "LogoScene.TextureColorModel")),
+      getModelDefinition(thread, self->definitions, Arcadia_String_createFromCxxString(thread, "Assets/DefaultWall/Model.adl"),
+                                                    Arcadia_String_createFromCxxString(thread, "Assets.DefaultWall.Model")),
+      getModelDefinition(thread, self->definitions, Arcadia_String_createFromCxxString(thread, "Assets/DefaultWall/Model.adl"),
+                                                    Arcadia_String_createFromCxxString(thread, "Assets.DefaultWall.Model")),
+      getModelDefinition(thread, self->definitions, Arcadia_String_createFromCxxString(thread, "Assets/DefaultWall/Model.adl"),
+                                                    Arcadia_String_createFromCxxString(thread, "Assets.DefaultWall.Model")),
     };
 
   for (Arcadia_SizeValue i = 0; i < 3; ++i) {
@@ -348,18 +375,18 @@ Arcadia_Engine_Demo_MainScene_handleKeyboardKeyEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_MainScene* self,
-    Arcadia_Visuals_KeyboardKeyEvent* event
+    Arcadia_Engine_Input_KeyboardKeyEvent* event
   )
 {
-  if (Arcadia_Visuals_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Visuals_KeyboardKeyAction_Released &&
-      Arcadia_Visuals_KeyboardKeyEvent_getKey(thread, event) == Arcadia_Visuals_KeyboardKey_Escape) {
-    Arcadia_Visuals_ApplicationQuitRequestedEvent* e = Arcadia_Visuals_ApplicationQuitRequestedEvent_create(thread, Arcadia_getTickCount(thread));
+  if (Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Engine_Input_KeyboardKeyAction_Released &&
+      Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event) == Arcadia_Engine_Input_KeyboardKey_Escape) {
+    Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent* e = Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent_create(thread, Arcadia_getTickCount(thread));
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)e);
     Arcadia_ValueStack_pushNatural8Value(thread, 1);
     Arcadia_Signal_emit(thread, ((Arcadia_Engine_Demo_Scene*)self)->applicationQuitRequestSignal, (Arcadia_Object*)self);
     Arcadia_ValueStack_popValues(thread, 2);
-  } else if (Arcadia_Visuals_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Visuals_KeyboardKeyAction_Released &&
-    Arcadia_Visuals_KeyboardKeyEvent_getKey(thread, event) == Arcadia_Visuals_KeyboardKey_R) {
+  } else if (Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Engine_Input_KeyboardKeyAction_Released &&
+    Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event) == Arcadia_Engine_Input_KeyboardKey_R) {
     Arcadia_logf(Arcadia_LogFlags_Info, "re-initializing backends\n");
   }
 }
@@ -369,7 +396,7 @@ Arcadia_Engine_Demo_MainScene_handleMouseButtonEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_MainScene* self,
-    Arcadia_Visuals_MouseButtonEvent* event
+    Arcadia_Engine_Input_MouseButtonEvent* event
   )
 { }
 
@@ -378,7 +405,7 @@ Arcadia_Engine_Demo_MainScene_handleMousePointerEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_MainScene* self,
-    Arcadia_Visuals_MousePointerEvent* event
+    Arcadia_Engine_Input_MousePointerEvent* event
   )
 { }
 
@@ -390,7 +417,7 @@ Arcadia_Engine_Demo_MainScene_create
     Arcadia_Engine_Demo_SceneManager* sceneManager
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Engine_Demo_MainScene);
   if (engine) {
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)engine);
   } else {
@@ -402,5 +429,5 @@ Arcadia_Engine_Demo_MainScene_create
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }
   Arcadia_ValueStack_pushNatural8Value(thread, 2);
-  ARCADIA_CREATEOBJECT(Arcadia_Engine_Demo_MainScene);
+  _Arcadia_EndCreate(Arcadia_Engine_Demo_MainScene);
 }

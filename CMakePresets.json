@@ -1,0 +1,97 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 29,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vs2022-base",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022"
+    },
+    {
+      "name": "x64",
+      "displayName": "Visual Studio 2022 x64",
+      "inherits": "vs2022-base",
+      "architecture": "x64",
+      "cacheVariables": {
+        "Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "Arcadia.Engine.Audials.Implementation.OpenAL.Enabled": {
+          "type": "BOOL",
+          "value": "ON"
+        }
+      }
+    },
+    {
+      "name": "Win32",
+      "displayName": "Visual Studio 2022 Win32",
+      "inherits": "vs2022-base",
+      "architecture": "Win32",
+      "cacheVariables": {
+        "Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "Arcadia.Engine.Audials.Implementation.OpenAL.Enabled": {
+          "type": "BOOL",
+          "value": "ON"
+        }
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "x64-debug",
+      "displayName": "x64 Debug",
+      "configurePreset": "x64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "x64-release",
+      "displayName": "x64 Release",
+      "configurePreset": "x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "x64-minsizerel",
+      "displayName": "x64 MinSizeRel",
+      "configurePreset": "x64",
+      "configuration": "MinSizeRel"
+    },
+    {
+      "name": "x64-relwithdebinfo",
+      "displayName": "x64 RelWithDebInfo",
+      "configurePreset": "x64",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "Win32-debug",
+      "displayName": "Win32 Debug",
+      "configurePreset": "Win32",
+      "configuration": "Debug"
+    },
+    {
+      "name": "Win32-release",
+      "displayName": "Win32 Release",
+      "configurePreset": "Win32",
+      "configuration": "Release"
+    },
+    {
+      "name": "Win32-minsizerel",
+      "displayName": "Win32 MinSizeRel",
+      "configurePreset": "Win32",
+      "configuration": "MinSizeRel"
+    },
+    {
+      "name": "Win32-relwithdebinfo",
+      "displayName": "Win32 RelWithDebInfo",
+      "configurePreset": "Win32",
+      "configuration": "RelWithDebInfo"
+    }
+  ]
+}

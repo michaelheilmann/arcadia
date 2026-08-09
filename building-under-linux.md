@@ -28,7 +28,7 @@ The following instructions will perform an out-of-source build. An out-of-source
 by storing any build file, intermediate file, or product file in a dedicated build directory outside of the source directory.
 An out of source build is the recommended way of building *michaelheilmann.com*.
 
-- Checkout *michaelheilmann.com* [https://github.com/michaelheilmann/michaelheilmann.com](https://github.com/michaelheilmannn/michaelheilmann.com) into a directory in your file system.
+- Checkout *Arcadia* [https://github.com/michaelheilmann/arcadia](https://github.com/michaelheilmannn/arcadia) into a directory in your file system.
   For the remainder of this manual, we call this directory *source directory* and denote it in command-line prompts by the meta variable `<source-directory>`.
 - Create a directory outside of the *source directory* in which the build will be performed.
   That directory *must not* reside in the source directory `<source-directory>`.
@@ -54,8 +54,14 @@ To enable OpenAL support, add the parameter `-D"Arcadia.Engine.Audials.Implement
 To disable OpenAL support, add the parameter `-D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=FALSE` to the cmake command.
 
 #### Example command line
-The typical command line for x64 build files is hence:
+The typical command line is hence:
 ```
-cd ~/build
-cmake ~/sources -D"Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled"=TRUE -D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=TRUE
+cd ~
+mkdir sources
+cd sources
+git clone https://github.com/michaelheilmann/arcadia
+cd ..
+mkdir build
+cd build
+cmake -S ./../sources/arcadia -D"Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled"=TRUE -D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=TRUE
 ```

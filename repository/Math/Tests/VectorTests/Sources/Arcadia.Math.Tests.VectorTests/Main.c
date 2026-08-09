@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
 
@@ -23,17 +24,23 @@ test1
     Arcadia_Thread* thread
   )
 {
-  Arcadia_Math_Vector3Real32* u = Arcadia_Math_Vector3Real32_create(thread);
-  Arcadia_Math_Vector3Real32* v = Arcadia_Math_Vector3Real32_create(thread);
+  Arcadia_Math_Vector3Real32 *u, *v, *w;
   Arcadia_Value t;
+
+  // u must be equal to itself.
+  u = Arcadia_Math_Vector3Real32_create(thread);
+  t = Arcadia_Value_makeObjectReferenceValue(u);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)u, &t));
+
+  // u and v are created with the same component values => u and v must be equal..
+  v = Arcadia_Math_Vector3Real32_create(thread);
   t = Arcadia_Value_makeObjectReferenceValue(v);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)u, &t));
 
-if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)u, &t)) {
-
-  }
-  if (Arcadia_Object_isNotEqualTo(thread, (Arcadia_Object*)u, &t)) {
-
-  }
+  // w is clone of u => w and u must be equal.
+  w = (Arcadia_Math_Vector3Real32*)Arcadia_Object_clone(thread, (Arcadia_Object*)u);
+  t = Arcadia_Value_makeObjectReferenceValue(w);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)u, &t));
 }
 
 int

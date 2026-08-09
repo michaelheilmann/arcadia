@@ -1,6 +1,6 @@
 <h2>Files</h2>
 <p>
-You can find the sources of Arcadia ARMS in my GitHub repository <a href="https://github.com/michaelheilmann/michaelheilmann.com">https://github.com/michaelheilmann/michaelheilmann.com</a>.
+You can find the sources of Arcadia ARMS in my GitHub repository <a href="@{arcadiaGitHubAddress}">@{arcadiaGitHubAddress}</a>.
 The subdirectory of Arcadia ARMS in the repository is here <a href="@{arcadiaGitHubAddress}/tree/main/Runtime/ARMS">@{arcadiaGitHubAddress}/tree/main/Runtime/ARMS</a>.</p>
 
 <ul>

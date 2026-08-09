@@ -16,12 +16,12 @@
 // https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Visuals_TextureAddressMode
 enumeration Arcadia.Engine.Visuals.TextureAddressMode {
 
-  ClampToBorder
+  ClampToBorder = 0
 
-  ClampToEdge
+  ClampToEdge = 1
 
-  MirroredRepeat
+  MirroredRepeat = 2
 
-  Repeat
+  Repeat = 3
 
 }

@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_ENGINE_PRIVATE (1)
 #include "Arcadia/Engine/Visuals/Nodes/CameraNode.h"
@@ -150,7 +151,7 @@ Arcadia_Engine_Visuals_CameraNode_constructImpl
   // Move the camera along the positive z axis by multiplying the camera position by `translate(0, 0, 1)`.
   // However, as we actually do not transform the camera position but the position of the objects in world space,
   // we actually have to use the inverse `inverse(translate(0, 0, 1))`.
-  Arcadia_Math_Matrix4x4Real32Value_setTranslation(thread, self->worldToViewMatrix, 0.f, 0.f, -1.f);
+  Arcadia_Math_Matrix4x4Real32_setTranslation(thread, self->worldToViewMatrix, 0.f, 0.f, -1.f);
 
   Arcadia_LeaveConstructor(Arcadia_Engine_Visuals_CameraNode);
 }
@@ -302,10 +303,10 @@ Arcadia_Engine_Visuals_CameraNode_create
     Arcadia_Engine_Visuals_BackendContext* backendContext
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Engine_Visuals_CameraNode);
   if (backendContext) Arcadia_ValueStack_pushObjectReferenceValue(thread, backendContext); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_Engine_Visuals_CameraNode);
+  _Arcadia_EndCreate(Arcadia_Engine_Visuals_CameraNode);
 }
 
 

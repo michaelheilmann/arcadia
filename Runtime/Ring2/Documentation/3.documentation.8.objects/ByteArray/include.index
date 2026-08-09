@@ -1,4 +1,4 @@
-<li>Byte Buffer</li>
+<li>Byte Array</li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_ByteArray">Arcadia_ByteArray</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_ByteArray_getAt">Arcadia_ByteArray_create</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_ByteArray_getBytes">Arcadia_ByteArray_getBytes</a></li>

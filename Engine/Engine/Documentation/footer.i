@@ -2,6 +2,10 @@
   <div class="right-column">
     <nav>
       <ul style="list-style: none">
+        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Engine_Event">[MIL] Arcadia.Engine.Event</a></li>
+      
+        @{include("./Input/include.index")}
+              
         <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_ApplicationEvent">[MIL] Arcadia.Visuals.ApplicationEvent</a></li>
         <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_ApplicationEvent_construct">[MIL] Arcadia.Visuals.ApplicationEvent.construct</a></li>
         <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_ApplicationQuitRequestedEvent">[MIL] Arcadia.Visuals.ApplicationQuitRequestedEvent</a></li>
@@ -16,20 +20,8 @@
         <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_CanvasSizeChangedEvent_construct">[MIL] Arcadia.Visuals.CanvasSizeChangedEvent.construct</a></li>
         <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Engine_Visuals_CullMode">Arcadia_Engine_Visuals_CullMode</a></li>
         <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Engine_Visuals_DepthCompareFunction">Arcadia_Engine_Visuals_DepthCompareFunction</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_Event">[MIL] Arcadia.Visuals.Event</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Engine_Visuals_FillMode">Arcadia_Engine_Visuals_FillMode</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKey">Arcadia_Visuals_KeyboardKey</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKeyAction">Arcadia_Visuals_KeyboardKeyAction</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKeyEvent">[MIL] Arcadia.Visuals.KeyboardKeyEvent</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKeyEvent_construct">[MIL] Arcadia.Visuals.KeyboardKeyEvent.construct</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKeyEvent_getAction">[MIL] Arcadia.Visuals.KeyboardKeyEvent.getAction</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKeyEvent_getKey">[MIL] Arcadia.Visuals.KeyboardKeyEvent.getKey</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_MouseButtonAction">Arcadia_Visuals_MouseButtonAction</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_MouseButtonEvent">[MIL] Arcadia.Visuals.MouseButtonEvent</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_MouseButtonEvent_construct">[MIL] Arcadia.Visuals.MouseButtonEvent.construct</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_MousePointerAction">Arcadia_Visuals_MousePointerAction</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_MousePointerEvent">[MIL] Arcadia.Visuals.MousePointerEvent</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Visuals_MousePointerEvent_construct">[MIL] Arcadia.Visuals.MousePointerEvent.construct</a></li>
+        <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Engine_Visuals_FillMode">[MIL] Arcadia.Engine.Visuals.FillMode</a></li>
+
         <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Engine_Visuals_TextureAddressMode">Arcadia_Engine_Visuals_TextureAddressMode</a></li>
         <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Engine_Visuals_TextureFilter">Arcadia_Engine_Visuals_TextureFilter</a></li>
         <li><a href="@{siteAddress}/Arcadia/Visuals/#Arcadia_Engine_Visuals_VertexElementSemantics">Arcadia_Engine_Visuals_VertexElementSemantics</a></li>

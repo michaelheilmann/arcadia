@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/Engine/Demo/Scene.h"
 
@@ -71,7 +72,7 @@ Arcadia_Engine_Demo_Scene_handleKeyboardKeyEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_KeyboardKeyEvent* event
+    Arcadia_Engine_Input_KeyboardKeyEvent* event
   );
 
 static void
@@ -79,7 +80,7 @@ Arcadia_Engine_Demo_Scene_handleMouseButtonEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_MouseButtonEvent* event
+    Arcadia_Engine_Input_MouseButtonEvent* event
   );
 
 static void
@@ -87,7 +88,7 @@ Arcadia_Engine_Demo_Scene_handleMousePointerEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_MousePointerEvent* event
+    Arcadia_Engine_Input_MousePointerEvent* event
   );
 
 static const Arcadia_ObjectType_Operations _Arcadia_Engine_Demo_Scene_objectTypeOperations = {
@@ -198,7 +199,7 @@ Arcadia_Engine_Demo_Scene_handleKeyboardKeyEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_KeyboardKeyEvent* event
+    Arcadia_Engine_Input_KeyboardKeyEvent* event
   )
 {/*Intentionally empty.*/}
 
@@ -207,7 +208,7 @@ Arcadia_Engine_Demo_Scene_handleMouseButtonEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_MouseButtonEvent* event
+    Arcadia_Engine_Input_MouseButtonEvent* event
   )
 {/*Intentionally empty.*/}
 
@@ -216,7 +217,7 @@ Arcadia_Engine_Demo_Scene_handleMousePointerEventImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_MousePointerEvent* event
+    Arcadia_Engine_Input_MousePointerEvent* event
   )
 {/*Intentionally enoty.*/}
 
@@ -256,7 +257,7 @@ Arcadia_Engine_Demo_Scene_handleKeyboardKeyEvent
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_KeyboardKeyEvent* event
+    Arcadia_Engine_Input_KeyboardKeyEvent* event
   )
 { Arcadia_VirtualCall(Arcadia_Engine_Demo_Scene, handleKeyboardKeyEvent, self, event); }
 
@@ -265,7 +266,7 @@ Arcadia_Engine_Demo_Scene_handleMouseButtonEvent
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_MouseButtonEvent* event
+    Arcadia_Engine_Input_MouseButtonEvent* event
   )
 { Arcadia_VirtualCall(Arcadia_Engine_Demo_Scene, handleMouseButtonEvent, self, event); }
 
@@ -274,6 +275,6 @@ Arcadia_Engine_Demo_Scene_handleMousePointerEvent
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Demo_Scene* self,
-    Arcadia_Visuals_MousePointerEvent* event
+    Arcadia_Engine_Input_MousePointerEvent* event
   )
 { Arcadia_VirtualCall(Arcadia_Engine_Demo_Scene, handleMousePointerEvent, self, event); }

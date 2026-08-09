@@ -1,17 +1,18 @@
-// The author of this software is Michael Heilmann (contact@michaelheilmann.com).
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
 //
-// Copyright(c) 2024-2026 Michael Heilmann (contact@michaelheilmann.com).
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
 //
-// Permission to use, copy, modify, and distribute this software for any
-// purpose without fee is hereby granted, provided that this entire notice
-// is included in all copies of any software which is or includes a copy
-// or modification of this software and in all copies of the supporting
-// documentation for such software.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
 //
-// THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
-// WARRANTY.IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
-// REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
-// OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/Visuals/Implementation/OpenGL4/GLX/BackendContext.h"
 
@@ -119,7 +120,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_mapKeyboardKey
   (
     Arcadia_Thread* thread,
     XKeyEvent* source,
-    Arcadia_Visuals_KeyboardKey* target
+    Arcadia_Engine_Input_KeyboardKey* target
   );
 
 static Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend*
@@ -467,7 +468,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_mapKeyboardKey
   (
     Arcadia_Thread* thread,
     XKeyEvent* source,
-    Arcadia_Visuals_KeyboardKey* target
+    Arcadia_Engine_Input_KeyboardKey* target
   )
 {
 #define Define(Source, Target) \
@@ -477,130 +478,130 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_mapKeyboardKey
 
 
   switch (XLookupKeysym(source, 0)) {
-    Define(XK_Escape, Arcadia_Visuals_KeyboardKey_Escape)
+    Define(XK_Escape, Arcadia_Engine_Input_KeyboardKey_Escape)
 
-    Define(XK_0, Arcadia_Visuals_KeyboardKey_Zero)
-    Define(XK_1, Arcadia_Visuals_KeyboardKey_One)
-    Define(XK_2, Arcadia_Visuals_KeyboardKey_Two)
-    Define(XK_3, Arcadia_Visuals_KeyboardKey_Three)
-    Define(XK_4, Arcadia_Visuals_KeyboardKey_Four)
-    Define(XK_5, Arcadia_Visuals_KeyboardKey_Five)
-    Define(XK_6, Arcadia_Visuals_KeyboardKey_Six)
-    Define(XK_7, Arcadia_Visuals_KeyboardKey_Seven)
-    Define(XK_8, Arcadia_Visuals_KeyboardKey_Eight)
-    Define(XK_9, Arcadia_Visuals_KeyboardKey_Nine)
+    Define(XK_0, Arcadia_Engine_Input_KeyboardKey_Zero)
+    Define(XK_1, Arcadia_Engine_Input_KeyboardKey_One)
+    Define(XK_2, Arcadia_Engine_Input_KeyboardKey_Two)
+    Define(XK_3, Arcadia_Engine_Input_KeyboardKey_Three)
+    Define(XK_4, Arcadia_Engine_Input_KeyboardKey_Four)
+    Define(XK_5, Arcadia_Engine_Input_KeyboardKey_Five)
+    Define(XK_6, Arcadia_Engine_Input_KeyboardKey_Six)
+    Define(XK_7, Arcadia_Engine_Input_KeyboardKey_Seven)
+    Define(XK_8, Arcadia_Engine_Input_KeyboardKey_Eight)
+    Define(XK_9, Arcadia_Engine_Input_KeyboardKey_Nine)
 
-    Define(XK_Left, Arcadia_Visuals_KeyboardKey_Left)
-    Define(XK_Up, Arcadia_Visuals_KeyboardKey_Up)
-    Define(XK_Right, Arcadia_Visuals_KeyboardKey_Right)
-    Define(XK_Down, Arcadia_Visuals_KeyboardKey_Down)
+    Define(XK_Left, Arcadia_Engine_Input_KeyboardKey_Left)
+    Define(XK_Up, Arcadia_Engine_Input_KeyboardKey_Up)
+    Define(XK_Right, Arcadia_Engine_Input_KeyboardKey_Right)
+    Define(XK_Down, Arcadia_Engine_Input_KeyboardKey_Down)
 
-    Define(XK_Shift_L, Arcadia_Visuals_KeyboardKey_LeftShift)
-    Define(XK_Shift_R, Arcadia_Visuals_KeyboardKey_RightShift)
-    Define(XK_Control_L, Arcadia_Visuals_KeyboardKey_LeftControl)
-    Define(XK_Control_R, Arcadia_Visuals_KeyboardKey_RightControl)
-    Define(XK_Alt_L, Arcadia_Visuals_KeyboardKey_LeftMenu)
-    Define(XK_Alt_R, Arcadia_Visuals_KeyboardKey_RightMenu)
+    Define(XK_Shift_L, Arcadia_Engine_Input_KeyboardKey_LeftShift)
+    Define(XK_Shift_R, Arcadia_Engine_Input_KeyboardKey_RightShift)
+    Define(XK_Control_L, Arcadia_Engine_Input_KeyboardKey_LeftControl)
+    Define(XK_Control_R, Arcadia_Engine_Input_KeyboardKey_RightControl)
+    Define(XK_Alt_L, Arcadia_Engine_Input_KeyboardKey_LeftMenu)
+    Define(XK_Alt_R, Arcadia_Engine_Input_KeyboardKey_RightMenu)
 
-    Define(XK_Page_Down, Arcadia_Visuals_KeyboardKey_PageDown)
-    Define(XK_Page_Up, Arcadia_Visuals_KeyboardKey_PageUp)
+    Define(XK_Page_Down, Arcadia_Engine_Input_KeyboardKey_PageDown)
+    Define(XK_Page_Up, Arcadia_Engine_Input_KeyboardKey_PageUp)
 
-    Define(XK_BackSpace, Arcadia_Visuals_KeyboardKey_Backspace)
-    Define(XK_space, Arcadia_Visuals_KeyboardKey_Space)
-    Define(XK_Tab, Arcadia_Visuals_KeyboardKey_Tabulator)
-    Define(XK_Return, Arcadia_Visuals_KeyboardKey_Return)
-    Define(XK_Delete, Arcadia_Visuals_KeyboardKey_Delete)
-    Define(XK_Scroll_Lock, Arcadia_Visuals_KeyboardKey_ScrollLock)
-    Define(XK_Clear, Arcadia_Visuals_KeyboardKey_Clear)
-    Define(XK_Pause, Arcadia_Visuals_KeyboardKey_Pause)
+    Define(XK_BackSpace, Arcadia_Engine_Input_KeyboardKey_Backspace)
+    Define(XK_space, Arcadia_Engine_Input_KeyboardKey_Space)
+    Define(XK_Tab, Arcadia_Engine_Input_KeyboardKey_Tabulator)
+    Define(XK_Return, Arcadia_Engine_Input_KeyboardKey_Return)
+    Define(XK_Delete, Arcadia_Engine_Input_KeyboardKey_Delete)
+    Define(XK_Scroll_Lock, Arcadia_Engine_Input_KeyboardKey_ScrollLock)
+    Define(XK_Clear, Arcadia_Engine_Input_KeyboardKey_Clear)
+    Define(XK_Pause, Arcadia_Engine_Input_KeyboardKey_Pause)
 
-    Define(XK_KP_Enter, Arcadia_Visuals_KeyboardKey_NumPadEnter)
-    Define(XK_KP_0, Arcadia_Visuals_KeyboardKey_NumPadZero)
-    Define(XK_KP_1, Arcadia_Visuals_KeyboardKey_NumPadOne)
-    Define(XK_KP_2, Arcadia_Visuals_KeyboardKey_NumPadTwo)
-    Define(XK_KP_3, Arcadia_Visuals_KeyboardKey_NumPadThree)
-    Define(XK_KP_4, Arcadia_Visuals_KeyboardKey_NumPadFour)
-    Define(XK_KP_5, Arcadia_Visuals_KeyboardKey_NumPadFive)
-    Define(XK_KP_6, Arcadia_Visuals_KeyboardKey_NumPadSix)
-    Define(XK_KP_7, Arcadia_Visuals_KeyboardKey_NumPadSeven)
-    Define(XK_KP_8, Arcadia_Visuals_KeyboardKey_NumPadEight)
-    Define(XK_KP_9, Arcadia_Visuals_KeyboardKey_NumPadNine)
-    Define(XK_KP_Multiply, Arcadia_Visuals_KeyboardKey_Multiply)
-    Define(XK_KP_Divide, Arcadia_Visuals_KeyboardKey_Divide)
-    Define(XK_KP_Add, Arcadia_Visuals_KeyboardKey_Add)
-    Define(XK_KP_Subtract, Arcadia_Visuals_KeyboardKey_Subtract)
+    Define(XK_KP_Enter, Arcadia_Engine_Input_KeyboardKey_NumPadEnter)
+    Define(XK_KP_0, Arcadia_Engine_Input_KeyboardKey_NumPadZero)
+    Define(XK_KP_1, Arcadia_Engine_Input_KeyboardKey_NumPadOne)
+    Define(XK_KP_2, Arcadia_Engine_Input_KeyboardKey_NumPadTwo)
+    Define(XK_KP_3, Arcadia_Engine_Input_KeyboardKey_NumPadThree)
+    Define(XK_KP_4, Arcadia_Engine_Input_KeyboardKey_NumPadFour)
+    Define(XK_KP_5, Arcadia_Engine_Input_KeyboardKey_NumPadFive)
+    Define(XK_KP_6, Arcadia_Engine_Input_KeyboardKey_NumPadSix)
+    Define(XK_KP_7, Arcadia_Engine_Input_KeyboardKey_NumPadSeven)
+    Define(XK_KP_8, Arcadia_Engine_Input_KeyboardKey_NumPadEight)
+    Define(XK_KP_9, Arcadia_Engine_Input_KeyboardKey_NumPadNine)
+    Define(XK_KP_Multiply, Arcadia_Engine_Input_KeyboardKey_Multiply)
+    Define(XK_KP_Divide, Arcadia_Engine_Input_KeyboardKey_Divide)
+    Define(XK_KP_Add, Arcadia_Engine_Input_KeyboardKey_Add)
+    Define(XK_KP_Subtract, Arcadia_Engine_Input_KeyboardKey_Subtract)
 
-    Define(XK_a, Arcadia_Visuals_KeyboardKey_A)
-    Define(XK_b, Arcadia_Visuals_KeyboardKey_B)
-    Define(XK_c, Arcadia_Visuals_KeyboardKey_C)
-    Define(XK_d, Arcadia_Visuals_KeyboardKey_D)
-    Define(XK_e, Arcadia_Visuals_KeyboardKey_E)
-    Define(XK_f, Arcadia_Visuals_KeyboardKey_F)
-    Define(XK_g, Arcadia_Visuals_KeyboardKey_G)
-    Define(XK_h, Arcadia_Visuals_KeyboardKey_H)
-    Define(XK_i, Arcadia_Visuals_KeyboardKey_I)
-    Define(XK_j, Arcadia_Visuals_KeyboardKey_J)
-    Define(XK_k, Arcadia_Visuals_KeyboardKey_K)
-    Define(XK_l, Arcadia_Visuals_KeyboardKey_L)
-    Define(XK_m, Arcadia_Visuals_KeyboardKey_M)
-    Define(XK_n, Arcadia_Visuals_KeyboardKey_N)
-    Define(XK_o, Arcadia_Visuals_KeyboardKey_O)
-    Define(XK_p, Arcadia_Visuals_KeyboardKey_P)
-    Define(XK_q, Arcadia_Visuals_KeyboardKey_Q)
-    Define(XK_r, Arcadia_Visuals_KeyboardKey_R)
-    Define(XK_s, Arcadia_Visuals_KeyboardKey_S)
-    Define(XK_t, Arcadia_Visuals_KeyboardKey_T)
-    Define(XK_u, Arcadia_Visuals_KeyboardKey_U)
-    Define(XK_v, Arcadia_Visuals_KeyboardKey_V)
-    Define(XK_w, Arcadia_Visuals_KeyboardKey_W)
-    Define(XK_x, Arcadia_Visuals_KeyboardKey_X)
-    Define(XK_y, Arcadia_Visuals_KeyboardKey_Y)
-    Define(XK_z, Arcadia_Visuals_KeyboardKey_Z)
+    Define(XK_a, Arcadia_Engine_Input_KeyboardKey_A)
+    Define(XK_b, Arcadia_Engine_Input_KeyboardKey_B)
+    Define(XK_c, Arcadia_Engine_Input_KeyboardKey_C)
+    Define(XK_d, Arcadia_Engine_Input_KeyboardKey_D)
+    Define(XK_e, Arcadia_Engine_Input_KeyboardKey_E)
+    Define(XK_f, Arcadia_Engine_Input_KeyboardKey_F)
+    Define(XK_g, Arcadia_Engine_Input_KeyboardKey_G)
+    Define(XK_h, Arcadia_Engine_Input_KeyboardKey_H)
+    Define(XK_i, Arcadia_Engine_Input_KeyboardKey_I)
+    Define(XK_j, Arcadia_Engine_Input_KeyboardKey_J)
+    Define(XK_k, Arcadia_Engine_Input_KeyboardKey_K)
+    Define(XK_l, Arcadia_Engine_Input_KeyboardKey_L)
+    Define(XK_m, Arcadia_Engine_Input_KeyboardKey_M)
+    Define(XK_n, Arcadia_Engine_Input_KeyboardKey_N)
+    Define(XK_o, Arcadia_Engine_Input_KeyboardKey_O)
+    Define(XK_p, Arcadia_Engine_Input_KeyboardKey_P)
+    Define(XK_q, Arcadia_Engine_Input_KeyboardKey_Q)
+    Define(XK_r, Arcadia_Engine_Input_KeyboardKey_R)
+    Define(XK_s, Arcadia_Engine_Input_KeyboardKey_S)
+    Define(XK_t, Arcadia_Engine_Input_KeyboardKey_T)
+    Define(XK_u, Arcadia_Engine_Input_KeyboardKey_U)
+    Define(XK_v, Arcadia_Engine_Input_KeyboardKey_V)
+    Define(XK_w, Arcadia_Engine_Input_KeyboardKey_W)
+    Define(XK_x, Arcadia_Engine_Input_KeyboardKey_X)
+    Define(XK_y, Arcadia_Engine_Input_KeyboardKey_Y)
+    Define(XK_z, Arcadia_Engine_Input_KeyboardKey_Z)
 
-    Define(XK_A, Arcadia_Visuals_KeyboardKey_A)
-    Define(XK_B, Arcadia_Visuals_KeyboardKey_B)
-    Define(XK_C, Arcadia_Visuals_KeyboardKey_C)
-    Define(XK_D, Arcadia_Visuals_KeyboardKey_D)
-    Define(XK_E, Arcadia_Visuals_KeyboardKey_E)
-    Define(XK_F, Arcadia_Visuals_KeyboardKey_F)
-    Define(XK_G, Arcadia_Visuals_KeyboardKey_G)
-    Define(XK_H, Arcadia_Visuals_KeyboardKey_H)
-    Define(XK_I, Arcadia_Visuals_KeyboardKey_I)
-    Define(XK_J, Arcadia_Visuals_KeyboardKey_J)
-    Define(XK_K, Arcadia_Visuals_KeyboardKey_K)
-    Define(XK_L, Arcadia_Visuals_KeyboardKey_L)
-    Define(XK_M, Arcadia_Visuals_KeyboardKey_M)
-    Define(XK_N, Arcadia_Visuals_KeyboardKey_N)
-    Define(XK_O, Arcadia_Visuals_KeyboardKey_O)
-    Define(XK_P, Arcadia_Visuals_KeyboardKey_P)
-    Define(XK_Q, Arcadia_Visuals_KeyboardKey_Q)
-    Define(XK_R, Arcadia_Visuals_KeyboardKey_R)
-    Define(XK_S, Arcadia_Visuals_KeyboardKey_S)
-    Define(XK_T, Arcadia_Visuals_KeyboardKey_T)
-    Define(XK_U, Arcadia_Visuals_KeyboardKey_U)
-    Define(XK_V, Arcadia_Visuals_KeyboardKey_V)
-    Define(XK_W, Arcadia_Visuals_KeyboardKey_W)
-    Define(XK_X, Arcadia_Visuals_KeyboardKey_X)
-    Define(XK_Y, Arcadia_Visuals_KeyboardKey_Y)
-    Define(XK_Z, Arcadia_Visuals_KeyboardKey_Z)
+    Define(XK_A, Arcadia_Engine_Input_KeyboardKey_A)
+    Define(XK_B, Arcadia_Engine_Input_KeyboardKey_B)
+    Define(XK_C, Arcadia_Engine_Input_KeyboardKey_C)
+    Define(XK_D, Arcadia_Engine_Input_KeyboardKey_D)
+    Define(XK_E, Arcadia_Engine_Input_KeyboardKey_E)
+    Define(XK_F, Arcadia_Engine_Input_KeyboardKey_F)
+    Define(XK_G, Arcadia_Engine_Input_KeyboardKey_G)
+    Define(XK_H, Arcadia_Engine_Input_KeyboardKey_H)
+    Define(XK_I, Arcadia_Engine_Input_KeyboardKey_I)
+    Define(XK_J, Arcadia_Engine_Input_KeyboardKey_J)
+    Define(XK_K, Arcadia_Engine_Input_KeyboardKey_K)
+    Define(XK_L, Arcadia_Engine_Input_KeyboardKey_L)
+    Define(XK_M, Arcadia_Engine_Input_KeyboardKey_M)
+    Define(XK_N, Arcadia_Engine_Input_KeyboardKey_N)
+    Define(XK_O, Arcadia_Engine_Input_KeyboardKey_O)
+    Define(XK_P, Arcadia_Engine_Input_KeyboardKey_P)
+    Define(XK_Q, Arcadia_Engine_Input_KeyboardKey_Q)
+    Define(XK_R, Arcadia_Engine_Input_KeyboardKey_R)
+    Define(XK_S, Arcadia_Engine_Input_KeyboardKey_S)
+    Define(XK_T, Arcadia_Engine_Input_KeyboardKey_T)
+    Define(XK_U, Arcadia_Engine_Input_KeyboardKey_U)
+    Define(XK_V, Arcadia_Engine_Input_KeyboardKey_V)
+    Define(XK_W, Arcadia_Engine_Input_KeyboardKey_W)
+    Define(XK_X, Arcadia_Engine_Input_KeyboardKey_X)
+    Define(XK_Y, Arcadia_Engine_Input_KeyboardKey_Y)
+    Define(XK_Z, Arcadia_Engine_Input_KeyboardKey_Z)
 
-    Define(XK_F1, Arcadia_Visuals_KeyboardKey_F1)
-    Define(XK_F10, Arcadia_Visuals_KeyboardKey_F10)
-    Define(XK_F11, Arcadia_Visuals_KeyboardKey_F11)
-    Define(XK_F12, Arcadia_Visuals_KeyboardKey_F12)
-    Define(XK_F13, Arcadia_Visuals_KeyboardKey_F13)
-    Define(XK_F14, Arcadia_Visuals_KeyboardKey_F14)
-    Define(XK_F15, Arcadia_Visuals_KeyboardKey_F15)
-    Define(XK_F16, Arcadia_Visuals_KeyboardKey_F16)
-    Define(XK_F17, Arcadia_Visuals_KeyboardKey_F17)
-    Define(XK_F18, Arcadia_Visuals_KeyboardKey_F18)
-    Define(XK_F19, Arcadia_Visuals_KeyboardKey_F19)
-    Define(XK_F2, Arcadia_Visuals_KeyboardKey_F2)
-    Define(XK_F20, Arcadia_Visuals_KeyboardKey_F20)
-    Define(XK_F21, Arcadia_Visuals_KeyboardKey_F21)
-    Define(XK_F22, Arcadia_Visuals_KeyboardKey_F22)
-    Define(XK_F23, Arcadia_Visuals_KeyboardKey_F23)
-    Define(XK_F24, Arcadia_Visuals_KeyboardKey_F24)
+    Define(XK_F1, Arcadia_Engine_Input_KeyboardKey_F1)
+    Define(XK_F10, Arcadia_Engine_Input_KeyboardKey_F10)
+    Define(XK_F11, Arcadia_Engine_Input_KeyboardKey_F11)
+    Define(XK_F12, Arcadia_Engine_Input_KeyboardKey_F12)
+    Define(XK_F13, Arcadia_Engine_Input_KeyboardKey_F13)
+    Define(XK_F14, Arcadia_Engine_Input_KeyboardKey_F14)
+    Define(XK_F15, Arcadia_Engine_Input_KeyboardKey_F15)
+    Define(XK_F16, Arcadia_Engine_Input_KeyboardKey_F16)
+    Define(XK_F17, Arcadia_Engine_Input_KeyboardKey_F17)
+    Define(XK_F18, Arcadia_Engine_Input_KeyboardKey_F18)
+    Define(XK_F19, Arcadia_Engine_Input_KeyboardKey_F19)
+    Define(XK_F2, Arcadia_Engine_Input_KeyboardKey_F2)
+    Define(XK_F20, Arcadia_Engine_Input_KeyboardKey_F20)
+    Define(XK_F21, Arcadia_Engine_Input_KeyboardKey_F21)
+    Define(XK_F22, Arcadia_Engine_Input_KeyboardKey_F22)
+    Define(XK_F23, Arcadia_Engine_Input_KeyboardKey_F23)
+    Define(XK_F24, Arcadia_Engine_Input_KeyboardKey_F24)
 
     default: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_NotImplemented);
@@ -648,11 +649,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onEnterNotifyEv
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
     Arcadia_Engine_Event* event =
       (Arcadia_Engine_Event*)
-      Arcadia_Visuals_MousePointerEvent_create
+      Arcadia_Engine_Input_MousePointerEvent_create
         (
           thread,
           Arcadia_getTickCount(thread),
-          Arcadia_Visuals_MousePointerAction_Entered,
+          Arcadia_Engine_Input_MousePointerAction_Entered,
           ((Arcadia_Engine_Visuals_WindowBackend*)windowBackend)->mouse.oldx,
           ((Arcadia_Engine_Visuals_WindowBackend*)windowBackend)->mouse.oldy
         );
@@ -680,11 +681,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onLeaveNotifyEv
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
     Arcadia_Engine_Event* event =
       (Arcadia_Engine_Event*)
-      Arcadia_Visuals_MousePointerEvent_create
+      Arcadia_Engine_Input_MousePointerEvent_create
         (
           thread,
           Arcadia_getTickCount(thread),
-          Arcadia_Visuals_MousePointerAction_Exited,
+          Arcadia_Engine_Input_MousePointerAction_Exited,
           ((Arcadia_Engine_Visuals_WindowBackend*)windowBackend)->mouse.oldx,
           ((Arcadia_Engine_Visuals_WindowBackend*)windowBackend)->mouse.oldy
         );
@@ -715,11 +716,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onMotionNotifyE
     if (!((Arcadia_Engine_Visuals_WindowBackend*)windowBackend)->mouse.inWindow) {
       Arcadia_Engine_Event* event =
         (Arcadia_Engine_Event*)
-        Arcadia_Visuals_MousePointerEvent_create
+        Arcadia_Engine_Input_MousePointerEvent_create
           (
             thread,
             Arcadia_getTickCount(thread),
-            Arcadia_Visuals_MousePointerAction_Entered,
+            Arcadia_Engine_Input_MousePointerAction_Entered,
             x,
             y
           );
@@ -730,11 +731,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onMotionNotifyE
     }
     Arcadia_Engine_Event* event =
       (Arcadia_Engine_Event*)
-      Arcadia_Visuals_MousePointerEvent_create
+      Arcadia_Engine_Input_MousePointerEvent_create
         (
           thread,
           Arcadia_getTickCount(thread),
-          Arcadia_Visuals_MousePointerAction_Moved,
+          Arcadia_Engine_Input_MousePointerAction_Moved,
           x,
           y
         );
@@ -782,11 +783,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onButtonPressEv
   int y = x11event->y;
   Arcadia_Engine_Event* event =
     (Arcadia_Engine_Event*)
-    Arcadia_Visuals_MouseButtonEvent_create
+    Arcadia_Engine_Input_MouseButtonEvent_create
       (
         thread,
         Arcadia_getTickCount(thread),
-        Arcadia_Visuals_MouseButtonAction_Pressed,
+        Arcadia_Engine_Input_MouseButtonAction_Pressed,
         button,
         x,
         y
@@ -831,11 +832,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onButtonRelease
   int y = x11event->y;
   Arcadia_Engine_Event* event =
     (Arcadia_Engine_Event*)
-    Arcadia_Visuals_MouseButtonEvent_create
+    Arcadia_Engine_Input_MouseButtonEvent_create
       (
         thread,
         Arcadia_getTickCount(thread),
-        Arcadia_Visuals_MouseButtonAction_Released,
+        Arcadia_Engine_Input_MouseButtonAction_Released,
         button,
         x,
         y
@@ -855,7 +856,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onKeyPressEvent
   if (!windowBackend) {
     return;
   }
-  Arcadia_Visuals_KeyboardKey keyboardKey;
+  Arcadia_Engine_Input_KeyboardKey keyboardKey;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
@@ -867,11 +868,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onKeyPressEvent
   }
   Arcadia_Engine_Event* event =
     (Arcadia_Engine_Event*)
-    Arcadia_Visuals_KeyboardKeyEvent_create
+    Arcadia_Engine_Input_KeyboardKeyEvent_create
       (
         thread,
         Arcadia_getTickCount(thread),
-        Arcadia_Visuals_KeyboardKeyAction_Pressed,
+        Arcadia_Engine_Input_KeyboardKeyAction_Pressed,
         keyboardKey
       );
   Arcadia_Engine_enqueEvent(thread, Arcadia_Engine_getOrCreate(thread), event);
@@ -893,7 +894,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onKeyReleaseEve
   if (!window) {
     return;
   }
-  Arcadia_Visuals_KeyboardKey keyboardKey;
+  Arcadia_Engine_Input_KeyboardKey keyboardKey;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
@@ -905,11 +906,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onKeyReleaseEve
   }
   Arcadia_Engine_Event* event =
     (Arcadia_Engine_Event*)
-    Arcadia_Visuals_KeyboardKeyEvent_create
+    Arcadia_Engine_Input_KeyboardKeyEvent_create
       (
         thread,
         Arcadia_getTickCount(thread),
-        Arcadia_Visuals_KeyboardKeyAction_Released,
+        Arcadia_Engine_Input_KeyboardKeyAction_Released,
         keyboardKey
       );
   Arcadia_Engine_enqueEvent(thread, Arcadia_Engine_getOrCreate(thread), event);
@@ -1013,10 +1014,10 @@ updateResources
 {
   Arcadia_SizeValue removed = 0;
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)((Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)self)->resources); i < n;) {
-    Arcadia_Engine_Visuals_Implementation_Resource* resource = (Arcadia_Engine_Visuals_Implementation_Resource*)Arcadia_List_getObjectReferenceValueAt(thread, ((Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)self)->resources, i);
-    if (!((Arcadia_Engine_Visuals_Implementation_Resource*)self)->referenceCount) {
-      Arcadia_Engine_Visuals_Implementation_Resource_unload(thread, resource);
-      Arcadia_Engine_Visuals_Implementation_Resource_unlink(thread, resource);
+    Arcadia_Engine_Visuals_Resource* resource = (Arcadia_Engine_Visuals_Resource*)Arcadia_List_getObjectReferenceValueAt(thread, ((Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)self)->resources, i);
+    if (!((Arcadia_Engine_Visuals_Resource*)self)->referenceCount) {
+      Arcadia_Engine_Visuals_Resource_unload(thread, resource);
+      Arcadia_Engine_Visuals_Resource_unlink(thread, resource);
       Arcadia_List_removeAt(thread, ((Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)self)->resources, i, 1);
       n--;
       removed++;
@@ -1571,9 +1572,9 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_create
     Arcadia_Thread* thread
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
+  _Arcadia_BeginCreate(Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext);
   Arcadia_ValueStack_pushNatural8Value(thread, 0);
-  ARCADIA_CREATEOBJECT(Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext);
+  _Arcadia_EndCreate(Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext);
 }
 
 static void

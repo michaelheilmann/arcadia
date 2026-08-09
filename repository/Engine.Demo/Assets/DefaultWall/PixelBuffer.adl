@@ -1,0 +1,9 @@
+{
+  type : "PixelBuffer",
+  name : "Assets.DefaultWall.PixelBuffer",
+  width: 256,
+  height: 256,
+  operations : [
+    "Assets.DefaultWall.PixelBuffer.FillOperation",
+  ],
+}

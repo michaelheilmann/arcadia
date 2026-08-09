@@ -1,0 +1,1749 @@
+  <!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/cxx-doc.css?v=5'>
+  <link rel='canonical' href='https://michaelheilmann.com/Arcadia/Ring2/'>
+  <title>Michael Heilmann's Arcadia Ring 2</title>
+  <style>
+  </style>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div style="display:none">
+\[
+\newcommand{\ListType}{{\text{List}}}
+\newcommand{\ListEmpty}{{\left[\right]}}
+\newcommand{\ListLength}[1]{{\ell\left(#1\right)}}
+\newcommand{\ListAt}[2]{{{#1}_{#2}}}
+\]
+</div>
+
+    <div>
+    <a href="https://michaelheilmann.com/">Home</a>
+    </div>
+  </header>
+<main>
+  <div class="left-column"></div>
+
+
+  <div class="center-column">
+  <h1>Michael Heilmann's Arcadia Ring 2</h1>
+  <p>
+  This is the documentation for Michael  Heilmann's Arcadia Ring 2.
+  Arcadia Ring 2 facilitates the creation of C programs - in particular interpreters - that are portable, maintainable, as well as safe.
+  Arcadia Ring 2 is available at <a href="https://michaelheilmann.com/Arcadia/Ring1">michaelheilmann.com/Arcadia/Ring2</a>.
+  </p>
+  
+  <p>Features:</p>
+  <ul>
+    <li>UTF-8 strings and string buffers, decoders and encoders</li>
+    <li>32 and 64 Bit IEEE 754 floating point <=> UTF-8 string conversions based on the works of Steele &amp; White, Gay, Clinger, Lemire &amp; Musthak.</li>
+    <li>Other scalar types (Void, Boolean, Integer, Natural) <=> UTF-8 string conversions</li>
+    <li>aggregates (array lists, array deques, hash maps)</li>
+    <li>File System implementation for Windows and Linux supporting creation and deletation of files, reading and writing files, enumerating contents of folder</li>  
+  </ul>
+
+<h2>Files</h2>
+<p>
+You can find the sources of Arcadia FileSystem in my GitHub repository <a href="https://github.com/michaelheilmann/arcadia">https://github.com/michaelheilmann/arcadia</a>.
+The subdirectory of Arcadia File System in the repository is here <a href="https://github.com/michaelheilmann/arcadia/tree/main/Runtime/FileSystem">https://github.com/michaelheilmann/arcadia/tree/main/Runtime/FileSystem</a>.</p>
+</p>
+
+<ul>
+  <li>The (sources of the) library resides in the directory
+  <a href="https://github.com/michaelheilmann/arcadia/tree/main/Runtime/FileSystem/Library">https://github.com/michaelheilmann/arcadia/tree/main/Runtime/FileSystem/Library</a>
+  </li>
+  <li>The (sources of) tests reside in the directory
+  <a href="https://github.com/michaelheilmann/arcadia/tree/main/Arcadia/FileSystem/Tests">https://github.com/michaelheilmann/arcadia/tree/main/Runtime/FileSystem/Tests</a>
+  </li>
+  <li>The (sources of this very documentation you are reading) documentation reside in the directory
+  <a href="https://github.com/michaelheilmann/arcadia/tree/main/Runtime/FileSystem/Documentation">https://github.com/michaelheilmann/arcadia/tree/main/Runtime/FileSystem/Documentation</a>
+  </li>
+</ul>
+
+<p>
+Arcadia Ring 2 supports various platforms (including but not restricted to Windows, Linux, and many more), however, we currently only officially support Windows.
+For instructions on how to build, test, and use Arcadia FileSystem,
+refer to <a href="https://github.com/michaelheilmann/arcadia/tree/main/README.md">README.md</a> in the root folder of the repository.
+</p>
+
+<h2>Further References</h2>
+<p>Arcadia Ring 2 relies on <a href="https://michaelheilmann.com/Arcadia/Ring1">Arcadia Ring 1</a> and <a href="https://michaelheilmann.com/Arcadia/ARMS">Arcadia ARMS</a>.</p>
+
+<h2>Documentation</h2>
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_ExistingFilePolicy">Arcadia_ExistingFilePolicy</h1>
+<my-signature><code>
+typedef enum Arcadia_ExistingFilePolicy Arcadia_ExistingFilePolicy;
+</code></my-signature>
+
+<my-summary>
+An enumeration of policies for opening a file in case of that the file exists.
+The enumeration elements cannot be combined.
+</my-summary>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div><code>Arcadia_ExistingFilePolicy_Retain</code></div>
+    <div>
+    Retain the file contents.
+    </div>
+  </div>
+
+  <div>
+    <div><code>Arcadia_ExistingFilePolicy_Truncate</code></div>
+    <div>
+    Truncate the file contants.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_FileAccessMode">Arcadia_FileAccessMode</h1>
+<my-signature><code>
+typedef enum Arcadia_FileAccessMode Arcadia_FileAccessMode;
+</code></my-signature>
+
+<my-summary>
+An enumeration of file access modes.
+The enumeration elements can be combined.
+</my-summary>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div><code>Arcadia_FileAccessMode_Read</code></div>
+    <div>
+    Read access. Can be combined with <code>Arcadia_FileAccessMode_Write</code>.
+    </div>
+  </div>
+
+  <div>
+    <div><code>Arcadia_FileAccessMode_Write</code></div>
+    <div>
+    Write access. Can be combined with <code>Arcadia_FileAccessMode_Read</code>.
+    </div>
+  </div>
+
+  <div>
+    <div><code>Arcadia_FileAccessMode_ReadWrite</code></div>
+    <div>
+    Read and write access. Alias for <code>Arcadia_FileAccessMode_Read|Arcadia_FileAccessMode_Write</code> and for <code>Arcadia_FileAccessMode_WriteRead</code>.
+    </div>
+  </div>
+
+  <div>
+    <div><code>Arcadia_FileAccessMode_WriteRead</code></div>
+    <div>
+    Write and read access. Alias for <code>Arcadia_FileAccessMode_Write|Arcadia_FileAccessMode_Read</code> and for <code>Arcadia_FileAccessMode_ReadWrite</code>.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+<section class="cxx entity object">
+<h1 id="Arcadia_FileHandle">Arcadia_FileHandle</h1>
+<p><code>Arcadia_FileHandle</code> extends <code>Arcadia_Object</code>.</p>
+<p><code>Arcadia_FileHandle</code> represents a operating system file handle.</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileHandle_create">
+    Arcadia_FileHandle_create
+  </h1>
+
+  <my-signature><code>
+    Arcadia_FileHandle*<br>
+    Arcadia_FileHandle_create<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* fileSystem<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Create a file handle. The file handle is closed.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_FileSystem* self</div>
+      <div>A pointer to the backing <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the file handle.</p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileHandle_close">Arcadia_FileHandle_close</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_FileHandle_close<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileHandle* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Close this file handle.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_FileHandle* self</div>
+      <div>A pointer to this file handle.</div>
+    </div>
+
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileHandle_openForReading">Arcadia_FileHandle_openForReading</h1>
+
+  <my-signature><code>
+    void<br>
+    Arcadia_FileHandle_openForReading<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileHandle* self,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+    Open a file for reading. If the file is open, it is closed before trying to re-open it.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_FileHandle* self</div>
+      <div>A pointer to this file handle.</div>
+    </div>
+    <div>
+      <div>Arcadia_FilePath* path</div>
+      <div>The file path of the file to read from.</div>
+    </div>
+
+  </section>
+
+  <section class="cxx errors">
+
+    <h1>Errors</h1>
+
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>path</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_FileSystemOperationFailed</div>
+      <div>Opening the file failed.</div>
+    </div>
+
+  </ section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileHandle_openForWriting">Arcadia_FileHandle_openForWriting</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_FileHandle_openForWriting<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileHandle* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Open a file for writing. If the file is open, it is closed before trying to re-open it.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div><div>Arcadia_FileHandle* self</div><div>A pointer to this file handle.</div></div>
+    <div><div>Arcadia_FilePath* path  </div><div>The file path of the file to write to.</div></div>
+
+  </section>
+
+  <section class="cxx errors">
+
+    <h1>Errors</h1>
+
+    <div><div>Arcadia_Status_ArgumentValueInvalid     </div><div><code>self</code> is a null pointer.</div></div>
+    <div><div>Arcadia_Status_ArgumentValueInvalid     </div><div><code>path</code> is a null pointer.</div></div>
+    <div><div>Arcadia_Status_FileSystemOperationFailed</div><div>Opening the file failed.            </div></div>
+
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileHandle_isClosed">Arcadia_FileHandle_isClosed</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_FileHandle_isClosed<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileHandle const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if this file handle is closed.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div><div>Arcadia_FileHandle const* self </div><div>A pointer to this file handle.</div></div>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if this file handle is closed.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileHandle_isOpened">Arcadia_FileHandle_isOpened</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_FileHandle_isOpened<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileHandle const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Get if this file handle is opened.</my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div><div>Arcadia_FileHandle const* self </div><div>A pointer to this file handle.</div></div>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if this file handle is opened.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileHandle_isOpenedForReading">Arcadia_FileHandle_isOpenedForReading</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_FileHandle_isOpenedForReading<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileHandle const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Get if this file handle is opened for reading.</my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div><div>Arcadia_FileHandle const* self </div><div>A pointer to this file handle.</div></div>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if this file handle is opened for reading.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileHandle_isOpenedForWriting">Arcadia_FileHandle_isOpenedForWriting</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_FileHandle_isOpenedForWriting<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileHandle const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if this file handle is opened for writing.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div><div>Arcadia_FileHandle const* self </div><div>A pointer to this file handle.</div></div>
+
+  </section>
+
+  <section class="cxx return-value">
+
+    <h1>Return value</h1>
+
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if this file handle is opened for writing.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileHandle_write">Arcadia_FileHandle_write</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_FileHandle_write<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileHandle* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* p,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue bytesToWrite<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Write Bytes to this file handle.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div><div>Arcadia_FileHandle* self       </div><div>A pointer to this file handle.</div></div>
+    <div><div>void const* bytes              </div><div>A pointer to an array of <code>bytesToWrite</code> Bytes.</div></div>
+    <div><div>Arcadia_SizeValue bytesToWrite </div><div>The number of Bytes in the array pointed to by <code>bytes</code>.</div></div>
+    <div><div>Arcadia_SizeValue* bytesWritten</div><div>A pointer to a <code>Arcadia_SizeValue</code> variable.</div></div>
+
+  </section>
+
+  <section class="cxx success-condition">
+    <h1>Success</h1>
+    <p><code>*bytesWritten</code> is assigned the actual number of Bytes written.</p>
+  </section>
+
+  <section class="cxx errors">
+
+    <h1>Errors</h1>
+
+    <div><div>Arcadia_Status_ArgumentValueInvalid     </div><div><code>self</code> is a null pointer. </div></div>
+    <div><div>Arcadia_Status_ArgumentValueInvalid     </div><div><code>bytes</code> is a null pointer.</div></div>
+    <div><div>Arcadia_Status_OperationInvalid         </div><div>The file is not opened for writing.</div></div>
+    <div><div>Arcadia_Status_FileSystemOperationFailed</div><div>Writing failed.</div></div>
+
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileHandle_read">Arcadia_FileHandle_read</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_FileHandle_read<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;Arcadia_FileHandle* self,<br>
+  &nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;Arcadia_SizeValue bytesToRead,<br>
+  &nbsp;&nbsp;Arcadia_SizeValue* bytesRead<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Read Bytes from this file handle.</my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div><div>Arcadia_FileHandle* self     </div><div>A pointer to this file handle.</div></div>
+    <div><div>void const* bytes            </div><div>A pointer to an array of <code>bytesToWrite</code> Bytes.</div></div>
+    <div><div>Arcadia_SizeValue bytesToRead</div><div>The number of Bytes to read from the the array pointed to by <code>bytes</code>.</div></div>
+    <div><div>Arcadia_SizeValue* bytesRead </div><div>A pointer to a <code>Arcadia_SizeValue</code> variable.</div></div>
+
+  </section>
+
+  <section class="cxx success-condition">
+
+    <h1>Success</h1>
+
+    <p>
+    <code>*bytesRead</code> is assigned the actual number of Bytes read.
+    The number of Bytes read is 0 if the end of the file was reached.
+    </p>
+
+  </section>
+
+  <section class="cxx errors">
+
+    <h1>Errors</h1>
+
+    <div><div>Arcadia_Status_ArgumentValueInvalid     </div><div><code>self</code> is a null pointer.</div></div>
+    <div><div>Arcadia_Status_ArgumentValueInvalid     </div><div><code>bytes</code> is a null pointer.</div></div>
+    <div><div>Arcadia                                 </div><div><code>bytesRead</code> is a null pointer.</div></div>
+    <div><div>Arcadia_Status_OperationInvalid         </div><div>The file is not opened for writing.</div></div>
+    <div><div>Arcadia_Status_FileSystemOperationFailed</div><div>Writing failed.</div></div>
+
+  </section>
+
+</section>
+
+<section class="cxx entity object">
+<h1 id="Arcadia_FilePath">Arcadia_FilePath</h1>
+<p><code>Arcadia_FilePath</code> extends <code>Arcadia_Object</code>.</p>
+<p><code>Arcadia_FilePath</code> represents a file path.</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FilePath_create">create</h1>
+
+  <my-signature><code>
+  Arcadia_FilePath*<br>
+  Arcadia_FilePath_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create the empty file path.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the file path.</p>
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FilePath_parseGeneric">Arcadia_FilePath_parseGeneric</h1>
+
+  <my-signature><code>
+  Arcadia_FilePath*<br>
+  Arcadia_FilePath_parseGeneric<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Parse a file path in the generic format.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>bytes</div>
+      <div>A pointer to an array of <code>numberOfBytes</code> Bytes.</div>
+    </div>
+    <div>
+      <div>numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>bytes</code> Bytes.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the file path.</p>
+  </section>
+
+  <section class="cxx errors">
+
+    <h1>Errors</h1>
+
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>bytes</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_FileSystemOperationFailed</div>
+      <div>Opening the file failed.</div>
+    </div>
+
+  </ section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FilePath_parseNative">Arcadia_FilePath_parseNative</h1>
+
+  <my-signature><code>
+  Arcadia_FilePath*<br>
+  Arcadia_FilePath_parseNative<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Parse a file path in the native format.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>bytes</div>
+      <div>A pointer to an array of <code>numberOfBytes</code> Bytes.</div>
+    </div>
+    <div>
+      <div>numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>bytes</code> Bytes.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the file path.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FilePath_parseUnix">Arcadi_FilePath_parseUnix</h1>
+
+  <my-signature><code>
+  Arcadia_FilePath*<br>
+  Arcadia_FilePath_parseUnix<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Parse a file path in the Unix format.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>bytes</div>
+      <div>A pointer to an array of <code>numberOfBytes</code> Bytes.</div>
+    </div>
+    <div>
+      <div>numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>bytes</code> Bytes.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the file path.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FilePath_parseWindows">Arcadia_FilePath_parseWindows</h1>
+
+  <my-signature><code>
+  Arcadia_FilePath*<br>
+  Arcadia_FilePath_parseWindows<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;void const* bytes,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfBytes<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Parse a file path in the Windows format.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>bytes</div>
+      <div>A pointer to an array of <code>numberOfBytes</code> Bytes.</div>
+    </div>
+    <div>
+      <div>numberOfBytes</div>
+      <div>The number of Bytes in the array pointed to by <code>bytes</code> Bytes.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the file path.</p>
+  </section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FilePath_toNative">Arcadia_FilePath_toNative</h1>
+
+  <my-signature><code>
+  Arcadia_String*<br>
+  Arcadia_FilePath_toNative<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Convert a file path to the native format.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>self</div>
+      <div>A pointer to this file path.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the string.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity object">
+<h1 id="Arcadia_FileSystem">Arcadia_FileSystem</h1>
+<p><code>Arcadia_FileSystem</code> extends <code>Arcadia_Object</code>.</p>
+<p><code>Arcadia_FileSystem</code> provides access to the file system.</p>
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_createDirectoryIterator">Arcadia_FileSystem_createDirectoryIterator</h1>
+
+  <my-summary><code>
+  Arcadia_DirectoryIterator*br>
+  Arcadia_FileSystem_createDirectoryIterator<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-summary>
+
+  <my-summary>
+  Create a directory iterator.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FilePath</a>* self</div>
+      <div>A pointer to the path of the directory to search in.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    A pointer to the directory iterator.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>path</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_createFileHandle">Arcadia_FileSystem_createFileHandle</h1>
+
+  <my-summary><code>
+  Arcadia_FileHandle*<br>
+  Arcadia_FileSystem_createFileHandle<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self<br>
+  &nbsp;&nbsp;)
+  </code></my-summary>
+
+  <my-summary>
+  Create a file handle.
+  The file handle is in closed state.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    A pointer to the file handle.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_deleteDirectoryFile">Arcadia_FileSystem_deleteDirectoryFile</h1>
+
+  <my-summary><code>
+  void<br>
+  Arcadia_FileSystem_deleteDirectoryFile<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-summary>
+
+  <my-summary>
+  Delete a regular file.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_FilePath* path</div>
+      <div>The path to the file.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_NotEmpty</div>
+      <div>The directory was not found.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>path</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_AccessDenied</div>
+      <div>Access to the file was denied.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_NotFound</div>
+      <div>The file was not found.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_OperationFailed</div>
+      <div>The file is not found, the file is not a regular file, or deletion failed.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_deleteFile">Arcadia_FileSystem_deleteFile</h1>
+
+  <my-summary><code>
+  void<br>
+  Arcadia_FileSystem_deleteFile<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-summary>
+
+  <my-summary>
+  Delete a regular file.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_FilePath* path</div>
+      <div>The path to the file.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AccessDenied</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>path</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_AccessDenied</div>
+      <div>Access to the file was denied.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_NotFound</div>
+      <div>The file was not found.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_OperationFailed</div>
+      <div>Deletion failed.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_deleteRegularFile">Arcadia_FileSystem_deleteRegularFile</h1>
+
+  <my-summary><code>
+  void<br>
+  Arcadia_FileSystem_deleteRegularFile<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-summary>
+
+  <my-summary>
+  Delete a regular file.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_FilePath* path</div>
+      <div>The path to the file.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>path</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_AccessDenied</div>
+      <div>Access to the file was denied.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_NotFound</div>
+      <div>The file was not found.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_OperationFailed</div>
+      <div>The file is not a regular file, or deletion failed.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_directoryFileExists">Arcadia_FileSystem_directoryFileExists</h1>
+
+  <my-summary><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_FileSystem_directoryFileExists<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-summary>
+
+  <my-summary>
+  Get if a file exists and is a directory file.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_FilePath* path</div>
+      <div>The file path of the file.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if the file exists and is a directory file.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>path</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_getConfigurationDirectory">Arcadia_FileSystem_getConfigurationDirectory</h1>
+
+  <my-summary><code>
+  Arcadia_FilePath*<br>
+  Arcadia_FileSystem_getConfigurationDirectory<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self<br>
+  &nbsp;&nbsp;)
+  </code></my-summary>
+
+  <my-summary>
+  Get the path to the "configuration" directory.
+  Get the directory in which configuration files are stored.
+  The following table lists the values for a given operating system
+  <ul>
+    <li>Windows: <code>C:\Users\&lt;Username&gt;\AppData\Local\&lt;Organization Name&gt;\&lt;Game Name&gt;</code></li>
+    <li>Linux: <code>&lt;Home&gt;\&lt;Organization Name&gt;\&lt;Game Name&gt;</code></li>
+  </ul>
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    A pointer to the the path of the "configuration" directory.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_getFileContents">Arcadia_FileSystem_getFileContents</h1>
+
+  <my-signature><code>
+  Arcadia_ByteBuffer*<br>
+  Arcadia_FileSystem_getFileContents<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the contents of a file.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FilePath</a>* path</div>
+      <div>The file path of the file.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    A pointer to a <code>Arcadia_ByteBuffer</code> object with the file contents.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div><a href="#">Arcadia_Status_ArgumentValueInvalid</a></div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Status_ArgumentValueInvalid</a></div>
+      <div><code>path</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Status_OperationFailed</a></div>
+      <div>Opening the file failed.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_getOrCreate">Arcadia_FileSystem_getOrCreate</h1>
+
+  <my-signature><code>
+  Arcadia_FileSystem*<br>
+  Arcadia_FileSystem_getOrCreate<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get or create the file system singleton.
+  </my-summary>
+
+  <section clas="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    A pointer to a <code>Arcadia_FileSystem</code> object.
+    </p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_getSaveDirectory">Arcadia_FileSystem_getSaveDirectory</h1>
+
+  <my-summary><code>
+  Arcadia_FilePath*<br>
+  Arcadia_FileSystem_getSaveDirectory<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self<br>
+  &nbsp;&nbsp;)
+  </code></my-summary>
+
+  <my-summary>
+  Get the path to the "save" directory.
+  Get the directory in which save files are stored.
+  The following table lists the values for a given operating system
+  <ul>
+    <li>Windows: <code>C:\Users\&lt;Username&gt;\AppData\Roaming\&lt;Organization Name&gt;\&lt;Game Name&gt;</code></li>
+    <li>Linux: <code>&lt;Home&gt;\&lt;Organization Name&gt;\&lt;Game Name&gt;</code></li>
+  </ul>
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    A pointer to the the path of the "save" directory.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_getWorkingDirectory">Arcadia_FileSystem_getWorkingDirectory</h1>
+
+  <my-summary><code>
+  Arcadia_FilePath*<br>
+  Arcadia_FileSystem_getWorkingDirectory<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self<br>
+  &nbsp;&nbsp;)
+  </code></my-summary>
+
+  <my-summary>
+  Get the working directory of this process.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    A pointer to the path of the working directory.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_regularFileExists">Arcadia_FileSystem_regularFileExists</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_FileSystem_regularFileExists<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get if a file exists and is a regular file.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_FilePath* path</div>
+      <div>The file path of the file.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if the file exists and is a regular file.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>path</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_setFileContents">Arcadia_FileSystem_setFileContents</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_FileSystem_setFileContents<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteBuffer* contents<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Set the contents of a file.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_FileSystem</a>* self</div>
+      <div>A pointer to this <code>Arcadia_FileSystem</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_FilePath* path</div>
+      <div>The file path of the file.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteBuffer* contents</div>
+      <div>A poiner to the Byte buffer with the file contents.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>self</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>path</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div><code>contents</code> is a null pointer.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_OperationFailed</div>
+      <div>Opening the file failed.</div>
+    </div>
+  </section>
+
+</section>
+
+
+
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_FileType">Arcadia_FileType</h1>
+<my-signature><code>
+typedef enum Arcadia_FileType Arcadia_FileType;
+</code></my-signature>
+
+<my-summary>
+An enumeration of file types.
+The enumeration elements cannot be combined.
+</my-summary>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div><code>Arcadia_FileType_Unknown</code></div>
+    <div>
+    The file type of a file is not known.
+    </div>
+  </div>
+
+  <div>
+    <div><code>Arcadia_FileType_Regular</code></div>
+    <div>
+      A file is a regular file.
+    </div>
+  </div>
+
+  <div>
+    <div><code>Arcadia_FileType_Directory</code></div>
+    <div>
+    A file is a directory file.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_NonExistingFilePolicy">Arcadia_NonExistingFilePolicy</h1>
+<my-signature><code>
+typedef enum Arcadia_NonExistingFilePolicy Arcadia_NonExistingFilePolicy;
+</code></my-signature>
+
+<my-summary>
+An enumeration of policies for opening a file in case of that the file does not exist.
+The enumeration elements cannot be combined.
+</my-summary>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div><code>Arcadia_NonExistingFilePolicy_Fail</code></div>
+    <div>
+    Fail if the file does not exist.
+    </div>
+  </div>
+
+  <div>
+    <div><code>Arcadia_NonExistingFilePolicy_Create</code></div>
+    <div>
+    Create the file if it does not exist.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+
+
+  </div>
+
+  <div class="right-column">
+    <nav>
+      <ul style="list-style: none">
+        <li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ExistingFilePolicy">Arcadia_ExistingFilePolicy</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileAccessMode">Arcadia_FileAccessMode</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileHandle">Arcadia_FileHandle</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FilePath">Arcadia_FilePath</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem">Arcadia_FileSystem</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_createDirectoryIterator">Arcadia_FileSystem_createDirectoryIterator</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_createFileHandle">Arcadia_FileSystem_createFileHandle</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_deleteDirectoryFile">Arcadia_FileSystem_deleteDirectoryFile</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_deleteRegularFile">Arcadia_FileSystem_deleteRegularFile</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_deleteFile">Arcadia_FileSystem_deleteFile</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_directoryFileExists">Arcadia_FileSystem_directoryFileExists</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSysten_getOrCreate">Arcadia_FileSystem_getOrCreate</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_getFileContents">Arcadia_FileSystem_getFileContents</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_regularFileExists">Arcadia_FileSystem_regularFileExists</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_setFileContents">Arcadia_FileSystem_setFileContents</a></li>
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_getConfigurationDirectory">Arcadia_FileSystem_getConfigurationDirectory</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_getSaveDirectory">Arcadia_FileSystem_getSaveDirectory</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_getWorkingDirectory">Arcadia_FileSystem_getWorkingDirectory</a></li>
+
+
+
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileType">Arcadia_FileType</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_NonExistingFilePolicy">Arcadia_NonExistingFilePolicy</a></li>
+
+      </ul>
+    </nav>
+  </div>
+  </main>
+  <footer>
+  <div class="left-column">
+    <div>
+    <div>Website maintained by Michael Heilmann.</div>
+    <div>Last modified on 14 September 2026.</div> 
+    </div>
+  </div>
+  <div class="center-column">
+    <div>
+      <div><a href="https://michaelheilmann.com/imprint">Imprint</a></div>
+      <div><a href="https://michaelheilmann.com/data-protection-statement">Data Protection Statement</a></div>
+    </div>
+  </div>
+  <div class="right-column">
+    <div>
+      <div><a href='https://github.com/michaelheilmann'>GitHub</a></div>
+      <div><a href='https://discord.gg/XtPA6pwAsp'>Discord</a></div>
+      <div><a href='mailto:contact@michaelheilmann.com'>contact@michaelheilmann.com</a></div>
+    </div>
+  </div>
+</footer>
+
+  </body>
+</html>
+
