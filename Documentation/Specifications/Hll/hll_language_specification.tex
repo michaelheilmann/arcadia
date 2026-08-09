@@ -1,0 +1,60 @@
+\documentclass[11pt,a4paper,oneside]{article}
+%\theauthor - The author. To define the author, use \author{}.
+%\theemail  - The author's email. To define the author's email, use \email{}.
+%\thestatus - The status (usually draft or final). To define the status, use
+%             \status{}.
+%\thetitle  - The title. To define the title, use \title{1}
+\usepackage{mhldockit}
+\input{common}
+
+\author{Michael Heilmann}
+\email{\href{mailto:michaelheilmann@primordialmachine.com}{michaelheilmann@primordialmachine.com}}
+\status{Draft}
+
+\addbibresource{bibliography.bib}
+\title{$\mathfrak{HLL}$ Language Specification}
+\begin{document}
+\maketitle
+\begin{abstract}
+$\mathfrak{HLL}$ is a set of lexical, syntactical and    semantical properties
+of programming languages.            Any programming language which   fulfills
+all those properties is called an $\mathfrak{HLL}$ language. The reason    for
+grouping those properties is that other specifications can build       on this
+specification.
+\end{abstract}
+\tableofcontents
+%Some inspirations were drawn from various Sather dialects most notably
+%GNU Sather (\cite{gnu-sather}).
+
+\input{operators}
+\input{lexical_grammar}
+\input{syntactical_grammar}
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+  \node (is-root) {$+$}
+                    child { node {$e_1$} }
+                    child [missing]
+                    child { node {$e_2$} }
+  ;
+\end{tikzpicture}
+\caption{AST-prototype for \texttt{add}.}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+  \node (is-root) {$-$}
+                    child { node {$e_1$} }
+                    child [missing]
+                    child { node {$e_2$} }
+  ;
+\end{tikzpicture}
+\caption{AST-prototype for \texttt{sub}.}
+\end{figure}
+
+%\bibliographystyle{plainnat}
+\printbibliography
+
+\end{document}

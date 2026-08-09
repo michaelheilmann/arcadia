@@ -14,15 +14,28 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-<<<<<<<< HEAD:repository/MILC/Tests/Diagnostics/Assets/MyConfiguration.ddl
-{
-  modulePaths : [
-    "./Engine/Engine"
-  ],
-}
-========
-#if !defined(ARCADIA_MILC_TESTS_DIAGNOSTICS_H_INCLUDED)
-#define ARCADIA_MILC_TESTS_DIAGNOSTICS_H_INCLUDED
+#if !defined(ARCADIA_RING1_TESTS_OBJECTTYPETESTS_MYINTERFACEA_H_INCLUDED)
+#define ARCADIA_RING1_TESTS_OBJECTTYPETESTS_MYINTERFACEA_H_INCLUDED
 
-#endif // ARCADIA_MILC_TESTS_DIAGNOSTICS_H_INCLUDED
->>>>>>>> 29039f47 (Update Week 1 May 2026):repository/MILC/Tests/Diagnostics/Sources/Arcadia/MILC/Tests/Diagnostics/Configure.h.i
+#include "Arcadia/Ring1/Include.h"
+
+Arcadia_declareObjectType(u8"Arcadia.MyInterfaceA", Arcadia_MyInterfaceA,
+                          u8"Arcadia.Interface");
+
+struct Arcadia_MyInterfaceADispatch {
+  Arcadia_InterfaceDispatch parent;
+};
+
+#if 0
+struct Arcadia_MyObjectA {
+  Arcadia_Object parent;
+};
+
+Arcadia_MyObjectA*
+Arcadia_MyObjectA_create
+  (
+    Arcadia_Thread* thread
+  );
+#endif
+
+#endif // ARCADIA_RING1_TESTS_OBJECTTYPETESTS_MYINTERFACEA_H_INCLUDED

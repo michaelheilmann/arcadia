@@ -56,6 +56,8 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia/DDLS/Implementation/Diagnostics.h)
   OnSourceFile(${this} Arcadia/DDLS/Implementation/ValidationContext.c)
   OnHeaderFile(${this} Arcadia/DDLS/Implementation/ValidationContext.h)
+  OnSourceFile(${this} Arcadia/DDLS/Implementation/ValidationException.c)
+  OnHeaderFile(${this} Arcadia/DDLS/Implementation/ValidationException.h)
 
   OnSourceFile(${this} Arcadia/DDLS/Extensions.c)
   OnHeaderFile(${this} Arcadia/DDLS/Extensions.h)

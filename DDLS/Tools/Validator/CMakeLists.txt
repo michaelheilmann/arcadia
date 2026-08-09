@@ -16,6 +16,24 @@
 
 cmake_minimum_required(VERSION 3.29)
 
-add_subdirectory(Library)
-add_subdirectory(Tests)
-add_subdirectory(Tools/Validator)
+set(MyToolName ${MyProjectName}.DDLS.Validator)
+
+if (NOT TARGET ${MyToolName})
+
+  BeginProduct(${MyToolName} executable)
+
+  set(${MyToolName}.Windows.ResourceFile ${CMAKE_CURRENT_SOURCE_DIR}/Resources.rc)
+
+  OnConfigurationFile(${MyToolName} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia.DDLS.Validator/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.DDLS.Validator/Configure.h.i)
+
+  OnSourceFile(${MyToolName} Arcadia.DDLS.Validator/Main.c)
+
+  OnModuleDependency(${MyToolName} ${MyProjectName}.DDLS PRIVATE)
+
+  set(${MyToolName}.Install TRUE)
+
+  EndProduct(${MyToolName})
+
+  set_target_properties(${MyToolName} PROPERTIES FOLDER "DDLS")
+
+endif()

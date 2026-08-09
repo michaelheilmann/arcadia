@@ -12,10 +12,20 @@
       "generator": "Visual Studio 17 2022"
     },
     {
+      "name": "make-gcc-base",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+    },
+    {
       "name": "x64",
       "displayName": "Visual Studio 2022 x64",
       "inherits": "vs2022-base",
       "architecture": "x64",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
       "cacheVariables": {
         "Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled": {
           "type": "BOOL",
@@ -32,6 +42,11 @@
       "displayName": "Visual Studio 2022 Win32",
       "inherits": "vs2022-base",
       "architecture": "Win32",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },dir
       "cacheVariables": {
         "Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled": {
           "type": "BOOL",

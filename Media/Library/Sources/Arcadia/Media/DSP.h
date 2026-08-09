@@ -24,7 +24,12 @@ Arcadia_declareObjectType(u8"Arcadia.Media.DSP", Arcadia_Media_DSP,
 
 struct Arcadia_Media_DSPDispatch {
   Arcadia_ObjectDispatch parent;
-
+#if defined(Arcadia_Media_Configuration_DSP_withOutputPins) && 1 == Arcadia_Media_Configuration_DSP_withOutputPins
+  Arcadia_SizeValue (*getNumberOfOutputPins)(Arcadia_Thread* thread, Arcadia_Media_DSP* self);
+#endif
+#if defined(Arcadia_Media_Configuration_DSP_withInputPins) && 1 == Arcadia_Media_Configuration_DSP_withInputPins
+  Arcadia_SizeValue (*getNumberOfInputPins)(Arcadia_Thread* thread, Arcadia_Media_DSP* self);
+#endif
   void (*generate)(Arcadia_Thread* thread, Arcadia_Media_DSP* self, Arcadia_Natural32Value samples, Arcadia_Natural32Value numberOfSamples, Arcadia_ByteArrayBuilder* target);
 };
 
@@ -47,5 +52,35 @@ Arcadia_Media_DSP_generate
     Arcadia_Natural32Value numberOfSamples,
     Arcadia_ByteArrayBuilder* target
   );
+
+#if defined(Arcadia_Media_Configuration_DSP_withOutputPins) && 1 == Arcadia_Media_Configuration_DSP_withOutputPins
+
+/// @brief Get the number of output pins of this DSP.
+/// @param thread A pointer to this thread.
+/// @param self A pointer to this DSP.
+/// @return The number of output pins.
+Arcadia_SizeValue
+Arcadia_Media_DSP_getNumberOfOutputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP* self
+  );
+
+#endif
+
+#if defined(Arcadia_Media_Configuration_DSP_withInputPins) && 1 == Arcadia_Media_Configuration_DSP_withInputPins
+
+/// @brief Get the number of input pins of this DSP.
+/// @param thread A pointer to this thread.
+/// @param self A pointer to this DSP.
+/// @return The number of input pins.
+Arcadia_SizeValue
+Arcadia_Media_DSP_getNumberOfInputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP* self
+  );
+
+#endif
 
 #endif // ARCADIA_MEDIA_SAMPLEBUFFEROPERATION_H_INCLUDED

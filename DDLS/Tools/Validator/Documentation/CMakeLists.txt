@@ -16,6 +16,9 @@
 
 cmake_minimum_required(VERSION 3.29)
 
-add_subdirectory(Library)
-add_subdirectory(Tests)
-add_subdirectory(Tools/Validator)
+# Build the documentation.
+InvokeTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.tl"
+                     "${REPOSITORY_SOURCE_DIR}/.Build/Arcadia/TemplateEngine/index.html"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
+add_custom_target(${MyProjectName}.Tools.TemplateEngine.BuildDocs ALL DEPENDS "${REPOSITORY_SOURCE_DIR}/.Build/Arcadia/TemplateEngine/index.html")
+set_target_properties(${MyProjectName}.Tools.TemplateEngine.BuildDocs PROPERTIES FOLDER "Tools/TemplateEngine")

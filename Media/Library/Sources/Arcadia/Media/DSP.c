@@ -83,3 +83,27 @@ Arcadia_Media_DSP_generate
     Arcadia_ByteArrayBuilder* target
   )
 { Arcadia_VirtualCall(Arcadia_Media_DSP, generate, self, sampleRate, numberOfSamples, target); }
+
+#if defined(Arcadia_Media_Configuration_DSP_withOutputPins) && 1 == Arcadia_Media_Configuration_DSP_withOutputPins
+
+Arcadia_SizeValue
+Arcadia_Media_DSP_getNumberOfOutputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_Media_DSP, getNumberOfOutputPins, self); }
+
+#endif
+
+#if defined(Arcadia_Media_Configuration_DSP_withInputPins) && 1 == Arcadia_Media_Configuration_DSP_withInputPins
+
+Arcadia_SizeValue
+Arcadia_Media_DSP_getNumberOfInputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_Media_DSP, getNumberOfInputPins, self); }
+
+#endif

@@ -1,0 +1,109 @@
+  <!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+
+  <link rel='canonical' href='https://michaelheilmann.com/news.html'>
+  <title>News</title>
+</head>
+<body class="my-content-page-1">
+  <header>
+  <div>
+  <a href="https://michaelheilmann.com/">Home</a>
+  </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+    <h1>News</h1>
+  </div>
+  <div class="right-column"></div>
+  </main>
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column">
+
+     <div class="news-item">
+
+        <div class="news-item-header">
+        2023-10-23
+        </div>
+
+        <div class="news-item-body">
+          <p>The website was updated.</p>
+          <p>In particular, typography was improved.</p>
+          <p>In the course of the next few weeks, the existing documentation that was created so far, will be migrated to this site.</p>
+        </div>
+
+      </div>
+
+      <div class="news-item">
+
+        <div class="news-item-header">
+        2023-10-13
+        </div>
+
+        <div>
+
+        <p>
+        Hi! I am Michael Heilmann an Information Systems Architect.
+        </p>
+
+        <p>
+        Thank you for visiting my website.
+        This is the portal to all of my open-source projects, which are available for public use and collaboration.
+        </p>
+
+        <p>
+        All of my projects, including the sources for this website, are licensed under open-source licenses and are made available via GitHub under <a href="https://github.com/michaelheilmann/">https://github.com/michaelheilmann/</a>.
+        </p>
+
+        <p>
+        Should you have inquiries, suggestions, or if you are interested in contributing, please contact do not hesitate to contact me directly via email <a href="mailto:contact@michaelheilmann.com">contact@michaelheilmann.com</a>.
+        </p>
+
+        </div>
+
+      </div>
+
+    </div>
+    <div class="right-column">
+      <div>Website maintained by Michael Heilmann.</div>
+      <div>Last modified on 14 September 2026.</div>
+    </div>
+  </footer>
+</body>
+</html>

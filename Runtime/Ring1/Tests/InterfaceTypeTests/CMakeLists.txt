@@ -16,6 +16,15 @@
 
 cmake_minimum_required(VERSION 3.29)
 
-add_subdirectory(Library)
-add_subdirectory(Tests)
-add_subdirectory(Tools/Validator)
+set(this ${MyProjectName}.Ring1.Tests.InterfaceTypeTests)
+
+# Create test executable.
+BeginProduct(${this} test)
+
+OnSourceFile(${this} Arcadia.Ring1.Tests.InterfaceTypeTests/Main.c)
+
+OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
+
+EndProduct(${this})
+
+set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring1")

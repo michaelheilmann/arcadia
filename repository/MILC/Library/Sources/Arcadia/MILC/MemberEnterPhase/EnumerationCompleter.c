@@ -139,7 +139,6 @@ makeFullQualifiedName
   Arcadia_StringBuilder_insertBackString(thread, temporary, suffix);
   return Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(temporary));
 }
-
 static void
 completeImpl
   (
@@ -155,6 +154,13 @@ completeImpl
     symbol->completer = NULL;
     return;
   }
+  Arcadia_MILC_Environment* e =
+    Arcadia_Value_getObjectReferenceValueChecked
+      (
+        thread,
+        Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(symbol)),
+        _Arcadia_MILC_Environment_getType(thread)
+      );
   /* Enter the enumeration members. */
   Arcadia_StringBuilder* temporary = Arcadia_StringBuilder_create(thread);
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)node->enumerationBody); i < n; ++i) {
@@ -165,8 +171,6 @@ completeImpl
     childSymbol->ast = childNode;
     Arcadia_List_insertBack(thread, ((Arcadia_MILC_EnumerationSymbol*)symbol)->members, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)childSymbol));
     if (Arcadia_Languages_Scope_contains(thread, ((Arcadia_MILC_EnumerationSymbol*)symbol)->scope, ((Arcadia_MILC_Symbol*)childSymbol)->name, Arcadia_BooleanValue_True)) {
-      Arcadia_MILC_Environment* e = Arcadia_Value_getObjectReferenceValueChecked(thread, Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(childSymbol)),
-                                                                                         _Arcadia_MILC_EnumerationSymbol_getType(thread));
       Arcadia_Languages_Diagnostics_add
         (
           thread, context->diagnostics,
@@ -185,8 +189,6 @@ completeImpl
     }
     // We add a diagnostic if the child node is missing an initializer. 
     if (!childNode->initializer) {
-      Arcadia_MILC_Environment* e = Arcadia_Value_getObjectReferenceValueChecked(thread, Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(childSymbol)),
-                                                                                         _Arcadia_MILC_EnumerationSymbol_getType(thread));
       Arcadia_Languages_Diagnostics_add
         (
           thread, context->diagnostics,

@@ -16,6 +16,11 @@
 
 cmake_minimum_required(VERSION 3.29)
 
-add_subdirectory(Library)
-add_subdirectory(Tests)
-add_subdirectory(Tools/Validator)
+BeginTemplateEngine(${MyProjectName}.Website.Arcadia.EngineConcepts "Website/Arcadia")
+
+  # Build "index.html".
+  OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
+                   "${REPOSITORY_SOURCE_DIR}/.Build/Arcadia/engine-concepts/index.html"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/../../website.env")
+
+EndTemplateEngine()

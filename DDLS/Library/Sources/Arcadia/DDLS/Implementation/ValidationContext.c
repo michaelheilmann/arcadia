@@ -16,6 +16,7 @@
 
 #include "Arcadia/DDLS/Implementation/ValidationContext.h"
 
+#include "Arcadia/DDLS/Implementation/ValidationException.h"
 #include "Arcadia/DDLS/Extensions.h"
 
 static void

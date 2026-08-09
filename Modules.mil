@@ -15,6 +15,7 @@
 
 {
   modulePaths : [
-    "./Engine/Engine"
+    "./Engine/Engine",
+    "./Media",
   ],
 }
