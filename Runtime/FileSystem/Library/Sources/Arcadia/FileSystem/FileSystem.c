@@ -300,3 +300,11 @@ Arcadia_FileSystem_createDirectoryFiles
     Arcadia_FileSystem_createDirectoryFile(thread, Arcadia_FileSystem_getOrCreate(thread), temporary);
   }
 }
+
+Arcadia_FilePath*
+Arcadia_FileSystem_createTemporaryFile
+  (
+    Arcadia_Thread* thread,
+    Arcadia_FileSystem* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_FileSystem, createTemporaryFile, self); }

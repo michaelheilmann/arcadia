@@ -14,15 +14,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-<<<<<<<< HEAD:repository/MILC/Tests/Diagnostics/Assets/MyConfiguration.ddl
-{
-  modulePaths : [
-    "./Engine/Engine"
-  ],
-}
-========
-#if !defined(ARCADIA_MILC_TESTS_DIAGNOSTICS_H_INCLUDED)
-#define ARCADIA_MILC_TESTS_DIAGNOSTICS_H_INCLUDED
+#define ARCADIA_RING1_MODULE (1)
+#include "Arcadia/Ring1/Implementation/Objects/UnicodeCodePointReader.State.h"
 
-#endif // ARCADIA_MILC_TESTS_DIAGNOSTICS_H_INCLUDED
->>>>>>>> 29039f47 (Update Week 1 May 2026):repository/MILC/Tests/Diagnostics/Sources/Arcadia/MILC/Tests/Diagnostics/Configure.h.i
+static const Arcadia_Type_Operations _typeOperations = {
+  Arcadia_Type_Operations_Initializer,
+};
+
+Arcadia_defineEnumerationType(u8"Arcadia.UnicodeCodePointReader.State", Arcadia_UnicodeCodePointReader_State,
+                              &_typeOperations);

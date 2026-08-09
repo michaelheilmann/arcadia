@@ -16,14 +16,24 @@
 
 cmake_minimum_required(VERSION 3.29)
 
-# Build "specifications/data-definition-language-schema/index.html".
-BeginTemplateEngine(Website.Specifications.DDLS "DDLS")
+set(MyToolName ${MyProjectName}.DDLS.Validator)
 
-  OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                    "${REPOSITORY_SOURCE_DIR}/.Website/specifications/data-definition-language-schema/index.html"
-                   "${CMAKE_CURRENT_SOURCE_DIR}/../../website.env")
+if (NOT TARGET ${MyToolName})
 
-  MyCopyFile(Website.Specifications.DDLS "${CMAKE_CURRENT_SOURCE_DIR}/diagram-1.png"
-                                          "${REPOSITORY_SOURCE_DIR}/.Website/specifications/data-definition-language-schema/diagram-1.png")
+  BeginProduct(${MyToolName} executable)
 
-EndTemplateEngine()
+  set(${MyToolName}.Windows.ResourceFile ${CMAKE_CURRENT_SOURCE_DIR}/Resources.rc)
+
+  OnConfigurationFile(${MyToolName} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia.DDLS.Validator/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.DDLS.Validator/Configure.h.i)
+
+  OnSourceFile(${MyToolName} Arcadia.DDLS.Validator/Main.c)
+
+  OnModuleDependency(${MyToolName} ${MyProjectName}.DDLS PRIVATE)
+
+  set(${MyToolName}.Install TRUE)
+
+  EndProduct(${MyToolName})
+
+  set_target_properties(${MyToolName} PROPERTIES FOLDER "DDLS")
+
+endif()

@@ -16,14 +16,15 @@
 
 cmake_minimum_required(VERSION 3.29)
 
-# Build "specifications/data-definition-language-schema/index.html".
-BeginTemplateEngine(Website.Specifications.DDLS "DDLS")
+set(this ${MyProjectName}.Ring1.Tests.InterfaceTypeTests)
 
-  OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                    "${REPOSITORY_SOURCE_DIR}/.Website/specifications/data-definition-language-schema/index.html"
-                   "${CMAKE_CURRENT_SOURCE_DIR}/../../website.env")
+# Create test executable.
+BeginProduct(${this} test)
 
-  MyCopyFile(Website.Specifications.DDLS "${CMAKE_CURRENT_SOURCE_DIR}/diagram-1.png"
-                                          "${REPOSITORY_SOURCE_DIR}/.Website/specifications/data-definition-language-schema/diagram-1.png")
+OnSourceFile(${this} Arcadia.Ring1.Tests.InterfaceTypeTests/Main.c)
 
-EndTemplateEngine()
+OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
+
+EndProduct(${this})
+
+set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring1")

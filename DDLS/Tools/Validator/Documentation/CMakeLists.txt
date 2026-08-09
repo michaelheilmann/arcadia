@@ -16,14 +16,9 @@
 
 cmake_minimum_required(VERSION 3.29)
 
-# Build "specifications/data-definition-language-schema/index.html".
-BeginTemplateEngine(Website.Specifications.DDLS "DDLS")
-
-  OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                    "${REPOSITORY_SOURCE_DIR}/.Website/specifications/data-definition-language-schema/index.html"
-                   "${CMAKE_CURRENT_SOURCE_DIR}/../../website.env")
-
-  MyCopyFile(Website.Specifications.DDLS "${CMAKE_CURRENT_SOURCE_DIR}/diagram-1.png"
-                                          "${REPOSITORY_SOURCE_DIR}/.Website/specifications/data-definition-language-schema/diagram-1.png")
-
-EndTemplateEngine()
+# Build the documentation.
+InvokeTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.tl"
+                      "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/TemplateEngine/index.html"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
+add_custom_target(${MyProjectName}.Tools.TemplateEngine.BuildDocs ALL DEPENDS "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/TemplateEngine/index.html")
+set_target_properties(${MyProjectName}.Tools.TemplateEngine.BuildDocs PROPERTIES FOLDER "Tools/TemplateEngine")
