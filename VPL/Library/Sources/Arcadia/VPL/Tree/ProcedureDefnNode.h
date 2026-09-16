@@ -23,7 +23,7 @@
 #include "Arcadia/VPL/Tree/Node.h"
 typedef struct Arcadia_VPL_Tree_NameExprNode Arcadia_VPL_Tree_NameExprNode;
 
-// <procedure defn> : <modifiers> 'procedure' <name> '(' <parameters> ')' ':' <return value type> <body>?
+// <procedure defn> : <modifiers> 'procedure' <name> '(' �<parameters> ')' ':' <return value type> <body>?
 // <modifiers> : <modifier>*
 // <modifier> : 'builtin' / 'fragment' / 'pixel' / 'vertex'
 Arcadia_declareObjectType(u8"Arcadia.VPL.Tree.ProcedureDefnNode", Arcadia_VPL_Tree_ProcedureDefnNode,

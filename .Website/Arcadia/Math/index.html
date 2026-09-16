@@ -1,0 +1,763 @@
+  <!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/cxx-doc.css?v=5'>
+  <link rel='canonical' href='https://michaelheilmann.com/Arcadia/Math/'>
+  <title>Michael Heilmann's Arcadia Math</title>
+  <style>
+  </style>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div style="display:none">
+\[
+\newcommand{\ListType}{{\text{List}}}
+\newcommand{\ListEmpty}{{\left[\right]}}
+\newcommand{\ListLength}[1]{{\ell\left(#1\right)}}
+\newcommand{\ListAt}[2]{{{#1}_{#2}}}
+\]
+</div>
+
+    <div>
+    <a href="https://michaelheilmann.com/">Home</a>
+    </div>
+  </header>
+<main>
+  <div class="left-column"></div>
+  <div class="center-column">
+  <h1>Michael Heilmann's Arcadia Math</h1>
+  <p>
+  This is the documentation for Michael  Heilmann's Arcadia Math.
+  Arcadia Math provides matrix and vector math used in the fields of audials and visuals.
+
+
+<h2>Files</h2>
+<p>
+You can find the sources of Arcadia Math in my GitHub repository <a href="https://github.com/michaelheilmann/arcadia">https://github.com/michaelheilmann/arcadia</a>.
+The subdirectory of Arcadia Math in the repository is here <a href="https://github.com/michaelheilmann/arcadia/tree/main/repository/Math">https://github.com/michaelheilmann/arcadia/tree/main/repository/Math</a>.</p>
+</p>
+
+<ul>
+  <li>The (sources of the) library resides in the directory
+  <a href="https://github.com/michaelheilmann/arcadia/tree/main/repository/Math/Library">https://github.com/michaelheilmann/arcadia/tree/main/repository/Math/Library</a>
+  </li>
+  <li>The (sources of) tests reside in the directory
+  <a href="https://github.com/michaelheilmann/arcadia/tree/main/repository/Math/Tests">https://github.com/michaelheilmann/arcadia/tree/main/repository/Math/Tests</a>
+  </li>
+  <li>The (sources of this very documentation you are reading) documentation reside in the directory
+  <a href="https://github.com/michaelheilmann/arcadia/tree/main/repository/Math/Documentation">https://github.com/michaelheilmann/arcadia/tree/main/repository/Math/Documentation</a>
+  </li>
+</ul>
+
+<p>
+Arcadia Math supports various platforms (including but not restricted to Windows, Linux, and many more), however, we currently only officially support Windows.
+For instructions on how to build, test, and use Arcadia Math,
+refer to <a href="https://github.com/michaelheilmann/arcadia/tree/main/README.md">README.md</a> in the root folder of the repository.
+</p>
+
+
+<h2>Further References</h2>
+<p>Arcadia Math relies on <a href="https://michaelheilmann.com/repository/Ring2">Arcadia Ring 2</a>.</p>
+
+
+<h2>Documentation</h2>
+
+<section class="cxx entity object">
+
+  <h1 id="Arcadia_Math_Vector**">Arcadia_Math_Vector<my-mv>NumberOfElements</my-mv><my-mv>ElementType</my-mv></h1>
+
+  <p>
+  <code>Arcadia_Math_Vector<my-mv>NumberOfElements</my-mv><my-mv>Suffix</my-mv><my-mv>ElementType</my-mv></code> extends <code>Arcadia_Object</code>.
+  </p>
+  <p>
+  <code>Arcadia_Math_Vector<my-mv>NumberOfElements</my-mv><my-mv>ElementType</my-mv></code> is a mutable representation of a column vector.
+  The vector has <my-mv>NumberOfElements</my-mv> elements, the elements are of type <my-mv>Type</my-mv>.
+  </p>
+
+  <p>
+  The above types are defined for <my-mv>NumberOfElements</my-mv> = <my-mv>n</my-mv> where <my-mv>n</my-mv> is three or four.
+  </p>
+
+
+  <p>The following table lists the combinations of <my-mv>Type</my-mv> and <my-mv>Suffix</my-mv> for which the above types are defined</p>
+
+  <table>
+    <tr><td><my-mv>ElementType</my-mv></td><td><my-mv>Type</my-mv>             </td></tr>
+    <tr><td><code>Real32Value</code>  </td><td><code>Arcadia_Real32Value</code></td></tr>
+    <tr><td><code>Real64Value</code>  </td><td><code>Arcadia_Real64Value</code></td></tr>
+  </table>
+
+</section>
+
+
+
+<section class="cxx entity object">
+
+  <h1 id="Arcadia_Math_Matrix*x**">Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></h1>
+
+  <p>
+  <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> extends <code>Arcadia_Object</code>.
+  </p>
+  <p>
+  <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> is a mutable representation of a matrix.
+  The matrix has <my-mv>NumberOfColumns</my-mv> columns and <my-mv>NumberOfRows</my-mv> rows, the elements are of a type indicated by <my-mv>ElementTypeSuffix</my-mv>.
+  </p>
+
+  <p><my-mv>ElementTypeSuffix</my-mv> indicates the <em>Arcadia</em> type of the elements. The following table lists the <my-mv>ElementTypeSuffix</my-mv> and the corresponding <em>Arcadia</em> types of the elements.</p>
+
+  <table>
+    <tr><td><my-mv>ElementTypeSuffix</my-mv> </td><td><my-mv>ElementType</my-mv>             </td></tr>
+    <tr><td><code>Real32Value</code>         </td><td><code>Arcadia_Real32Value</code></td></tr>
+    <tr><td><code>Real64Value</code>         </td><td><code>Arcadia_Real64Value</code></td></tr>
+  </table>
+
+  <p>
+  The above types are defined for <my-mv>NumberOfColumns</my-mv> = <my-mv>n</my-mv> and <my-mv>NumberOfRows</my-mv> = <my-mv>n</my-mv> where <my-mv>n</my-mv> is three or four.
+  </p>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Math_Matrix*x**_setIdentity">Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setIdentity</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setIdentity<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Assign the elements of this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object the values of the identity matrix.
+  The identity matrix is defined as
+  \[
+    \forall i, j \in [1,n] c_{i,j} =
+    \begin{cases}
+    1 & \text{if } i = j,\\
+    0 & \text{otherwise}
+    \end{cases}
+  \]
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code>* self</div>
+      <div>A pointer to this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Math_Matrix*x**_setOrthographicProjection">Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setOrthographicProjection</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setOrthographicProjection<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> left,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> right,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> bottom,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> top,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> near,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> far<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  <p>Assign the elements of this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object the values of an orthographic projection matrix.
+  This function is defined for \(4 \times 4\).</p>
+
+  <p>The projection matrix is defined as</p>
+  \[
+	\begin{matrix}
+	a & 0 & 0 & u \\
+	0 & b & 0 & v \\
+	0 & 0 & c & w \\
+	0 & 0 & 0 & 1
+	\end{matrix}
+  \]
+  where</p>
+  <ul>
+	<li>\(a =  \frac{2}{right-left}\)</li>
+	<li>\(b =  \frac{2}{top-bottom}\)</li>
+	<li>\(c = -\frac{2}{far - near}\)</li>
+	<li>\(u = -\frac{right + left}{right - left}\)</li>
+	<li>\(v = -\frac{top + bottom}{top - bottom}\)</li>
+	<li>\(w = -\frac{far + near}{far - near}\)</li>
+  </ul>
+  <p>The resulting matrix sets up the axes as follows:</p>
+  <ul>
+	<li>the positive z-axis points out of the canvas (negative z-axis points into the canvas)</li>
+	<li>the positive x-axis points to the right</li>
+	<li>the positive y-axis points to the top</li>
+  </ul>
+  <p>
+  <my-mv>ElementTypeSuffix</my-mv> indicates the <em>Arcadia</em> type of the elements and parameters denoted by <my-mv>ElementType</my-mv>.
+  The following table lists the <my-mv>ElementTypeSuffix</my-mv> and the corresponding <my-mv>ElementType</my-mv>.
+  </p>
+
+  <table>
+    <tr><td><my-mv>ElementTypeSuffix</my-mv> </td><td><my-mv>ElementType</my-mv>      </td></tr>
+    <tr><td><code>Real32Value</code>         </td><td><code>Arcadia_Real32Value</code></td></tr>
+    <tr><td><code>Real64Value</code>         </td><td><code>Arcadia_Real64Value</code></td></tr>
+  </table>
+
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code>* self</div>
+      <div>A pointer to this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> left</div>
+	  <div>The coordinate of the left clipping plane.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> right</div>
+	  <div>The coordinate of the right clipping plane.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> bottom</div>
+	  <div>The coordinate of the bottom clipping plane.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> top</div>
+	  <div>The coordinate of the top clipping plane.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> near</div>
+	  <div>The coordinate of the near clipping plane.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> far</div>
+	  <div>The coordinate of the far clipping plane.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Math_Matrix*x**_setPerspectiveProjection">Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setPerspectiveProjection</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setOrthographicProjection<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> fieldOfView,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> aspectRatio,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> near,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> far<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  <p>Assign the elements of this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object the values of a perspective projection matrix.
+  This function is defined for \(4 \times 4\).</p>
+
+  <p>The projection matrix is defined as</p>
+  \[
+	\begin{matrix}
+	\frac{f}{\textit{aspectRatio}} & 0 & 0                                                                 & 0                                                                             \\
+	0                              & f & 0                                                                 & 0                                                                             \\
+	0                              & 0 & \frac{\textit{near} + \textit{far}}{\textit{near} - \textit{far}} & \frac{2 \cdot \textit{near} \cdot \textit{far}}{\textit{near} - \textit{far}} \\
+	0                              & 0 & -1                                                                & 0
+	\end{matrix}
+  \]
+  where \(f = \cot\left(\frac{\textit{fieldOfView}}{2}\right)\).</p>
+  <p>The resulting matrix sets up the axes as follows:</p>
+  <ul>
+	<li>the positive z-axis points out of the canvas (negative z-axis points into the canvas)</li>
+	<li>the positive x-axis points to the right</li>
+	<li>the positive y-axis points to the top</li>
+  </ul>
+  <p>
+  <my-mv>ElementTypeSuffix</my-mv> indicates the <em>Arcadia</em> type of the elements and parameters denoted by <my-mv>ElementType</my-mv>.
+  The following table lists the <my-mv>ElementTypeSuffix</my-mv> and the corresponding <my-mv>ElementType</my-mv>.
+  </p>
+
+  <table>
+    <tr><td><my-mv>ElementTypeSuffix</my-mv> </td><td><my-mv>ElementType</my-mv>      </td></tr>
+    <tr><td><code>Real32Value</code>         </td><td><code>Arcadia_Real32Value</code></td></tr>
+    <tr><td><code>Real64Value</code>         </td><td><code>Arcadia_Real64Value</code></td></tr>
+  </table>
+
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code>* self</div>
+      <div>A pointer to this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> fieldOfView</div>
+      <div>
+      The field of view angle, in degrees, in the y-direction. Must be positive.
+      In other terms: the angle between a plane passing through the camera position as well as the top of your canvas and another plane passing through the camera position and the bottom of the canvas.
+      The bigger this angle is the more you can see of the world - but at the same time, the object you can see become smaller.
+      </div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> aspectRatio</div>
+      <div>The aspect ratio which determines the field of view in the x-direction. The aspect ratio is the ratio of width and height. Must be positive. Typical canvas have aspect ratios of 4:3 or 16:9.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> near</div>
+      <div>The distance of the viewer to the near clipping plane. Must be positive. Must be less than <code>far</code> or nothing is displayed</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> far</div>
+      <div>The distance of the viewer to the far clipping plane. Must be positive. Must be greater than <code>near</code>.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Math_Matrix*x**_setRotationX">Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setRotationX</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setRotationX<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> angle<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  <p>Assign the elements of this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object the values of a rotation matrix.
+  This matrix represents a counter-clockwise rotation by <code>angle</code> degrees around the x-axis.
+  This function is defined for \(4 \times 4\).</p>
+
+  <p>The rotation matrix is defined as
+  \[
+	\begin{matrix}
+	 1 &  0 &  0 &  0 \\
+	 0 &  c & -s &  0 \\
+	 0 &  s &  c &  0 \\
+	 0 &  0 &  0 &  1
+	\end{matrix}
+  \]
+  where \(c=\cos(a)\) and \(s=\sin(a)\).</p>
+
+  <p>
+  <my-mv>ElementTypeSuffix</my-mv> indicates the <em>Arcadia</em> type of the elements and parameters denoted by <my-mv>ElementType</my-mv>.
+  The following table lists the <my-mv>ElementTypeSuffix</my-mv> and the corresponding <my-mv>ElementType</my-mv>.
+  </p>
+
+  <table>
+    <tr><td><my-mv>ElementTypeSuffix</my-mv> </td><td><my-mv>ElementType</my-mv>      </td></tr>
+    <tr><td><code>Real32Value</code>         </td><td><code>Arcadia_Real32Value</code></td></tr>
+    <tr><td><code>Real64Value</code>         </td><td><code>Arcadia_Real64Value</code></td></tr>
+  </table>
+
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code>* self</div>
+      <div>A pointer to this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> angle</div>
+	  <div>The angle of rotation, in degrees.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Math_Matrix*x**_setRotationY">Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setRotationY</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setRotationY<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> angle<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  <p>Assign the elements of this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object the values of a rotation matrix.
+  This matrix represents a counter-clockwise rotation by <code>angle</code> degrees around the y-axis.
+  This function is defined for \(4 \times 4\).</p>
+
+  <p>The rotation matrix is defined as
+  \[
+	\begin{matrix}
+	 c &  0 &  s &  0 \\
+	 0 &  1 &  0 &  0 \\
+	-s &  0 &  c &  0 \\
+	 0 &  0 &  0 &  1
+	\end{matrix}
+  \]
+  where \(c=\cos(a)\) and \(s=\sin(a)\).</p>
+
+  <p>
+  <my-mv>ElementTypeSuffix</my-mv> indicates the <em>Arcadia</em> type of the elements and parameters denoted by <my-mv>ElementType</my-mv>.
+  The following table lists the <my-mv>ElementTypeSuffix</my-mv> and the corresponding <my-mv>ElementType</my-mv>.
+  </p>
+
+  <table>
+    <tr><td><my-mv>ElementTypeSuffix</my-mv> </td><td><my-mv>ElementType</my-mv>      </td></tr>
+    <tr><td><code>Real32Value</code>         </td><td><code>Arcadia_Real32Value</code></td></tr>
+    <tr><td><code>Real64Value</code>         </td><td><code>Arcadia_Real64Value</code></td></tr>
+  </table>
+
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code>* self</div>
+      <div>A pointer to this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> angle</div>
+	  <div>The angle of rotation, in degrees.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Math_Matrix*x**_setRotationZ">Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setRotationZ</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setRotationZ<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> angle<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  <p>Assign the elements of this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object the values of a rotation matrix.
+  This matrix represents a counter-clockwise rotation by <code>angle</code> degrees around the z-axis.
+  This function is defined for \(4 \times 4\).</p>
+
+  <p>The rotation matrix is defined as
+  \[
+	\begin{matrix}
+	 c & -s & 0 & 0 \\
+	 s &  c & 0 & 0 \\
+	 0 &  0 & 1 & 0 \\
+	 0 &  0 & 0 & 1
+	\end{matrix}
+  \]
+  where \(c=\cos(a)\) and \(s=\sin(a)\).</p>
+
+  <p>
+  <my-mv>ElementTypeSuffix</my-mv> indicates the <em>Arcadia</em> type of the elements and parameters denoted by <my-mv>ElementType</my-mv>.
+  The following table lists the <my-mv>ElementTypeSuffix</my-mv> and the corresponding <my-mv>ElementType</my-mv>.
+  </p>
+
+  <table>
+    <tr><td><my-mv>ElementTypeSuffix</my-mv> </td><td><my-mv>ElementType</my-mv>      </td></tr>
+    <tr><td><code>Real32Value</code>         </td><td><code>Arcadia_Real32Value</code></td></tr>
+    <tr><td><code>Real64Value</code>         </td><td><code>Arcadia_Real64Value</code></td></tr>
+  </table>
+
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code>* self</div>
+      <div>A pointer to this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> angle</div>
+	  <div>The angle of rotation, in degrees.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Math_Matrix*x**_setScaling">Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setScaling</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setScaling<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> x,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> y,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> z<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  <p>Assign the elements of this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object the values of a scaling matrix.
+  This matrix represents a scalings along the x-, y-, and z-axis.
+  This function is defined for \(4 \times 4\).</p>
+
+  <p>The rotation matrix is defined as
+  \[
+	\begin{matrix}
+	 x &  0 &  0 &  0 \\
+	 0 &  y &  0 &  0 \\
+	 0 &  0 &  z &  0 \\
+	 0 &  0 &  0 &  1
+	\end{matrix}
+  \]</p>
+
+  <p>
+  <my-mv>ElementTypeSuffix</my-mv> indicates the <em>Arcadia</em> type of the elements and parameters denoted by <my-mv>ElementType</my-mv>.
+  The following table lists the <my-mv>ElementTypeSuffix</my-mv> and the corresponding <my-mv>ElementType</my-mv>.
+  </p>
+
+  <table>
+    <tr><td><my-mv>ElementTypeSuffix</my-mv> </td><td><my-mv>ElementType</my-mv>      </td></tr>
+    <tr><td><code>Real32Value</code>         </td><td><code>Arcadia_Real32Value</code></td></tr>
+    <tr><td><code>Real64Value</code>         </td><td><code>Arcadia_Real64Value</code></td></tr>
+  </table>
+
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code>* self</div>
+      <div>A pointer to this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> x</div>
+      <div>The scaling along the x-axis.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> y</div>
+      <div>The scaling along the y-axis.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> z</div>
+      <div>The scaling along the z-axis.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Math_Matrix*x**_setTranslation">Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setTranslation</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setTranslation<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>Value* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> x,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> y,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;<my-mv>ElementType</my-mv> z<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Assign the elements of this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>Value</code> object the values of a translation matrix.
+  This function is defined for \(4 \times 4\).
+  The translation matrix for \f(4 \times \) matrices is defined as</p>
+  \[
+	\begin{matrix}
+	1 & 0 & 0 & x \\
+	0 & 1 & 0 & y \\
+	0 & 0 & 1 & z \\
+	0 & 0 & 0 & 1
+	\end{matrix}
+  \]
+  <p>where \(x\), \(y\), and \(z\) is the translation along the x, y, and z axis, respectively.</p>
+
+  <p>
+  <my-mv>ElementTypeSuffix</my-mv> indicates the <em>Arcadia</em> type of the elements and parameters denoted by <my-mv>ElementType</my-mv>.
+  The following table lists the <my-mv>ElementTypeSuffix</my-mv> and the corresponding <my-mv>ElementType</my-mv>.
+  </p>
+
+  <table>
+    <tr><td><my-mv>ElementTypeSuffix</my-mv> </td><td><my-mv>ElementType</my-mv>      </td></tr>
+    <tr><td><code>Real32Value</code>         </td><td><code>Arcadia_Real32Value</code></td></tr>
+    <tr><td><code>Real64Value</code>         </td><td><code>Arcadia_Real64Value</code></td></tr>
+  </table>
+
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code>* self</div>
+      <div>A pointer to this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> x</div>
+      <div>The translation along the x-axis.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> y</div>
+      <div>The translation along the y-axis.</div>
+    </div>
+    <div>
+      <div><my-mv>ElementType</my-mv> z</div>
+      <div>The translation along the z-axis.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Math_Matrix*x**_setZero">Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setZero</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>_setZero<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv>* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Assign the elements of this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object the values of the zero matrix.
+  The zero matrix is defined as
+  \[
+    \forall i, j \in [1,n] c_{i,j} = 0
+  \]
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code>* self</div>
+      <div>A pointer to this <code>Arcadia_Math_Matrix<my-mv>NumberOfColumns</my-mv>x<my-mv>NumberOfRows</my-mv><my-mv>ElementTypeSuffix</my-mv></code> object.</div>
+    </div>
+  </section>
+
+</section>
+
+
+
+  </div>
+  <div class="right-column">
+    <nav>
+      <ul style="list-style: none">
+	    <li><a href="https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**">Arcadia_Math_Matrix*x**</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**_setIdentity">Arcadia_Math_Matrix*x**_setIdentity</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**_setOrthographicProjection">Arcadia_Math_Matrix*x**_setOrthographicProjection</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**_setPerspectiveProjection">Arcadia_Math_Matrix*x**_setPerspectiveProjection</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**_setRotationX">Arcadia_Math_Matrix*x**_setRotationX</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**_setRotationY">Arcadia_Math_Matrix*x**_setRotationY</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**_setRotationZ">Arcadia_Math_Matrix*x**_setRotationZ</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**_setScaling">Arcadia_Math_Matrix*x**_setScaling</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**_setTranslation">Arcadia_Math_Matrix*x**_setTranslation</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**_setZero">Arcadia_Math_Matrix*x**_setZero</a></li>
+      </ul>
+    </nav>
+  </div>
+  </main>
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column"></div>
+    <div class="right-column">
+      <div>Website maintained by Michael Heilmann.</div>
+      <div>Last modified on 16 September 2026.</div>
+    </div>
+  </footer>
+  </body>
+</html>
+

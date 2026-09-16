@@ -272,16 +272,24 @@ Arcadia_FileSystem_createDirectoryFiles
     Arcadia_FilePath* path
   )
 {
+  // If the path is relative, then make it absolute.
+  if (Arcadia_FilePath_isRelative(thread, path)) {
+    Arcadia_FilePath* temporary = Arcadia_FileSystem_getWorkingDirectory(thread, (Arcadia_FileSystem*)self);
+    Arcadia_FilePath_append(thread, temporary, path);
+    path = temporary;
+  }
   // Ensure each path component exists.
   Arcadia_SizeValue n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)path->fileNames);
-  if (!n) {
-    // (2) We cannot create file system roots. Remarks: At this point, path is required to be path->isRelative = true.
-    return;
+  if (!n) { 
+    // As the path is absolute and has no filenames, it refers to a file system root.
+    // We do not create file system roots.
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationFailed);
+    Arcadia_Thread_jump(thread);
   }
-  // (3) Begin at the topmost component.
+  // Begin at the topmost component.
   Arcadia_FilePath* temporary = Arcadia_FilePath_clone(thread, path);
   Arcadia_Collection_clear(thread, (Arcadia_Collection*)temporary->fileNames);
-  for (Arcadia_SizeValue i = 0; i < n - 1; ++i) {
+  for (Arcadia_SizeValue i = 0; i < n; ++i) {
     Arcadia_String* suffixString = (Arcadia_String*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, (Arcadia_List*)path->fileNames, i,
                                                                                                   _Arcadia_String_getType(thread));
     Arcadia_FilePath* suffix = Arcadia_FilePath_parseGeneric(thread, suffixString);

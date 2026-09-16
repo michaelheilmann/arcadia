@@ -1,0 +1,7 @@
+@{include("./Module-Interface/Input/KeyboardKey.i")}
+@{include("./Module-Interface/Input/KeyboardKeyAction.i")}
+@{include("./Module-Interface/Input/KeyboardKeyEvent.i")}
+@{include("./Module-Interface/Input/MouseButtonAction.i")}
+@{include("./Module-Interface/Input/MouseButtonEvent.i")}
+@{include("./Module-Interface/Input/MousePointerAction.i")}
+@{include("./Module-Interface/Input/MousePointerEvent.i")}

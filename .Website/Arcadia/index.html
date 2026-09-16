@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+  <link rel='canonical' href='https://michaelheilmann.com/Arcadia/'>
+  <title>Michael Heilmann's Arcadia</title>
+</head>
+<body class="my-index-page-1 my-subindex-page-1">
+  <header>
+    <div class="navigation breadcrumbs">
+      <a href="https://michaelheilmann.com/">Home</a>
+    </div>
+    <div class="banner">
+      <div>
+        <div>Michael Heilmann's</div>
+        <div>Project Arcadia</div>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="topic left-column">
+      <div class="header">
+        <span>Description</span>
+      </div>
+      <div class="body">
+        <p>Project Arcadia is an open environment for creating, regenerating, and preserving games. Its mission is to give developers, artists, and tinkerer's
+        a future-proof space where games aren't just built - they are understood, reborn, and kept alive.</p>
+
+        <p>Arcadia is designed to be</p>
+        <ul style="list-style-position: inside;">
+          <li><em>portable and flexible</em> - able to run across platforms while still embracing the unique strenghts of quirks of each one.</li>
+          <li><em>expressive and human-readable</em> - games are described through clear, editable text documents that define their visuals, audials, and logics</li>
+          <li><em>procedurally alive</em> - using deterministic procedural generation, Arcadia can recreate rich game worlds, sounds, and behaviours from compact descriptions</li>
+          <li><em>built for preservation</em> - making it possible to store, regenerate, and study games long into the future</li>
+          <li><em>self-describing and self-publishing</em> - Arcadia generates a complete deployable HTML5 website containing its own documentation ready for static web hosts or offline-reading</li>
+        </ul>
+        
+        <p>At its heart, Arcadia is about turning games into living artifacts: small, shareable, regenerable, and never truly lost.</p>
+      </div>
+    </div>
+    <div class="topic center-column">
+      <div class="header">
+        <span>Documentation</span>
+      </div>
+      <div class="body">
+        <div class="entries">
+          <a href='https://michaelheilmann.com/Arcadia/ARMS'>Arcadia ARMS</a>
+          <a href='https://michaelheilmann.com/Arcadia/Ring1'>Arcadia Ring1</a>
+          <a href='https://michaelheilmann.com/Arcadia/Ring2'>Arcadia Ring2</a>
+          <a href='https://michaelheilmann.com/Arcadia/Collections'>Arcadia Collections</a>
+          <a href='https://michaelheilmann.com/Arcadia/FileSystem'>Arcadia FileSystem</a>
+          <a href='https://michaelheilmann.com/Arcadia/Media'>Arcadia Media</a>
+          <a href='https://michaelheilmann.com/Arcadia/Engine'>Arcadia Engine</a>
+          <a href='https://michaelheilmann.com/Arcadia/TemplateEngine'>Arcadia Template Engine</a>
+
+          <a href='https://michaelheilmann.com/specifications/mathematical-definitions-notations-and-proofs'>Mathematical Definitions, Notations, and Proofs</a>
+          <a href='https://michaelheilmann.com/specifications/common-lexical-translations'>Common Lexical Translations</a>
+          <a href='https://michaelheilmann.com/specifications/data-definition-language'>Data Definition Language</a>
+          <a href='https://michaelheilmann.com/specifications/data-definitions-language-schema'>Data Definition Language Schema (draft)</a>
+        </div>
+      </div>
+    </div>
+    <div class="topic right-column">
+      <div class="header">
+        <span>Organizational</span>
+      </div>
+      <div class="body">
+        <div class="entries">
+          <a href='https://github.com/michaelheilmann/arcadia'>Arcadia GitHub repository</a>
+          <a href='https://github.com/michaelheilmann/arcadia-dependencies'>GitHub repository for external dependencies</a>
+          <a href='https://michaelheilmann.com/Arcadia/news'>News</a>
+          <a href='https://michaelheilmann.com/Arcadia/roadmap'>Roadmap</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  </main>
+  <footer>
+  <div class="left-column">
+    <div>
+    <div>Website maintained by Michael Heilmann.</div>
+    <div>Last modified on 16 September 2026.</div> 
+    </div>
+  </div>
+  <div class="center-column">
+    <div>
+      <div><a href="https://michaelheilmann.com/imprint">Imprint</a></div>
+      <div><a href="https://michaelheilmann.com/data-protection-statement">Data Protection Statement</a></div>
+    </div>
+  </div>
+  <div class="right-column">
+    <div>
+      <div><a href='https://github.com/michaelheilmann'>GitHub</a></div>
+      <div><a href='https://discord.gg/XtPA6pwAsp'>Discord</a></div>
+      <div><a href='mailto:contact@michaelheilmann.com'>contact@michaelheilmann.com</a></div>
+    </div>
+  </div>
+</footer>
+
+  </footer>
+</body>
+</html>

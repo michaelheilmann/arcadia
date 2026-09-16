@@ -37,6 +37,11 @@
 #include "Arcadia/MILC/AST/Instructions/ReturnInstructionNode.h"
 #include "Arcadia/MILC/AST/Instructions/UnaryInstructionNode.h"
 
+#include "Arcadia/MILC/AST/Instructions/LoadArgumentInstructionNode.h"
+#include "Arcadia/MILC/AST/Instructions/StoreArgumentInstructionNode.h"
+#include "Arcadia/MILC/AST/Instructions/LoadFieldInstructionNode.h"
+#include "Arcadia/MILC/AST/Instructions/StoreFieldInstructionNode.h"
+
 #include "Arcadia/MILC/AST/Literals/BooleanLiteralNode.h"
 #include "Arcadia/MILC/AST/Literals/IntegerLiteralNode.h"
 #include "Arcadia/MILC/AST/Literals/RealLiteralNode.h"

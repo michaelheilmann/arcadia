@@ -18,7 +18,7 @@
     <div class="center-column"></div>
     <div class="right-column">
       <nav>
-        <ul>
+        <ul style="display: flex; flex-direction: row; gap: 1rem;">
           <li><a href="@{siteAddress}/Arcadia">Documentation</a></li>
           <li><a href='https://github.com/michaelheilmann'>GitHub</a</li>
           <li><a href='https://discord.gg/XtPA6pwAsp'>Discord</a></li>

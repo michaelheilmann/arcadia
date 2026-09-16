@@ -39,7 +39,7 @@ struct Arcadia_MILC_AST_RaiseInstructionNode {
   Arcadia_MILC_AST_OperandNode* operand;
 };
 
-/// @brief Create a MIL raise �nstruction AST node.
+/// @brief Create a MIL raise instruction AST node.
 /// @return A pointer to this MIL raise instruction AST node.
 Arcadia_MILC_AST_RaiseInstructionNode*
 Arcadia_MILC_AST_RaiseInstructionNode_create

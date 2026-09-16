@@ -20,7 +20,7 @@ BeginTemplateEngine(${MyProjectName}.Website.Specifications.CommonLexicalTransla
 
   # Build "specifications/common-lexical-translations/index.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/.Build/specifications/common-lexical-translations/index.html"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/specifications/common-lexical-translations/index.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/../../website.env")
 
 EndTemplateEngine()

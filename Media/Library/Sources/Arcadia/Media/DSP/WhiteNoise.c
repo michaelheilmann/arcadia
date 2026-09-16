@@ -19,6 +19,29 @@
 
 #include "Arcadia/Media/Quantization.h"
 
+#if defined(Arcadia_Media_Configuration_DSP_withOutputPins) && 1 == Arcadia_Media_Configuration_DSP_withOutputPins
+
+static Arcadia_SizeValue
+getNumberOfOutputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SineWave* self
+  );
+
+#endif
+
+#if defined(Arcadia_Media_Configuration_DSP_withInputPins) && 1 == Arcadia_Media_Configuration_DSP_withInputPins
+
+static Arcadia_SizeValue
+getNumberOfOutputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SineWave* self
+  );
+
+#endif
+
+
 static void
 Arcadia_Media_DSP_WhiteNoise_constructImpl
   (
@@ -73,6 +96,30 @@ static const Arcadia_Type_Operations _typeOperations = {
 Arcadia_defineObjectType(u8"Arcadia.Media.DSP.WhiteNoise", Arcadia_Media_DSP_WhiteNoise,
                          u8"Arcadia.Media.DSP", Arcadia_Media_DSP,
                          &_typeOperations);
+
+#if defined(Arcadia_Media_Configuration_DSP_withOutputPins) && 1 == Arcadia_Media_Configuration_DSP_withOutputPins
+
+static Arcadia_SizeValue
+getNumberOfOutputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SineWave* self
+  )
+{ return Arcadia_SizeValue_Literal(0); }
+
+#endif
+
+#if defined(Arcadia_Media_Configuration_DSP_withInputPins) && 1 == Arcadia_Media_Configuration_DSP_withInputPins
+
+static Arcadia_SizeValue
+getNumberOfOutputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SineWave* self
+  )
+{ return Arcadia_SizeValue_Literal(1); }
+
+#endif
 
 static void
 Arcadia_Media_DSP_WhiteNoise_constructImpl

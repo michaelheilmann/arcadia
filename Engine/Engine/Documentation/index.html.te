@@ -1,19 +1,32 @@
-@{include("header.i")}
-<h2>Documentation</h2>
-@{include("ApplicationEvent.i")}
-@{include("ApplicationQuitRequestedEvent.i")}
-@{include("CanvasActivationStateChangedEvent.i")}
-@{include("CanvasEvent.i")}
-@{include("CanvasDPIChangedEvent.i")}
-@{include("CanvasSizeChangedEvent.i")}
-@{include("CullMode.i")}
-@{include("DepthCompareFunction.i")}
-@{include("Event.i")}
-@{include("FillMode.i")}
-@{include("./Input/include.content")}
-@{include("TextureAddressMode.i")}
-@{include("TextureFilter.i")}
-@{include("VertexElementSemantics.i")}
-@{include("VertexElementSyntactics.i")}
-@{include("WindingMode.i")}
-@{include("footer.i")}
+@{include("./../../../Documentation/Commons/header-common.i")}
+<link rel='canonical' href='@{siteAddress}/Arcadia/Engine/'>
+<title>Michael Heilmann's Arcadia Engine</title>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div class="navigation breadcrumbs">
+      <a href="@{siteAddress}/">Home</a>
+    </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+      <h1>Michael Heilmann's Arcadia Engine</h1>
+      <p>
+      Arcadia Engine is the core engine abstraction module. It provides common
+      event, input, audials, visuals, backend, backend-context, resource, and
+      node interfaces used by engine implementations and higher-level engine
+      layers.
+      </p>
+
+      <h2>Documentation</h2>
+      <ul>
+        <li><a href="@{siteAddress}/Arcadia/Engine/Module-Interface/">Module Interface</a></li>
+        <li><a href="@{siteAddress}/Arcadia/Engine/Concepts-and-Terms/">Concepts and Terms</a></li>
+      </ul>
+    </div>
+    <div class="right-column"></div>
+  </main>
+  @{include("./../../../Documentation/footer.i")}
+</body>
+</html>

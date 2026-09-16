@@ -16,4 +16,7 @@
 #if !defined(ARCADIA_MEDIA_CONFIGURE_H_INCLUDED)
 #define ARCADIA_MEDIA_CONFIGURE_H_INCLUDED
 
+#define Arcadia_Media_Configuration_DSP_withInputPins (0)
+#define Arcadia_Media_Configuration_DSP_withOutputPints (0)
+
 #endif // ARCADIA_MEDIA_CONFIGURE_H_INCLUDED

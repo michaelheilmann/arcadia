@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.29)
 BeginTemplateEngine(${MyProjectName}.Website.Specifications.MIL "Website")
 
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/.Build/specifications/mil/index.html"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/specifications/mil/index.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/../../website.env")
 
 EndTemplateEngine()

@@ -358,6 +358,13 @@ Arcadia_DefaultFileSystem_createDirectoryFileImpl
   )
 {
   Arcadia_String* nativePath = Arcadia_FilePath_toNative(thread, path, Arcadia_BooleanValue_True);
+
+#if defined(_DEBUG)
+  Arcadia_logf(Arcadia_LogFlags_Info, "creating directory `");
+  Arcadia_logf(Arcadia_LogFlags_Info, nativePath->immutableUTF8String->bytes);
+  Arcadia_logf(Arcadia_LogFlags_Info, "`\n");
+#endif
+
 #if Arcadia_Configuration_OperatingSystem == Arcadia_Configuration_OperatingSystem_Windows
   if (FALSE == CreateDirectory(Arcadia_String_getBytes(thread, nativePath), NULL)) {
     if (ERROR_ALREADY_EXISTS != GetLastError()) {

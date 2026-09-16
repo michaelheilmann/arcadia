@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.29)
 BeginTemplateEngine(Website.Specifications.DDLS "DDLS")
 
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/.Build/specifications/data-definition-language-schema/index.html"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/specifications/data-definition-language-schema/index.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/../../website.env")
 
 EndTemplateEngine()

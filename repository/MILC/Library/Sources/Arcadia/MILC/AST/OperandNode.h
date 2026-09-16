@@ -29,9 +29,9 @@
 /// operand : booleanLiteralOperand
 ///         | numberLiteralOperand
 ///         | stringLiteralOperand
-///         | variableOperand
+///         | nameLiteralOperand
 ///         | registerOperand
-/// variableOperand : lexical.string | lexical.name
+/// variableOperand : lexical.name
 /// registerOperand : lexical.register
 /// @endcode
 Arcadia_declareObjectType(u8"Arcadia.MILC.AST.OperandNode", Arcadia_MILC_AST_OperandNode,

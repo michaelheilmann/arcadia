@@ -1,2 +1,3 @@
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_ArrayList">Arcadia_ArrayList</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_ArrayList_create">Arcadia_ArrayList_create</a></li>
+<li>Array List</li>
+<li><a href="@{siteAddress}/Arcadia/Collections/#Arcadia_ArrayList">Arcadia_ArrayList</a></li>
+<li><a href="@{siteAddress}/Arcadia/Collections/#Arcadia_ArrayList_create">Arcadia_ArrayList_create</a></li>

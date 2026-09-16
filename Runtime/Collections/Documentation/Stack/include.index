@@ -1,6 +1,6 @@
 <li>Stack</li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Stack">Arcadia_Stack</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Stack_create">Arcadia_Stack_create</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Stack_peek">Arcadia_Stack_peek</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Stack_pop">Arcadia_Stack_pop</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_Stack_push">Arcadia_Stack_push</a></li>
+<li><a href="@{siteAddress}/Arcadia/Collections/#Arcadia_Stack">Arcadia_Stack</a></li>
+<li><a href="@{siteAddress}/Arcadia/Collections/#Arcadia_Stack_create">Arcadia_Stack_create</a></li>
+<li><a href="@{siteAddress}/Arcadia/Collections/#Arcadia_Stack_peek">Arcadia_Stack_peek</a></li>
+<li><a href="@{siteAddress}/Arcadia/Collections/#Arcadia_Stack_pop">Arcadia_Stack_pop</a></li>
+<li><a href="@{siteAddress}/Arcadia/Collections/#Arcadia_Stack_push">Arcadia_Stack_push</a></li>
