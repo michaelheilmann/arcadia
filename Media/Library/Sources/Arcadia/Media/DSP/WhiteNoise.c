@@ -14,10 +14,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#define ARCADIA_MEDIA_MODULE (1)
+#define ARCADIA_MEDIA_PRIVATE (1)
 #include "Arcadia/Media/DSP/WhiteNoise.h"
 
-#include "Arcadia/Media/Quantization.h"
+static Arcadia_SizeValue
+getNumberOfOutputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_WhiteNoise* self
+  );
+
+static Arcadia_SizeValue
+getNumberOfInputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_WhiteNoise* self
+  );
 
 static void
 Arcadia_Media_DSP_WhiteNoise_constructImpl
@@ -41,21 +53,32 @@ Arcadia_Media_DSP_WhiteNoise_visitImpl
   );
 
 static void
-Arcadia_Media_DSP_WhiteNoise_generate
+Arcadia_Media_DSP_WhiteNoise_render
   (
     Arcadia_Thread* thread,
     Arcadia_Media_DSP_WhiteNoise* self,
-    Arcadia_Natural32Value sampleRate,
-    Arcadia_Natural32Value numberOfSamples,
-    Arcadia_ByteArrayBuilder* target
+    Arcadia_Media_DSP_Buffer* target
   );
 
-/// @return The random number [-1,+1].
-/// @todo We must replace rand().
-static Arcadia_Real32Value
-Arcadia_getRandomReal32Value
+static void
+Arcadia_Media_DSP_WhiteNoise_reset
   (
-    Arcadia_Thread* thread
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_WhiteNoise* self
+  );
+
+static void
+Arcadia_Media_DSP_WhiteNoise_reseed
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_WhiteNoise* self,
+    Arcadia_Natural32Value seed
+  );
+
+static Arcadia_Natural32Value
+Arcadia_Media_DSP_WhiteNoise_next
+  (
+    Arcadia_Media_DSP_WhiteNoise* self
   );
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
@@ -74,6 +97,22 @@ Arcadia_defineObjectType(u8"Arcadia.Media.DSP.WhiteNoise", Arcadia_Media_DSP_Whi
                          u8"Arcadia.Media.DSP", Arcadia_Media_DSP,
                          &_typeOperations);
 
+static Arcadia_SizeValue
+getNumberOfOutputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_WhiteNoise* self
+  )
+{ return Arcadia_SizeValue_Literal(1); }
+
+static Arcadia_SizeValue
+getNumberOfInputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_WhiteNoise* self
+  )
+{ return Arcadia_SizeValue_Literal(0); }
+
 static void
 Arcadia_Media_DSP_WhiteNoise_constructImpl
   (
@@ -86,10 +125,16 @@ Arcadia_Media_DSP_WhiteNoise_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (0 != _numberOfArguments) {
+  if (2 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
+  self->initialSeed = Arcadia_ValueStack_getNatural32Value(thread, 2);
+  if (!self->initialSeed) {
+    self->initialSeed = Arcadia_Natural32Value_Literal(0x6d2b79f5);
+  }
+  self->randomState = self->initialSeed;
+  self->amplitude = Arcadia_ValueStack_getReal32Value(thread, 1);
   Arcadia_LeaveConstructor(Arcadia_Media_DSP_WhiteNoise);
 }
 
@@ -100,7 +145,11 @@ Arcadia_Media_DSP_WhiteNoise_initializeDispatchImpl
     Arcadia_Media_DSP_WhiteNoiseDispatch* self
   )
 {
-  ((Arcadia_Media_DSPDispatch*)self)->generate = (void (*)(Arcadia_Thread*, Arcadia_Media_DSP*, Arcadia_Natural32Value, Arcadia_Natural32Value, Arcadia_ByteArrayBuilder*)) & Arcadia_Media_DSP_WhiteNoise_generate;
+  ((Arcadia_Media_DSPDispatch*)self)->render = (void (*)(Arcadia_Thread*, Arcadia_Media_DSP*, Arcadia_Media_DSP_Buffer*)) & Arcadia_Media_DSP_WhiteNoise_render;
+  ((Arcadia_Media_DSPDispatch*)self)->reset = (void (*)(Arcadia_Thread*, Arcadia_Media_DSP*)) & Arcadia_Media_DSP_WhiteNoise_reset;
+  ((Arcadia_Media_DSPDispatch*)self)->reseed = (void (*)(Arcadia_Thread*, Arcadia_Media_DSP*, Arcadia_Natural32Value)) & Arcadia_Media_DSP_WhiteNoise_reseed;
+  ((Arcadia_Media_DSPDispatch*)self)->getNumberOfOutputPins = (Arcadia_SizeValue (*)(Arcadia_Thread*, Arcadia_Media_DSP*)) & getNumberOfOutputPins;
+  ((Arcadia_Media_DSPDispatch*)self)->getNumberOfInputPins = (Arcadia_SizeValue (*)(Arcadia_Thread*, Arcadia_Media_DSP*)) & getNumberOfInputPins;
 }
 
 static void
@@ -112,41 +161,66 @@ Arcadia_Media_DSP_WhiteNoise_visitImpl
 {/*Intentionally empty.*/}
 
 static void
-Arcadia_Media_DSP_WhiteNoise_generate
+Arcadia_Media_DSP_WhiteNoise_render
   (
     Arcadia_Thread* thread,
     Arcadia_Media_DSP_WhiteNoise* self,
-    Arcadia_Natural32Value sampleRate,
-    Arcadia_Natural32Value numberOfSamples,
-    Arcadia_ByteArrayBuilder* target
+    Arcadia_Media_DSP_Buffer* target
   )
 { 
+  Arcadia_SizeValue numberOfSamples = Arcadia_Media_DSP_Buffer_getNumberOfSamples(thread, target);
+  Arcadia_Real32Value* samples = Arcadia_Media_DSP_Buffer_getSamples(thread, target);
   for (Arcadia_SizeValue i = 0, n = numberOfSamples; i < n; ++i) {
-    Arcadia_Real32Value v = Arcadia_getRandomReal32Value(thread);
-    Arcadia_ByteArrayBuilder_insertBackBytes(thread, target, &v, sizeof(v));
+    Arcadia_Real32Value normalized = ((Arcadia_Real32Value)(Arcadia_Media_DSP_WhiteNoise_next(self) & 0x00ffffffu) / 8388607.5f) - 1.0f;
+    samples[i] = normalized * self->amplitude;
   }
 }
 
-static Arcadia_Real32Value
-Arcadia_getRandomReal32Value
+static Arcadia_Natural32Value
+Arcadia_Media_DSP_WhiteNoise_next
   (
-    Arcadia_Thread* thread
+    Arcadia_Media_DSP_WhiteNoise* self
   )
 {
-  Arcadia_Integer32Value i = rand(); // [0,RAND_MAX]
-  Arcadia_Real32Value f = ((Arcadia_Real32Value)i) / ((Arcadia_Real32Value)RAND_MAX); // [0,1]
-  f *= 2.f; // [0,2]
-  f -= 1.f; // [-1,+1]
-  return f;
+  Arcadia_Natural32Value value = self->randomState;
+  value ^= value << 13;
+  value ^= value >> 17;
+  value ^= value << 5;
+  self->randomState = value;
+  return value;
+}
+
+static void
+Arcadia_Media_DSP_WhiteNoise_reset
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_WhiteNoise* self
+  )
+{ self->randomState = self->initialSeed; }
+
+static void
+Arcadia_Media_DSP_WhiteNoise_reseed
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_WhiteNoise* self,
+    Arcadia_Natural32Value seed
+  )
+{
+  self->initialSeed = seed ? seed : Arcadia_Natural32Value_Literal(0x6d2b79f5);
+  self->randomState = self->initialSeed;
 }
 
 Arcadia_Media_DSP_WhiteNoise*
 Arcadia_Media_DSP_WhiteNoise_create
   (
-    Arcadia_Thread* thread
+    Arcadia_Thread* thread,
+    Arcadia_Natural32Value seed,
+    Arcadia_Real32Value amplitude
   )
 {
   _Arcadia_BeginCreate(Arcadia_Media_DSP_WhiteNoise);
-  Arcadia_ValueStack_pushNatural8Value(thread, 0);
+  Arcadia_ValueStack_pushNatural32Value(thread, seed);
+  Arcadia_ValueStack_pushReal32Value(thread, amplitude);
+  Arcadia_ValueStack_pushNatural8Value(thread, 2);
   _Arcadia_EndCreate(Arcadia_Media_DSP_WhiteNoise);
 }

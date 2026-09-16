@@ -21,9 +21,10 @@ set(this ${MyProjectName}.Math.Tests.QuaternionTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Math")
+
 OnSourceFile(${this} Arcadia.Math.Tests.QuaternionTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.Math PRIVATE)
 
 EndProduct(${this})
-set_target_properties(${this} PROPERTIES FOLDER "Math")

@@ -22,6 +22,8 @@ set(this ${MyProjectName}.Languages)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Languages")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Languages/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Languages/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/Languages/Include.c)
@@ -57,6 +59,13 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Languages/mangleName.c)
   OnHeaderFile(${this} Arcadia/Languages/mangleName.h)
 
+  OnSourceFile(${this} Arcadia/Languages/InputFileManager.c)
+  OnHeaderFile(${this} Arcadia/Languages/InputFileManager.h)
+  OnSourceFile(${this} Arcadia/Languages/InputFile.c)
+  OnHeaderFile(${this} Arcadia/Languages/InputFile.h)
+  OnSourceFile(${this} Arcadia/Languages/InputFileManager/PhysicalInputFile.c)
+  OnHeaderFile(${this} Arcadia/Languages/InputFileManager/PhysicalInputFile.h)
+
   OnModuleDependency(${this} ${MyProjectName}.Collections)
   OnModuleDependency(${this} ${MyProjectName}.Logging)
   OnModuleDependency(${this} ${MyProjectName}.FileSystem)
@@ -68,6 +77,5 @@ if (NOT TARGET ${this})
   endif()
 
   EndProduct(${this})
-  set_target_properties(${this} PROPERTIES FOLDER "Languages")
 
 endif()

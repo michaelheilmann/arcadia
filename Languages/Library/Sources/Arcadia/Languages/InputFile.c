@@ -66,6 +66,35 @@ getHashImpl
     Arcadia_Thread* thread
   );
 
+static Arcadia_String*
+Arcadia_Languages_InputFile_getNameImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFile* self
+  );
+  
+static Arcadia_FilePath*
+Arcadia_Languages_InputFile_getPathImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFile* self
+  );
+
+static Arcadia_ByteArray*
+Arcadia_Languages_InputFile_getContentsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFile* self
+  );
+
+static Arcadia_SizeValue
+Arcadia_Languages_InputFile_getLineImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFile* self,
+    Arcadia_SizeValue offset
+  );
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Languages_InputFile_constructImpl,
@@ -120,10 +149,11 @@ Arcadia_Languages_InputFile_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (1 != _numberOfArguments) {
+  if (2 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
+  self->name = (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_String_getType(thread));
   self->path = (Arcadia_FilePath*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_FilePath_getType(thread));
   self->path = Arcadia_FilePath_clone(thread, self->path);
   Arcadia_FileSystem* fileSystem = Arcadia_FileSystem_getOrCreate(thread);
@@ -147,6 +177,11 @@ Arcadia_Languages_InputFile_initializeDispatchImpl
 {
   ((Arcadia_ObjectDispatch*)self)->isEqualTo = &isEqualToImpl;
   ((Arcadia_ObjectDispatch*)self)->getHash = &getHashImpl;
+  
+  self->getName = &Arcadia_Languages_InputFile_getNameImpl;
+  self->getPath = &Arcadia_Languages_InputFile_getPathImpl;
+  self->getContents = &Arcadia_Languages_InputFile_getContentsImpl;
+  self->getLine = &Arcadia_Languages_InputFile_getLineImpl;
 }
 
 static void
@@ -156,6 +191,9 @@ Arcadia_Languages_InputFile_visit
     Arcadia_Languages_InputFile* self
   )
 {
+  if (self->name) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->name);
+  }
   if (self->path) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->path);
   }
@@ -224,30 +262,9 @@ isEqualToImpl
   }
   Arcadia_Languages_InputFile* a1 = (Arcadia_Languages_InputFile*)a0;
   Arcadia_Languages_InputFile* b1 = (Arcadia_Languages_InputFile*)b0;
-  if (a1->hashValue != b1->hashValue) {
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_False);
-    return;
-  }
-  /* Both paths are absolute. */
-  Arcadia_Value rhs = Arcadia_Value_makeObjectReferenceValue(b1);
-  if (!Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)a1->path->root, &rhs)) {
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_False);
-    return;
-  }
-  if (Arcadia_Collection_getSize(thread, (Arcadia_Collection*)a1->path->fileNames) != Arcadia_Collection_getSize(thread, (Arcadia_Collection*)b1->path->fileNames)) {
-    Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_False);
-    return;
-  }
-  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)a1->path->fileNames); i < n; ++i) {
-    Arcadia_Object* x = Arcadia_List_getObjectReferenceValueAt(thread, a1->path->fileNames, i);
-    Arcadia_Object* y = Arcadia_List_getObjectReferenceValueAt(thread, b1->path->fileNames, i);
-    rhs = Arcadia_Value_makeObjectReferenceValue(y);
-    if (!Arcadia_Object_isEqualTo(thread, x, &rhs)) {
-      Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_False);
-      return;
-    }
-  }
-  Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_True);
+  Arcadia_String *lhs = Arcadia_Languages_InputFile_getName(thread, a1);
+  Arcadia_Value rhs = Arcadia_Value_makeObjectReferenceValue(Arcadia_Languages_InputFile_getName(thread, b1));
+  Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)lhs, &rhs));
 }
 
 static void
@@ -258,7 +275,7 @@ getHashImpl
 {
   UNARY_OPERATION();
   Arcadia_Languages_InputFile* self = (Arcadia_Languages_InputFile*)Arcadia_Value_getObjectReferenceValue(&x);
-  Arcadia_ValueStack_pushSizeValue(thread, self->hashValue);
+  Arcadia_ValueStack_pushSizeValue(thread, Arcadia_Object_getHash(thread, (Arcadia_Object*)Arcadia_Languages_InputFile_getName(thread, self)));
 }
 
 #undef BINARY_OPERATION
@@ -268,25 +285,35 @@ Arcadia_Languages_InputFile*
 Arcadia_Languages_InputFile_create
   (
     Arcadia_Thread* thread,
+    Arcadia_String* name,
     Arcadia_FilePath* path
   )
 {
   _Arcadia_BeginCreate(Arcadia_Languages_InputFile);
+  if (name) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)name); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   if (path) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)path); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
-  Arcadia_ValueStack_pushNatural8Value(thread, 1);
+  Arcadia_ValueStack_pushNatural8Value(thread, 2);
   _Arcadia_EndCreate(Arcadia_Languages_InputFile);
 }
 
-Arcadia_FilePath*
-Arcadia_Languages_InputFile_getPath
+static Arcadia_String*
+Arcadia_Languages_InputFile_getNameImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFile* self
+  )
+{ return self->name; }
+
+static Arcadia_FilePath*
+Arcadia_Languages_InputFile_getPathImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Languages_InputFile* self
   )
 { return Arcadia_FilePath_clone(thread, self->path); }
 
-Arcadia_ByteArray*
-Arcadia_Languages_InputFile_getContents
+static Arcadia_ByteArray*
+Arcadia_Languages_InputFile_getContentsImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Languages_InputFile* self
@@ -298,9 +325,8 @@ Arcadia_Languages_InputFile_getContents
   return self->contents;
 }
 
-// A one-based line index.
-Arcadia_SizeValue
-Arcadia_Languages_InputFile_getLine
+static Arcadia_SizeValue
+Arcadia_Languages_InputFile_getLineImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Languages_InputFile* self,
@@ -312,3 +338,37 @@ Arcadia_Languages_InputFile_getLine
   }
   return Arcadia_Languages_LineMap_getLine(thread, self->lineMap, offset);
 }
+
+Arcadia_String*
+Arcadia_Languages_InputFile_getName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFile* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_Languages_InputFile, getName, self); }
+
+Arcadia_FilePath*
+Arcadia_Languages_InputFile_getPath
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFile* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_Languages_InputFile, getPath, self); }
+
+Arcadia_ByteArray*
+Arcadia_Languages_InputFile_getContents
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFile* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_Languages_InputFile, getContents, self); }
+
+// A one-based line index.
+Arcadia_SizeValue
+Arcadia_Languages_InputFile_getLine
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFile* self,
+    Arcadia_SizeValue offset
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_Languages_InputFile, getLine, self, offset); }

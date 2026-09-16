@@ -21,10 +21,10 @@ set(this ${MyProjectName}.Media.Tests.PixelBuffer)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Media")
+
 OnSourceFile(${this} Arcadia.Media.Tests.PixelBuffer/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.Media PRIVATE)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Media")

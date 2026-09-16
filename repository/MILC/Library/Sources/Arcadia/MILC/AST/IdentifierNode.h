@@ -39,6 +39,8 @@ struct Arcadia_MILC_AST_IdentifierNodeDispatch {
 struct Arcadia_MILC_AST_IdentifierNode {
   Arcadia_MILC_AST_Node _parent;
   Arcadia_ImmutableList* names;
+  /// @brief The start offset.
+  Arcadia_SizeValue startOffset;
 };
 
 Arcadia_MILC_AST_IdentifierNode*

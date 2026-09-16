@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.Lime",
+  red : 0,
+  green : 255,
+  blue : 0,
+}

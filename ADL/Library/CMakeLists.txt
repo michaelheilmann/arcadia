@@ -24,6 +24,8 @@ set(this ${MyProjectName}.ADL)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} ${MyFolder})
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/ADL/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/ADL/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/ADL/Include.c)
@@ -113,17 +115,12 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia/ADL/Definitions/Visuals/TextureReader.module.h)
 
   OnModuleDependency(${this} ${MyProjectName}.DDLS)
-  #OnModuleDependency(${this} ${MyProjectName}.DDL)
-  #OnModuleDependency(${this} ${MyProjectName}.Collections)
-  #OnModuleDependency(${this} ${MyProjectName}.Logging)
   OnModuleDependency(${this} ${MyProjectName}.FileSystem)
-  #OnModuleDependency(${this} ${MyProjectName}.Ring2)
 
   if (${${this}_OperatingSystem} STREQUAL ${${this}_OperatingSystem_Linux})
     list(APPEND ${this}.Libraries m)
   endif()
 
   EndProduct(${this})
-  set_target_properties(${this} PROPERTIES FOLDER ${MyFolder})
 
 endif()

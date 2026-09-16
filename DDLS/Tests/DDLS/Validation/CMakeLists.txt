@@ -23,6 +23,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} test)
 
+  SetFolder(${this} ${MyTestFolder})
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/DDLS/Tests/Validation/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/DDLS/Tests/Validation/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/DDLS/Tests/Validation/Main.c)
@@ -30,14 +32,13 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/DDLS/Tests/Validation/Default.c)
   OnHeaderFile(${this} Arcadia/DDLS/Tests/Validation/Default.h)
 
-  OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets)
+  OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
   OnModuleDependency(${this} ${MyProjectName}.DDLS PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)
 
   EndProduct(${this})
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)
-  set_target_properties(${this} PROPERTIES FOLDER ${MyTestFolder})
 
   CopyProductAssets(${this} ${MyTestFolder} ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 

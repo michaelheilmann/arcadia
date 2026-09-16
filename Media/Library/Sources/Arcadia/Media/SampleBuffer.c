@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#define ARCADIA_MEDIA_MODULE (1)
+#define ARCADIA_MEDIA_PRIVATE (1)
 #include "Arcadia/Media/SampleBuffer.h"
 
 #include "Arcadia/Media/SampleFormat.h"
@@ -234,49 +234,58 @@ Arcadia_Media_SampleBuffer_fill
     Arcadia_Media_DSP* dsp
   )
 {
-  // @todo If Arcadia_Media_DSP_generate could directly write to an array of Bytes, we would not have to allocate a temporary Byte buffer.
-  // However, we could actually use a Byte buffer as the backing array of the sample buffer.
   const Arcadia_Integer32Value SAMPLERATE = Arcadia_Media_SampleBuffer_getSampleRate(thread, self);
   const Arcadia_Integer32Value NUMBEROFSAMPLES = SAMPLERATE * Arcadia_Media_SampleBuffer_getLength(thread, self);
-  Arcadia_ByteArrayBuilder* temporary = Arcadia_ByteArrayBuilder_create(thread);
-  Arcadia_Media_DSP_generate(thread, (Arcadia_Media_DSP*)dsp, Arcadia_Media_SampleBuffer_getSampleRate(thread, self), NUMBEROFSAMPLES, temporary);
+  Arcadia_Media_DSP_Buffer* temporary = Arcadia_Media_DSP_Buffer_create(thread, SAMPLERATE, NUMBEROFSAMPLES);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)temporary);
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_Media_DSP_render(thread, (Arcadia_Media_DSP*)dsp, temporary);
 
-  switch (Arcadia_Media_SampleBuffer_getSampleFormat(thread, self)) {
-    case Arcadia_Media_SampleFormat_Integer16: {
-      Arcadia_Real32Value* source = (Arcadia_Real32Value*)Arcadia_ByteArrayBuilder_getBytes(thread, temporary);
-      Arcadia_Integer16Value* p = (Arcadia_Integer16Value*)self->bytes;
-      for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
-        Arcadia_Integer16Value sample = Arcadia_Media_quantizeInteger16(thread, source[i]);
-        p[i] = sample;
-      }
-    } break;
-    case Arcadia_Media_SampleFormat_Integer8: {
-      Arcadia_Real32Value* source = (Arcadia_Real32Value*)Arcadia_ByteArrayBuilder_getBytes(thread, temporary);
-      Arcadia_Integer16Value* p = (Arcadia_Integer16Value*)self->bytes;
-      for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
-        Arcadia_Integer16Value sample = Arcadia_Media_quantizeInteger16(thread, source[i]);
-        p[i] = sample;
-      }
-    } break;
-    case Arcadia_Media_SampleFormat_Natural16: {
-      Arcadia_Real32Value* source = (Arcadia_Real32Value*)Arcadia_ByteArrayBuilder_getBytes(thread, temporary);
-      Arcadia_Natural16Value* p = (Arcadia_Natural16Value*)self->bytes;
-      for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
-        Arcadia_Natural16Value sample = Arcadia_Media_quantizeNatural16(thread, source[i]);
-        p[i] = sample;
-      }
-    } break;
-    case Arcadia_Media_SampleFormat_Natural8: {
-      Arcadia_Real32Value* source = (Arcadia_Real32Value*)Arcadia_ByteArrayBuilder_getBytes(thread, temporary);
-      Arcadia_Natural8Value* p = (Arcadia_Natural8Value*)self->bytes;
-      for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
-        Arcadia_Natural8Value sample = Arcadia_Media_quantizeNatural8(thread, source[i]);
-        p[i] = sample;
-      }
-    } break;
-    default: {
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
-      Arcadia_Thread_jump(thread);
-    } break;
-  };
+    switch (Arcadia_Media_SampleBuffer_getSampleFormat(thread, self)) {
+      case Arcadia_Media_SampleFormat_Integer16: {
+        Arcadia_Real32Value* source = Arcadia_Media_DSP_Buffer_getSamples(thread, temporary);
+        Arcadia_Integer16Value* p = (Arcadia_Integer16Value*)self->bytes;
+        for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
+          Arcadia_Integer16Value sample = Arcadia_Media_quantizeInteger16(thread, source[i]);
+          p[i] = sample;
+        }
+      } break;
+      case Arcadia_Media_SampleFormat_Integer8: {
+        Arcadia_Real32Value* source = Arcadia_Media_DSP_Buffer_getSamples(thread, temporary);
+        Arcadia_Integer16Value* p = (Arcadia_Integer16Value*)self->bytes;
+        for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
+          Arcadia_Integer16Value sample = Arcadia_Media_quantizeInteger16(thread, source[i]);
+          p[i] = sample;
+        }
+      } break;
+      case Arcadia_Media_SampleFormat_Natural16: {
+        Arcadia_Real32Value* source = Arcadia_Media_DSP_Buffer_getSamples(thread, temporary);
+        Arcadia_Natural16Value* p = (Arcadia_Natural16Value*)self->bytes;
+        for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
+          Arcadia_Natural16Value sample = Arcadia_Media_quantizeNatural16(thread, source[i]);
+          p[i] = sample;
+        }
+      } break;
+      case Arcadia_Media_SampleFormat_Natural8: {
+        Arcadia_Real32Value* source = Arcadia_Media_DSP_Buffer_getSamples(thread, temporary);
+        Arcadia_Natural8Value* p = (Arcadia_Natural8Value*)self->bytes;
+        for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
+          Arcadia_Natural8Value sample = Arcadia_Media_quantizeNatural8(thread, source[i]);
+          p[i] = sample;
+        }
+      } break;
+      default: {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+        Arcadia_Thread_jump(thread);
+      } break;
+    };
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Object_unlock(thread, (Arcadia_Object*)temporary);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Object_unlock(thread, (Arcadia_Object*)temporary);
+    Arcadia_Thread_jump(thread);
+  }
 }

@@ -44,6 +44,7 @@ Arcadia_MILC_AST_BinaryInstructionNode*
 Arcadia_MILC_AST_BinaryInstructionNode_create
   (
     Arcadia_Thread* thread,
+    Arcadia_SizeValue startOffset,
     Arcadia_MILC_AST_BinaryInstructionKind kind,
     Arcadia_MILC_AST_OperandNode* target,
     Arcadia_MILC_AST_OperandNode* operand1,

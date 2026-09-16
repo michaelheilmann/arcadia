@@ -84,7 +84,7 @@ static Arcadia_FilePath*
 safeParsePath
   (
     Arcadia_Thread* thread,
-    Arcadia_Languages_Diagnostics* diagnostics,
+    Arcadia_MILC_Context* context,
     Arcadia_MILC_FileType fileType,
     Arcadia_String* pathString
   )
@@ -98,7 +98,7 @@ safeParsePath
     return path;
   } else {
     Arcadia_Thread_popJumpTarget(thread);
-    Arcadia_Languages_Diagnostics_add(thread, diagnostics, (Arcadia_Languages_Diagnostic*)Arcadia_MILC_Diagnostics_InvalidPathDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, pathString));
+    Arcadia_Languages_Diagnostics_add(thread, context->diagnostics, (Arcadia_Languages_Diagnostic*)Arcadia_MILC_Diagnostics_InvalidPathDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, pathString));
     Arcadia_Thread_setRaisedValue(thread, Arcadia_Value_makeObjectReferenceValue(Arcadia_MILC_CompilationFailedException_create(thread)));
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ValueRaised);
     Arcadia_Thread_jump(thread);
@@ -107,13 +107,13 @@ safeParsePath
     Arcadia_Languages_Diagnostics_add
       (
         thread,
-        diagnostics,
+        context->diagnostics,
         (Arcadia_Languages_Diagnostic*)
         Arcadia_MILC_Diagnostics_FileNotFoundDiagnostic_create
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, path),
+            Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, path, Arcadia_BooleanValue_False), path),
             fileType
           )
       );
@@ -124,13 +124,13 @@ safeParsePath
     Arcadia_Languages_Diagnostics_add
       (
         thread,
-        diagnostics,
+        context->diagnostics,
         (Arcadia_Languages_Diagnostic*)
         Arcadia_MILC_Diagnostics_FileNotFoundDiagnostic_create
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, path),
+            Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, path, Arcadia_BooleanValue_False), path),
             fileType
           )
       );
@@ -182,7 +182,7 @@ _invoke
 
   // (2) Search the configuration file.
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
-  configurationFilePath = safeParsePath(thread, context->diagnostics, Arcadia_MILC_FileType_ConfigurationFile, configurationFilePathString);
+  configurationFilePath = safeParsePath(thread, context, Arcadia_MILC_FileType_ConfigurationFile, configurationFilePathString);
   #if defined(Arcadia_MILC_Configuration_ListConfigurationFiles) && 1 == Arcadia_MILC_Configuration_ListConfigurationFiles 
     Arcadia_Log_information(thread, context->log, Arcadia_String_createFromCxxString(thread, u8"configuration file `"));
     Arcadia_Log_information(thread, context->log, Arcadia_FilePath_toNative(thread, configurationFilePath, Arcadia_BooleanValue_True));
@@ -192,7 +192,7 @@ _invoke
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
     /* @todo Add Arcadia.DDL.Reader and derive Arcadia.DDL.DefaultReader from it. */
     Arcadia_DDL_DefaultReader* readerDDL = (Arcadia_DDL_DefaultReader*)Arcadia_DDL_DefaultReader_create(thread);
-    Arcadia_Languages_InputFile* inputFile = Arcadia_Languages_InputFile_create(thread, configurationFilePath);
+    Arcadia_Languages_InputFile* inputFile = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, configurationFilePath, Arcadia_BooleanValue_False), configurationFilePath);
     Arcadia_ByteArray* contents = Arcadia_Languages_InputFile_getContents(thread, inputFile);
     Arcadia_UnicodeCodePointReader* z = (Arcadia_UnicodeCodePointReader*)Arcadia_ByteReader_UnicodeCodePointReader_create(thread, (Arcadia_ByteReader*)Arcadia_ByteArray_ByteReader_create(thread, contents));
     Arcadia_DDL_Node* nodeDDL = Arcadia_DDL_DefaultReader_run(thread, readerDDL, z);
@@ -225,7 +225,7 @@ _invoke
     for (Arcadia_SizeValue i = 0, n = Arcadia_DDL_ListNode_getNumberOfElements(thread, source); i < n; ++i) {
       Arcadia_DDL_StringNode* x = (Arcadia_DDL_StringNode*)Arcadia_DDL_ListNode_getElementAt(thread, source, i);
       /* @todo If the specified string is not a generic path, then we need to handle the resulting exception and emit an appropriate error message. */
-      Arcadia_FilePath* y = safeParsePath(thread, context->diagnostics, Arcadia_MILC_FileType_CompilationUnit, x->value);
+      Arcadia_FilePath* y = safeParsePath(thread, context, Arcadia_MILC_FileType_CompilationUnit, x->value);
       Arcadia_List_insertBackObjectReferenceValue(thread, moduleDirectoryPaths, y);
     }
     Arcadia_Thread_popJumpTarget(thread);

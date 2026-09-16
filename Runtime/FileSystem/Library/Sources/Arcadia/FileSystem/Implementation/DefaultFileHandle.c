@@ -382,6 +382,12 @@ Arcadia_DefaultFileHandle_openImpl
   // (2) Obtain native path.
   Arcadia_String* nativePath = Arcadia_FilePath_toNative(thread, path, Arcadia_BooleanValue_True);
 
+#if defined(_DEBUG) && 0
+  Arcadia_logf(Arcadia_LogFlags_Info, "%s:%d: opening file `", __FILE__, __LINE__);
+  Arcadia_logf(Arcadia_LogFlags_Info, nativePath->immutableUTF8String->bytes);
+  Arcadia_logf(Arcadia_LogFlags_Info, "`\n");
+#endif
+
 #if Arcadia_Configuration_OperatingSystem == Arcadia_Configuration_OperatingSystem_Windows
 
   DWORD dwDesiredAccess = 0;

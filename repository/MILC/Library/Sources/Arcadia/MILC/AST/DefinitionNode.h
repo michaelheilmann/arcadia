@@ -35,14 +35,10 @@ struct Arcadia_MILC_AST_DefinitionNodeDispatch {
 
 struct Arcadia_MILC_AST_DefinitionNode {
   Arcadia_MILC_AST_Node _parent;
+  /// @brief The start offset.
+  Arcadia_SizeValue startOffset;
   /// @brief The compilation unit in which this definition is located in.
   Arcadia_MILC_AST_CompilationUnitNode* compilationUnitNode;
 };
-
-Arcadia_MILC_AST_DefinitionNode*
-Arcadia_MILC_AST_DefinitionNode_create
-  (
-    Arcadia_Thread* thread
-  );
 
 #endif // ARCADIA_MILC_AST_DEFINITIONNODE_H_INCLUDED

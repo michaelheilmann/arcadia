@@ -22,6 +22,8 @@ set(this ${MyProjectName}.Ring1)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Runtime/Ring1")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Ring1/Implementation/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Ring1/Implementation/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/Ring1/Implementation/Random.c)
@@ -516,7 +518,5 @@ if (NOT TARGET ${this})
   set(${this}.Install TRUE)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring1")
 
 endif()

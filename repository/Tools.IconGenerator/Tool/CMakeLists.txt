@@ -22,6 +22,8 @@ if (NOT TARGET ${MyTool})
 
   BeginProduct(${MyTool} executable)
 
+  SetFolder(${MyTool} "Tools")
+
   OnConfigurationFile(${MyTool} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Tools/IconGenerator/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Tools/IconGenerator/Configure.h.i)
 
   OnSourceFile(${MyTool} Tools/IconGenerator/Main.c)
@@ -32,7 +34,5 @@ if (NOT TARGET ${MyTool})
   EndProduct(${MyTool})
 
   set_target_properties(${MyTool} PROPERTIES VS_DEBUGGER_COMMAND_ARGUMENTS "--target=\"\"\"helloworld.ico\"\"\"")
-
-  set_target_properties(${MyTool} PROPERTIES FOLDER "Tools")
-
+  
 endif()

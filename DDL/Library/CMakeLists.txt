@@ -22,6 +22,8 @@ set(this ${MyProjectName}.DDL)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "DDL")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/DDL/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/DDL/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/DDL/Include.c)
@@ -78,6 +80,5 @@ if (NOT TARGET ${this})
   endif()
 
   EndProduct(${this})
-  set_target_properties(${this} PROPERTIES FOLDER "DDL")
 
 endif()

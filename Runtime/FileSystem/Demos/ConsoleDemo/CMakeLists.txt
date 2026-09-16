@@ -21,11 +21,11 @@ set(this ${MyProjectName}.FileSystem.ConsoleDemo)
 # Create demo executable.
 BeginProduct(${this} executable)
 
+SetFolder(${this} "Runtime/FileSystem")
+
 OnSourceFile(${this} Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.FileSystem)
 OnModuleDependency(${this} ${MyProjectName}.Ring2)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/FileSystem")

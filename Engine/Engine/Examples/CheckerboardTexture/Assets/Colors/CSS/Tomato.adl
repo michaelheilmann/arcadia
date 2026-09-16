@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.Tomato",
+  red : 255,
+  green : 99,
+  blue : 71,
+}

@@ -24,9 +24,6 @@
 #include "Arcadia/Engine/Audials/BackendContext.h"
 #include "Arcadia/Engine/Visuals/BackendContext.h"
 
-//typedef struct Arcadia_Engine_Audials_BackendContext Arcadia_Engine_Audials_BackendContext;
-//typedef struct Arcadia_Engine_Visuals_BackendContext Arcadia_Engine_Visuals_BackendContext;
-
 /// The base of all nodes.
 ///
 /// The bases of implementations specific to audials and visuals can be found in Arcadia.Audials and Arcadia.Visuals, respectively.

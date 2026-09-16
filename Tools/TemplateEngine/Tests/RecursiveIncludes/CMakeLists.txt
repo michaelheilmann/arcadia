@@ -21,6 +21,8 @@ set(this ${MyProjectName}.Tools.TemplateEngine.Tests.RecursiveIncludes)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "TemplateEngine")
+
 # Configuration files.
 OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia.TemplateEngine.Tests.RecursiveIncludes/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.TemplateEngine.Tests.RecursiveIncludes/Configure.h.i)
 
@@ -36,4 +38,4 @@ add_custom_command(TARGET ${this} POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${${this}.WorkingDirectory})
 # Adjust working directory.
 set(${this}.WorkingDirectory $<TARGET_FILE_DIR:${this}>)
-set_target_properties(${this} PROPERTIES FOLDER "TemplateEngine")
+

@@ -55,10 +55,15 @@ Arcadia_MILC_AST_OperandNode_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_MILC_AST_OperandNode);
+  if (1 != _numberOfArguments) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   {
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
+  self->startOffset = Arcadia_ValueStack_getSizeValue(thread, 1);
   Arcadia_LeaveConstructor(Arcadia_MILC_AST_OperandNode);
 }
 

@@ -21,6 +21,8 @@ set(this ${MyProjectName}.SampleBufferIO)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "SampleBufferIO")
+
   # libFLAC.
   if (${${this}_OperatingSystem} STREQUAL ${${this}_OperatingSystem_Windows})
     # Windows.   
@@ -65,7 +67,5 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.ADL)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "SampleBufferIO")
 
 endif()

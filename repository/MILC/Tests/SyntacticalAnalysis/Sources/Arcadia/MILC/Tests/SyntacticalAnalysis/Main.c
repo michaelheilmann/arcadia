@@ -32,7 +32,7 @@ onTest
     absoluteSourceFilePath = sourceFilePath;
   }
   Arcadia_MILC_Context* context = Arcadia_MILC_Context_create(thread);
-  Arcadia_Languages_InputFile* inputFile = Arcadia_Languages_InputFile_create(thread, sourceFilePath);
+  Arcadia_Languages_InputFile* inputFile = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, sourceFilePath, Arcadia_BooleanValue_False), sourceFilePath);
   Arcadia_UnicodeCodePointReader* reader =
     (Arcadia_UnicodeCodePointReader*)
     Arcadia_ByteReader_UnicodeCodePointReader_create
@@ -68,7 +68,8 @@ main1
   Arcadia_Thread* thread = Arcadia_Process_getThread(process);
   onTest(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Procedures.mil")));
   onTest(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Classes.mil")));
-  onTest(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Statements.mil")));
+  onTest(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Statements1.mil")));
+  onTest(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Statements2.mil")));
   onTest(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Variables.mil")));
 }
 

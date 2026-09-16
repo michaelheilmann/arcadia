@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.BlueViolet",
+  red : 138,
+  green : 43,
+  blue : 226,
+}

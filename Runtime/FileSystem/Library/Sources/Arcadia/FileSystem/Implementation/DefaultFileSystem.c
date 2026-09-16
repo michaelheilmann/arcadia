@@ -28,6 +28,7 @@
 #if Arcadia_Configuration_OperatingSystem == Arcadia_Configuration_OperatingSystem_Windows
 
   #include "Arcadia/FileSystem/Windows/DirectoryIteratorWindows.h"
+  #include "Arcadia/FileSystem/Windows/createTemporaryFile.h"
   #include "Arcadia/FileSystem/Windows/getLocalFolder.h"
   #include "Arcadia/FileSystem/Windows/getRoamingFolder.h"
 
@@ -37,6 +38,7 @@
     Arcadia_Configuration_OperatingSystem == Arcadia_Configuration_OperatingSystem_Cygwin
 
   #include "Arcadia/FileSystem/Linux/DirectoryIteratorLinux.h"
+  #include "Arcadia/FileSystem/Linux/createTemporaryFile.h"
   #include "Arcadia/FileSystem/Linux/getHomeFolder.h"
 
 #endif
@@ -307,6 +309,7 @@ Arcadia_DefaultFileSystem_initializeDispatchImpl
   ((Arcadia_FileSystemDispatch*)self)->createFileHandle = (Arcadia_FileHandle * (*)(Arcadia_Thread*, Arcadia_FileSystem*)) & Arcadia_DefaultFileSystem_createFileHandleImpl;
   ((Arcadia_FileSystemDispatch*)self)->createDirectoryIterator = (Arcadia_DirectoryIterator * (*)(Arcadia_Thread*, Arcadia_FileSystem*, Arcadia_FilePath*)) & Arcadia_DefaultFileSystem_createDirectoryIteratorImpl;
   ((Arcadia_FileSystemDispatch*)self)->createRegularFile = (void (*)(Arcadia_Thread*, Arcadia_FileSystem*, Arcadia_FilePath*)) & Arcadia_DefaultFileSystem_createRegularFileImpl;
+  ((Arcadia_FileSystemDispatch*)self)->createTemporaryFile = (Arcadia_FilePath * (*)(Arcadia_Thread*, Arcadia_FileSystem*)) & Arcadia_DefaultFileSystem_createTemporaryFile;
 
   ((Arcadia_FileSystemDispatch*)self)->deleteDirectoryFile = (void (*)(Arcadia_Thread*, Arcadia_FileSystem*, Arcadia_FilePath*)) & Arcadia_DefaultFileSystem_deleteDirectoryFileImpl;
   ((Arcadia_FileSystemDispatch*)self)->deleteFile = (void (*)(Arcadia_Thread*, Arcadia_FileSystem*, Arcadia_FilePath*)) & Arcadia_DefaultFileSystem_deleteFileImpl;
@@ -358,6 +361,13 @@ Arcadia_DefaultFileSystem_createDirectoryFileImpl
   )
 {
   Arcadia_String* nativePath = Arcadia_FilePath_toNative(thread, path, Arcadia_BooleanValue_True);
+
+#if defined(_DEBUG) && 0
+  Arcadia_logf(Arcadia_LogFlags_Info, "%s:%d: creating directory `", __FILE__, __LINE__);
+  Arcadia_logf(Arcadia_LogFlags_Info, nativePath->immutableUTF8String->bytes);
+  Arcadia_logf(Arcadia_LogFlags_Info, "`\n");
+#endif
+
 #if Arcadia_Configuration_OperatingSystem == Arcadia_Configuration_OperatingSystem_Windows
   if (FALSE == CreateDirectory(Arcadia_String_getBytes(thread, nativePath), NULL)) {
     if (ERROR_ALREADY_EXISTS != GetLastError()) {

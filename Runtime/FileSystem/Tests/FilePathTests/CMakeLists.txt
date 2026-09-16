@@ -21,11 +21,11 @@ set(this ${MyProjectName}.FileSystem.Tests.FilePathTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/FileSystem")
+
 OnSourceFile(${this} Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.FileSystem PRIVATE)
 OnModuleDependency(${this} ${MyProjectName}.Ring2 PRIVATE)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/FileSystem")

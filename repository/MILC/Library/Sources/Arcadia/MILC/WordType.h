@@ -105,6 +105,15 @@ enum Arcadia_MILC_WordType {
   // "jumpIfFalse"
   Arcadia_MILC_WordType_JumpIfFalse,
 
+  // "loadArgument"
+  Arcadia_MILC_WordType_LoadArgument,
+  // "storeArgument
+  Arcadia_MILC_WordType_StoreArgument,
+  // "loadField"
+  Arcadia_MILC_WordType_LoadField,
+  // "storeField"
+  Arcadia_MILC_WordType_StoreField,
+
   // "raise"
   Arcadia_MILC_WordType_Raise,
 

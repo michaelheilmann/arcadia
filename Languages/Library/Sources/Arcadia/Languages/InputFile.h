@@ -30,10 +30,17 @@ Arcadia_declareObjectType(u8"Arcadia.Languages.InputFile", Arcadia_Languages_Inp
 
 struct Arcadia_Languages_InputFileDispatch {
   Arcadia_ObjectDispatch _parent;
+  Arcadia_String* (*getName)(Arcadia_Thread*, Arcadia_Languages_InputFile*);
+  Arcadia_FilePath* (*getPath)(Arcadia_Thread*, Arcadia_Languages_InputFile*);
+  Arcadia_ByteArray* (*getContents)(Arcadia_Thread*, Arcadia_Languages_InputFile*);
+  Arcadia_SizeValue (*getLine)(Arcadia_Thread*, Arcadia_Languages_InputFile*, Arcadia_SizeValue);
 };
 
 struct Arcadia_Languages_InputFile {
   Arcadia_Object _parent;
+  /// The name of the input file.
+  /// Used as primary key and in diagnostic messages.
+  Arcadia_String* name;
   Arcadia_FilePath* path;
   Arcadia_SizeValue hashValue;
   Arcadia_ByteArray* contents;
@@ -44,7 +51,15 @@ Arcadia_Languages_InputFile*
 Arcadia_Languages_InputFile_create
   (
     Arcadia_Thread* thread,
+    Arcadia_String* name,
     Arcadia_FilePath* path
+  );
+
+Arcadia_String*
+Arcadia_Languages_InputFile_getName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFile* self
   );
 
 Arcadia_FilePath*
@@ -53,7 +68,6 @@ Arcadia_Languages_InputFile_getPath
     Arcadia_Thread* thread,
     Arcadia_Languages_InputFile* self
   );
-
 
 Arcadia_ByteArray*
 Arcadia_Languages_InputFile_getContents

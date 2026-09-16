@@ -21,10 +21,10 @@ set(this ${MyProjectName}.Ring2.Tests.StringTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/Ring2")
+
 OnSourceFile(${this} Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.Ring2 PRIVATE)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring2")

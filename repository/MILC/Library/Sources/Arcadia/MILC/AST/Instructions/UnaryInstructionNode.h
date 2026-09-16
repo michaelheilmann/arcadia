@@ -46,6 +46,7 @@ Arcadia_MILC_AST_UnaryInstructionNode*
 Arcadia_MILC_AST_UnaryInstructionNode_create
   (
     Arcadia_Thread* thread,
+    Arcadia_SizeValue startOffset,
     Arcadia_MILC_AST_UnaryInstructionKind kind,
     Arcadia_MILC_AST_OperandNode* target,
     Arcadia_MILC_AST_OperandNode* operand1

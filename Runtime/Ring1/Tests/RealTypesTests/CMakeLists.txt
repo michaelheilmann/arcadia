@@ -21,6 +21,8 @@ set(this ${MyProjectName}.Ring1.Tests.RealTypes)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/Ring1")
+
 OnSourceFile(${this} Arcadia.Ring1.Tests.RealTypes/Main.c)
 OnSourceFile(${this} Arcadia.Ring1.Tests.RealTypes/realTypes.c)
 OnHeaderFile(${this} Arcadia.Ring1.Tests.RealTypes/realTypes.h)
@@ -28,5 +30,3 @@ OnHeaderFile(${this} Arcadia.Ring1.Tests.RealTypes/realTypes.h)
 OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring1")

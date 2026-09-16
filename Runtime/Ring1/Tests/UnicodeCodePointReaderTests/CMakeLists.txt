@@ -21,6 +21,8 @@ set(this ${MyProjectName}.Ring1.Tests.UnicodeCodePointReaderTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/Ring1")
+
 OnSourceFile(${this} Arcadia.Ring1.Tests.UnicodeCodePointReaderTests/Main.c)
 OnSourceFile(${this} Arcadia.Ring1.Tests.UnicodeCodePointReaderTests/StandardTests.c)
 OnHeaderFile(${this} Arcadia.Ring1.Tests.UnicodeCodePointReaderTests/StandardTests.h)
@@ -28,5 +30,3 @@ OnHeaderFile(${this} Arcadia.Ring1.Tests.UnicodeCodePointReaderTests/StandardTes
 OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring1")

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#define ARCADIA_MEDIA_MODULE (1)
+#define ARCADIA_MEDIA_PRIVATE (1)
 #include "Arcadia/Media/SampleFormat.h"
 
 #include "Arcadia/Ring2/Include.h"

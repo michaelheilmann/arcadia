@@ -21,6 +21,8 @@ set(this ${MyProjectName}.Ring2.Tests.UTF8)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/Ring2")
+
 OnSourceFile(${this} Arcadia.Ring2.Tests.UTF8/Main.c)
 OnSourceFile(${this} Arcadia.Ring2.Tests.UTF8/readWrite.c)
 OnHeaderFile(${this} Arcadia.Ring2.Tests.UTF8/readWrite.h)
@@ -28,5 +30,3 @@ OnHeaderFile(${this} Arcadia.Ring2.Tests.UTF8/readWrite.h)
 OnModuleDependency(${this} ${MyProjectName}.Ring2)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring2")

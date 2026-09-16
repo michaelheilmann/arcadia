@@ -20,22 +20,22 @@ BeginTemplateEngine(${MyProjectName}.Website.Arcadia.Generate "Website/Arcadia")
 
   # Build "Arcadia/index.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/.Build/Arcadia/index.html"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/index.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/../website.env")
 
   # Build "Arcadia/roadmap.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/roadmap.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/.Build/Arcadia/roadmap.html"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/roadmap.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/../website.env")
 
   # Build "Arcadia/roadmap-archive.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/roadmap-archive.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/.Build/Arcadia/roadmap-archive.html"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/roadmap-archive.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/../website.env")
 
   # Build "Arcadia/news.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/news.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/.Build/Arcadia/news.html"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/news.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/../website.env")
 
 EndTemplateEngine()

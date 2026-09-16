@@ -22,6 +22,8 @@ set(this ${MyProjectName}.Collections)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Runtime/Collections")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Collections/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Collections/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/Collections/Include.c)
@@ -67,7 +69,5 @@ if (NOT TARGET ${this})
   set(${this}.Install TRUE)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "Runtime/Collections")
 
 endif()

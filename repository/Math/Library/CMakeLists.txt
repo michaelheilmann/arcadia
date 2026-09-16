@@ -22,6 +22,8 @@ set(this ${MyProjectName}.Math)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Math")
+
   OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle.c.te PRIVATE)
   OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle.h.te PRIVATE)
   OnTemplateEngineTemplateFile(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Matrix.c.te PRIVATE)
@@ -180,7 +182,7 @@ if (NOT TARGET ${this})
   EndProduct(${this})
   # @todo This is hackish, fixme.
   add_dependencies(${this} ${this}.GenerateFiles)
-  set_target_properties(${this} PROPERTIES FOLDER "Math")
+
   target_include_directories(${this} PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/Sources)
 
 endif()

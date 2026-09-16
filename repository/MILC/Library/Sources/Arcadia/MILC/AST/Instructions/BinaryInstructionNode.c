@@ -66,20 +66,18 @@ Arcadia_MILC_AST_BinaryInstructionNode_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_MILC_AST_BinaryInstructionNode);
+  if (5 != _numberOfArguments) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   {
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (4 != _numberOfArguments) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-
   self->kind = Arcadia_ValueStack_getInteger32Value(thread, 4);
   self->target = (Arcadia_MILC_AST_OperandNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_MILC_AST_OperandNode_getType(thread));
   self->operand1 = (Arcadia_MILC_AST_OperandNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_MILC_AST_OperandNode_getType(thread));
   self->operand2 = (Arcadia_MILC_AST_OperandNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_MILC_AST_OperandNode_getType(thread));
-
   Arcadia_LeaveConstructor(Arcadia_MILC_AST_BinaryInstructionNode);
 }
 
@@ -113,6 +111,7 @@ Arcadia_MILC_AST_BinaryInstructionNode*
 Arcadia_MILC_AST_BinaryInstructionNode_create
   (
     Arcadia_Thread* thread,
+    Arcadia_SizeValue startOffset,
     Arcadia_MILC_AST_BinaryInstructionKind kind,
     Arcadia_MILC_AST_OperandNode* target,
     Arcadia_MILC_AST_OperandNode* operand1,
@@ -120,7 +119,8 @@ Arcadia_MILC_AST_BinaryInstructionNode_create
   )
 {
   _Arcadia_BeginCreate(Arcadia_MILC_AST_BinaryInstructionNode);
-  Arcadia_ValueStack_pushInteger32Value(thread, kind);
+  Arcadia_ValueStack_pushSizeValue(thread, startOffset);
+  Arcadia_ValueStack_pushInteger32Value(thread, kind); // TODO: Use pushEnumerationValue.
   if (target) {
     Arcadia_ValueStack_pushObjectReferenceValue(thread, target);
   } else {
@@ -136,6 +136,6 @@ Arcadia_MILC_AST_BinaryInstructionNode_create
   } else {
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }
-  Arcadia_ValueStack_pushNatural8Value(thread, 4);
+  Arcadia_ValueStack_pushNatural8Value(thread, 5);
   _Arcadia_EndCreate(Arcadia_MILC_AST_BinaryInstructionNode);
 }

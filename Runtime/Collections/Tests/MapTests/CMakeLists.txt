@@ -21,10 +21,10 @@ set(this ${MyProjectName}.Collections.Tests.MapTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/Collections")
+
 OnSourceFile(${this} Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.Collections)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/Collections")

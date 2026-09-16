@@ -17,7 +17,19 @@
 #define ARCADIA_MEDIA_PRIVATE (1)
 #include "Arcadia/Media/DSP/SawtoothWave.h"
 
-#include "Arcadia/Media/Quantization.h"
+static Arcadia_SizeValue
+getNumberOfOutputPins 
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SawtoothWave* self
+  );
+
+static Arcadia_SizeValue
+getNumberOfInputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SawtoothWave* self
+  );
 
 static void
 Arcadia_Media_DSP_SawtoothWave_constructImpl
@@ -41,13 +53,26 @@ Arcadia_Media_DSP_SawtoothWave_visitImpl
   );
 
 static void
-Arcadia_Media_DSP_SawtoothWave_generate
+Arcadia_Media_DSP_SawtoothWave_render
   (
     Arcadia_Thread* thread,
     Arcadia_Media_DSP_SawtoothWave* self,
-    Arcadia_Natural32Value sampleRate,
-    Arcadia_Natural32Value numberOfSamples,
-    Arcadia_ByteBuffer* target
+    Arcadia_Media_DSP_Buffer* target
+  );
+
+static void
+Arcadia_Media_DSP_SawtoothWave_reset
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SawtoothWave* self
+  );
+
+static void
+Arcadia_Media_DSP_SawtoothWave_reseed
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SawtoothWave* self,
+    Arcadia_Natural32Value seed
   );
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
@@ -63,7 +88,24 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Media.DSP.SawtoothWave", Arcadia_Media_DSP_SawtoothWave,
-                         u8"Arcadia.Media.DSP", &_typeOperations);
+                         u8"Arcadia.Media.DSP", Arcadia_Media_DSP,
+                         &_typeOperations);
+
+static Arcadia_SizeValue
+getNumberOfOutputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SawtoothWave* self
+  )
+{ return Arcadia_SizeValue_Literal(1); }
+
+static Arcadia_SizeValue
+getNumberOfInputPins
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SawtoothWave* self
+  )
+{ return Arcadia_SizeValue_Literal(0); }
 
 static void
 Arcadia_Media_DSP_SawtoothWave_constructImpl
@@ -81,11 +123,12 @@ Arcadia_Media_DSP_SawtoothWave_constructImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  self->frequency = Arcadia_ValueStack_getInteger32Value(thread, 1);
-  if (self->frequency < 1) {
+  self->frequency = Arcadia_ValueStack_getReal32Value(thread, 1);
+  if (self->frequency <= 0.0f) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
+  self->phase = 0.0f;
   Arcadia_LeaveConstructor(Arcadia_Media_DSP_SawtoothWave);
 }
 
@@ -96,7 +139,11 @@ Arcadia_Media_DSP_SawtoothWave_initializeDispatchImpl
     Arcadia_Media_DSP_SawtoothWaveDispatch* self
   )
 {
-  ((Arcadia_Media_DSPDispatch*)self)->generate = (void (*)(Arcadia_Thread*, Arcadia_Media_DSP*, Arcadia_Natural32Value, Arcadia_Natural32Value, Arcadia_ByteBuffer*)) & Arcadia_Media_DSP_SawtoothWave_generate;
+  ((Arcadia_Media_DSPDispatch*)self)->render = (void (*)(Arcadia_Thread*, Arcadia_Media_DSP*, Arcadia_Media_DSP_Buffer*)) & Arcadia_Media_DSP_SawtoothWave_render;
+  ((Arcadia_Media_DSPDispatch*)self)->reset = (void (*)(Arcadia_Thread*, Arcadia_Media_DSP*)) & Arcadia_Media_DSP_SawtoothWave_reset;
+  ((Arcadia_Media_DSPDispatch*)self)->reseed = (void (*)(Arcadia_Thread*, Arcadia_Media_DSP*, Arcadia_Natural32Value)) & Arcadia_Media_DSP_SawtoothWave_reseed;
+  ((Arcadia_Media_DSPDispatch*)self)->getNumberOfOutputPins = (Arcadia_SizeValue (*)(Arcadia_Thread*, Arcadia_Media_DSP*)) & getNumberOfOutputPins;
+  ((Arcadia_Media_DSPDispatch*)self)->getNumberOfInputPins = (Arcadia_SizeValue (*)(Arcadia_Thread*, Arcadia_Media_DSP*)) & getNumberOfInputPins;
 }
 
 static void
@@ -107,31 +154,54 @@ Arcadia_Media_DSP_SawtoothWave_visitImpl
   ){/*Intentionally empty.*/}
 
 static void
-Arcadia_Media_DSP_SawtoothWave_generate
+Arcadia_Media_DSP_SawtoothWave_render
   (
     Arcadia_Thread* thread,
     Arcadia_Media_DSP_SawtoothWave* self,
-    Arcadia_Natural32Value sampleRate,
-    Arcadia_Natural32Value numberOfSamples,
-    Arcadia_ByteBuffer* target
+    Arcadia_Media_DSP_Buffer* target
   )
 {
-  const Arcadia_Real32Value period = (Arcadia_Real32Value)sampleRate / self->frequency;
+  Arcadia_Natural32Value sampleRate = Arcadia_Media_DSP_Buffer_getSampleRate(thread, target);
+  Arcadia_SizeValue numberOfSamples = Arcadia_Media_DSP_Buffer_getNumberOfSamples(thread, target);
+  Arcadia_Real32Value* samples = Arcadia_Media_DSP_Buffer_getSamples(thread, target);
+  Arcadia_Real32Value phase = self->phase;
+  Arcadia_Real32Value phaseIncrement = self->frequency / (Arcadia_Real32Value)sampleRate;
   for (Arcadia_SizeValue i = 0, n = numberOfSamples; i < n; ++i) {
-    Arcadia_Real32Value v = fmod((Arcadia_Real32Value)i, period) / period - 0.5f;
-    Arcadia_ByteBuffer_insertBackBytes(thread, target, &v, sizeof(v));
+    samples[i] = phase - 0.5f;
+    phase += phaseIncrement;
+    if (phase >= 1.0f) {
+      phase = fmodf(phase, 1.0f);
+    }
   }
+  self->phase = phase;
 }
+
+static void
+Arcadia_Media_DSP_SawtoothWave_reset
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SawtoothWave* self
+  )
+{ self->phase = 0.0f; }
+
+static void
+Arcadia_Media_DSP_SawtoothWave_reseed
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_SawtoothWave* self,
+    Arcadia_Natural32Value seed
+  )
+{/*Intentionally empty.*/}
 
 Arcadia_Media_DSP_SawtoothWave*
 Arcadia_Media_DSP_SawtoothWave_create
   (
     Arcadia_Thread* thread,
-    Arcadia_Integer32Value frequency
+    Arcadia_Real32Value frequency
   )
 {
-  Arcadia_SizeValue oldValueStackSize = Arcadia_ValueStack_getSize(thread);
-  Arcadia_ValueStack_pushInteger32Value(thread, frequency);
+  _Arcadia_BeginCreate(Arcadia_Media_DSP_SawtoothWave);
+  Arcadia_ValueStack_pushReal32Value(thread, frequency);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  ARCADIA_CREATEOBJECT(Arcadia_Media_DSP_SawtoothWave);
+  _Arcadia_EndCreate(Arcadia_Media_DSP_SawtoothWave);
 }

@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+<link rel='stylesheet' href='https://michaelheilmann.com/assets/cxx-doc.css?v=1'>
+<link rel='canonical' href='https://michaelheilmann.com/Arcadia/Media/'>
+<title>Michael Heilmann's Arcadia Media</title>
+<style>
+</style>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div>
+    <a href="https://michaelheilmann.com/">Home</a>
+    </div>
+  </header>
+<main>
+  <div class="left-column"></div>
+  <div class="center-column">
+  <h1>Michael Heilmann's Arcadia Media</h1>
+  <p>
+  This is the documentation for Michael Heilmann's Arcadia Media provides procedural creation and manipulation of audial entities, like sample buffers, and visual entities, like pixel buffers.
+  </p>
+
+
+<h2>Documentation</h2>
+<section class="cxx entity object">
+<h1 id="Arcadia_Media_PixelBuffer">Arcadia_Media_PixelBuffer</h1>
+<p><code>Arcadia_Media_PixelBuffer</code> extends <code>Arcadia_Object</code>.</p>
+<p>
+<code>Arcadia_Media_PixelBuffer</code> is a two-dimensional array of pixels.
+</p>
+<p>The following terms and definitions are used througout its documentation:</p>
+<ul>
+  <li><em>pixel</em>: A pixel is uniquely adressed by the index of its column and its row.
+  </li>
+  <li>
+  <em>number of columns</em>: The number of columns of the pixel rectangle.
+  A column is adressed by zero-based consecutive integral ascending indices (0,1,2,...).
+  The number of columns is also called the <em>width</em> of the pixel rectangle.
+  </li>
+  <li>
+  <em>number of rows</em>: The number of rows of the pixel rectangle.
+  A row is adressed by zero-based consecutive integral ascending indices (0,1,2,...).
+  The number of rows is also called the <em>height</em> of the pixel rectangle.
+  </li>
+  <li>
+  <em>pixel format</em>: The pixel format of the pixels of the pixel buffer as defined by <a href="https://michaelheilmann.com/Media/#Arcadia_Media_PixelFormat">Arcadia_Media_PixelFormat</a>.
+  </li>
+  <li>
+  <em>line padding</em>: The number of Bytes after a line.
+  </li>
+  <li>
+  <em>line stride</em>: The number of Bytes of a line which comprises the Bytes of the actual pixels plus the line padding.
+  <code>&lt;number of columns&gt; * &lt;bytes per pixel&gt; + &lt;line padding&gt;</code>
+  </li>
+</ul>
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_PixelBuffer_create">Arcadia_Media_PixelBuffer_create</h1>
+
+  <my-signature><code>
+  Arcadia_Media_PixelBuffer*<br>
+  Arcadia_Media_PixelBuffer_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Integer32Value linePadding,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Integer32Value numberOfColumns,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Integer32Value numberOfRows,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_PixelFormat pixelFormat,<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create a pixel buffer of the specified line padding, number of columns, number of rows, and pixel format.
+  It is filled with opaque black.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+
+    <div>
+      <div><a href="#">Arcadia_Integer32Value</a> linePadding</div>
+      <div>The number of Bytes after the end of a line. Must be non-negative.</div>
+    </div>
+
+    <div>
+      <div><a href="#">Arcadia_Integer32Value</a> numberOfColumns</div>
+      <div>The number of columns of the pixel buffer. Must be non-negative.</div>
+    </div>
+
+    <div>
+      <div><a href="#">Arcadia_Integer32Value</a> numberOfRows</div>
+      <div>The number of rows of the pixel buffer. Must be non-negative.</div>
+    </div>
+
+    <div>
+      <div><a href="#">Arcadia_Media_PixelFormat</a> pixelFormat</div>
+      <div>The pixel format of the pixel buffer.</div>
+    </div>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div>At least one of <code>linePadding</code>, <code>numberOfColumns</code>, <code>numberOfRows</code> is negative.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_Media_PixelBuffer</code> object.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_PixelBuffer_getHeight">Arcadia_Media_PixelBuffer_getHeight</h1>
+
+  <my-signature><code>
+  Arcadia_Integer32Value<br>
+  Arcadia_Media_PixelBuffer_getHeight<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_PixelBuffer* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the height of this pixel buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Media_PixelBuffer</a>* self</div>
+      <div>A pointer to this pixel buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The height of this pixel buffer.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_PixelBuffer_getLinePadding">Arcadia_Media_PixelBuffer_getLinePadding</h1>
+
+  <my-signature><code>
+  Arcadia_Integer32Value<br>
+  Arcadia_Media_PixelBuffer_getLinePadding<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_PixelBuffer* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the line padding of this pixel buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Media_PixelBuffer</a>* self</div>
+      <div>A pointer to this pixel buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The line padding of this pixel buffer.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_PixelBuffer_getLineStride">Arcadia_Media_PixelBuffer_getLineStride</h1>
+
+  <my-signature><code>
+  Arcadia_Integer32Value<br>
+  Arcadia_Media_PixelBuffer_getLineStride<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_PixelBuffer* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the line stride of this pixel buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Media_PixelBuffer</a>* self</div>
+      <div>A pointer to this pixel buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The line stride of this pixel buffer.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_PixelBuffer_getNumberOfColumns">Arcadia_Media_PixelBuffer_getNumberOfColumns</h1>
+
+  <my-signature><code>
+  Arcadia_Integer32Value<br>
+  Arcadia_Media_PixelBuffer_getNumberOfColumns<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_PixelBuffer* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the number of columns of this pixel buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Media_PixelBuffer</a>* self</div>
+      <div>A pointer to this pixel buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The number of columns of this pixel buffer.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_PixelBuffer_getNumberOfRows">Arcadia_Media_PixelBuffer_getNumberOfRows</h1>
+
+  <my-signature><code>
+  Arcadia_Integer32Value<br>
+  Arcadia_Media_PixelBuffer_getNumberOfRows<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_PixelBuffer* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the number of rows of this pixel buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Media_PixelBuffer</a>* self</div>
+      <div>A pointer to this pixel buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The number of rows of this pixel buffer.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_PixelBuffer_getPixelFormat">Arcadia_Media_PixelBuffer_getPixelFormat</h1>
+
+  <my-signature><code>
+  Arcadia_Media_PixelFormat<br>
+  Arcadia_Media_PixelBuffer_getPixelFormat<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_PixelBuffer* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the pixel format of this pixel buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Media_PixelBuffer</a>* self</div>
+      <div>A pointer to this pixel buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The pixel format of this pixel buffer.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_PixelBuffer_getWidth">Arcadia_Media_PixelBuffer_getWidth</h1>
+
+  <my-signature><code>
+  Arcadia_Integer32Value<br>
+  Arcadia_Media_PixelBuffer_getWidth<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_PixelBuffer* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the width of this pixel buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Media_PixelBuffer</a>* self</div>
+      <div>A pointer to this pixel buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The width of this pixel buffer.</p>
+  </section>
+
+</section>
+
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_Media_PixelFormat">Arcadia_Media_PixelFormat</h1>
+<my-signature><code>
+typedef enum Arcadia_Media_PixelFormat Arcadia_Media_PixelFormat;
+</code></my-signature>
+
+<my-summary>
+An enumeration of pixel formats.
+</my-summary>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_PixelFormat_AlphaBlueGreenRedNatural8</code>
+    </div>
+    <div>
+    Four Arcadia_Natural8Value values layed out consecutively in memory.
+    The first value denotes the intensity of the alpha component.
+    The second value denotes the intensity of the blue component,
+    the third value denotes the intensity of the green component, and
+    the fourth value denotes the intensity of the red component.
+    A component value of 0 indicates least intensity.
+    A component value of 255 indicates greatest intensity.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_PixelFormat_AlphaGrayNatural8</code>
+    </div>
+    <div>
+    Two Arcadia_Natural8Value values layout out consecutively in memory.
+    The first value denotes the intensity of the alpha component.
+    The second value denotes the intensity of the luminance component.
+    A component value of 0 indicates least intensity.
+    A component value of 255 indicates greatest intensity.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_PixelFormat_AlphaRedGreenBlueNatural8</code>
+    </div>
+    <div>
+    Four Arcadia_Natural8Value values layed out consecutively in memory.
+    The first value denotes the intensity of the alpha component.
+    The second value denotes the intensity of the red component,
+    the third value denotes the intensity of the green component, and
+    the fourth value denotes the intensity of the blue component.
+    A component value of 0 indicates least intensity.
+    A component value of 255 indicates greatest intensity.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_PixelFormat_BlueGreenRedNatural8</code>
+    </div>
+    <div>
+    Three Arcadia_Natural8Value values layed out consecutively in memory.
+    The first value denotes the intensity of the blue component,
+    the second value denotes the intensity of the green component, and
+    the third value denotes the intensity of the red component.
+    A component value of 0 indicates least intensity.
+    A component value of 255 indicates greatest intensity.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8</code>
+    </div>
+    <div>
+    Four Arcadia_Natural8Value values layed out consecutively in memory.
+    The first value denotes the intensity of the blue component,
+    the second value denotes the intensity of the green component, and
+    the third value denotes the intensity of the red component.
+    The fourth value denotes the intensity of the alpha component.
+    A component value of 0 indicates least intensity.
+    A component value of 255 indicates greatest intensity.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_PixelFormat_GrayNatural8</code>
+    </div>
+    <div>
+    One Arcadia_Natural8Value value.
+    The value denotes the intensity of the luminance component.
+    A component value of 0 indicates least intensity.
+    A component value of 255 indicates greatest intensity.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_PixelFormat_GrayAlphaNatural8</code>
+    </div>
+    <div>
+    Two Arcadia_Natural8Value values layout out consecutively in memory.
+    The first value denotes the intensity of the luminance component.
+    The second value denotes the intensity of the alpha component.
+    A component value of 0 indicates least intensity.
+    A component value of 255 indicates greatest intensity.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_PixelFormat_RedGreenBlueNatural8</code>
+    </div>
+    <div>
+    Three Arcadia_Natural8Value values layed out consecutively in memory.
+    The first value denotes the intensity of the red component,
+    the second value denotes the intensity of the green component, and
+    the third value denotes the intensity of the blue component.
+    A component value of 0 indicates least intensity.
+    A component value of 255 indicates greatest intensity.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8</code>
+    </div>
+    <div>
+    Four Arcadia_Natural8Value values layed out consecutively in memory.
+    The first value denotes the intensity of the red component,
+    the second value denotes the intensity of the green component, and
+    the third value denotes the intensity of the blue component.
+    The fourth value denotes the intensity of the alpha component.
+    A component value of 0 indicates least intensity.
+    A component value of 255 indicates greatest intensity.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+<section class="cxx entity procedure">
+<h1 id="Arcadia_Media_PixelFormat_getNumberOfComponents">Arcadia_Media_PixelFormat_getNumberOfComponents</h1>
+<my-signature><code>
+Arcadia_SizeValue<br>
+Arcadia_Media_PixelFormat_getNumberOfComponents<br>
+&nbsp;&nbsp;(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_PixelFormat self<br>
+&nbsp;&nbsp;)
+</code></my-signature>
+
+<my-summary>
+Get the number of components of a pixel of a pixel format.
+</my-summary>
+
+<section class="cxx parameters">
+
+  <h1>Parameters</h1>
+
+  <div>
+    <div><a href="#">Arcadia_Thread</a>* thread</div>
+    <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+  </div>
+  <div>
+    <div>Arcadia_Media_PixelFormat self</div>
+    <div>This pixel format.</div>
+  </div>
+
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+<p>The number of components of a pixel of this pixel format.</p>
+</section>
+
+</section>
+
+<section class="cxx entity procedure">
+<h1 id="Arcadia_Media_PixelFormat_getNumberOfBytes">Arcadia_Media_PixelFormat_getNumberOfBytes</h1>
+<my-signature><code>
+Arcadia_SizeValue<br>
+Arcadia_Media_PixelFormat_getNumberOfBytes<br>
+&nbsp;&nbsp;(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_PixelFormat self<br>
+&nbsp;&nbsp;)
+</code></my-signature>
+
+<my-summary>
+Get the number of Bytes of a pixel of a pixel format.
+</my-summary>
+
+<section class="cxx parameters">
+
+  <h1>Parameters</h1>
+
+  <div>
+    <div><a href="#">Arcadia_Thread</a>* thread</div>
+    <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+  </div>
+  <div>
+    <div>Arcadia_Media_PixelFormat self</div>
+    <div>This pixel format.</div>
+  </div>
+
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+<p>The number of Bytes of a pixel of this pixel format.</p>
+</section>
+
+</section>
+
+
+<section class="cxx entity object">
+<h1 id="Arcadia_Media_SampleBuffer">Arcadia_Media_SampleBuffer</h1>
+<p><code>Arcadia_Media_SampleBuffer</code> extends <code>Arcadia_Object</code>.</p>
+<p>
+<code>Arcadia_Media_SampleBuffer</code> is a one-dimensional array of samples.
+</p>
+<p>The following terms and definitions are used througout its documentation:</p>
+<ul>
+  <li><em>sample</em>: An integral value representing an amplitude value.
+  A sample is uniquely identified by a zero-based integral index.
+  </li>
+  <li>
+  <em>length</em>: The length, in seconds, of the sample buffer.
+  </li>
+  <li>
+  <em>sample rate</em>: The sample rate of the sample buffer.
+  </li>
+  <li>
+  <em>sample format</em>: The sample format of the samples of the sample buffer as defined by <a href="https://michaelheilmann.com/Media/#Arcadia_Media_SampleFormat">Arcadia_Media_SampleFormat</a>.
+  </li>
+</ul>
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_SampleBuffer_create">Arcadia_Media_SampleBuffer_create</h1>
+
+  <my-signature><code>
+  Arcadia_Media_SampleBuffer*<br>
+  Arcadia_Media_SampleBuffer_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Integer32Value length,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Integer32Value sampleRate,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_SampleFormat sampleFormat,<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create a sample buffer of the specified length, sample rate, and sample format.
+  It is filled with silence.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+
+    <div>
+      <div><a href="#">Arcadia_Integer32Value</a> length</div>
+      <div>The length of the sample buffer, in seconds. Must be non-negative.</div>
+    </div>
+
+    <div>
+      <div><a href="#">Arcadia_Integer32Value</a> sampleRate</div>
+      <div>The sample rate, in Hertz, of the sample buffer. Must be non-negative.</div>
+    </div>
+
+    <div>
+      <div><a href="#">Arcadia_Media_SampleFormat</a> sampleFormat</div>
+      <div>The sample format of the sample buffer.</div>
+    </div>
+
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div>At least one of <code>length</code>, <code>sampleRate</code> is negative.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_Media_SampleBuffer</code> object.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_SampleBuffer_getLength">Arcadia_Media_SampleBuffer_getLength</h1>
+
+  <my-signature><code>
+  Arcadia_Integer32Value<br>
+  Arcadia_Media_SampleBuffer_getLength<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_SampleBuffer* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the length of this sample buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Media_SampleBuffer</a>* self</div>
+      <div>A pointer to this sample buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The length of this sample buffer, in seconds.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_SampleBuffer_getSampleFormat">Arcadia_Media_SampleBuffer_getSampleFormat</h1>
+
+  <my-signature><code>
+  Arcadia_Media_SampleFormat<br>
+  Arcadia_Media_SampleBuffer_getSampleFormat<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_SampleBuffer* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the sample format of this sample buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Media_SampleBuffer</a>* self</div>
+      <div>A pointer to this sample buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The sample format of this sample buffer.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_Media_SampleBuffer_getSampleRate">Arcadia_Media_SampleBuffer_getSampleRate</h1>
+
+  <my-signature><code>
+  Arcadia_Integer32Value<br>
+  Arcadia_Media_SampleBuffer_getSampleRate<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Media_SampleBuffer* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the sample rate of this sample buffer.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div><a href="#">Arcadia_Media_SampleBuffer</a>* self</div>
+      <div>A pointer to this sample buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The sample rate of this sample buffer.</p>
+  </section>
+
+</section>
+
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_Media_SampleFormat">Arcadia_Media_SampleFormat</h1>
+<my-signature><code>
+typedef enum Arcadia_Media_SampleFormat Arcadia_Media_SampleFormat;
+</code></my-signature>
+
+<my-summary>
+An enumeration of sample formats.
+</my-summary>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_SampleFormat_Integer16</code>
+    </div>
+    <div>
+    One Arcadia_Integer16Value.
+    Maximal amplitude at \(+2^{16-1}-1\), minimal amplitude at \(-2^{16-1}\), silence at \(0\).
+    This is an asymmetricc format as the distance of the minimal amplitude value and the distance of the maximal amplitude value from the silence value are not equal.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_SampleFormat_Integer8</code>
+    </div>
+    <div>
+    One Arcadia_Integer8Value.
+    Maximal amplitude at \(+2^{8-1}-1\), minimal amplitude at \(-2^{8-1}\), silence at \(0\).
+    This is an asymmetricc format as the distance of the minimal amplitude value and the distance of the maximal amplitude value from the silence value are not equal.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_SampleFormat_Natural16</code>
+    </div>
+    <div>
+    One Arcadia_Natural8Value.
+    Maximal amplitude at \(2^{16}-1\), minimal amplitude at \(0\). Silence at \(\textit{ceil}\left(\frac{2^{16}-1}{2}\right)\).
+    This is a symmetric format at the distance of the minimal amplitude value and the maximal amplitude value from the silience value are equal.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_SampleFormat_Natural8</code>
+    </div>
+    <div>
+    One Arcadia_Natural8Value.
+    Maximal amplitude at \(2^{8}-1\), minimal amplitude at \(0\). Silence at \(\textit{ceil}\left(\frac{2^{8}-1}{2}\right)\).
+    This is a symmetric format at the distance of the minimal amplitude value and the maximal amplitude value from the silience value are equal.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+<section class="cxx entity procedure">
+<h1 id="Arcadia_Media_SampleFormat_getNumberOfBytes">Arcadia_Media_SampleFormat_getNumberOfBytes</h1>
+<my-signature><code>
+Arcadia_SizeValue<br>
+Arcadia_Media_SampleFormat_getNumberOfBytes<br>
+&nbsp;&nbsp;(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Medial_SampleFormat self<br>
+&nbsp;&nbsp;)
+</code></my-signature>
+
+<my-summary>
+Get the number of Bytes of a sample of this sample format.
+</my-summary>
+
+<section class="cxx parameters">
+
+  <h1>Parameters</h1>
+
+  <div>
+    <div><a href="#">Arcadia_Thread</a>* thread</div>
+    <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+  </div>
+  <div>
+    <div>Arcadia_Media_SampleFormat self</div>
+    <div>This sample format.</div>
+  </div>
+
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+<p>The number of Bytes of a sample of this sample format.</p>
+</section>
+
+</section>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity object">
+
+  <h1 id="Arcadia_Media_VertexElementDescriptor">[MIL] Arcadia.Media.VertexElementDescriptor</h1>
+
+  <my-signature><code>
+  class Arcadia.Media.VertexElementDesscriptor extends Arcadia.Object { ... }
+  </code></my-signature>
+
+  <my-summary>
+  A application event.
+  </my-summary>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia.Media.VertexElementDescriptor.construct">
+  [MIL] Arcadia.Media.VertexElementDescriptor.construct
+  </h1>
+
+  <my-signature><code>
+    Arcadia.Media.VertexElementDescriptor.construct<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;offset : Arcadia.Natural64,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;semantics : Arcadia.Media.VertexElementSemantics,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;syntactics : Arcadia.Media.VertexElementSyntactics<br>
+    &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Construct this vertex element descriptor.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div>
+      <div>offset : Arcadia.Natural8</div>
+      <div>The offset, in Bytes, of the vertex element from the beginning of the vertex.</div>
+    </div>
+    
+    <div>
+      <div>semantics : Arcadia.Media.VertexElementSemantics</div>
+      <div>The semantics of the vertex element.</div>
+    </div>
+    
+    <div>
+      <div>syntactics : Arcadia.Media.VertexElementSyntactics</div>
+      <div>The syntactics of the vertex element.</div>
+    </div>
+
+  </section>
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia.Media.VertexElementDescriptor.isEqualTo">
+  [MIL] Arcadia.Media.VertexElementDescriptor.isEqualTo
+  </h1>
+
+  <my-signature><code>
+    <br>
+    method isEqualTo<br>
+    &nbsp;&nbsp;(<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;other : Arcadia.Object<br>
+    &nbsp;&nbsp;) : Arcadia.Boolean
+  </code></my-signature>
+
+  <my-summary>
+  Compare this vertex element descriptor to another object.
+  </my-summary>
+
+  <section class="cxx parameters">
+
+    <h1>Parameters</h1>
+
+    <div>
+      <div>other : Arcadia.Object</div>
+      <div>The other object.</div>
+    </div>
+
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p><code>Arcadia.Boolean.True</code> if the objects are equal, <code>Arcadia.Boolean.False</code> otherwise.</p>
+  </section>
+
+
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_Media_VertexElementSemantics">Arcadia_Media_VertexElementSemantics</h1>
+<my-signature><code>
+typedef enum Arcadia_Media_VertexElementSemantics Arcadia_Media_VertexElementSemantics;
+</code></my-signature>
+
+<my-summary>
+An enumeration of verrex element semantics.
+</my-summary>
+
+<section class="cxx enumeration-elements">
+  <h1>Elements</h1>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_VertexElementSemantics_PositionXyz</code>
+    </div>
+    <div>
+    The vertex element denotes a position coordinate.
+    If the vertex syntax is Arcadia_Media_VertexElementSyntax_Real32Real32, then this the position coordinate is in XY space (model, local, or global).
+    If the vertex syntax is Arcadia_Media_VertexElementSyntax_Real32Real32Real32, then this the position coordinate is in XYZ space (model, local, or global).
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_VertexElementSemantics_AmbientRgba</code>
+    </div>
+    <div>
+    The vertex element denotes an ambient color coordinate.
+    <ul>
+      <li>If the vertex syntax is Arcadia_Media_VertexElementSyntax_Real32Real32Real32, then the color is in [0,1] RGB space.
+      The first Arcadia_Real32Value indicates the intensity of the red component,
+      the second Arcadia_Real32Value indicates the intensity of the green component,
+      the third Arcadia_Real32Value indicates the intensity of the blue component.
+      0 indicates minimum intensity, 1 indicates maximum intensity.
+      </li>
+      <li>If the vertex syntax is Arcadia_Media_VertexElementSyntax_Real32Real32Real32Real32, then the color is in [0,1] RGBA space.
+      The first Arcadia_Real32Value indicates the intensity of the red component,
+      the second Arcadia_Real32Value indicates the intensity of the green component,
+      the third Arcadia_Real32Value indicates the intensity of the blue component.
+      0 indicates minimum intensity, 1 indicates maximum intensity.
+      The fourth Arcadia_Real32Value indicates the intensity of the alpha component.
+      0 indicates fully transparent, 1 indicates fully opaque.
+      </li>
+    </ul>
+    </</div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_VertexElementSemantics_AmbientUv</code>
+    </div>
+    <div>
+    The vertex element denotes a texture coordinates for an ambient texture.
+    If the vertex syntax is Arcadia_Media_VertexElementSyntax_Real32Real32, then this the texture coordinate is in UV space.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_Media_VertexElementSyntactics">Arcadia_Media_VertexElementSyntactics</h1>
+<my-signature><code>
+typedef enum Arcadia_Media_VertexElementSyntactics Arcadia_Media_VertexElementSyntactics;
+</code></my-signature>
+
+<my-summary>
+An enumeration of vertex element syntactics.
+</my-summary>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_VertexElementSyntactics_Real32Real32</code>
+    </div>
+    <div>
+    The vertex element consists of two consecutive Arcadia_Real32Value values.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_VertexElementSyntactics_Real32Real32Real32</code>
+    </div>
+    <div>
+    The vertex element consists of three consecutive Arcadia_Real32Value values.
+    </div>
+  </div>
+
+  <div>
+    <div>
+      <code>Arcadia_Media_VertexElementSyntactics_Real32Real32Real32Real32</code>
+    </div>
+    <div>
+    The vertex element consists of four consecutive Arcadia_Real32Value values.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+
+  </div>
+  <div class="right-column">
+    <nav>
+      <ul style="list-style: none">
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer">Arcadia_Media_PixelBuffer</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer_create">Arcadia_Media_PixelBuffer_create</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer_getHeight">Arcadia_Media_PixelBuffer_getHeight</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer_getLinePadding">Arcadia_Media_PixelBuffer_getLinePadding</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer_getNumberOfColumns">Arcadia_Media_PixelBuffer_getNumberOfColumns</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer_getNumberOfRows">Arcadia_Media_PixelBuffer_getNumberOfRows</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer_getLineStride">Arcadia_Media_PixelBuffer_getLineStride</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer_getPixelFormat">Arcadia_Media_PixelBuffer_getPixelFormat</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer_getWidth">Arcadia_Media_PixelBuffer_getWidth</a></li>
+
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelFormat">Arcadia_Media_PixelFormat</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelFormat_getNumberOfComponents">Arcadia_Media_PixelFormat_getNumberOfComponents</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelFormat_getNumberOfBytes">Arcadia_Media_PixelFormat_getNumberOfBytes</a></li>
+
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleBuffer">Arcadia_Media_SampleBuffer</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleBuffer_create">Arcadia_Media_SampleBuffer_create</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleBuffer_getLength">Arcadia_Media_SampleBuffer_getLength</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleBuffer_getSampleFormat">Arcadia_Media_SampleBuffer_getSampleFormat</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleBuffer_getSampleRate">Arcadia_Media_SampleBuffer_getSampleRate</a></li>
+
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleFormat">Arcadia_Media_SampleFormat</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleFormat_getNumberOfBytes">Arcadia_Media_SampleFormat_getNumberOfBytes</a></li>
+        
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_VertexElementDescriptor">Arcadia_Media_VertexElementDescriptor</a></li>    
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_VertexElementSemantics">Arcadia_Media_VertexElementSemantics</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_VertexElementSyntactics">Arcadia_Media_VertexElementSyntactics</a></li>          
+      </ul>
+    </nav>
+  </div>
+  </main>
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column"></div>
+    <div class="right-column">
+      <div>Website maintained by Michael Heilmann.</div>
+      <div>Last modified on 21 September 2026.</div>
+    </div>
+  </footer>
+  </body>
+</html>
+

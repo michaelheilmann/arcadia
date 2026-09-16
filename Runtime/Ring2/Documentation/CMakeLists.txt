@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.29)
 BeginTemplateEngine(${MyProjectName}.Ring2.BuildDocs "Runtime/Ring2")
 
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/.Build/Arcadia/Ring2/index.html"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/Ring2/index.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
 EndTemplateEngine()

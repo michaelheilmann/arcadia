@@ -1,0 +1,6 @@
+{
+  type : "Model",
+  name : "MainMenuScene.MeshColorModel",
+  mesh : "MainMenuScene.Mesh",
+  material : "MainMenuScene.MeshColorMaterial",
+}

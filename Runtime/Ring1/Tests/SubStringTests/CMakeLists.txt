@@ -21,6 +21,8 @@ set(this ${MyProjectName}.Ring1.Tests.SubStringTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/Ring1")
+
 OnSourceFile(${this} Arcadia.Ring1.Tests.SubStringTests/Main.c)
 OnSourceFile(${this} Arcadia.Ring1.Tests.SubStringTests/findFirstOccurrenceTests.c)
 OnHeaderFile(${this} Arcadia.Ring1.Tests.SubStringTests/findFirstOccurrenceTests.h)
@@ -32,5 +34,3 @@ OnHeaderFile(${this} Arcadia.Ring1.Tests.SubStringTests/SubStringTests.h)
 OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring1")

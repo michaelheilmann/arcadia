@@ -17,12 +17,15 @@
 #if !defined(ARCADIA_MEDIA_SAMPLEBUFFEROPERATIONS_SINEWAVE_H_INCLUDED)
 #define ARCADIA_MEDIA_SAMPLEBUFFEROPERATIONS_SINEWAVE_H_INCLUDED
 
-#if !defined(ARCADIA_MEDIA_MODULE) || 1 != ARCADIA_MEDIA_MODULE
+#if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
   #error("do not include directly, include `Arcadia/Media/Include.h` instead")
 #endif
-#include "Arcadia/ADL/Include.h"
 #include "Arcadia/Media/DSP.h"
 
+/// @brief A source DSP generating a mono sine waveform.
+///
+/// The frequency is stored as Real32 to support both audio-rate oscillators and
+/// low-frequency control signals. Phase is preserved across render calls.
 Arcadia_declareObjectType(u8"Arcadia.Media.DSP.SineWave", Arcadia_Media_DSP_SineWave,
                           u8"Arcadia.Media.DSP");
 
@@ -32,15 +35,19 @@ struct Arcadia_Media_DSP_SineWaveDispatch {
 
 struct Arcadia_Media_DSP_SineWave {
   Arcadia_Media_DSP parent;
-  Arcadia_Integer32Value frequency;
-  Arcadia_ADL_SineWaveDefinition* definition;
+  Arcadia_Real32Value frequency;
+  Arcadia_Real32Value phase;
 };
 
+/// @brief Create a sine oscillator source.
+/// @param thread A pointer to this thread.
+/// @param frequency The oscillator frequency in Hz. Must be greater than zero.
+/// @return The created sine wave node.
 Arcadia_Media_DSP_SineWave*
 Arcadia_Media_DSP_SineWave_create
   (
     Arcadia_Thread* thread,
-    Arcadia_Integer32Value frequency
+    Arcadia_Real32Value frequency
   );
 
 #endif // ARCADIA_MEDIA_SAMPLEBUFFEROPERATIONS_SINEWAVE_H_INCLUDED

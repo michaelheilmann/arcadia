@@ -66,13 +66,13 @@ Arcadia_MILC_AST_JumpInstructionNode_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_MILC_AST_JumpInstructionNode);
+  if (2 != _numberOfArguments) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   {
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
-  }
-  if (1 != _numberOfArguments) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
-    Arcadia_Thread_jump(thread);
   }
   self->labelName = (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_String_getType(thread));
   Arcadia_LeaveConstructor(Arcadia_MILC_AST_JumpInstructionNode);
@@ -102,10 +102,12 @@ Arcadia_MILC_AST_JumpInstructionNode*
 Arcadia_MILC_AST_JumpInstructionNode_create
   (
     Arcadia_Thread* thread,
+    Arcadia_SizeValue startOffset,
     Arcadia_String* labelName
   )
 {
   _Arcadia_BeginCreate(Arcadia_MILC_AST_JumpInstructionNode);
+  Arcadia_ValueStack_pushSizeValue(thread, startOffset);
   if (labelName) {
     Arcadia_ValueStack_pushObjectReferenceValue(thread, labelName);
   } else {

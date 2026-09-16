@@ -1,0 +1,367 @@
+  <!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+  <link rel='canonical' href='https://michaelheilmann.com/Arcadia/roadmap-archive'>
+  <title>Roadmap</title>
+</head>
+<body class="my-content-page-1">
+  <header>
+  <div>
+  <a href="https://michaelheilmann.com/">Home</a>
+  </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+    <h1>Roadmap Archive</h1>
+    <h2>Milestone "Arbitrary Precision Arithmetic" 2: Add initial big integer implementation</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 December 2024</p>
+<p>
+A big integer type <code>Arcadia.BigInteger</code> provides arbitratry precision arithmetic for integers.
+</p>
+
+<p>The following operations are supported:</p>
+<ul>
+  <li>Add two <code>Arcadia.BigInteger</code> objects.</li>
+  <li>Subtract two <code>Arcadia.BigInteger</code> objects.</li>
+  <li>Negate a <code>Arcadia.BigInteger</code> object.</li>
+</ul>
+
+<p>Automated tests for the above functionality are provided.</p>
+
+    <h2>Milestone "Arbitrary Precision Arithmetic" 1: Add initial big integer implementation</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 December 2024</p>
+<p>
+A big integer type <code>Arcadia.BigInteger</code> provides arbitratry precision arithmetic for integers.
+</p>
+
+<p>The following operations are supported:</p>
+<ul>
+  <li>Create a <code>Arcadia.BigInteger</code> object from <code>Arcadia.Integer(8|16|32|64)</code> and <code>Arcadia.Natural(8|16|32|64)</code>.</li>
+  <li>Compare two <code>Arcadia.BigInteger</code> objects by magnitude.</li>
+  <li>Compare two <code>Arcadia.BigInteger</code> objects by value.</li>
+</ul>
+
+<p>Automated tests for the above functionality are provided.</p>
+
+    <h2>Milestone "Machine Interface Language" 1: 1st iteration of a parser for the L1 language</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 3 October 2024</p>
+<p>
+A 1st iteration of the parser for the L1 language,
+a language for interfacing with the
+<a href="https://michaelheilmann.com/repository/R">R</a>
+runtime currently in the making.
+That 1st iteration provides the following features:
+</p>
+<ul>
+  <li>
+  boolean literals,
+  number literals (integer literal/ real literal),
+  string literals, and
+  void literals
+  </li>
+  <li>
+  arithmetic operations (add, subtract, multiply, divide)
+  </li>
+  <li>
+  arithmetic operations / logical operations (not)
+  </li>
+  <li>
+  logical operations (and, or)
+  </li>
+  <li>
+  list operations (concatenate)
+  </li>
+</ul>
+
+    <h2>Milestone "Banner Generator" 2: Tooling for generating banners</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 December 2024</p>
+
+<p>
+Port the banner generator to Linux.
+</p>
+
+    <h2>Milestone "Banner Generator" 1: Tooling for generating icons (Windows only)</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 September 2024</p>
+
+<p>
+Certain operating systems (in particular Windows) require banners for application installers.
+We require a tool to generate those.</p>
+<p>
+The banner generator generates a "PNG" file.
+As parameters, it takes the width and the height of the banner and the path of the "PNG" file.
+The generated "PNG" file is an opaque black banner.
+</p>
+
+    <h2>Milestone "Icon Generator" 2: Tooling for generating icons</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 December 2024</p>
+
+<p>
+Port the icon generator to Linux.
+</p>
+
+    <h2>Milestone "Icon Generator" 1: Tooling for generating icons (Windows only)</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 3 September 2024</p>
+
+<p>
+Certain operating systems (in particular Windows) require Icons for application windows and application installers.
+We require a tool to generate those.
+</p>
+
+<p>
+The icon generator generates an "ICO" file.
+As parameter, it takes the path of the "ICO" file.
+The generated "ICO" file contains opaque black black icons of the sizes 8x8, 16x16, 24x24, 32x32, 48x48, 64x64, 96x96, 128x128, and 256x256.
+</p>
+
+    <h2>Milestone "Template Engine" 2: Load variable directives</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 November 2024</p>
+
+<p>
+The *Template Engine* tool supports directives to load the values of predefined variables.
+A load variable directive is of the form
+<code>@{&lt;name&gt;}</code>
+where
+<code>&lt;name&gt;</code>
+is a placeholder for an name of the form
+<code>(alphabetic|'_')(alphanumeric|alphabetic|'_')*</code>.
+<code>include</code> is forbidden as a name.
+</p>
+
+<p>
+The value of the variable <code>siteUrl</code> is the URL of the site.
+</p>
+
+    <h2>Milestone "Template Engine" 1: Template Engine: Ampersand- and Include-directives</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 2 September 2024</p>
+
+<p>
+The <em>Template Engine</em> is a tool which takes the filename of a (source) file and the filename of a (target) file.
+It will <i>parse</i> the source file to create the target file.
+<i>parsing</i> means that the contents of the source file are written to the target file unlesss directives are encountered.
+The directives are not written to the target file. Instead, they are interpreted. There are two kinds of directives:
+</p>
+<ul>
+  <li><code>@@</code> directive results in <code>@</code> in being written to the target file.</li>
+  <li><code>@include(&lt;filename&gt;)</code> directive *parses* the file specified by <code>&lt;filename&gt;</code>.
+</ul>
+<p>
+Recursive include directives yield an error.
+The parser must support UTF-8-NO-BOM encoding.
+</p>
+
+    <h2>Milestone "Arcadia.Ring1" 4: Linux support</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 December 2024</p>
+<p>
+<a href="https://michaelheilmann.com/Arcadia/Ring1"><em>Arcadia.Ring1</em></a> supports Linux environments.
+This means:
+</p>
+<ul
+  <li><em>Arcadia.Ring1</em> compiles under Linux</li>
+  <li>the automated tests run and terminate with success under Linux</li>
+</ul>
+
+    <h2>Milestone "Arcadia.Ring1" 3: UTF8 floating-point literal strings To IEEE754 floating-point conversion</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 1 March 2025</p>
+<p>
+<em>Arcadia.Ring1</em> (<a href="https://michaelheilmann.com/repository/Arcadia.Ring1">Arcadia.Ring1</a>) provides means to convert UTF8 floating-point literal strings to IEEE754 floating-point values.
+A combination of the algorithms of Gay, Clinger, and Mushtak and Lemire shall be used.
+</p>
+
+    <h2>Milestone "Arcadia.Ring1" 2: Count Trailing Zeroes</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 February 2025</p>
+<p>
+<a href="https://michaelheilmann.com/repository/Arcadia.Ring1"><em>Arcadia.Ring1</em></a> provides means to count the number of trailing zeroes of integer types.
+</p>
+
+    <h2>Milestone "Arcadia.Ring1" 1: Linux support</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 December 2024</p>
+<p>
+<a href="https://michaelheilmann.com/repository/Arcadia.Ring1"><em>Arcadia.Ring1</em></a> supports Linux environments.
+This means:
+</p>
+<ul
+  <li><em>Arcadia.Ring1</em> compiles under Linux</li>
+  <li>the automated tests run and terminate with success under Linux</li>
+</ul>
+
+    <h2>Milestone "Website" 9: Add <em>Data Definition Language Schema</em> specification</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 2 January 2026</p>
+<p>
+The <em>content page</em> for the <em>Data Definition Language Schema</em> specification is reachable from the <em>landing page</em>.
+The <em>content page</em> contains the <em>Data Definition Language Schema</em> specification.
+</p>
+
+    <h2>Milestone "Website" 8: Add <em>Data Definition Language</em> specification</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 2 March 2025</p>
+<p>
+The <em>content page</em> for the <em>Data Definition Language</em> specification is reachable from the <em>landing page</em>.
+The <em>content page</em> contains the <em>Data Definition Language</em> specification.
+</p>
+
+    <h2>Milestone "Website" 7: News Page</h2>
+<p>Percentage done: 0&percnt;, Due date: Week 1 March 2025</p>
+<p>
+An <em>news page</em> is reacheable from the <em>landing page</em>.
+The news page displays news in chronologically descending order.
+</p>
+
+    <h2>Milestone "Website" 6: Navigational elements</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 1 November 2024</p>
+<p>
+Each <em>content page</em> has navigational elements which enable the user to navigate the content of that page.
+</p>
+
+    <h2>Milestone "Website" 5: Navigational elements</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 1 November 2024</p>
+<p>
+Each page of this website has navigational elements to enable the user to navigate to the <em>landing</em> page.
+These elements are located on every <em>content page</em> and <em>error page</em> but not on the <em>landing page</em>.
+</p>
+
+    <h2>Milestone "Website" 4: Separate website sources and product</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 1 October 2024</p>
+<p>The website shall be generated in a dedicated `.build` folder of the repository.
+This results in a size reduction of uploads to webhosts.</p>
+
+    <h2>Milestone "Website" 3: Maintain roadmap on website</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 1 October 2024</p>
+<p>The roadmap is maintained on the website.</p>
+
+    <h2>Milestone "Website" 2: Tooling for building the website | Tools.TemplateEngine</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 2 September 2024</p>
+
+<p>
+The source code of the website consists of multiple <code>.t</code> files.
+The tool <i>Tools.TemplateEngine</i> reads <code>.t</code> files and creates the output <code>.html</code> files.
+</p>
+
+<p>
+The tool works as follows: It receives the filename of one <code>.t</code> file and the filename of the target <code>.html</code> file.
+It will <i>parse</i> the <code>.t</code> file to create the target <code>.html</code> file.
+<i>parsing</i> means that the contents of the <code>.t</code> file are written to the target file unlesss directives are encountered.
+The directives are not written to the target file. Instead, they are interpreted. There are two kinds of directives:
+</p>
+<ul>
+  <li><code>@@</code> directive results in <code>@</code> in being written to the target file.</li>
+  <li><code>@include(&lt;filename&gt;)</code> directive *parses* the file specified by <code>&lt;filename&gt;</code>.
+</ul>
+<p>
+Recursive include directives yield an error.
+The parser must support UTF-8-NO-BOM encoding.
+</p>
+
+    <h2>Milestone "Website" 1: Improve tooling to build the website | Tools.Concatenate</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 1 September 2024</p>
+
+<p>
+The source code of the website consists of multiple <code>.t</code> files.
+The tool <i>Tools.Concatenate</i> reads the  <code>.t</code> files and creates the output <code>.html</code> files.
+</p>
+
+<p>
+The tool works as follows: It receives the filename of a one or more <code>.t</code> files and the filename of the target <code>.html</code> file.
+It will then concatenate the Bytes of the <code>.t</code> files (in the order they were specified) and write the Bytes to the <code>.html</code> file.
+</p>
+
+    <h2>Milestone "Arcadia.Ring2" 5: Set data type</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 3 Juli 2025</p>
+<p>
+<a href="https://michaelheilmann.com/Arcadia/Ring2"><em>Arcadia.Ring2</em></a> provides a set data type.
+</p>
+
+    <h2>Milestone "Arcadia.Ring2" 4: Linux support</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 December 2024</p>
+<p>
+<a href="https://michaelheilmann.com/Arcadia/Ring2"><em>Arcadia.Ring1</em></a> supports Linux environments.
+This means:
+</p>
+<ul
+  <li><em>Arcadia.Ring1</em> compiles under Linux</li>
+  <li>the automated tests run and terminate with success under Linux</li>
+</ul>
+
+    <h2>Milestone "Arcadia.Ring2" 3: Map data type</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 3 Juli 2025</p>
+<p>
+<a href="https://michaelheilmann.com/Arcadia/Ring2"><em>Arcadia.Ring2</em></a> provides a map data type.
+</p>
+
+    <h2>Milestone "Arcadia.Ring2" 2: List data type</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 3 Juli 2025</p>
+<p>
+<a href="https://michaelheilmann.com/Arcadia/Ring2"><em>Arcadia.Ring2</em></a> provides a list data type.
+</p>
+
+    <h2>Milestone "Arcadia.Ring2" 1: Linux support</h2>
+<p>Percentage done: 100&percnt;, Due date: Week 4 December 2024</p>
+<p>
+<a href="https://michaelheilmann.com/Arcadia/Ring2"><em>Arcadia.Ring2</em></a> supports Linux environments.
+This means:
+</p>
+<ul
+  <li><em>Arcadia.Ring2</em> compiles under Linux</li>
+  <li>the automated tests run and terminate with success under Linux</li>
+</ul>
+
+  </div>
+  <div class="right-column"></div>
+  </main>
+  <footer>
+  <div class="left-column">
+    <div>
+    <div>Website maintained by Michael Heilmann.</div>
+    <div>Last modified on 21 September 2026.</div> 
+    </div>
+  </div>
+  <div class="center-column">
+    <div>
+      <div><a href="https://michaelheilmann.com/imprint">Imprint</a></div>
+      <div><a href="https://michaelheilmann.com/data-protection-statement">Data Protection Statement</a></div>
+    </div>
+  </div>
+  <div class="right-column">
+    <div>
+      <div><a href='https://github.com/michaelheilmann'>GitHub</a></div>
+      <div><a href='https://discord.gg/XtPA6pwAsp'>Discord</a></div>
+      <div><a href='mailto:contact@michaelheilmann.com'>contact@michaelheilmann.com</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

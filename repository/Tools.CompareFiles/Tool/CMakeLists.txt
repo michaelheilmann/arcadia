@@ -22,6 +22,8 @@ if (NOT TARGET ${MyTool})
 
   BeginProduct(${MyTool} executable)
 
+  SetFolder(${MyTool} "Tools")
+
   OnConfigurationFile(${MyTool} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Tools/CompareFiles/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Tools/CompareFiles/Configure.h.i)
 
   OnSourceFile(${MyTool} Tools/CompareFiles/Main.c)
@@ -30,7 +32,5 @@ if (NOT TARGET ${MyTool})
   OnModuleDependency(${MyTool} ${MyProjectName}.Ring2 PRIVATE)
 
   EndProduct(${MyTool})
-
-  set_target_properties(${MyTool} PROPERTIES FOLDER "Tools")
 
 endif()

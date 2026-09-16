@@ -107,6 +107,22 @@ test1
   Arcadia_Tests_assertTrue(thread, node->type == Arcadia_DDL_NodeType_Number);
   assertText(thread, ((Arcadia_DDL_NumberNode*)node)->value, u8"-1.0e-10", sizeof(u8"-1.0e-10") - 1);
 
+  node = parse(thread, parser, u8"1.", sizeof(u8"1.") - 1);
+  Arcadia_Tests_assertTrue(thread, node->type == Arcadia_DDL_NodeType_Number);
+  assertText(thread, ((Arcadia_DDL_NumberNode*)node)->value, u8"1.", sizeof(u8"1.") - 1);
+
+  node = parse(thread, parser, u8".1", sizeof(u8".1") - 1);
+  Arcadia_Tests_assertTrue(thread, node->type == Arcadia_DDL_NodeType_Number);
+  assertText(thread, ((Arcadia_DDL_NumberNode*)node)->value, u8".1", sizeof(u8".1") - 1);
+
+  node = parse(thread, parser, u8"+.1", sizeof(u8"+.1") - 1);
+  Arcadia_Tests_assertTrue(thread, node->type == Arcadia_DDL_NodeType_Number);
+  assertText(thread, ((Arcadia_DDL_NumberNode*)node)->value, u8"+.1", sizeof(u8"+.1") - 1);
+
+  node = parse(thread, parser, u8"-.1", sizeof(u8"-.1") - 1);
+  Arcadia_Tests_assertTrue(thread, node->type == Arcadia_DDL_NodeType_Number);
+  assertText(thread, ((Arcadia_DDL_NumberNode*)node)->value, u8"-.1", sizeof(u8"-.1") - 1);
+
 
   // https://www.compart.com/en/unicode/U+1D28
   node = parse(thread, parser, u8"\"\\u1d28\"", sizeof(u8"\"\\u1d28\"") - 1);

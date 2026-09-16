@@ -1,0 +1,20 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Enable compaction for large monorepos.
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 16000
+  },
+  
+  // Configure file watcher.
+  "watcher": {
+    "ignore": [
+      ".git/**",
+      ".build/**",
+      // Ignore the deprecated repository directory.
+      "repository/**"
+    ]
+  }
+}

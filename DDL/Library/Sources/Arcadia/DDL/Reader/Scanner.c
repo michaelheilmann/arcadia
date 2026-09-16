@@ -774,7 +774,7 @@ Arcadia_DDL_Scanner_stepImpl
     onEndWord(thread, self, Arcadia_DDL_WordType_Name);
     Arcadia_DataDefinitionLanguage_Keywords_scan(thread, self->keywords, Arcadia_Languages_Scanner_getWordText(thread, (Arcadia_Languages_Scanner*)self), &self->word.type);
     return;
-  } else if (isDecimalDigit(thread, self) || '+' == self->symbol || '-' == self->symbol) {
+  } else if (isDecimalDigit(thread, self) || '.' == self->symbol || '+' == self->symbol || '-' == self->symbol) {
     // <number>
     onNumberLiteral(thread, self);
   } else if ('/' == self->symbol) {

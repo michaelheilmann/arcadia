@@ -2,9 +2,9 @@
 #define ARCADIA_ENGINE_DEMO_APPLICATION_H_INCLUDED
 
 #include "Arcadia/DDL/Include.h"
+#include "Arcadia/Engine/Include.h"
 #include "Arcadia/Engine/Demo/Scene.h"
 #include "Arcadia/Engine/Demo/SceneManager.h"
-#include "Arcadia/Application/Include.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.Application", Arcadia_Engine_Demo_Application,
                           u8"Arcadia.Engine.Application");

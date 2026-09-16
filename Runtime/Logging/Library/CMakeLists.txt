@@ -22,6 +22,8 @@ set(this ${MyProjectName}.Logging)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Runtime/Logging")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Logging/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Logging/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/Logging/Include.c)
@@ -41,7 +43,5 @@ if (NOT TARGET ${this})
   set(${this}.Install TRUE)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "Runtime/Logging")
 
 endif()

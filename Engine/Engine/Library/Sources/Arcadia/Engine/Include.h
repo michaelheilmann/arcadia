@@ -30,6 +30,11 @@
 #include "Arcadia/Engine/Node.h"
 #include "Arcadia/Engine/NodeFactory.h"
 
+#include "Arcadia/Engine/Application.h"
+#include "Arcadia/Engine/ApplicationConfiguration.h"
+#include "Arcadia/Engine/ApplicationHelper/Audials.h"
+#include "Arcadia/Engine/ApplicationHelper/Visuals.h"
+
 // Visuals.
 #include "Arcadia/Engine/Visuals/Include.h"
 

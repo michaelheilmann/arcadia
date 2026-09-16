@@ -17,7 +17,7 @@
 #if !defined(ARCADIA_MEDIA_PIXELBUFFER_H_INCLUDED)
 #define ARCADIA_MEDIA_PIXELBUFFER_H_INCLUDED
 
-#if !defined(ARCADIA_MEDIA_MODULE) || 1 != ARCADIA_MEDIA_MODULE
+#if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
   #error("do not include directly, include `Arcadia/Media/Include.h` instead")
 #endif
 #include "Arcadia/Ring2/Include.h"

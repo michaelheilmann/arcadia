@@ -1,0 +1,6 @@
+procedure sum (variable x : Integer32, variable y : Integer32) : Integer32 {
+  loadArgument $1, x
+  loadArgument $2, y
+  add $1, $1, $2
+  return $1
+}

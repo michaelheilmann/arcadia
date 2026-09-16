@@ -21,10 +21,11 @@ set(this ${MyProjectName}.ARMS.Tests.NotifyDestroyTest)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/ARMS")
+
 OnSourceFile(${this} Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.ARMS)
 
 EndProduct(${this})
 
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/ARMS")

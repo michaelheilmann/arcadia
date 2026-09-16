@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.CadetBlue",
+  red : 95,
+  green : 158,
+  blue : 160,
+}

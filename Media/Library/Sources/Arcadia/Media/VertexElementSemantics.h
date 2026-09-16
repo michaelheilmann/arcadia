@@ -14,16 +14,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_MEDIA_VERTEXELEMENTSEMANTICS_H_INCLUDED)
+#ifndef ARCADIA_MEDIA_VERTEXELEMENTSEMANTICS_H_INCLUDED
 #define ARCADIA_MEDIA_VERTEXELEMENTSEMANTICS_H_INCLUDED
 
-#if !defined(ARCADIA_MEDIA_MODULE) || 1 != ARCADIA_MEDIA_MODULE
-  #error("do not include directly, include `Arcadia/Media/Include.h` instead")
+#if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
+  #error("do not include `Arcadia/Media/VertexElementSemantics.h` directly, include `Arcadia/Media/Include.h` instead")
 #endif
-#include "Arcadia/Ring2/Include.h"
 
-// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_VertexElementSemantics
-Arcadia_declareEnumerationType(u8"Arcadia.Media.VertexElementSemantics", Arcadia_Media_VertexElementSemantics);
+#include "Arcadia/Ring1/Include.h"
+
+Arcadia_declareEnumerationType("Arcadia.Media.VertexElementSemantics",
+                               Arcadia_Media_VertexElementSemantics);
 
 enum Arcadia_Media_VertexElementSemantics {
 

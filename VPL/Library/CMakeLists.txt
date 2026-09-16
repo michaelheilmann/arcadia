@@ -22,6 +22,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} library)
 
+  SetFolder(${this} "VPL")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/VPL/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/VPL/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/VPL/Symbols/BuiltinType.c)
@@ -102,7 +104,5 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "VPL")
 
 endif()

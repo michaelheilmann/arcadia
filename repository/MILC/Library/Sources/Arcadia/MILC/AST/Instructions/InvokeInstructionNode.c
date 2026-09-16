@@ -66,13 +66,13 @@ Arcadia_MILC_AST_InvokeInstructionNode_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_MILC_AST_InvokeInstructionNode);
+  if (3 != _numberOfArguments) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   {
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
-  }
-  if (2 != _numberOfArguments) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
-    Arcadia_Thread_jump(thread);
   }
   self->callee = (Arcadia_MILC_AST_VariableOperandNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_MILC_AST_VariableOperandNode_getType(thread));
   self->operands = (Arcadia_List*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_List_getType(thread));
@@ -102,11 +102,13 @@ Arcadia_MILC_AST_InvokeInstructionNode*
 Arcadia_MILC_AST_InvokeInstructionNode_create
   (
     Arcadia_Thread* thread,
+    Arcadia_SizeValue startOffset,
     Arcadia_MILC_AST_VariableOperandNode* callee,
     Arcadia_List* operands
   )
 {
   _Arcadia_BeginCreate(Arcadia_MILC_AST_InvokeInstructionNode);
+  Arcadia_ValueStack_pushSizeValue(thread, startOffset);
   if (callee) {
     Arcadia_ValueStack_pushObjectReferenceValue(thread, callee);
   } else {
@@ -117,6 +119,6 @@ Arcadia_MILC_AST_InvokeInstructionNode_create
   } else {
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }
-  Arcadia_ValueStack_pushNatural8Value(thread, 2);
+  Arcadia_ValueStack_pushNatural8Value(thread, 3);
   _Arcadia_EndCreate(Arcadia_MILC_AST_InvokeInstructionNode);
 }

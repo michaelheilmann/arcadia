@@ -22,6 +22,8 @@ if (NOT TARGET ${MyToolName})
 
   BeginProduct(${MyToolName} executable)
 
+  SetFolder(${MyToolName} "TemplateEngine")
+
   set(${MyToolName}.Windows.ResourceFile ${CMAKE_CURRENT_SOURCE_DIR}/Resources.rc)
 
   OnConfigurationFile(${MyToolName} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia.TemplateEngine.CLI/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.TemplateEngine.CLI/Configure.h.i)
@@ -33,7 +35,5 @@ if (NOT TARGET ${MyToolName})
   set(${MyToolName}.Install TRUE)
 
   EndProduct(${MyToolName})
-
-  set_target_properties(${MyToolName} PROPERTIES FOLDER "TemplateEngine")
 
 endif()

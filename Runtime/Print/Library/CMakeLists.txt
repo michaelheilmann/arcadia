@@ -22,6 +22,8 @@ set(this ${MyProjectName}.Print)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Runtime/Logging")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Print/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Print/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/Print/print.c)
@@ -39,7 +41,5 @@ if (NOT TARGET ${this})
   set(${this}.Install TRUE)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "Runtime/Logging")
 
 endif()

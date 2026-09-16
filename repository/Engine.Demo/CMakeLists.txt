@@ -41,21 +41,12 @@ if (NOT TARGET ${this})
 
   OnSourceFile(${this} Arcadia/Engine/Demo/Main.c)
 
-  OnSourceFile(${this} Arcadia/Engine/Demo/Audials.c)
-  OnHeaderFile(${this} Arcadia/Engine/Demo/Audials.h)
-
-  OnSourceFile(${this} Arcadia/Engine/Demo/Visuals.c)
-  OnHeaderFile(${this} Arcadia/Engine/Demo/Visuals.h)
-
   OnSourceFile(${this} Arcadia/Starship/Viewer3D.c)
   OnHeaderFile(${this} Arcadia/Starship/Viewer3D.h)
   OnSourceFile(${this} Arcadia/Starship/OrientationChangeInputEvent.c)
   OnHeaderFile(${this} Arcadia/Starship/OrientationChangeInputEvent.h)
   OnSourceFile(${this} Arcadia/Starship/PositionChangeInputEvent.c)
   OnHeaderFile(${this} Arcadia/Starship/PositionChangeInputEvent.h)
-
-  OnSourceFile(${this} Arcadia/Engine/Demo/Configuration.c)
-  OnHeaderFile(${this} Arcadia/Engine/Demo/Configuration.h)
 
   OnSourceFile(${this} Arcadia/Engine/Demo/Scene.c)
   OnHeaderFile(${this} Arcadia/Engine/Demo/Scene.h)
@@ -76,10 +67,9 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Engine/Demo/Application.c)
   OnHeaderFile(${this} Arcadia/Engine/Demo/Application.h)
 
-  OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets)
+  OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
   OnModuleDependency(${this} ${MyProjectName}.Engine.UI PRIVATE)
-  OnModuleDependency(${this} ${MyProjectName}.Application PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.ADL PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.Engine.Audials.Implementation PRIVATE)

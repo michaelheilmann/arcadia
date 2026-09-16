@@ -263,6 +263,7 @@ onClassDefinitionNode
     symbol->scope = Arcadia_Languages_Scope_create(thread, moduleSymbol->scope);
   }
   if (Arcadia_Languages_Scope_contains(thread, moduleSymbol->scope, symbolName, Arcadia_BooleanValue_False)) {
+    Arcadia_FilePath* filePath = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"dummy.mil"));
     Arcadia_Languages_Diagnostics_add
       (
         thread, self->context->diagnostics,
@@ -271,7 +272,7 @@ onClassDefinitionNode
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"dummy.mil"))),
+            Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_toNative(thread, filePath, Arcadia_BooleanValue_False), filePath),
             Arcadia_SizeValue_Literal(0),
             symbolName
           )
@@ -316,7 +317,7 @@ onModuleDefinitionNode
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"dummy.mil"))),
+            Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_toNative(thread, moduleNode->moduleDirectoryPath, Arcadia_BooleanValue_False), moduleNode->moduleDirectoryPath),
             Arcadia_SizeValue_Literal(0),
             moduleSymbolName
           )
@@ -335,7 +336,7 @@ onModuleDefinitionNode
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, moduleNode->moduleDirectoryPath),
+            Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_toNative(thread, moduleNode->moduleDirectoryPath, Arcadia_BooleanValue_False), moduleNode->moduleDirectoryPath),
             Arcadia_SizeValue_Literal(0)
           )
       );
@@ -381,7 +382,7 @@ onEnumerationDefinitionNode
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"dummy.mil"))),
+            Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_toNative(thread, compilationUnitNode->filePath, Arcadia_BooleanValue_False), compilationUnitNode->filePath),
             Arcadia_SizeValue_Literal(0),
             symbolName
           )
@@ -425,7 +426,7 @@ onProcedureDefinitionNode
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"dummy.mil"))),
+            Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_toNative(thread, compilationUnitNode->filePath, Arcadia_BooleanValue_False), compilationUnitNode->filePath),
             Arcadia_SizeValue_Literal(0),
             symbolName
           )
@@ -524,7 +525,7 @@ Arcadia_MILC_EnterPhase_run
             (
               thread,
               Arcadia_Languages_DiagnosticType_Error,
-              Arcadia_Languages_InputFile_create(thread, moduleNode->moduleDirectoryPath)
+              Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_toNative(thread, moduleNode->moduleDirectoryPath, Arcadia_BooleanValue_False), moduleNode->moduleDirectoryPath)
             )
         );
     }

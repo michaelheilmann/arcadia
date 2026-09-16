@@ -52,15 +52,6 @@ Arcadia_MILC_TypeResolutionPhase_EnumerationCompleter_visitImpl
   );
 
 static void
-onCompleteVariable
-  (
-    Arcadia_Thread* thread,
-    Arcadia_MILC_TypeResolutionPhase_EnumerationCompleter* self,
-    Arcadia_MILC_Context* context,
-    Arcadia_MILC_VariableSymbol* symbol
-  );
-
-static void
 onCompleteEnumeration
   (
     Arcadia_Thread* thread,
@@ -189,7 +180,7 @@ onCompleteEnumerationConstant
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+            Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
             Arcadia_SizeValue_Literal(0),
             symbol,
             initializer->value

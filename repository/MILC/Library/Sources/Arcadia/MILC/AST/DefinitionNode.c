@@ -70,10 +70,11 @@ Arcadia_MILC_AST_DefinitionNode_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (0 != _numberOfArguments) {
+  if (1 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
+  self->startOffset = Arcadia_ValueStack_getSizeValue(thread, 1);
   self->compilationUnitNode = NULL;
   Arcadia_LeaveConstructor(Arcadia_MILC_AST_DefinitionNode);
 }
@@ -96,15 +97,4 @@ Arcadia_MILC_AST_DefinitionNode_visit
   if (self->compilationUnitNode) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->compilationUnitNode);
   }
-}
-
-Arcadia_MILC_AST_DefinitionNode*
-Arcadia_MILC_AST_DefinitionNode_create
-  (
-    Arcadia_Thread* thread
-  )
-{
-  _Arcadia_BeginCreate(Arcadia_MILC_AST_DefinitionNode);
-  Arcadia_ValueStack_pushNatural8Value(thread, 0);
-  _Arcadia_EndCreate(Arcadia_MILC_AST_DefinitionNode);
 }

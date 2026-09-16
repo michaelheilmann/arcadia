@@ -21,10 +21,11 @@ set(this ${MyProjectName}.Ring1.Tests.UTF8ArrayIteratorTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/Ring1")
+
+
 OnSourceFile(${this} Arcadia.Ring1.Tests.UTF8ArrayIteratorTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring1")

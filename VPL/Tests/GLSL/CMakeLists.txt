@@ -23,6 +23,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} test)
 
+  SetFolder(${this} ${MyTestFolder})
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/VPL/Tests/GLSL/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/VPL/Tests/GLSL/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/VPL/Tests/GLSL/Main.c)
@@ -32,7 +34,7 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)
 
   EndProduct(${this})
+
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)
-  set_target_properties(${this} PROPERTIES FOLDER ${MyTestFolder})
 
 endif()

@@ -20,7 +20,12 @@ cmake_minimum_required(VERSION 3.29)
 BeginTemplateEngine(${MyProjectName}.Engine.BuildDocs "Engine")
 
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/.Build/Arcadia/Engine/index.html"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/Engine/index.html"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
+  OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Module-Interface/index.html.te"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/Engine/Module-Interface/index.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
 EndTemplateEngine()
+
+add_subdirectory(Concepts-and-Terms)

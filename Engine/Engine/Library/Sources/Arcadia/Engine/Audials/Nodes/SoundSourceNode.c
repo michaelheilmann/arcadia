@@ -242,7 +242,7 @@ makeDSP
     Arcadia_ADL_SineWaveDefinition* sineWaveDefinition = (Arcadia_ADL_SineWaveDefinition*)definition;
     return (Arcadia_Media_DSP*)Arcadia_Media_DSP_SineWave_create(thread, sineWaveDefinition->frequency); // TODO: Unchecked cast from Natural32 to Integer32.
   } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)definition, _Arcadia_ADL_WhiteNoiseDefinition_getType(thread))) {
-    return (Arcadia_Media_DSP*)Arcadia_Media_DSP_WhiteNoise_create(thread);
+    return (Arcadia_Media_DSP*)Arcadia_Media_DSP_WhiteNoise_create(thread, 1u, 1.0f);
   } else {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);

@@ -21,10 +21,10 @@ set(this ${MyProjectName}.FontIO.Tests.CreateBitmapFontTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "FontIO")
+
 OnSourceFile(${this} Arcadia.FontIO.Tests.CreateBitmapFontTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.FontIO PRIVATE)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "FontIO")

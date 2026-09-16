@@ -22,6 +22,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Runtime/ARMS")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/ARMS/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/ARMS/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/ARMS/Include.c)
@@ -66,7 +68,5 @@ if (NOT TARGET ${this})
   set(${this}.Install TRUE)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "Runtime/ARMS")
 
 endif()

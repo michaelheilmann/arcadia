@@ -23,16 +23,18 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} test)
 
+  SetFolder(${this} ${MyTestFolder})
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/MILC/Tests/LineMap/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/MILC/Tests/LineMap/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/MILC/Tests/LineMap/Main.c)
 
-  OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets)
+  OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
   OnModuleDependency(${this} ${MyProjectName}.MILC PRIVATE)
 
   EndProduct(${this})
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)
-  set_target_properties(${this} PROPERTIES FOLDER ${MyTestFolder})
+
   CopyProductAssets(${this} ${MyTestFolder} ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 endif()

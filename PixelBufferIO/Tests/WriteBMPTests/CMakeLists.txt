@@ -21,10 +21,11 @@ set(this ${MyProjectName}.PixelBufferIO.Tests.WriteBMPTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "PixelBufferIO")
+
 OnSourceFile(${this} Arcadia.PixelBufferIO.Tests.WriteBMPTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.PixelBufferIO)
 
 EndProduct(${this})
 
-set_target_properties(${this} PROPERTIES FOLDER "PixelBufferIO")

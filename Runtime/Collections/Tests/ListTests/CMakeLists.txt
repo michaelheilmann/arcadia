@@ -21,6 +21,8 @@ set(this ${MyProjectName}.Collections.Tests.ListTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/Collections")
+
 OnSourceFile(${this} Main.c)
 OnSourceFile(${this} Arcadia.Ring2.Tests.ListTests/removeAt.c)
 OnHeaderFile(${this} Arcadia.Ring2.Tests.ListTests/removeAt.h)
@@ -28,5 +30,3 @@ OnHeaderFile(${this} Arcadia.Ring2.Tests.ListTests/removeAt.h)
 OnModuleDependency(${this} ${MyProjectName}.Collections PRIVATE)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/Collections")

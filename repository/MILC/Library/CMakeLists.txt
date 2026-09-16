@@ -22,6 +22,8 @@ set(this ${MyProjectName}.MILC)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "MILC")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/MILC/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/MILC/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/MILC/Include.c)
@@ -200,6 +202,15 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia/MILC/AST/Instructions/RaiseInstructionNode.h)
   OnSourceFile(${this} Arcadia/MILC/AST/Instructions/ReturnInstructionNode.c)
   OnHeaderFile(${this} Arcadia/MILC/AST/Instructions/ReturnInstructionNode.h)
+  
+  OnSourceFile(${this} Arcadia/MILC/AST/Instructions/LoadFieldInstructionNode.c)
+  OnHeaderFile(${this} Arcadia/MILC/AST/Instructions/LoadFieldInstructionNode.h)
+  OnSourceFile(${this} Arcadia/MILC/AST/Instructions/StoreFieldInstructionNode.c)
+  OnHeaderFile(${this} Arcadia/MILC/AST/Instructions/StoreFieldInstructionNode.h)
+  OnSourceFile(${this} Arcadia/MILC/AST/Instructions/LoadArgumentInstructionNode.c)
+  OnHeaderFile(${this} Arcadia/MILC/AST/Instructions/LoadArgumentInstructionNode.h)
+  OnSourceFile(${this} Arcadia/MILC/AST/Instructions/StoreArgumentInstructionNode.c)
+  OnHeaderFile(${this} Arcadia/MILC/AST/Instructions/StoreArgumentInstructionNode.h)
 
   OnSourceFile(${this} Arcadia/MILC/AST/DefinitionStatementNode.c)
   OnHeaderFile(${this} Arcadia/MILC/AST/DefinitionStatementNode.h)
@@ -269,6 +280,5 @@ if (NOT TARGET ${this})
   endif()
 
   EndProduct(${this})
-  set_target_properties(${this} PROPERTIES FOLDER "MILC")
 
 endif()

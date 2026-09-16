@@ -66,13 +66,15 @@ Arcadia_MILC_AST_RegisterOperandNode_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_MILC_AST_RegisterOperandNode);
-  {
-    Arcadia_ValueStack_pushNatural8Value(thread, 0);
-    Arcadia_superTypeConstructor(thread, _type, self);
-  }
-  if (1 != _numberOfArguments) {
+  if (2 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
+  }
+  {
+    Arcadia_Value startOffset = Arcadia_ValueStack_getValue(thread, 2);
+    Arcadia_ValueStack_pushValue(thread, &startOffset);
+    Arcadia_ValueStack_pushNatural8Value(thread, 1);
+    Arcadia_superTypeConstructor(thread, _type, self);
   }
   self->value = (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_String_getType(thread));
   Arcadia_LeaveConstructor(Arcadia_MILC_AST_RegisterOperandNode);
@@ -103,11 +105,12 @@ Arcadia_MILC_AST_RegisterOperandNode_create
   )
 {
   _Arcadia_BeginCreate(Arcadia_MILC_AST_RegisterOperandNode);
+  Arcadia_ValueStack_pushSizeValue(thread, startOffset);
   if (value) {
     Arcadia_ValueStack_pushObjectReferenceValue(thread, value);
   } else {
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }
-  Arcadia_ValueStack_pushNatural8Value(thread, 1);
+  Arcadia_ValueStack_pushNatural8Value(thread, 2);
   _Arcadia_EndCreate(Arcadia_MILC_AST_RegisterOperandNode);
 }

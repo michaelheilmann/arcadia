@@ -22,6 +22,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Engine")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Engine/UI/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Engine/UI/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/Engine/UI/Include.c)
@@ -51,7 +53,5 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.Engine)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "Engine")
 
 endif()

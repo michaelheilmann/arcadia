@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.BlanchedAlmond",
+  red : 255,
+  green : 235,
+  blue : 205,
+}

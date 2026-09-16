@@ -45,6 +45,7 @@ Arcadia_MILC_AST_ReturnInstructionNode*
 Arcadia_MILC_AST_ReturnInstructionNode_create
   (
     Arcadia_Thread* thread,
+    Arcadia_SizeValue startOffset,
     Arcadia_MILC_AST_OperandNode* operand
   );
 

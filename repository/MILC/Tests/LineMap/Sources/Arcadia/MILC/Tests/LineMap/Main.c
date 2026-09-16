@@ -16,15 +16,18 @@
 
 #include "Arcadia/MILC/Include.h"
 
+#include "Arcadia/Logging/Include.h"
+
 static void
 onTest
   (
     Arcadia_Thread* thread,
+    Arcadia_Languages_InputFileManager* inputFileManager,
     Arcadia_SizeValue lastLine,
     Arcadia_FilePath* sourceFilePath
   )
 {
-  Arcadia_Languages_InputFile* inputFile = Arcadia_Languages_InputFile_create(thread, sourceFilePath);
+  Arcadia_Languages_InputFile* inputFile = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, inputFileManager, Arcadia_FilePath_toNative(thread, sourceFilePath, Arcadia_BooleanValue_False), sourceFilePath);
   Arcadia_ByteArray* contents = Arcadia_Languages_InputFile_getContents(thread, inputFile);
   Arcadia_SizeValue n = Arcadia_ByteArray_getSize(thread, contents);
   Arcadia_Tests_assertTrue(thread, 1 == Arcadia_Languages_InputFile_getLine(thread, inputFile, 0));
@@ -44,8 +47,11 @@ main1
   )
 {
   Arcadia_Thread* thread = Arcadia_Process_getThread(process);
-  onTest(thread, 63, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Statements.mil")));
-  onTest(thread, 21, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Variables.mil")));
+  Arcadia_Log* log = (Arcadia_Log*)Arcadia_ConsoleLog_create(thread);
+  Arcadia_Languages_Diagnostics* diagnostics = Arcadia_Languages_Diagnostics_create(thread, log);
+  Arcadia_Languages_InputFileManager* inputFileManager = Arcadia_Languages_InputFileManager_create(thread, diagnostics);
+  onTest(thread, inputFileManager, 63, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Statements.mil")));
+  onTest(thread, inputFileManager, 21, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Variables.mil")));
 }
 
 int

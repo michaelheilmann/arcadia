@@ -21,10 +21,10 @@ set(this ${MyProjectName}.SampleBufferIO.Tests.WriteFLACTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "SampleBufferIO")
+
 OnSourceFile(${this} Arcadia.SampleBufferIO.Tests.WriteFLACTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.SampleBufferIO PRIVATE)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "SampleBufferIO")

@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.OliveDrab",
+  red : 107,
+  green : 142,
+  blue : 35,
+}

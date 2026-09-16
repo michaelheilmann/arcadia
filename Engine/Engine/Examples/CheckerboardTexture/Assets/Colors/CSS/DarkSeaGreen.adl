@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.DarkSeaGreen",
+  red : 143,
+  green : 188,
+  blue : 143,
+}

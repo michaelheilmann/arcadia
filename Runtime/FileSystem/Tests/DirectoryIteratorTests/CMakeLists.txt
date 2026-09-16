@@ -21,16 +21,16 @@ set(this ${MyProjectName}.FileSystem.Tests.DirectoryIteratorTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/FileSystem")
+
 OnSourceFile(${this} Main.c)
 
-OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets)
+OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
 OnModuleDependency(${this} ${MyProjectName}.FileSystem)
 OnModuleDependency(${this} ${MyProjectName}.Ring2)
 
 EndProduct(${this})
-
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/FileSystem")
 
 # Adjust working directory.
 set(${this}.WorkingDirectory $<TARGET_FILE_DIR:${this}>)

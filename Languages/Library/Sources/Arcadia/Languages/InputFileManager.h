@@ -42,6 +42,21 @@ Arcadia_Languages_InputFileManager_create
     Arcadia_Languages_Diagnostics* diagnostics
   );
 
+/// @brief Create a pyhsical input file.
+/// @param thread A pointer to this thread.
+/// @param self A pointer to this input file manager.
+/// @param diagnosticName The name of the input file as used in diagnostics.
+/// @param path The path of the file.
+/// @return The input file.
+Arcadia_Languages_InputFile*
+Arcadia_Languages_InputFileManager_createPhysicalInputFile
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_InputFileManager* self,
+    Arcadia_String* diagnosticName,
+    Arcadia_FilePath* path
+  ); 
+
 Arcadia_UnicodeCodePointReader*
 Arcadia_Languages_InputFileManager_getFileReader
   (

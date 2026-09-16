@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+<link rel='stylesheet' href='https://michaelheilmann.com/assets/cxx-doc.css?v=1'>
+<link rel='canonical' href='https://michaelheilmann.com/Arcadia/Visuals/'>
+<title>Michael Heilmann's Arcadia UI</title>
+<style>
+</style>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div>
+    <a href="https://michaelheilmann.com/">Home</a>
+    </div>
+  </header>
+<main>
+  <div class="left-column"></div>
+  <div class="center-column">
+  <h1>Michael Heilmann's Arcadia Visuals</h1>
+  <p>
+  This is the documentation for Michael  Heilmann's Arcadia UI.
+  Arcadia UI provides a user interface (windows, buttons, text fields, etc.) for <em>Michael Heilmann's Arcadia Engine</em>.
+  </p>
+
+  <p>
+  UI Basics:
+  A user interface consists of a UI canvas node in which UI widgets are placed.
+  The UI canvas node has a width and height, which may change, depending on the context in which the UI canvas is used.
+  For example, a UI canvas might resize according to the application's window inner size.
+  A UI canvas / its contained UI controls should react reasonably to these size changees.
+  </p>
+
+<h2>Documentation</h2>
+  </div>
+  <div class="right-column">
+    <nav>
+      <ul style="list-style: none">
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_ApplicationEvent">[MIL] Arcadia.Visuals.ApplicationEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_ApplicationEvent_construct">[MIL] Arcadia.Visuals.ApplicationEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_ApplicationQuitRequestedEvent">[MIL] Arcadia.Visuals.ApplicationQuitRequestedEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_ApplicationQuitRequestedEvent_constructt0">[MIL] Arcadia.Visuals.ApplicationQuitRequestedEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasEvent">[MIL] Arcadia.Visuals.CanvasEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasEvent_construct">[MIL] Arcadia.Visuals.CanvasEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasActivationStateChangedEvent">[MIL] Arcadia.Visuals.CanvasActivationStateChangedEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasActivationStateChangedEvent_construct">[MIL] Arcadia.Visuals.CanvasActivationStateChangedEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasDPIChangedEvent">[MIL] Arcadia.Visuals.CanvasDPIChangedEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasDPIChangedEvent_construct">[MIL] Arcadia.Visuals.CanvasDPIChangedEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasSizeChangedEvent">[MIL] ArcadiaVisuals.CanvasSizeChangedEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasSizeChangedEvent_construct">[MIL] Arcadia.Visuals.CanvasSizeChangedEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CullMode">Arcadia_Visuals_CullMode</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_DepthCompareFunction">Arcadia_Visuals_DepthCompareFunction</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_Event">[MIL] Arcadia.Visuals.Event</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_FillMode">Arcadia_Visuals_FillMode</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKey">Arcadia_Visuals_KeyboardKey</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKeyAction">Arcadia_Visuals_KeyboardKeyAction</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKeyEvent">[MIL] Arcadia.Visuals.KeyboardKeyEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKeyEvent_construct">[MIL] Arcadia.Visuals.KeyboardKeyEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKeyEvent_getAction">[MIL] Arcadia.Visuals.KeyboardKeyEvent.getAction</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_KeyboardKeyEvent_getKey">[MIL] Arcadia.Visuals.KeyboardKeyEvent.getKey</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_MouseButtonAction">Arcadia_Visuals_MouseButtonAction</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_MouseButtonEvent">[MIL] Arcadia.Visuals.MouseButtonEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_MouseButtonEvent_construct">[MIL] Arcadia.Visuals.MouseButtonEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_MousePointerAction">Arcadia_Visuals_MousePointerAction</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_MousePointerEvent">[MIL] Arcadia.Visuals.MousePointerEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_MousePointerEvent_construct">[MIL] Arcadia.Visuals.MousePointerEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_PixelFormat">Arcadia_Visuals_PixelFormat</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_PixelFormat_getNumberOfComponents">Arcadia_Visuals_PixelFormat_getNumberOfComponents</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_PixelFormat_getNumberOfBytes">Arcadia_Visuals_PixelFormat_getNumberOfBytes</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_TextureAddressMode">Arcadia_Visuals_TextureAddressMode</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_TextureFilter">Arcadia_Visuals_TextureFilter</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_VertexElementSemantics">Arcadia_Visuals_VertexElementSemantics</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_VertexElementSyntactics">Arcadia_Visuals_VertexElementSyntactics</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindingMode">Arcadia_Visuals_WindingMode</a></li>
+
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowClosed">[MIL] Arcadia.Visuals.WindowClosed</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowClosed_construct">[MIL] Arcadia.Visuals.WindowClosed.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowPositionChanged">[MIL] Arcadia.Visuals.WindowPositionChanged</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowPositionChanged_construct">[MIL] Arcadia.Visuals.WindowPositionChanged.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowSizeChanged">[MIL] Arcadia.Visuals.WindowSizeChanged</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowSizeChanged.construct">[MIL] Arcadia.Visuals.WindowSizeChanged.construct</a></li>
+      </ul>
+    </nav>
+  </div>
+  </main>
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column"></div>
+    <div class="right-column">
+      <div>Website maintained by Michael Heilmann.</div>
+      <div>Last modified on 21 September 2026.</div>
+    </div>
+  </footer>
+  </body>
+</html>
+

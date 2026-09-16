@@ -21,6 +21,8 @@ set(this ${MyProjectName}.FontIO)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "FontIO")
+
   # Always use freetype under Linux.
   if (${${this}_OperatingSystem} STREQUAL ${${this}_OperatingSystem_Linux})
     find_package(Freetype REQUIRED)
@@ -89,7 +91,5 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.Media)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "FontIO")
 
 endif()

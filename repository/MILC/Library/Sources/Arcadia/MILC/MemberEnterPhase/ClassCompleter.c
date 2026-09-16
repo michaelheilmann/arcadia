@@ -163,14 +163,19 @@ onCompleteConstructor
     Arcadia_MILC_AST_ConstructorDefinitionNode* node
   )
 { 
+  Arcadia_MILC_Environment* e =
+    Arcadia_Value_getObjectReferenceValueChecked
+      (
+        thread,
+        Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(classSymbol)),
+        _Arcadia_MILC_Environment_getType(thread)
+      );
   Arcadia_String* name = Arcadia_String_createFromCxxString(thread, u8"<constructor>");
   // Enter the constructor symbol into the class symbol.
   Arcadia_MILC_ConstructorSymbol* constructorSymbol = Arcadia_MILC_ConstructorSymbol_create(thread, name);
   constructorSymbol->ast = node;
   Arcadia_List_insertBack(thread, ((Arcadia_MILC_ClassSymbol*)classSymbol)->members, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)constructorSymbol));
   if (Arcadia_Languages_Scope_contains(thread, classSymbol->scope, ((Arcadia_MILC_Symbol*)constructorSymbol)->name, Arcadia_BooleanValue_False)) {
-    Arcadia_MILC_Environment* e = Arcadia_Value_getObjectReferenceValueChecked(thread, Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(constructorSymbol)),
-                                                                                _Arcadia_MILC_EnumerationSymbol_getType(thread));
     Arcadia_Languages_Diagnostics_add
       (
         thread, context->diagnostics,
@@ -179,7 +184,7 @@ onCompleteConstructor
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+            Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
             Arcadia_SizeValue_Literal(0),
             name
           )
@@ -198,8 +203,6 @@ onCompleteConstructor
     fieldSymbol->ast = fieldDefinitionNode;
     Arcadia_List_insertBack(thread, ((Arcadia_MILC_ConstructorSymbol*)constructorSymbol)->parameters, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)fieldSymbol));
     if (Arcadia_Languages_Scope_contains(thread, constructorSymbol->scope, ((Arcadia_MILC_Symbol*)fieldSymbol)->name, Arcadia_BooleanValue_False)) {
-      Arcadia_MILC_Environment* e  = Arcadia_Value_getObjectReferenceValueChecked(thread, Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(fieldSymbol)),
-                                                                                          _Arcadia_MILC_EnumerationSymbol_getType(thread));
       Arcadia_Languages_Diagnostics_add
         (
           thread, context->diagnostics,
@@ -208,7 +211,7 @@ onCompleteConstructor
             (
               thread,
               Arcadia_Languages_DiagnosticType_Error,
-              Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+              Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
               Arcadia_SizeValue_Literal(0),
               fieldDefinitionNode->name
             )
@@ -231,14 +234,19 @@ onCompleteField
     Arcadia_MILC_AST_FieldDefinitionNode* node
   )
 { 
+  Arcadia_MILC_Environment* e =
+    Arcadia_Value_getObjectReferenceValueChecked
+      (
+        thread,
+        Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(classSymbol)),
+        _Arcadia_MILC_Environment_getType(thread)
+      );
   // Enter the field symbol into the class symbol.
   Arcadia_MILC_VariableSymbol* fieldSymbol = Arcadia_MILC_VariableSymbol_create(thread, node->name);
   ((Arcadia_MILC_Symbol*)fieldSymbol)->enclosing = (Arcadia_MILC_Symbol*)classSymbol;
   fieldSymbol->ast = node;
   Arcadia_List_insertBack(thread, ((Arcadia_MILC_ClassSymbol*)classSymbol)->members, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)fieldSymbol));
   if (Arcadia_Languages_Scope_contains(thread, classSymbol->scope, ((Arcadia_MILC_Symbol*)fieldSymbol)->name, Arcadia_BooleanValue_False)) {
-    Arcadia_MILC_Environment* e = Arcadia_Value_getObjectReferenceValueChecked(thread, Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(fieldSymbol)),
-                                                                                                               _Arcadia_MILC_EnumerationSymbol_getType(thread));
     Arcadia_Languages_Diagnostics_add
       (
         thread, context->diagnostics,
@@ -247,7 +255,7 @@ onCompleteField
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+            Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
             Arcadia_SizeValue_Literal(0),
             node->name
           )
@@ -267,13 +275,18 @@ onCompleteMethod
     Arcadia_MILC_AST_MethodDefinitionNode* node
   )
 { 
+  Arcadia_MILC_Environment* e =
+    Arcadia_Value_getObjectReferenceValueChecked
+      (
+        thread,
+        Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(classSymbol)),
+        _Arcadia_MILC_Environment_getType(thread)
+      );
   // Enter the method symbol into the class symbol.
   Arcadia_MILC_MethodSymbol* methodSymbol = Arcadia_MILC_MethodSymbol_create(thread, node->name);
   methodSymbol->ast = node;
   Arcadia_List_insertBack(thread, ((Arcadia_MILC_ClassSymbol*)classSymbol)->members, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)methodSymbol));
   if (Arcadia_Languages_Scope_contains(thread, classSymbol->scope, ((Arcadia_MILC_Symbol*)methodSymbol)->name, Arcadia_BooleanValue_False)) {
-    Arcadia_MILC_Environment* e = Arcadia_Value_getObjectReferenceValueChecked(thread, Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(methodSymbol)),
-                                                                                       _Arcadia_MILC_EnumerationSymbol_getType(thread));
     Arcadia_Languages_Diagnostics_add
       (
         thread,
@@ -283,7 +296,7 @@ onCompleteMethod
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+            Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
             Arcadia_SizeValue_Literal(0),
             node->name
           )
@@ -299,8 +312,6 @@ onCompleteMethod
     fieldSymbol->ast = fieldDefinitionNode;
     Arcadia_List_insertBack(thread, ((Arcadia_MILC_ConstructorSymbol*)methodSymbol)->parameters, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)fieldSymbol));
     if (Arcadia_Languages_Scope_contains(thread, methodSymbol->scope, ((Arcadia_MILC_Symbol*)fieldSymbol)->name, Arcadia_BooleanValue_False)) {
-      Arcadia_MILC_Environment* e = Arcadia_Value_getObjectReferenceValueChecked(thread, Arcadia_Map_get(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(fieldSymbol)),
-                                                                                         _Arcadia_MILC_EnumerationSymbol_getType(thread));
       Arcadia_Languages_Diagnostics_add
         (
           thread, context->diagnostics,
@@ -309,7 +320,7 @@ onCompleteMethod
             (
               thread,
               Arcadia_Languages_DiagnosticType_Error,
-              Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+              Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
               Arcadia_SizeValue_Literal(0),
               fieldDefinitionNode->name
             )

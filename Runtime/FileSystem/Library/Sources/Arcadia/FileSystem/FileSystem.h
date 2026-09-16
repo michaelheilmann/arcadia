@@ -169,6 +169,13 @@ struct Arcadia_FileSystemDispatch {
       Arcadia_ByteArrayBuilder * contents
     );
 
+  Arcadia_FilePath*
+  (*createTemporaryFile)
+    (
+      Arcadia_Thread* thread,
+      Arcadia_FileSystem* self
+    );
+
 };
 
 struct Arcadia_FileSystem {
@@ -347,6 +354,13 @@ Arcadia_FileSystem_createDirectoryFiles
     Arcadia_Thread* thread,
     Arcadia_FileSystem* self,
     Arcadia_FilePath* path
+  );
+
+Arcadia_FilePath*
+Arcadia_FileSystem_createTemporaryFile
+  (
+    Arcadia_Thread* thread,
+    Arcadia_FileSystem* self
   );
 
 #endif // ARCADIA_FILESYSTEM_FILESYSTEM_H_INCLUDED

@@ -21,6 +21,8 @@ set(this ${MyProjectName}.Ring1.Tests.BigIntegerTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/Ring1")
+
 OnSourceFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/Additive.c)
 OnHeaderFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/Additive.h)
 OnSourceFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/And.c)
@@ -48,4 +50,3 @@ OnHeaderFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/DecimalString.h)
 OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
 
 EndProduct(${this})
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring1")

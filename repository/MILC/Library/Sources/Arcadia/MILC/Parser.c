@@ -508,6 +508,7 @@ onInvokeInstruction
     Arcadia_MILC_Parser* self
   )
 {
+  Arcadia_SizeValue invokeInstructionStartOffset = getStartOffset(thread, self);
   next(thread, self);
   if (!is(thread, self, Arcadia_MILC_WordType_Name)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
@@ -550,7 +551,7 @@ onInvokeInstruction
     Arcadia_Thread_jump(thread);
   }
   next(thread, self);
-  Arcadia_MILC_AST_InvokeInstructionNode* invokeInstructionNode = Arcadia_MILC_AST_InvokeInstructionNode_create(thread, calleeNode, operands);
+  Arcadia_MILC_AST_InvokeInstructionNode* invokeInstructionNode = Arcadia_MILC_AST_InvokeInstructionNode_create(thread, invokeInstructionStartOffset, calleeNode, operands);
   return invokeInstructionNode;
 }
 
@@ -568,8 +569,21 @@ onInvokeInstruction
 //   'return' <operand>?
 //
 // invokeInstruction :
-//   'invoke' variableOperand '(' ( <operand> (',' <operand>)* )? ')'
-//
+//   'invoke' <target> '(' ( <operand> (',' <operand>)* )? ')'
+// <target>  : register
+// <operand> : register
+// 
+// loadFieldInstruction:
+//   'loadField' <target> <source> <name>
+// <target> : register
+// <source> : register
+// <name>   : register
+// 
+// loadArgumentInstruction:
+//  'loadArgument' <target> <name>
+// <target> : register
+// <name>   : name
+// 
 // jumpInstruction :
 //   | 'jump' <label>
 //   | 'jumpIfTrue' <operand> <label>
@@ -594,6 +608,9 @@ onInvokeInstruction
 //   | 'negate' <target> <operand>
 //   | 'not' <target> <operand>
 //   | 'set' <target> <operand>
+// <target> : register
+// <operand> : register
+
 static Arcadia_MILC_AST_InstructionNode*
 onInstruction
   (
@@ -604,6 +621,7 @@ onInstruction
   switch (getType(thread, self)) {
     // binaryExpression
     case Arcadia_MILC_WordType_Add: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -618,9 +636,12 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_Add, target, firstOperand, secondOperand);
+      Arcadia_MILC_WordType wordType = getType(thread, self);
+      if (wordType == wordType) { }
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_Add, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_And: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -635,9 +656,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_And, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_And, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_Concatenate: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -652,9 +674,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_Concatenate, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_Concatenate, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_Divide: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -669,9 +692,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_Divide, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_Divide, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_Multiply: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -686,9 +710,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_Multiply, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_Multiply, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_Or: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -703,9 +728,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_Or, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_Or, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_Subtract: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -720,10 +746,11 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_Subtract, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_Subtract, target, firstOperand, secondOperand);
     } break;
     // relational operations
     case Arcadia_MILC_WordType_IsEqualTo: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -738,9 +765,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_IsEqualTo, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_IsEqualTo, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_IsNotEqualTo: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -755,9 +783,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_IsNotEqualTo, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_IsNotEqualTo, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_IsLowerThan: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -772,9 +801,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_IsLowerThan, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_IsLowerThan, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_IsLowerThanOrEqualTo: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -789,9 +819,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_IsLowerThanOrEqualTo, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_IsLowerThanOrEqualTo, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_IsGreaterThan: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -806,9 +837,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_IsGreaterThan, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_IsGreaterThan, target, firstOperand, secondOperand);
     } break;
     case Arcadia_MILC_WordType_IsGreaterThanOrEqualTo: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -823,10 +855,11 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* secondOperand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, Arcadia_MILC_AST_BinaryInstructionKind_IsGreaterThanOrEqualTo, target, firstOperand, secondOperand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_BinaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_BinaryInstructionKind_IsGreaterThanOrEqualTo, target, firstOperand, secondOperand);
     } break;
     // unaryExpression
     case Arcadia_MILC_WordType_Negate: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -835,9 +868,10 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* operand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_UnaryInstructionNode_create(thread, Arcadia_MILC_AST_UnaryInstructionKind_Negate, target, operand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_UnaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_UnaryInstructionKind_Negate, target, operand);
     } break;
     case Arcadia_MILC_WordType_Not: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -846,12 +880,13 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* operand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_UnaryInstructionNode_create(thread, Arcadia_MILC_AST_UnaryInstructionKind_Not, target, operand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_UnaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_UnaryInstructionKind_Not, target, operand);
     } break;
     case Arcadia_MILC_WordType_Invoke: {
       return (Arcadia_MILC_AST_InstructionNode*)onInvokeInstruction(thread, self);
     } break;
     case Arcadia_MILC_WordType_Set: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -860,33 +895,38 @@ onInstruction
       }
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* operand = onExpression(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_UnaryInstructionNode_create(thread, Arcadia_MILC_AST_UnaryInstructionKind_Set, target, operand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_UnaryInstructionNode_create(thread, startOffset, Arcadia_MILC_AST_UnaryInstructionKind_Set, target, operand);
     } break;
     case Arcadia_MILC_WordType_Raise: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_RaiseInstructionNode_create(thread);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_RaiseInstructionNode_create(thread, startOffset);
     } break;
     case Arcadia_MILC_WordType_Return: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* operand = NULL;
-      if (is(thread, self, Arcadia_MILC_WordType_BooleanLiteral) || is(thread, self, Arcadia_MILC_WordType_IntegerLiteral) || is(thread, self, Arcadia_MILC_WordType_RealLiteral) || is(thread, self, Arcadia_MILC_WordType_StringLiteral) || is(thread, self, Arcadia_MILC_WordType_Name)) {
+      if (is(thread, self, Arcadia_MILC_WordType_BooleanLiteral) || is(thread, self, Arcadia_MILC_WordType_IntegerLiteral) || is(thread, self, Arcadia_MILC_WordType_RealLiteral) || is(thread, self, Arcadia_MILC_WordType_StringLiteral) || is(thread, self, Arcadia_MILC_WordType_Name)  || is(thread, self, Arcadia_MILC_WordType_Register)) {
         operand = onExpression(thread, self);
       }
-      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_ReturnInstructionNode_create(thread, operand);
+      return (Arcadia_MILC_AST_InstructionNode*)Arcadia_MILC_AST_ReturnInstructionNode_create(thread, startOffset, operand);
     } break;
     case Arcadia_MILC_WordType_Jump: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Name)) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
         Arcadia_Thread_jump(thread);
       }
-      Arcadia_String* labelName = getText(thread, self);
+      Arcadia_String* name = getText(thread, self);
       next(thread, self);
       onEndOfStatement(thread, self);
-      Arcadia_MILC_AST_JumpInstructionNode* jumpNode = Arcadia_MILC_AST_JumpInstructionNode_create(thread, labelName);
+      Arcadia_MILC_AST_JumpInstructionNode* jumpNode = Arcadia_MILC_AST_JumpInstructionNode_create(thread, startOffset, name);
+      name = NULL;
       return (Arcadia_MILC_AST_InstructionNode*)jumpNode;
     } break;
     case Arcadia_MILC_WordType_JumpIfFalse: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* operand = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -898,13 +938,15 @@ onInstruction
         Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
         Arcadia_Thread_jump(thread);
       }
-      Arcadia_String* labelName = getText(thread, self);
+      Arcadia_String* name = getText(thread, self);
       next(thread, self);
-      Arcadia_MILC_AST_JumpInstructionNode* jumpNode = Arcadia_MILC_AST_JumpInstructionNode_create(thread, labelName);
+      Arcadia_MILC_AST_JumpInstructionNode* jumpNode = Arcadia_MILC_AST_JumpInstructionNode_create(thread, startOffset, name);
+      name = NULL;
       operand = NULL;
       return (Arcadia_MILC_AST_InstructionNode*)jumpNode;
     } break;
     case Arcadia_MILC_WordType_JumpIfTrue: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
       next(thread, self);
       Arcadia_MILC_AST_OperandNode* operand = onExpression(thread, self);
       if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
@@ -916,11 +958,101 @@ onInstruction
         Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
         Arcadia_Thread_jump(thread);
       }
-      Arcadia_String* labelName = getText(thread, self);
+      Arcadia_String* name = getText(thread, self);
       next(thread, self);
-      Arcadia_MILC_AST_JumpInstructionNode* jumpNode = Arcadia_MILC_AST_JumpInstructionNode_create(thread, labelName);
+      Arcadia_MILC_AST_JumpInstructionNode* jumpNode = Arcadia_MILC_AST_JumpInstructionNode_create(thread, startOffset, name);
+      name = NULL;
       operand = NULL;
       return (Arcadia_MILC_AST_InstructionNode*)jumpNode;
+    } break;
+    case Arcadia_MILC_WordType_LoadArgument: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
+      if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* name = onExpression(thread, self);
+      Arcadia_MILC_AST_LoadArgumentInstructionNode* node = Arcadia_MILC_AST_LoadArgumentInstructionNode_create(thread, startOffset, target, name);
+      name = NULL;
+      target = NULL;
+      return (Arcadia_MILC_AST_InstructionNode*)node;
+    } break;
+    case Arcadia_MILC_WordType_StoreArgument: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
+      if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* name = onExpression(thread, self);
+      if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* source = onExpression(thread, self);
+      if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      Arcadia_MILC_AST_StoreArgumentInstructionNode* node = Arcadia_MILC_AST_StoreArgumentInstructionNode_create(thread, startOffset, target, name, source);
+      source = NULL;
+      name = NULL;
+      target = NULL;
+      return (Arcadia_MILC_AST_InstructionNode*)node;
+    } break;
+    case Arcadia_MILC_WordType_LoadField: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
+      if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* source = onExpression(thread, self);
+      if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* name = onExpression(thread, self);
+      Arcadia_MILC_AST_LoadFieldInstructionNode* node = Arcadia_MILC_AST_LoadFieldInstructionNode_create(thread, startOffset, target, source, name);
+      name = NULL;  
+      source = NULL;
+      target = NULL;
+      return (Arcadia_MILC_AST_InstructionNode*)node;
+    } break;
+    case Arcadia_MILC_WordType_StoreField: {
+      Arcadia_SizeValue startOffset = getStartOffset(thread, self);
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* target = onExpression(thread, self);
+      if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* name = onExpression(thread, self);
+      if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      next(thread, self);
+      Arcadia_MILC_AST_OperandNode* source = onExpression(thread, self);
+      if (!is(thread, self, Arcadia_MILC_WordType_Comma)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      Arcadia_MILC_AST_StoreFieldInstructionNode* node = Arcadia_MILC_AST_StoreFieldInstructionNode_create(thread, startOffset, target, name, source);
+      source = NULL;
+      name = NULL;
+      target = NULL;
+      return (Arcadia_MILC_AST_InstructionNode*)node;
     } break;
     default: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
@@ -940,6 +1072,20 @@ onEndOfStatement
     return;
   }
   if (!is(thread, self, Arcadia_MILC_WordType_RightCurlyBracket) && !is(thread, self, Arcadia_MILC_WordType_LineTerminator)) {
+    Arcadia_Languages_Diagnostics_add
+      (
+        thread,
+        self->diagnostics,
+        (Arcadia_Languages_Diagnostic*)
+        Arcadia_MILC_Diagnostics_Syntactical_UnexpectedWordDiagnostic_create
+          (
+            thread,
+            Arcadia_Languages_DiagnosticType_Error,
+            Arcadia_MILC_Scanner_getFile(thread, (Arcadia_MILC_Scanner*)self->scanner),
+            getStartOffset(thread, self),
+            getType(thread, self)
+          )
+      );
     Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
     Arcadia_Thread_jump(thread);
   }

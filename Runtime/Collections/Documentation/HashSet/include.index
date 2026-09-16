@@ -1,2 +1,3 @@
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_HashSet">Arcadia_HashSet</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_HashSet_create">Arcadia_HashSet_create</a></li>
+<li>Hash Set</li>
+<li><a href="@{siteAddress}/Arcadia/Collections/#Arcadia_HashSet">Arcadia_HashSet</a></li>
+<li><a href="@{siteAddress}/Arcadia/Collections/#Arcadia_HashSet_create">Arcadia_HashSet_create</a></li>

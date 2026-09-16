@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.29)
 BeginTemplateEngine(${MyProjectName}.ARMS.BuildDocs "Runtime/ARMS")
 
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
-                   "${REPOSITORY_SOURCE_DIR}/.Build/Arcadia/ARMS/index.html"
+                    "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/ARMS/index.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
 EndTemplateEngine()

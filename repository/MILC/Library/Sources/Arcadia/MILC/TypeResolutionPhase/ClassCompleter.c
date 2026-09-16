@@ -218,7 +218,7 @@ onCompleteField
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+            Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
             Arcadia_SizeValue_Literal(0),
             typeName
           )
@@ -258,7 +258,7 @@ resolveParentClass
             (
               thread,
               Arcadia_Languages_DiagnosticType_Error,
-              Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+              Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
               Arcadia_SizeValue_Literal(0),
               objectTypeName
             )
@@ -286,7 +286,7 @@ resolveParentClass
             (
               thread,
               Arcadia_Languages_DiagnosticType_Error,
-              Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+              Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
               Arcadia_SizeValue_Literal(0),
               extendedClassName
             )
@@ -304,7 +304,7 @@ resolveParentClass
             (
               thread,
               Arcadia_Languages_DiagnosticType_Error,
-              Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+              Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
               Arcadia_SizeValue_Literal(0),
               extendedClassName
             )
@@ -341,7 +341,7 @@ onCompleteParentClass
             (
               thread,
               Arcadia_Languages_DiagnosticType_Error,
-              Arcadia_Languages_InputFile_create(thread, e->compilationUnitNode->filePath),
+              Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
               Arcadia_SizeValue_Literal(0),
               ((Arcadia_MILC_Symbol*)symbol)->name
             )

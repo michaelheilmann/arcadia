@@ -22,11 +22,13 @@ if (NOT TARGET ${MyTool})
 
   BeginProduct(${MyTool} executable)
 
+  SetFolder(${MyTool} "Tools/PixelBufferGenerator")
+
   OnConfigurationFile(${MyTool} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Tools/PixelBufferGenerator/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Tools/PixelBufferGenerator/Configure.h.i)
 
   OnSourceFile(${MyTool} Tools/PixelBufferGenerator/Main.c)
 
-  OnAssetsDirectory(${MyTool} ${CMAKE_CURRENT_SOURCE_DIR}/Assets)
+  OnAssetsDirectory(${MyTool} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
   OnModuleDependency(${MyTool} ${MyProjectName}.ADL PRIVATE)
   OnModuleDependency(${MyTool} ${MyProjectName}.PixelBufferIO PRIVATE)
@@ -49,6 +51,5 @@ if (NOT TARGET ${MyTool})
   set_target_properties(${MyTool} PROPERTIES VS_DEBUGGER_COMMAND_ARGUMENTS "${COMMAND_LINE}")
 
   #install(TARGETS ${MyTool} RUNTIME DESTINATION bin/$<CONFIG>) # Wrap into *Product API.
-  set_target_properties(${MyTool} PROPERTIES FOLDER "Tools/PixelBufferGenerator") # Wrap into *Product API.
 
 endif()

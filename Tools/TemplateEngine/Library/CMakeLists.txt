@@ -22,6 +22,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} library)
 
+  SetFolder(${this} "TemplateEngine")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia.TemplateEngine/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.TemplateEngine/Configure.h.i)
 
   OnSourceFile(${this} Arcadia.TemplateEngine/Diagnostics/UnexpectedSymbolDiagnostic.c)
@@ -61,7 +63,5 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.Ring2)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "TemplateEngine")
 
 endif()

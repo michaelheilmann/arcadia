@@ -26,7 +26,9 @@ typedef struct Arcadia_MILC_AST_VariableOperandNode Arcadia_MILC_AST_VariableOpe
 /// @endcode
 /// Represents an unary epxression like
 /// @code
-/// invoke variableOperand '(' (operand (',' operand)*)? ')'
+/// 'invoke' target '(' (operand (',' operand)*)? ')'
+/// target : name
+/// operand : register
 /// @endcode
 Arcadia_declareObjectType(u8"Arcadia.MILC.AST.InvokeInstructionNode", Arcadia_MILC_AST_InvokeInstructionNode,
                           u8"Arcadia.MILC.AST.InstructionNode");
@@ -45,6 +47,7 @@ Arcadia_MILC_AST_InvokeInstructionNode*
 Arcadia_MILC_AST_InvokeInstructionNode_create
   (
     Arcadia_Thread* thread,
+    Arcadia_SizeValue startOffset,
     Arcadia_MILC_AST_VariableOperandNode* callee,
     Arcadia_List* operands
   );

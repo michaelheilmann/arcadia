@@ -1,0 +1,7 @@
+{
+  type : "Color",
+  name : "MainMenuScene.MeshColor",
+  red : 167,
+  green : 255,
+  blue : 181,
+}

@@ -318,6 +318,20 @@ wordTypeToString
     case Arcadia_MILC_WordType_MultiLineComment: {
       return Arcadia_String_createFromCxxString(thread, u8"<multi line comment>");
     } break;
+
+    case Arcadia_MILC_WordType_LoadArgument: {
+      return Arcadia_String_createFromCxxString(thread, u8"`loadArgument`");
+    } break;
+    case Arcadia_MILC_WordType_StoreArgument: {
+      return Arcadia_String_createFromCxxString(thread, u8"`storeArgument`");
+    } break;
+    case Arcadia_MILC_WordType_LoadField: {
+      return Arcadia_String_createFromCxxString(thread, u8"`loadField`");
+    } break;
+    case Arcadia_MILC_WordType_StoreField: {
+      return Arcadia_String_createFromCxxString(thread, u8"`storeField`");
+    } break;
+
     default: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
       Arcadia_Thread_jump(thread);

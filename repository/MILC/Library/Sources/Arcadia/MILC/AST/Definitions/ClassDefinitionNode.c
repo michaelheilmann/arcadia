@@ -63,15 +63,16 @@ Arcadia_MILC_AST_ClassDefinitionNode_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_MILC_AST_ClassDefinitionNode);
-  {
-    Arcadia_ValueStack_pushNatural8Value(thread, 0);
-    Arcadia_superTypeConstructor(thread, _type, self);
-  }
-  if (3 != _numberOfArguments) {
+  if (4 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-
+  {
+    Arcadia_Value startOffset = Arcadia_ValueStack_getValue(thread, 4);
+    Arcadia_ValueStack_pushValue(thread, &startOffset);
+    Arcadia_ValueStack_pushNatural8Value(thread, 1);
+    Arcadia_superTypeConstructor(thread, _type, self);
+  }
   self->className = (Arcadia_MILC_AST_IdentifierNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_MILC_AST_IdentifierNode_getType(thread));
   if (Arcadia_ValueStack_isObjectReferenceValue(thread, 2)) {
     self->extendedClassName = (Arcadia_MILC_AST_IdentifierNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_MILC_AST_IdentifierNode_getType(thread));
@@ -122,6 +123,7 @@ Arcadia_MILC_AST_ClassDefinitionNode_create
   )
 {
   _Arcadia_BeginCreate(Arcadia_MILC_AST_ClassDefinitionNode);
+  Arcadia_ValueStack_pushSizeValue(thread, startOffset);
   if (className) {
     Arcadia_ValueStack_pushObjectReferenceValue(thread, className);
   } else {
@@ -137,6 +139,6 @@ Arcadia_MILC_AST_ClassDefinitionNode_create
   } else {
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }
-  Arcadia_ValueStack_pushNatural8Value(thread, 3);
+  Arcadia_ValueStack_pushNatural8Value(thread, 4);
   _Arcadia_EndCreate(Arcadia_MILC_AST_ClassDefinitionNode);
 }

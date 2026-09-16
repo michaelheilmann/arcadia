@@ -191,7 +191,7 @@ step2
               (
                 thread,
                 Arcadia_Languages_DiagnosticType_Error,
-                Arcadia_Languages_InputFile_create(thread, moduleFilePath),
+                Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, self->context->inputFileManager, Arcadia_FilePath_toNative(thread, moduleFilePath, Arcadia_BooleanValue_False), moduleFilePath),
                 Arcadia_MILC_FileType_CompilationUnit
               )
           );
@@ -205,14 +205,15 @@ step2
               (
                 thread,
                 Arcadia_Languages_DiagnosticType_Error,
-                Arcadia_Languages_InputFile_create(thread, moduleFilePath),
+                Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, self->context->inputFileManager, Arcadia_FilePath_toNative(thread, moduleFilePath, Arcadia_BooleanValue_False), moduleFilePath),
                 Arcadia_MILC_FileType_CompilationUnit
               )
           );
       }
       Arcadia_Languages_Diagnostics_emit(thread, self->context->diagnostics);
     } else {
-      Arcadia_Languages_InputFile* inputFile = Arcadia_Languages_InputFile_create(thread, moduleFilePath);
+      Arcadia_Languages_InputFile* inputFile =
+        Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, self->context->inputFileManager, Arcadia_FilePath_toNative(thread,moduleFilePath, Arcadia_BooleanValue_False), moduleFilePath);
       Arcadia_UnicodeCodePointReader* reader =  
           (Arcadia_UnicodeCodePointReader*)
           Arcadia_ByteReader_UnicodeCodePointReader_create
@@ -322,7 +323,8 @@ step3
         Arcadia_Log_information(thread, self->log, Arcadia_FilePath_toGeneric(thread, filePath));
         Arcadia_Log_information(thread, self->log, Arcadia_String_createFromCxxString(thread, u8"`\n"));
       #endif
-        Arcadia_Languages_InputFile* inputFile = Arcadia_Languages_InputFile_create(thread, filePath);
+        Arcadia_Languages_InputFile* inputFile =
+          Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, self->context->inputFileManager, Arcadia_FilePath_toNative(thread, filePath, Arcadia_BooleanValue_False), filePath);
         Arcadia_UnicodeCodePointReader* reader =
           (Arcadia_UnicodeCodePointReader*)
           Arcadia_ByteReader_UnicodeCodePointReader_create

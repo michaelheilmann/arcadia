@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.Goldenrod",
+  red : 218,
+  green : 165,
+  blue : 32,
+}

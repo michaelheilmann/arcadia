@@ -46,6 +46,7 @@ Arcadia_MILC_AST_JumpInstructionNode*
 Arcadia_MILC_AST_JumpInstructionNode_create
   (
     Arcadia_Thread* thread,
+    Arcadia_SizeValue startOffset,
     Arcadia_String* labelName
   );
 

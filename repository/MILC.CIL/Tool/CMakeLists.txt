@@ -22,6 +22,8 @@ if (NOT TARGET ${MyTool})
 
   BeginProduct(${MyTool} executable)
 
+  SetFolder(${MyTool} "MILC")
+
   OnConfigurationFile(${MyTool} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/MIL/Compiler/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/MIL/Compiler/Configure.h.i)
 
   OnSourceFile(${MyTool} Arcadia/MIL/Compiler/Main.c)
@@ -36,6 +38,5 @@ if (NOT TARGET ${MyTool})
 
   set(COMMAND_LINE "--mil2mil --configuration=\\\"${CMAKE_CURRENT_SOURCE_DIR}/../../../Modules.mil\\\"")
   set_target_properties(${MyTool} PROPERTIES VS_DEBUGGER_COMMAND_ARGUMENTS "${COMMAND_LINE}")
-  set_target_properties(${MyTool} PROPERTIES FOLDER "MILC")
 
 endif()

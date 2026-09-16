@@ -25,25 +25,34 @@ diagnostics
     Arcadia_Thread* thread
   )
 {
+  Arcadia_Log* log =  (Arcadia_Log*)Arcadia_ConsoleLog_create(thread);
+  Arcadia_Languages_Diagnostics* diagnostics = Arcadia_Languages_Diagnostics_create(thread, log);
+  Arcadia_Languages_InputFileManager* inputFileManager = Arcadia_Languages_InputFileManager_create(thread, diagnostics);
+
+  Arcadia_FilePath* path = NULL;
   Arcadia_Languages_InputFile* file = NULL;
 
-  file = Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/MyConfiguration.ddl")));
+  path = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/MyConfiguration.ddl"));
+  file = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, inputFileManager, Arcadia_FilePath_toGeneric(thread, path), path);
   Arcadia_MILC_Diagnostics_ConfigurationFileInvalidDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, file);
   Arcadia_MILC_Diagnostics_ConfigurationFileInvalidDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Warning, file);
   Arcadia_MILC_Diagnostics_ConfigurationFileInvalidDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Information, file);
 
-  file = Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/MyClass.mil")));
+  path = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/MyClass.mil"));
+  file = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, inputFileManager, Arcadia_FilePath_toGeneric(thread, path), path);
   Arcadia_MILC_Diagnostics_CyclicInheritanceDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, file, 0, Arcadia_String_createFromCxxString(thread, u8"MyClass"));
   Arcadia_MILC_Diagnostics_CyclicInheritanceDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Warning, file, 0, Arcadia_String_createFromCxxString(thread, u8"MyClass"));
   Arcadia_MILC_Diagnostics_CyclicInheritanceDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Information, file, 0, Arcadia_String_createFromCxxString(thread, u8"MyClass"));
 
-  file = Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/MyClass.mil")));
+  path = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/MyClass.mil"));
+  file = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, inputFileManager, Arcadia_FilePath_toGeneric(thread, path), path);
   Arcadia_MILC_Diagnostics_FileNotFoundDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, file, Arcadia_MILC_FileType_ModuleDirectory);
   Arcadia_MILC_Diagnostics_FileNotFoundDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Warning, file,Arcadia_MILC_FileType_ModuleDirectory);
   Arcadia_MILC_Diagnostics_FileNotFoundDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Information, file, Arcadia_MILC_FileType_ModuleDirectory);
 
   {
-    file = Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/MyEnumeration.mil")));
+    path = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/MyEnumeration.mil"));
+    file = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, inputFileManager, Arcadia_FilePath_toGeneric(thread, path), path);
     Arcadia_MILC_EnumerationConstantSymbol* symbol =
       Arcadia_MILC_EnumerationConstantSymbol_create(thread, Arcadia_String_createFromCxxString(thread, u8"Clockwise"));
     Arcadia_String* value =
@@ -61,7 +70,8 @@ diagnostics
   }
 
   {
-    file = Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/MyEnumeration.mil")));
+    path = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/MyEnumeration.mil"));
+    file = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, inputFileManager, Arcadia_FilePath_toNative(thread, path, Arcadia_BooleanValue_False), path);
     Arcadia_MILC_EnumerationConstantSymbol* symbol =
       Arcadia_MILC_EnumerationConstantSymbol_create(thread, Arcadia_String_createFromCxxString(thread, u8"Clockwise"));
     Arcadia_MILC_Diagnostics_MissingInitializerDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, file, 0, symbol);
@@ -69,18 +79,21 @@ diagnostics
     Arcadia_MILC_Diagnostics_MissingInitializerDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Information, file, 0, symbol);
   }
 
-  file = Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"MyModule/Module.mil")));
+  path = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"MyModule/Module.mil"));
+  file = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, inputFileManager, Arcadia_FilePath_toGeneric(thread, path), path);
   Arcadia_MILC_Diagnostics_MissingModuleDefinitionDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, file);
   Arcadia_MILC_Diagnostics_MissingModuleDefinitionDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Warning, file);
   Arcadia_MILC_Diagnostics_MissingModuleDefinitionDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Information, file);
 
-  file = Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"MyModule/Module.mil")));
+  path = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"MyModule/Module.mil"));
+  file = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, inputFileManager, Arcadia_FilePath_toGeneric(thread, path), path);
   Arcadia_MILC_Diagnostics_MultipleModuleDefinitionsDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, file, Arcadia_SizeValue_Literal(0));
   Arcadia_MILC_Diagnostics_MultipleModuleDefinitionsDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Warning, file, Arcadia_SizeValue_Literal(0));
   Arcadia_MILC_Diagnostics_MultipleModuleDefinitionsDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Information, file, Arcadia_SizeValue_Literal(0));
 
   {
-    file = Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"MyModule/MyProcedure.mil")));
+    path = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"MyModule/MyProcedure.mil"));
+    file = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, inputFileManager, Arcadia_FilePath_toNative(thread, path, Arcadia_BooleanValue_False), path);
     Arcadia_String* symbolName = Arcadia_String_createFromCxxString(thread, u8"MyProcedure");
     Arcadia_MILC_Diagnostics_SymbolIsAlreadyDefinedDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, file, Arcadia_SizeValue_Literal(0), symbolName);
     Arcadia_MILC_Diagnostics_SymbolIsAlreadyDefinedDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Warning, file, Arcadia_SizeValue_Literal(0), symbolName);
@@ -88,7 +101,8 @@ diagnostics
   }
 
   {
-    file = Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"MyModule/MyProcedure.mil")));
+    path = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"MyModule/MyProcedure.mil"));
+    file = Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, inputFileManager, Arcadia_FilePath_toNative(thread, path, Arcadia_BooleanValue_False), path);
     Arcadia_String* symbolName = Arcadia_String_createFromCxxString(thread, u8"MyProcedure");
     Arcadia_MILC_Diagnostics_SymbolIsNoClassDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, file, Arcadia_SizeValue_Literal(0), symbolName);
     Arcadia_MILC_Diagnostics_SymbolIsNoClassDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Warning, file, Arcadia_SizeValue_Literal(0), symbolName);

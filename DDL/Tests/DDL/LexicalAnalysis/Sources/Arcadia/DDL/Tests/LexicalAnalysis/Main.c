@@ -29,13 +29,16 @@ expectAndNext
     Arcadia_SizeValue wordTextNumberOfBytes
   )
 {
-  if (tokenType != Arcadia_Languages_Scanner_getWordType(thread, (Arcadia_Languages_Scanner*)scanner)) {
+  Arcadia_Integer32Value receivedTokenType = Arcadia_Languages_Scanner_getWordType(thread, (Arcadia_Languages_Scanner*)scanner);
+  if (tokenType != receivedTokenType) {
+    Arcadia_logf(Arcadia_LogFlags_Error, "expected token type %d, received %d\n", tokenType, receivedTokenType);
     Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
     Arcadia_Thread_jump(thread);
   }
   Arcadia_String* wordText = Arcadia_Languages_Scanner_getWordText(thread, (Arcadia_Languages_Scanner*)scanner);
   if (Arcadia_String_getNumberOfBytes(thread, wordText) != wordTextNumberOfBytes ||
       Arcadia_Memory_compare(thread, Arcadia_String_getBytes(thread, wordText), wordTextBytes, wordTextNumberOfBytes)) {
+    Arcadia_logf(Arcadia_LogFlags_Error, "expected token text `%.*s`, received `%.*s`\n", (int)wordTextNumberOfBytes, wordTextBytes, (int)Arcadia_String_getNumberOfBytes(thread, wordText), Arcadia_String_getBytes(thread, wordText));
     Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
     Arcadia_Thread_jump(thread);
   }
@@ -80,12 +83,19 @@ testScanner2
     u8"false "
     u8"void "
     u8"1 "
-    u8"6.2831"
+    u8"6.2831 "
+    u8"+1 "
+    u8"-1 "
+    u8"1. "
+    u8".1 "
+    u8"+.1 "
+    u8"-.1"
     ;
   Arcadia_DDL_Scanner* scanner = Arcadia_DDL_Scanner_create(thread, Arcadia_Languages_StringTable_getOrCreate(thread),
                                                                     Arcadia_Languages_Diagnostics_create(thread, (Arcadia_Log*)Arcadia_ConsoleLog_create(thread)));
   Arcadia_UnicodeCodePointReader* reader = (Arcadia_UnicodeCodePointReader*)Arcadia_ByteReader_UnicodeCodePointReader_create(thread, (Arcadia_ByteReader*)Arcadia_ByteArray_ByteReader_create(thread, Arcadia_ByteArray_createByteArray(thread, Arcadia_RuntimeByteArray_create(thread, input, strlen(input)))));
   Arcadia_Languages_Scanner_setInput(thread, (Arcadia_Languages_Scanner*)scanner, reader);
+
   expectAndNext(thread, scanner, Arcadia_DDL_WordType_StartOfInput, u8"<start of input>", sizeof(u8"<start of input>") - 1);
   expectAndNext(thread, scanner, Arcadia_DDL_WordType_Comma, u8",", sizeof(u8",") - 1);
   expectAndNext(thread, scanner, Arcadia_DDL_WordType_Colon, u8":", sizeof(u8":") - 1);
@@ -109,6 +119,18 @@ testScanner2
   expectAndNext(thread, scanner, Arcadia_DDL_WordType_IntegerLiteral, u8"1", sizeof(u8"1") - 1);
   expectAndNext(thread, scanner, Arcadia_DDL_WordType_WhiteSpace, u8" ", sizeof(u8" ") - 1);
   expectAndNext(thread, scanner, Arcadia_DDL_WordType_RealLiteral, u8"6.2831", sizeof(u8"6.2831") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_WhiteSpace, u8" ", sizeof(u8" ") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_IntegerLiteral, u8"+1", sizeof(u8"+1") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_WhiteSpace, u8" ", sizeof(u8" ") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_IntegerLiteral, u8"-1", sizeof(u8"-1") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_WhiteSpace, u8" ", sizeof(u8" ") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_RealLiteral, u8"1.", sizeof(u8"1.") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_WhiteSpace, u8" ", sizeof(u8" ") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_RealLiteral, u8".1", sizeof(u8".1") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_WhiteSpace, u8" ", sizeof(u8" ") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_RealLiteral, u8"+.1", sizeof(u8"+.1") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_WhiteSpace, u8" ", sizeof(u8" ") - 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_RealLiteral, u8"-.1", sizeof(u8"-.1") - 1);
   expectAndNext(thread, scanner, Arcadia_DDL_WordType_EndOfInput, u8"<end of input>", sizeof(u8"<end of input>") - 1);
 }
 

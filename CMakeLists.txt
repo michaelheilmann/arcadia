@@ -91,7 +91,6 @@ add_subdirectory(FontIO)
 
 add_subdirectory(Engine/Engine)
 add_subdirectory(Engine/UI)
-add_subdirectory(Engine/Application)
 add_subdirectory(Engine/Audials.Implementation)
 
 add_subdirectory(Documentation)

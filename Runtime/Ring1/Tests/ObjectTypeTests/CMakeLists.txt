@@ -21,6 +21,8 @@ set(this ${MyProjectName}.Ring1.Tests.ObjectTypeTests)
 # Create test executable.
 BeginProduct(${this} test)
 
+SetFolder(${this} "Runtime/Ring1")
+
 OnSourceFile(${this} Arcadia.Ring1.Tests.ObjectTypeTests/Main.c)
 
 OnSourceFile(${this} Arcadia.Ring1.Tests.ObjectTypeTests/MyObjectA.c)
@@ -32,4 +34,3 @@ OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
 
 EndProduct(${this})
 
-set_target_properties(${this} PROPERTIES FOLDER "Runtime/Ring1")

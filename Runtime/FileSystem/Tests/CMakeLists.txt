@@ -18,3 +18,4 @@ cmake_minimum_required(VERSION 3.29)
 
 add_subdirectory(FilePathTests)
 add_subdirectory(DirectoryIteratorTests)
+add_subdirectory(FileContentsTests)

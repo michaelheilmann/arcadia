@@ -18,8 +18,8 @@
 #define ARCADIA_MEDIA_INCLUDE_H_INCLUDED
 
 // If a file x belongs to a module a and ARCADIA_a_MODULE is not defined, then that file shall raise a compile-time error.
-#pragma push_macro("ARCADIA_MEDIA_MODULE")
-#define ARCADIA_MEDIA_MODULE (1)
+#pragma push_macro("ARCADIA_MEDIA_PRIVATE")
+#define ARCADIA_MEDIA_PRIVATE (1)
 
 // If a file x of a module a is not an export file of that module and ARCADIA_a_EXPORT is defined, then that file shall raise a compile-time error.
 #pragma push_macro("ARCADIA_MEDIA_EXPORT")
@@ -32,6 +32,15 @@
 #include "Arcadia/Media/PixelFormat.h"
 
 #include "Arcadia/Media/SampleBuffer.h"
+#include "Arcadia/Media/DSP/Affine.h"
+#include "Arcadia/Media/DSP/Buffer.h"
+#include "Arcadia/Media/DSP/BrownNoise.h"
+#include "Arcadia/Media/DSP/Gain.h"
+#include "Arcadia/Media/DSP/Graph.h"
+#include "Arcadia/Media/DSP/LowPass.h"
+#include "Arcadia/Media/DSP/Mix.h"
+#include "Arcadia/Media/DSP/Multiply.h"
+#include "Arcadia/Media/DSP/SawtoothWave.h"
 #include "Arcadia/Media/DSP/SineWave.h"
 #include "Arcadia/Media/DSP/WhiteNoise.h"
 #include "Arcadia/Media/SampleFormat.h"
@@ -47,7 +56,7 @@
 #undef ARCADIA_MEDIA_EXPORT
 #pragma pop_macro("ARCADIA_MEDIA_EXPORT")
 
-#undef ARCADIA_MEDIA_MODULE
-#pragma pop_macro("ARCADIA_MEDIA_MODULE")
+#undef ARCADIA_MEDIA_PRIVATE
+#pragma pop_macro("ARCADIA_MEDIA_PRIVATE")
 
 #endif // ARCADIA_MEDIA_INCLUDE_H_INCLUDED

@@ -1,8 +1,10 @@
 #include "Arcadia/Engine/Demo/Application.h"
 
-#include "Arcadia/Engine/Demo/Configuration.h"
-#include "Arcadia/Engine/Demo/Audials.h"
-#include "Arcadia/Engine/Demo/Visuals.h"
+#include "Arcadia/Engine/Include.h"
+
+#include "Arcadia/Audials/Implementation/Include.h"
+#include "Arcadia/Visuals/Implementation/Include.h"
+
 #include <stdlib.h>
 
 static void
@@ -63,10 +65,14 @@ Arcadia_Engine_Demo_Application_startupImpl
     Arcadia_Engine_Demo_Application* self
   )
 {
-  // Startup visuals.
-  Arcadia_Engine_Application_startupVisuals(thread, ((Arcadia_Engine_Application*)self)->engine, ((Arcadia_Engine_Application*)self)->configuration, ((Arcadia_Engine_Application*)self)->windows);
-  // Startup audials.
-  Arcadia_Engine_Application_startupAudials(thread, ((Arcadia_Engine_Application*)self)->engine, ((Arcadia_Engine_Application*)self)->configuration);
+  // (1) Register audials backends.
+  Arcadia_Engine_Audials_Implementation_registerBackends(thread, ((Arcadia_Engine_Application*)self)->engine->audialsBackendTypes);
+  // (2) Startup audials.
+  Arcadia_Engine_ApplicationHelper_startupAudials(thread, ((Arcadia_Engine_Application*)self)->engine, ((Arcadia_Engine_Application*)self)->configuration);
+  // (3) Register visuals backends.
+  Arcadia_Engine_Visuals_Implementation_registerBackends(thread, ((Arcadia_Engine_Application*)self)->engine->visualsBackendTypes);
+  // (4) Startup visuals.
+  Arcadia_Engine_ApplicationHelper_startupVisuals(thread, ((Arcadia_Engine_Application*)self)->engine, ((Arcadia_Engine_Application*)self)->configuration, ((Arcadia_Engine_Application*)self)->windows);
 }
 
 static void
@@ -82,7 +88,7 @@ Arcadia_Engine_Demo_Application_shutdownImpl
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
-    Cfg_saveConfiguration(thread, ((Arcadia_Engine_Application*)self)->configuration);
+    Arcadia_Engine_ApplicationConfiguration_saveConfiguration(thread, ((Arcadia_Engine_Application*)self)->configuration);
     Arcadia_Thread_popJumpTarget(thread);
   } else {
     Arcadia_Thread_popJumpTarget(thread);
@@ -135,7 +141,7 @@ Arcadia_Engine_Demo_Application_construct
     Arcadia_Thread_jump(thread);
   }
   //
-  ((Arcadia_Engine_Application*)self)->configuration = (Arcadia_DDL_Node*)Cfg_loadConfiguration(thread);
+  ((Arcadia_Engine_Application*)self)->configuration = (Arcadia_DDL_Node*)Arcadia_Engine_ApplicationConfiguration_loadConfiguration(thread);
   self->sceneManager = Arcadia_Engine_Demo_SceneManager_create(thread, ((Arcadia_Engine_Application*)self)->engine);
   self->sceneOnQuitRequestedSlot = NULL;
   //

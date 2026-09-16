@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.DarkMagenta",
+  red : 139,
+  green : 0,
+  blue : 139,
+}

@@ -14,26 +14,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_MEDIA_VERTEXELEMENTSYNTACTICS_H_INCLUDED)
+#ifndef ARCADIA_MEDIA_VERTEXELEMENTSYNTACTICS_H_INCLUDED
 #define ARCADIA_MEDIA_VERTEXELEMENTSYNTACTICS_H_INCLUDED
 
-#if !defined(ARCADIA_MEDIA_MODULE) || 1 != ARCADIA_MEDIA_MODULE
-  #error("do not include directly, include `Arcadia/Media/Include.h` instead")
+#if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
+  #error("do not include `Arcadia/Media/VertexElementSyntactics.h` directly, include `Arcadia/Media/Include.h` instead")
 #endif
-#include "Arcadia/Ring2/Include.h"
 
-// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_VertexElementSyntactics
-Arcadia_declareEnumerationType(u8"Arcadia.Media.VertexElementSyntactics", Arcadia_Media_VertexElementSyntactics);
+#include "Arcadia/Ring1/Include.h"
+
+Arcadia_declareEnumerationType("Arcadia.Media.VertexElementSyntactics",
+                               Arcadia_Media_VertexElementSyntactics);
 
 enum Arcadia_Media_VertexElementSyntactics {
 
   Arcadia_Media_VertexElementSyntactics_Real32 = 1,
 
-  Arcadia_Media_VertexElementSyntactics_Real32Real32,
+  Arcadia_Media_VertexElementSyntactics_Real32Real32 = 2,
 
-  Arcadia_Media_VertexElementSyntactics_Real32Real32Real32,
+  Arcadia_Media_VertexElementSyntactics_Real32Real32Real32 = 3,
 
-  Arcadia_Media_VertexElementSyntactics_Real32Real32Real32Real32,
+  Arcadia_Media_VertexElementSyntactics_Real32Real32Real32Real32 = 4,
 
 };
 

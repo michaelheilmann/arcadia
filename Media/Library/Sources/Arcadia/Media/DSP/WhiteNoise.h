@@ -17,14 +17,16 @@
 #if !defined(ARCADIA_MEDIA_DSP_WHITENOISE_H_INCLUDED)
 #define ARCADIA_MEDIA_DSP_WHITENOISE_H_INCLUDED
 
-#if !defined(ARCADIA_MEDIA_MODULE) || 1 != ARCADIA_MEDIA_MODULE
+#if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
   #error("do not include directly, include `Arcadia/Media/Include.h` instead")
 #endif
-#include "Arcadia/ADL/Include.h"
 #include "Arcadia/Media/DSP.h"
 
-/// @brief A DSP generating white noise.
-/// @todo We use rand() here. We must not use rand() as it is in general not thread safe.
+/// @brief A source DSP generating white noise.
+///
+/// The node uses deterministic xorshift pseudo-random generation. The generator
+/// state is stored on the node and preserved across render calls. Samples are in
+/// the range [-amplitude, +amplitude].
 Arcadia_declareObjectType(u8"Arcadia.Media.DSP.WhiteNoise", Arcadia_Media_DSP_WhiteNoise,
                           u8"Arcadia.Media.DSP");
 
@@ -34,13 +36,22 @@ struct Arcadia_Media_DSP_WhiteNoiseDispatch {
 
 struct Arcadia_Media_DSP_WhiteNoise {
   Arcadia_Media_DSP parent;
-  Arcadia_ADL_WhiteNoiseDefinition* definition;
+  Arcadia_Natural32Value initialSeed;
+  Arcadia_Natural32Value randomState;
+  Arcadia_Real32Value amplitude;
 };
 
+/// @brief Create a white-noise source.
+/// @param thread A pointer to this thread.
+/// @param seed Initial pseudo-random generator seed. Zero is remapped internally.
+/// @param amplitude Output amplitude multiplier.
+/// @return The created white-noise node.
 Arcadia_Media_DSP_WhiteNoise*
 Arcadia_Media_DSP_WhiteNoise_create
   (
-    Arcadia_Thread* thread
+    Arcadia_Thread* thread,
+    Arcadia_Natural32Value seed,
+    Arcadia_Real32Value amplitude
   );
 
 #endif // ARCADIA_MEDIA_DSP_WHITENOISE_H_INCLUDED

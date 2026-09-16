@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.LightGreen",
+  red : 144,
+  green : 238,
+  blue : 144,
+}

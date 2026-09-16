@@ -1,0 +1,8 @@
+/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
+{
+  type : "Color",
+  name : "Colors.Salmon",
+  red : 250,
+  green : 128,
+  blue : 114,
+}

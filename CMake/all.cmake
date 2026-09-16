@@ -133,6 +133,8 @@ macro(BeginProduct target type)
 
   BeginFileCopy(${target})
 
+  # Set the folder.
+  set(${target}.Folder "")
   # Store the product type.
   set(${target}.Type ${type})
 
@@ -364,9 +366,18 @@ macro(EndProduct target)
     endif()
 
   endif()
-
+  
+  # Set the folder.
+  if (${target}.Folder)
+    #message(FATAL_ERROR "${target}.Folder := ${${target}.Folder}")
+    set_target_properties(${target} PROPERTIES FOLDER ${${target}.Folder})
+  endif()
 endmacro()
 
+# @remark Can only be used between `BeginProduct` and `EndProduct`.
+macro(SetFolder target folder)
+  set(${target}.Folder ${folder})
+endmacro()
 
 # @param target the target to which targetFile becomes a dependency to
 # @param sourceFile the source file.
@@ -376,15 +387,21 @@ macro(MyCopyFile target sourceFile targetFile)
   list(APPEND ${target}.copyFiles.targets ${targetFile})
 endmacro()
 
+# @brief Copies the contents of the source directory to the target directory.
+# @param sourceDirectory The source directory.
+# @param targetDirectory The target directory.
 # @remark Can only be used between `BeginProduct` and `EndProduct`.
 # @todo Raise an error if the file does not exist.
-macro(OnAssetsDirectory target directory)
- file(GLOB_RECURSE files RELATIVE ${directory} "${directory}/*")
+macro(OnAssetsDirectory target sourceDirectory targetDirectory)
+ # Get the files and the directories.
+ file(GLOB_RECURSE files RELATIVE ${sourceDirectory} "${sourceDirectory}/*")
  foreach (_file ${files})
-   message(STATUS "(directory, file) := (${directory}, ${_file})")
-   list(APPEND ${target}.Assets.Directories ${directory})
+   message(STATUS "(directory, file) := (${sourceDirectory}, ${_file})")
+   list(APPEND ${target}.Assets.Directories ${sourceDirectory})
    list(APPEND ${target}.Assets.Files ${_file})
  endforeach()
+ # Set the target directories.
+ set(${target}.Assets.TargetDirectory ${targetDirectory})
 endmacro()
 
 # Define a template engine template file.

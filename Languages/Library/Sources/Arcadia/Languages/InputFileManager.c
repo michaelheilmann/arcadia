@@ -17,7 +17,7 @@
 #define ARCADIA_LANGUAGES_MODULE (1)
 #include "Arcadia/Languages/InputFileManager.h"
 
-#include "Arcadia/Languages/InputFile.h"
+#include "Arcadia/Languages/InputFileManager/PhysicalInputFile.h"
 
 static void
 Arcadia_Languages_InputFileManager_constructImpl
@@ -129,77 +129,15 @@ Arcadia_Languages_InputFileManager_create
   _Arcadia_EndCreate(Arcadia_Languages_InputFileManager);
 }
 
-#if 0
-// We re-read the code points of the file until we reach its end or an error.
-// In either case, we stop. 
-// The initial line length is l = 0;
-// We start reading code points. 
-// - If the read code point is an error or we reach the end of the file.
-//   push l to the line map and stop.
-// - If the read code point is
-//  - '\n' or '\r' then l += 1 and advance to the next code point.
-//  - if the next code point is '\n' or '\r' or it is an invalid code point and not equal to the previous code point then l += 1.
-//  - push l to the line map and continue.
-// @return An array of Arcadia.Size values.
-// Each value denotes the offset, in Bytes from the beginnin of the input file, to the start of the line.
-// (Consequently, the first value is always 0).
-static Arcadia_List*
-builtLineMap
+Arcadia_Languages_InputFile*
+Arcadia_Languages_InputFileManager_createPhysicalInputFile
   (
     Arcadia_Thread* thread,
     Arcadia_Languages_InputFileManager* self,
-    Arcadia_FilePath* path,
-    Arcadia_Languages_Diagnostics* diagnostics
-   )
-{
-  Arcadia_List* lineMap = (Arcadia_List*)Arcadia_ArrayList_create(thread);
-  Arcadia_UnicodeCodePointReader* reader = Arcadia_Languages_InputFileManager_getFileReader(thread, self, path);
-  Arcadia_SizeValue offset = 0;
-  while (Arcadia_BooleanValue_True) {
-    if (Arcadia_UnicodeCodePointReader_hasError(thread, reader)) {
-      Arcadia_List_insertBackNatural32Value(thread,lineMap, offset);
-      break;
-    } else if (!Arcadia_UnicodeCodePointReader_hasValue(thread, reader)) {
-      Arcadia_List_insertBackNatural32Value(thread, lineMap, offset);
-      break;
-    } else {
-      Arcadia_Natural32Value codePoint = Arcadia_UnicodeCodePointReader_getValue(thread, reader);
-      if (codePoint == '\n' || codePoint == '\r') {
-        if (Arcadia_SizeValue_Maximum - offset < 1) {
-          Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid); /* The file is just too big. */
-          Arcadia_Thread_jump(thread);
-          break;
-        }
-        offset++;
-        Arcadia_UnicodeCodePointReader_nextValue(thread, reader);
-        if (Arcadia_UnicodeCodePointReader_hasValue(thread, reader)) {
-          Arcadia_Natural32Value oldCodePoint = codePoint;
-          codePoint = Arcadia_UnicodeCodePointReader_getValue(thread, reader);
-          if ((codePoint == '\n' || codePoint == '\r') && codePoint != oldCodePoint) {
-            if (Arcadia_SizeValue_Maximum - offset < 1) {
-              Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid); /* The file is just too big. */
-              Arcadia_Thread_jump(thread);
-            }
-            offset++;
-            Arcadia_UnicodeCodePointReader_nextValue(thread, reader);
-            Arcadia_List_insertBackNatural32Value(thread, lineMap, offset);
-          }
-        }
-      } else {
-        Arcadia_SizeValue codePointLength;
-        Arcadia_UnicodeCodePointReader_getByteRange(thread, reader, NULL, &codePointLength);
-        if (Arcadia_SizeValue_Maximum - offset < codePointLength) {
-          Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid); /* The file is just too big. */
-          Arcadia_Thread_jump(thread);
-        }
-        offset += codePointLength;
-        Arcadia_UnicodeCodePointReader_nextValue(thread, reader);
-      }
-    }
-  }
-  return lineMap;
-}
-#endif
+    Arcadia_String* diagnosticName,
+    Arcadia_FilePath* path
+  )
+{ return (Arcadia_Languages_InputFile*)Arcadia_Languages_PhysicalInputFile_create(thread, diagnosticName, path); }
 
 Arcadia_UnicodeCodePointReader*
 Arcadia_Languages_InputFileManager_getFileReader
@@ -209,7 +147,7 @@ Arcadia_Languages_InputFileManager_getFileReader
     Arcadia_FilePath* path
   )
 {
-  Arcadia_Languages_InputFile* inputFile = Arcadia_Languages_InputFile_create(thread, path);
+  Arcadia_Languages_InputFile* inputFile = Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_toNative(thread, path, Arcadia_BooleanValue_False), path);
   Arcadia_ByteArray* inputFileContents = Arcadia_Languages_InputFile_getContents(thread, inputFile);
   return (Arcadia_UnicodeCodePointReader*)Arcadia_ByteReader_UnicodeCodePointReader_create(thread, (Arcadia_ByteReader*)Arcadia_ByteArray_ByteReader_create(thread, inputFileContents));
 }

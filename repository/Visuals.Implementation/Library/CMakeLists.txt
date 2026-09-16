@@ -25,6 +25,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Backends")
+
   if (${this}.Direct3D12.Enabled)
     set(${this}.Direct3D12.Enabled 1)
   else()
@@ -218,7 +220,5 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "Backends")
 
 endif()

@@ -29,9 +29,9 @@
 /// operand : booleanLiteralOperand
 ///         | numberLiteralOperand
 ///         | stringLiteralOperand
-///         | variableOperand
+///         | nameLiteralOperand
 ///         | registerOperand
-/// variableOperand : lexical.string | lexical.name
+/// variableOperand : lexical.name
 /// registerOperand : lexical.register
 /// @endcode
 Arcadia_declareObjectType(u8"Arcadia.MILC.AST.OperandNode", Arcadia_MILC_AST_OperandNode,
@@ -43,6 +43,8 @@ struct Arcadia_MILC_AST_OperandNodeDispatch {
 
 struct Arcadia_MILC_AST_OperandNode {
   Arcadia_MILC_AST_Node _parent;
+  /// @brief The start offset.
+  Arcadia_SizeValue startOffset;
 };
 
 #endif // ARCADIA_MILC_AST_OPERANDS_OPERANDNODE_H_INCLUDED

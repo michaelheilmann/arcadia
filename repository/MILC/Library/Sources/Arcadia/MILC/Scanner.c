@@ -317,6 +317,11 @@ Arcadia_MILC_Scanner_constructImpl
   On(u8"jumpIfTrue", JumpIfTrue);
   On(u8"jumpIfFalse", JumpIfFalse);
   //
+  On(u8"loadArgument", LoadArgument);
+  On(u8"storeArgument", StoreArgument);
+  On(u8"loadField", LoadField);
+  On(u8"storeField", StoreField)
+  //
   On(u8"raise", Raise);
   // arithmetic operations
   On(u8"add", Add);

@@ -14,9 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include "Arcadia/Engine/Demo/Configuration.h"
-#include "Arcadia/Engine/Demo/Audials.h"
-#include "Arcadia/Engine/Demo/Visuals.h"
+#include "Arcadia/Engine/Include.h"
+
 #include <stdlib.h>
 
 #include "Arcadia/DDL/Include.h"

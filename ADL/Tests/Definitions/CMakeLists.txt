@@ -25,6 +25,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} test)
 
+  SetFolder(${this} ${MyFolder})
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia.ADL.Tests.Definitions/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.ADL.Tests.Definitions/Configure.h.i)
 
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Main.c)
@@ -53,7 +55,7 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Audials/SampleBuffer.c)
   OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Audials/SampleBuffer.h)
 
-  OnAssetsDirectory(${this}.CopyAssets ${CMAKE_CURRENT_SOURCE_DIR}/Assets)
+  OnAssetsDirectory(${this}.CopyAssets ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
   OnModuleDependency(${this} ${MyProjectName}.ADL PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDLS PRIVATE)
@@ -62,7 +64,6 @@ if (NOT TARGET ${this})
   EndProduct(${this})
 
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)
-  set_target_properties(${this} PROPERTIES FOLDER ${MyFolder})
 
   CopyProductAssets(${this} ${MyFolder} ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 

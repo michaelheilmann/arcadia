@@ -22,10 +22,21 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Engine")
+
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Engine/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Engine/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/Engine/Include.c)
   OnHeaderFile(${this} Arcadia/Engine/Include.h)
+  
+  OnSourceFile(${this} Arcadia/Engine/Application.c)
+  OnHeaderFile(${this} Arcadia/Engine/Application.h)
+  OnSourceFile(${this} Arcadia/Engine/ApplicationConfiguration.c)
+  OnHeaderFile(${this} Arcadia/Engine/ApplicationConfiguration.h)
+  OnSourceFile(${this} Arcadia/Engine/ApplicationHelper/Visuals.c)
+  OnHeaderFile(${this} Arcadia/Engine/ApplicationHelper/Visuals.h)
+  OnSourceFile(${this} Arcadia/Engine/ApplicationHelper/Audials.c)
+  OnHeaderFile(${this} Arcadia/Engine/ApplicationHelper/Audials.h)
 
   OnSourceFile(${this} Arcadia/Engine/Engine.c)
   OnHeaderFile(${this} Arcadia/Engine/Engine.h)
@@ -196,7 +207,5 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "Engine")
 
 endif()

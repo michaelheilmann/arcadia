@@ -23,6 +23,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} library)
 
+  SetFolder(${this} "Backends")
+
   if (${this}.OpenAL.Enabled)
     set(${this}.Configuration.OpenAL.Enabled 1)
   else()
@@ -64,19 +66,20 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Audials/Implementation/Include.c)
   OnHeaderFile(${this} Arcadia/Audials/Implementation/Include.h)
 
-  OnSourceFile(${this} Arcadia/Audials/Implementation/OpenAL/Backend.c)
-  OnHeaderFile(${this} Arcadia/Audials/Implementation/OpenAL/Backend.h)
+  if (${this}.OpenAL.Enabled)
+    OnSourceFile(${this} Arcadia/Audials/Implementation/OpenAL/Backend.c)
+    OnHeaderFile(${this} Arcadia/Audials/Implementation/OpenAL/Backend.h)
 
-  OnSourceFile(${this} Arcadia/Audials/Implementation/OpenAL/Resources/SoundSourceResource.c)
-  OnHeaderFile(${this} Arcadia/Audials/Implementation/OpenAL/Resources/SoundSourceResource.h)
-  OnSourceFile(${this} Arcadia/Audials/Implementation/OpenAL/BackendContext.c)
-  OnHeaderFile(${this} Arcadia/Audials/Implementation/OpenAL/BackendContext.h)
+    OnSourceFile(${this} Arcadia/Audials/Implementation/OpenAL/Resources/SoundSourceResource.c)
+    OnHeaderFile(${this} Arcadia/Audials/Implementation/OpenAL/Resources/SoundSourceResource.h)
+    OnSourceFile(${this} Arcadia/Audials/Implementation/OpenAL/BackendContext.c)
+    OnHeaderFile(${this} Arcadia/Audials/Implementation/OpenAL/BackendContext.h)
+  endif()
 
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Audials/Implementation/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Audials/Implementation/Configure.h.i)
 
   OnModuleDependency(${this} ${MyProjectName}.Engine)
   
   EndProduct(${this})
-  set_target_properties(${this} PROPERTIES FOLDER "Backends")
 
 endif()

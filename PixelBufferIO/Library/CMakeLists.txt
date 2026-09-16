@@ -21,6 +21,8 @@ set(this ${MyProjectName}.PixelBufferIO)
 if (NOT TARGET ${this})
   BeginProduct(${this} library)
 
+  SetFolder(${this} "PixelBufferIO")
+
   # Always use libpng under Linux.
   if (${${this}_OperatingSystem} STREQUAL ${${this}_OperatingSystem_Linux})
     find_package(PNG)
@@ -110,7 +112,5 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.Media)
 
   EndProduct(${this})
-
-  set_target_properties(${this} PROPERTIES FOLDER "PixelBufferIO")
 
 endif()
