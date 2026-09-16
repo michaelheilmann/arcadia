@@ -1,0 +1,219 @@
+  @{include("./../../Commons/header-common.i")}
+  <link rel='canonical' href='@{siteAddress}/specifications/program-definition-language/index.html'>
+  <title>Arcadia Program Definition Language</title>
+  <style>
+  @{include("./../specification.css.i")}
+  my-lhs {
+    display: block;
+  }
+  my-rhs {
+    display: block;
+    margin-left: 1rem;
+  }
+  table {
+    border-collapse: collapse;
+    margin: 1rem 0;
+  }
+  th, td {
+    border: 1px solid currentColor;
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  </style>
+</head>
+<body class="my-content-page-1">
+  <header>
+  <div>
+  <a href="@{siteAddress}/">Home</a>
+  </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+    <h1>Arcadia Program Definition Language</h1>
+    <p>The Arcadia Program Definition Language (Arcadia PDL) is the declaration and instruction language consumed by the current compiler implementation in <code>repository/MILC</code>. The command-line interface for that compiler lives in <code>repository/MILC.CIL</code>.</p>
+    <p>This specification records the language accepted by the current compiler implementation as far as it can be inferred from the scanner, parser, and checked-in <code>.mil</code> inputs. Changes to accepted Arcadia PDL source syntax, lexical words, instruction forms, or primitive semantics in <code>repository/MILC</code> should be reflected here. It intentionally does not include the older HLL package, interface, expression, or symbolic-operator grammar because those productions are not accepted by the current parser.</p>
+
+    <h2>Notation</h2>
+    <p>Grammar productions use single quotes for literal words and symbols. The suffix <code>*</code> means zero or more occurrences, <code>?</code> means an optional occurrence, and alternatives are separated by <code>|</code>.</p>
+
+    <h2>Lexical Translation</h2>
+    <p>The input is read as Unicode code points from UTF-8 bytes. Arcadia PDL reuses the terminology and rules of the <a href="@{siteAddress}/specifications/common-lexical-translations/index.html">Common Lexical Translations</a> Standard Profile unless this section defines a more specific Arcadia PDL rule.</p>
+    <p>Arcadia PDL uses the common definitions for whitespace, line terminators, single-line comments, multi-line comments, periods, parentheses, curly brackets, colons, commas, boolean literals, and the void literal. Whitespace and comments separate words and are otherwise ignored by the parser. Line terminators are significant as statement terminators.</p>
+    <p><code>
+    whiteSpace : Lexical.Whitespace<br>
+    lineTerminator : Lexical.LineTerminator<br>
+    singleLineComment : Lexical.SingleLineComment<br>
+    multiLineComment : Lexical.MultiLineComment<br>
+    period : Lexical.Period<br>
+    leftParenthesis : Lexical.LeftParenthesis<br>
+    rightParenthesis : Lexical.RightParenthesis<br>
+    leftCurlyBracket : Lexical.LeftCurlyBracket<br>
+    rightCurlyBracket : Lexical.RightCurlyBracket<br>
+    colon : Lexical.Colon<br>
+    comma : Lexical.Comma<br>
+    booleanLiteral : Lexical.Boolean<br>
+    voidLiteral : Lexical.Void
+    </code></p>
+
+    <h3>Names and Identifiers</h3>
+    <p>Arcadia PDL names are similar to <code>Lexical.Name</code>, but the current scanner also accepts an underscore as the first character without requiring a following alphabetic character. A qualified identifier is one or more names separated by periods.</p>
+    <p><code>
+    name : ('A'..'Z' | 'a'..'z' | '_') ('A'..'Z' | 'a'..'z' | '0'..'9' | '_')*<br>
+    identifier : name (period name)*
+    </code></p>
+
+    <h3>Registers</h3>
+    <p>A register starts with <code>$</code> and is followed by either a decimal register number or a name.</p>
+    <p><code>
+    register : '$' ('0' | ('1'..'9' '0'..'9'*) | name)
+    </code></p>
+
+    <h3>Literals</h3>
+    <p>The current scanner recognizes the common boolean and void literals and Arcadia PDL-specific integer, real, and string literal forms. Arcadia PDL integer and real literals are narrower than <code>Lexical.Number</code>: they do not have signs, and a real literal must start with one or more decimal digits followed by a period. Arcadia PDL string literals are narrower than <code>Lexical.String</code>: they use double quotes only and currently recognize only the escapes listed below.</p>
+    <p><code>
+    integerLiteral : digit+<br>
+    realLiteral : digit+ '.' digit* exponent?<br>
+    exponent : ('e' | 'E') ('+' | '-')? digit+<br>
+    stringLiteral : '"' stringCharacter* '"'<br>
+    stringCharacter : anyCodePointExceptBackslashQuoteOrEndOfInput | '\\"' | '\\\\' | '\\n' | '\\r'
+    </code></p>
+
+    <h2>Syntactical Grammar</h2>
+    <h3>Compilation Units</h3>
+    <p>A compilation unit contains zero or more top-level definitions.</p>
+    <p><code>
+    compilationUnit : definition* endOfInput<br>
+    definition : moduleDefinition | classDefinition | enumerationDefinition | procedureDefinition
+    </code></p>
+
+    <h3>Modules</h3>
+    <p>A module definition names a module. The current parser accepts an optional empty body.</p>
+    <p><code>
+    moduleDefinition : 'module' identifier moduleBody?<br>
+    moduleBody : '{' '}'
+    </code></p>
+
+    <h3>Classes</h3>
+    <p>A class definition names a class, may name an extended class, and may contain fields, constructors, and methods.</p>
+    <p><code>
+    classDefinition : 'class' identifier ('extends' identifier)? classBody?<br>
+    classBody : '{' classMemberDefinition* '}'<br>
+    classMemberDefinition : fieldDefinition | constructorDefinition | methodDefinition<br>
+    fieldDefinition : 'variable' name ':' identifier
+    </code></p>
+
+    <h3>Enumerations</h3>
+    <p>An enumeration definition names an enumeration and may contain named constants. A constant may have an integer initializer.</p>
+    <p><code>
+    enumerationDefinition : 'enumeration' identifier enumerationBody?<br>
+    enumerationBody : '{' enumerationConstantDefinition* '}'<br>
+    enumerationConstantDefinition : name ('=' integerLiteral)?
+    </code></p>
+
+    <h3>Procedures, Constructors, and Methods</h3>
+    <p>Procedures and methods declare a return type. Constructors do not. A native declaration has a string literal naming the native target and may omit a body.</p>
+    <p><code>
+    procedureDefinition : 'procedure' 'entry'? nativeClause? identifier parameters? ':' identifier procedureBody?<br>
+    constructorDefinition : 'constructor' nativeClause? parameters? constructorBody?<br>
+    methodDefinition : 'method' nativeClause? name parameters? ':' identifier methodBody?<br>
+    nativeClause : 'native' stringLiteral<br>
+    parameters : '(' (parameter (',' parameter)*)? ')'<br>
+    parameter : 'variable' name ':' identifier<br>
+    procedureBody : block<br>
+    constructorBody : block<br>
+    methodBody : block<br>
+    block : '{' statement* '}'
+    </code></p>
+
+    <h3>Statements</h3>
+    <p>A statement is terminated by a line terminator, a closing curly bracket, or the end of input. Empty lines are ignored.</p>
+    <p><code>
+    statement : variableDefinitionStatement | labelDefinitionStatement | instructionStatement<br>
+    variableDefinitionStatement : 'variable' name<br>
+    labelDefinitionStatement : name ':'<br>
+    instructionStatement : instruction
+    </code></p>
+
+    <h3>Operands</h3>
+    <p>Arcadia PDL instruction operands are not general expressions. They are literals, variables, or registers.</p>
+    <p><code>
+    operand : booleanLiteral | integerLiteral | realLiteral | stringLiteral | voidLiteral | name | register
+    </code></p>
+
+    <h3>Instructions</h3>
+    <p>The parser recognizes the following instruction forms.</p>
+    <p><code>
+    instruction : binaryInstruction | unaryInstruction | invokeInstruction | jumpInstruction | argumentInstruction | fieldInstruction | 'raise' | 'return' operand?<br>
+    binaryInstruction : binaryOperator operand ',' operand ',' operand<br>
+    binaryOperator : 'add' | 'subtract' | 'multiply' | 'divide' | 'and' | 'or' | 'concatenate' | 'isEqualTo' | 'isNotEqualTo' | 'isLowerThan' | 'isLowerThanOrEqualTo' | 'isGreaterThan' | 'isGreaterThanOrEqualTo'<br>
+    unaryInstruction : unaryOperator operand ',' operand<br>
+    unaryOperator : 'negate' | 'not' | 'set'<br>
+    invokeInstruction : 'invoke' name '(' (operand (',' operand)*)? ')'<br>
+    jumpInstruction : 'jump' name | 'jumpIfTrue' operand ',' name | 'jumpIfFalse' operand ',' name<br>
+    argumentInstruction : 'loadArgument' operand ',' operand | 'storeArgument' operand ',' operand ',' operand<br>
+    fieldInstruction : 'loadField' operand ',' operand ',' operand | 'storeField' operand ',' operand ',' operand
+    </code></p>
+
+    <h2>Reserved Words</h2>
+    <p>The following words are reserved and cannot be used as names unless the scanner is changed:</p>
+    <p><code>add and class concatenate constructor divide entry enumeration extends false implements isEqualTo isGreaterThan isGreaterThanOrEqualTo isLowerThan isLowerThanOrEqualTo isNotEqualTo jump jumpIfFalse jumpIfTrue loadArgument loadField method module multiply native negate not or procedure raise return set storeArgument storeField subtract true variable void</code></p>
+
+    <h2>Execution Model</h2>
+    <p>This section captures the reusable interpreter model from the older material where it still matches Arcadia PDL instructions. It is descriptive until the compiler backend or runtime defines the behavior normatively.</p>
+    <p>The abstract machine supports string values, boolean values, signed integer values, unsigned natural values, real values, void, and procedure values. Integer and natural values may use 8, 16, 32, or 64 bit widths. Real values may use 32-bit or 64-bit IEEE 754 formats.</p>
+    <p>An interpreter may provide a stack. The stack is initially empty and supports querying its size, pushing a value onto the top of the stack, and popping the top value. Popping an empty stack is undefined.</p>
+    <p>An interpreter may provide a status variable with the states success and failure. The initial state is success.</p>
+
+    <h3>Calling Convention</h3>
+    <p>The old stack calling convention is retained as an abstract model for procedure invocation:</p>
+    <ol>
+      <li>The caller pushes arguments from left to right.</li>
+      <li>The caller pushes the number of arguments.</li>
+      <li>The caller pushes the procedure value.</li>
+      <li>The invoke operation calls the procedure.</li>
+      <li>The procedure pushes zero or more return values from left to right and returns with success or failure.</li>
+      <li>The caller removes return values, the procedure, the number of arguments, and the arguments.</li>
+    </ol>
+
+    <h3>Arithmetic</h3>
+    <p>For unsigned natural values of width <var>n</var> and <var>m</var>, <code>add</code>, <code>subtract</code>, and <code>multiply</code> compute the mathematical result modulo 2<sup>k</sup>, where <var>k = max(n,m)</var>. The result is represented as an unsigned natural value of width <var>k</var>.</p>
+    <p>For signed integer values of width <var>n</var> and <var>m</var>, operands are sign-extended to width <var>k = max(n,m)</var>. Addition, subtraction, and multiplication use two's-complement arithmetic and keep the low-order <var>k</var> bits of the mathematical result.</p>
+    <p>For division, division by zero raises an arithmetic error. Otherwise the operation computes the quotient according to the selected integer or natural arithmetic model and represents it at width <var>k = max(n,m)</var>.</p>
+    <p>The unary <code>negate</code> operation computes zero minus its operand in the operand's arithmetic domain. The unary <code>not</code> operation is the logical negation operation.</p>
+
+    <h2>Examples</h2>
+    <pre><code>module Arcadia.Engine {
+}
+
+class Arcadia.Engine.Event extends Arcadia.Object {
+  variable timestamp : Arcadia.Natural64
+
+  constructor(variable timestamp : Arcadia.Natural64)
+}
+
+enumeration Arcadia.Engine.Visuals.WindingMode {
+  Clockwise = 0
+  CounterClockwise = 1
+}
+
+procedure sum(variable x : Integer32, variable y : Integer32) : Integer32 {
+  loadArgument $1, x
+  loadArgument $2, y
+  add $1, $1, $2
+  return $1
+}</code></pre>
+  </div>
+  <div class="right-column"></div>
+  </main>
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column"></div>
+    <div class="right-column">
+      <div>Website maintained by @{siteAuthor}.</div>
+      <div>Last modified on @{dayOfMonth()} @{monthName()} @{year()}.</div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -417,6 +417,8 @@ if (NOT TARGET ${this})
 
   OnSourceFile(${this} Arcadia/Ring1/Implementation/Objects/UnicodeCodePointReader.c)
   OnHeaderFile(${this} Arcadia/Ring1/Implementation/Objects/UnicodeCodePointReader.h)
+  OnSourceFile(${this} Arcadia/Ring1/Implementation/Objects/UnicodeCodePointReader.State.c)
+  OnHeaderFile(${this} Arcadia/Ring1/Implementation/Objects/UnicodeCodePointReader.State.h)
 
   OnSourceFile(${this} Arcadia/Ring1/Implementation/Objects/ByteReader.UnicodeCodePointReader.c)
   OnHeaderFile(${this} Arcadia/Ring1/Implementation/Objects/ByteReader.UnicodeCodePointReader.h)

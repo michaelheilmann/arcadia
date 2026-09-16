@@ -53,7 +53,8 @@
           <a href='@{siteAddress}/specifications/mathematical-definitions-notations-and-proofs'>Mathematical Definitions, Notations, and Proofs</a>
           <a href='@{siteAddress}/specifications/common-lexical-translations'>Common Lexical Translations</a>
           <a href='@{siteAddress}/specifications/data-definition-language'>Data Definition Language</a>
-          <a href='@{siteAddress}/specifications/data-definitions-language-schema'>Data Definition Language Schema (draft)</a>
+          <a href='@{siteAddress}/specifications/data-definition-language-schema'>Data Definition Language Schema (draft)</a>
+          <a href='@{siteAddress}/specifications/program-definition-language'>Program Definition Language (draft)</a>
         </div>
       </div>
     </div>

@@ -191,6 +191,19 @@ Arcadia_Engine_Visuals_TextureNode_constructImpl
   self->minificationFilter = Arcadia_Engine_Visuals_TextureFilter_Linear;
   self->width = 320;
   //
+  if (Arcadia_ADL_TextureFilter_None != self->source->magnificationFilter) {
+    self->magnificationFilter = (Arcadia_Engine_Visuals_TextureFilter)self->source->magnificationFilter;
+  }
+  if (Arcadia_ADL_TextureFilter_None != self->source->minificationFilter) {
+    self->minificationFilter = (Arcadia_Engine_Visuals_TextureFilter)self->source->minificationFilter;
+  }
+  if (Arcadia_ADL_TextureAddressMode_None != self->source->addressModeU) {
+    self->addressModeU = (Arcadia_Engine_Visuals_TextureAddressMode)self->source->addressModeU;
+  }
+  if (Arcadia_ADL_TextureAddressMode_None != self->source->addressModeV) {
+    self->addressModeV = (Arcadia_Engine_Visuals_TextureAddressMode)self->source->addressModeV;
+  }
+  //
   Arcadia_Engine* engine = Arcadia_Engine_getOrCreate(thread);
   self->pixelBuffer = Arcadia_Engine_Visuals_NodeFactory_createPixelBufferNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, NULL,
                                                                                (Arcadia_ADL_PixelBufferDefinition*)self->source->pixelBuffer->definition);

@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.LightGrey",
-  red : 211,
-  green : 211,
-  blue : 211,
-}

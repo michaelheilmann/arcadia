@@ -46,6 +46,7 @@ Define(PFNGLCLEARPROC, glClear)
 
 Define(PFNGLENABLEPROC, glEnable)
 Define(PFNGLDISABLEPROC, glDisable)
+Define(PFNGLBLENDFUNCPROC, glBlendFunc)
 
 Define(PFNGLVIEWPORTPROC, glViewport)
 Define(PFNGLSCISSORPROC, glScissor)

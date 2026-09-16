@@ -1,4 +1,4 @@
-<h2>Milestone "Machine Interface Language" 1: 1st iteration of a parser for the L1 language</h2>
+<h2>Milestone "Arcadia Program Definition Language" 1: 1st iteration of a parser for the L1 language</h2>
 <p>Percentage done: 100&percnt;, Due date: Week 3 October 2024</p>
 <p>
 A 1st iteration of the parser for the L1 language,

@@ -212,7 +212,47 @@ Arcadia_Engine_Visuals_MaterialNode_renderImpl
         } break;
       };
 
-      self->materialResource = Arcadia_Engine_Visuals_BackendContext_createMaterialResource(thread, (Arcadia_Engine_Visuals_BackendContext*)backendContext, ambientColorSource, textureResource, programResource);
+      Arcadia_BooleanValue blendEnabled = Arcadia_BooleanValue_False;
+      Arcadia_Engine_Visuals_BlendFunction blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_Zero;
+      Arcadia_Engine_Visuals_BlendFunction blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_Zero;
+      if (Arcadia_ADL_BlendFunction_None != ((Arcadia_Engine_Visuals_MaterialNode*)self)->source->blendSourceFunction &&
+          Arcadia_ADL_BlendFunction_None != ((Arcadia_Engine_Visuals_MaterialNode*)self)->source->blendDestinationFunction) {
+        blendEnabled = Arcadia_BooleanValue_True;
+        switch (((Arcadia_Engine_Visuals_MaterialNode*)self)->source->blendSourceFunction) {
+          case Arcadia_ADL_BlendFunction_Zero: blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_Zero; break;
+          case Arcadia_ADL_BlendFunction_One: blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_One; break;
+          case Arcadia_ADL_BlendFunction_SourceColor: blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_SourceColor; break;
+          case Arcadia_ADL_BlendFunction_OneMinusSourceColor: blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_OneMinusSourceColor; break;
+          case Arcadia_ADL_BlendFunction_DestinationColor: blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_DestinationColor; break;
+          case Arcadia_ADL_BlendFunction_OneMinusDestinationColor: blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_OneMinusDestinationColor; break;
+          case Arcadia_ADL_BlendFunction_SourceAlpha: blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_SourceAlpha; break;
+          case Arcadia_ADL_BlendFunction_OneMinusSourceAlpha: blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_OneMinusSourceAlpha; break;
+          case Arcadia_ADL_BlendFunction_DestinationAlpha: blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_DestinationAlpha; break;
+          case Arcadia_ADL_BlendFunction_OneMinusDestinationAlpha: blendSourceFunction = Arcadia_Engine_Visuals_BlendFunction_OneMinusDestinationAlpha; break;
+          default: {
+            Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+            Arcadia_Thread_jump(thread);
+          } break;
+        };
+        switch (((Arcadia_Engine_Visuals_MaterialNode*)self)->source->blendDestinationFunction) {
+          case Arcadia_ADL_BlendFunction_Zero: blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_Zero; break;
+          case Arcadia_ADL_BlendFunction_One: blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_One; break;
+          case Arcadia_ADL_BlendFunction_SourceColor: blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_SourceColor; break;
+          case Arcadia_ADL_BlendFunction_OneMinusSourceColor: blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_OneMinusSourceColor; break;
+          case Arcadia_ADL_BlendFunction_DestinationColor: blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_DestinationColor; break;
+          case Arcadia_ADL_BlendFunction_OneMinusDestinationColor: blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_OneMinusDestinationColor; break;
+          case Arcadia_ADL_BlendFunction_SourceAlpha: blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_SourceAlpha; break;
+          case Arcadia_ADL_BlendFunction_OneMinusSourceAlpha: blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_OneMinusSourceAlpha; break;
+          case Arcadia_ADL_BlendFunction_DestinationAlpha: blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_DestinationAlpha; break;
+          case Arcadia_ADL_BlendFunction_OneMinusDestinationAlpha: blendDestinationFunction = Arcadia_Engine_Visuals_BlendFunction_OneMinusDestinationAlpha; break;
+          default: {
+            Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+            Arcadia_Thread_jump(thread);
+          } break;
+        };
+      }
+
+      self->materialResource = Arcadia_Engine_Visuals_BackendContext_createMaterialResource(thread, (Arcadia_Engine_Visuals_BackendContext*)backendContext, blendEnabled, blendSourceFunction, blendDestinationFunction, ambientColorSource, textureResource, programResource);
       Arcadia_Engine_Visuals_Resource_ref(thread, (Arcadia_Engine_Visuals_Resource*)self->materialResource);
     }
   }

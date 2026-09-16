@@ -10,9 +10,9 @@
 
 - This module is an executable product, not a library. It is only enabled when at least one visuals backend is enabled:
   `Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled`, `Arcadia.Engine.Visuals.Implementation.Direct3D12.Enabled`, or `Arcadia.Engine.Visuals.Implementation.Vulkan.Enabled`. See the guard at the top of `CMakeLists.txt`.
-- Build target name: `Arcadia.Engine.Demo` (e.g. `cmake --build ./x64 --config Debug --target Arcadia.Engine.Demo`).
+- Build target name: `Arcadia.Engine.Demo` (e.g. `cmake --build C:/develop/Arcadia/Build/x64 --config Debug --target Arcadia.Engine.Demo`).
 - There are no tests for this module (it is an interactive GUI app; nothing is registered with CTest here).
-- Assets are copied at build time to the binary tree by `CopyProductAssets` (from `OnAssetsDirectory(... Assets)`), preserving relative paths such as `Assets/Colors/CSS`. The demo loads assets at runtime with paths relative to the process working directory (e.g. `Assets/Colors/CSS/...`), so run the executable from a directory where the `Assets` folder exists (typically the build tree).
+- Assets are staged at build time into the binary tree by `CopyProductAssets`: the demo's own `Assets/` tree plus the assets of every linked library (collected transitively by `Arcadia_collectTargetAssets` over the link closure via the `ARCADIA_ASSETS_*` target properties in `CMake/all.cmake`). The CSS colors under `Assets/Colors/CSS/` are not stored in this module; `${MyProjectName}.Engine` owns them (reachable transitively through `${MyProjectName}.Engine.UI`). The demo loads assets at runtime with paths relative to the process working directory (e.g. `Assets/Colors/CSS/...`), so run the executable from a directory where the `Assets` folder exists (typically the build tree).
 - On first run, the demo creates its configuration file in the user configuration directory under `<config-dir>/Demo/Configuration.txt` and fills in defaults for missing/invalid settings.
 
 ## CMake Conventions
@@ -39,10 +39,10 @@
 
 ## Assets
 
-- `Assets/*.adl` are ADL (Arcadia Definition Language) assets: color, material, mesh, model, texture, pixel-buffer, and sample-buffer definitions, plus `Internal.Ambience.DSP.WhiteNoise.adl` (procedural white-noise ambience used by the sound sources).
-- `Assets/Colors/CSS/` contains one `.adl` per CSS color keyword, defining `Colors.<CamelCaseName>` (e.g. `Red.adl` → `Colors.Red`).
+- This module's `Assets/*.adl` are ADL (Arcadia Definition Language) assets: color, material, mesh, model, texture, pixel-buffer, and sample-buffer definitions, plus `Internal.Ambience.DSP.WhiteNoise.adl` (procedural white-noise ambience used by the sound sources). The local tree covers `MainScene/`, `MainMenuScene/` (with the `NewGameButton` panel), `DefaultWall/`, and `LogoScene/`.
+- `Assets/Colors/CSS/` is not stored in this module. The shared CSS color definitions (one `.adl` per color keyword, defining `Colors.<CamelCaseName>`, e.g. `Red.adl` → `Colors.Red`) live in `Engine/Engine/Assets/Colors/CSS/`, owned by `${MyProjectName}.Engine`. `CopyProductAssets` collects them transitively through `${MyProjectName}.Engine.UI` (which links `${MyProjectName}.Engine`) and stages them into this executable's binary tree.
 - Models reference meshes and materials by name (e.g. `DefaultWall/Model.adl` → `Assets.DefaultWall.Model` using `Mesh` + `Material`), and UI panels reuse the same mechanics (`MainMenuScene/NewGameButton/NewGameButtonModel.adl`).
-- When adding/removing asset files, no CMake edit is needed for assets themselves (`OnAssetsDirectory` globs the `Assets` tree and `CopyProductAssets` copies everything).
+- When adding/removing asset files, no CMake edit is needed for assets themselves (`OnAssetsDirectory` globs each `Assets` tree at configure time; `CopyProductAssets` copies the demo's own assets plus those of its linked libraries).
 
 ## Module-Specific Runtime Notes
 

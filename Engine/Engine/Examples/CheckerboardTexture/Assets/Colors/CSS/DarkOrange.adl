@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.DarkOrange",
-  red : 255,
-  green : 140,
-  blue : 0,
-}

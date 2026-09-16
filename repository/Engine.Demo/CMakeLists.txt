@@ -35,6 +35,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} executable)
 
+  SetFolder(${this} "Engine/Examples")
+
   set(${this}.Windows.ResourceFile ${CMAKE_CURRENT_SOURCE_DIR}/Resources.rc)
 
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Engine/Demo/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Engine/Demo/Configure.h.i)
@@ -79,7 +81,7 @@ if (NOT TARGET ${this})
 
   # Copy assets.
   if (${this}.Enabled)
-    CopyProductAssets(${this} "" ${CMAKE_CURRENT_BINARY_DIR}/Assets)
+    CopyProductAssets(${this} "Engine/Examples" ${CMAKE_CURRENT_BINARY_DIR}/Assets)
   endif()
 
 endif()

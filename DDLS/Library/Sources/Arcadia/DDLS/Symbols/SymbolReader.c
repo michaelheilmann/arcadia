@@ -311,6 +311,9 @@ Arcadia_DDLS_SymbolReader_constructImpl
   Define(ENTRY, u8"entry");
   Define(ENTRIES, u8"entries");
   Define(KIND, u8"kind");
+  Define(OPTIONAL, u8"optional");
+  Define(TRUE, u8"true");
+  Define(FALSE, u8"false");
 
 #undef Define
   //
@@ -361,6 +364,9 @@ Arcadia_DDLS_SymbolReader_visitImpl
   Define(ENTRY, u8"entry");
   Define(ENTRIES, u8"entries");
   Define(KIND, u8"kind");
+  Define(OPTIONAL, u8"optional");
+  Define(TRUE, u8"true");
+  Define(FALSE, u8"false");
 
 #undef Define
 }
@@ -552,6 +558,29 @@ readMapEntrySymbol
   Arcadia_DDLS_Symbol* symbol = readSymbol0(thread, self, symbolSource);
   Arcadia_Map_remove(thread, self->scope->symbols, self->TYPE, NULL, NULL);
 
+  // (4) Read `optional` element.
+  Arcadia_BooleanValue optional = Arcadia_BooleanValue_False;
+  Arcadia_Value ov = Arcadia_Map_get(thread, self->scope->symbols, self->OPTIONAL);
+  if (!Arcadia_Value_isVoidValue(&ov)) {
+    if (!Arcadia_Value_isInstanceOf(thread, &ov, _Arcadia_DDL_StringNode_getType(thread))) {
+      Arcadia_logf(Arcadia_LogFlags_Error, u8"`optional` is not a string\n");
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_DDL_StringNode* optionalNode = (Arcadia_DDL_StringNode*)Arcadia_Value_getObjectReferenceValue(&ov);
+    Arcadia_Value sv = Arcadia_Value_makeObjectReferenceValue(optionalNode->value);
+    if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)Arcadia_Value_getObjectReferenceValue(&self->TRUE), &sv)) {
+      optional = Arcadia_BooleanValue_True;
+    } else if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)Arcadia_Value_getObjectReferenceValue(&self->FALSE), &sv)) {
+      optional = Arcadia_BooleanValue_False;
+    } else {
+      Arcadia_logf(Arcadia_LogFlags_Error, u8"`optional` is neither `true` nor `false`\n");
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_Map_remove(thread, self->scope->symbols, self->OPTIONAL, NULL, NULL);
+  }
+
   if (Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->scope->symbols) > 0) {
     Arcadia_logf(Arcadia_LogFlags_Error, u8"unsupported entries\n");
     Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
@@ -561,6 +590,7 @@ readMapEntrySymbol
   Arcadia_DDLS_MapEntrySymbol* mapEntrySymbol = Arcadia_DDLS_MapEntrySymbol_create(thread);
   mapEntrySymbol->entryName = name;
   mapEntrySymbol->entrySymbol = symbol;
+  mapEntrySymbol->optional = optional;
 
   return mapEntrySymbol;
 }

@@ -25,4 +25,22 @@ Arcadia_ADL_Tests_Visuals_TextureDefinitionTest1
     Arcadia_Thread* thread
   );
 
+void
+Arcadia_ADL_Tests_Visuals_TextureDefinitionTest2
+  (
+    Arcadia_Thread* thread
+  );
+
+void
+Arcadia_ADL_Tests_Visuals_TextureDefinitionTest3
+  (
+    Arcadia_Thread* thread
+  );
+
+void
+Arcadia_ADL_Tests_Visuals_TextureDefinitionTest4
+  (
+    Arcadia_Thread* thread
+  );
+
 #endif // ARCADIA_ADL_TESTS_VISUALS_TEXTURE_H_INCLUDED

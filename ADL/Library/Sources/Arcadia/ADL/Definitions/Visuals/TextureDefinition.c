@@ -103,19 +103,43 @@ Arcadia_ADL_TextureDefinition_constructImpl
   Arcadia_EnterConstructor(Arcadia_ADL_TextureDefinition);
   {
     Arcadia_Value definitions, name;
-    definitions = Arcadia_ValueStack_getValue(thread, 3);
-    name = Arcadia_ValueStack_getValue(thread, 2);
+    definitions = Arcadia_ValueStack_getValue(thread, 7);
+    name = Arcadia_ValueStack_getValue(thread, 6);
     Arcadia_ValueStack_pushValue(thread, &definitions);
     Arcadia_ValueStack_pushValue(thread, &name);
     Arcadia_ValueStack_pushNatural8Value(thread, 2);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (3 != _numberOfArguments) {
+  if (7 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
+  Arcadia_EnumerationValue magnificationFilter = Arcadia_ValueStack_getEnumerationValue(thread, 4),
+                           minificationFilter = Arcadia_ValueStack_getEnumerationValue(thread, 3),
+                           addressModeU = Arcadia_ValueStack_getEnumerationValue(thread, 2),
+                           addressModeV = Arcadia_ValueStack_getEnumerationValue(thread, 1);
+  if (magnificationFilter.type != _Arcadia_ADL_TextureFilter_getType(thread)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (minificationFilter.type != _Arcadia_ADL_TextureFilter_getType(thread)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (addressModeU.type != _Arcadia_ADL_TextureAddressMode_getType(thread)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (addressModeV.type != _Arcadia_ADL_TextureAddressMode_getType(thread)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   self->pixelBuffer = Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions,
-                                                   Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_String_getType(thread)));
+                                                   Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 5, _Arcadia_String_getType(thread)));
+  self->magnificationFilter = (Arcadia_ADL_TextureFilter)magnificationFilter.value;
+  self->minificationFilter = (Arcadia_ADL_TextureFilter)minificationFilter.value;
+  self->addressModeU = (Arcadia_ADL_TextureAddressMode)addressModeU.value;
+  self->addressModeV = (Arcadia_ADL_TextureAddressMode)addressModeV.value;
   Arcadia_LeaveConstructor(Arcadia_ADL_TextureDefinition);
 }
 
@@ -135,13 +159,21 @@ Arcadia_ADL_TextureDefinition_create
     Arcadia_Thread* thread,
     Arcadia_ADL_Definitions* definitions,
     Arcadia_String* name,
-    Arcadia_String* pixelBufferName
+    Arcadia_String* pixelBufferName,
+    Arcadia_ADL_TextureFilter magnificationFilter,
+    Arcadia_ADL_TextureFilter minificationFilter,
+    Arcadia_ADL_TextureAddressMode addressModeU,
+    Arcadia_ADL_TextureAddressMode addressModeV
   )
 {
   _Arcadia_BeginCreate(Arcadia_ADL_TextureDefinition);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definitions);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)name);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBufferName);
-  Arcadia_ValueStack_pushNatural8Value(thread, 3);
+  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_ADL_TextureFilter_getType(thread), magnificationFilter));
+  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_ADL_TextureFilter_getType(thread), minificationFilter));
+  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_ADL_TextureAddressMode_getType(thread), addressModeU));
+  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_ADL_TextureAddressMode_getType(thread), addressModeV));
+  Arcadia_ValueStack_pushNatural8Value(thread, 7);
   _Arcadia_EndCreate(Arcadia_ADL_TextureDefinition);
 }

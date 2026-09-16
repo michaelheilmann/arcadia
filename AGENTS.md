@@ -10,12 +10,13 @@
 
 ## Build And Test
 
-- Requires CMake 3.29+. Never configure or build in the source tree; always use an out-of-source build directory. `CMake/all.cmake` rejects in-source builds.
+- Requires CMake 3.29+. Never configure or build in the source tree; always use an out-of-source build directory that lives outside the checkout (nothing generated or downloaded goes under the repository). `CMake/all.cmake` rejects in-source builds.
+- All non-validation build trees live in a dedicated build root outside the checkout. On this machine, that root is `C:/develop/Arcadia/Build` with one tree per architecture (`C:/develop/Arcadia/Build/x64`, ...). Because the trees are outside the repository, build artifacts never show up in Git.
 - Windows presets exist only for Visual Studio 2022: `cmake --preset x64`, then `cmake --build --preset x64-debug` or another preset from `CMakePresets.json`.
-- For local Windows preset builds, prefer the documented build tree commands: `cmake -S . -B ./x64 --preset x64` followed by 
-  `cmake --build ./x64 --target "Arcadia.InstallDependencies"` followed by `cmake --build ./x64 --config Debug --target <target>`.
+- For local Windows preset builds, use the documented build tree commands: `cmake -S . -B C:/develop/Arcadia/Build/x64 --preset x64` followed by 
+  `cmake --build C:/develop/Arcadia/Build/x64 --target "Arcadia.InstallDependencies"` followed by `cmake --build C:/develop/Arcadia/Build/x64 --config Debug --target <target>`, with the target optional.
 - The expensive dependency download target `Arcadia.InstallDependencies` should be run only once per build tree, after the first configure/generate, and only when `<build>/.Dependencies` is missing.
-  For example, check `x64/.Dependencies`; if it exists, do not rerun `cmake --build ./x64 --target "Arcadia.InstallDependencies"` for normal rebuilds or CMake regeneration.
+  For example, check `C:/develop/Arcadia/Build/x64/.Dependencies`; if it exists, do not rerun `cmake --build C:/develop/Arcadia/Build/x64 --target "Arcadia.InstallDependencies"` for normal rebuilds or CMake regeneration.
 - For disposable validation builds, use an out-of-source build directory under the Windows temporary directory, for example `C:/Users/Anwender/AppData/Local/Temp/opencode/arcadia-x64`; never place generated build files in the source tree.
 - Linux CI does not use presets: configure from an external build directory with `cmake -D"Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled"=TRUE -D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=TRUE <source>`, then run `make all`.
 - Run all tests from the build directory with `ctest`; for multi-config generators include `-C Debug` or the built configuration.
@@ -40,7 +41,7 @@
 - `Runtime/Collections` contains collection abstractions and implementations, including hash and immutable collections.
 - `Languages` is shared scanner/parser/diagnostic infrastructure; `DDL`, `DDLS`, `ADL`, `VPL`, and `repository/MILC` build on it.
 - `DDL` is the Data Definition Language reader/writer/AST/semantic-analysis module; `DDLS` is DDL schema validation.
-- `repository/MILC` is the Machine Interface Language compiler frontend/backend: scanner, parser, AST, symbols, diagnostics, compiler phases, and code writers.
+- `repository/MILC` is the current compiler frontend/backend for Arcadia PDL, the Arcadia Program Definition Language: scanner, parser, AST, symbols, diagnostics, compiler phases, and code writers. The `MILC` name is legacy/current implementation naming and is expected to be renamed later.
 - `Engine/Engine` contains common audials/visuals/input abstractions; concrete visuals implementation lives under `repository/Visuals.Implementation`, not beside `Engine/Engine`.
 - `Engine/UI` contains UI nodes, widget nodes/events, and node factories; `Engine/Application` contains the application abstraction.
 - `Engine/Audials.Implementation` is OpenAL-oriented; `repository/Visuals.Implementation` contains OpenGL4, GLX/WGL, Windows/Linux display/windowing, and Direct3D12/Vulkan-related code.
@@ -51,10 +52,21 @@
 - Generated-looking `.g` files and `.mil` inputs coexist in source directories; inspect the owning `CMakeLists.txt` and MILC code before regenerating or editing generated outputs.
 - Many `.mil` files define engine events, visual/input declarations, media declarations, and compiler test assets.
 - `repository/MILC/Library/Sources/Arcadia/MILC/Backend/*SymbolWriter.c` embeds source header strings for generated files; update those when license headers change.
+- The tool that regenerates `.c`/`.h` from `.mil` sources is called PDLC (the modules `PDLC`/`PDLC.CIL` names are current implementation naming; prefer `PDLC` in prose).
+  Its executable target is `Arcadia.PDLC.CIL`. There is no CMake wiring for `.mil` inputs; generated `.c`/`.h` files are committed next to their `.mil` source and are
+  regenerated with PDLC, not by the build.
+- Build PDLC before regenerating: `cmake --build C:/develop/Arcadia/Build/x64 --config Debug --target Arcadia.PDLC.CIL`.
+- Regenerate by running the built executable with `--mil2c` and a `--configuration` argument naming the config file, for example:
+  `Arcadia.PDLC.CIL --mil2c --configuration=\"C:/develop/Arcadia/Repository/PDLC.CIL/Tool/../../Modules.mil\"`
+- Bare `--help` prints help.
+- `modulePaths` in the configuration file are relative to the parent directory of the configuration file (the working directory); the root `Modules.mil` currently lists `./Engine/Engine`.
+- On Windows, the `--configuration` value must be quoted and the quotes must survive `argv` parsing: escape them as `\"` in the raw command line (as `repository/PDLC.CIL/Tool/CMakeLists.txt`
+  does for `VS_DEBUGGER_COMMAND_ARGUMENTS`). Use forward slashes in the path; `parseString` treats `\` as an escape and rejects backslash-separated paths.
+- Regeneration writes byte-identical files when neither the `.mil` inputs nor the generator changed, so `git status` should stay clean after a no-op run.
 - Documentation is built through custom template engine macros in `CMake/tools-template-engine.cmake`; outputs are under `.Website` and should not be treated as primary source.
 - For documentation structure, naming, or content changes, read `AGENTS/Documentation.md` first.
 - Useful docs: `README.md`, `building-under-windows-11-visual-studio-community-2022.md`, `building-under-linux.md`, `Documentation/Arcadia/roadmap.html.te`, and `Documentation/Specifications/*`.
-- Roadmap pages are useful but may be stale; active entries mention MIL parser iteration, Ring2 immutable set/map work, and CI/CD tests.
+- Roadmap pages are useful but may be stale; active entries mention PDLC parser iteration, Ring2 immutable set/map work, and CI/CD tests.
 
 ## Runtime Coding Notes
 

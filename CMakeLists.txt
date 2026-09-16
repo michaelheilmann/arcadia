@@ -72,6 +72,7 @@ if (operatingSystem STREQUAL Arcadia_OperatingSystem_Windows)
     VERBATIM)
 endif()
 
+# The runtime.
 add_subdirectory(Runtime/ARMS)
 add_subdirectory(Runtime/Ring1)
 add_subdirectory(Runtime/Ring2)
@@ -79,24 +80,39 @@ add_subdirectory(Runtime/Collections)
 add_subdirectory(Runtime/FileSystem)
 add_subdirectory(Runtime/Print)
 add_subdirectory(Runtime/Logging)
+
+# The languages.
 add_subdirectory(Languages)
+
+# Data Definition Language and Data Definition Language Schema.
 add_subdirectory(DDL)
 add_subdirectory(DDLS)
+
+# The Program Definition Language Compiler.
+add_subdirectory(PDLC)
+add_subdirectory(PDLC.CIL)
+
+# Template Engine.
+add_subdirectory(Tools/TemplateEngine)
+add_subdirectory(Tools/PixelBufferGenerator)
+
+# Documentation.
+add_subdirectory(Documentation)
+
+# Asset definition language.
 add_subdirectory(ADL)
+
+# Audials, Hapticals, Visuals.
 add_subdirectory(VPL)
 add_subdirectory(Media)
 add_subdirectory(PixelBufferIO)
 add_subdirectory(SampleBufferIO)
 add_subdirectory(FontIO)
-
 add_subdirectory(Engine/Engine)
 add_subdirectory(Engine/UI)
 add_subdirectory(Engine/Audials.Implementation)
 
-add_subdirectory(Documentation)
-add_subdirectory(Tools/TemplateEngine)
-add_subdirectory(Tools/PixelBufferGenerator)
-
+# Software to be ported.
 add_subdirectory(repository)
 
 include(CMakePackageConfigHelpers)

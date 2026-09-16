@@ -20,8 +20,6 @@ set(this ${MyProjectName}.Engine.Examples.CheckerboardTexture)
 
 if (NOT TARGET ${this})
   set(${this}.Enabled FALSE)
-  SetFolder(${this} "Engine/Examples")
-
 
   # This demo requires at least one visuals backend.
   if (${${MyProjectName}.Engine.Visuals.Implementation.OpenGL4.Enabled})
@@ -35,6 +33,8 @@ if (NOT TARGET ${this})
   endif()
 
   BeginProduct(${this} executable)
+
+  SetFolder(${this} "Engine/Examples")
 
   set(${this}.Windows.ResourceFile ${CMAKE_CURRENT_SOURCE_DIR}/Resources.rc)
 
@@ -60,6 +60,7 @@ if (NOT TARGET ${this})
 
   OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
+  OnModuleDependency(${this} ${MyProjectName}.Engine PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.Engine.UI PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.ADL PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)

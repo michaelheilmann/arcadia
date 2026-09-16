@@ -1,0 +1,6 @@
+{
+  type : "Model",
+  name : "TextRenderingScene.TextureColorModel",
+  mesh : "TextRenderingScene.Mesh",
+  material : "TextRenderingScene.TextureColorMaterial",
+}

@@ -18,3 +18,4 @@ cmake_minimum_required(VERSION 3.29)
 
 add_subdirectory(Library)
 add_subdirectory(Tests)
+add_subdirectory(Documentation)

@@ -1,0 +1,73 @@
+  @{include("./Commons/header-common.i")}
+
+  <link rel='canonical' href='@{siteAddress}/news.html'>
+  <title>News</title>
+</head>
+<body class="my-content-page-1">
+  <header>
+  <div>
+  <a href="@{siteAddress}/">Home</a>
+  </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+    <h1>News</h1>
+  </div>
+  <div class="right-column"></div>
+  </main>
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column">
+
+     <div class="news-item">
+
+        <div class="news-item-header">
+        2023-10-23
+        </div>
+
+        <div class="news-item-body">
+          <p>The website was updated.</p>
+          <p>In particular, typography was improved.</p>
+          <p>In the course of the next few weeks, the existing documentation that was created so far, will be migrated to this site.</p>
+        </div>
+
+      </div>
+
+      <div class="news-item">
+
+        <div class="news-item-header">
+        2023-10-13
+        </div>
+
+        <div>
+
+        <p>
+        Hi! I am Michael Heilmann an Information Systems Architect.
+        </p>
+
+        <p>
+        Thank you for visiting my website.
+        This is the portal to all of my open-source projects, which are available for public use and collaboration.
+        </p>
+
+        <p>
+        All of my projects, including the sources for this website, are licensed under open-source licenses and are made available via GitHub under <a href="https://github.com/michaelheilmann/">https://github.com/michaelheilmann/</a>.
+        </p>
+
+        <p>
+        Should you have inquiries, suggestions, or if you are interested in contributing, please contact do not hesitate to contact me directly via email <a href="mailto:contact@@michaelheilmann.com">contact@@michaelheilmann.com</a>.
+        </p>
+
+        </div>
+
+      </div>
+
+    </div>
+    <div class="right-column">
+      <div>Website maintained by @{siteAuthor}.</div>
+      <div>Last modified on @{dayOfMonth()} @{monthName()} @{year()}.</div>
+    </div>
+  </footer>
+</body>
+</html>

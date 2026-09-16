@@ -103,10 +103,10 @@ build:
 
 after_build:
     - ps: New-Item ${env:BUILD_DIRECTORY}\.keepme -type file
-    - ps: 7z a .\..\Package\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\.keepme
-    - ps: 7z a .\..\Package\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\Tools\TemplateEngine\Tool\${env:CONFIGURATION}\Arcadia.TemplateEngine.CLI.exe
-    - ps: 7z rn .\..\Package\${env:ARCHIVE_FILENAME} Arcadia.TemplateEngine.CLI.exe TemplateEngine\Binaries\Arcadia.TemplateEngine.CLI.exe
-    - ps: Push-AppveyorArtifact .\..\Package\${env:ARCHIVE_FILENAME} -FileName ${env:ARCHIVE_FILENAME} -DeploymentName ${env:ARCHIVE_FILENAME}
+    - ps: 7z a ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\.keepme
+    - ps: 7z a ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\Tools\TemplateEngine\Tool\${env:CONFIGURATION}\Arcadia.TemplateEngine.CLI.exe
+    - ps: 7z rn ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} Arcadia.TemplateEngine.CLI.exe TemplateEngine\Binaries\Arcadia.TemplateEngine.CLI.exe
+    - ps: Push-AppveyorArtifact ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} -FileName ${env:ARCHIVE_FILENAME} -DeploymentName ${env:ARCHIVE_FILENAME}
 
 test_script:
     - ps: ctest --output-junit ${env:BUILD_DIRECTORY}/test-results-${env:APPVEYOR_JOB_ID}.xml -C ${env:CONFIGURATION}
@@ -124,7 +124,7 @@ matrix:
 
 #artifacts:
 #    - name: $(ARCHIVE_FILENAME)
-#      path: .\..\Package\$(ARCHIVE_FILENAME)
+#      path: $(PACKAGE_DIRECTORY)\$(ARCHIVE_FILENAME)
 
 deploy:
     release: $(RELEASE_NAME)

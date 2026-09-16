@@ -23,6 +23,8 @@ An out-of-source build is the recommended way of building *michaelheilmann.com*.
 
 - Checkout [https://github.com/michaelheilmann/arcadia](https://github.com/michaelheilmann/arcadia) into a directory in your file system.
   For the remainder of this manual, we call this directory *source directory* and denote it in command-line prompts by the meta variable `<source-directory>`.
+- Create a build directory outside of the source directory, for example as a sibling of the source directory.
+  For the remainder of this manual, we call this directory *build directory* and denote it in command-line prompts by the meta variable `<build-directory>`.
 - Open a console and enter the build directory `<build-directory>`.
 - The file `<source-directory>/CMakePresets.json` provides presets for the target architectures `x64` and `Win32`.
   To generate build files, use one of these configure presets:

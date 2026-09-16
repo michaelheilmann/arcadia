@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.MediumVioletRed",
-  red : 199,
-  green : 21,
-  blue : 133,
-}

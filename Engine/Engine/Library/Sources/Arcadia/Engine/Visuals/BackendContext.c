@@ -148,11 +148,14 @@ Arcadia_Engine_Visuals_BackendContext_createMaterialResource
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_BackendContext* self,
+    Arcadia_BooleanValue blendEnabled,
+    Arcadia_Engine_Visuals_BlendFunction blendSourceFunction,
+    Arcadia_Engine_Visuals_BlendFunction blendDestinationFunction,
     Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource ambientColorSource,
     Arcadia_Engine_Visuals_TextureResource* ambientTexture,
     Arcadia_Engine_Visuals_ProgramResource* program
   )
-{ Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, createMaterialResource, self, ambientColorSource, ambientTexture, program); }
+{ Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, createMaterialResource, self, blendEnabled, blendSourceFunction, blendDestinationFunction, ambientColorSource, ambientTexture, program); }
 
 Arcadia_Engine_Visuals_ModelResource*
 Arcadia_Engine_Visuals_BackendContext_createModelResource

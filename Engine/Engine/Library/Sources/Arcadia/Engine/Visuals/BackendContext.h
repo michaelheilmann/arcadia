@@ -127,6 +127,9 @@ struct Arcadia_Engine_Visuals_BackendContextDispatch {
     (
       Arcadia_Thread* thread,
       Arcadia_Engine_Visuals_BackendContext* self,
+      Arcadia_BooleanValue blendEnabled,
+      Arcadia_Engine_Visuals_BlendFunction blendSourceFunction,
+      Arcadia_Engine_Visuals_BlendFunction blendDestinationFunction,
       Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource ambientColorSource,
       Arcadia_Engine_Visuals_TextureResource* ambientTexture,
       Arcadia_Engine_Visuals_ProgramResource* program
@@ -231,6 +234,9 @@ Arcadia_Engine_Visuals_BackendContext_createMaterialResource
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_BackendContext* self,
+    Arcadia_BooleanValue blendEnabled,
+    Arcadia_Engine_Visuals_BlendFunction blendSourceFunction,
+    Arcadia_Engine_Visuals_BlendFunction blendDestinationFunction,
     Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource ambientColorSource,
     Arcadia_Engine_Visuals_TextureResource* ambientTexture,
     Arcadia_Engine_Visuals_ProgramResource* program

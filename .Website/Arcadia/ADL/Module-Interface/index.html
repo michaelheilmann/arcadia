@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+
+<link rel='stylesheet' href='https://michaelheilmann.com/assets/cxx-doc.css?v=1'>
+<link rel='canonical' href='https://michaelheilmann.com/Arcadia/ADL/Module-Interface/'>
+<title>Michael Heilmann's Arcadia ADL Module Interface</title>
+<style>
+</style>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div>
+    <a href="https://michaelheilmann.com/">Home</a>
+    </div>
+  </header>
+<main>
+  <div class="left-column"></div>
+  <div class="center-column">
+  <h1>Michael Heilmann's Arcadia ADL Module Interface</h1>
+  <p>
+  This is the documentation for Michael Heilmann's Arcadia ADL. The module defines</p>
+  <ul>
+    <li>the context and the reader registry that process ADL assets,</li>
+    <li>the container of definitions and the base definition and reference types, and</li>
+    <li>the definition types of the assets an Arcadia application loads: colors, meshes, models, materials, pixel buffers, pixel-buffer operations, textures, sample buffers, and digital signal processing definitions.</li>
+  </ul>
+<h2>Module Interface</h2>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_Context">Arcadia_ADL_Context</h1>
+<my-signature><code>
+Arcadia_ADL_Context
+</code></my-signature>
+
+<my-summary>
+A context is a registry of readers, mapping the string type of an ADL asset to the
+reader that processes it.
+</my-summary>
+
+<my-remarks>
+<p>
+A context is a singleton: there is exactly one context per process. It is created on
+demand by <code>Arcadia_ADL_Context_getOrCreate</code>. Reading an asset whose
+<code>type</code> entry is not served by any registered reader raises a semantical
+error.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Context_getOrCreate">Arcadia_ADL_Context_getOrCreate</h1>
+<my-signature><code>
+Arcadia_ADL_Context* Arcadia_ADL_Context_getOrCreate
+&nbsp;&nbsp;(Arcadia_Thread* thread)
+</code></my-signature>
+
+<my-summary>
+Get the context of the process, creating it on the first call.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The context of the process.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the context cannot be allocated.</div>
+</section>
+</section>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Context_readFromString">Arcadia_ADL_Context_readFromString</h1>
+<my-signature><code>
+Arcadia_ADL_Definition* Arcadia_ADL_Context_readFromString
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Context* self,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* input,
+&nbsp;&nbsp;&nbsp;Arcadia_BooleanValue skipExisting)
+</code></my-signature>
+
+<my-summary>
+Read an ADL asset from a string, storing the resulting definition in the container
+of definitions.
+</my-summary>
+
+<my-remarks>
+<p>
+The string is parsed with the default DDL reader into a DDL map node and then
+processed as a node (see <code>Arcadia_ADL_Context_readFromNode</code>).
+</p>
+</my-remarks>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>self</div>
+  <div>The context.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container of definitions the resulting definition is stored in.</div>
+</div>
+<div>
+  <div>input</div>
+  <div>The string that contains the ADL asset.</div>
+</div>
+<div>
+  <div>skipExisting</div>
+  <div>If an asset with the same name as the resulting definition was read before: skip the new definition (<code>skipExisting</code> is true) or raise an exists error (it is false).</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The resulting definition, or the already stored definition of the same name if
+<code>skipExisting</code> is true.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises an error if the asset is not a DDL map, if its <code>type</code> entry is not served by a registered reader, if the asset violates the schema of its type, or if a definition of the same name already exists and <code>skipExisting</code> is false.</div>
+</section>
+</section>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Context_readFromNode">Arcadia_ADL_Context_readFromNode</h1>
+<my-signature><code>
+Arcadia_ADL_Definition* Arcadia_ADL_Context_readFromNode
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Context* self,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_DDL_Node* input,
+&nbsp;&nbsp;&nbsp;Arcadia_BooleanValue skipExisting)
+</code></my-signature>
+
+<my-summary>
+Read an ADL asset from a DDL map node, storing the resulting definition in the
+container of definitions.
+</my-summary>
+
+<my-remarks>
+<p>
+The node must be a DDL map node; otherwise a semantical error is raised. The
+<code>type</code> entry selects the reader, which validates the asset against its
+schema and constructs the definition.
+</p>
+</my-remarks>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>self</div>
+  <div>The context.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container of definitions the resulting definition is stored in.</div>
+</div>
+<div>
+  <div>input</div>
+  <div>The DDL map node that contains the ADL asset.</div>
+</div>
+<div>
+  <div>skipExisting</div>
+  <div>If an asset with the same name as the resulting definition was read before: skip the new definition (<code>skipExisting</code> is true) or raise an exists error (it is false).</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The resulting definition, or the already stored definition of the same name if
+<code>skipExisting</code> is true.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises an error if the asset is not a DDL map, if its <code>type</code> entry is not served by a registered reader, if the asset violates the schema of its type, or if a definition of the same name already exists and <code>skipExisting</code> is false.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_Reader">Arcadia_ADL_Reader</h1>
+<my-signature><code>
+Arcadia_ADL_Reader
+</code></my-signature>
+
+<my-summary>
+A reader validates the assets of a definition type against their schema and
+constructs the resulting definitions.
+</my-summary>
+
+<my-remarks>
+<p>
+The <code>Arcadia.ADL.Reader</code> type is the base type of the concrete readers of
+the module, one per definition type. A reader lives in the context registry and is
+looked up by the string <code>type</code> entry of an asset. Applications normally do
+not call the methods of a reader directly; they read assets through a context.
+</p>
+<p>
+Each concrete reader owns the schema of its type, given in the Arcadia Data
+Definition Schema Language (Arcadia DDLS), and validates every asset against it
+before constructing the definition.
+</p>
+</my-remarks>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_Definition">Arcadia_ADL_Definition</h1>
+<my-signature><code>
+Arcadia_ADL_Definition
+</code></my-signature>
+
+<my-summary>
+A definition, the base type of all definitions of the Arcadia asset definition
+language.
+</my-summary>
+
+<my-remarks>
+<p>
+A definition has a name and belongs to a container of definitions. Some definitions
+hold references to other definitions; such references are resolved when the
+definition is linked (see <code>Arcadia_ADL_Definition_link</code> and
+<code>Arcadia_ADL_Definitions_link</code>).
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Definition_getName">Arcadia_ADL_Definition_getName</h1>
+<my-signature><code>
+Arcadia_String* Arcadia_ADL_Definition_getName
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definition* self)
+</code></my-signature>
+
+<my-summary>
+Get the name of the definition.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>self</div>
+  <div>The definition.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The name of the definition.
+</section>
+</section>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Definition_link">Arcadia_ADL_Definition_link</h1>
+<my-signature><code>
+void Arcadia_ADL_Definition_link
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definition* self)
+</code></my-signature>
+
+<my-summary>
+Link the definition: resolve its references and check their types.
+</my-summary>
+
+<my-remarks>
+<p>
+This is a virtual method. Link implementations resolve every reference of the
+concrete definition, check that the referenced definition has the required type,
+and link referenced definitions recursively. Linking is idempotent.
+</p>
+</my-remarks>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>self</div>
+  <div>The definition.</div>
+</div>
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises an error if a referenced definition does not exist or does not have the required type.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_Definitions">Arcadia_ADL_Definitions</h1>
+<my-signature><code>
+Arcadia_ADL_Definitions
+</code></my-signature>
+
+<my-summary>
+A container of definitions, mapping definition names to definitions.
+</my-summary>
+
+<my-remarks>
+<p>
+An application reads all of its assets into one container and links the container
+once the assets have been read.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Definitions_create">Arcadia_ADL_Definitions_create</h1>
+<my-signature><code>
+Arcadia_ADL_Definitions* Arcadia_ADL_Definitions_create
+&nbsp;&nbsp;(Arcadia_Thread* thread)
+</code></my-signature>
+
+<my-summary>
+Create an empty container of definitions.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+An empty container of definitions.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the container cannot be allocated.</div>
+</section>
+</section>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Definitions_getDefinitionOrNull">Arcadia_ADL_Definitions_getDefinitionOrNull</h1>
+<my-signature><code>
+Arcadia_ADL_Definition* Arcadia_ADL_Definitions_getDefinitionOrNull
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* self,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name)
+</code></my-signature>
+
+<my-summary>
+Get the definition with the given name, or a null pointer if no definition of that
+name is stored.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>self</div>
+  <div>The container.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition with the given name, or a null pointer if there is none.
+</section>
+</section>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Definitions_link">Arcadia_ADL_Definitions_link</h1>
+<my-signature><code>
+void Arcadia_ADL_Definitions_link
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* self)
+</code></my-signature>
+
+<my-summary>
+Link every definition of the container.
+</my-summary>
+
+<my-remarks>
+<p>
+Linking the container links the whole graph of definitions, because linking a
+definition also links the definitions it references.
+</p>
+</my-remarks>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>self</div>
+  <div>The container.</div>
+</div>
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises an error if a referenced definition of any stored definition does not exist or does not have the required type.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_Reference">Arcadia_ADL_Reference</h1>
+<my-signature><code>
+Arcadia_ADL_Reference
+</code></my-signature>
+
+<my-summary>
+A reference of a definition to another definition, by name.
+</my-summary>
+
+<my-remarks>
+<p>
+While an asset is being read, a reference holds the name of the referenced
+definition but not the definition itself. Resolving the reference looks the name up
+in the container of definitions. References are resolved when the owning definition
+is linked.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Reference_create">Arcadia_ADL_Reference_create</h1>
+<my-signature><code>
+Arcadia_ADL_Reference* Arcadia_ADL_Reference_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* definitionName)
+</code></my-signature>
+
+<my-summary>
+Create a reference to the definition with the given name.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the referenced definition is looked up in.</div>
+</div>
+<div>
+  <div>definitionName</div>
+  <div>The name of the referenced definition.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+A reference to the definition with the given name.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the reference cannot be allocated.</div>
+</section>
+</section>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Reference_getDefinitionName">Arcadia_ADL_Reference_getDefinitionName</h1>
+<my-signature><code>
+Arcadia_String* Arcadia_ADL_Reference_getDefinitionName
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Reference* self)
+</code></my-signature>
+
+<my-summary>
+Get the name of the referenced definition.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>self</div>
+  <div>The reference.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The name of the referenced definition.
+</section>
+</section>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_Reference_resolve">Arcadia_ADL_Reference_resolve</h1>
+<my-signature><code>
+void Arcadia_ADL_Reference_resolve
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Reference* self)
+</code></my-signature>
+
+<my-summary>
+Resolve the reference: look the referenced definition up in the container.
+</my-summary>
+
+<my-remarks>
+<p>
+Resolving is idempotent: a reference that was already resolved is left unchanged.
+If the referenced definition does not exist, an error is raised.
+</p>
+</my-remarks>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>self</div>
+  <div>The reference.</div>
+</div>
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_NotFound</code> if the referenced definition does not exist.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_ColorDefinition">Arcadia_ADL_ColorDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_ColorDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a color, with red, green, and blue components.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"Color"</code>. The definition holds no references and therefore
+links trivially.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_ColorDefinition_create">Arcadia_ADL_ColorDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_ColorDefinition* Arcadia_ADL_ColorDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value red,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value green,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value blue)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a color.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>red</div>
+  <div>The red component.</div>
+</div>
+<div>
+  <div>green</div>
+  <div>The green component.</div>
+</div>
+<div>
+  <div>blue</div>
+  <div>The blue component.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the color.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_MeshDefinition">Arcadia_ADL_MeshDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_MeshDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a polygonal mesh.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"Mesh"</code>. The mesh holds a reference to the color of its
+vertices; linking the definition resolves this reference and requires the
+referenced definition to be a <code>Color</code> definition.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_MeshDefinition_create">Arcadia_ADL_MeshDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_MeshDefinition* Arcadia_ADL_MeshDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_SizeValue numberOfVertices,
+&nbsp;&nbsp;&nbsp;Arcadia_RuntimeByteArray* vertexPositions,
+&nbsp;&nbsp;&nbsp;Arcadia_RuntimeByteArray* vertexAmbientColors,
+&nbsp;&nbsp;&nbsp;Arcadia_RuntimeByteArray* vertexAmbientTextureCoordinates,
+&nbsp;&nbsp;&nbsp;Arcadia_String* ambientColorName)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a mesh.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>numberOfVertices</div>
+  <div>The number of vertices of the mesh.</div>
+</div>
+<div>
+  <div>vertexPositions</div>
+  <div>The positions of the vertices.</div>
+</div>
+<div>
+  <div>vertexAmbientColors</div>
+  <div>The ambient colors of the vertices.</div>
+</div>
+<div>
+  <div>vertexAmbientTextureCoordinates</div>
+  <div>The ambient texture coordinates of the vertices.</div>
+</div>
+<div>
+  <div>ambientColorName</div>
+  <div>The name of the referenced color definition.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the mesh.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_ModelDefinition">Arcadia_ADL_ModelDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_ModelDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a model: a mesh rendered with a material.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"Model"</code>. The model holds a reference to a mesh and a
+reference to a material, both resolved when the definition is linked.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_ModelDefinition_create">Arcadia_ADL_ModelDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_ModelDefinition* Arcadia_ADL_ModelDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_String* meshName,
+&nbsp;&nbsp;&nbsp;Arcadia_String* materialName)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a model.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>meshName</div>
+  <div>The name of the referenced mesh definition.</div>
+</div>
+<div>
+  <div>materialName</div>
+  <div>The name of the referenced material definition.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the model.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_MaterialDefinition">Arcadia_ADL_MaterialDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_MaterialDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of the material a model is rendered with.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"Material"</code>. The material holds a reference to the texture of
+its ambient-color source, resolved when the definition is linked; the referenced
+definition must be a <code>Texture</code> definition.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_MaterialDefinition_create">Arcadia_ADL_MaterialDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_MaterialDefinition* Arcadia_ADL_MaterialDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_MaterialType materialType,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_AmbientColorSource ambientColorSource,
+&nbsp;&nbsp;&nbsp;Arcadia_String* ambientColorTextureName,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_BlendFunction blendSourceFunction,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_BlendFunction blendDestinationFunction)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a material.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>materialType</div>
+  <div>The material type, an element of the <code>Arcadia_ADL_MaterialType</code> enumeration.</div>
+</div>
+<div>
+  <div>ambientColorSource</div>
+  <div>The source of the ambient color, an element of the <code>Arcadia_ADL_AmbientColorSource</code> enumeration.</div>
+</div>
+<div>
+  <div>ambientColorTextureName</div>
+  <div>The name of the referenced texture definition.</div>
+</div>
+<div>
+  <div>blendSourceFunction</div>
+  <div>The source blend function, an element of the <code>Arcadia_ADL_BlendFunction</code> enumeration. The element <code>None</code> selects the default of the engine.</div>
+</div>
+<div>
+  <div>blendDestinationFunction</div>
+  <div>The destination blend function, an element of the <code>Arcadia_ADL_BlendFunction</code> enumeration. The element <code>None</code> selects the default of the engine.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the material.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_PixelBufferDefinition">Arcadia_ADL_PixelBufferDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_PixelBufferDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a pixel buffer with a width, a height, and a list of fill operations.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"PixelBuffer"</code>. The definition holds a list of references
+to its fill operations; linking the definition resolves the references.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_PixelBufferDefinition_create">Arcadia_ADL_PixelBufferDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_PixelBufferDefinition* Arcadia_ADL_PixelBufferDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural32Value width,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural32Value height)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a pixel buffer.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>width</div>
+  <div>The width, in pixels, of the pixel buffer.</div>
+</div>
+<div>
+  <div>height</div>
+  <div>The height, in pixels, of the pixel buffer.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the pixel buffer.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_TextureDefinition">Arcadia_ADL_TextureDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_TextureDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a texture: a pixel buffer sampled with a magnification filter,
+a minification filter, and a texture address mode for each texture coordinate.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"Texture"</code>. The texture holds a reference to the pixel
+buffer it samples, resolved when the definition is linked; the referenced
+definition must be a <code>PixelBuffer</code> definition.
+</p>
+<p>
+The sampling properties <code>magnificationFilter</code>, <code>minificationFilter</code>,
+<code>addressModeU</code>, and <code>addressModeV</code> are optional. The value
+<code>None</code> is the default value and indicates that the sampling property is not
+specified, in which case the default of the engine is used.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_TextureDefinition_create">Arcadia_ADL_TextureDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_TextureDefinition* Arcadia_ADL_TextureDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_String* pixelBufferName,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_TextureFilter magnificationFilter,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_TextureFilter minificationFilter,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_TextureAddressMode addressModeU,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_TextureAddressMode addressModeV)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a texture.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>pixelBufferName</div>
+  <div>The name of the referenced pixel buffer definition.</div>
+</div>
+<div>
+  <div>magnificationFilter</div>
+  <div>The magnification filter, an element of the <code>Arcadia_ADL_TextureFilter</code> enumeration. The element <code>None</code> selects the default of the engine.</div>
+</div>
+<div>
+  <div>minificationFilter</div>
+  <div>The minification filter, an element of the <code>Arcadia_ADL_TextureFilter</code> enumeration. The element <code>None</code> selects the default of the engine.</div>
+</div>
+<div>
+  <div>addressModeU</div>
+  <div>The texture address mode of the U texture coordinate, an element of the <code>Arcadia_ADL_TextureAddressMode</code> enumeration. The element <code>None</code> selects the default of the engine.</div>
+</div>
+<div>
+  <div>addressModeV</div>
+  <div>The texture address mode of the V texture coordinate, an element of the <code>Arcadia_ADL_TextureAddressMode</code> enumeration. The element <code>None</code> selects the default of the engine.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the texture.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_PixelBufferOperations_FillOperationDefinition">Arcadia_ADL_PixelBufferOperations_FillOperationDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_PixelBufferOperations_FillOperationDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a fill operation that fills a pixel buffer with a single color.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"PixelBufferOperations.FillOperation"</code>. The fill operation
+holds a reference to the color it fills the pixel buffer with, resolved when the
+definition is linked; the referenced definition must be a <code>Color</code>
+definition.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_PixelBufferOperations_FillOperationDefinition_create">Arcadia_ADL_PixelBufferOperations_FillOperationDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_PixelBufferOperations_FillOperationDefinition* Arcadia_ADL_PixelBufferOperations_FillOperationDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_String* colorName)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a fill operation.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>colorName</div>
+  <div>The name of the referenced color definition.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the fill operation.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_PixelBufferOperations_CheckerboardFillOperationDefinition">Arcadia_ADL_PixelBufferOperations_CheckerboardFillOperationDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_PixelBufferOperations_CheckerboardFillOperationDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a fill operation that fills a pixel buffer with a checkerboard pattern.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"PixelBufferOperations.CheckerboardFillOperation"</code>. The fill
+operation holds a reference to the color of the first checker and a reference to
+the color of the second checker, both resolved when the definition is linked; the
+referenced definitions must be <code>Color</code> definitions.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_PixelBufferOperations_CheckerboardFillOperationDefinition_create">Arcadia_ADL_PixelBufferOperations_CheckerboardFillOperationDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_PixelBufferOperations_CheckerboardFillOperationDefinition* Arcadia_ADL_PixelBufferOperations_CheckerboardFillOperationDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_Integer32Value checkerWidth,
+&nbsp;&nbsp;&nbsp;Arcadia_Integer32Value checkerHeight,
+&nbsp;&nbsp;&nbsp;Arcadia_String* firstCheckerColorName,
+&nbsp;&nbsp;&nbsp;Arcadia_String* secondCheckerColorName)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a checkerboard fill operation.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>checkerWidth</div>
+  <div>The width, in pixels, of a checker of the pattern.</div>
+</div>
+<div>
+  <div>checkerHeight</div>
+  <div>The height, in pixels, of a checker of the pattern.</div>
+</div>
+<div>
+  <div>firstCheckerColorName</div>
+  <div>The name of the referenced color definition of the first checker.</div>
+</div>
+<div>
+  <div>secondCheckerColorName</div>
+  <div>The name of the referenced color definition of the second checker.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the checkerboard fill operation.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_SampleBufferDefinition">Arcadia_ADL_SampleBufferDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_SampleBufferDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a sample buffer: a digital signal of a given duration generated by a digital signal processing (DSP) definition.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"SampleBuffer"</code>. The sample buffer holds a reference to the
+DSP its signal is generated with, resolved when the definition is linked.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_SampleBufferDefinition_create">Arcadia_ADL_SampleBufferDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_SampleBufferDefinition* Arcadia_ADL_SampleBufferDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural32Value duration,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Reference* dsp)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a sample buffer.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>duration</div>
+  <div>The duration, in seconds, of the sample buffer.</div>
+</div>
+<div>
+  <div>dsp</div>
+  <div>The reference to the DSP the sample buffer is generated with.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the sample buffer.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_ConstantDefinition">Arcadia_ADL_ConstantDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_ConstantDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a digital signal processing (DSP) generating a constant signal.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"DSP.Constant"</code>.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_ConstantDefinition_create">Arcadia_ADL_ConstantDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_ConstantDefinition* Arcadia_ADL_ConstantDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_Real32Value value)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a constant-signal DSP.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>value</div>
+  <div>The constant value of the signal.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the constant-signal DSP.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_SineWaveDefinition">Arcadia_ADL_SineWaveDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_SineWaveDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a digital signal processing (DSP) generating a sine wave signal of a constant frequency.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"DSP.SineWave"</code>.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_SineWaveDefinition_create">Arcadia_ADL_SineWaveDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_SineWaveDefinition* Arcadia_ADL_SineWaveDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_Integer32Value frequency)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a sine wave DSP.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>frequency</div>
+  <div>The frequency, in Hertz, of the sine wave.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the sine wave DSP.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_SawtoothWaveDefinition">Arcadia_ADL_SawtoothWaveDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_SawtoothWaveDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a digital signal processing (DSP) generating a sawtooth wave signal of a constant frequency.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"DSP.SawtoothWave"</code>.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_SawtoothWaveDefinition_create">Arcadia_ADL_SawtoothWaveDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_SawtoothWaveDefinition* Arcadia_ADL_SawtoothWaveDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_Integer32Value frequency)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a sawtooth wave DSP.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+<div>
+  <div>frequency</div>
+  <div>The frequency, in Hertz, of the sawtooth wave.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the sawtooth wave DSP.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_WhiteNoiseDefinition">Arcadia_ADL_WhiteNoiseDefinition</h1>
+<my-signature><code>
+Arcadia_ADL_WhiteNoiseDefinition
+</code></my-signature>
+
+<my-summary>
+The definition of a digital signal processing (DSP) generating a white noise signal.
+</my-summary>
+
+<my-remarks>
+<p>
+The type name of the definition, used as the <code>type</code> entry of an ADL
+asset, is <code>"DSP.WhiteNoise"</code>.
+</p>
+</my-remarks>
+
+<section class="cxx methods">
+<h1>Methods</h1>
+
+<section class="cxx method">
+<h1 id="Arcadia_ADL_WhiteNoiseDefinition_create">Arcadia_ADL_WhiteNoiseDefinition_create</h1>
+<my-signature><code>
+Arcadia_ADL_WhiteNoiseDefinition* Arcadia_ADL_WhiteNoiseDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name)
+</code></my-signature>
+
+<my-summary>
+Create the definition of a white noise DSP.
+</my-summary>
+
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div>
+  <div>thread</div>
+  <div>The thread.</div>
+</div>
+<div>
+  <div>definitions</div>
+  <div>The container the definition belongs to.</div>
+</div>
+<div>
+  <div>name</div>
+  <div>The name of the definition.</div>
+</div>
+</section>
+
+<section class="cxx return-value">
+<h1>Return value</h1>
+The definition of the white noise DSP.
+</section>
+
+<section class="cxx errors">
+<h1>Errors</h1>
+<div>Raises <code>Arcadia_Status_AllocationFailed</code> if the definition cannot be allocated.</div>
+</section>
+</section>
+
+</section>
+
+</section>
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_ADL_BlendFunction">Arcadia_ADL_BlendFunction</h1>
+<my-signature><code>
+typedef enum Arcadia_ADL_BlendFunction Arcadia_ADL_BlendFunction;
+</code></my-signature>
+
+<my-summary>
+An enumeration of blend functions.
+A blend function identifies the factor the source or the destination color is multiplied with when blending is enabled.
+The values correspond to the blend functions of the engine and to the blend factors of OpenGL.
+</my-summary>
+
+<my-remarks>
+<p>
+The value <code>None</code> is used as the default value and indicates that blending is
+disabled and hence no blend functions are applied. In ADL assets, each element is
+identified by a string literal of the same name, e.g. <code>"Zero"</code> or
+<code>"SourceAlpha"</code>.
+</p>
+</my-remarks>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_None</code></div>
+    <div>
+    Blending is disabled. This is the default value.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_Zero</code></div>
+    <div>
+    The factor (0,0,0,0).
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_One</code></div>
+    <div>
+    The factor (1,1,1,1).
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_SourceColor</code></div>
+    <div>
+    The factor is the color of the source.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_OneMinusSourceColor</code></div>
+    <div>
+    The factor is one minus the color of the source.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_DestinationColor</code></div>
+    <div>
+    The factor is the color of the destination.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_OneMinusDestinationColor</code></div>
+    <div>
+    The factor is one minus the color of the destination.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_SourceAlpha</code></div>
+    <div>
+    The factor is the alpha of the source.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_OneMinusSourceAlpha</code></div>
+    <div>
+    The factor is one minus the alpha of the source.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_DestinationAlpha</code></div>
+    <div>
+    The factor is the alpha of the destination.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_BlendFunction_OneMinusDestinationAlpha</code></div>
+    <div>
+    The factor is one minus the alpha of the destination.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_ADL_AmbientColorSource">Arcadia_ADL_AmbientColorSource</h1>
+<my-signature><code>
+typedef enum Arcadia_ADL_AmbientColorSource Arcadia_ADL_AmbientColorSource;
+</code></my-signature>
+
+<my-summary>
+An enumeration of ambient color sources.
+An ambient color source identifies where the ambient color of a material is taken from.
+</my-summary>
+
+<my-remarks>
+<p>
+In ADL assets, each element is identified by a string literal of the same name, e.g.
+<code>"Mesh"</code> or <code>"Texture"</code>.
+</p>
+</my-remarks>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div><code>Arcadia_ADL_AmbientColorSource_Mesh</code></div>
+    <div>
+    The ambient color is the ambient color of the mesh.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_AmbientColorSource_Vertex</code></div>
+    <div>
+    The ambient color is taken from the vertices of the mesh.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_AmbientColorSource_Texture</code></div>
+    <div>
+    The ambient color is sampled from a texture.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_ADL_MaterialType">Arcadia_ADL_MaterialType</h1>
+<my-signature><code>
+typedef enum Arcadia_ADL_MaterialType Arcadia_ADL_MaterialType;
+</code></my-signature>
+
+<my-summary>
+An enumeration of material types.
+A material type identifies the illumination model a material is evaluated with.
+</my-summary>
+
+<my-remarks>
+<p>
+In ADL assets, the element <code>BlinnPhong</code> is identified by the string literal
+<code>"Blinn-Phong"</code>.
+</p>
+</my-remarks>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div><code>Arcadia_ADL_MaterialType_BlinnPhong</code></div>
+    <div>
+    The material is evaluated with the Blinn-Phong illumination model.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_ADL_TextureFilter">Arcadia_ADL_TextureFilter</h1>
+<my-signature><code>
+typedef enum Arcadia_ADL_TextureFilter Arcadia_ADL_TextureFilter;
+</code></my-signature>
+
+<my-summary>
+An enumeration of texture magnification and minification filters.
+A texture filter identifies a technique to compute the pixel value closest to the specified uv coordinates.
+The values correspond to the texture filters of the engine.
+</my-summary>
+
+<my-remarks>
+<p>
+The value <code>None</code> is used as the default value and indicates that no filter is
+specified and the engine's default filter is used. In ADL assets, each element is
+identified by a string literal of the same name, e.g. <code>"Linear"</code> or
+<code>"Nearest"</code>.
+</p>
+</my-remarks>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div><code>Arcadia_ADL_TextureFilter_None</code></div>
+    <div>
+    No filter is specified. This is the default value.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_TextureFilter_Linear</code></div>
+    <div>
+    Linear filtering, e.g. bilinear interpolation.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_TextureFilter_Nearest</code></div>
+    <div>
+    Nearest-neighbor filtering.
+    </div>
+  </div>
+
+</section>
+
+</section>
+
+<section class="cxx entity enumeration">
+<h1 id="Arcadia_ADL_TextureAddressMode">Arcadia_ADL_TextureAddressMode</h1>
+<my-signature><code>
+typedef enum Arcadia_ADL_TextureAddressMode Arcadia_ADL_TextureAddressMode;
+</code></my-signature>
+
+<my-summary>
+An enumeration of texture address modes for the U and V texture coordinates.
+A texture address mode identifies a technique for resolving uv coordinates that are outside of the boundaries of a texture.
+The values correspond to the texture address modes of the engine.
+</my-summary>
+
+<my-remarks>
+<p>
+The value <code>None</code> is used as the default value and indicates that no address mode
+is specified and the engine's default address mode is used. In ADL assets, each element is
+identified by a string literal of the same name, e.g. <code>"ClampToEdge"</code> or
+<code>"Repeat"</code>.
+</p>
+</my-remarks>
+
+<section class="cxx enumeration-elements">
+
+  <h1>Elements</h1>
+
+  <div>
+    <div><code>Arcadia_ADL_TextureAddressMode_None</code></div>
+    <div>
+    No address mode is specified. This is the default value.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_TextureAddressMode_ClampToBorder</code></div>
+    <div>
+    Texture coordinates are clamped to the border.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_TextureAddressMode_ClampToEdge</code></div>
+    <div>
+    Texture coordinates are clamped to the edge.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_TextureAddressMode_MirroredRepeat</code></div>
+    <div>
+    Texture coordinates are mirrored and then repeated.
+    </div>
+  </div>
+  <div>
+    <div><code>Arcadia_ADL_TextureAddressMode_Repeat</code></div>
+    <div>
+    Texture coordinates are repeated.
+    </div>
+  </div>
+
+</section>
+
+</section>
+</div>
+  <div class="right-column">
+    <nav>
+      <ul style="list-style: none">
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_Context">Arcadia_ADL_Context</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_Reader">Arcadia_ADL_Reader</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_Definition">Arcadia_ADL_Definition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_Definitions">Arcadia_ADL_Definitions</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_Reference">Arcadia_ADL_Reference</a></li>
+
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_ColorDefinition">Arcadia_ADL_ColorDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_MeshDefinition">Arcadia_ADL_MeshDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_ModelDefinition">Arcadia_ADL_ModelDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_MaterialDefinition">Arcadia_ADL_MaterialDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_PixelBufferDefinition">Arcadia_ADL_PixelBufferDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_TextureDefinition">Arcadia_ADL_TextureDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_PixelBufferOperations_FillOperationDefinition">Arcadia_ADL_PixelBufferOperations_FillOperationDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_PixelBufferOperations_CheckerboardFillOperationDefinition">Arcadia_ADL_PixelBufferOperations_CheckerboardFillOperationDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_SampleBufferDefinition">Arcadia_ADL_SampleBufferDefinition</a></li>
+
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_ConstantDefinition">Arcadia_ADL_ConstantDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_SineWaveDefinition">Arcadia_ADL_SineWaveDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_SawtoothWaveDefinition">Arcadia_ADL_SawtoothWaveDefinition</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_WhiteNoiseDefinition">Arcadia_ADL_WhiteNoiseDefinition</a></li>
+
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_BlendFunction">Arcadia_ADL_BlendFunction</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_AmbientColorSource">Arcadia_ADL_AmbientColorSource</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_MaterialType">Arcadia_ADL_MaterialType</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_TextureFilter">Arcadia_ADL_TextureFilter</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/ADL/Module-Interface/#Arcadia_ADL_TextureAddressMode">Arcadia_ADL_TextureAddressMode</a></li>
+      </ul>
+    </nav>
+  </div>
+  </main>
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column"></div>
+    <div class="right-column">
+      <div>Website maintained by Michael Heilmann.</div>
+      <div>Last modified on 26 September 2026.</div>
+    </div>
+  </footer>
+  </body>
+</html>

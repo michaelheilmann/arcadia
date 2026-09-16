@@ -35,6 +35,8 @@ struct Arcadia_DDLS_MapNodeDispatch {
 struct Arcadia_DDLS_MapNode {
   Arcadia_DDLS_Node parent;
   Arcadia_Map* entries;
+  /// A map of optional entry names. If an entry name is present, the entry may be omitted by an instance.
+  Arcadia_Map* optional;
 };
 
 Arcadia_DDLS_MapNode*

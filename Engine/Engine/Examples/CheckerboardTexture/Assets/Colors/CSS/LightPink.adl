@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.LightPink",
-  red : 255,
-  green : 182,
-  blue : 193,
-}

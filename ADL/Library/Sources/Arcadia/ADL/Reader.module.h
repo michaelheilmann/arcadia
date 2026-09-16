@@ -231,4 +231,41 @@ Arcadia_ADL_Reader_getStringValue
   Arcadia_Thread_jump(thread);
 }
 
+// Get the string value of the map entry identified by the specified key.
+// If the map has no entry identified by the specified key, then the null pointer is returned.
+// If the map has an entry identified by the specified key, but the value is not a string, then
+// an error is raised.
+static inline Arcadia_String*
+Arcadia_ADL_Reader_getStringValueOptional
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_MapNode* mapNode,
+    Arcadia_String* key
+  )
+{
+  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)mapNode->entries); i < n; ++i) {
+    Arcadia_DDL_MapEntryNode* mapEntryNode =
+      (Arcadia_DDL_MapEntryNode*)
+      Arcadia_List_getObjectReferenceValueCheckedAt
+        (
+          thread,
+          (Arcadia_List*)mapNode->entries,
+          i,
+          _Arcadia_DDL_MapEntryNode_getType(thread)
+        );
+    Arcadia_DDL_NameNode* keyNode = mapEntryNode->key;
+    Arcadia_Value t = Arcadia_Value_makeObjectReferenceValue(key);
+    if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)keyNode->value, &t)) {
+      Arcadia_DDL_Node* valueNode = mapEntryNode->value;
+      if (!Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)valueNode, _Arcadia_DDL_StringNode_getType(thread))) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      Arcadia_DDL_StringNode* stringNode = (Arcadia_DDL_StringNode*)valueNode;
+      return stringNode->value;
+    }
+  }
+  return NULL;
+}
+
 #endif  // ARCADIA_ADL_READER_MODULE_H_INCLUDED

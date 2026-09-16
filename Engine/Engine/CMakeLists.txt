@@ -21,3 +21,5 @@ add_subdirectory(Documentation)
 
 add_subdirectory(Examples/SpaceshipAmbience)
 add_subdirectory(Examples/CheckerboardTexture)
+add_subdirectory(Examples/FontTexture)
+add_subdirectory(Examples/TextRendering)

@@ -1,0 +1,50 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Visuals_BlendFunction
+enumeration Arcadia.Engine.Visuals.BlendFunction {
+
+  // RGB := (0,0,0), ALPHA := (0)
+  Zero = 0
+
+  // RGB := (1,1,1), ALPHA := (1)
+  One = 1
+  
+  // RGB := (Rs, Gs, Bs), ALPHA := (As)
+  SourceColor = 2
+
+  // RGB := (1,1,1) - (Rs, Gs, Bs), ALPHA := 1 - (As)
+  OneMinusSourceColor = 3
+  
+  // RGB := (Rd, Gd, Bd), ALPHA := (Ad)
+  DestinationColor = 4
+  
+  // RGB := (1,1,1) - (Rd, Gd, Bd), ALPHA := 1 - (Ad)
+  OneMinusDestinationColor = 5
+  
+  // RGB := (As, As, As), ALPHA := (As)
+  SourceAlpha = 6
+  
+  // RGB := (1,1,1) - (As, As, As), ALPHA := 1 - (As)
+  OneMinusSourceAlpha = 7
+  
+  // RGB := (Ad, Ad, Ad), ALPHA := (Ad)
+  DestinationAlpha = 8
+  
+  // RGB := (1,1,1) - (Ad, Ad, Ad), ALPHA := 1 - (Ad)
+  OneMinusDestinationAlpha = 9
+
+}

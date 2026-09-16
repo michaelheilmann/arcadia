@@ -1,0 +1,9 @@
+{
+  type : "PixelBuffer",
+  name : "TextRenderingScene.PixelBuffer",
+  width: 256,
+  height: 256,
+  operations : [
+    "TextRenderingScene.FillOperation",
+  ],
+}

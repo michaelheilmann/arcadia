@@ -1,0 +1,9 @@
+{
+  type : "Material",
+  name : "TextRenderingScene.TextureColorMaterial",
+  materialType : "Blinn-Phong",
+  ambientColorSource : "Texture",
+  ambientColorTexture : "TextRenderingScene.Texture",
+  blendSourceFunction : "SourceAlpha",
+  blendDestinationFunction : "OneMinusSourceAlpha",
+}

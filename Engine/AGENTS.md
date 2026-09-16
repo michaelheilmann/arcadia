@@ -15,6 +15,14 @@
 - When adding a source, header, inlay, or generated configuration file, update the nearest `Library/CMakeLists.txt`; files are registered explicitly.
 - `Configure.h` files are generated from checked-in `Configure.h.i` templates via `OnConfigurationFile`. Include the generated `Configure.h` through the module's normal public/private include path, not by hard-coding the binary tree.
 - `Engine/Audials.Implementation` is option-gated by `${MyProjectName}.Engine.Audials.Implementation.OpenAL.Enabled`. Do not assume OpenAL headers or libraries are available unless that option is enabled.
+- `${MyProjectName}.Engine` registers an asset directory via `OnAssetsDirectory` in `Engine/Engine/Library/CMakeLists.txt`; its contents are provided to executables that link the library. See `## Assets`.
+
+## Assets
+
+- `${MyProjectName}.Engine` owns the asset directory `Engine/Engine/Assets`, registered in `Engine/Engine/Library/CMakeLists.txt`. It currently provides the shared CSS color definitions under `Assets/Colors/CSS/` (one `.adl` per CSS color keyword, defining `Colors.<CamelCaseName>`).
+- The engine provides these assets to executables it is linked to. `EndProduct` in `CMake/all.cmake` stamps `ARCADIA_ASSETS_DIRECTORIES`/`ARCADIA_ASSETS_FILES` target properties from the `OnAssetsDirectory` input; `CopyProductAssets` uses `Arcadia_collectTargetAssets` to walk the target's link closure (`LINK_LIBRARIES` and `INTERFACE_LINK_LIBRARIES`, including `$<LINK_ONLY:...>` forms, deduplicating visited targets) and copies every collected asset into the executable's binary tree, preserving relative paths.
+- A consumer only needs to link the engine library directly or transitively (e.g. via `${MyProjectName}.Engine.UI`); no per-consumer copy of `Assets/Colors/CSS` is required. Consumers load the assets at runtime with paths relative to the working directory, e.g. `Assets/Colors/CSS/Red.adl`.
+- Adding or removing engine-owned asset files requires no CMake edit (`OnAssetsDirectory` globs the tree at configure time).
 
 ## Include Boundaries
 

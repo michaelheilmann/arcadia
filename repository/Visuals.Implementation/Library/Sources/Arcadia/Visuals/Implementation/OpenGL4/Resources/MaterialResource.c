@@ -107,13 +107,13 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource);
-  if (4 != _numberOfArguments) {
+  if (7 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
   {
     Arcadia_Value t;
-    t = Arcadia_ValueStack_getValue(thread, 4);
+    t = Arcadia_ValueStack_getValue(thread, 7);
     Arcadia_ValueStack_pushValue(thread, &t);
     Arcadia_ValueStack_pushNatural8Value(thread, 1);
     Arcadia_superTypeConstructor(thread, _type, self);
@@ -121,6 +121,20 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource_constructImpl
 
   self->ambientColorTexture = NULL;
   self->program = NULL;
+
+  self->blendEnabled = Arcadia_ValueStack_getBooleanValue(thread, 6);
+  Arcadia_EnumerationValue blendSourceFunction = Arcadia_ValueStack_getEnumerationValue(thread, 5);
+  Arcadia_EnumerationValue blendDestinationFunction = Arcadia_ValueStack_getEnumerationValue(thread, 4);
+  if (blendSourceFunction.type != _Arcadia_Engine_Visuals_BlendFunction_getType(thread)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (blendDestinationFunction.type != _Arcadia_Engine_Visuals_BlendFunction_getType(thread)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  self->blendSourceFunction = (Arcadia_Engine_Visuals_BlendFunction)blendSourceFunction.value;
+  self->blendDestinationFunction = (Arcadia_Engine_Visuals_BlendFunction)blendDestinationFunction.value;
 
   self->ambientColorSource = Arcadia_ValueStack_getInteger32Value(thread, 3);
 
@@ -239,6 +253,9 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* backendContext,
+    Arcadia_BooleanValue blendEnabled,
+    Arcadia_Engine_Visuals_BlendFunction blendSourceFunction,
+    Arcadia_Engine_Visuals_BlendFunction blendDestinationFunction,
     Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource ambientColorSource,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_TextureResource* ambientColorTexture,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource* program
@@ -246,9 +263,12 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource_create
 {
   _Arcadia_BeginCreate(Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource);
   if (backendContext) Arcadia_ValueStack_pushObjectReferenceValue(thread, backendContext); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+  Arcadia_ValueStack_pushBooleanValue(thread, blendEnabled);
+  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_Engine_Visuals_BlendFunction_getType(thread), blendSourceFunction));
+  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_Engine_Visuals_BlendFunction_getType(thread), blendDestinationFunction));
   Arcadia_ValueStack_pushInteger32Value(thread, ambientColorSource);
   if (ambientColorTexture) Arcadia_ValueStack_pushObjectReferenceValue(thread, ambientColorTexture); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   if (program) Arcadia_ValueStack_pushObjectReferenceValue(thread, program); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
-  Arcadia_ValueStack_pushNatural8Value(thread, 4);
+  Arcadia_ValueStack_pushNatural8Value(thread, 7);
   _Arcadia_EndCreate(Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource);
 }

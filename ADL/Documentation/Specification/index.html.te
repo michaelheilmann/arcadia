@@ -1,0 +1,248 @@
+@{include("./../../Documentation/Commons/header-common.i")}
+<link rel='canonical' href='@{siteAddress}/Arcadia/ADL/Specification/'>
+<title>Specification of the Arcadia Asset Definition Language (draft, v0.1)</title>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div class="navigation breadcrumbs">
+      <a href="@{siteAddress}/">Home</a> / <a href="@{siteAddress}/Arcadia/ADL/">Arcadia ADL</a>
+    </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+      <h1>Specification of the Arcadia Asset Definition Language (draft, v0.1)</h1>
+      <p>
+      This document specifies the Arcadia asset definition language, Arcadia ADL for
+      short. It is a draft; it is authoritative over prose found elsewhere in this
+      documentation and over the doc-comment examples found in the headers of the
+      <code>Arcadia.ADL</code> module, which are known to be stale in places.
+      </p>
+
+      <h2>Notation</h2>
+      <p>
+      Adl assets are written in the
+      <a href="@{siteAddress}/specifications/data-definition-language/">Arcadia Data Definition Language</a>
+      (Arcadia DDL). The grammar productions used below are given in the notation of
+      <a href="@{siteAddress}/specifications/common-lexical-translations/">ArcDia Common Lexical Translations</a>.
+      A map entry line is written as <code>name : value</code> followed by a comma.
+      The name is an identifier, the value a literal or a list of literals.
+      </p>
+      <p>
+      The following types of values occur:
+      </p>
+      <ul>
+        <li><b>String</b>, for example <code>"Colors.Red"</code>,</li>
+        <li><b>Number</b>, an integer literal such as <code>255</code>, and</li>
+        <li><b>List</b>, a comma-separated list of values in square brackets, such as <code>[ 1.0, 0.0 ]</code>.</li>
+      </ul>
+
+      <h2>Structure of an asset</h2>
+      <p>
+      An ADL asset is a DDL map. Every definition of every type has the entry
+      <code>type</code> of type String and the entry <code>name</code> of type String:
+      </p>
+      <pre>
+asset : map
+asset ->&gt; "type" : &lt;string&gt;
+          "name" : &lt;string&gt;
+          &lt;type-specific entries&gt;
+      </pre>
+      <p>
+      The <code>type</code> entry selects the reader that processes the asset. It must
+      be one of the type names listed below; an unidentified <code>type</code> is a
+      semantical error. The <code>name</code> entry is the fully-qualified name of the
+      definition and must be unique within the application that loads the assets.
+      </p>
+      <p>
+      String entries that name other definitions are <b>references</b>. They are
+      resolved during linking; the referenced definition must exist and, for
+      certain entries, must have a specific type.
+      </p>
+
+      <h2>Definitions</h2>
+      <p>
+      The following sections specify the entries of each definition type. An entry
+      without the marker <code>optional</code> is mandatory. Numbers sent to the
+      reader are read with <code>Arcadia_Status</code> natural or integer precision as
+      indicated.
+      </p>
+
+      <h3>Color</h3>
+      <p>Type name: <code>"Color"</code>. A color with red, green, and blue components.</p>
+      <pre>
+"type"  : "Color"
+"name"  : &lt;string&gt;
+"red"   : &lt;number&gt;    // Natural8, the red component
+"green" : &lt;number&gt;    // Natural8, the green component
+"blue"  : &lt;number&gt;    // Natural8, the blue component
+      </pre>
+
+      <h3>Mesh</h3>
+      <p>Type name: <code>"Mesh"</code>. A polygonal mesh.</p>
+      <pre>
+"type"          : "Mesh"
+"name"          : &lt;string&gt;
+"ambientColor"  : &lt;string&gt;   // reference to a Color definition
+"vertexPositions" : &lt;list of numbers&gt;
+"vertexAmbientColors" : &lt;list of numbers&gt;
+"vertexAmbientColorTextureCoordinates" : &lt;list of numbers&gt;
+      </pre>
+      <p>
+      The lists are read into runtime byte arrays. The count of vertices equals
+      <code>numberOfVertices</code>; the list lengths must be consistent with it.
+      During linking the <code>ambientColor</code> reference must resolve to a
+      <code>Color</code> definition.
+      </p>
+
+      <h3>Model</h3>
+      <p>Type name: <code>"Model"</code>. A model, a mesh rendered with a material.</p>
+      <pre>
+"type"     : "Model"
+"name"     : &lt;string&gt;
+"mesh"     : &lt;string&gt;   // reference to a Mesh definition
+"material" : &lt;string&gt;   // reference to a Material definition
+      </pre>
+
+      <h3>Material</h3>
+      <p>Type name: <code>"Material"</code>. The material a model is rendered with.</p>
+      <pre>
+"type"                 : "Material"
+"name"                 : &lt;string&gt;
+"materialType"         : &lt;string&gt;   // "Blinn-Phong"
+"ambientColorSource"   : &lt;string&gt;   // "Mesh", "Vertex", or "Texture"
+"ambientColorTexture"  : &lt;string&gt;   // reference to a Texture definition
+"blendSourceFunction"      : &lt;string&gt;   // optional, a BlendFunction literal
+"blendDestinationFunction" : &lt;string&gt;   // optional, a BlendFunction literal
+      </pre>
+      <p>
+      An omitted blend function is the <code>None</code> element of the
+      <code>BlendFunction</code> enumeration. During linking the
+      <code>ambientColorTexture</code> reference must resolve to a <code>Texture</code>
+      definition.
+      </p>
+
+      <h3>PixelBuffer</h3>
+      <p>Type name: <code>"PixelBuffer"</code>. A rectangular buffer of pixels.</p>
+      <pre>
+"type"       : "PixelBuffer"
+"name"       : &lt;string&gt;
+"width"      : &lt;number&gt;   // Natural32
+"height"     : &lt;number&gt;   // Natural32
+"operations" : &lt;list of strings&gt;   // references to pixel-buffer operation definitions
+      </pre>
+      <p>
+      During linking each operation reference resolves and is linked recursively;
+      each operation must be a pixel-buffer operation definition.
+      </p>
+
+      <h3>Pixel-buffer operations</h3>
+      <p>
+      Fill operations produce the content of a pixel buffer. They are referenced by
+      the <code>operations</code> list of a <code>PixelBuffer</code> definition.
+      </p>
+      <p>Type name: <code>"PixelBufferOperations.FillOperation"</code>. Fills a pixel buffer with a color.</p>
+      <pre>
+"type"  : "PixelBufferOperations.FillOperation"
+"name"  : &lt;string&gt;
+"color" : &lt;string&gt;   // reference to a Color definition
+      </pre>
+      <p>Type name: <code>"PixelBufferOperations.CheckerboardFillOperation"</code>. Fills a pixel buffer with a checkerboard pattern.</p>
+      <pre>
+"type"              : "PixelBufferOperations.CheckerboardFillOperation"
+"name"              : &lt;string&gt;
+"checkerWidth"      : &lt;number&gt;   // Integer32
+"checkerHeight"     : &lt;number&gt;   // Integer32
+"firstCheckerColor" : &lt;string&gt;  // reference to a Color definition
+"secondCheckerColor": &lt;string&gt;  // reference to a Color definition
+      </pre>
+
+      <h3>Texture</h3>
+      <p>Type name: <code>"Texture"</code>. A texture; a pixel buffer together with sampling properties.</p>
+      <pre>
+"type"               : "Texture"
+"name"               : &lt;string&gt;
+"pixelBuffer"        : &lt;string&gt;   // reference to a PixelBuffer definition
+"magnificationFilter": &lt;string&gt;   // optional, a TextureFilter literal
+"minificationFilter" : &lt;string&gt;   // optional, a TextureFilter literal
+"addressModeU"       : &lt;string&gt;   // optional, a TextureAddressMode literal
+"addressModeV"       : &lt;string&gt;   // optional, a TextureAddressMode literal
+      </pre>
+      <p>
+      An omitted sampling property is the <code>None</code> element of its
+      enumeration; the engine then uses its own default. During linking the
+      <code>pixelBuffer</code> reference must resolve to a <code>PixelBuffer</code>
+      definition.
+      </p>
+
+      <h3>SampleBuffer</h3>
+      <p>Type name: <code>"SampleBuffer"</code>. A sample buffer synthesized by a digital signal processing definition.</p>
+      <pre>
+"type"     : "SampleBuffer"
+"name"     : &lt;string&gt;
+"duration" : &lt;number&gt;   // Natural32, the duration in seconds
+"dsp"      : &lt;string&gt;   // reference to a DSP definition
+      </pre>
+      <p>
+      During linking the <code>dsp</code> reference resolves and is linked
+      recursively.
+      </p>
+
+      <h3>Digital signal processing definitions</h3>
+      <p>Type name: <code>"DSP.Constant"</code>. A constant signal.</p>
+      <pre>
+"type"  : "DSP.Constant"
+"name"  : &lt;string&gt;
+"value" : &lt;number&gt;   // Real32
+      </pre>
+      <p>Type name: <code>"DSP.SineWave"</code>. A sine wave.</p>
+      <pre>
+"type"      : "DSP.SineWave"
+"name"      : &lt;string&gt;
+"frequency" : &lt;number&gt;   // Integer32, the frequency in hertz
+      </pre>
+      <p>Type name: <code>"DSP.SawtoothWave"</code>. A sawtooth wave.</p>
+      <pre>
+"type"      : "DSP.SawtoothWave"
+"name"      : &lt;string&gt;
+"frequency" : &lt;number&gt;   // Integer32, the frequency in hertz
+      </pre>
+      <p>Type name: <code>"DSP.WhiteNoise"</code>. White noise. Has no extra entries.</p>
+      <pre>
+"type" : "DSP.WhiteNoise"
+"name" : &lt;string&gt;
+      </pre>
+
+      <h2>Enumerations</h2>
+      <p>
+      Several string entries are enumerated. The literal of an enumeration element
+      is a string; an unknown literal is a semantical error. In the C interface of
+      the <code>Arcadia.ADL</code> module each enumeration is a type of its own, and
+      the <code>None</code> element is its default. The literals are:
+      </p>
+      <ul>
+        <li><code>BlendFunction</code>: <code>"Zero"</code>, <code>"One"</code>, <code>"SourceColor"</code>, <code>"OneMinusSourceColor"</code>, <code>"DestinationColor"</code>, <code>"OneMinusDestinationColor"</code>, <code>"SourceAlpha"</code>, <code>"OneMinusSourceAlpha"</code>, <code>"DestinationAlpha"</code>, <code>"OneMinusDestinationAlpha"</code>.</li>
+        <li><code>AmbientColorSource</code>: <code>"Mesh"</code>, <code>"Vertex"</code>, <code>"Texture"</code>.</li>
+        <li><code>MaterialType</code>: <code>"Blinn-Phong"</code>.</li>
+        <li><code>TextureFilter</code>: <code>"Linear"</code>, <code>"Nearest"</code>.</li>
+        <li><code>TextureAddressMode</code>: <code>"ClampToBorder"</code>, <code>"ClampToEdge"</code>, <code>"MirroredRepeat"</code>, <code>"Repeat"</code>.</li>
+      </ul>
+
+      <h2>Different kinds of assets</h2>
+      <p>
+      An asset file may contain a definition of any of the types listed above. The
+      <code>Arcadia.ADL</code> module currently defines readers for the types
+      <code>"Color"</code>, <code>"Mesh"</code>, <code>"Model"</code>,
+      <code>"Material"</code>, <code>"PixelBuffer"</code>,
+      <code>"PixelBufferOperations.FillOperation"</code>,
+      <code>"PixelBufferOperations.CheckerboardFillOperation"</code>,
+      <code>"Texture"</code>, <code>"SampleBuffer"</code>, and the digital signal
+      processing types <code>"DSP.Constant"</code>, <code>"DSP.SineWave"</code>,
+      <code>"DSP.SawtoothWave"</code>, and <code>"DSP.WhiteNoise"</code>.
+      </p>
+    </div>
+    <div class="right-column"></div>
+  </main>
+  @{include("./../../Documentation/footer.i")}
+</body>
+</html>

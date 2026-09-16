@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.CornflowerBlue",
-  red : 100,
-  green : 149,
-  blue : 237,
-}

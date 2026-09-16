@@ -1,0 +1,8 @@
+{
+  type : "PixelBufferOperations.CheckerboardFillOperation",
+  name : "TextRenderingScene.FillOperation",
+  checkerWidth : 32,
+  checkerHeight : 32,
+  firstCheckerColor : "TextRenderingScene.FirstColor",
+  secondCheckerColor : "TextRenderingScene.SecondColor",
+}

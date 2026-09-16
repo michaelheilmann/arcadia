@@ -35,26 +35,14 @@ struct Arcadia_Engine_Demo_MainMenuScene {
   // @todo This is should be inter-scene not intra-scene.
   Arcadia_ADL_Definitions* definitions;
 
-  // The viewport.
-  Arcadia_Engine_Visuals_ViewportNode* viewportNode;
-  // A single camera, re-attached to the respective viewport / model combination for rendering.
+  // The camera node.
   Arcadia_Engine_Visuals_CameraNode* cameraNode;
-  // A single context, re-update with the information for the respective viewport / model combination for rendering.
+  // The enter pass node.
   Arcadia_Engine_Visuals_EnterPassNode* enterPassNode;
-
-#if 0
-  // The models, thee of them.
+  // The model node.
   Arcadia_Engine_Visuals_ModelNode* modelNode;
-#endif
-#if 1
-  // The 'W' (index 0), 'A' (index 1), 'S' (index 2), and 'D' (index 3) latches.
-  // The 'Q' (index 4) and 'E' (index 5) latches.
-  Arcadia_BooleanValue latches[6];
-#endif
-
-
-  // The user interface.
-  Arcadia_Engine_UI_CanvasNode* uiCanvasNode;
+  // The viewport node.
+  Arcadia_Engine_Visuals_ViewportNode* viewportNode;
 };
 
 Arcadia_Engine_Demo_MainMenuScene*

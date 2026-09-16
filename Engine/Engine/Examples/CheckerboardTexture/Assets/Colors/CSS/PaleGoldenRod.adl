@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.PaleGoldenRod",
-  red : 238,
-  green : 232,
-  blue : 170,
-}

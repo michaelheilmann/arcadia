@@ -26,6 +26,8 @@ if (NOT TARGET ${this})
 
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Engine/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Engine/Configure.h.i)
 
+  OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
+
   OnSourceFile(${this} Arcadia/Engine/Include.c)
   OnHeaderFile(${this} Arcadia/Engine/Include.h)
   
@@ -80,6 +82,9 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia/Engine/Visuals/Backend.h)
   OnSourceFile(${this} Arcadia/Engine/Visuals/BackendContext.c)
   OnHeaderFile(${this} Arcadia/Engine/Visuals/BackendContext.h)
+
+  OnSourceFile(${this} Arcadia/Engine/Visuals/BlendFunction.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/BlendFunction.h)
 
   OnSourceFile(${this} Arcadia/Engine/Visuals/CullMode.c)
   OnHeaderFile(${this} Arcadia/Engine/Visuals/CullMode.h)

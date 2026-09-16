@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.AntiqueWhite",
-  red : 250,
-  green : 235,
-  blue : 215,
-}
