@@ -56,6 +56,8 @@ struct Arcadia_Engine_Visuals_WindowBackendDispatch {
   void (*beginRender)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*);
   void (*endRender)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*);
 
+  Arcadia_Media_PixelBuffer* (*capturePixels)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*);
+
   void (*setPosition)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*, Arcadia_Integer32Value, Arcadia_Integer32Value);
   void (*getPosition)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*, Arcadia_Integer32Value*, Arcadia_Integer32Value*);
 
@@ -64,6 +66,8 @@ struct Arcadia_Engine_Visuals_WindowBackendDispatch {
 
   Arcadia_BooleanValue(*getFullscreen)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*);
   void (*setFullscreen)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*, Arcadia_BooleanValue);
+
+  void (*setVerticalSynchronization)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*, Arcadia_BooleanValue);
 };
 
 struct Arcadia_Engine_Visuals_WindowBackend {
@@ -76,6 +80,12 @@ struct Arcadia_Engine_Visuals_WindowBackend {
   // #Arcadia_BooleanValue_False otherwise.
   // Default is #Arcadia_BooleanValue_False.
   Arcadia_BooleanValue fullscreen;
+
+  // #Arcadia_BooleanValue_True if the presentation of this window is to be synchronized
+  // with the vertical blanking interval of the display device it is located on.
+  // #Arcadia_BooleanValue_False otherwise.
+  // Default is #Arcadia_BooleanValue_False.
+  Arcadia_BooleanValue verticalSynchronization;
 
   // The title of the window.
   // Default is "Arcadia Engine Window".
@@ -268,6 +278,25 @@ Arcadia_Engine_Visuals_WindowBackend_endRender
     Arcadia_Engine_Visuals_WindowBackend* self
   );
 
+/// @brief Capture the pixels of the canvas of this window.
+/// @param thread A pointer to this thread.
+/// @param self A pointer to this window.
+/// @return A pointer to a new pixel buffer of #Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8,
+/// holding one row per canvas row, first row being the topmost canvas row.
+/// @pre
+/// A successful call to WindowBackend_beginRender must be in effect, and its matching
+/// WindowBackend_endRender must not have been called yet, as the capture operates on the
+/// render target which is current between those two calls.
+/// @warning
+/// The returned pixel buffer is a fresh object which is not owned by this window backend.
+/// The caller is responsible for keeping it reachable for as long as it is used.
+Arcadia_Media_PixelBuffer*
+Arcadia_Engine_Visuals_WindowBackend_capturePixels
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_WindowBackend* self
+  );
+
 /// @brief Set the position of this window.
 /// @param self A pointer to this window.
 /// @param left, top Arcadia_Integer32Value values.
@@ -348,6 +377,23 @@ Arcadia_Engine_Visuals_WindowBackend_setFullscreen
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_WindowBackend* self,
     Arcadia_BooleanValue fullscreen
+  );
+
+/// @brief Set if the presentation of this window is synchronized with the vertical blanking interval.
+/// @param self A pointer to this window backend.
+/// @param verticalSynchronization #Arcadia_BooleanValue_True synchronizes the presentation of this window
+/// with the vertical blanking interval of the display device it is located on.
+/// #Arcadia_BooleanValue_False presents as fast as rendering completes.
+/// @remarks
+/// A backend may be unable to honor this setting and then ignores it. A backend which is
+/// only able to adjust the presentation while a rendering operation is in progress defers
+/// the application of this setting until the next such operation begins.
+void
+Arcadia_Engine_Visuals_WindowBackend_setVerticalSynchronization
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_WindowBackend* self,
+    Arcadia_BooleanValue verticalSynchronization
   );
 
 #endif // ARCADIA_VISUALS_WINDOWBACKEND_H_INCLUDED

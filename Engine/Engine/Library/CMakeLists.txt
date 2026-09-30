@@ -26,6 +26,8 @@ if (NOT TARGET ${this})
 
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Engine/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Engine/Configure.h.i)
 
+  OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
+
   OnSourceFile(${this} Arcadia/Engine/Include.c)
   OnHeaderFile(${this} Arcadia/Engine/Include.h)
   
@@ -42,6 +44,15 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia/Engine/Engine.h)
   OnSourceFile(${this} Arcadia/Engine/Event.c)
   OnHeaderFile(${this} Arcadia/Engine/Event.h)
+  OnSourceFile(${this} Arcadia/Engine/FPSCounter.c)
+  OnHeaderFile(${this} Arcadia/Engine/FPSCounter.h)
+  OnSourceFile(${this} Arcadia/Engine/FontCache.c)
+  OnHeaderFile(${this} Arcadia/Engine/FontCache.h)
+
+  OnSourceFile(${this} Arcadia/Engine/Scene.c)
+  OnHeaderFile(${this} Arcadia/Engine/Scene.h)
+  OnSourceFile(${this} Arcadia/Engine/SceneManager.c)
+  OnHeaderFile(${this} Arcadia/Engine/SceneManager.h)
 
   OnSourceFile(${this} Arcadia/Engine/Backend.c)
   OnHeaderFile(${this} Arcadia/Engine/Backend.h)
@@ -80,6 +91,9 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia/Engine/Visuals/Backend.h)
   OnSourceFile(${this} Arcadia/Engine/Visuals/BackendContext.c)
   OnHeaderFile(${this} Arcadia/Engine/Visuals/BackendContext.h)
+
+  OnSourceFile(${this} Arcadia/Engine/Visuals/BlendFunction.c)
+  OnHeaderFile(${this} Arcadia/Engine/Visuals/BlendFunction.h)
 
   OnSourceFile(${this} Arcadia/Engine/Visuals/CullMode.c)
   OnHeaderFile(${this} Arcadia/Engine/Visuals/CullMode.h)
@@ -202,6 +216,7 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.VPL)
   OnModuleDependency(${this} ${MyProjectName}.Math)
   OnModuleDependency(${this} ${MyProjectName}.PixelBufferIO)
+  OnModuleDependency(${this} ${MyProjectName}.FontIO)
   
   OnModuleDependency(${this} ${MyProjectName}.Ring2 PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)

@@ -1,0 +1,13 @@
+interface A extends B {
+
+  method a : Void {
+  }
+
+}
+
+interface B extends A {
+
+  method b : Void {
+  }
+
+}

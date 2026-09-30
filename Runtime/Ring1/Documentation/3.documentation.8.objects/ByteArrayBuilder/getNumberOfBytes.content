@@ -1,0 +1,36 @@
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArrayBuilder_getNumberOfBytes">Arcadia_ByteArrayBuilder_getNumberOfBytes</h1>
+
+  <my-signature><code>
+  Arcadia_SizeValue<br>
+  Arcadia_ByteArrayBuilder_getNumberOfBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the number of Bytes in this Byte buffer.
+  Remarks: This is an alias of Arcadia_ByteArrayBuilder_getSize.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><a href="#">Arcadia_Thread</a>* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_ByteArrayBuilder* self</div>
+      <div>A pointer to this Byte buffer.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>The size of this Byte buffer.</p>
+  </section>
+
+</section>

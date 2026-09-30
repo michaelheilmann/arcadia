@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.RoyalBlue",
-  red : 65,
-  green : 105,
-  blue : 225,
-}

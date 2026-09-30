@@ -55,9 +55,37 @@ struct Arcadia_ADL_MaterialReader {
   Arcadia_String* VERTEX;
   // The string `Texture`.
   Arcadia_String* TEXTURE;
+  // The string `TextureVertex`.
+  Arcadia_String* TEXTUREVERTEX;
 
   // The string `ambientColorTexture`.
   Arcadia_String* AMBIENTCOLORTEXTURE;
+
+  // The string `blendSourceFunction`.
+  Arcadia_String* BLENDSOURCEFUNCTION;
+  // The string `blendDestinationFunction`.
+  Arcadia_String* BLENDDESTINATIONFUNCTION;
+
+  // The string `Zero`.
+  Arcadia_String* ZERO;
+  // The string `One`.
+  Arcadia_String* ONE;
+  // The string `SourceColor`.
+  Arcadia_String* SOURCECOLOR;
+  // The string `OneMinusSourceColor`.
+  Arcadia_String* ONEMINUSSOURCECOLOR;
+  // The string `DestinationColor`.
+  Arcadia_String* DESTINATIONCOLOR;
+  // The string `OneMinusDestinationColor`.
+  Arcadia_String* ONEMINUSDESTINATIONCOLOR;
+  // The string `SourceAlpha`.
+  Arcadia_String* SOURCEALPHA;
+  // The string `OneMinusSourceAlpha`.
+  Arcadia_String* ONEMINUSSOURCEALPHA;
+  // The string `DestinationAlpha`.
+  Arcadia_String* DESTINATIONALPHA;
+  // The string `OneMinusDestinationAlpha`.
+  Arcadia_String* ONEMINUSDESTINATIONALPHA;
 
   // The validation context. Cached here.
   Arcadia_DDLS_ValidationContext* validationContext;

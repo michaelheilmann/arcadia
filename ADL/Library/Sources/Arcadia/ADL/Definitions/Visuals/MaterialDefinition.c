@@ -107,19 +107,21 @@ Arcadia_ADL_MaterialDefinition_constructImpl
   Arcadia_EnterConstructor(Arcadia_ADL_MaterialDefinition);
   {
     Arcadia_Value definitions, name;
-    definitions = Arcadia_ValueStack_getValue(thread, 5);
-    name = Arcadia_ValueStack_getValue(thread, 4);
+    definitions = Arcadia_ValueStack_getValue(thread, 7);
+    name = Arcadia_ValueStack_getValue(thread, 6);
     Arcadia_ValueStack_pushValue(thread, &definitions);
     Arcadia_ValueStack_pushValue(thread, &name);
     Arcadia_ValueStack_pushNatural8Value(thread, 2);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (5 != _numberOfArguments) {
+  if (7 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_EnumerationValue materialType = Arcadia_ValueStack_getEnumerationValue(thread, 3),
-                           ambientColorSource = Arcadia_ValueStack_getEnumerationValue(thread, 2);
+  Arcadia_EnumerationValue materialType = Arcadia_ValueStack_getEnumerationValue(thread, 5),
+                           ambientColorSource = Arcadia_ValueStack_getEnumerationValue(thread, 4),
+                           blendSourceFunction = Arcadia_ValueStack_getEnumerationValue(thread, 2),
+                           blendDestinationFunction = Arcadia_ValueStack_getEnumerationValue(thread, 1);
   if (materialType.type != _Arcadia_ADL_MaterialType_getType(thread)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
     Arcadia_Thread_jump(thread);
@@ -128,10 +130,20 @@ Arcadia_ADL_MaterialDefinition_constructImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
     Arcadia_Thread_jump(thread);
   }
+  if (blendSourceFunction.type != _Arcadia_ADL_BlendFunction_getType(thread)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (blendDestinationFunction.type != _Arcadia_ADL_BlendFunction_getType(thread)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   self->materialType = (Arcadia_ADL_MaterialType)materialType.value;
   self->ambientColorSource = (Arcadia_ADL_AmbientColorSource)ambientColorSource.value;
   self->ambientColorTexture = Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions,
-                                                           Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_String_getType(thread)));
+                                                           Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_String_getType(thread)));
+  self->blendSourceFunction = (Arcadia_ADL_BlendFunction)blendSourceFunction.value;
+  self->blendDestinationFunction = (Arcadia_ADL_BlendFunction)blendDestinationFunction.value;
   Arcadia_LeaveConstructor(Arcadia_ADL_MaterialDefinition);
 }
 
@@ -153,7 +165,9 @@ Arcadia_ADL_MaterialDefinition_create
     Arcadia_String* name,
     Arcadia_ADL_MaterialType materialType,
     Arcadia_ADL_AmbientColorSource ambientColorSource,
-    Arcadia_String* ambientColorTextureName
+    Arcadia_String* ambientColorTextureName,
+    Arcadia_ADL_BlendFunction blendSourceFunction,
+    Arcadia_ADL_BlendFunction blendDestinationFunction
   )
 {
   _Arcadia_BeginCreate(Arcadia_ADL_MaterialDefinition);
@@ -162,6 +176,8 @@ Arcadia_ADL_MaterialDefinition_create
   Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_ADL_MaterialType_getType(thread), materialType));
   Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_ADL_AmbientColorSource_getType(thread), ambientColorSource));
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)ambientColorTextureName);
-  Arcadia_ValueStack_pushNatural8Value(thread, 5);
+  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_ADL_BlendFunction_getType(thread), blendSourceFunction));
+  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_ADL_BlendFunction_getType(thread), blendDestinationFunction));
+  Arcadia_ValueStack_pushNatural8Value(thread, 7);
   _Arcadia_EndCreate(Arcadia_ADL_MaterialDefinition);
 }

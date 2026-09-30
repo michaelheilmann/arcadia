@@ -119,7 +119,7 @@ main1
     Arcadia_Signal_connect(thread, application->sceneManager->sceneChangedEvent, (Arcadia_Object*)application,
                                                                                  &onSceneChanged);
 
-    Arcadia_Engine_Demo_SceneManager_setScene(thread, application->sceneManager, (Arcadia_Engine_Demo_Scene*)Arcadia_Engine_Demo_MainMenuScene_create(thread, ((Arcadia_Engine_Application*)application)->engine, application->sceneManager));
+    Arcadia_Engine_Demo_SceneManager_setScene(thread, application->sceneManager, (Arcadia_Engine_Demo_Scene*)Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_create(thread, ((Arcadia_Engine_Application*)application)->engine, application->sceneManager));
 
     // One run of the GC before entering the main loop.
     Arcadia_Process_stepARMS(process);

@@ -23,13 +23,13 @@
 #include "Arcadia/VPL/Tree/Node.h"
 #include "Arcadia/VPL/Symbols/Include.h"
 
-#define Arcadia_Symbols_Modifiers_Constant (1 << 1)
-#define Arcadia_Symbols_Modifiers_Fragment (1 << 2)
-#define Arcadia_Symbols_Modifiers_Pixel (1 << 3)
-#define Arcadia_Symbols_Modifiers_Variable (1 << 4)
-#define Arcadia_Symbols_Modifiers_Vertex (1 << 5)
+#define Arcadia_VPL_Symbols_Modifiers_Constant (1 << 1)
+#define Arcadia_VPL_Symbols_Modifiers_Fragment (1 << 2)
+#define Arcadia_VPL_Symbols_Modifiers_Pixel (1 << 3)
+#define Arcadia_VPL_Symbols_Modifiers_Variable (1 << 4)
+#define Arcadia_VPL_Symbols_Modifiers_Vertex (1 << 5)
 
-Arcadia_declareObjectType(u8"Arcadia.VPL.ModifierUtilities", Arcadia_VPL_ModifiersUtilities,
+Arcadia_declareObjectType(u8"Arcadia.VPL.ModifiersUtilities", Arcadia_VPL_ModifiersUtilities,
                           u8"Arcadia.Object");
 
 struct Arcadia_VPL_ModifiersUtilitiesDispatch {
@@ -69,7 +69,7 @@ Arcadia_VPL_ModifiersUtilities_create
 /// @brief
 /// Validate a modifier list for a variable scalar (list of Arcadia.String) objects.
 /// If not valid, raise a semantical error.
-/// Otherwise return a bitmask of Arcadia_Symbols_VariableScalarFlags_* constants.
+/// Otherwise return a bitmask of Arcadia_VPL_Symbols_Modifiers_* constants.
 Arcadia_Natural8Value
 Arcadia_VPL_ModifiersUtilities_variableScalarModifiers
   (

@@ -5,7 +5,9 @@
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
 
-  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+  <link rel='icon' type='image/svg+xml' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+  <link rel="icon" type="image/png" sizes="64x64" href="https://michaelheilmann.com/assets/favicon/64x64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://michaelheilmann.com/assets/favicon/32x32.png">
 
   <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
   <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
@@ -33,94 +35,116 @@
 
   <!-- Cascading Style Sheets. -->
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
-  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=7'>
 
 
   <link rel='canonical' href='https://michaelheilmann.com/'>
   <title>Michael Heilmann's Project Arcadia</title>
-  
+
   <meta property="og:title" content="Michael Heilmann's Project Arcadia">
-  <meta property="og:description" content="Homepage of Michael Heilmann's Project Arcadia">
-  <meta name="description" content="Homepage of Michael Heilmann's Project Arcadia">
-  <meta name="keywords" content="Arcadia, Procedural Generation, Audials, Visuals, Hapticals, Open Source, Free Software">
+  <meta property="og:description" content="Arcadia is an open environment for creating, regenerating, and preserving games. A game is a set of clear, editable text documents rather than a binary, so it can be read, shared, regenerated, and kept long after its engine is gone.">
+  <meta name="description" content="Arcadia is an open environment for creating, regenerating, and preserving games. A game is a set of clear, editable text documents rather than a binary, so it can be read, shared, regenerated, and kept long after its engine is gone.">
+  <meta name="keywords" content="Arcadia, Game Development, Procedural Generation, Audials, Visuals, Open Source, Free Software">
   <meta name="author" content="Michael Heilmann">
 </head>
 <body class="my-index-page-1">
   <header>
     <div class="banner left-column">
       <div>Michael Heilmann's</div>
-      <div>Project Arcadia</div>
+      <h1>Project Arcadia</h1>
     </div>
     <div class="center-column"></div>
     <div class="right-column">
       <nav>
         <ul style="display: flex; flex-direction: row; gap: 1rem;">
-          <li><a href="https://michaelheilmann.com/Arcadia">Documentation</a></li>
-          <li><a href='https://github.com/michaelheilmann'>GitHub</a</li>
+          <li><a href="https://michaelheilmann.com/Arcadia/">Documentation</a></li>
+          <li><a href="https://michaelheilmann.com/building">Building</a></li>
+          <li><a href='https://github.com/michaelheilmann/arcadia'>GitHub</a></li>
           <li><a href='https://discord.gg/XtPA6pwAsp'>Discord</a></li>
         </ul>
       </nav>
     </div>
   </header>
   <main>
-    <div class="left-column">
-    </div> <!-- left-column -->
-    <div class="center-column" style="flex-direction: column">
-        <h1 style="margin-top: 6rem; margin-bottom: 6rem">News</h1>
-        <div class="news">
-        <div class="news-item">
+    <div class="topic left-column">
+      <div class="header">
+        <span>The idea</span>
+      </div>
+      <div class="body">
+        <p><em>A game is a set of text documents, not a binary.</em></p>
 
-  <div class="news-item-header">
+        <p>Those documents describe the game's visuals, audials, and logics in plain, editable prose and markup, and
+        Arcadia regenerates the whole game from them whenever it is needed. Nothing is lost that only a compiler or a
+        level editor ever knew.</p>
 
-    <h2>2026-04-01</h2>
+        <p>What that leaves you with is something you can read, diff, share, and hand to the next person. Not just
+        something you can run.</p>
+      </div>
+    </div>
+    <div class="topic center-column">
+      <div class="header">
+        <span>What that buys you</span>
+      </div>
+      <div class="body">
+        <p><em>Portable</em> &mdash; the descriptions carry no platform assumptions, so a game travels to another
+        platform without being rewritten for it.</p>
 
-  </div>
+        <p><em>Regenerable</em> &mdash; deterministic procedural generation rebuilds rich worlds, sounds, and
+        behaviour from compact text.</p>
 
-  <div class="news-item-body">
-    <p><em>Arcadia Ring 1</em> and <em>Arcadia Ring 2</em> provide now a consistent pattern for reading Bytes (<code>Arcadia.ByteReader</code>) and converting them to Unicode code points (<code>Arcadia.UnicodeCodePointReader</code>).</p>
-  </div>
+        <p><em>Preservable</em> &mdash; the description is the artifact. It outlives the engine, the platform, and
+        often the person who wrote it.</p>
 
-</div>
-
-        <div class="news-item">
-
-  <div class="news-item-header">
-
-    <h2>2026-03-07</h2>
-
-  </div>
-
-  <div class="news-item-body">
-  <ul style="list-style-position: inside">
-    <li><em>Arcadia Engine.Visuals</em> and <em>Arcadia Engine.Audials</em> were merged into <em>Arcadia Engine</em>. This change reflects the fact that more sophisticated engine components, such as user interfaces, typically integrate both visual and auditory elements.</li>
-    <li>Pixel buffers, pixel formats, and pixel-buffer operations, together with sample buffers, sample formats, and sample-buffer operations, have been consolidated into <em>Arcadia Media</em>.
-    This library is intended to subsume the majority of procedural media-processing functionality.</li>
-    <li>
-    Functionality related to image loading and saving has been isolated in the <em>Arcadia PixelBufferIO</em> library.
-    The library provides cross-platform support for the BMP, ICO (both BMP-based and PNG-based variants), and PNG image formats.
-    </li>
-    <li><em>Arcadia ADL</em> (Asset Description Language), which is currently undocumented, introduces support for declarative descriptions of:
-      <ul>
-        <li>pixel buffers, including solid fills and checkerboard fills</li>
-        <li>sample buffers, including sine-wave and white-noise generation</li>
-        <li>textures, meshes, models</li>
-      </ul>
-    </li>
-  </ul>
-  </div>
-
-</div>
-
-        <a href="https://michaelheilmann.com/Arcadia/news">Older news ...</a>
+        <p><em>Self-publishing</em> &mdash; Arcadia emits each game as a complete, self-contained website, ready for
+        a static host or for reading offline.</p>
+      </div>
+    </div>
+    <div class="topic right-column">
+      <div class="header">
+        <span>Where to go</span>
+      </div>
+      <div class="body">
+        <div class="entries">
+          <a href='https://michaelheilmann.com/Arcadia/'>Documentation</a>
+          <a href='https://michaelheilmann.com/building'>Building Arcadia</a>
+          <a href='https://michaelheilmann.com/Arcadia/roadmap'>Roadmap</a>
+          <a href='https://github.com/michaelheilmann/arcadia'>Arcadia GitHub repository</a>
+          <a href='https://discord.gg/XtPA6pwAsp'>Discord server</a>
         </div>
-    </div><!-- center-column -->
-    <div class="right-column"></div><!-- right-column -->
+      </div>
+    </div>
   </main>
+  <!--
+    A one-line teaser for each of the three most recent news entries.
+    The dates are the fragment file names, which are the source of truth;
+    the full entries are listed in Arcadia/news.html.te.
+  -->
+  <div class="news-band">
+    <h2>News</h2>
+    <ul class="news-latest">
+      <li>
+        <a href="https://michaelheilmann.com/Arcadia/news">2026-09-29</a>
+        <span>The PDL specification and the consolidated PDLC compiler, the ADL
+        documentation, Arcadia.Engine.Text, and Ring 1 interface types.</span>
+      </li>
+      <li>
+        <a href="https://michaelheilmann.com/Arcadia/news">2026-03-30</a>
+        <span>A consistent pattern in Ring 1 and Ring 2 for reading bytes and
+        decoding them to code points.</span>
+      </li>
+      <li>
+        <a href="https://michaelheilmann.com/Arcadia/news">2026-03-07</a>
+        <span>Engine.Visuals and Engine.Audials merge into Arcadia Engine,
+        buffers consolidate into Arcadia Media, and ADL gains declarative
+        asset descriptions.</span>
+      </li>
+    </ul>
+  </div>
   <footer>
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 21 September 2026.</div> 
+    <div>Last modified on 30 September 2026.</div> 
     </div>
   </div>
   <div class="center-column">

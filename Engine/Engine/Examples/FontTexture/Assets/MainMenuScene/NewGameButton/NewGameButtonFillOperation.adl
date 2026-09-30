@@ -1,0 +1,8 @@
+{
+  type : "PixelBufferOperations.CheckerboardFillOperation",
+  name : "MainMenuScene.NewGameButtonFillOperation",
+  checkerWidth : 32,
+  checkerHeight : 32,
+  firstCheckerColor : "MainMenuScene.NewGameButtonFirstColor",
+  secondCheckerColor : "MainMenuScene.NewGameButtonSecondColor",
+}

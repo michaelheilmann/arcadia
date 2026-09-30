@@ -74,6 +74,7 @@ Arcadia_DDLS_MapNode_constructImpl
   }
   //
   self->entries = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
+  self->optional = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
   //
   Arcadia_LeaveConstructor(Arcadia_DDLS_MapNode);
 }
@@ -95,6 +96,9 @@ Arcadia_DDLS_MapNode_visitImpl
 {
   if (self->entries) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->entries);
+  }
+  if (self->optional) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->optional);
   }
 }
 

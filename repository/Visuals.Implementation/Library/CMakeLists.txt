@@ -124,6 +124,9 @@ if (NOT TARGET ${this})
     OnSourceFile(${this} Arcadia/Visuals/Implementation/OpenGL4/BackendIncludes.c)
     OnHeaderFile(${this} Arcadia/Visuals/Implementation/OpenGL4/BackendIncludes.h)
 
+    OnSourceFile(${this} Arcadia/Visuals/Implementation/OpenGL4/Capture.c)
+    OnHeaderFile(${this} Arcadia/Visuals/Implementation/OpenGL4/Capture.h)
+
     OnSourceFile(${this} Arcadia/Visuals/Implementation/OpenGL4/Functions.c)
     OnHeaderFile(${this} Arcadia/Visuals/Implementation/OpenGL4/Functions.h)
     OnInlayFile(${this}  Arcadia/Visuals/Implementation/OpenGL4/Functions.i)

@@ -5,7 +5,9 @@
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
 
-  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+  <link rel='icon' type='image/svg+xml' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+  <link rel="icon" type="image/png" sizes="64x64" href="https://michaelheilmann.com/assets/favicon/64x64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://michaelheilmann.com/assets/favicon/32x32.png">
 
   <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
   <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
@@ -33,7 +35,7 @@
 
   <!-- Cascading Style Sheets. -->
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
-  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=7'>
 
 <link rel='stylesheet' href='https://michaelheilmann.com/assets/cxx-doc.css?v=1'>
 <link rel='canonical' href='https://michaelheilmann.com/Arcadia/Engine/Module-Interface/'>
@@ -529,10 +531,10 @@ A depth compare function identifies a technique that compares depth value of an 
 <!-- TODO: This should be "mil" scope not "cxx" scope. -->
 <section class="cxx entity object">
 
-  <h1 id="Arcadia_Visuals_Event">Arcadia.Visuals.Event</h1>
+  <h1 id="Arcadia_Engine_Event">Arcadia.Engine.Event</h1>
 
   <my-signature><code>
-  class Arcadia.Visuals.Event extends Arcadia.Object { ... }
+  class Arcadia.Engine.Event extends Arcadia.Object { ... }
   </code></my-signature>
 
   <p>
@@ -546,13 +548,13 @@ A depth compare function identifies a technique that compares depth value of an 
 <!-- TODO: This should be "mil" scope not "cxx" scope. -->
 <section class="cxx entity method">
 
-  <h1 id="Arcadia.Visuals.Event.construct">
-  [MIL] Arcadia.Visuals.Event.construct
+  <h1 id="Arcadia.Engine.Event.construct">
+  [MIL] Arcadia.Engine.Event.construct
   </h1>
 
   <my-signature><code>
     void<br>
-    Arcadia.Visuals.Event.construct<br>
+    Arcadia.Engine.Event.construct<br>
     &nbsp;&nbsp;(<br>
     &nbsp;&nbsp;&nbsp;&nbsp;Arcadia.Natural64 timestamp<br>
     &nbsp;&nbsp;)
@@ -1503,7 +1505,7 @@ An enumeration of actions of a keyboard key.
 
 <section class="cxx entity enumeration">
 
-<h1 id="Arcadia_Visuals_MouseButtonAction">
+<h1 id="Arcadia_Engine_Input_MouseButtonAction">
 Arcadia.Engine.Input.MouseButtonAction
 </h1>
 
@@ -1661,12 +1663,12 @@ An enumeration of actions of a mouse pointer.
 
 <section class="cxx entity object">
 
-  <h1 id="Arcadia_Engine_Input_MouseButtonEvent">
-  [MIL] Arcadia.Engine.Input.MouseButtonEvent
+  <h1 id="Arcadia_Engine_Input_MousePointerEvent">
+  [MIL] Arcadia.Engine.Input.MousePointerEvent
   </h1>
 
   <my-signature><code>
-  class Arcadia.Engine.Input.MouseButtonEvent extends Arcadia.Engine.Event { ... }
+  class Arcadia.Engine.Input.MousePointerEvent extends Arcadia.Engine.Event { ... }
   </code></my-signature>
 
   <my-summary>
@@ -1680,7 +1682,7 @@ An enumeration of actions of a mouse pointer.
 <!-- TODO: This should be "mil" scope not "cxx" scope. -->
 <section class="cxx entity method">
 
-  <h1 id="Arcadia_Engine_Input_MouseButtonEvent_constructor">
+  <h1 id="Arcadia_Engine_Input_MousePointerEvent_constructor">
   [MIL] constructor
   </h1>
 
@@ -1695,7 +1697,7 @@ An enumeration of actions of a mouse pointer.
   </code></my-signature>
 
   <my-summary>
-  Construct this mouse button event.
+  Construct this mouse pointer event.
   </my-summary>
 
   <section class="cxx parameters">
@@ -1810,7 +1812,7 @@ A texture filter identifies a technique to compute the pixel value closed to the
     <div>
     Returns the weighted average of the four texture elements that are closest to the specified uv coordinates.
     These can include items wrapped or repeated from other parts of the texture, depending on the
-    <a href="https://michaelheilmann.com/repository/Arcadia.Visuals/#Arcadia_Engine_Visuals_TextureAddressMode">texture address mode</a>.
+     <a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_TextureAddressMode">texture address mode</a>.
     </div>
   </div>
 
@@ -1958,50 +1960,50 @@ An enumeration of winding modes.
   <div class="right-column">
     <nav>
       <ul style="list-style: none">
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Event">[MIL] Arcadia.Engine.Event</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Event">[MIL] Arcadia.Engine.Event</a></li>
       
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_KeyboardKey">[MIL] Arcadia.Engine.Input.KeyboardKey</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_KeyboardKeyAction">[MIL] Arcadia.Engine.Input.KeyboardKeyAction</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_KeyboardKeyEvent">[MIL] Arcadia.Engine.Input.KeyboardKeyEvent</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_KeyboardKeyEvent_constructor">[MIL] Arcadia.Engine.Input.KeyboardKeyEvent.constructor</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_KeyboardKeyEvent_getAction">[MIL] Arcadia.Engine.Input.KeyboardKeyEvent.getAction</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_KeyboardKeyEvent_getKey">[MIL] Arcadia.Engine.Input.KeyboardKeyEvent.getKey</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_MouseButtonAction">[MIL] Arcadia.Engine.Input.MouseButtonAction</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_MouseButtonEvent">[MIL] Arcadia.Engine.Input.MouseButtonEvent</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_MouseButtonEvent_construct">[MIL] Arcadia.Engine.Input.MouseButtonEvent.constructor</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_MousePointerAction">[MIL] Arcadia.Engine.Input.MousePointerAction</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_MousePointerEvent">[MIL] Arcadia.Engine.Input.MousePointerEvent</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Input_MousePointerEvent_constructor">[MIL] Arcadia.Engine.Input.MousePointerEvent.constructor</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_KeyboardKey">[MIL] Arcadia.Engine.Input.KeyboardKey</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_KeyboardKeyAction">[MIL] Arcadia.Engine.Input.KeyboardKeyAction</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_KeyboardKeyEvent">[MIL] Arcadia.Engine.Input.KeyboardKeyEvent</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_KeyboardKeyEvent_constructor">[MIL] Arcadia.Engine.Input.KeyboardKeyEvent.constructor</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_KeyboardKeyEvent_getAction">[MIL] Arcadia.Engine.Input.KeyboardKeyEvent.getAction</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_KeyboardKeyEvent_getKey">[MIL] Arcadia.Engine.Input.KeyboardKeyEvent.getKey</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_MouseButtonAction">[MIL] Arcadia.Engine.Input.MouseButtonAction</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_MouseButtonEvent">[MIL] Arcadia.Engine.Input.MouseButtonEvent</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_MouseButtonEvent_constructor">[MIL] Arcadia.Engine.Input.MouseButtonEvent.constructor</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_MousePointerAction">[MIL] Arcadia.Engine.Input.MousePointerAction</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_MousePointerEvent">[MIL] Arcadia.Engine.Input.MousePointerEvent</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Input_MousePointerEvent_constructor">[MIL] Arcadia.Engine.Input.MousePointerEvent.constructor</a></li>
 
               
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_ApplicationEvent">[MIL] Arcadia.Visuals.ApplicationEvent</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_ApplicationEvent_construct">[MIL] Arcadia.Visuals.ApplicationEvent.construct</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_ApplicationQuitRequestedEvent">[MIL] Arcadia.Visuals.ApplicationQuitRequestedEvent</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_ApplicationQuitRequestedEvent_constructt0">[MIL] Arcadia.Visuals.ApplicationQuitRequestedEvent.construct</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasEvent">[MIL] Arcadia.Visuals.CanvasEvent</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasEvent_construct">[MIL] Arcadia.Visuals.CanvasEvent.construct</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasActivationStateChangedEvent">[MIL] Arcadia.Visuals.CanvasActivationStateChangedEvent</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasActivationStateChangedEvent_construct">[MIL] Arcadia.Visuals.CanvasActivationStateChangedEvent.construct</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasDPIChangedEvent">[MIL] Arcadia.Visuals.CanvasDPIChangedEvent</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasDPIChangedEvent_construct">[MIL] Arcadia.Visuals.CanvasDPIChangedEvent.construct</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasSizeChangedEvent">[MIL] ArcadiaVisuals.CanvasSizeChangedEvent</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_CanvasSizeChangedEvent_construct">[MIL] Arcadia.Visuals.CanvasSizeChangedEvent.construct</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Visuals_CullMode">Arcadia_Engine_Visuals_CullMode</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Visuals_DepthCompareFunction">Arcadia_Engine_Visuals_DepthCompareFunction</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Visuals_FillMode">[MIL] Arcadia.Engine.Visuals.FillMode</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_ApplicationEvent">[MIL] Arcadia.Visuals.ApplicationEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia.Visuals.ApplicationEvent.construct">[MIL] Arcadia.Visuals.ApplicationEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_ApplicationQuitRequestedEvent">[MIL] Arcadia.Visuals.ApplicationQuitRequestedEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia.Visuals.ApplicationQuitRequestedEvent.construct">[MIL] Arcadia.Visuals.ApplicationQuitRequestedEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_CanvasEvent">[MIL] Arcadia.Visuals.CanvasEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia.Visuals.CanvasEvent.construct">[MIL] Arcadia.Visuals.CanvasEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_CanvasActivationStateChangedEvent">[MIL] Arcadia.Visuals.CanvasActivationStateChangedEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia.Visuals.CanvasActivationStateChangedEvent.construct">[MIL] Arcadia.Visuals.CanvasActivationStateChangedEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_CanvasDPIChangedEvent">[MIL] Arcadia.Visuals.CanvasDPIChangedEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia.Visuals.CanvasDPIChangedEvent.construct">[MIL] Arcadia.Visuals.CanvasDPIChangedEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_CanvasSizeChangedEvent">[MIL] ArcadiaVisuals.CanvasSizeChangedEvent</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia.Visuals.CanvasSizeChangedEvent.construct">[MIL] Arcadia.Visuals.CanvasSizeChangedEvent.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_CullMode">Arcadia_Engine_Visuals_CullMode</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_DepthCompareFunction">Arcadia_Engine_Visuals_DepthCompareFunction</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_FillMode">[MIL] Arcadia.Engine.Visuals.FillMode</a></li>
 
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Visuals_TextureAddressMode">Arcadia_Engine_Visuals_TextureAddressMode</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Visuals_TextureFilter">Arcadia_Engine_Visuals_TextureFilter</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Visuals_VertexElementSemantics">Arcadia_Engine_Visuals_VertexElementSemantics</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Visuals_VertexElementSyntactics">Arcadia_Engine_Visuals_VertexElementSyntactics</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Visuals_WindingMode">Arcadia_Engine_Visuals_WindingMode</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_TextureAddressMode">Arcadia_Engine_Visuals_TextureAddressMode</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_TextureFilter">Arcadia_Engine_Visuals_TextureFilter</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_VertexElementSemantics">Arcadia_Engine_Visuals_VertexElementSemantics</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_VertexElementSyntactics">Arcadia_Engine_Visuals_VertexElementSyntactics</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_WindingMode">Arcadia_Engine_Visuals_WindingMode</a></li>
 
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowClosed">[MIL] Arcadia.Visuals.WindowClosed</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowClosed_construct">[MIL] Arcadia.Visuals.WindowClosed.construct</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowPositionChanged">[MIL] Arcadia.Visuals.WindowPositionChanged</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowPositionChanged_construct">[MIL] Arcadia.Visuals.WindowPositionChanged.construct</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowSizeChanged">[MIL] Arcadia.Visuals.WindowSizeChanged</a></li>
-        <li><a href="https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Visuals_WindowSizeChanged.construct">[MIL] Arcadia.Visuals.WindowSizeChanged.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_WindowClosed">[MIL] Arcadia.Visuals.WindowClosed</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_WindowClosed_construct">[MIL] Arcadia.Visuals.WindowClosed.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_WindowPositionChanged">[MIL] Arcadia.Visuals.WindowPositionChanged</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_WindowPositionChanged_construct">[MIL] Arcadia.Visuals.WindowPositionChanged.construct</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_WindowSizeChanged">[MIL] Arcadia.Visuals.WindowSizeChanged</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_WindowSizeChanged.construct">[MIL] Arcadia.Visuals.WindowSizeChanged.construct</a></li>
       </ul>
     </nav>
   </div>
@@ -2011,7 +2013,7 @@ An enumeration of winding modes.
     <div class="center-column"></div>
     <div class="right-column">
       <div>Website maintained by Michael Heilmann.</div>
-      <div>Last modified on 21 September 2026.</div>
+      <div>Last modified on 30 September 2026.</div>
     </div>
   </footer>
   </body>

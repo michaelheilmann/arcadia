@@ -32,4 +32,17 @@ Arcadia_Engine_Visuals_renderScene
     Arcadia_Engine_Visuals_BackendContext* backendContext
   );
 
+// Render the scene defined by the enter pass node: render the enter pass
+// (which clears the target) once, then render each of the model nodes.
+// The model nodes are rendered in the order of `modelNodes`.
+void
+Arcadia_Engine_Visuals_renderSceneWithModelNodes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_EnterPassNode* enterPassNode,
+    Arcadia_Engine_Visuals_ModelNode* const* modelNodes,
+    Arcadia_SizeValue numberOfModelNodes,
+    Arcadia_Engine_Visuals_BackendContext* backendContext
+  );
+
 #endif // ARCADIA_ENGINE_VISUALS_NODES_RENDERSCENE_H_INCLUDED

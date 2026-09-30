@@ -157,6 +157,27 @@ getUniformBlockBindingIndex
   return (GLuint)Arcadia_Value_getSizeValue(&temporary);
 }
 
+static GLenum
+toGLBlendFactor
+  (
+    Arcadia_Engine_Visuals_BlendFunction blendFunction
+  )
+{
+  switch (blendFunction) {
+    case Arcadia_Engine_Visuals_BlendFunction_Zero: return GL_ZERO;
+    case Arcadia_Engine_Visuals_BlendFunction_One: return GL_ONE;
+    case Arcadia_Engine_Visuals_BlendFunction_SourceColor: return GL_SRC_COLOR;
+    case Arcadia_Engine_Visuals_BlendFunction_OneMinusSourceColor: return GL_ONE_MINUS_SRC_COLOR;
+    case Arcadia_Engine_Visuals_BlendFunction_DestinationColor: return GL_DST_COLOR;
+    case Arcadia_Engine_Visuals_BlendFunction_OneMinusDestinationColor: return GL_ONE_MINUS_DST_COLOR;
+    case Arcadia_Engine_Visuals_BlendFunction_SourceAlpha: return GL_SRC_ALPHA;
+    case Arcadia_Engine_Visuals_BlendFunction_OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
+    case Arcadia_Engine_Visuals_BlendFunction_DestinationAlpha: return GL_DST_ALPHA;
+    case Arcadia_Engine_Visuals_BlendFunction_OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
+    default: return GL_ZERO;
+  }
+}
+
 static void
 Arcadia_Engine_Visuals_Implementation_OpenGL4_ModelResource_renderImpl
   (
@@ -227,7 +248,14 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_ModelResource_renderImpl
     return;
   }
   //
+  if (Arcadia_BooleanValue_True == material->blendEnabled) {
+    gl->glEnable(GL_BLEND);
+    gl->glBlendFunc(toGLBlendFactor(material->blendSourceFunction), toGLBlendFactor(material->blendDestinationFunction));
+  }
   gl->glDrawArrays(GL_TRIANGLES, 0, Arcadia_Engine_Visuals_VertexBufferResource_getNumberOfVertices(thread, (Arcadia_Engine_Visuals_VertexBufferResource*)((Arcadia_Engine_Visuals_ModelResource*)self)->meshVertexBuffer));
+  if (Arcadia_BooleanValue_True == material->blendEnabled) {
+    gl->glDisable(GL_BLEND);
+  }
 }
 
 Arcadia_Engine_Visuals_Implementation_OpenGL4_ModelResource*

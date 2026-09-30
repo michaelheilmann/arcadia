@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_VPL_TREE_CONSTANTRECORDNODE_H_INCLUDED)
-#define ARCADIA_VPL_TREE_CONSTANTRECORDNODE_H_INCLUDED
+#if !defined(ARCADIA_VPL_TREE_CONSTANTRECORDDEFNNODE_H_INCLUDED)
+#define ARCADIA_VPL_TREE_CONSTANTRECORDDEFNNODE_H_INCLUDED
 
 #if !defined(ARCADIA_VPL_PRIVATE) || 1 != ARCADIA_VPL_PRIVATE
   #error("do not include directly, include `Arcadia/VPL/Include.h` instead")
@@ -45,4 +45,4 @@ Arcadia_VPL_Tree_ConstantRecordDefnNode_create
     Arcadia_String* name
   );
 
-#endif // ARCADIA_VPL_TREE_CONSTANTRECORDNODE_H_INCLUDED
+#endif // ARCADIA_VPL_TREE_CONSTANTRECORDDEFNNODE_H_INCLUDED

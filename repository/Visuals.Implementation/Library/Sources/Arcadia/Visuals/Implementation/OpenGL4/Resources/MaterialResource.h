@@ -35,6 +35,9 @@ struct Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResourceDispatch {
 
 struct Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource {
   Arcadia_Engine_Visuals_MaterialResource _parent;
+  Arcadia_BooleanValue blendEnabled;
+  Arcadia_Engine_Visuals_BlendFunction blendSourceFunction;
+  Arcadia_Engine_Visuals_BlendFunction blendDestinationFunction;
   Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource ambientColorSource;
   Arcadia_Engine_Visuals_Implementation_OpenGL4_TextureResource* ambientColorTexture;
   Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource* program;
@@ -45,6 +48,9 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* backendContext,
+    Arcadia_BooleanValue blendEnabled,
+    Arcadia_Engine_Visuals_BlendFunction blendSourceFunction,
+    Arcadia_Engine_Visuals_BlendFunction blendDestinationFunction,
     Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource ambientColorSource,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_TextureResource* ambientColorTexture,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource* program

@@ -165,3 +165,126 @@ Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest3
   }
   Arcadia_ADL_Definitions_link(thread, definitions);
 }
+
+void
+Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest4
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  {
+    makeTexture(thread, context, definitions);
+  }
+  {
+    static const char* DDL =
+      "{\n"
+      "  type : \"Material\",\n"
+      "  name : \"MyGame.Materials.MyMaterial\",\n"
+      "  materialType : \"Blinn-Phong\",/* Allowed Values: 'Blinn-Phong'. */\n"
+      "  ambientColorSource : \"Texture\",/* Allowed values: 'Mesh', 'Vertex', or 'Texture'. */\n"
+      "  ambientColorTexture : \"MyGame.Textures.MyTexture\",\n"
+      "  blendSourceFunction : \"SourceAlpha\",\n"
+      "  blendDestinationFunction : \"OneMinusSourceAlpha\",\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  Arcadia_ADL_Definitions_link(thread, definitions);
+  Arcadia_ADL_Definition* definition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions, Arcadia_String_createFromCxxString(thread, u8"MyGame.Materials.MyMaterial"));
+  if (NULL == definition) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ADL_MaterialDefinition* materialDefinition = (Arcadia_ADL_MaterialDefinition*)definition;
+  if (Arcadia_ADL_BlendFunction_SourceAlpha != materialDefinition->blendSourceFunction) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  if (Arcadia_ADL_BlendFunction_OneMinusSourceAlpha != materialDefinition->blendDestinationFunction) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+}
+
+void
+Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest5
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  {
+    makeTexture(thread, context, definitions);
+  }
+  {
+    static const char* DDL =
+      "{\n"
+      "  type : \"Material\",\n"
+      "  name : \"MyGame.Materials.MyMaterial\",\n"
+      "  materialType : \"Blinn-Phong\",/* Allowed Values: 'Blinn-Phong'. */\n"
+      "  ambientColorSource : \"Texture\",/* Allowed values: 'Mesh', 'Vertex', or 'Texture'. */\n"
+      "  ambientColorTexture : \"MyGame.Textures.MyTexture\",\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  Arcadia_ADL_Definitions_link(thread, definitions);
+  Arcadia_ADL_Definition* definition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions, Arcadia_String_createFromCxxString(thread, u8"MyGame.Materials.MyMaterial"));
+  if (NULL == definition) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ADL_MaterialDefinition* materialDefinition = (Arcadia_ADL_MaterialDefinition*)definition;
+  if (Arcadia_ADL_BlendFunction_None != materialDefinition->blendSourceFunction) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  if (Arcadia_ADL_BlendFunction_None != materialDefinition->blendDestinationFunction) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+}
+
+void
+Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest6
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+    Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+    {
+      makeTexture(thread, context, definitions);
+    }
+    {
+      static const char* DDL =
+        "{\n"
+        "  type : \"Material\",\n"
+        "  name : \"MyGame.Materials.MyMaterial\",\n"
+        "  materialType : \"Blinn-Phong\",/* Allowed Values: 'Blinn-Phong'. */\n"
+        "  ambientColorSource : \"Texture\",/* Allowed values: 'Mesh', 'Vertex', or 'Texture'. */\n"
+        "  ambientColorTexture : \"MyGame.Textures.MyTexture\",\n"
+        "  blendSourceFunction : \"InvalidFunction\",\n"
+        "}\n"
+        ;
+      Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+    }
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    if (Arcadia_Thread_getStatus(thread) != Arcadia_Status_SemanticalError) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+      Arcadia_Thread_jump(thread);
+    } else {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    }
+  }
+}

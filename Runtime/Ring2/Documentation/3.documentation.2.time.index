@@ -1,0 +1,11 @@
+<li>Time</li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_TimeSpecification">Arcadia_TimeSpecification</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_TimeSpecification_Utc">Arcadia_TimeSpecification_Utc</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_TimeSpecification_LocalTime">Arcadia_TimeSpecification_LocalTime</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_PointInTime">Arcadia_PointInTime</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_TimeStamp_getNow">Arcadia_TimeStamp_getNow</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_PointInTime_create">Arcadia_PointInTime_create</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_PointInTime_getDayOfWeek">Arcadia_PointInTime_getDayOfWeek</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_PointInTime_getDayOfMonth">Arcadia_PointInTime_getDayOfMonth</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_PointInTime_getMonth">Arcadia_PointInTime_getMonth</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_PointInTime_getYear">Arcadia_PointInTime_getYear</a></li>

@@ -1,0 +1,146 @@
+@{include("./../../Documentation/Commons/header-common.i")}
+<link rel='canonical' href='@{siteAddress}/Arcadia/ADL/Concepts-and-Terms/'>
+<title>Arcadia ADL Concepts and Terms</title>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div class="navigation breadcrumbs">
+      <a href="@{siteAddress}/">Home</a> / <a href="@{siteAddress}/Arcadia/ADL/">Arcadia ADL</a>
+    </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+      <h1>Arcadia ADL Concepts and Terms</h1>
+      <p>
+      This document introduces the concepts and terms used by the Arcadia asset
+      definition language, Arcadia ADL for short, and by the <code>Arcadia.ADL</code>
+      module that processes it.
+      </p>
+
+      <h2>Assets and definitions</h2>
+      <p>
+      An <b>asset</b> is a piece of data that an application needs in order to run,
+      such as a color, a material, a mesh, a model, a texture, a pixel buffer, or a
+      sample buffer. Assets are stored as text files and are collected next to the
+      programs that use them.
+      </p>
+      <p>
+      ADL assets describe <b>definitions</b>. A definition has a <b>name</b> and a
+      <b>type</b>. Names are fully-qualified, dot-separated strings that are unique
+      within an application, for example <code>Colors.Red</code>. The type selects
+      the kind of definition and therefore the reader that processes the asset.
+      </p>
+
+      <h2>Definitions, the container</h2>
+      <p>
+      The <code>Arcadia.ADL.Definitions</code> type is a container that maps
+      definition names to definitions. An application reads all of its assets into a
+      single container and then links the container, at which point every reference
+      between definitions is resolved.
+      </p>
+
+      <h2>Readers and the context</h2>
+      <p>
+      A <b>reader</b> processes the assets of one definition type. Each reader owns
+      the <b>schema</b> of its type: a description, written in the Arcadia Data
+      Definition Schema Language (Arcadia DDLS), of the map entries a definition of
+      this type may and must have, and of the type of each entry. Before a reader
+      constructs a definition it validates the asset against its schema; an asset
+      that violates its schema is rejected with a semantical error.
+      </p>
+      <p>
+      The <code>Arcadia.ADL.Context</code> type is a registry of readers. A context
+      maps the string <code>type</code> entry of an asset to the reader of that type;
+      reading an asset whose type has no reader is an error.
+      </p>
+
+      <h2>References</h2>
+      <p>
+      Many definitions refer to other definitions. A <b>reference</b> names another
+      definition; in the ADL text a reference is written as a string that contains
+      the fully-qualified name of the referenced definition. While an asset is being
+      read, a reference is stored as a <code>Arcadia.ADL.Reference</code>, which
+      holds the name of the referenced definition but not yet the definition itself.
+      </p>
+      <p>
+      References are resolved during linking. Resolving a reference looks the name
+      up in the container of definitions. If the referenced definition does not
+      exist, a not-found error is raised. A definition may further require that a
+      reference points to a definition of a particular type; for example, the
+      <code>pixelBuffer</code> entry of a texture must reference a pixel-buffer
+      definition.
+      </p>
+
+      <h2>Two phases: reading and linking</h2>
+      <p>
+      Processing ADL assets is split into two phases:
+      </p>
+      <ul>
+        <li>
+          In the <b>reading</b> phase the text of each asset is parsed into a DDL map,
+          validated against the schema of its type, and turned into a definition.
+          Definitions created in this phase hold unresolved references.
+        </li>
+        <li>
+          In the <b>linking</b> phase every reference is resolved and every required
+          type check is performed. Linking is idempotent: resolving an already
+          resolved reference does nothing.
+        </li>
+      </ul>
+      <p>
+      The two phases may be interleaved by reading further assets after a partial
+      link, because linking only needs the referenced definitions to be present in
+      the container when it is performed.
+      </p>
+
+      <h2>The definition graph</h2>
+      <p>
+      Definitions and their references form a directed acyclic graph. Typical edges
+      of this graph are:
+      </p>
+      <ul>
+        <li>a material references the texture it uses as its ambient-color source,</li>
+        <li>a texture references the pixel buffer it samples,</li>
+        <li>a pixel buffer references the fill operations that produce its content,</li>
+        <li>a fill operation references the colors it uses,</li>
+        <li>a model references the mesh and the material it is rendered with,</li>
+        <li>a mesh references the color of its vertices, and</li>
+        <li>a sample buffer references the digital signal processing definition that synthesizes it.</li>
+      </ul>
+      <p>
+      Linking a definition also links the definitions it references, so linking the
+      container links the whole graph.
+      </p>
+
+      <h2>Defaults and the engine</h2>
+      <p>
+      Some definition types have entries whose meaning is given by an enumeration
+      and that may be omitted. An omitted entry is represented by the
+      <code>None</code> element of the enumeration; it selects the default of the
+      engine that consumes the definition. For example, the context sampling
+      properties of a texture, <code>magnificationFilter</code>,
+      <code>minificationFilter</code>, <code>addressModeU</code>, and
+      <code>addressModeV</code>, may be omitted; the engine then uses its own
+      default filters and address modes.
+      </p>
+
+      <h2>Terminology</h2>
+      <p>
+      The following table lists recurring terms of this documentation.
+      </p>
+      <table>
+        <tr><th>Term</th><th>Meaning</th></tr>
+        <tr><td>asset</td><td>A text file that describes a definition.</td></tr>
+        <tr><td>definition</td><td>A named, typed description processed from an asset.</td></tr>
+        <tr><td>reference</td><td>A link from one definition to another definition, by name.</td></tr>
+        <tr><td>reader</td><td>An object that validates and processes the assets of one type.</td></tr>
+        <tr><td>schema</td><td>The description of the map entries a definition of a type may and must have.</td></tr>
+        <tr><td>linking</td><td>The resolution of all references of a container of definitions.</td></tr>
+      </table>
+    </div>
+    <div class="right-column"></div>
+  </main>
+  @{include("./../../Documentation/footer.i")}
+</body>
+</html>

@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.MidnightBlue",
-  red : 25,
-  green : 25,
-  blue : 112,
-}

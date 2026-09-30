@@ -1,5 +1,5 @@
   @{include("./Commons/header-common.i")}
-  <link rel='canonical' href='@{siteAddress}/news.html'>
+  <link rel='canonical' href='@{siteAddress}/data-protection-statement.html'>
   <title>Data Protection Statement<</title>
 </head>
 <body class="my-content-page-1">

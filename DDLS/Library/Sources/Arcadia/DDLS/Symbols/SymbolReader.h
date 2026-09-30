@@ -53,6 +53,9 @@ struct Arcadia_DDLS_SymbolReader {
   Arcadia_Value ENTRY;
   Arcadia_Value ENTRIES;
   Arcadia_Value KIND;
+  Arcadia_Value OPTIONAL;
+  Arcadia_Value TRUE;
+  Arcadia_Value FALSE;
 
   Arcadia_Languages_StringTable* stringTable;
 };

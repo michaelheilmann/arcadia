@@ -24,7 +24,7 @@ A texture filter identifies a technique to compute the pixel value closed to the
     <div>
     Returns the weighted average of the four texture elements that are closest to the specified uv coordinates.
     These can include items wrapped or repeated from other parts of the texture, depending on the
-    <a href="@{siteAddress}/repository/Arcadia.Visuals/#Arcadia_Engine_Visuals_TextureAddressMode">texture address mode</a>.
+     <a href="@{siteAddress}/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_TextureAddressMode">texture address mode</a>.
     </div>
   </div>
 

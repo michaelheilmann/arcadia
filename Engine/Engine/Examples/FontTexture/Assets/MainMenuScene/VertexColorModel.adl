@@ -1,0 +1,6 @@
+{
+  type : "Model",
+  name : "MainMenuScene.VertexColorModel",
+  mesh : "MainMenuScene.Mesh",
+  material : "MainMenuScene.VertexColorMaterial",
+}

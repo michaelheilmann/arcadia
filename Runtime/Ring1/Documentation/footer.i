@@ -47,6 +47,13 @@
         <li><a href="@{siteAddress}/Arcadia/Ring1/#Arcadia_Value_hash">Arcadia_Value_hash</a></li>
         <li><a href="@{siteAddress}/Arcadia/Ring1/#Arcadia_Value_isEqualTo">Arcadia_Value_isEqualTo</a></li>
 
+        <li>Objects</li>
+        @{include("3.documentation.8.objects/Object/include.index")}
+        @{include("3.documentation.8.objects/ByteArray/include.index")}
+        @{include("3.documentation.8.objects/ByteArrayBuilder/include.index")}
+        @{include("3.documentation.8.objects/String/include.index")}
+        @{include("3.documentation.8.objects/StringBuilder/include.index")}
+
         <li>Numeric functions</li>
         <li><a href="@{siteAddress}/Arcadia/Ring1/#Arcadia_ceil%2a">Arcadia_ceil*</a></li>
         <li><a href="@{siteAddress}/Arcadia/Ring1/#Arcadia_clamp%2a">Arcadia_clamp*</a></li>

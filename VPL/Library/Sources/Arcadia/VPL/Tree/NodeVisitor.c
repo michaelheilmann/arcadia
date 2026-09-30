@@ -50,7 +50,7 @@ static const Arcadia_Type_Operations _typeOperations = {
   .objectTypeOperations = &_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.VPL.Tree.TreeVisitor", Arcadia_VPL_Tree_NodeVisitor,
+Arcadia_defineObjectType(u8"Arcadia.VPL.Tree.NodeVisitor", Arcadia_VPL_Tree_NodeVisitor,
                          u8"Arcadia.Object", Arcadia_Object,
                          &_typeOperations);
 

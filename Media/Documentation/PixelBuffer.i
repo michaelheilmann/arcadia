@@ -19,7 +19,7 @@
   The number of rows is also called the <em>height</em> of the pixel rectangle.
   </li>
   <li>
-  <em>pixel format</em>: The pixel format of the pixels of the pixel buffer as defined by <a href="@{siteAddress}/Media/#Arcadia_Media_PixelFormat">Arcadia_Media_PixelFormat</a>.
+  <em>pixel format</em>: The pixel format of the pixels of the pixel buffer as defined by <a href="@{siteAddress}/Arcadia/Media/#Arcadia_Media_PixelFormat">Arcadia_Media_PixelFormat</a>.
   </li>
   <li>
   <em>line padding</em>: The number of Bytes after a line.

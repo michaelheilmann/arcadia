@@ -83,6 +83,7 @@ Arcadia_Engine_Visuals_WindowBackend_constructImpl
   self->mouse.oldy = 0;
 
   self->fullscreen = Arcadia_BooleanValue_False;
+  self->verticalSynchronization = Arcadia_BooleanValue_False;
 
   Arcadia_LeaveConstructor(Arcadia_Engine_Visuals_WindowBackend);
 }
@@ -231,6 +232,14 @@ Arcadia_Engine_Visuals_WindowBackend_endRender
   )
 { Arcadia_VirtualCall(Arcadia_Engine_Visuals_WindowBackend, endRender, self); }
 
+Arcadia_Media_PixelBuffer*
+Arcadia_Engine_Visuals_WindowBackend_capturePixels
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_WindowBackend* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_WindowBackend, capturePixels, self); }
+
 void
 Arcadia_Engine_Visuals_WindowBackend_setPosition
   (
@@ -287,3 +296,12 @@ Arcadia_Engine_Visuals_WindowBackend_setFullscreen
     Arcadia_BooleanValue fullscreen
   )
 { Arcadia_VirtualCall(Arcadia_Engine_Visuals_WindowBackend, setFullscreen, self, fullscreen); }
+
+void
+Arcadia_Engine_Visuals_WindowBackend_setVerticalSynchronization
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_WindowBackend* self,
+    Arcadia_BooleanValue verticalSynchronization
+  )
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_WindowBackend, setVerticalSynchronization, self, verticalSynchronization); }

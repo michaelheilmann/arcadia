@@ -1,0 +1,5 @@
+class NotAnInterface {
+}
+
+class MyClass implements NotAnInterface {
+}

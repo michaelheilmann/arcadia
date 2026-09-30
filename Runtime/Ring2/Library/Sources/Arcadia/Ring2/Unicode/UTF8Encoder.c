@@ -17,7 +17,7 @@
 #define ARCADIA_RING2_MODULE (1)
 #include "Arcadia/Ring2/Unicode/UTF8Encoder.h"
 
-#include "Arcadia/Ring2/Implementation/ArgumentsValidation.h"
+#include "Arcadia/Ring2/ArgumentsValidation.h"
 #include "Arcadia/Ring1/Include.h"
 
 static void

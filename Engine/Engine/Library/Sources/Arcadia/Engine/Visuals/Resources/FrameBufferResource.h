@@ -17,6 +17,7 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_RESOURCES_FRAMEBUFFERRESOURCE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_RESOURCES_FRAMEBUFFERRESOURCE_H_INCLUDED
 
+#include "Arcadia/PixelBufferIO/Include.h"
 #include "Arcadia/Engine/Visuals/Resource.h"
 
 // A "frame buffer resource" must be created and activated before rendering of a scene may occur.
@@ -32,6 +33,8 @@ struct Arcadia_Engine_Visuals_FrameBufferResourceDispatch {
   void (*deactivate)(Arcadia_Thread*, Arcadia_Engine_Visuals_FrameBufferResource*);
   void (*setSize)(Arcadia_Thread*, Arcadia_Engine_Visuals_FrameBufferResource*, Arcadia_Integer32Value, Arcadia_Integer32Value);
   void (*getSize)(Arcadia_Thread*, Arcadia_Engine_Visuals_FrameBufferResource*, Arcadia_Integer32Value*, Arcadia_Integer32Value*);
+
+  Arcadia_Media_PixelBuffer* (*capturePixels)(Arcadia_Thread*, Arcadia_Engine_Visuals_FrameBufferResource*);
 };
 
 struct Arcadia_Engine_Visuals_FrameBufferResource {
@@ -68,6 +71,28 @@ Arcadia_Engine_Visuals_FrameBufferResource_getSize
     Arcadia_Engine_Visuals_FrameBufferResource* self,
     Arcadia_Integer32Value* width,
     Arcadia_Integer32Value* height
+  );
+
+/// @brief Capture the pixels currently rendered to this frame buffer resource.
+/// @param thread A pointer to this thread.
+/// @param self A pointer to this frame buffer resource.
+/// @return A pointer to a new pixel buffer of #Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8,
+/// sized by FrameBufferResource_getSize, holding one row per frame buffer row,
+/// first row being the topmost frame buffer row.
+/// @pre
+/// The backend-side representation of this frame buffer resource must have been created,
+/// that is, the resource must have been loaded and rendered into.
+/// @warning
+/// The returned pixel buffer is a fresh object which is not owned by this frame buffer resource.
+/// The caller is responsible for keeping it reachable for as long as it is used.
+/// @remarks
+/// This frame buffer resource does not need to be the activated one. The previously activated
+/// frame buffer resource, if any, remains activated.
+Arcadia_Media_PixelBuffer*
+Arcadia_Engine_Visuals_FrameBufferResource_capturePixels
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_FrameBufferResource* self
   );
 
 #endif // ARCADIA_ENGINE_VISUALS_RESOURCES_FRAMEBUFFERRESOURCE_H_INCLUDED

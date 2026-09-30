@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.Peru",
-  red : 205,
-  green : 133,
-  blue : 63,
-}

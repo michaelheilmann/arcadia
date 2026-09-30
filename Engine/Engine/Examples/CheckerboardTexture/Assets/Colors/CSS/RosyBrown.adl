@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.RosyBrown",
-  red : 188,
-  green : 143,
-  blue : 143,
-}

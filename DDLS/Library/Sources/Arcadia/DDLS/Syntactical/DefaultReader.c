@@ -209,6 +209,12 @@ readMapNode
                                              Arcadia_Value_makeObjectReferenceValue(targetValue),
                                              NULL,
                                              NULL);
+    if (Arcadia_BooleanValue_True == o->optional) {
+      Arcadia_Map_set(thread, target->optional, Arcadia_Value_makeObjectReferenceValue(targetName),
+                                                Arcadia_Value_makeObjectReferenceValue(targetName),
+                                                NULL,
+                                                NULL);
+    }
   }
   return target;
 }

@@ -1,0 +1,6 @@
+{
+  type : "SampleBuffer",
+  name : "MainMenuScene.AmbienceSampleBuffer",
+  duration : 2,
+  dsp : "MainMenuScene.Internal.Ambience.DSP.WhiteNoise",
+}

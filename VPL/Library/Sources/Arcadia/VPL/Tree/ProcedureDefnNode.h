@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_VISUALS_VPL_TREE_PROCEDUREDEFNNODE_H_INCLUDED)
-#define ARCADIA_VISUALS_VPL_TREE_PROCEDUREDEFNNODE_H_INCLUDED
+#if !defined(ARCADIA_VPL_TREE_PROCEDUREDEFNNODE_H_INCLUDED)
+#define ARCADIA_VPL_TREE_PROCEDUREDEFNNODE_H_INCLUDED
 
 #if !defined(ARCADIA_VPL_PRIVATE) || 1 != ARCADIA_VPL_PRIVATE
   #error("do not include directly, include `Arcadia/VPL/Include.h` instead")
@@ -74,4 +74,4 @@ Arcadia_VPL_Tree_ProcedureDefnNode_isPixel
     Arcadia_VPL_Tree_ProcedureDefnNode* self
   );
 
-#endif // ARCADIA_VISUALS_VPL_TREE_PROCEDUREDEFNNODE_H_INCLUDED
+#endif // ARCADIA_VPL_TREE_PROCEDUREDEFNNODE_H_INCLUDED

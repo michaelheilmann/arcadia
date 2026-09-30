@@ -5,7 +5,9 @@
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
 
-  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+  <link rel='icon' type='image/svg+xml' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+  <link rel="icon" type="image/png" sizes="64x64" href="https://michaelheilmann.com/assets/favicon/64x64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://michaelheilmann.com/assets/favicon/32x32.png">
 
   <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
   <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
@@ -33,7 +35,7 @@
 
   <!-- Cascading Style Sheets. -->
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
-  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=7'>
 
   <link rel='canonical' href='https://michaelheilmann.com/Arcadia/'>
   <title>Michael Heilmann's Arcadia</title>
@@ -46,7 +48,7 @@
     <div class="banner">
       <div>
         <div>Michael Heilmann's</div>
-        <div>Project Arcadia</div>
+        <h1>Project Arcadia</h1>
       </div>
     </div>
   </header>
@@ -56,12 +58,12 @@
         <span>Description</span>
       </div>
       <div class="body">
-        <p>Project Arcadia is an open environment for creating, regenerating, and preserving games. Its mission is to give developers, artists, and tinkerer's
+        <p>Project Arcadia is an open environment for creating, regenerating, and preserving games. Its mission is to give developers, artists, and tinkerers
         a future-proof space where games aren't just built - they are understood, reborn, and kept alive.</p>
 
         <p>Arcadia is designed to be</p>
         <ul style="list-style-position: inside;">
-          <li><em>portable and flexible</em> - able to run across platforms while still embracing the unique strenghts of quirks of each one.</li>
+          <li><em>portable and flexible</em> - able to run across platforms while still embracing the unique strengths and quirks of each one.</li>
           <li><em>expressive and human-readable</em> - games are described through clear, editable text documents that define their visuals, audials, and logics</li>
           <li><em>procedurally alive</em> - using deterministic procedural generation, Arcadia can recreate rich game worlds, sounds, and behaviours from compact descriptions</li>
           <li><em>built for preservation</em> - making it possible to store, regenerate, and study games long into the future</li>
@@ -84,12 +86,16 @@
           <a href='https://michaelheilmann.com/Arcadia/FileSystem'>Arcadia FileSystem</a>
           <a href='https://michaelheilmann.com/Arcadia/Media'>Arcadia Media</a>
           <a href='https://michaelheilmann.com/Arcadia/Engine'>Arcadia Engine</a>
+          <a href='https://michaelheilmann.com/Arcadia/UI'>Arcadia UI</a>
+          <a href='https://michaelheilmann.com/Arcadia/Math'>Arcadia Math</a>
+          <a href='https://michaelheilmann.com/Arcadia/ADL'>Arcadia ADL</a>
           <a href='https://michaelheilmann.com/Arcadia/TemplateEngine'>Arcadia Template Engine</a>
 
           <a href='https://michaelheilmann.com/specifications/mathematical-definitions-notations-and-proofs'>Mathematical Definitions, Notations, and Proofs</a>
           <a href='https://michaelheilmann.com/specifications/common-lexical-translations'>Common Lexical Translations</a>
           <a href='https://michaelheilmann.com/specifications/data-definition-language'>Data Definition Language</a>
-          <a href='https://michaelheilmann.com/specifications/data-definitions-language-schema'>Data Definition Language Schema (draft)</a>
+          <a href='https://michaelheilmann.com/specifications/data-definition-language-schema'>Data Definition Language Schema (draft)</a>
+          <a href='https://michaelheilmann.com/specifications/program-definition-language'>Program Definition Language</a>
         </div>
       </div>
     </div>
@@ -99,6 +105,7 @@
       </div>
       <div class="body">
         <div class="entries">
+          <a href='https://michaelheilmann.com/building'>Building Arcadia</a>
           <a href='https://github.com/michaelheilmann/arcadia'>Arcadia GitHub repository</a>
           <a href='https://github.com/michaelheilmann/arcadia-dependencies'>GitHub repository for external dependencies</a>
           <a href='https://michaelheilmann.com/Arcadia/news'>News</a>
@@ -106,13 +113,12 @@
         </div>
       </div>
     </div>
-  </div>
   </main>
   <footer>
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 21 September 2026.</div> 
+    <div>Last modified on 30 September 2026.</div> 
     </div>
   </div>
   <div class="center-column">
@@ -130,6 +136,5 @@
   </div>
 </footer>
 
-  </footer>
 </body>
 </html>

@@ -10,7 +10,7 @@
     <div class="banner">
       <div>
         <div>Michael Heilmann's</div>
-        <div>Project Arcadia</div>
+        <h1>Project Arcadia</h1>
       </div>
     </div>
   </header>
@@ -20,12 +20,12 @@
         <span>Description</span>
       </div>
       <div class="body">
-        <p>Project Arcadia is an open environment for creating, regenerating, and preserving games. Its mission is to give developers, artists, and tinkerer's
+        <p>Project Arcadia is an open environment for creating, regenerating, and preserving games. Its mission is to give developers, artists, and tinkerers
         a future-proof space where games aren't just built - they are understood, reborn, and kept alive.</p>
 
         <p>Arcadia is designed to be</p>
         <ul style="list-style-position: inside;">
-          <li><em>portable and flexible</em> - able to run across platforms while still embracing the unique strenghts of quirks of each one.</li>
+          <li><em>portable and flexible</em> - able to run across platforms while still embracing the unique strengths and quirks of each one.</li>
           <li><em>expressive and human-readable</em> - games are described through clear, editable text documents that define their visuals, audials, and logics</li>
           <li><em>procedurally alive</em> - using deterministic procedural generation, Arcadia can recreate rich game worlds, sounds, and behaviours from compact descriptions</li>
           <li><em>built for preservation</em> - making it possible to store, regenerate, and study games long into the future</li>
@@ -48,12 +48,16 @@
           <a href='@{siteAddress}/Arcadia/FileSystem'>Arcadia FileSystem</a>
           <a href='@{siteAddress}/Arcadia/Media'>Arcadia Media</a>
           <a href='@{siteAddress}/Arcadia/Engine'>Arcadia Engine</a>
+          <a href='@{siteAddress}/Arcadia/UI'>Arcadia UI</a>
+          <a href='@{siteAddress}/Arcadia/Math'>Arcadia Math</a>
+          <a href='@{siteAddress}/Arcadia/ADL'>Arcadia ADL</a>
           <a href='@{siteAddress}/Arcadia/TemplateEngine'>Arcadia Template Engine</a>
 
           <a href='@{siteAddress}/specifications/mathematical-definitions-notations-and-proofs'>Mathematical Definitions, Notations, and Proofs</a>
           <a href='@{siteAddress}/specifications/common-lexical-translations'>Common Lexical Translations</a>
           <a href='@{siteAddress}/specifications/data-definition-language'>Data Definition Language</a>
-          <a href='@{siteAddress}/specifications/data-definitions-language-schema'>Data Definition Language Schema (draft)</a>
+          <a href='@{siteAddress}/specifications/data-definition-language-schema'>Data Definition Language Schema (draft)</a>
+          <a href='@{siteAddress}/specifications/program-definition-language'>Program Definition Language</a>
         </div>
       </div>
     </div>
@@ -63,6 +67,7 @@
       </div>
       <div class="body">
         <div class="entries">
+          <a href='@{siteAddress}/building'>Building Arcadia</a>
           <a href='@{arcadiaGitHubAddress}'>Arcadia GitHub repository</a>
           <a href='@{arcadiaDependenciesGitHubAddress}'>GitHub repository for external dependencies</a>
           <a href='@{siteAddress}/Arcadia/news'>News</a>
@@ -70,9 +75,7 @@
         </div>
       </div>
     </div>
-  </div>
   </main>
   @{include("./../footer.i")}
-  </footer>
 </body>
 </html>

@@ -1,6 +1,6 @@
 <section class="cxx entity enumeration">
 
-<h1 id="Arcadia_Visuals_MouseButtonAction">
+<h1 id="Arcadia_Engine_Input_MouseButtonAction">
 Arcadia.Engine.Input.MouseButtonAction
 </h1>
 

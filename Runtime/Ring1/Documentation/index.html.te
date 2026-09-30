@@ -32,6 +32,13 @@ Arcadia Ring 1 is available at <a href="@{siteAddress}/Arcadia/Ring1">michaelhei
 <h2>Jumps and jump targets</h2>
 @{include("3.documentation.5.jumps-and-jump-targets.i")}
 
+<h2>Objects</h2>
+@{include("3.documentation.8.objects/Object/include.content")}
+@{include("3.documentation.8.objects/ByteArray/include.content")}
+@{include("3.documentation.8.objects/ByteArrayBuilder/include.content")}
+@{include("3.documentation.8.objects/String/include.content")}
+@{include("3.documentation.8.objects/StringBuilder/include.content")}
+
 <h2>Numeric functions</h2>
 @{include("numeric-functions/Arcadia_ceil.i")}
 @{include("numeric-functions/Arcadia_clamp.i")}

@@ -31,6 +31,10 @@ typedef struct Arcadia_Engine_Visuals_Implementation_NodeFactory Arcadia_Engine_
 #endif
 #include <Windows.h>
 
+/// The type of the WGL_EXT_swap_control function 'wglSwapIntervalEXT'.
+/// @see https://registry.khronos.org/OpenGL/extensions/EXT/WGL_EXT_swap_control.txt
+typedef BOOL (APIENTRY *Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_SwapIntervalEXTFunction)(int);
+
 /// The system maintains
 /// - a window class for all window
 /// - a pixel format for all window
@@ -69,6 +73,17 @@ struct Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_BackendContext {
   HGLRC glResourceContextHandle;
   // The WGL/OpenGL driver library handle.That is, the handle to OPENGL32.DLL.
   HANDLE glDriverLibrary;
+  // The WGL_EXT_swap_control function 'wglSwapIntervalEXT'. NULL if the extension is unavailable.
+  Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_SwapIntervalEXTFunction swapIntervalEXT;
+  // #true if 'swapIntervalEXT' has been looked up already. The extension cannot appear after
+  // 'glResourceContextHandle' has been created, hence a failed lookup is not repeated.
+  Arcadia_BooleanValue swapIntervalEXTResolved;
+  // The minimum swap interval as requested by a window backend. 0 presents as fast as rendering completes,
+  // 1 presents synchronized with the vertical blanking interval.
+  int swapInterval;
+  // The swap interval that has last been passed to 'swapIntervalEXT' for 'glResourceContextHandle'.
+  // Negative if 'swapInterval' has not been applied to 'glResourceContextHandle' yet.
+  int appliedSwapInterval;
 
   /// The WGL functions available to us.
   _Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_Functions _functionsWGL;

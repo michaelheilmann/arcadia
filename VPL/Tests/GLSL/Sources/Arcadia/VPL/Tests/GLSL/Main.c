@@ -102,6 +102,34 @@ test3
   Arcadia_FileSystem_setFileContents(thread, Arcadia_FileSystem_getOrCreate(thread), fragmentShaderPath, fragmentShaderCode);
 }
 
+static void
+test4
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_VPL_Symbols_Program* program = Arcadia_VPL_Symbols_Program_createProgram(thread, Arcadia_VPL_Symbols_ProgramFlags_TextureVertexAmbientColor);
+  Arcadia_VPL_Backends_GLSL_Transpiler* transpiler = Arcadia_VPL_Backends_GLSL_Transpiler_create(thread);
+  Arcadia_Map* constantMapping = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
+  Arcadia_Map* vertexShaderVariableScalarMapping = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
+  Arcadia_Map* fragmentShaderVariableScalarMapping = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
+  Arcadia_String* fragmentColorOutput = NULL;
+
+  Arcadia_ByteArrayBuilder* vertexShaderCode = Arcadia_ByteArrayBuilder_create(thread);
+  Arcadia_VPL_Backends_GLSL_Transpiler_writeDefaultVertexShader(thread, transpiler, program, constantMapping, vertexShaderVariableScalarMapping, vertexShaderCode);
+
+  Arcadia_ByteArrayBuilder* fragmentShaderCode = Arcadia_ByteArrayBuilder_create(thread);
+  Arcadia_VPL_Backends_GLSL_Transpiler_writeDefaultFragmentShader(thread, transpiler, program, constantMapping, fragmentShaderVariableScalarMapping , &fragmentColorOutput, fragmentShaderCode);
+
+  Arcadia_FilePath* vertexShaderPath = Arcadia_FileSystem_getWorkingDirectory(thread, Arcadia_FileSystem_getOrCreate(thread));
+  Arcadia_FilePath_append(thread, vertexShaderPath, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"vertex-shader-texture-vertex-ambient-color.txt")));
+  Arcadia_FileSystem_setFileContents(thread, Arcadia_FileSystem_getOrCreate(thread), vertexShaderPath, vertexShaderCode);
+
+  Arcadia_FilePath* fragmentShaderPath = Arcadia_FileSystem_getWorkingDirectory(thread, Arcadia_FileSystem_getOrCreate(thread));
+  Arcadia_FilePath_append(thread, fragmentShaderPath, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"fragment-shader-texture-vertex-ambient-color.txt")));
+  Arcadia_FileSystem_setFileContents(thread, Arcadia_FileSystem_getOrCreate(thread), fragmentShaderPath, fragmentShaderCode);
+}
+
 int
 main
   (
@@ -116,6 +144,9 @@ main
     return EXIT_FAILURE;
   }
   if (!Arcadia_Tests_safeExecute(&test3)) {
+    return EXIT_FAILURE;
+  }
+  if (!Arcadia_Tests_safeExecute(&test4)) {
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

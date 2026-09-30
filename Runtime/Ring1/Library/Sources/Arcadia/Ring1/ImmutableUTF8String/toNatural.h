@@ -1,0 +1,54 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+#if !defined(ARCADIA_RING1_IMMUTABLEUTF8STRING_TONATURAL_H_INCLUDED)
+#define ARCADIA_RING1_IMMUTABLEUTF8STRING_TONATURAL_H_INCLUDED
+
+#include "Arcadia/Ring1/Natural16.h"
+#include "Arcadia/Ring1/Natural32.h"
+#include "Arcadia/Ring1/Natural64.h"
+#include "Arcadia/Ring1/Natural8.h"
+typedef struct Arcadia_RuntimeUTF8String Arcadia_RuntimeUTF8String;
+
+Arcadia_Natural16Value
+_toNatural16
+  (
+    Arcadia_Thread* thread,
+    Arcadia_RuntimeUTF8String* immutableUTF8StringValue
+  );
+
+Arcadia_Natural32Value
+_toNatural32
+  (
+    Arcadia_Thread* thread,
+    Arcadia_RuntimeUTF8String* immutableUTF8StringValue
+  );
+
+Arcadia_Natural64Value
+_toNatural64
+  (
+    Arcadia_Thread* thread,
+    Arcadia_RuntimeUTF8String* immutableUTF8StringValue
+  );
+
+Arcadia_Natural8Value
+_toNatural8
+  (
+    Arcadia_Thread* thread,
+    Arcadia_RuntimeUTF8String* immutableUTF8StringValue
+  );
+
+#endif // ARCADIA_RING1_IMMUTABLEUTF8STRING_TONATURAL_H_INCLUDED

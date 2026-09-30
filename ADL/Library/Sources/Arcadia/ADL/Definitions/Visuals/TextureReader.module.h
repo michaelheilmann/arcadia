@@ -43,6 +43,26 @@ struct Arcadia_ADL_TextureReader {
   Arcadia_String* TYPENAME;
   // The string `pixelBuffer` cached here.
   Arcadia_String* PIXELBUFFER;
+  // The string `magnificationFilter` cached here.
+  Arcadia_String* MAGNIFICATIONFILTER;
+  // The string `minificationFilter` cached here.
+  Arcadia_String* MINIFICATIONFILTER;
+  // The string `addressModeU` cached here.
+  Arcadia_String* ADDRESSMODEU;
+  // The string `addressModeV` cached here.
+  Arcadia_String* ADDRESSMODEV;
+  // The string `Linear` cached here.
+  Arcadia_String* LINEAR;
+  // The string `Nearest` cached here.
+  Arcadia_String* NEAREST;
+  // The string `ClampToBorder` cached here.
+  Arcadia_String* CLAMPTOBORDER;
+  // The string `ClampToEdge` cached here.
+  Arcadia_String* CLAMPTOEDGE;
+  // The string `MirroredRepeat` cached here.
+  Arcadia_String* MIRROREDREPEAT;
+  // The string `Repeat` cached here.
+  Arcadia_String* REPEAT;
   // The validation context. Cached here.
   Arcadia_DDLS_ValidationContext* validationContext;
 };

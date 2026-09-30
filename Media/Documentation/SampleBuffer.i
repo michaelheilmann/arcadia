@@ -16,7 +16,7 @@
   <em>sample rate</em>: The sample rate of the sample buffer.
   </li>
   <li>
-  <em>sample format</em>: The sample format of the samples of the sample buffer as defined by <a href="@{siteAddress}/Media/#Arcadia_Media_SampleFormat">Arcadia_Media_SampleFormat</a>.
+  <em>sample format</em>: The sample format of the samples of the sample buffer as defined by <a href="@{siteAddress}/Arcadia/Media/#Arcadia_Media_SampleFormat">Arcadia_Media_SampleFormat</a>.
   </li>
 </ul>
 </section>

@@ -51,6 +51,38 @@ static const char* SCHEMA =
   "          kind : \"String\",\n"
   "        },\n"
   "      },\n"
+  "      {\n"
+  "        kind : \"MapEntry\",\n"
+  "        name : \"magnificationFilter\",\n"
+  "        optional : \"true\",\n"
+  "        type : {\n"
+  "          kind : \"String\",\n"
+  "        },\n"
+  "      },\n"
+  "      {\n"
+  "        kind : \"MapEntry\",\n"
+  "        name : \"minificationFilter\",\n"
+  "        optional : \"true\",\n"
+  "        type : {\n"
+  "          kind : \"String\",\n"
+  "        },\n"
+  "      },\n"
+  "      {\n"
+  "        kind : \"MapEntry\",\n"
+  "        name : \"addressModeU\",\n"
+  "        optional : \"true\",\n"
+  "        type : {\n"
+  "          kind : \"String\",\n"
+  "        },\n"
+  "      },\n"
+  "      {\n"
+  "        kind : \"MapEntry\",\n"
+  "        name : \"addressModeV\",\n"
+  "        optional : \"true\",\n"
+  "        type : {\n"
+  "          kind : \"String\",\n"
+  "        },\n"
+  "      },\n"
   "    ],\n"
   "  },\n"
   "}\n"
@@ -78,6 +110,24 @@ Arcadia_ADL_TextureReader_constructImpl
   (
     Arcadia_Thread* thread,
     Arcadia_ADL_TextureReader* self
+  );
+
+static Arcadia_ADL_TextureFilter
+getTextureFilterValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_TextureReader* self,
+    Arcadia_DDL_MapNode* mapNode,
+    Arcadia_String* key
+  );
+
+static Arcadia_ADL_TextureAddressMode
+getTextureAddressModeValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_TextureReader* self,
+    Arcadia_DDL_MapNode* mapNode,
+    Arcadia_String* key
   );
 
 static void
@@ -133,6 +183,10 @@ Arcadia_ADL_TextureReader_read
   Arcadia_String* type = Arcadia_ADL_Reader_getStringValue(thread, (Arcadia_DDL_MapNode*)input, self->TYPE);
   Arcadia_String* name = Arcadia_ADL_Reader_getStringValue(thread, (Arcadia_DDL_MapNode*)input, self->NAME);
   Arcadia_String* pixelBufferName = Arcadia_ADL_Reader_getStringValue(thread, (Arcadia_DDL_MapNode*)input, self->PIXELBUFFER);
+  Arcadia_ADL_TextureFilter magnificationFilter = getTextureFilterValue(thread, self, (Arcadia_DDL_MapNode*)input, self->MAGNIFICATIONFILTER);
+  Arcadia_ADL_TextureFilter minificationFilter = getTextureFilterValue(thread, self, (Arcadia_DDL_MapNode*)input, self->MINIFICATIONFILTER);
+  Arcadia_ADL_TextureAddressMode addressModeU = getTextureAddressModeValue(thread, self, (Arcadia_DDL_MapNode*)input, self->ADDRESSMODEU);
+  Arcadia_ADL_TextureAddressMode addressModeV = getTextureAddressModeValue(thread, self, (Arcadia_DDL_MapNode*)input, self->ADDRESSMODEV);
 
   // Assert the definition has the correct type.
   Arcadia_Value t = Arcadia_Value_makeObjectReferenceValue(self->TYPENAME);
@@ -141,8 +195,60 @@ Arcadia_ADL_TextureReader_read
     Arcadia_Thread_jump(thread);
   }
 
-  Arcadia_ADL_TextureDefinition* definition = Arcadia_ADL_TextureDefinition_create(thread, definitions, name, pixelBufferName);
+  Arcadia_ADL_TextureDefinition* definition = Arcadia_ADL_TextureDefinition_create(thread, definitions, name, pixelBufferName, magnificationFilter, minificationFilter, addressModeU, addressModeV);
   return definition;
+}
+
+static Arcadia_ADL_TextureFilter
+getTextureFilterValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_TextureReader* self,
+    Arcadia_DDL_MapNode* mapNode,
+    Arcadia_String* key
+  )
+{
+  Arcadia_String* string = Arcadia_ADL_Reader_getStringValueOptional(thread, mapNode, key);
+  if (NULL == string) {
+    return Arcadia_ADL_TextureFilter_None;
+  }
+  Arcadia_Value a = Arcadia_Value_makeObjectReferenceValue(string);
+  if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)self->LINEAR, &a)) {
+    return Arcadia_ADL_TextureFilter_Linear;
+  } else if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)self->NEAREST, &a)) {
+    return Arcadia_ADL_TextureFilter_Nearest;
+  } else {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+    Arcadia_Thread_jump(thread);
+  }
+}
+
+static Arcadia_ADL_TextureAddressMode
+getTextureAddressModeValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_TextureReader* self,
+    Arcadia_DDL_MapNode* mapNode,
+    Arcadia_String* key
+  )
+{
+  Arcadia_String* string = Arcadia_ADL_Reader_getStringValueOptional(thread, mapNode, key);
+  if (NULL == string) {
+    return Arcadia_ADL_TextureAddressMode_None;
+  }
+  Arcadia_Value a = Arcadia_Value_makeObjectReferenceValue(string);
+  if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)self->CLAMPTOBORDER, &a)) {
+    return Arcadia_ADL_TextureAddressMode_ClampToBorder;
+  } else if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)self->CLAMPTOEDGE, &a)) {
+    return Arcadia_ADL_TextureAddressMode_ClampToEdge;
+  } else if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)self->MIRROREDREPEAT, &a)) {
+    return Arcadia_ADL_TextureAddressMode_MirroredRepeat;
+  } else if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)self->REPEAT, &a)) {
+    return Arcadia_ADL_TextureAddressMode_Repeat;
+  } else {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+    Arcadia_Thread_jump(thread);
+  }
 }
 
 static void
@@ -179,6 +285,17 @@ Arcadia_ADL_TextureReader_constructImpl
   self->TYPENAME = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"Texture");
   //
   self->PIXELBUFFER = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"pixelBuffer");
+  //
+  self->MAGNIFICATIONFILTER = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"magnificationFilter");
+  self->MINIFICATIONFILTER = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"minificationFilter");
+  self->ADDRESSMODEU = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"addressModeU");
+  self->ADDRESSMODEV = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"addressModeV");
+  self->LINEAR = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"Linear");
+  self->NEAREST = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"Nearest");
+  self->CLAMPTOBORDER = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"ClampToBorder");
+  self->CLAMPTOEDGE = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"ClampToEdge");
+  self->MIRROREDREPEAT = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"MirroredRepeat");
+  self->REPEAT = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"Repeat");
   //
   Arcadia_LeaveConstructor(Arcadia_ADL_TextureReader);
 }
@@ -221,6 +338,37 @@ Arcadia_ADL_TextureReader_visitImpl
   //
   if (self->PIXELBUFFER) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->PIXELBUFFER);
+  }
+  //
+  if (self->MAGNIFICATIONFILTER) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->MAGNIFICATIONFILTER);
+  }
+  if (self->MINIFICATIONFILTER) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->MINIFICATIONFILTER);
+  }
+  if (self->ADDRESSMODEU) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->ADDRESSMODEU);
+  }
+  if (self->ADDRESSMODEV) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->ADDRESSMODEV);
+  }
+  if (self->LINEAR) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->LINEAR);
+  }
+  if (self->NEAREST) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->NEAREST);
+  }
+  if (self->CLAMPTOBORDER) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->CLAMPTOBORDER);
+  }
+  if (self->CLAMPTOEDGE) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->CLAMPTOEDGE);
+  }
+  if (self->MIRROREDREPEAT) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->MIRROREDREPEAT);
+  }
+  if (self->REPEAT) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->REPEAT);
   }
   //
 }

@@ -28,7 +28,8 @@
 // enumeration Arcadia.ADL.AmbientSource {
 //   Mesh,
 //   Vertex,
-//   Texture
+//   Texture,
+//   TextureVertex
 // };
 // @endcode
 Arcadia_declareEnumerationType(u8"Arcadia.ADL.AmbientColorSource", Arcadia_ADL_AmbientColorSource);
@@ -37,6 +38,7 @@ enum Arcadia_ADL_AmbientColorSource {
   Arcadia_ADL_AmbientColorSource_Mesh,
   Arcadia_ADL_AmbientColorSource_Vertex,
   Arcadia_ADL_AmbientColorSource_Texture,
+  Arcadia_ADL_AmbientColorSource_TextureVertex,
 };
 
 #endif  // ARCADIA_ADL_DEFINITIONS_VISUALS_AMBIENTCOLORSOURCE_H_INCLUDED

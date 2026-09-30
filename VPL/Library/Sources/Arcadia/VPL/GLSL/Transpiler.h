@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_VISUALS_IMPLEMENTATION_VPL_GLSL_TRANSPILER_H_INCLUDED)
-#define ARCADIA_ENGINE_VISUALS_IMPLEMENTATION_VPL_GLSL_TRANSPILER_H_INCLUDED
+#if !defined(ARCADIA_VPL_GLSL_TRANSPILER_H_INCLUDED)
+#define ARCADIA_VPL_GLSL_TRANSPILER_H_INCLUDED
 
 #include "Arcadia/Ring2/Include.h"
 #include "Arcadia/Collections/Include.h"
@@ -30,7 +30,7 @@ typedef enum Context{
 // Programs are managed by the program manager.
 // Each program has a unique numeric ID.
 // Using this ID, backends can determine if they already have a uploaded a variant of that program.
-Arcadia_declareObjectType(u8"Arcadia.Visuals.VPL.Backends.GLSL.Transpiler", Arcadia_VPL_Backends_GLSL_Transpiler,
+Arcadia_declareObjectType(u8"Arcadia.VPL.Backends.GLSL.Transpiler", Arcadia_VPL_Backends_GLSL_Transpiler,
                           u8"Arcadia.Object");
 
 struct Arcadia_VPL_Backends_GLSL_TranspilerDispatch {
@@ -81,4 +81,4 @@ Arcadia_VPL_Backends_GLSL_Transpiler_writeDefaultFragmentShader
     Arcadia_ByteArrayBuilder* target
   );
 
-#endif // ARCADIA_ENGINE_VISUALS_IMPLEMENTATION_VPL_GLSL_TRANSPILER_H_INCLUDED
+#endif // ARCADIA_VPL_GLSL_TRANSPILER_H_INCLUDED

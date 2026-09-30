@@ -2,12 +2,12 @@
 
 <section class="cxx entity object">
 
-  <h1 id="Arcadia_Engine_Input_MouseButtonEvent">
-  [MIL] Arcadia.Engine.Input.MouseButtonEvent
+  <h1 id="Arcadia_Engine_Input_MousePointerEvent">
+  [MIL] Arcadia.Engine.Input.MousePointerEvent
   </h1>
 
   <my-signature><code>
-  class Arcadia.Engine.Input.MouseButtonEvent extends Arcadia.Engine.Event { ... }
+  class Arcadia.Engine.Input.MousePointerEvent extends Arcadia.Engine.Event { ... }
   </code></my-signature>
 
   <my-summary>
@@ -21,7 +21,7 @@
 <!-- TODO: This should be "mil" scope not "cxx" scope. -->
 <section class="cxx entity method">
 
-  <h1 id="Arcadia_Engine_Input_MouseButtonEvent_constructor">
+  <h1 id="Arcadia_Engine_Input_MousePointerEvent_constructor">
   [MIL] constructor
   </h1>
 
@@ -36,7 +36,7 @@
   </code></my-signature>
 
   <my-summary>
-  Construct this mouse button event.
+  Construct this mouse pointer event.
   </my-summary>
 
   <section class="cxx parameters">

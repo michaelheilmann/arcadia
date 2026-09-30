@@ -1,13 +1,8 @@
-  <div class="right-column">
+<div class="right-column">
     <nav>
       <ul style="list-style: none">
-
-        @{include("3.documentation.8.objects/Object/include.index")}
-        @{include("3.documentation.8.objects/ByteArray/include.index")}
-        @{include("3.documentation.8.objects/ByteArrayBuilder/include.index")}
-        @{include("3.documentation.8.objects/String/include.index")}
-        @{include("3.documentation.8.objects/StringBuilder/include.index")}
-
+        @{include("3.documentation.1.string-extensions.index")}
+        @{include("3.documentation.2.time.index")}
       </ul>
     </nav>
   </div>

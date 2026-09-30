@@ -17,6 +17,7 @@
 #include "Arcadia/Visuals/Implementation/OpenGL4/GLX/WindowBackend.h"
 
 #include "Arcadia/Visuals/Implementation/Linux/ErrorHandler.h"
+#include "Arcadia/Visuals/Implementation/OpenGL4/Capture.h"
 #include <X11/Xlib.h>
 #include <X11/keysymdef.h>
 #include <X11/Xutil.h>
@@ -91,6 +92,14 @@ setFullscreenImpl
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend* self,
     Arcadia_BooleanValue fullscreen
+  );
+
+static void
+setVerticalSynchronizationImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend* self,
+    Arcadia_BooleanValue verticalSynchronization
   );
 
 static void
@@ -174,6 +183,13 @@ beginRenderImpl
 
 static void
 endRenderImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend* self
+  );
+
+static Arcadia_Media_PixelBuffer*
+capturePixelsImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend* self
@@ -390,6 +406,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend_constructImpl
   self->bigIcon = NULL;
   self->screen = NULL;
   self->window = None;
+  self->appliedSwapInterval = -1;
 
   Arcadia_LeaveConstructor(Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend);
 }
@@ -421,6 +438,8 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend_initializeDispat
   ((Arcadia_Engine_Visuals_WindowBackendDispatch*)self)->beginRender = (void(*)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*))&beginRenderImpl;
   ((Arcadia_Engine_Visuals_WindowBackendDispatch*)self)->endRender = (void(*)(Arcadia_Thread*,Arcadia_Engine_Visuals_WindowBackend*))&endRenderImpl;
 
+  ((Arcadia_Engine_Visuals_WindowBackendDispatch*)self)->capturePixels = (Arcadia_Media_PixelBuffer*(*)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*))&capturePixelsImpl;
+
   ((Arcadia_Engine_Visuals_WindowBackendDispatch*)self)->getPosition = (void(*)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*, Arcadia_Integer32Value*, Arcadia_Integer32Value*)) & getPositionImpl;
   ((Arcadia_Engine_Visuals_WindowBackendDispatch*)self)->setPosition = (void(*)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*, Arcadia_Integer32Value, Arcadia_Integer32Value)) & setPositionImpl;
 
@@ -429,6 +448,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend_initializeDispat
 
   ((Arcadia_Engine_Visuals_WindowBackendDispatch*)self)->getFullscreen = (Arcadia_BooleanValue(*)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*)) & getFullscreenImpl;
   ((Arcadia_Engine_Visuals_WindowBackendDispatch*)self)->setFullscreen = (void(*)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*, Arcadia_BooleanValue)) & setFullscreenImpl;
+  ((Arcadia_Engine_Visuals_WindowBackendDispatch*)self)->setVerticalSynchronization = (void(*)(Arcadia_Thread*, Arcadia_Engine_Visuals_WindowBackend*, Arcadia_BooleanValue)) & setVerticalSynchronizationImpl;
 }
 
 static void
@@ -621,6 +641,19 @@ setFullscreenImpl
 }
 
 static void
+setVerticalSynchronizationImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend* self,
+    Arcadia_BooleanValue verticalSynchronization
+  )
+{
+  ((Arcadia_Engine_Visuals_WindowBackend*)self)->verticalSynchronization = verticalSynchronization;
+  // The swap interval of 'window' can only be adjusted while 'window' and the context are
+  // current, hence this only records the request. It is applied by 'beginRenderImpl'.
+}
+
+static void
 getRequiredBigIconSizeImpl
   (
     Arcadia_Thread* thread,
@@ -753,6 +786,27 @@ beginRenderImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
     Arcadia_Thread_jump(thread);
   }
+  // The swap interval is a per-drawable setting, that is, it is a setting of 'window' and not of
+  // the context shared by all windows of this backend context. It is applied on change only.
+  int swapInterval = ((Arcadia_Engine_Visuals_WindowBackend*)self)->verticalSynchronization ? 1 : 0;
+  if (self->appliedSwapInterval != swapInterval) {
+    if (!self->backendContext->swapIntervalResolved) {
+      self->backendContext->swapIntervalEXT =
+        (void (*)(Display*, GLXDrawable, int))glXGetProcAddressARB("glXSwapIntervalEXT");
+      self->backendContext->swapIntervalMESA =
+        (int (*)(unsigned int))glXGetProcAddressARB("glXSwapIntervalMESA");
+      self->backendContext->swapIntervalResolved = Arcadia_BooleanValue_True;
+    }
+    // If neither extension is available, then the swap interval is not adjustable. The interval
+    // in effect, whatever the driver defaults to, remains in effect.
+    if (self->backendContext->swapIntervalEXT) {
+      self->backendContext->swapIntervalEXT(self->backendContext->display, self->window, swapInterval);
+      self->appliedSwapInterval = swapInterval;
+    } else if (self->backendContext->swapIntervalMESA) {
+      self->appliedSwapInterval = swapInterval;
+      self->backendContext->swapIntervalMESA(swapInterval);
+    }
+  }
 }
 
 static void
@@ -765,6 +819,33 @@ endRenderImpl
   if (self->backendContext->context == glXGetCurrentContext()) {
     glXSwapBuffers(self->backendContext->display, self->window);
   }
+}
+
+static Arcadia_Media_PixelBuffer*
+capturePixelsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend* self
+  )
+{
+  // "beginRenderImpl" makes the context current and binds it to the drawable of this window.
+  // "endRenderImpl" presents the back buffer and thereby invalidates the content to capture.
+  // Hence the capture is only defined in between those two calls.
+  if (self->backendContext->context != glXGetCurrentContext()) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Integer32Value width, height;
+  getCanvasSizeImpl(thread, self, &width, &height);
+  _Arcadia_Engine_Visuals_Implementation_OpenGL4_Functions* gl =
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext_getFunctions
+      (
+        thread,
+        (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)self->backendContext
+      );
+  // Frame buffer 0 designates the default frame buffer of this window. Its read buffer is the
+  // back buffer, in which "beginRenderImpl" through "endRenderImpl" render.
+  return Arcadia_Engine_Visuals_Implementation_OpenGL4_readPixels(thread, gl, 0, width, height);
 }
 
 static void

@@ -59,6 +59,15 @@ main
   if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_TextureDefinitionTest1)) {
     return EXIT_FAILURE;
   }
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_TextureDefinitionTest2)) {
+    return EXIT_FAILURE;
+  }
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_TextureDefinitionTest3)) {
+    return EXIT_FAILURE;
+  }
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_TextureDefinitionTest4)) {
+    return EXIT_FAILURE;
+  }
   //
   if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest1)) {
     return EXIT_FAILURE;
@@ -67,6 +76,15 @@ main
     return EXIT_FAILURE;
   }
   if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest3)) {
+    return EXIT_FAILURE;
+  }
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest4)) {
+    return EXIT_FAILURE;
+  }
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest5)) {
+    return EXIT_FAILURE;
+  }
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest6)) {
     return EXIT_FAILURE;
   }
   //

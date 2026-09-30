@@ -1,0 +1,9 @@
+{
+  type : "PixelBuffer",
+  name : "MainMenuScene.PixelBuffer",
+  width: 256,
+  height: 256,
+  operations : [
+    "MainMenuScene.FillOperation",
+  ],
+}

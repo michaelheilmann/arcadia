@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.Coral",
-  red : 255,
-  green : 127,
-  blue : 80,
-}

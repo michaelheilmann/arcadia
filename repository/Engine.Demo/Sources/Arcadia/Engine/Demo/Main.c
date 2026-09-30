@@ -23,6 +23,9 @@
 // The demo's application.
 #include "Arcadia/Engine/Demo/Application.h"
 
+// The demo's screenshot support.
+#include "Arcadia/Engine/Demo/Screenshot.h"
+
 // The demo's logo scene, the intial scene of the game.
 #include "Arcadia/Engine/Demo/Scenes/ArcadiaLogoScene.h"
 
@@ -153,6 +156,14 @@ main1
           Arcadia_Engine_Demo_Scene_updateAudials(thread, Arcadia_Engine_Demo_SceneManager_getScene(thread, application->sceneManager), deltaTick, width, height);
           Arcadia_Engine_Demo_Scene_updateVisuals(thread, Arcadia_Engine_Demo_SceneManager_getScene(thread, application->sceneManager), deltaTick, width, height);
         }
+        // A screenshot can only be captured while the render target is current, that is, in
+        // between Window_beginRender and Window_endRender. A request made by an input event
+        // of the previous iteration is therefore fulfilled here.
+        if (application->screenshotRequested) {
+          application->screenshotRequested = Arcadia_BooleanValue_False;
+          application->screenshotCount += 1;
+          Arcadia_Engine_Demo_writeScreenshot(thread, window, application->screenshotCount);
+        }
         Arcadia_Engine_Visuals_Window_endRender(thread, window);
       }
       Arcadia_Engine_Event* event = Arcadia_Engine_dequeEvent(thread, ((Arcadia_Engine_Application*)application)->engine);
@@ -173,6 +184,12 @@ main1
         }
         if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)event, _Arcadia_Engine_Input_KeyboardKeyEvent_getType(thread))) {
           Arcadia_Engine_Input_KeyboardKeyEvent* e = (Arcadia_Engine_Input_KeyboardKeyEvent*)event;
+          if (Arcadia_Engine_Input_KeyboardKey_F12 == Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, e)
+              && Arcadia_Engine_Input_KeyboardKeyAction_Pressed == Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, e)
+            ) {
+            // Fulfilled during the next rendering pass, see the rendering loop above.
+            application->screenshotRequested = Arcadia_BooleanValue_True;
+          }
           Arcadia_Engine_Demo_Scene* scene = Arcadia_Engine_Demo_SceneManager_getScene(thread, application->sceneManager);
           Arcadia_Engine_Demo_Scene_handleKeyboardKeyEvent(thread, scene, e);
         }

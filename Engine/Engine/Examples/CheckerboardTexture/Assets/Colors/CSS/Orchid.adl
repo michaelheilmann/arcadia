@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.Orchid",
-  red : 218,
-  green : 112,
-  blue : 214,
-}

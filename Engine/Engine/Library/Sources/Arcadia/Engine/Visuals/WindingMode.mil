@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// https://michaelheilmann.com/Arcadia/Visuals/#Arcadia_Engine_Visuals_WindingMode
+// https://michaelheilmann.com/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Visuals_WindingMode
 enumeration Arcadia.Engine.Visuals.WindingMode {
 
   Clockwise = 0

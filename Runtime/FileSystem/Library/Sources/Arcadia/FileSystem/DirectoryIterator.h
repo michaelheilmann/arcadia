@@ -21,8 +21,7 @@
   #error("do not include directly, include `Arcadia/FileSystem/Include.h` instead")
 #endif
 
-#include "Arcadia/Ring2/Implementation/Configure.h"
-#include "Arcadia/Ring1/Include.h"
+#include "Arcadia/Ring2/Include.h"
 typedef struct Arcadia_FilePath Arcadia_FilePath;
 
 Arcadia_declareObjectType(u8"Arcadia.DirectoryIterator", Arcadia_DirectoryIterator,

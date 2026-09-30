@@ -84,6 +84,7 @@ Arcadia_Engine_Visuals_Window_constructImpl
   self->smallIcon = NULL;
   self->title = Arcadia_String_createFromCxxString(thread, u8"Arcadia Engine Window");
   self->fullscreen = Arcadia_BooleanValue_False;
+  self->verticalSynchronization = Arcadia_BooleanValue_False;
   self->bounds.left = 0;
   self->bounds.top = 0;
   self->bounds.width = 1;
@@ -139,6 +140,7 @@ Arcadia_Engine_Visuals_Window_open
   if (self->backend) {
     Arcadia_Engine_Visuals_WindowBackend_open(thread, self->backend);
     Arcadia_Engine_Visuals_WindowBackend_setFullscreen(thread, self->backend, self->fullscreen);
+    Arcadia_Engine_Visuals_WindowBackend_setVerticalSynchronization(thread, self->backend, self->verticalSynchronization);
     Arcadia_Engine_Visuals_WindowBackend_setPosition(thread, self->backend, self->bounds.left, self->bounds.top);
     Arcadia_Engine_Visuals_WindowBackend_setSize(thread, self->backend, self->bounds.width, self->bounds.height);
     Arcadia_Engine_Visuals_WindowBackend_setTitle(thread, self->backend, self->title);
@@ -277,6 +279,20 @@ Arcadia_Engine_Visuals_Window_endRender
   Arcadia_Engine_Visuals_WindowBackend_endRender(thread, self->backend);
 }
 
+Arcadia_Media_PixelBuffer*
+Arcadia_Engine_Visuals_Window_capturePixels
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_Window* self
+  )
+{
+  if (!self->backend) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NotImplemented);
+    Arcadia_Thread_jump(thread);
+  }
+  return Arcadia_Engine_Visuals_WindowBackend_capturePixels(thread, self->backend);
+}
+
 void
 Arcadia_Engine_Visuals_Window_setPosition
   (
@@ -356,6 +372,30 @@ Arcadia_Engine_Visuals_Window_setFullscreen
   self->fullscreen = fullscreen;
   if (self->backend) {
     Arcadia_Engine_Visuals_WindowBackend_setFullscreen(thread, self->backend, fullscreen);
+  }
+}
+
+Arcadia_BooleanValue
+Arcadia_Engine_Visuals_Window_getVerticalSynchronization
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_Window* self
+  )
+{
+  return self->verticalSynchronization;
+}
+
+void
+Arcadia_Engine_Visuals_Window_setVerticalSynchronization
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_Window* self,
+    Arcadia_BooleanValue verticalSynchronization
+  )
+{
+  self->verticalSynchronization = verticalSynchronization;
+  if (self->backend) {
+    Arcadia_Engine_Visuals_WindowBackend_setVerticalSynchronization(thread, self->backend, verticalSynchronization);
   }
 }
 

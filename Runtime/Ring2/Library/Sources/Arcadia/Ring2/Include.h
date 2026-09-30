@@ -29,7 +29,7 @@
 
 #include "Arcadia/Ring2/Exceptions/Include.h"
 
-#include "Arcadia/Ring2/Implementation/ArgumentsValidation.h"
+#include "Arcadia/Ring2/ArgumentsValidation.h"
 
 #include "Arcadia/Ring2/Logging/Include.h"
 

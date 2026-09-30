@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.Indigo",
-  red : 75,
-  green : 0,
-  blue : 130,
-}

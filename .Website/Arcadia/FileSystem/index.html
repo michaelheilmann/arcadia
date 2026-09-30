@@ -5,7 +5,9 @@
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
 
-  <link rel='icon' type='image/x-icon' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+  <link rel='icon' type='image/svg+xml' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+  <link rel="icon" type="image/png" sizes="64x64" href="https://michaelheilmann.com/assets/favicon/64x64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://michaelheilmann.com/assets/favicon/32x32.png">
 
   <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
   <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
@@ -33,12 +35,12 @@
 
   <!-- Cascading Style Sheets. -->
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
-  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=7'>
 
 
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/cxx-doc.css?v=5'>
-  <link rel='canonical' href='https://michaelheilmann.com/Arcadia/Ring2/'>
-  <title>Michael Heilmann's Arcadia Ring 2</title>
+  <link rel='canonical' href='https://michaelheilmann.com/Arcadia/FileSystem/'>
+  <title>Michael Heilmann's Arcadia FileSystem</title>
   <style>
   </style>
 </head>
@@ -62,20 +64,26 @@
 
 
   <div class="center-column">
-  <h1>Michael Heilmann's Arcadia Ring 2</h1>
+  <h1>Michael Heilmann's Arcadia FileSystem</h1>
   <p>
-  This is the documentation for Michael  Heilmann's Arcadia Ring 2.
-  Arcadia Ring 2 facilitates the creation of C programs - in particular interpreters - that are portable, maintainable, as well as safe.
-  Arcadia Ring 2 is available at <a href="https://michaelheilmann.com/Arcadia/Ring1">michaelheilmann.com/Arcadia/Ring2</a>.
+  This is the documentation for Michael  Heilmann's Arcadia FileSystem.
+  Arcadia FileSystem provides a portable, maintainable, as well as safe abstraction of file system access.
+  Arcadia FileSystem is available at <a href="https://michaelheilmann.com/Arcadia/FileSystem">michaelheilmann.com/Arcadia/FileSystem</a>.
   </p>
   
   <p>Features:</p>
   <ul>
-    <li>UTF-8 strings and string buffers, decoders and encoders</li>
-    <li>32 and 64 Bit IEEE 754 floating point <=> UTF-8 string conversions based on the works of Steele &amp; White, Gay, Clinger, Lemire &amp; Musthak.</li>
-    <li>Other scalar types (Void, Boolean, Integer, Natural) <=> UTF-8 string conversions</li>
-    <li>aggregates (array lists, array deques, hash maps)</li>
-    <li>File System implementation for Windows and Linux supporting creation and deletation of files, reading and writing files, enumerating contents of folder</li>  
+    <li>File handles supporting opening for reading and writing, reading and writing contents, and closing</li>
+    <li>File paths, including parsing of native, Windows, and Unix paths, and conversion to native representation</li>
+    <li>Creation of regular files, directory files, and temporary files</li>
+    <li>Deletion of regular files, directory files, and files of any type</li>
+    <li>Existence checks for regular files and directory files, and determination of the file type</li>
+    <li>Directory iteration, enumerating the contents of a folder</li>
+    <li>Last write time retrieval</li>
+    <li>Configuration, save, and working directory retrieval</li>
+    <li>Executable path retrieval</li>
+    <li>File contents retrieval and setting, based on the <em>existing file</em> and <em>non-existing file</em> policies</li>
+    <li>File system implementations for Windows and Linux</li>
   </ul>
 
 <h2>Files</h2>
@@ -97,13 +105,13 @@ The subdirectory of Arcadia File System in the repository is here <a href="https
 </ul>
 
 <p>
-Arcadia Ring 2 supports various platforms (including but not restricted to Windows, Linux, and many more), however, we currently only officially support Windows.
+Arcadia FileSystem supports various platforms (including but not restricted to Windows, Linux, and many more), however, we currently only officially support Windows.
 For instructions on how to build, test, and use Arcadia FileSystem,
 refer to <a href="https://github.com/michaelheilmann/arcadia/tree/main/README.md">README.md</a> in the root folder of the repository.
 </p>
 
 <h2>Further References</h2>
-<p>Arcadia Ring 2 relies on <a href="https://michaelheilmann.com/Arcadia/Ring1">Arcadia Ring 1</a> and <a href="https://michaelheilmann.com/Arcadia/ARMS">Arcadia ARMS</a>.</p>
+<p>Arcadia FileSystem relies on <a href="https://michaelheilmann.com/Arcadia/Collections">Arcadia Collections</a> and <a href="https://michaelheilmann.com/Arcadia/Ring2">Arcadia Ring 2</a>.</p>
 
 <h2>Documentation</h2>
 <section class="cxx entity enumeration">
@@ -1686,37 +1694,37 @@ The enumeration elements cannot be combined.
   <div class="right-column">
     <nav>
       <ul style="list-style: none">
-        <li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ExistingFilePolicy">Arcadia_ExistingFilePolicy</a></li>
+        <li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_ExistingFilePolicy">Arcadia_ExistingFilePolicy</a></li>
 
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileAccessMode">Arcadia_FileAccessMode</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileHandle">Arcadia_FileHandle</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FilePath">Arcadia_FilePath</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileAccessMode">Arcadia_FileAccessMode</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileHandle">Arcadia_FileHandle</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FilePath">Arcadia_FilePath</a></li>
 
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem">Arcadia_FileSystem</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem">Arcadia_FileSystem</a></li>
 
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_createDirectoryIterator">Arcadia_FileSystem_createDirectoryIterator</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_createFileHandle">Arcadia_FileSystem_createFileHandle</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_createDirectoryIterator">Arcadia_FileSystem_createDirectoryIterator</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_createFileHandle">Arcadia_FileSystem_createFileHandle</a></li>
 
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_deleteDirectoryFile">Arcadia_FileSystem_deleteDirectoryFile</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_deleteRegularFile">Arcadia_FileSystem_deleteRegularFile</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_deleteFile">Arcadia_FileSystem_deleteFile</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_directoryFileExists">Arcadia_FileSystem_directoryFileExists</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_deleteDirectoryFile">Arcadia_FileSystem_deleteDirectoryFile</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_deleteRegularFile">Arcadia_FileSystem_deleteRegularFile</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_deleteFile">Arcadia_FileSystem_deleteFile</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_directoryFileExists">Arcadia_FileSystem_directoryFileExists</a></li>
 
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSysten_getOrCreate">Arcadia_FileSystem_getOrCreate</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_getFileContents">Arcadia_FileSystem_getFileContents</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_getOrCreate">Arcadia_FileSystem_getOrCreate</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_getFileContents">Arcadia_FileSystem_getFileContents</a></li>
 
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_regularFileExists">Arcadia_FileSystem_regularFileExists</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_regularFileExists">Arcadia_FileSystem_regularFileExists</a></li>
 
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_setFileContents">Arcadia_FileSystem_setFileContents</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_setFileContents">Arcadia_FileSystem_setFileContents</a></li>
 
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_getConfigurationDirectory">Arcadia_FileSystem_getConfigurationDirectory</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_getSaveDirectory">Arcadia_FileSystem_getSaveDirectory</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_getWorkingDirectory">Arcadia_FileSystem_getWorkingDirectory</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_getConfigurationDirectory">Arcadia_FileSystem_getConfigurationDirectory</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_getSaveDirectory">Arcadia_FileSystem_getSaveDirectory</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_getWorkingDirectory">Arcadia_FileSystem_getWorkingDirectory</a></li>
 
 
 
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileType">Arcadia_FileType</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_NonExistingFilePolicy">Arcadia_NonExistingFilePolicy</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileType">Arcadia_FileType</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_NonExistingFilePolicy">Arcadia_NonExistingFilePolicy</a></li>
 
       </ul>
     </nav>
@@ -1726,7 +1734,7 @@ The enumeration elements cannot be combined.
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 21 September 2026.</div> 
+    <div>Last modified on 30 September 2026.</div> 
     </div>
   </div>
   <div class="center-column">

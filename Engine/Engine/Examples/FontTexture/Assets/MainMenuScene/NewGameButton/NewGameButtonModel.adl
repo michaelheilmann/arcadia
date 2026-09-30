@@ -1,0 +1,6 @@
+{
+  type : "Model",
+  name : "MainMenuScene.NewGameButtonModel",
+  mesh : "MainMenuScene.NewGameButtonMesh",
+  material : "MainMenuScene.NewGameButtonMaterial",
+}

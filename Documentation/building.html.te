@@ -1,0 +1,144 @@
+  @{include("./Commons/header-common.i")}
+
+  <link rel='canonical' href='@{siteAddress}/building'>
+  <title>Building Arcadia</title>
+
+  <meta property="og:title" content="Building Arcadia">
+  <meta property="og:description" content="How to build Project Arcadia from source under Windows 11 and Visual Studio Community 2022, and under Linux.">
+  <meta name="description" content="How to build Project Arcadia from source under Windows 11 and Visual Studio Community 2022, and under Linux.">
+  <meta name="author" content="@{siteAuthor}">
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div class="navigation breadcrumbs">
+      <a href="@{siteAddress}/">Home</a>
+    </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+      <h1>Building Arcadia</h1>
+
+      <p><em>Arcadia</em> is built with <a href="https://cmake.org/">Kitware CMake</a> and requires
+      CMake 3.29 or better. The instructions below perform an <em>out-of-source</em> build: no build file,
+      intermediate file, or product file is written into the source directory, everything lands in a dedicated build
+      directory outside of it. Arcadia rejects in-source builds.</p>
+
+      <h2>Getting the sources</h2>
+
+      <p>Check out the <a href='@{arcadiaGitHubAddress}'>Arcadia GitHub repository</a> into a directory in your file
+      system. This manual calls that directory the <em>source directory</em>.</p>
+
+      <pre><code>git clone https://github.com/michaelheilmann/arcadia</code></pre>
+
+      <p>Create a second directory outside of the source directory to build in, for example as a sibling of the source
+      directory. This manual calls that directory the <em>build directory</em>.</p>
+
+      <h2>Windows 11 and Visual Studio Community 2022</h2>
+
+      <p>Building under Windows requires</p>
+      <ul>
+        <li><em>Microsoft Visual Studio Community 2022</em> version 17.9.2 or better, available at
+        <a href="https://visualstudio.microsoft.com/vs/community/">visualstudio.microsoft.com/vs/community</a>.</li>
+        <li><em>Kitware CMake</em> version 3.29 or better, available at <a href="https://cmake.org/">cmake.org</a>.</li>
+        <li><em>PowerShell</em> or <em>Command Prompt</em>.</li>
+      </ul>
+
+      <p>The file <code>CMakePresets.json</code> in the source directory provides configure presets for the target
+      architectures <code>x64</code> and <code>Win32</code>. Run the following commands from the build directory.
+      Substitute <code>&lt;source-directory&gt;</code> and <code>&lt;build-directory&gt;</code> with your own paths.</p>
+
+      <pre><code>cmake -S &lt;source-directory&gt; -B &lt;build-directory&gt;/x64 --preset x64
+cmake -S &lt;source-directory&gt; -B &lt;build-directory&gt;/Win32 --preset Win32</code></pre>
+
+      <p>The solution file <code>Arcadia.sln</code> is generated in the preset build directory.</p>
+
+      <p>Arcadia depends on external libraries &mdash; a C/C++ runtime, libpng, and others. They are <em>not</em>
+      part of the repository. They are downloaded as a prebuilt archive from the releases of the
+      <a href='@{arcadiaDependenciesGitHubAddress}'>Arcadia dependencies repository</a>. The CMake target
+      <code>Arcadia.InstallDependencies</code> performs that download for you. Run it once per build directory, after
+      the first configure step:</p>
+
+      <pre><code>cmake --build &lt;build-directory&gt;/x64 --target "Arcadia.InstallDependencies"</code></pre>
+
+      <p>Building the whole solution is then a matter of picking a configuration:</p>
+
+      <pre><code>cmake --build &lt;build-directory&gt;/x64 --config Debug
+cmake --build &lt;build-directory&gt;/x64 --config Release
+cmake --build &lt;build-directory&gt;/x64 --config MinSizeRel
+cmake --build &lt;build-directory&gt;/x64 --config RelWithDebInfo</code></pre>
+
+      <p>Alternatively, build a single target by appending <code>--target &lt;target&gt;</code>, or open
+      <code>&lt;build-directory&gt;/x64/Arcadia.sln</code> in Visual Studio and build from there.</p>
+
+      <h2>Linux</h2>
+
+      <p>Building under Linux requires</p>
+      <ul>
+        <li><em>make</em> version 4.3.0 or better &mdash; <code>sudo apt-get install build-essential</code></li>
+        <li><em>gcc</em> version 11.4.0 or better &mdash; <code>sudo apt-get install gcc</code></li>
+        <li><em>cmake</em> version 3.29 or better &mdash; <code>sudo apt-get install cmake</code></li>
+        <li><em>libpng</em> version 1.6 or better &mdash; <code>sudo apt-get install libpng-dev</code></li>
+        <li>optional: <em>gdb</em> version 12.1 or better &mdash; <code>sudo apt-get install gdb</code></li>
+      </ul>
+
+      <p>The engine backends are disabled by default. Install their development packages and enable the ones you want:</p>
+      <ul>
+        <li>X11 display/windowing &mdash; <code>sudo apt-get install libx11-dev libxrandr-dev</code></li>
+        <li>OpenGL 4 via GLX &mdash; <code>sudo apt-get install libglx-dev</code></li>
+        <li>OpenAL audials &mdash; <code>sudo apt-get install libopenal-dev</code></li>
+        <li>FLAC decoding &mdash; <code>sudo apt-get install libflac-dev</code></li>
+      </ul>
+
+      <p>Configure and build from the build directory. The build type defaults to a release build without debug
+      information; add <code>-DCMAKE_BUILD_TYPE="Debug"</code> for a debug build.</p>
+
+      <pre><code>cmake -S &lt;source-directory&gt; -B &lt;build-directory&gt; -D"Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled"=TRUE -D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=TRUE
+make -C &lt;build-directory&gt; all</code></pre>
+
+      <h2>Configuration options</h2>
+
+      <p>The engine backends are controlled by CMake options. All of them default to <code>FALSE</code>.</p>
+
+      <table>
+        <tr>
+          <td><code>Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled</code></td>
+          <td>OpenGL 4 support in <em>Arcadia Engine Visuals</em>, through GLX on Linux and WGL on Windows.</td>
+        </tr>
+        <tr>
+          <td><code>Arcadia.Engine.Visuals.Implementation.Direct3D12.Enabled</code></td>
+          <td>Direct3D 12 support in <em>Arcadia Engine Visuals</em>. Windows only.</td>
+        </tr>
+        <tr>
+          <td><code>Arcadia.Engine.Visuals.Implementation.Vulkan.Enabled</code></td>
+          <td>Vulkan support in <em>Arcadia Engine Visuals</em>. Windows only.</td>
+        </tr>
+        <tr>
+          <td><code>Arcadia.Engine.Audials.Implementation.OpenAL.Enabled</code></td>
+          <td>OpenAL support in <em>Arcadia Engine Audials</em>.</td>
+        </tr>
+      </table>
+
+      <h2>Testing</h2>
+
+      <p>Test modules are registered with CTest. Run them from the build directory. For a multi-configuration
+      generator such as Visual Studio, pass the configuration you built:</p>
+
+      <pre><code>ctest --test-dir &lt;build-directory&gt;/x64 -C Debug
+ctest --test-dir &lt;build-directory&gt;/x64 -C Debug -R Arcadia.Ring2.Tests.StringTests</code></pre>
+
+      <h2>License</h2>
+
+      <p><em>Arcadia</em> is free software, licensed under the
+      <a href="https://www.gnu.org/licenses/agpl-3.0.html.en">GNU Affero General Public License, version 3</a>, or (at
+      your option) any later version. The full license text is distributed with the repository in the files
+      <code>LICENSE</code> and <code>COPYING</code>.</p>
+
+      <p>The AGPL requires that modified versions offered over a network carry their corresponding source. If you
+      modify Arcadia, publish your changes under the same terms.</p>
+    </div>
+    <div class="right-column"></div>
+  </main>
+  @{include("./footer.i")}
+</body>
+</html>

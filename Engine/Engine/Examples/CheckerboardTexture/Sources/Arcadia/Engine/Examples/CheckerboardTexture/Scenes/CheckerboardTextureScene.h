@@ -14,55 +14,42 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_DEMO_SCENES_MAINMENUSCENE_H_INCLUDED)
-#define ARCADIA_ENGINE_DEMO_SCENES_MAINMENUSCENE_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_EXAMPLES_CHEKERBOARDTEXTURE_CHECKERBOARDTEXTURESCENE_H_INCLUDED)
+#define ARCADIA_ENGINE_EXAMPLES_CHEKERBOARDTEXTURE_CHECKERBOARDTEXTURESCENE_H_INCLUDED
 
 #include "Arcadia/Engine/Include.h"
-#include "Arcadia/Engine/Examples/CheckerboardTexture/Scene.h"
 #include "Arcadia/ADL/Include.h"
 #include "Arcadia/Engine/UI/Include.h"
 
-Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.MainMenuScene", Arcadia_Engine_Demo_MainMenuScene,
+Arcadia_declareObjectType(u8"Arcadia.Engine.Examples.CheckerboardTexture.CheckerboardTextureScene", Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene,
                           u8"Arcadia.Engine.Demo.Scene");
 
-struct Arcadia_Engine_Demo_MainMenuSceneDispatch {
+struct Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureSceneDispatch {
   Arcadia_Engine_Demo_SceneDispatch parent;
 };
 
-struct Arcadia_Engine_Demo_MainMenuScene {
+struct Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene {
   Arcadia_Engine_Demo_Scene parent;
 
   // @todo This is should be inter-scene not intra-scene.
   Arcadia_ADL_Definitions* definitions;
 
-  // The viewport.
-  Arcadia_Engine_Visuals_ViewportNode* viewportNode;
-  // A single camera, re-attached to the respective viewport / model combination for rendering.
+  // The camera node.
   Arcadia_Engine_Visuals_CameraNode* cameraNode;
-  // A single context, re-update with the information for the respective viewport / model combination for rendering.
+  // The enter pass node.
   Arcadia_Engine_Visuals_EnterPassNode* enterPassNode;
-
-#if 0
-  // The models, thee of them.
+  // The model node.
   Arcadia_Engine_Visuals_ModelNode* modelNode;
-#endif
-#if 1
-  // The 'W' (index 0), 'A' (index 1), 'S' (index 2), and 'D' (index 3) latches.
-  // The 'Q' (index 4) and 'E' (index 5) latches.
-  Arcadia_BooleanValue latches[6];
-#endif
-
-
-  // The user interface.
-  Arcadia_Engine_UI_CanvasNode* uiCanvasNode;
+  // The viewport node.
+  Arcadia_Engine_Visuals_ViewportNode* viewportNode;
 };
 
-Arcadia_Engine_Demo_MainMenuScene*
-Arcadia_Engine_Demo_MainMenuScene_create
+Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene*
+Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine,
     Arcadia_Engine_Demo_SceneManager* sceneManager
   );
 
-#endif // ARCADIA_ENGINE_DEMO_SCENES_MAINMENUSCENE_H_INCLUDED
+#endif // ARCADIA_ENGINE_EXAMPLES_CHEKERBOARDTEXTURE_CHECKERBOARDTEXTURESCENE_H_INCLUDED

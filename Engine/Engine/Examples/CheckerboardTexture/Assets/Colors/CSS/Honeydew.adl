@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.Honeydew",
-  red : 240,
-  green : 255,
-  blue : 240,
-}

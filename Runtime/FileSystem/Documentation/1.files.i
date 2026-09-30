@@ -17,7 +17,7 @@ The subdirectory of Arcadia File System in the repository is here <a href="@{arc
 </ul>
 
 <p>
-Arcadia Ring 2 supports various platforms (including but not restricted to Windows, Linux, and many more), however, we currently only officially support Windows.
+Arcadia FileSystem supports various platforms (including but not restricted to Windows, Linux, and many more), however, we currently only officially support Windows.
 For instructions on how to build, test, and use Arcadia FileSystem,
 refer to <a href="@{arcadiaGitHubAddress}/tree/main/README.md">README.md</a> in the root folder of the repository.
 </p>

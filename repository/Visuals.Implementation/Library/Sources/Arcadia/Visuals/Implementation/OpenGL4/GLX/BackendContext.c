@@ -1153,6 +1153,9 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_constructImpl
   self->frameBufferConfiguration = NULL;
   self->colormap = None;
   self->context = NULL;
+  self->swapIntervalEXT = NULL;
+  self->swapIntervalMESA = NULL;
+  self->swapIntervalResolved = Arcadia_BooleanValue_False;
 
   // (1) Open the default display.
   self->display = XOpenDisplay(NULL);

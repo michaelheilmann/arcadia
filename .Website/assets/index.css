@@ -135,6 +135,12 @@ html.my-theme-1 code {
   font-size: var(--default-font-size);
 }
 
+html.my-theme-1 pre {
+  background-color: rgb(240,240,240);
+  padding: 1rem;
+  overflow-x: auto;
+}
+
 /* Style for the index and the error page. */
 body.my-index-page-1,
 body.my-content-page-1,
@@ -475,6 +481,7 @@ body.my-index-page-1 div.topic div.body {
   border-top-style: solid;
 }
 
+body.my-index-page-1 div.topic:not(:first-child),
 body.my-subindex-page-1 div.topic:not(:first-child) {
   border-left-style: solid;
   border-left-width: 1px;
@@ -517,6 +524,52 @@ div.news-item {
 .news-item-header > h2 {
   margin: 0 !important;
   margin-right: 2rem !important;
+}
+
+/* 2026 <index page> the landing page. */
+
+div.banner h1 {
+  margin: 0;
+  font-size: var(--h3-font-size);
+}
+
+body.my-index-page-1 div.news-band {
+  flex-grow: 0;
+  display: flex;
+  flex-direction: column;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
+
+  & > h2 {
+    margin: 2rem 0 1rem 0;
+    padding-top: 1rem;
+    border-top-style: solid;
+    border-top-width: 1px;
+  }
+}
+
+body.my-index-page-1 ul.news-latest {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  & > li {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    margin-bottom: 0.5rem;
+  }
+
+  & > li > a {
+    flex-grow: 0;
+    flex-basis: 10rem;
+    text-decoration: none;
+  }
+
+  & > li > span {
+    flex-grow: 1;
+  }
 }
 
 /* Copyright (c) 2024-2025 Michael Heilmann. All rights reserved. */

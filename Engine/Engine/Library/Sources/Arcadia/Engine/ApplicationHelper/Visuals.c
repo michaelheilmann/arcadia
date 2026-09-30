@@ -146,6 +146,7 @@ Arcadia_Engine_ApplicationHelper_startupVisuals
   Arcadia_Engine_Visuals_DisplayDevice* displayDevice = NULL;
   Arcadia_String* windowMode = NULL;
   Arcadia_Engine_Visuals_Window* window = NULL;
+  Arcadia_BooleanValue verticalSynchronization = Arcadia_BooleanValue_False;
   // (1.1) Register visuals backends.
   //Arcadia_Engine_Visuals_Implementation_registerBackends(thread, engine->visualsBackendTypes);
   // (1.2) Register the visuals node factory.
@@ -296,17 +297,19 @@ Arcadia_Engine_ApplicationHelper_startupVisuals
                                             Arcadia_Engine_Visuals_DisplayMode_getVerticalResolution(thread, displayMode),
                                             Arcadia_Engine_Visuals_DisplayMode_getColorDepth(thread, displayMode));
     }
-    // Although vertical synchronization is ignored by non-full screen window moudes,
-    // add a reasonable default to the configuration if no value or a broken value is in the configuration.
+    // Add a reasonable default to the configuration if no value or a broken value is in the
+    // configuration, then apply the setting to the window.
     Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
     if (Arcadia_JumpTarget_save(&jumpTarget)) {
-      getVerticalSynchronization(thread, configuration);
+      verticalSynchronization = getVerticalSynchronization(thread, configuration);
       Arcadia_Thread_popJumpTarget(thread);
     } else {
       Arcadia_Thread_popJumpTarget(thread);
       Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
-      setVerticalSynchronization(thread, configuration, Arcadia_BooleanValue_False);
+      verticalSynchronization = Arcadia_BooleanValue_False;
+      setVerticalSynchronization(thread, configuration, verticalSynchronization);
     }
+    Arcadia_Engine_Visuals_Window_setVerticalSynchronization(thread, window, verticalSynchronization);
     // Set the window mode and resolution.
     b = Arcadia_Value_makeObjectReferenceValue(Arcadia_String_create(thread, Arcadia_Value_makeRuntimeUTF8StringValue(Arcadia_RuntimeUTF8String_create(thread, u8"windowed", sizeof(u8"windowed") - 1))));
     if (Arcadia_Value_isEqualTo(thread, &a, &b)) {

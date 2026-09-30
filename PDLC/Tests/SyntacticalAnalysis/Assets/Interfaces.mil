@@ -1,0 +1,23 @@
+interface MyInterfaceA {
+
+  method MyOperationA : Void {
+  }
+
+  method MyOperationB(variable a : Integer, variable b : Integer) : Void {
+  }
+
+}
+
+interface MyInterfaceB extends MyInterfaceA {
+
+  method MyOperationC : Void {
+  }
+
+}
+
+class MyClassC extends MyClassA implements MyInterfaceA, MyInterfaceB {
+
+  method MyOperationA : Void {
+  }
+
+}

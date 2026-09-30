@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_VPL_TREE_TREEVISITOR_H_INCLUDED)
-#define ARCADIA_VPL_TREE_TREEVISITOR_H_INCLUDED
+#if !defined(ARCADIA_VPL_TREE_NODEVISITOR_H_INCLUDED)
+#define ARCADIA_VPL_TREE_NODEVISITOR_H_INCLUDED
 
 #if !defined(ARCADIA_VPL_PRIVATE) || 1 != ARCADIA_VPL_PRIVATE
   #error("do not include directly, include `Arcadia/VPL/Include.h` instead")
@@ -28,7 +28,7 @@
 #include "Arcadia/VPL/Tree/ProgramDefnNode.h"
 #include "Arcadia/VPL/Tree/VariableDefnNode.h"
 
-Arcadia_declareObjectType(u8"Arcadia.VPL.Tree.TreeVisitor", Arcadia_VPL_Tree_NodeVisitor,
+Arcadia_declareObjectType(u8"Arcadia.VPL.Tree.NodeVisitor", Arcadia_VPL_Tree_NodeVisitor,
                           u8"Arcadia.Object");
 
 struct Arcadia_VPL_Tree_NodeVisitorDispatch {
@@ -90,4 +90,4 @@ Arcadia_VPL_Tree_NodeVisitor_onVariableDefnNode
     Arcadia_VPL_Tree_VariableDefnNode* tree
   );
 
-#endif // ARCADIA_VPL_TREE_TREEVISITOR_H_INCLUDED
+#endif // ARCADIA_VPL_TREE_NODEVISITOR_H_INCLUDED

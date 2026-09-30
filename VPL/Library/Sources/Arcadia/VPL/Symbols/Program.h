@@ -36,6 +36,9 @@ typedef struct Arcadia_VPL_Symbols_Procedure Arcadia_VPL_Symbols_Procedure;
 // Mutually exclusive to Arcadia_VPL_Symbols_ProgramFlags_MeshAmbientColor and Arcadia_VPL_Symbols_ProgramFlags_VertexAmbientColor.
 #define Arcadia_VPL_Symbols_ProgramFlags_TextureAmbientColor (3)
 
+// Mutually exclusive to the other symbols of Arcadia_VPL_Symbols_ProgramFlags.
+#define Arcadia_VPL_Symbols_ProgramFlags_TextureVertexAmbientColor (4)
+
 // Programs are managed by the program manager.
 // Each program has a unique numeric ID.
 // Using this ID, backends can determine if they already have a uploaded a variant of that program.

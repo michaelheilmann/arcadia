@@ -1,0 +1,111 @@
+@{include("./../../Documentation/Commons/header-common.i")}
+<link rel='canonical' href='@{siteAddress}/Arcadia/ADL/Introduction/'>
+<title>Arcadia ADL Introduction</title>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div class="navigation breadcrumbs">
+      <a href="@{siteAddress}/">Home</a> / <a href="@{siteAddress}/Arcadia/ADL/">Arcadia ADL</a>
+    </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+      <h1>Arcadia ADL Introduction</h1>
+      <p>
+      This document introduces the Arcadia asset definition language, Arcadia ADL
+      for short, the format in which the assets of Michael Heilmann's Arcadia are
+      stored. ADL is defined by the <code>Arcadia.ADL</code> module: the module
+      reads ADL assets, checks them against their schemata, and builds definitions
+      that the Arcadia engine can consume.
+      </p>
+
+      <h2>What an ADL asset is</h2>
+      <p>
+      An ADL asset is a text file in the Arcadia Data Definition Language
+      (<a href="@{siteAddress}/specifications/data-definition-language/">Arcadia DDL</a>).
+      In the common case the file contains a single map that describes one
+      definition. Every ADL definition carries at least two map entries:
+      </p>
+      <ul>
+        <li><code>type</code>, a string that selects the kind of definition and the reader that processes it, and</li>
+        <li><code>name</code>, a string that names the definition. Names are fully-qualified, dot-separated, and unique within an application, for example <code>Colors.Red</code> or <code>MainMenuScene.TextureColorModel</code>.</li>
+      </ul>
+      <p>
+      The remaining entries are specific to the type. For example, the definition
+      below describes the color red:
+      </p>
+      <pre>
+{
+  type : "Color",
+  name : "Colors.Red",
+  red : 255,
+  green : 0,
+  blue : 0,
+}
+      </pre>
+      <p>
+      Many definitions refer to other definitions. References are written as
+      strings that name the referenced definition and are resolved only after all
+      assets have been read. The following definitions, typical for a textured
+      model, form a small example of this:
+      </p>
+      <pre>
+{
+  type : "PixelBuffer",
+  name : "Assets.DefaultWall.PixelBuffer",
+  width : 256,
+  height : 256,
+  operations : [ "Assets.DefaultWall.PixelBuffer.FillOperation" ],
+}
+{
+  type : "PixelBufferOperations.CheckerboardFillOperation",
+  name : "Assets.DefaultWall.PixelBuffer.FillOperation",
+  checkerWidth : 32,
+  checkerHeight : 32,
+  firstCheckerColor : "Assets.DefaultWall.PixelBuffer.FillOperation.FirstColor",
+  secondCheckerColor : "Assets.DefaultWall.PixelBuffer.FillOperation.SecondColor",
+}
+{
+  type : "Texture",
+  name : "Assets.DefaultWall.Texture",
+  pixelBuffer : "Assets.DefaultWall.PixelBuffer",
+}
+      </pre>
+
+      <h2>The two phases of loading</h2>
+      <p>
+      Loading ADL assets happens in two phases. In the first phase the application
+      reads the assets into definitions; references between definitions are still
+      unresolved at this point. In the second phase the application links the
+      definitions, which resolves every reference and checks that the referenced
+      definition has the required type.
+      </p>
+      <p>
+      The example below reads the assets of the previous section from strings,
+      links them, and fetches the texture definition:
+      </p>
+      <pre>
+Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+// ... read each asset ...
+Arcadia_ADL_Context_readFromString(thread, context, definitions,
+  Arcadia_String_createFromCxxString(thread, textureAsset), Arcadia_BooleanValue_False);
+Arcadia_ADL_Definitions_link(thread, definitions);
+Arcadia_ADL_TextureDefinition* definition =
+  (Arcadia_ADL_TextureDefinition*)Arcadia_ADL_Definitions_getDefinitionOrNull(
+    thread, definitions, "Assets.DefaultWall.Texture");
+      </pre>
+
+      <h2>What else is in this documentation</h2>
+      <ul>
+        <li>The <a href="@{siteAddress}/Arcadia/ADL/Concepts-and-Terms/">Concepts and Terms</a> document explains the ideas behind ADL: definitions, readers, schemata, references, and linking.</li>
+        <li>The <a href="@{siteAddress}/Arcadia/ADL/Module-Interface/">Module Interface</a> document is the reference of the public interface of the <code>Arcadia.ADL</code> module.</li>
+        <li>The <a href="@{siteAddress}/Arcadia/ADL/Specification/">Specification</a> document describes the ADL asset format in detail.</li>
+      </ul>
+    </div>
+    <div class="right-column"></div>
+  </main>
+  @{include("./../../Documentation/footer.i")}
+</body>
+</html>

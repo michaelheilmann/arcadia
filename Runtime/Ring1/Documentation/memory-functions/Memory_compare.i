@@ -1,6 +1,6 @@
 <section class="cxx entity procedure">
 
-  <h1 id="Arcadia_Memory_coompare">Arcadia_Memory_coompare</h1>
+  <h1 id="Arcadia_Memory_compare">Arcadia_Memory_compare</h1>
 
   <my-signature><code>
   Arcadia_Integer8Value<br>

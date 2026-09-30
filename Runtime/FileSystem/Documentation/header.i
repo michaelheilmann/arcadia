@@ -1,8 +1,8 @@
   @{include("./../../../Documentation/Commons/header-common.i")}
 
   <link rel='stylesheet' href='@{siteAddress}/assets/cxx-doc.css?v=5'>
-  <link rel='canonical' href='@{siteAddress}/Arcadia/Ring2/'>
-  <title>Michael Heilmann's Arcadia Ring 2</title>
+  <link rel='canonical' href='@{siteAddress}/Arcadia/FileSystem/'>
+  <title>Michael Heilmann's Arcadia FileSystem</title>
   <style>
   </style>
 </head>

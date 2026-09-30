@@ -1,6 +1,6 @@
 @{include("./../../../Documentation/Commons/header-common.i")}
 <link rel='stylesheet' href='@{siteAddress}/assets/cxx-doc.css?v=1'>
-<link rel='canonical' href='@{siteAddress}/Arcadia/Visuals/'>
+<link rel='canonical' href='@{siteAddress}/Arcadia/UI/'>
 <title>Michael Heilmann's Arcadia UI</title>
 <style>
 </style>

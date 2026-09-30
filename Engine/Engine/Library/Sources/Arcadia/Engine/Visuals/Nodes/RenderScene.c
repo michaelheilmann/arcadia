@@ -26,6 +26,19 @@ Arcadia_Engine_Visuals_renderScene
     Arcadia_Engine_Visuals_BackendContext* backendContext
   )
 {
+  Arcadia_Engine_Visuals_renderSceneWithModelNodes(thread, enterPassNode, &modelNode, 1, backendContext);
+}
+
+void
+Arcadia_Engine_Visuals_renderSceneWithModelNodes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_EnterPassNode* enterPassNode,
+    Arcadia_Engine_Visuals_ModelNode* const* modelNodes,
+    Arcadia_SizeValue numberOfModelNodes,
+    Arcadia_Engine_Visuals_BackendContext* backendContext
+  )
+{
   Arcadia_Engine_Node_setVisualsBackendContext(thread, (Arcadia_Engine_Node*)enterPassNode, (Arcadia_Engine_Visuals_BackendContext*)backendContext);
   if (enterPassNode->frameBufferNode) {
     // "rendering" the scene buffer activates it.
@@ -36,11 +49,11 @@ Arcadia_Engine_Visuals_renderScene
         enterPassNode
       );
   }
-  // Render the enter pass node.
-  // Pass mesh nodes to the enter pass node.
+  // Render the enter pass node once.
   Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)enterPassNode, (Arcadia_Engine_Visuals_EnterPassNode*)enterPassNode);
-  // Render the mesh node.
-  // TODO: Render multiple mesh nodes.
-  Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)modelNode, enterPassNode);
+  // Render the mesh nodes.
+  for (Arcadia_SizeValue i = 0; i < numberOfModelNodes; ++i) {
+    Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)modelNodes[i], enterPassNode);
+  }
   // TODO: Render the leave pass node.
 }

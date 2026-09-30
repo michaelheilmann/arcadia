@@ -125,7 +125,7 @@ Arcadia_Engine_Visuals_FrameBufferResource_deactivate
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_FrameBufferResource* self
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_FrameBufferResource, activate, self); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_FrameBufferResource, deactivate, self); }
 
 void
 Arcadia_Engine_Visuals_FrameBufferResource_setSize
@@ -146,3 +146,11 @@ Arcadia_Engine_Visuals_FrameBufferResource_getSize
     Arcadia_Integer32Value* height
   )
 { Arcadia_VirtualCall(Arcadia_Engine_Visuals_FrameBufferResource, getSize, self, width, height); }
+
+Arcadia_Media_PixelBuffer*
+Arcadia_Engine_Visuals_FrameBufferResource_capturePixels
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_FrameBufferResource* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_FrameBufferResource, capturePixels, self); }

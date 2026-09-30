@@ -62,4 +62,4 @@ Arcadia_VPL_Symbols_Stage_create
     Arcadia_Natural8Value flags
   );
 
-#endif  // ARCADIA_VPL_SYMBOLS_STAGE_H_INCLUDED
+#endif // ARCADIA_VPL_SYMBOLS_STAGE_H_INCLUDED

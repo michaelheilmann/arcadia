@@ -18,7 +18,6 @@
 #define ARCADIA_ENGINE_DEMO_SCENES_MAINMENUSCENE_H_INCLUDED
 
 #include "Arcadia/Engine/Include.h"
-#include "Arcadia/Engine/Demo/Scene.h"
 #include "Arcadia/ADL/Include.h"
 #include "Arcadia/Engine/UI/Include.h"
 #include "Arcadia/Starship/Viewer3D.h"

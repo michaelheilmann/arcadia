@@ -21,7 +21,7 @@
   #error("do not include directly, include `Arcadia/FileSystem/Include.h` instead")
 #endif
 
-#include "Arcadia/Ring2/Implementation/Configure.h"
+#include "Arcadia/Ring2/Include.h"
 #include "Arcadia/Ring1/Include.h"
 
 // https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_ExistingFilePolicy

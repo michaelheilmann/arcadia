@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.Brown",
-  red : 165,
-  green : 42,
-  blue : 42,
-}

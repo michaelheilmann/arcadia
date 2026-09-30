@@ -16,6 +16,7 @@ body.my-index-page-1 div.topic div.body {
   border-top-style: solid;
 }
 
+body.my-index-page-1 div.topic:not(:first-child),
 body.my-subindex-page-1 div.topic:not(:first-child) {
   border-left-style: solid;
   border-left-width: 1px;

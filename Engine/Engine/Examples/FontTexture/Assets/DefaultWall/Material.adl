@@ -1,0 +1,7 @@
+{
+  type : "Material",
+  name : "Assets.DefaultWall.Material",
+  materialType : "Blinn-Phong",
+  ambientColorSource : "Texture",
+  ambientColorTexture : "Assets.DefaultWall.Texture",
+}

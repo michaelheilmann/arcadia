@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.LightSlateGrey",
-  red : 119,
-  green : 136,
-  blue : 153,
-}

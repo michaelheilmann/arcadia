@@ -1,0 +1,20 @@
+interface Greeter {
+
+  method greet : Void {
+  }
+
+}
+
+interface LoudGreeter extends Greeter {
+
+  method greetLoud : Void {
+  }
+
+}
+
+class GreeterImpl implements Greeter {
+
+  method greet : Void {
+  }
+
+}

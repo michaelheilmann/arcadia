@@ -20,8 +20,6 @@ set(this ${MyProjectName}.Engine.Examples.CheckerboardTexture)
 
 if (NOT TARGET ${this})
   set(${this}.Enabled FALSE)
-  SetFolder(${this} "Engine/Examples")
-
 
   # This demo requires at least one visuals backend.
   if (${${MyProjectName}.Engine.Visuals.Implementation.OpenGL4.Enabled})
@@ -36,6 +34,8 @@ if (NOT TARGET ${this})
 
   BeginProduct(${this} executable)
 
+  SetFolder(${this} "Engine/Examples")
+
   set(${this}.Windows.ResourceFile ${CMAKE_CURRENT_SOURCE_DIR}/Resources.rc)
 
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Engine/Examples/CheckerboardTexture/Configure.h
@@ -43,14 +43,8 @@ if (NOT TARGET ${this})
 
   OnSourceFile(${this} Arcadia/Engine/Examples/CheckerboardTexture/Main.c)
 
-  OnSourceFile(${this} Arcadia/Engine/Examples/CheckerboardTexture/Scene.c)
-  OnHeaderFile(${this} Arcadia/Engine/Examples/CheckerboardTexture/Scene.h)
-
   OnSourceFile(${this} Arcadia/Engine/Examples/CheckerboardTexture/Scenes/CheckerboardTextureScene.c)
   OnHeaderFile(${this} Arcadia/Engine/Examples/CheckerboardTexture/Scenes/CheckerboardTextureScene.h)
-
-  OnSourceFile(${this} Arcadia/Engine/Examples/CheckerboardTexture/SceneManager.c)
-  OnHeaderFile(${this} Arcadia/Engine/Examples/CheckerboardTexture/SceneManager.h)
 
   OnSourceFile(${this} Arcadia/Engine/Examples/CheckerboardTexture/AssetUtilities.c)
   OnHeaderFile(${this} Arcadia/Engine/Examples/CheckerboardTexture/AssetUtilities.h)
@@ -60,6 +54,7 @@ if (NOT TARGET ${this})
 
   OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
+  OnModuleDependency(${this} ${MyProjectName}.Engine PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.Engine.UI PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.ADL PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)

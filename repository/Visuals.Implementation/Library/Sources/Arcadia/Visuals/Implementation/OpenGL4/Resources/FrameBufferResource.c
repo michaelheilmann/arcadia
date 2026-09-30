@@ -18,6 +18,7 @@
 
 #include "Arcadia/Visuals/Implementation/OpenGL4/BackendContext.h"
 #include "Arcadia/Visuals/Implementation/OpenGL4/Resources/TextureResource.h"
+#include "Arcadia/Visuals/Implementation/OpenGL4/Capture.h"
 #include <assert.h>
 
 static void
@@ -109,6 +110,13 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_getSizeImpl
     Arcadia_Integer32Value* height
   );
 
+static Arcadia_Media_PixelBuffer*
+Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_capturePixelsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource* self
+  );
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_constructImpl,
@@ -164,7 +172,8 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_initializeDisp
   ((Arcadia_Engine_Visuals_FrameBufferResourceDispatch*)self)->activate = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_FrameBufferResource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_activateImpl;
   ((Arcadia_Engine_Visuals_FrameBufferResourceDispatch*)self)->deactivate = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_FrameBufferResource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_deactivateImpl;
   ((Arcadia_Engine_Visuals_FrameBufferResourceDispatch*)self)->setSize = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_FrameBufferResource*, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_setSizeImpl;
-  ((Arcadia_Engine_Visuals_FrameBufferResourceDispatch*)self)->getSize = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_FrameBufferResource*, Arcadia_Integer32Value*, Arcadia_Integer32Value*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_setSizeImpl;
+  ((Arcadia_Engine_Visuals_FrameBufferResourceDispatch*)self)->getSize = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_FrameBufferResource*, Arcadia_Integer32Value*, Arcadia_Integer32Value*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_getSizeImpl;
+  ((Arcadia_Engine_Visuals_FrameBufferResourceDispatch*)self)->capturePixels = (Arcadia_Media_PixelBuffer* (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_FrameBufferResource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_capturePixelsImpl;
 
 
   ((Arcadia_Engine_Visuals_ResourceDispatch*)self)->load = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Resource*)) & Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_loadImpl;
@@ -313,6 +322,32 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_getSizeImpl
 {
   *width = self->width;
   *height = self->height;
+}
+
+static Arcadia_Media_PixelBuffer*
+Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource_capturePixelsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource* self
+  )
+{
+  // "loadImpl" is what creates the frame buffer. Until it ran there is nothing to capture.
+  if (!self->frameBufferID) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Resource*)self)->context;
+  _Arcadia_Engine_Visuals_Implementation_OpenGL4_Functions* gl = Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext_getFunctions(thread, context);
+  // "readPixels" binds the frame buffer to read from and restores the binding in effect on
+  // entry, hence this frame buffer resource need not be the activated one.
+  return Arcadia_Engine_Visuals_Implementation_OpenGL4_readPixels
+    (
+      thread,
+      gl,
+      self->frameBufferID,
+      self->width,
+      self->height
+    );
 }
 
 Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource*

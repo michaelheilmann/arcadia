@@ -20,6 +20,8 @@
 #include "Arcadia/Engine/Visuals/Backend.h"
 #include "Arcadia/Engine/Visuals/BackendContext.h"
 
+#include "Arcadia/Engine/Visuals/BlendFunction.h"
+
 #include "Arcadia/Engine/Visuals/Configuration.h"
 
 #include "Arcadia/Engine/Visuals/CullMode.h"

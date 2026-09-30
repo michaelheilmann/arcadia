@@ -1,0 +1,11 @@
+<li>String extensions</li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_String_createFromCxxInt">Arcadia_String_createFromCxxInt</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_String_toCxxInt">Arcadia_String_toCxxInt</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_String_createFromCxxString">Arcadia_String_createFromCxxString</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_StringBuilder_insertBackCxxInt">Arcadia_StringBuilder_insertBackCxxInt</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_StringBuilder_insertBackCxxString">Arcadia_StringBuilder_insertBackCxxString</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_StringBuilder_insertFrontString">Arcadia_StringBuilder_insertFrontString</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_StringBuilder_insertBackString">Arcadia_StringBuilder_insertBackString</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_String_insertByteBuffer">Arcadia_String_insertByteBuffer</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_String_insertFrontByteBuffer">Arcadia_String_insertFrontByteBuffer</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_String_insertBackByteBuffer">Arcadia_String_insertBackByteBuffer</a></li>

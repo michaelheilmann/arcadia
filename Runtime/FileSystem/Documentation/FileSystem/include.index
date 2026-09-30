@@ -1,31 +1,31 @@
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_ExistingFilePolicy">Arcadia_ExistingFilePolicy</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_ExistingFilePolicy">Arcadia_ExistingFilePolicy</a></li>
 
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileAccessMode">Arcadia_FileAccessMode</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileHandle">Arcadia_FileHandle</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FilePath">Arcadia_FilePath</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileAccessMode">Arcadia_FileAccessMode</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileHandle">Arcadia_FileHandle</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FilePath">Arcadia_FilePath</a></li>
 
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem">Arcadia_FileSystem</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem">Arcadia_FileSystem</a></li>
 
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_createDirectoryIterator">Arcadia_FileSystem_createDirectoryIterator</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_createFileHandle">Arcadia_FileSystem_createFileHandle</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_createDirectoryIterator">Arcadia_FileSystem_createDirectoryIterator</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_createFileHandle">Arcadia_FileSystem_createFileHandle</a></li>
 
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_deleteDirectoryFile">Arcadia_FileSystem_deleteDirectoryFile</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_deleteRegularFile">Arcadia_FileSystem_deleteRegularFile</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_deleteFile">Arcadia_FileSystem_deleteFile</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_directoryFileExists">Arcadia_FileSystem_directoryFileExists</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_deleteDirectoryFile">Arcadia_FileSystem_deleteDirectoryFile</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_deleteRegularFile">Arcadia_FileSystem_deleteRegularFile</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_deleteFile">Arcadia_FileSystem_deleteFile</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_directoryFileExists">Arcadia_FileSystem_directoryFileExists</a></li>
 
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSysten_getOrCreate">Arcadia_FileSystem_getOrCreate</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_getFileContents">Arcadia_FileSystem_getFileContents</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_getOrCreate">Arcadia_FileSystem_getOrCreate</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_getFileContents">Arcadia_FileSystem_getFileContents</a></li>
 
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_regularFileExists">Arcadia_FileSystem_regularFileExists</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_regularFileExists">Arcadia_FileSystem_regularFileExists</a></li>
 
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_setFileContents">Arcadia_FileSystem_setFileContents</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_setFileContents">Arcadia_FileSystem_setFileContents</a></li>
 
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_getConfigurationDirectory">Arcadia_FileSystem_getConfigurationDirectory</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_getSaveDirectory">Arcadia_FileSystem_getSaveDirectory</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileSystem_getWorkingDirectory">Arcadia_FileSystem_getWorkingDirectory</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_getConfigurationDirectory">Arcadia_FileSystem_getConfigurationDirectory</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_getSaveDirectory">Arcadia_FileSystem_getSaveDirectory</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_getWorkingDirectory">Arcadia_FileSystem_getWorkingDirectory</a></li>
 
 
 
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_FileType">Arcadia_FileType</a></li>
-<li><a href="@{siteAddress}/Arcadia/Ring2/#Arcadia_NonExistingFilePolicy">Arcadia_NonExistingFilePolicy</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileType">Arcadia_FileType</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_NonExistingFilePolicy">Arcadia_NonExistingFilePolicy</a></li>

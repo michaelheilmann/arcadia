@@ -16,7 +16,6 @@
 
 #include "Arcadia/Engine/Demo/Scenes/ArcadiaLogoScene.h"
 
-#include "Arcadia/Engine/Demo/SceneManager.h"
 #include "Arcadia/Engine/Demo/Scenes/MainScene.h"
 #include "Arcadia/Engine/Demo/Scenes/MainMenuScene.h"
 #include "Arcadia/Engine/Demo/AssetUtilities.h"

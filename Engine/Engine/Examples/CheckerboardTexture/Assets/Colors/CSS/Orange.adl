@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.Orange",
-  red : 255,
-  green : 165,
-  blue : 0,
-}

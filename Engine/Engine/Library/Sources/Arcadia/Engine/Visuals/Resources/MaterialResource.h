@@ -17,6 +17,7 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_RESOURCES_MATERIALRESOURCE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_RESOURCES_MATERIALRESOURCE_H_INCLUDED
 
+#include "Arcadia/Engine/Visuals/BlendFunction.h"
 #include "Arcadia/Engine/Visuals/Resource.h"
 #include "Arcadia/Math/Include.h"
 

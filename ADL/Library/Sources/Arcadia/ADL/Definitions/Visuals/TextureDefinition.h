@@ -21,21 +21,45 @@
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
 #include "Arcadia/ADL/Definition.h"
+#include "Arcadia/ADL/Definitions/Visuals/TextureAddressMode.h"
+#include "Arcadia/ADL/Definitions/Visuals/TextureFilter.h"
 #include "Arcadia/ADL/Reference.h"
 
-// The definition of a color.
+// The definition of a texture.
 //
 // @code
 // {
 //   type  : "Texture",
 //   name  : "MyGame.Textures.MyTexture",
+//   pixelBuffer : "MyGame.PixelBuffers.MyPixelBuffer",
+// }
+// @endcode
+//
+// The values of the sampling properties `magnificationFilter`, `minificationFilter`,
+// `addressModeU`, and `addressModeV` are optional. The value `None` is the default
+// value and indicates that no sampling property is specified and the engine's
+// default is used.
+//
+// @code
+// {
+//   type  : "Texture",
+//   name  : "MyGame.Textures.MyTexture",
+//   pixelBuffer : "MyGame.PixelBuffers.MyPixelBuffer",
+//   magnificationFilter : "Nearest",
+//   minificationFilter : "Nearest",
+//   addressModeU : "Repeat",
+//   addressModeV : "MirroredRepeat",
 // }
 // @endcode
 //
 // @code
 // class Arcadia.ADL.TextureDefinition extends Arcadia.ADL.Definition {
 //
-//   constructor(definitions : Arcadia.ADL.Definitions, name, pixelBufferName : Arcadia.String)
+//   constructor(definitions : Arcadia.ADL.Definitions, name, pixelBufferName : Arcadia.String,
+//               magnificationFilter : Arcadia.ADL.TextureFilter,
+//               minificationFilter : Arcadia.ADL.TextureFilter,
+//               addressModeU : Arcadia.ADL.TextureAddressMode,
+//               addressModeV : Arcadia.ADL.TextureAddressMode)
 //
 // };
 // @endcode
@@ -49,6 +73,14 @@ struct Arcadia_ADL_TextureDefinitionDispatch {
 struct Arcadia_ADL_TextureDefinition {
   Arcadia_ADL_Definition _parent;
   Arcadia_ADL_Reference* pixelBuffer;
+  // The magnification filter. Default is `Arcadia_ADL_TextureFilter_None`.
+  Arcadia_ADL_TextureFilter magnificationFilter;
+  // The minification filter. Default is `Arcadia_ADL_TextureFilter_None`.
+  Arcadia_ADL_TextureFilter minificationFilter;
+  // The texture address mode of the U texture coordinate. Default is `Arcadia_ADL_TextureAddressMode_None`.
+  Arcadia_ADL_TextureAddressMode addressModeU;
+  // The texture address mode of the V texture coordinate. Default is `Arcadia_ADL_TextureAddressMode_None`.
+  Arcadia_ADL_TextureAddressMode addressModeV;
 };
 
 Arcadia_ADL_TextureDefinition*
@@ -57,7 +89,11 @@ Arcadia_ADL_TextureDefinition_create
     Arcadia_Thread* thread,
     Arcadia_ADL_Definitions* definitions,
     Arcadia_String* name,
-    Arcadia_String* pixelBufferName
+    Arcadia_String* pixelBufferName,
+    Arcadia_ADL_TextureFilter magnificationFilter,
+    Arcadia_ADL_TextureFilter minificationFilter,
+    Arcadia_ADL_TextureAddressMode addressModeU,
+    Arcadia_ADL_TextureAddressMode addressModeV
   );
 
 #endif  // ARCADIA_ADL_DEFINITIONS_VISUALS_TEXTUREDEFINITION_H_INCLUDED

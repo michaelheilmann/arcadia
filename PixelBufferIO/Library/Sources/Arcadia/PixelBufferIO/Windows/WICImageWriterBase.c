@@ -291,10 +291,23 @@ startup3
       formatGUID = GUID_WICPixelFormat32bppBGRA;
     } break;
     case Arcadia_Media_PixelFormat_RedGreenBlueNatural8: {
+      // WIC's native 24bppBGR has the components in the order blue, green, red in memory.
+      // A source in the order red, green, blue must therefore be transcoded.
+      Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_BlueGreenRedNatural8);
+      sourcePixelBuffer = pixelBuffer;
       formatGUID = GUID_WICPixelFormat24bppBGR;
     } break;
     case Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8: {
-      formatGUID = GUID_WICPixelFormat32bppRGBA;
+      // WIC's native 32bppBGRA has the components in the order blue, green, red, alpha in
+      // memory. Declaring GUID_WICPixelFormat32bppRGBA does not transcode the components:
+      // the encoder expects the native memory order for either format, hence a source in
+      // the order red, green, blue, alpha must be transcoded explicitly. Without this,
+      // red and blue end up exchanged in the encoded image.
+      Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8);
+      sourcePixelBuffer = pixelBuffer;
+      formatGUID = GUID_WICPixelFormat32bppBGRA;
     } break;
     default: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);

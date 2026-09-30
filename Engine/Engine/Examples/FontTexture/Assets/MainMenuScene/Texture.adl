@@ -1,0 +1,7 @@
+{
+  type  : "Texture",
+  name  : "MainMenuScene.Texture",
+  pixelBuffer : "MainMenuScene.PixelBuffer",
+  magnificationFilter : "Nearest",
+  minificationFilter : "Nearest",
+}

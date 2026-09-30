@@ -103,13 +103,15 @@ void
 Arcadia_Engine_ApplicationConfiguration_saveConfiguration
   (
     Arcadia_Thread* thread,
+    Arcadia_String* name,
     Arcadia_DDL_Node* configuration
   );
 
 Arcadia_DDL_MapNode*
 Arcadia_Engine_ApplicationConfiguration_loadConfiguration
   (
-    Arcadia_Thread* thread
+    Arcadia_Thread* thread,
+    Arcadia_String* name
   );
 
 #endif // ARCADIA_ENGINE_APPLICATIONCONFIGURATION_H_INCLUDED

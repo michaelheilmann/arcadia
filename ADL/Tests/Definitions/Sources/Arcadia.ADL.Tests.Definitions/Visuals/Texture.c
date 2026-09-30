@@ -89,3 +89,282 @@ Arcadia_ADL_Tests_Visuals_TextureDefinitionTest1
   }
   Arcadia_ADL_Definitions_link(thread, definitions);
 }
+
+void
+Arcadia_ADL_Tests_Visuals_TextureDefinitionTest2
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  {
+    static const char* DDL =
+      "{\n"
+      "  type : \"Color\",\n"
+      "  name : \"MyGame.Colors.MyBlack\",\n"
+      "  red : 0,\n"
+      "  green : 0,\n"
+      "  blue : 0,\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  {
+    static const char* DDL =
+      "{\n"
+      "  type : \"Color\",\n"
+      "  name : \"MyGame.Colors.MyWhite\",\n"
+      "  red : 255,\n"
+      "  green : 255,\n"
+      "  blue : 255,\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  {
+    static const char* DDL =
+      "{\n"
+      "  type  : \"PixelBufferOperations.CheckerboardFillOperation\",\n"
+      "  name  : \"MyGame.PixelBufferOperations.MyPixelBufferFillOperation\",\n"
+      "  checkerWidth : 32,\n"
+      "  checkerHeight : 32,\n"
+      "  firstCheckerColor : \"MyGame.Colors.MyWhite\",\n"
+      "  secondCheckerColor : \"MyGame.Colors.MyBlack\",\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  {
+    static const char* DDL =
+      "{\n"
+      "  type  : \"PixelBuffer\",\n"
+      "  name  : \"MyGame.PixelBuffers.MyPixelBuffer\",\n"
+      "  width: 256,\n"
+      "  height: 256,\n"
+      "  operations : [\n"
+      "    \"MyGame.PixelBufferOperations.MyPixelBufferFillOperation\",\n"
+      "  ],\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  {
+    static const char* DDL =
+      "{\n"
+      "  type  : \"Texture\",\n"
+      "  name  : \"MyGame.Textures.MyTexture\",\n"
+      "  pixelBuffer : \"MyGame.PixelBuffers.MyPixelBuffer\",\n"
+      "  magnificationFilter : \"Nearest\",\n"
+      "  minificationFilter : \"Nearest\",\n"
+      "  addressModeU : \"ClampToEdge\",\n"
+      "  addressModeV : \"MirroredRepeat\",\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  Arcadia_ADL_Definitions_link(thread, definitions);
+  Arcadia_ADL_Definition* definition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions, Arcadia_String_createFromCxxString(thread, u8"MyGame.Textures.MyTexture"));
+  if (NULL == definition) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ADL_TextureDefinition* textureDefinition = (Arcadia_ADL_TextureDefinition*)definition;
+  if (Arcadia_ADL_TextureFilter_Nearest != textureDefinition->magnificationFilter) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  if (Arcadia_ADL_TextureFilter_Nearest != textureDefinition->minificationFilter) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  if (Arcadia_ADL_TextureAddressMode_ClampToEdge != textureDefinition->addressModeU) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  if (Arcadia_ADL_TextureAddressMode_MirroredRepeat != textureDefinition->addressModeV) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+}
+
+void
+Arcadia_ADL_Tests_Visuals_TextureDefinitionTest3
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  {
+    static const char* DDL =
+      "{\n"
+      "  type : \"Color\",\n"
+      "  name : \"MyGame.Colors.MyBlack\",\n"
+      "  red : 0,\n"
+      "  green : 0,\n"
+      "  blue : 0,\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  {
+    static const char* DDL =
+      "{\n"
+      "  type : \"Color\",\n"
+      "  name : \"MyGame.Colors.MyWhite\",\n"
+      "  red : 255,\n"
+      "  green : 255,\n"
+      "  blue : 255,\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  {
+    static const char* DDL =
+      "{\n"
+      "  type  : \"PixelBufferOperations.CheckerboardFillOperation\",\n"
+      "  name  : \"MyGame.PixelBufferOperations.MyPixelBufferFillOperation\",\n"
+      "  checkerWidth : 32,\n"
+      "  checkerHeight : 32,\n"
+      "  firstCheckerColor : \"MyGame.Colors.MyWhite\",\n"
+      "  secondCheckerColor : \"MyGame.Colors.MyBlack\",\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  {
+    static const char* DDL =
+      "{\n"
+      "  type  : \"PixelBuffer\",\n"
+      "  name  : \"MyGame.PixelBuffers.MyPixelBuffer\",\n"
+      "  width: 256,\n"
+      "  height: 256,\n"
+      "  operations : [\n"
+      "    \"MyGame.PixelBufferOperations.MyPixelBufferFillOperation\",\n"
+      "  ],\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  {
+    static const char* DDL =
+      "{\n"
+      "  type  : \"Texture\",\n"
+      "  name  : \"MyGame.Textures.MyTexture\",\n"
+      "  pixelBuffer : \"MyGame.PixelBuffers.MyPixelBuffer\",\n"
+      "}\n"
+      ;
+    Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+  }
+  Arcadia_ADL_Definitions_link(thread, definitions);
+  Arcadia_ADL_Definition* definition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions, Arcadia_String_createFromCxxString(thread, u8"MyGame.Textures.MyTexture"));
+  if (NULL == definition) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ADL_TextureDefinition* textureDefinition = (Arcadia_ADL_TextureDefinition*)definition;
+  if (Arcadia_ADL_TextureFilter_None != textureDefinition->magnificationFilter) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  if (Arcadia_ADL_TextureFilter_None != textureDefinition->minificationFilter) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  if (Arcadia_ADL_TextureAddressMode_None != textureDefinition->addressModeU) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  if (Arcadia_ADL_TextureAddressMode_None != textureDefinition->addressModeV) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+}
+
+void
+Arcadia_ADL_Tests_Visuals_TextureDefinitionTest4
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+    Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+    {
+      static const char* DDL =
+        "{\n"
+        "  type : \"Color\",\n"
+        "  name : \"MyGame.Colors.MyBlack\",\n"
+        "  red : 0,\n"
+        "  green : 0,\n"
+        "  blue : 0,\n"
+        "}\n"
+        ;
+      Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+    }
+    {
+      static const char* DDL =
+        "{\n"
+        "  type : \"Color\",\n"
+        "  name : \"MyGame.Colors.MyWhite\",\n"
+        "  red : 255,\n"
+        "  green : 255,\n"
+        "  blue : 255,\n"
+        "}\n"
+        ;
+      Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+    }
+    {
+      static const char* DDL =
+        "{\n"
+        "  type  : \"PixelBufferOperations.CheckerboardFillOperation\",\n"
+        "  name  : \"MyGame.PixelBufferOperations.MyPixelBufferFillOperation\",\n"
+        "  checkerWidth : 32,\n"
+        "  checkerHeight : 32,\n"
+        "  firstCheckerColor : \"MyGame.Colors.MyWhite\",\n"
+        "  secondCheckerColor : \"MyGame.Colors.MyBlack\",\n"
+        "}\n"
+        ;
+      Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+    }
+    {
+      static const char* DDL =
+        "{\n"
+        "  type  : \"PixelBuffer\",\n"
+        "  name  : \"MyGame.PixelBuffers.MyPixelBuffer\",\n"
+        "  width: 256,\n"
+        "  height: 256,\n"
+        "  operations : [\n"
+        "    \"MyGame.PixelBufferOperations.MyPixelBufferFillOperation\",\n"
+        "  ],\n"
+        "}\n"
+        ;
+      Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+    }
+    {
+      static const char* DDL =
+        "{\n"
+        "  type  : \"Texture\",\n"
+        "  name  : \"MyGame.Textures.MyTexture\",\n"
+        "  pixelBuffer : \"MyGame.PixelBuffers.MyPixelBuffer\",\n"
+        "  magnificationFilter : \"InvalidFilter\",\n"
+        "}\n"
+        ;
+      Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, DDL), Arcadia_BooleanValue_False);
+    }
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    if (Arcadia_Thread_getStatus(thread) != Arcadia_Status_SemanticalError) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+      Arcadia_Thread_jump(thread);
+    } else {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    }
+  }
+}

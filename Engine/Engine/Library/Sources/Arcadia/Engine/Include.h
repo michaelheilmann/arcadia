@@ -26,6 +26,8 @@
 
 #include "Arcadia/Engine/Engine.h"
 #include "Arcadia/Engine/Event.h"
+#include "Arcadia/Engine/FPSCounter.h"
+#include "Arcadia/Engine/FontCache.h"
 
 #include "Arcadia/Engine/Node.h"
 #include "Arcadia/Engine/NodeFactory.h"
@@ -40,6 +42,9 @@
 
 // Audials.
 #include "Arcadia/Engine/Audials/Include.h"
+
+#include "Arcadia/Engine/Scene.h"
+#include "Arcadia/Engine/SceneManager.h"
 
 #undef ARCADIA_ENGINE_PRIVATE
 #pragma pop_macro("ARCADIA_ENGINE_PRIVATE")

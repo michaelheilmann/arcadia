@@ -209,6 +209,11 @@ onValidateMap
     Arcadia_Value oldKey;
     Arcadia_Map_remove(thread, symbols, key, &oldKey, NULL);
     if (Arcadia_Value_isVoidValue(&oldKey)) {
+      // The entry is missing. If the entry is optional, that is permitted.
+      Arcadia_Value optional = Arcadia_Map_get(thread, ddlsMapNode->optional, key);
+      if (!Arcadia_Value_isVoidValue(&optional)) {
+        continue;
+      }
       Arcadia_DDLS_Diagnostics_mapEntryNotExistsError(thread, self->diagnostics, (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&key));
       Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
       Arcadia_Thread_jump(thread);

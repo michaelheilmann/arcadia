@@ -228,6 +228,13 @@ Arcadia_VPL_Symbols_Program_createVertexShaderMainProcedureTree
           TreeBuilder_name("fragmentProgram_inputs_vertex_ambientColor"),
           TreeBuilder_name("vertexProgram_inputs_vertex_ambientColor")
         );
+  } else if (self->flags == Arcadia_VPL_Symbols_ProgramFlags_TextureVertexAmbientColor) {
+    vertexColorAssignmentTree =
+      TreeBuilder_assignmentExpr
+        (
+          TreeBuilder_name("fragmentProgram_inputs_vertex_ambientColor"),
+          TreeBuilder_name("vertexProgram_inputs_vertex_ambientColor")
+        );
   } else {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
@@ -320,6 +327,22 @@ Arcadia_VPL_Symbols_Program_createFragmentShaderMainProcedureTree
               TreeBuilder_name("texture2D"),
               TreeBuilder_name("ambientColorTexture"),
               TreeBuilder_name("fragmentProgram_inputs_vertex_ambientColorTextureCoordinate")
+            )
+        );
+  } else if (self->flags == Arcadia_VPL_Symbols_ProgramFlags_TextureVertexAmbientColor) {
+    fragmentColorAssignmentTree =
+      TreeBuilder_assignmentExpr
+        (
+          TreeBuilder_name("rasterizerProgram_inputs_fragmentColor"),
+          TreeBuilder_multiplyExpr
+            (
+              TreeBuilder_callExpr
+                (
+                  TreeBuilder_name("texture2D"),
+                  TreeBuilder_name("ambientColorTexture"),
+                  TreeBuilder_name("fragmentProgram_inputs_vertex_ambientColorTextureCoordinate")
+                ),
+              TreeBuilder_name("fragmentProgram_inputs_vertex_ambientColor")
             )
         );
   } else {

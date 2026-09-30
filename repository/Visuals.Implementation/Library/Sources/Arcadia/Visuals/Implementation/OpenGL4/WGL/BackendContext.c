@@ -216,8 +216,9 @@ createContext
     WGL_ALPHA_BITS_ARB, Arcadia_String_toCxxInt(thread, desiredConfiguration->colorBuffer.alphaBits), // WGL_ALPHA_BITS_ARB
     WGL_PIXEL_TYPE_ARB,  WGL_TYPE_RGBA_ARB, // WGL_PIXEL_TYPE_ARB // WGL_TYPE_RGBA_ARB
     WGL_SUPPORT_OPENGL_ARB, 1, // WGL_SUPPORT_OPENGL_ARB
+    WGL_DOUBLE_BUFFER_ARB, 1, // WGL_DOUBLE_BUFFER_ARB
     WGL_COLOR_BITS_ARB,	32, // WGL_COLOR_BITS_ARB
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   };
   int numberOfPixelFormats;
   wglFactoryContext->_wglChoosePixelFormat(self->systemWindow->deviceContextHandle, &pixelFormatAttribs[0], NULL, 1, &self->pixelFormatIndex, &numberOfPixelFormats);
@@ -1147,6 +1148,11 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_BackendContext_constructImpl
 
   self->pixelFormatIndex = -1;
   self->glResourceContextHandle = NULL;
+  self->swapIntervalEXT = NULL;
+  self->swapIntervalEXTResolved = Arcadia_BooleanValue_False;
+  // Matches the default of Arcadia_Engine_Visuals_WindowBackend.verticalSynchronization.
+  self->swapInterval = 0;
+  self->appliedSwapInterval = -1;
 
   Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_FactoryContext* wglFactoryContext = Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_FactoryContext_create(thread);
   Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_FactoryContext_open(thread, wglFactoryContext);

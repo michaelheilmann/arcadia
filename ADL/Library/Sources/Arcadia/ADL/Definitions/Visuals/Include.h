@@ -23,7 +23,10 @@
 #include "Arcadia/ADL/Definition.h"
 
 #include "Arcadia/ADL/Definitions/Visuals/CheckerboardFillOperationDefinition.h"
+#include "Arcadia/ADL/Definitions/Visuals/BlendFunction.h"
 #include "Arcadia/ADL/Definitions/Visuals/ColorDefinition.h"
+#include "Arcadia/ADL/Definitions/Visuals/TextureAddressMode.h"
+#include "Arcadia/ADL/Definitions/Visuals/TextureFilter.h"
 #include "Arcadia/ADL/Definitions/Visuals/FillOperationDefinition.h"
 #include "Arcadia/ADL/Definitions/Visuals/MaterialDefinition.h"
 #include "Arcadia/ADL/Definitions/Visuals/ModelDefinition.h"

@@ -17,7 +17,6 @@
 #define ARCADIA_FILESYSTEM_MODULE (1)
 #include "Arcadia/FileSystem/Linux/DirectoryIteratorLinux.h"
 
-#include "Arcadia/Ring2/Include.h"
 #include "Arcadia/FileSystem/FilePath.h"
 
 #include <string.h>

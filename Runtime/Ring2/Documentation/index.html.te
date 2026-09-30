@@ -19,13 +19,12 @@
 
 @{include("1.files.i")}
 @{include("2.further-references.i")}
-@{include("3.documentation.i")}
-@{include("3.documentation.8.objects.i")}
-@{include("3.documentation.8.objects/Object/include.content")}
-@{include("3.documentation.8.objects/ByteArray/include.content")}
-@{include("3.documentation.8.objects/ByteArrayBuilder/include.content")}
-@{include("3.documentation.8.objects/String/include.content")}
-@{include("3.documentation.8.objects/StringBuilder/include.content")}
+
+<h2>String extensions</h2>
+@{include("3.documentation.1.string-extensions.i")}
+
+<h2>Time</h2>
+@{include("3.documentation.2.time.i")}
 
   </div>
 

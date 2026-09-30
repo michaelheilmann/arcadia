@@ -1,0 +1,8 @@
+{
+  type : "PixelBufferOperations.CheckerboardFillOperation",
+  name : "Assets.DefaultWall.PixelBuffer.FillOperation",
+  checkerWidth : 32,
+  checkerHeight : 32,
+  firstCheckerColor : "Assets.DefaultWall.PixelBuffer.FirstColor",
+  secondCheckerColor : "Assets.DefaultWall.PixelBuffer.SecondColor",
+}

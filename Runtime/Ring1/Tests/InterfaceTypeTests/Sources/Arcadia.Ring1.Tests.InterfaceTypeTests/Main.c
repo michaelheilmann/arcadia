@@ -1,0 +1,44 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+#include <stdlib.h>
+#include "Arcadia/Ring1/Include.h"
+#include "Arcadia.Ring1.Tests.InterfaceTypeTests/InterfaceTypes.h"
+#include "Arcadia.Ring1.Tests.InterfaceTypeTests/InterfaceOperation.h"
+#include "Arcadia.Ring1.Tests.InterfaceTypeTests/InterfaceOperationOverride.h"
+#include "Arcadia.Ring1.Tests.InterfaceTypeTests/InterfaceImplementationMustBeClosedUnderAncestors.h"
+
+int
+main
+  (
+    int argc,
+    char **argv
+  )
+{
+  if (!Arcadia_Tests_safeExecute(&testInterfaceTypes)) {
+    return EXIT_FAILURE;
+  }
+  if (!Arcadia_Tests_safeExecute(&testInterfaceOperation)) {
+    return EXIT_FAILURE;
+  }
+  if (!Arcadia_Tests_safeExecute(&testInterfaceOperationOverride)) {
+    return EXIT_FAILURE;
+  }
+  if (!Arcadia_Tests_safeExecute(&testInterfaceImplementationMustBeClosedUnderAncestors)) {
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+}

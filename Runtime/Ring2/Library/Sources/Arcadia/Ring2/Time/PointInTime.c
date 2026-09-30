@@ -18,7 +18,7 @@
 #include "Arcadia/Ring2/Time/PointInTime.h"
 
 #include <time.h>
-#include "Arcadia/Ring2/Implementation/ArgumentsValidation.h"
+#include "Arcadia/Ring2/ArgumentsValidation.h"
 
 Arcadia_Integer64Value
 Arcadia_TimeStamp_getNow

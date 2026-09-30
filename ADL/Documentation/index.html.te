@@ -1,0 +1,36 @@
+@{include("./../../Documentation/Commons/header-common.i")}
+<link rel='canonical' href='@{siteAddress}/Arcadia/ADL/'>
+<title>Michael Heilmann's Arcadia ADL</title>
+</head>
+<body class="my-content-page-1">
+  <header>
+    <div class="navigation breadcrumbs">
+      <a href="@{siteAddress}/">Home</a>
+    </div>
+  </header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+      <h1>Michael Heilmann's Arcadia ADL</h1>
+      <p>
+      ADL, the Arcadia asset definition language, is the format in which the assets
+      of Michael Heilmann's Arcadia are stored. An ADL asset is a description of a
+      definition: a color, a material, a mesh, a model, a texture, a pixel buffer,
+      a sample buffer, or one of several other kinds. Applications load ADL assets
+      at runtime, resolve the references between them, and feed the resulting
+      definitions to the Arcadia engine.
+      </p>
+
+      <h2>Documentation</h2>
+      <ul>
+        <li><a href="@{siteAddress}/Arcadia/ADL/Introduction/">Introduction</a></li>
+        <li><a href="@{siteAddress}/Arcadia/ADL/Concepts-and-Terms/">Concepts and Terms</a></li>
+        <li><a href="@{siteAddress}/Arcadia/ADL/Module-Interface/">Module Interface</a></li>
+        <li><a href="@{siteAddress}/Arcadia/ADL/Specification/">Specification of the ADL asset format</a></li>
+      </ul>
+    </div>
+    <div class="right-column"></div>
+  </main>
+  @{include("./../../Documentation/footer.i")}
+</body>
+</html>

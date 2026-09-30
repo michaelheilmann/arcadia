@@ -23,6 +23,11 @@ BeginTemplateEngine(${MyProjectName}.Website.Generate "Website")
                    "${REPOSITORY_SOURCE_DIR}/.Website/index.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
+  # Build "building.html".
+  OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/building.html.te"
+                   "${REPOSITORY_SOURCE_DIR}/.Website/building.html"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
+
   # Build "error.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/error.html.te"
                    "${REPOSITORY_SOURCE_DIR}/.Website/error.html"
@@ -68,4 +73,4 @@ add_subdirectory("Specifications/Common Lexical Translations")
 add_subdirectory("Specifications/MDNP")
 add_subdirectory("Specifications/Data Definition Language")
 add_subdirectory("Specifications/Data Definition Language Schema")
-add_subdirectory("Specifications/MIL")
+add_subdirectory("Specifications/Program Definition Language")

@@ -2,43 +2,106 @@
 
   <link rel='canonical' href='@{siteAddress}/'>
   <title>Michael Heilmann's Project Arcadia</title>
-  
+
   <meta property="og:title" content="Michael Heilmann's Project Arcadia">
-  <meta property="og:description" content="Homepage of Michael Heilmann's Project Arcadia">
-  <meta name="description" content="Homepage of Michael Heilmann's Project Arcadia">
-  <meta name="keywords" content="Arcadia, Procedural Generation, Audials, Visuals, Hapticals, Open Source, Free Software">
-  <meta name="author" content="Michael Heilmann">
+  <meta property="og:description" content="Arcadia is an open environment for creating, regenerating, and preserving games. A game is a set of clear, editable text documents rather than a binary, so it can be read, shared, regenerated, and kept long after its engine is gone.">
+  <meta name="description" content="Arcadia is an open environment for creating, regenerating, and preserving games. A game is a set of clear, editable text documents rather than a binary, so it can be read, shared, regenerated, and kept long after its engine is gone.">
+  <meta name="keywords" content="Arcadia, Game Development, Procedural Generation, Audials, Visuals, Open Source, Free Software">
+  <meta name="author" content="@{siteAuthor}">
 </head>
 <body class="my-index-page-1">
   <header>
     <div class="banner left-column">
       <div>Michael Heilmann's</div>
-      <div>Project Arcadia</div>
+      <h1>Project Arcadia</h1>
     </div>
     <div class="center-column"></div>
     <div class="right-column">
       <nav>
         <ul style="display: flex; flex-direction: row; gap: 1rem;">
-          <li><a href="@{siteAddress}/Arcadia">Documentation</a></li>
-          <li><a href='https://github.com/michaelheilmann'>GitHub</a</li>
+          <li><a href="@{siteAddress}/Arcadia/">Documentation</a></li>
+          <li><a href="@{siteAddress}/building">Building</a></li>
+          <li><a href='@{arcadiaGitHubAddress}'>GitHub</a></li>
           <li><a href='https://discord.gg/XtPA6pwAsp'>Discord</a></li>
         </ul>
       </nav>
     </div>
   </header>
   <main>
-    <div class="left-column">
-    </div> <!-- left-column -->
-    <div class="center-column" style="flex-direction: column">
-        <h1 style="margin-top: 6rem; margin-bottom: 6rem">News</h1>
-        <div class="news">
-        @{include("./Arcadia/News/news-2026-03-30.i")}
-        @{include("./Arcadia/News/news-2026-03-07.i")}
-        <a href="@{siteAddress}/Arcadia/news">Older news ...</a>
+    <div class="topic left-column">
+      <div class="header">
+        <span>The idea</span>
+      </div>
+      <div class="body">
+        <p><em>A game is a set of text documents, not a binary.</em></p>
+
+        <p>Those documents describe the game's visuals, audials, and logics in plain, editable prose and markup, and
+        Arcadia regenerates the whole game from them whenever it is needed. Nothing is lost that only a compiler or a
+        level editor ever knew.</p>
+
+        <p>What that leaves you with is something you can read, diff, share, and hand to the next person. Not just
+        something you can run.</p>
+      </div>
+    </div>
+    <div class="topic center-column">
+      <div class="header">
+        <span>What that buys you</span>
+      </div>
+      <div class="body">
+        <p><em>Portable</em> &mdash; the descriptions carry no platform assumptions, so a game travels to another
+        platform without being rewritten for it.</p>
+
+        <p><em>Regenerable</em> &mdash; deterministic procedural generation rebuilds rich worlds, sounds, and
+        behaviour from compact text.</p>
+
+        <p><em>Preservable</em> &mdash; the description is the artifact. It outlives the engine, the platform, and
+        often the person who wrote it.</p>
+
+        <p><em>Self-publishing</em> &mdash; Arcadia emits each game as a complete, self-contained website, ready for
+        a static host or for reading offline.</p>
+      </div>
+    </div>
+    <div class="topic right-column">
+      <div class="header">
+        <span>Where to go</span>
+      </div>
+      <div class="body">
+        <div class="entries">
+          <a href='@{siteAddress}/Arcadia/'>Documentation</a>
+          <a href='@{siteAddress}/building'>Building Arcadia</a>
+          <a href='@{siteAddress}/Arcadia/roadmap'>Roadmap</a>
+          <a href='@{arcadiaGitHubAddress}'>Arcadia GitHub repository</a>
+          <a href='https://discord.gg/XtPA6pwAsp'>Discord server</a>
         </div>
-    </div><!-- center-column -->
-    <div class="right-column"></div><!-- right-column -->
+      </div>
+    </div>
   </main>
+  <!--
+    A one-line teaser for each of the three most recent news entries.
+    The dates are the fragment file names, which are the source of truth;
+    the full entries are listed in Arcadia/news.html.te.
+  -->
+  <div class="news-band">
+    <h2>News</h2>
+    <ul class="news-latest">
+      <li>
+        <a href="@{siteAddress}/Arcadia/news">2026-09-29</a>
+        <span>The PDL specification and the consolidated PDLC compiler, the ADL
+        documentation, Arcadia.Engine.Text, and Ring 1 interface types.</span>
+      </li>
+      <li>
+        <a href="@{siteAddress}/Arcadia/news">2026-03-30</a>
+        <span>A consistent pattern in Ring 1 and Ring 2 for reading bytes and
+        decoding them to code points.</span>
+      </li>
+      <li>
+        <a href="@{siteAddress}/Arcadia/news">2026-03-07</a>
+        <span>Engine.Visuals and Engine.Audials merge into Arcadia Engine,
+        buffers consolidate into Arcadia Media, and ADL gains declarative
+        asset descriptions.</span>
+      </li>
+    </ul>
+  </div>
   @{include("./footer.i")}
 </body>
 </html>

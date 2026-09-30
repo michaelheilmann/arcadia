@@ -60,7 +60,7 @@ static const Arcadia_Type_Operations _typeOperations = {
   .objectTypeOperations = &_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.VPL.ModifieresUtilities", Arcadia_VPL_ModifiersUtilities,
+Arcadia_defineObjectType(u8"Arcadia.VPL.ModifiersUtilities", Arcadia_VPL_ModifiersUtilities,
                          u8"Arcadia.Object", Arcadia_Object,
                          &_typeOperations);
 

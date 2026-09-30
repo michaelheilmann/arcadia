@@ -22,6 +22,7 @@
 #endif
 #include "Arcadia/ADL/Definition.h"
 #include "Arcadia/ADL/Definitions/Visuals/AmbientColorSource.h"
+#include "Arcadia/ADL/Definitions/Visuals/BlendFunction.h"
 #include "Arcadia/ADL/Definitions/Visuals/MaterialType.h"
 #include "Arcadia/ADL/Reference.h"
 
@@ -48,10 +49,27 @@
 //   Texture,
 // }
 //
+// classification Arcadia.ADL.BlendFunction {
+//   None,
+//   Zero,
+//   One,
+//   SourceColor,
+//   OneMinusSourceColor,
+//   DestinationColor,
+//   OneMinusDestinationColor,
+//   SourceAlpha,
+//   OneMinusSourceAlpha,
+//   DestinationAlpha,
+//   OneMinusDestinationAlpha,
+// }
+//
 // class Arcadia.ADL.MaterialDefinition extends Arcadia.ADL.Definition {
 //
 //   constructor(definitions : Arcadia.ADL.Definitions, name : Arcadia.String,
-//               materialType : Arcadial.ADL.MaterialType, ambientColorSource : Arcadia.ADL.AmbientColorSource)
+//               materialType : Arcadial.ADL.MaterialType, ambientColorSource : Arcadia.ADL.AmbientColorSource,
+//               ambientColorTextureName : Arcadia.String,
+//               blendSourceFunction : Arcadia.ADL.BlendFunction,
+//               blendDestinationFunction : Arcadia.ADL.BlendFunction)
 //
 // };
 //
@@ -68,6 +86,8 @@ struct Arcadia_ADL_MaterialDefinition {
   Arcadia_ADL_MaterialType materialType;
   Arcadia_ADL_AmbientColorSource ambientColorSource;
   Arcadia_ADL_Reference* ambientColorTexture;
+  Arcadia_ADL_BlendFunction blendSourceFunction;
+  Arcadia_ADL_BlendFunction blendDestinationFunction;
 };
 
 Arcadia_ADL_MaterialDefinition*
@@ -78,7 +98,9 @@ Arcadia_ADL_MaterialDefinition_create
     Arcadia_String* name,
     Arcadia_ADL_MaterialType materialType,
     Arcadia_ADL_AmbientColorSource ambientColorSource,
-    Arcadia_String* ambientColorTextureName
+    Arcadia_String* ambientColorTextureName,
+    Arcadia_ADL_BlendFunction blendSourceFunction,
+    Arcadia_ADL_BlendFunction blendDestinationFunction
   );
 
 #endif  // ARCADIA_ADL_DEFINITIONS_VISUALS_MATERIALDEFINITION_H_INCLUDED

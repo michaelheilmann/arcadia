@@ -37,4 +37,22 @@ Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest3
     Arcadia_Thread* thread
   );
 
+void
+Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest4
+  (
+    Arcadia_Thread* thread
+  );
+
+void
+Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest5
+  (
+    Arcadia_Thread* thread
+  );
+
+void
+Arcadia_ADL_Tests_Visuals_MaterialDefinitionTest6
+  (
+    Arcadia_Thread* thread
+  );
+
 #endif // ARCADIA_ADL_TESTS_VISUALS_MATERIAL_H_INCLUDED

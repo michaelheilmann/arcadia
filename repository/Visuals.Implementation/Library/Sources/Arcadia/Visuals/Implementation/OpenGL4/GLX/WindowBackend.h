@@ -42,6 +42,12 @@ struct Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend {
   Screen* screen; // Default value is NULL.
   Window window; // Default value is None.
 
+  // The swap interval that has last been passed to 'glXSwapIntervalEXT' or 'glXSwapIntervalMESA'
+  // for 'window'. Negative if no swap interval has been applied to 'window' yet.
+  // Unlike the WGL backend, the GLX swap interval is a per-drawable setting, hence it is
+  // tracked per window rather than per backend context.
+  int appliedSwapInterval;
+
   Arcadia_Visuals_Linux_Icon* smallIcon;
   Arcadia_Visuals_Linux_Icon* bigIcon;
 };

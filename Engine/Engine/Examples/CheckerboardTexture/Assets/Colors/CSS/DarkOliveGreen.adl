@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.DarkOliveGreen",
-  red : 85,
-  green : 107,
-  blue : 47,
-}

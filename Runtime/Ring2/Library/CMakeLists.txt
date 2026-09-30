@@ -24,7 +24,7 @@ if (NOT TARGET ${this})
 
   SetFolder(${this} "Runtime/Ring2")
 
-  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Ring2/Implementation/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Ring2/Implementation/Configure.h.i)
+  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Ring2/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Ring2/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/Ring2/CommandLine/CommandLineArgument.c)
   OnHeaderFile(${this} Arcadia/Ring2/CommandLine/CommandLineArgument.h)
@@ -36,8 +36,8 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Ring2/Exceptions/Exception.c)
   OnHeaderFile(${this} Arcadia/Ring2/Exceptions/Exception.h)
 
-  OnSourceFile(${this} Arcadia/Ring2/Implementation/ArgumentsValidation.c)
-  OnHeaderFile(${this} Arcadia/Ring2/Implementation/ArgumentsValidation.h)
+  OnSourceFile(${this} Arcadia/Ring2/ArgumentsValidation.c)
+  OnHeaderFile(${this} Arcadia/Ring2/ArgumentsValidation.h)
 
   OnSourceFile(${this} Arcadia/Ring2/Unicode/Include.c)
   OnHeaderFile(${this} Arcadia/Ring2/Unicode/Include.h)

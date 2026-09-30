@@ -68,6 +68,16 @@ struct Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext {
   // Default value is NULL.
   GLXContext context;
 
+  // The GLX_EXT_swap_control function 'glXSwapIntervalEXT'. NULL if the extension is unavailable.
+  // @see https://registry.khronos.org/OpenGL/extensions/EXT/GLX_EXT_swap_control.txt
+  void (*swapIntervalEXT)(Display*, GLXDrawable, int);
+  // The GLX_MESA_swap_control function 'glXSwapIntervalMESA'. NULL if the extension is unavailable.
+  // @see https://registry.khronos.org/OpenGL/extensions/ARB/GLX_MESA_swap_control.txt
+  int (*swapIntervalMESA)(unsigned int);
+  // #true if 'swapIntervalEXT' and 'swapIntervalMESA' have been looked up already. Neither extension
+  // can appear after 'context' has been created, hence a failed lookup is not repeated.
+  Arcadia_BooleanValue swapIntervalResolved;
+
   /// The GLX functions available to us.
   _Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_Functions functionsGLX;
   /// The OpenGL functions available to us.

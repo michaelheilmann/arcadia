@@ -1,8 +1,0 @@
-/* https://www.w3.org/wiki/CSS/Properties/color/keywords */
-{
-  type : "Color",
-  name : "Colors.PowderBlue",
-  red : 176,
-  green : 224,
-  blue : 230,
-}

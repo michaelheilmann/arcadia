@@ -18,7 +18,6 @@
 #define ARCADIA_ENGINE_DEMO_SCENES_MAINSCENE_H_INCLUDED
 
 #include "Arcadia/Engine/Include.h"
-#include "Arcadia/Engine/Demo/Scene.h"
 #include "Arcadia/ADL/Include.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.MainScene", Arcadia_Engine_Demo_MainScene,
