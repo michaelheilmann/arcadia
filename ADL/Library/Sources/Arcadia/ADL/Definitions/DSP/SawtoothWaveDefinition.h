@@ -29,7 +29,7 @@
 // {
 //   type  : "DSP.SawtoothWave",
 //   name  : "MyGame.MyDSPs.MySawtoothWave",
-//   frequency : 220, /* Frequency in Hz. */   
+//   frequency : 220, /* Frequency in Hz. */
 // }
 // @endcode
 //

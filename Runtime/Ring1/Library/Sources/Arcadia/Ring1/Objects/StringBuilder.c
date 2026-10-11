@@ -618,7 +618,7 @@ Arcadia_StringBuilder_toUpperASCII
     Arcadia_SizeValue* index,
     Arcadia_SizeValue* length
   )
-{ 
+{
   Arcadia_Unicode_UTF8_toUpperASCII(thread, self->elements, self->size, index, length);
 }
 

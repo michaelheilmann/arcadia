@@ -29,7 +29,7 @@
 // {
 //   type  : "DSP.Constant",
 //   name  : "MyGame.MyDSPs.MyConstant",
-//   value : 1, /* Numeric value. */ 
+//   value : 1, /* Numeric value. */
 // }
 // @endcode
 //

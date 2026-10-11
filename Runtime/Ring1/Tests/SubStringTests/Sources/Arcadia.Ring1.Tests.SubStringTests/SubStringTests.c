@@ -35,7 +35,7 @@ fixture
     Arcadia_Thread* thread,
     const char* p,
     size_t n,
-    size_t start, 
+    size_t start,
     Arcadia_Value length,
     const char* q,
     size_t m,

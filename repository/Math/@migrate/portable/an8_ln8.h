@@ -26,7 +26,7 @@ an8_ln8_is_equal_to
     const an8_ln8* this,
     const an8_ln8* other
   )
-{ 
+{
   return this->a == other->a
       && this->l == other->l;
 }

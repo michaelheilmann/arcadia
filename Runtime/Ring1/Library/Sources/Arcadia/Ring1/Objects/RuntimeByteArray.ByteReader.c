@@ -132,7 +132,7 @@ Arcadia_RuntimeByteArray_ByteReader_hasValueImpl
     Arcadia_Thread* thread,
     Arcadia_RuntimeByteArray_ByteReader* self
   )
-{ 
+{
   return self->index < self->source->numberOfBytes;
 }
 
@@ -182,5 +182,5 @@ Arcadia_RuntimeByteArray_ByteReader_create
   _Arcadia_BeginCreate(Arcadia_RuntimeByteArray_ByteReader);
   Arcadia_ValueStack_pushRuntimeByteArrayValue(thread, source);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  _Arcadia_EndCreate(Arcadia_RuntimeByteArray_ByteReader); 
+  _Arcadia_EndCreate(Arcadia_RuntimeByteArray_ByteReader);
 }

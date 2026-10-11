@@ -154,7 +154,7 @@ Arcadia_Ring1_Tests_UTF8ArrayIteratorTests2
     Result results[] = {
       {.byteIndex = 0, .codePointLength = 1, .codePoint = 'a', .error = false, },
     };
-    testFixture(thread, &bytes[0], sizeof(bytes) / sizeof(Arcadia_Natural8Value), &results[0], sizeof(results) / sizeof(Result)); 
+    testFixture(thread, &bytes[0], sizeof(bytes) / sizeof(Arcadia_Natural8Value), &results[0], sizeof(results) / sizeof(Result));
   }
   {
     Arcadia_Natural8Value bytes[] = {

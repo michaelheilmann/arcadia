@@ -3,9 +3,9 @@
     <nav>
       <ul style="list-style: none">
         <li><a href="@{siteAddress}/Arcadia/Engine/Module-Interface/#Arcadia_Engine_Event">[MIL] Arcadia.Engine.Event</a></li>
-      
+
         @{include("./Module-Interface/Input/include.index")}
-              
+
         <li><a href="@{siteAddress}/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_ApplicationEvent">[MIL] Arcadia.Visuals.ApplicationEvent</a></li>
         <li><a href="@{siteAddress}/Arcadia/Engine/Module-Interface/#Arcadia.Visuals.ApplicationEvent.construct">[MIL] Arcadia.Visuals.ApplicationEvent.construct</a></li>
         <li><a href="@{siteAddress}/Arcadia/Engine/Module-Interface/#Arcadia_Visuals_ApplicationQuitRequestedEvent">[MIL] Arcadia.Visuals.ApplicationQuitRequestedEvent</a></li>

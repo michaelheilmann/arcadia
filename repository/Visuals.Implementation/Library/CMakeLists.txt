@@ -217,7 +217,7 @@ if (NOT TARGET ${this})
 
   OnModuleDependency(${this} ${MyProjectName}.Engine)
   OnModuleDependency(${this} ${MyProjectName}.PixelBufferIO)
-  
+
   OnModuleDependency(${this} ${MyProjectName}.Math PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.Ring2 PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)

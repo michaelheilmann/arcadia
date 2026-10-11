@@ -12,7 +12,7 @@
 /// @remarks
 /// - t = 0   => a
 /// - t = 128 => a + (b - a) * 0.5
-/// - t = 255 => b 
+/// - t = 255 => b
 static inline uint8_t
 lerp_n8
   (

@@ -146,7 +146,7 @@ Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_getSquaredLength
     Arcadia_Thread* thread,
     Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self
   );
-  
+
 /// @@brief Compute the dot product of this vector and another vector.
 /// @@param self A pointer to this vector.
 /// @@param other A pointer to the other vector.

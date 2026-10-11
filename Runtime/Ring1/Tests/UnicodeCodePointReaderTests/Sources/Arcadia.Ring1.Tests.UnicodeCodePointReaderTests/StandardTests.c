@@ -123,7 +123,7 @@ void
 Arcadia_Ring1_Tests_UnicodeCodePointReader_test2
   (
     Arcadia_Thread* thread
-  ) 
+  )
 {
   {
     Arcadia_Natural8Value bytes[] = {

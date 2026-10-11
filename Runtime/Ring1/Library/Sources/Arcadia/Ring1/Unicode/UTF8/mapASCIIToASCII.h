@@ -143,7 +143,7 @@ Arcadia_Unicode_UTF8_mapASCIIToASCII
       // then the first Byte is in th range 1111 0xxx.
       current += 4;
     }
-  }  
+  }
 }
 
 #endif // ARCADIA_RING1_UNICODE_UTF8_MAPASCIITOASCII_H_INCLUDED

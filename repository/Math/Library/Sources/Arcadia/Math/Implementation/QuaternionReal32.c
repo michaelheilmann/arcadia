@@ -169,7 +169,7 @@ Arcadia_Math_QuaternionReal32_multiply
     Arcadia_Math_QuaternionReal32* self,
     Arcadia_Math_QuaternionReal32* other
   )
-{ 
+{
   Arcadia_Real32Value w = self->elements[3] * other->elements[3]
                         - self->elements[0] * other->elements[0]
                         - self->elements[1] * other->elements[1]
@@ -227,7 +227,7 @@ Arcadia_Math_QuaternionReal32_toAxisAngle
     Arcadia_Real32Value* angle
   )
 {
-  
+
 }
 
 void
@@ -368,7 +368,7 @@ Arcadia_Math_QuaternionReal32_conjugate
     Arcadia_Thread* thread,
     Arcadia_Math_QuaternionReal32* self
   )
-{ 
+{
   self->elements[3] = self->elements[3];
   self->elements[0] = -self->elements[0];
   self->elements[1] = -self->elements[1];

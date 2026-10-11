@@ -134,7 +134,7 @@ Arcadia_ByteArraySliceImpl_destructImpl
   (
     Arcadia_Thread* thread,
     Arcadia_ByteArraySliceImpl* self
-  ) 
+  )
 {/*Intentionally empty.*/}
 
 static void
@@ -147,7 +147,7 @@ Arcadia_ByteArraySliceImpl_initializeDispatchImpl
   ((Arcadia_ByteArrayDispatch*)self)->getAt = (Arcadia_Natural8Value (*)(Arcadia_Thread*, const Arcadia_ByteArray*, Arcadia_SizeValue)) & Arcadia_ByteArraySliceImpl_getAt;
   ((Arcadia_ByteArrayDispatch*)self)->getBytes = (Arcadia_Natural8Value const* (*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_getBytes;
   ((Arcadia_ByteArrayDispatch*)self)->getNumberOfBytes = (Arcadia_SizeValue (*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_getNumberOfBytes;
-  ((Arcadia_ByteArrayDispatch*)self)->getSize = (Arcadia_SizeValue (*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_getSize;  
+  ((Arcadia_ByteArrayDispatch*)self)->getSize = (Arcadia_SizeValue (*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_getSize;
   ((Arcadia_ByteArrayDispatch*)self)->isEmpty = (Arcadia_BooleanValue(*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_isEmpty;
 }
 
@@ -187,7 +187,7 @@ Arcadia_ByteArraySliceImpl_getAt
     Arcadia_ByteArraySliceImpl const* self,
     Arcadia_SizeValue index
   )
-{ 
+{
   if (index >= self->size) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);

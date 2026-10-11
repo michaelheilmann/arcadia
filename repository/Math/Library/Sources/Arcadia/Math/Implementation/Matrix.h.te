@@ -20,7 +20,7 @@
 
 Arcadia_declareObjectType(u8"Arcadia.Math.Matrix@{dimensionality}@{scalarSuffix}", Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix},
                           u8"Arcadia.Object");
-                          
+
 struct Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}Dispatch {
   Arcadia_ObjectDispatch _parent;
 };

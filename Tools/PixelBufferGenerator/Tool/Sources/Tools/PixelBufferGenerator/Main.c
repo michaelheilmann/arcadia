@@ -72,7 +72,7 @@ loadADL
   return Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(contents)), Arcadia_BooleanValue_True);
 }
 
-// Expects 
+// Expects
 // `--help`
 // `--configuration=<path>`
 static void

@@ -134,7 +134,7 @@ symbolToString
   )
 {
   Arcadia_StringBuilder* stringBuffer = Arcadia_StringBuilder_create(thread);
-  Arcadia_Natural32Value digit; 
+  Arcadia_Natural32Value digit;
   do {
     digit = symbol % 10;
     symbol /= 10;
@@ -166,7 +166,7 @@ Arcadia_TemplateEngine_Diagnostics_UnclosedStringLiteralDiagnostic_create
     Arcadia_Languages_DiagnosticType type,
     Arcadia_TemplateEngine_Diagnostics_UnclosedStringLiteralDiagnosticContext context
   )
-{ 
+{
   _Arcadia_BeginCreate(Arcadia_TemplateEngine_Diagnostics_UnclosedStringLiteralDiagnostic);
   Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_Languages_DiagnosticType_getType(thread), type));
   Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_TemplateEngine_Diagnostics_UnclosedStringLiteralDiagnosticContext_getType(thread), context));

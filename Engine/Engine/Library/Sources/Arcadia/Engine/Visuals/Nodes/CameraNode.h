@@ -44,7 +44,7 @@ struct Arcadia_Engine_Visuals_CameraNodeDispatch {
 
 struct Arcadia_Engine_Visuals_CameraNode {
   Arcadia_Engine_Visuals_Node _parent;
-  
+
   Arcadia_Natural8Value dirtyBits;
   Arcadia_Math_Matrix4Real32* worldToViewMatrix;
   Arcadia_Math_Matrix4Real32* viewToProjectionMatrix;

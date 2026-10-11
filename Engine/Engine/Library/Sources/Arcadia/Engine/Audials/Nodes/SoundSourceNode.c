@@ -50,7 +50,7 @@ Arcadia_Engine_Audials_SoundSourceNode_visitImpl
     Arcadia_Thread* thread,
     Arcadia_Engine_Audials_SoundSourceNode* self
   );
-  
+
 static Arcadia_Media_DSP*
 makeDSP
   (
@@ -172,7 +172,7 @@ Arcadia_Engine_Audials_SoundSourceNode_constructImpl
   //
   self->isLooping = Arcadia_BooleanValue_False;
   self->volume = 1.f;
-  //  
+  //
   Arcadia_LeaveConstructor(Arcadia_Engine_Audials_SoundSourceNode);
 }
 
@@ -209,7 +209,7 @@ Arcadia_Engine_Audials_SoundSourceNode_initializeDispatchImpl
   ((Arcadia_Engine_Audials_SoundSourceNodeDispatch*)self)->setIsLooping = (void(*)(Arcadia_Thread*, Arcadia_Engine_Audials_SoundSourceNode*, Arcadia_BooleanValue)) & Arcadia_Engine_Audials_SoundSourceNode_setIsLoopingImpl;
   ((Arcadia_Engine_Audials_SoundSourceNodeDispatch*)self)->getIsLooping = (Arcadia_BooleanValue(*)(Arcadia_Thread*, Arcadia_Engine_Audials_SoundSourceNode*)) & Arcadia_Engine_Audials_SoundSourceNode_getIsLoopingImpl;
   ((Arcadia_Engine_Audials_SoundSourceNodeDispatch*)self)->setVolume = (void(*)(Arcadia_Thread*, Arcadia_Engine_Audials_SoundSourceNode*, Arcadia_Real32Value)) & Arcadia_Engine_Audials_SoundSourceNode_setVolumeImpl;
-  ((Arcadia_Engine_Audials_SoundSourceNodeDispatch*)self)->getVolume = (Arcadia_Real32Value(*)(Arcadia_Thread*, Arcadia_Engine_Audials_SoundSourceNode*)) & Arcadia_Engine_Audials_SoundSourceNode_getVolumeImpl;  
+  ((Arcadia_Engine_Audials_SoundSourceNodeDispatch*)self)->getVolume = (Arcadia_Real32Value(*)(Arcadia_Thread*, Arcadia_Engine_Audials_SoundSourceNode*)) & Arcadia_Engine_Audials_SoundSourceNode_getVolumeImpl;
 }
 
 static void
@@ -218,7 +218,7 @@ Arcadia_Engine_Audials_SoundSourceNode_visitImpl
     Arcadia_Thread* thread,
     Arcadia_Engine_Audials_SoundSourceNode* self
   )
-{ 
+{
   if (self->source) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->source);
   }

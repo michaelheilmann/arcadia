@@ -52,7 +52,7 @@ struct Arcadia_ADL_SampleBufferDefinition {
   Arcadia_ADL_Definition _parent;
   /// The duration, in seconds, of the sample buffer.
   Arcadia_Natural32Value duration;
-  /// Reference to the DSP to fill the sample buffer. 
+  /// Reference to the DSP to fill the sample buffer.
   Arcadia_ADL_Reference* dsp;
 };
 

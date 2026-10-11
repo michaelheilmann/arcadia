@@ -19,24 +19,24 @@
 @{include("./fonts-1.i")}
 
 /* Theme #1
- * For themting, we use "scoped CSS variables". 
+ * For themting, we use "scoped CSS variables".
  */
 html.my-theme-1 {
   --html-text-color: var(--black);
   --html-background-color: var(--white);
-   
+
   --header-link-color: var(--bright-blue);
   --header-text-color: var(--white);
   --header-background-color: var(--black);
-  
+
   --main-link-color: var(--blue);
   --main-text-color: var(--black);
   --main-background-color: var(--white);
-  
+
   --footer-link-color: var(--bright-blue);
   --footer-text-color: var(--white);
   --footer-background-color: var(--black);
-  
+
   --html-link-color: var(--blue);
   --html-text-color: var(--black);
   --html-background-color: var(--white);
@@ -60,11 +60,11 @@ html.my-theme-1 {
 
   --h6-margin: 1.67em 0;
   --h6-font-size: 1rem !important;
-  
+
   --font-family-default: 'my-sans';
   --font-family-code: 'my-code';
   --font-family-sans: 'my-sans';
-  
+
   /* The default font size. */
   --default-font-size: 0.875rem;
 }
@@ -118,7 +118,7 @@ body.my-content-page-1 {
     padding-left: 16px;
     padding-right: 16px;
     padding-top: 4px;
-    padding-bottom: 4px;    
+    padding-bottom: 4px;
     & a {
       text-decoration: none;
     }
@@ -143,7 +143,7 @@ body.my-content-page-1 {
     border-top-width: 1px;
     margin-top: 16px;
     padding-top: 16px;
-    
+
     & > div {
       flex-grow: 1;
       display: flex;
@@ -151,7 +151,7 @@ body.my-content-page-1 {
       align-items: center;
     }
   }
-  
+
 }
 
 body.my-error-page-1,
@@ -201,8 +201,8 @@ body.my-index-page-1 {
   & main {
     flex-grow: 1;
     display: flex;
-    flex-direction: row;  
-    
+    flex-direction: row;
+
     & div.left-column,
     & div.right-column {
       flex-grow: 0;
@@ -240,14 +240,14 @@ body.my-subindex-page-1 {
   & main {
     flex-grow: 1;
     display: flex;
-    flex-direction: row;  
-    
+    flex-direction: row;
+
     & div.left-column,
     & div.center-column,
     & div.right-column {
       flex-grow: 1;
       width: 33vw;
-    }  
+    }
   }
 }
 
@@ -258,7 +258,7 @@ body.my-error-page-1 {
     flex-grow: 1;
     display: flex;
     flex-direction: row;
-    
+
     & div.left-column {
       flex-grow: 0;
       width: 24vw;
@@ -316,7 +316,7 @@ body.my-content-page-1 {
   }
   & h3 {
     margin: var(--h3-margin);
-    font-size: var(--h3-font-size); 
+    font-size: var(--h3-font-size);
   }
   & h4 {
     margin: var(--h4-margin);
@@ -381,7 +381,7 @@ body.my-index-page-1 div.entries {
 }
 
 div.banner {
-  font-size: var(--h3-font-size);  
+  font-size: var(--h3-font-size);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

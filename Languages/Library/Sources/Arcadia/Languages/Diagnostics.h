@@ -49,7 +49,7 @@ Arcadia_Languages_Diagnostics_hasErrors
     Arcadia_Thread* thread,
     Arcadia_Languages_Diagnostics* self
   );
-  
+
 void
 Arcadia_Languages_Diagnostics_add
   (

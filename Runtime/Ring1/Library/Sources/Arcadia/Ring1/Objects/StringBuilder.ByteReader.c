@@ -133,7 +133,7 @@ Arcadia_StringBuilder_ByteReader_hasValueImpl
     Arcadia_Thread* thread,
     Arcadia_StringBuilder_ByteReader* self
   )
-{ 
+{
   return self->index < self->source->size;
 }
 
@@ -183,5 +183,5 @@ Arcadia_StringBuilder_ByteReader_create
   _Arcadia_BeginCreate(Arcadia_StringBuilder_ByteReader);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)source);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  _Arcadia_EndCreate(Arcadia_StringBuilder_ByteReader); 
+  _Arcadia_EndCreate(Arcadia_StringBuilder_ByteReader);
 }

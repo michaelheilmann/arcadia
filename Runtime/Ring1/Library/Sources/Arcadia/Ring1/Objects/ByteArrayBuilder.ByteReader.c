@@ -133,7 +133,7 @@ Arcadia_ByteArrayBuilder_ByteReader_hasValueImpl
     Arcadia_Thread* thread,
     Arcadia_ByteArrayBuilder_ByteReader* self
   )
-{ 
+{
   return self->index < self->source->sz;
 }
 
@@ -183,5 +183,5 @@ Arcadia_ByteArrayBuilder_ByteReader_create
   _Arcadia_BeginCreate(Arcadia_ByteArrayBuilder_ByteReader);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)source);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  _Arcadia_EndCreate(Arcadia_ByteArrayBuilder_ByteReader); 
+  _Arcadia_EndCreate(Arcadia_ByteArrayBuilder_ByteReader);
 }

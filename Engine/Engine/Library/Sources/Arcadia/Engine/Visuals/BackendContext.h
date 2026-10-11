@@ -86,14 +86,14 @@ struct Arcadia_Engine_Visuals_BackendContextDispatch {
       Arcadia_Engine_Visuals_BackendContext* self,
       Arcadia_Media_PixelBuffer* pixelBuffer
     );
-  
+
   Arcadia_Engine_Visuals_Window*
   (*createWindow)
     (
       Arcadia_Thread* thread,
       Arcadia_Engine_Visuals_BackendContext* self
     );
-  
+
   Arcadia_List*
   (*getDisplayDevices)
     (

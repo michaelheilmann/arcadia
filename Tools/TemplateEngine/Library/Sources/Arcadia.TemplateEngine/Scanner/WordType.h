@@ -29,18 +29,18 @@ enum Arcadia_TemplateEngine_WordType {
   Arcadia_TemplateEngine_WordType_AtLiteral,
   Arcadia_TemplateEngine_WordType_Name,
   Arcadia_TemplateEngine_WordType_StringLiteral,
-  
+
   Arcadia_TemplateEngine_WordType_Comma,
 
   Arcadia_TemplateEngine_WordType_LeftCurlyBracket,
   Arcadia_TemplateEngine_WordType_LeftParenthesis,
-  
+
   Arcadia_TemplateEngine_WordType_RightCurlyBracket,
   Arcadia_TemplateEngine_WordType_RightParenthesis,
 
   Arcadia_TemplateEngine_WordType_StartOfDirective,
   Arcadia_TemplateEngine_WordType_Text,
-  
+
 };
 
 #endif // ARCADIA_TEMPLATEENGINE_SCANNER_WORDTYPE_H_INCLUDED

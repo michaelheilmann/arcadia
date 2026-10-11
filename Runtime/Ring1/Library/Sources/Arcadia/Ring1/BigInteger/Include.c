@@ -56,7 +56,7 @@ Arcadia_BigInteger_create
   if (!g_registered) {
     Arcadia_Process_registerType(Arcadia_Thread_getProcess(thread),
                                  TypeName, sizeof(TypeName) - 1,
-                                 Arcadia_Thread_getProcess(thread), 
+                                 Arcadia_Thread_getProcess(thread),
                                  (Arcadia_Process_TypeRemovedCallback*)&onTypeRemoved,
                                  NULL,
                                  (Arcadia_Process_FinalizeCallback*)&onFinalize);

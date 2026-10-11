@@ -7,7 +7,7 @@
   Arcadia FileSystem provides a portable, maintainable, as well as safe abstraction of file system access.
   Arcadia FileSystem is available at <a href="@{siteAddress}/Arcadia/FileSystem">michaelheilmann.com/Arcadia/FileSystem</a>.
   </p>
-  
+
   <p>Features:</p>
   <ul>
     <li>File handles supporting opening for reading and writing, reading and writing contents, and closing</li>

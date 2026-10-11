@@ -19,7 +19,7 @@ class Arcadia.Engine.Visuals.WindowSizeChangedEvent extends Arcadia.Engine.Event
   variable window : Arcadia.Engine.Visuals.Window
   variable horizontalSize : Arcadia.Integer32
   variable verticalSize : Arcadia.Integer32
-  
+
   constructor
     (
       variable timestamp : Arcadia.Natural64,

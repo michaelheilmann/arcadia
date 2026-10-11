@@ -25,7 +25,7 @@ if (NOT TARGET ${this})
 
   # libFLAC.
   if (${${this}_OperatingSystem} STREQUAL ${${this}_OperatingSystem_Windows})
-    # Windows.   
+    # Windows.
     if (${${this}_InstructionSetArchitecture} STREQUAL ${${this}_InstructionSetArchitecture_X64})
       set(${this}.libOGG.Libraries ${MyDependenciesDirectory}/x64/$<LOWER_CASE:$<CONFIG>>/ogg/lib/$<IF:$<STREQUAL:$<LOWER_CASE:$<CONFIG>>,debug>,ogg.lib,ogg.lib>)
       set(${this}.libOGG.HeaderFilesDirectory ${MyDependenciesDirectory}/x64/$<LOWER_CASE:$<CONFIG>>/ogg/include)
@@ -37,7 +37,7 @@ if (NOT TARGET ${this})
     endif()
     list(APPEND ${this}.PrivateLibraries ${${this}.libOGG.Libraries})
     list(APPEND ${this}.IncludeDirectories ${${this}.libOGG.HeaderFilesDirectory})
-    
+
     if (${${this}_InstructionSetArchitecture} STREQUAL ${${this}_InstructionSetArchitecture_X64})
       set(${this}.libFLAC.Libraries ${MyDependenciesDirectory}/x64/$<LOWER_CASE:$<CONFIG>>/flac/lib/$<IF:$<STREQUAL:$<LOWER_CASE:$<CONFIG>>,debug>,FLAC.lib,FLAC.lib>)
       set(${this}.libFLAC.HeaderFilesDirectory ${MyDependenciesDirectory}/x64/$<LOWER_CASE:$<CONFIG>>/flac/include)

@@ -25,12 +25,12 @@ test1
   )
 {
   Arcadia_Real32Value axisValues[] = { 0.f, 1.f, 0.f };
-  
+
   Arcadia_Math_QuaternionReal32* p = Arcadia_Math_QuaternionReal32_create(thread, 0.f, 0.f, 0.f, 0.f);
   Arcadia_Math_QuaternionReal32_setFromAxisAngle(thread, p, Arcadia_Math_Vector3Real32_createWithValues(thread, axisValues), 0.f);
   Arcadia_Math_Matrix4Real32* a = Arcadia_Math_Matrix4Real32_create(thread);
   Arcadia_Math_QuaternionReal32_toRotationMatrix(thread, p, a);
-  
+
 }
 
 int

@@ -100,11 +100,11 @@ static const Arcadia_Type_Operations _typeOperations = {
 Arcadia_defineObjectType(u8"Arcadia.ByteReader.UnicodeCodePointReader", Arcadia_ByteReader_UnicodeCodePointReader,
                          u8"Arcadia.UnicodeCodePointReader", Arcadia_UnicodeCodePointReader,
                          &_typeOperations);
-                         
+
 #define FlagsNone (1<<0)
 #define FlagsEnd (1<<1)
 #define FlagsShortRead (1<<2)
-#define FlagsError (1<<3)                         
+#define FlagsError (1<<3)
 
 static void
 Arcadia_ByteReader_UnicodeCodePointReader_constructImpl
@@ -165,7 +165,7 @@ next
     Arcadia_Thread* thread,
     Arcadia_ByteReader_UnicodeCodePointReader* self
   )
-{ 
+{
   if (self->flags == FlagsError || self->flags == FlagsShortRead) {
     // Advance to the next Byte.
     // Clear the error flag.
@@ -235,16 +235,16 @@ next
   }
   while (self->codePointByteLength > self->numberOfBytes && Arcadia_ByteReader_hasValue(thread, self->source)) {
     self->bytes[self->numberOfBytes++] = Arcadia_ByteReader_getValue(thread, self->source);
-    Arcadia_ByteReader_nextValue(thread, self->source); 
+    Arcadia_ByteReader_nextValue(thread, self->source);
   }
   if (self->codePointByteLength > self->numberOfBytes) {
     // This is actually a short read and might be recoverable.
     self->flags = FlagsShortRead;
     self->codePoint = 0xfffd;
     self->codePointByteLength = 0;
-    return;  
+    return;
   }
-  
+
   // The masks to remove the prefix bits from the first Byte.
   static const Arcadia_Natural8Value mask[] = {
     0b11111111,
@@ -252,12 +252,12 @@ next
     0b00001111,
     0b00000111,
   };
-  
+
   self->codePoint = self->bytes[0] & mask[self->codePointByteLength - 1];
   for (Arcadia_SizeValue i = 1; i < self->codePointByteLength; ++i) {
     byte = self->bytes[0 + i]; // We need to mask with 0011 1111
     if (0x80 != (byte & 0xC0)) {
-      self->flags = FlagsError; // Invalid 
+      self->flags = FlagsError; // Invalid
       self->codePoint = 0xfffd;
       self->codePointByteLength = 0;
       memmove(&self->bytes[0], &self->bytes[self->codePointByteLength], self->numberOfBytes - self->codePointByteLength);
@@ -268,7 +268,7 @@ next
     self->codePoint <<= 6;
     self->codePoint |= byte;
   }
-  
+
   if (self->codePointByteLength == 1 && self->codePoint <= 0x7f) {
   } else if (self->codePointByteLength == 2 && 0x80 <= self->codePoint && self->codePoint <= 0x7ff) {
   } else if (self->codePointByteLength == 3 && 0x800 <= self->codePoint && self->codePoint <= 0xffff) {

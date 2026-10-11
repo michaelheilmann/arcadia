@@ -84,7 +84,7 @@ Arcadia_Math_Vector3Real32Value_lerp
   }
 }
 
-void 
+void
 Arcadia_Math_Vector4Real32Value_lerp
   (
     Arcadia_Thread* thread,
@@ -104,7 +104,7 @@ Arcadia_Math_Vector4Real32Value_lerp
     result->elements[1] = s * (self->elements[1]) + t * (other->elements[1]);
     result->elements[2] = s * (self->elements[2]) + t * (other->elements[2]);
     result->elements[3] = s * (self->elements[3]) + t * (other->elements[3]);
-  } 
+  }
 }
 
 void

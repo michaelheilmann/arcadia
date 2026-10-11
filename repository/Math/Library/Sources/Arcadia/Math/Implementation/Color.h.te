@@ -20,7 +20,7 @@
 
 Arcadia_declareObjectType(u8"Arcadia.Math.Color@{numberOfComponents}@{componentSuffix}", Arcadia_Math_Color@{numberOfComponents}@{componentSuffix},
                           u8"Arcadia.Object");
-                          
+
 struct Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}Dispatch {
   Arcadia_ObjectDispatch _parent;
 };
@@ -35,7 +35,7 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_create
   (
     Arcadia_Thread* thread
   );
-  
+
 Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}*
 Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_create4
   (

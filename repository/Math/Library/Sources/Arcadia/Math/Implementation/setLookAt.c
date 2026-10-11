@@ -74,7 +74,7 @@ Arcadia_Math_Matrix4x4Real32_setLookAt
 
   t = Arcadia_Math_Matrix4Real32_create(thread);
   Arcadia_Math_Matrix4x4Real32_setTranslation(thread, t, -source->elements[0], -source->elements[1], -source->elements[2]);
- 
+
   Arcadia_Math_Matrix4Real32_multiply(thread, r, t);
   Arcadia_Math_Matrix4Real32_assign(thread, self, r);
 }

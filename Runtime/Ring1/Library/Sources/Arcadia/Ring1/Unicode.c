@@ -277,7 +277,7 @@ Arcadia_Unicode_encodeBytesUTF8Internal
     Arcadia_Thread* thread,
     Arcadia_Unicode_UTF8EncoderState* state
   )
-{ 
+{
   if (!state->numberOfBytes) {
     return;
   }

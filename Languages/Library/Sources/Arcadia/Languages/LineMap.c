@@ -20,7 +20,7 @@
 #include <assert.h>
 
 /// The offsets at which lines start in ascending order.
-/// There is always at least the offset 0 of line 1 in the that array. 
+/// There is always at least the offset 0 of line 1 in the that array.
 static Arcadia_List*
 doComputeLineMap
   (
@@ -183,7 +183,7 @@ Arcadia_Languages_LineMap_getLine
     Arcadia_Languages_LineMap* self,
     Arcadia_SizeValue offset
   )
-{ 
+{
   Arcadia_SizeValue lowIndex = Arcadia_SizeValue_Literal(0);
   assert(Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->lineMap) > 0);
   Arcadia_SizeValue highIndex = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->lineMap);

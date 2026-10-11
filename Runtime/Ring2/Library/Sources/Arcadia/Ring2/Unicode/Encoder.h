@@ -27,17 +27,17 @@ typedef struct Arcadia_String Arcadia_String;
 
 /// @code
 /// class Arcadia.Unicode.Encoder {
-///   
+///
 ///   constructor()
-///   
+///
 ///   method encodeCodePoints(codePoints:ImmutableForeignMemory, numberOfCodePoints:Arcadia.SizeValue, target:Arcadia.ByteArrayBuilder)
-///   
+///
 ///   method encodeImmutableByteArray(source:Arcadia.ImmutableByteArray, target:Arcadia.ByteArrayBuilder)
-///   
+///
 ///   method encodeImmutableString(source:Arcadia.ImmutableString, target:Arcadia.ByteArrayBuilder)
-///   
+///
 ///   method encodeString(source:Arcadia.String, target:Arcadia.ByteArrayBuilder)
-///   
+///
 /// }
 /// @endcode
 Arcadia_declareObjectType(u8"Arcadia.Unicode.Encoder", Arcadia_Unicode_Encoder,

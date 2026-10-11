@@ -116,7 +116,7 @@ Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_initializeDispatchImpl
     Arcadia_Thread* thread,
     Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}Dispatch* self
   )
-{ 
+{
   ((Arcadia_ObjectDispatch*)self)->clone = &Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_clone;
   ((Arcadia_ObjectDispatch*)self)->isEqualTo = &Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_isEqualTo;
 }

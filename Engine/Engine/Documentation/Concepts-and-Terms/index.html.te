@@ -17,15 +17,15 @@
     <main>
       <div class="left-column">
       </div>
-      
+
       <div class="center-column">
-      
+
       <h1>Arcadia Engine Concepts and Terms</h1>
       <div class="abstract">
       </div>
-      
+
     @{include("./main.i")}
-      
+
       </div>
       <div class="right-column">
         <nav>

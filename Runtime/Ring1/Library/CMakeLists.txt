@@ -434,7 +434,7 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia/Ring1/Objects/StringBuilder.h)
   OnSourceFile(${this} Arcadia/Ring1/Objects/StringBuilder.ByteReader.c)
   OnHeaderFile(${this} Arcadia/Ring1/Objects/StringBuilder.ByteReader.h)
-  
+
   OnSourceFile(${this} Arcadia/Ring1/Objects/WeakReference.c)
   OnHeaderFile(${this} Arcadia/Ring1/Objects/WeakReference.h)
 

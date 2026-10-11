@@ -24,7 +24,7 @@ typedef struct Arcadia_Languages_InputFile Arcadia_Languages_InputFile;
 /// Input files are accessed via this input file manager.
 Arcadia_declareObjectType(u8"Arcadia.Languages.InputFileManager", Arcadia_Languages_InputFileManager,
                           u8"Arcadia.Object");
-                          
+
 struct Arcadia_Languages_InputFileManagerDispatch {
   Arcadia_ObjectDispatch _parent;
 };
@@ -55,7 +55,7 @@ Arcadia_Languages_InputFileManager_createPhysicalInputFile
     Arcadia_Languages_InputFileManager* self,
     Arcadia_String* diagnosticName,
     Arcadia_FilePath* path
-  ); 
+  );
 
 Arcadia_UnicodeCodePointReader*
 Arcadia_Languages_InputFileManager_getFileReader

@@ -26,19 +26,19 @@ typedef struct Arcadia_ByteArray Arcadia_ByteArray;
 
 /// @code
 /// class Arcadia.String {
-/// 
+///
 ///   constructor(booleanValue : Arcadia.Boolean)
-/// 
+///
 ///   constructor(integer16Value : Arcadia.Integer16)
 ///   constructor(integer32Value : Arcadia.Integer32)
 ///   constructor(integer64Value : Arcadia.Integer64)
 ///   constructor(integer8Value : Arcadia.Integer8)
-/// 
+///
 ///   constructor(natural16Value : Arcadia.Natural16)
 ///   constructor(natural32Value : Arcadia.Natural32)
 ///   constructor(natural64Value : Arcadia.Natural64)
 ///   constructor(natural8Value : Arcadia.Natural8)
-/// 
+///
 /// }
 /// @endcode
 Arcadia_declareObjectType("Arcadia.String", Arcadia_String,

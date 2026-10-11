@@ -31,7 +31,7 @@ enum Arcadia_UnicodeCodePointReader_State {
   Arcadia_UnicodeCodePointReader_Normal = 1,
 
   Arcadia_UnicodeCodePointReader_Error = 2,
-  
+
   Arcadia_UnicodeCodePointReader_EndOfInput = 3,
 
 };

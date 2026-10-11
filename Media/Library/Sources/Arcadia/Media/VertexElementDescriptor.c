@@ -172,7 +172,7 @@ Arcadia_Media_VertexElementDescriptor_getSize
     Arcadia_Thread* thread,
     Arcadia_Media_VertexElementDescriptor* self
   )
-{ 
+{
   switch (self->syntactics) {
     case Arcadia_Media_VertexElementSyntactics_Real32: {
       return sizeof(Arcadia_Real32Value) * 1;

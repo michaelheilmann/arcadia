@@ -47,7 +47,7 @@ visitImpl
   );
 
 static void
-emitLocation  
+emitLocation
   (
     Arcadia_Thread* thread,
     Arcadia_Languages_Diagnostics* self,
@@ -116,7 +116,7 @@ visitImpl
   )
 {
   if (self->diagnostics) {
-    Arcadia_Object_visit(thread, (Arcadia_Object*)self->diagnostics); 
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->diagnostics);
   }
   if (self->log) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->log);
@@ -129,7 +129,7 @@ Arcadia_Languages_Diagnostics_create
     Arcadia_Thread* thread,
     Arcadia_Log* log
   )
-{ 
+{
   _Arcadia_BeginCreate(Arcadia_Languages_Diagnostics);
   if (log) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)log); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
@@ -142,7 +142,7 @@ Arcadia_Languages_Diagnostics_hasErrors
     Arcadia_Thread* thread,
     Arcadia_Languages_Diagnostics* self
   )
-{ 
+{
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->diagnostics); i < n; ++i) {
     Arcadia_Languages_Diagnostic* diagnostic = (Arcadia_Languages_Diagnostic*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, self->diagnostics, i, _Arcadia_Languages_Diagnostic_getType(thread));
     if (Arcadia_Languages_DiagnosticType_Error == Arcadia_Languages_Diagnostic_getType(thread, diagnostic)) {
@@ -160,17 +160,17 @@ Arcadia_Languages_Diagnostics_add
     Arcadia_Languages_Diagnostic* diagnostic
   )
 {
-  Arcadia_List_insertBackObjectReferenceValue(thread, self->diagnostics, diagnostic);    
+  Arcadia_List_insertBackObjectReferenceValue(thread, self->diagnostics, diagnostic);
 }
 
-static void 
+static void
 emitLocation
   (
     Arcadia_Thread* thread,
     Arcadia_Languages_Diagnostics* self,
     Arcadia_Languages_Diagnostic* diagnostic
   )
-{ 
+{
   Arcadia_Languages_InputFile* file = Arcadia_Languages_Diagnostic_getInputFile(thread, diagnostic);
   if (file) {
     Arcadia_Log_error(thread, self->log, Arcadia_FilePath_toNative(thread, Arcadia_Languages_InputFile_getPath(thread, file), Arcadia_BooleanValue_False));
@@ -191,7 +191,7 @@ Arcadia_Languages_Diagnostics_emit
     Arcadia_Thread* thread,
     Arcadia_Languages_Diagnostics* self
   )
-{ 
+{
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->diagnostics); i < n; ++i) {
     Arcadia_Languages_Diagnostic* diagnostic = (Arcadia_Languages_Diagnostic*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, self->diagnostics, i, _Arcadia_Languages_Diagnostic_getType(thread));
     switch (diagnostic->type) {

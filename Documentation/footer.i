@@ -2,7 +2,7 @@
   <div class="left-column">
     <div>
     <div>Website maintained by @{siteAuthor}.</div>
-    <div>Last modified on @{dayOfMonth()} @{monthName()} @{year()}.</div> 
+    <div>Last modified on @{dayOfMonth()} @{monthName()} @{year()}.</div>
     </div>
   </div>
   <div class="center-column">

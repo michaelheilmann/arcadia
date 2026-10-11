@@ -29,7 +29,7 @@
 // {
 //   type  : "DSP.SineWave",
 //   name  : "MyGame.MyDSPs.MySineWave",
-//   frequency : 220, /* Frequency in Hz. */   
+//   frequency : 220, /* Frequency in Hz. */
 // }
 // @endcode
 //

@@ -104,7 +104,7 @@ Arcadia_Languages_Scope_clear
     Arcadia_Thread* thread,
     Arcadia_Languages_Scope* self
   )
-{ 
+{
   Arcadia_Collection_clear(thread, (Arcadia_Collection*)self->entries);
 }
 

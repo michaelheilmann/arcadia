@@ -28,7 +28,7 @@
 // @code
 // {
 //   type  : "DSP.WhiteNoise",
-//   name  : "MyGame.MyDSPs.MyWhiteNoise", 
+//   name  : "MyGame.MyDSPs.MyWhiteNoise",
 // }
 // @endcode
 //

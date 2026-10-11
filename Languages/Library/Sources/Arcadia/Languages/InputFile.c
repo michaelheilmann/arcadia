@@ -72,7 +72,7 @@ Arcadia_Languages_InputFile_getNameImpl
     Arcadia_Thread* thread,
     Arcadia_Languages_InputFile* self
   );
-  
+
 static Arcadia_FilePath*
 Arcadia_Languages_InputFile_getPathImpl
   (
@@ -133,7 +133,7 @@ doUpdateContents
     Arcadia_Thread* thread,
     Arcadia_Languages_InputFile* self
   )
-{ 
+{
   self->contents = Arcadia_ByteArrayBuilder_toByteArray(thread, Arcadia_FileSystem_getFileContents(thread, Arcadia_FileSystem_getOrCreate(thread), self->path));
 }
 
@@ -177,7 +177,7 @@ Arcadia_Languages_InputFile_initializeDispatchImpl
 {
   ((Arcadia_ObjectDispatch*)self)->isEqualTo = &isEqualToImpl;
   ((Arcadia_ObjectDispatch*)self)->getHash = &getHashImpl;
-  
+
   self->getName = &Arcadia_Languages_InputFile_getNameImpl;
   self->getPath = &Arcadia_Languages_InputFile_getPathImpl;
   self->getContents = &Arcadia_Languages_InputFile_getContentsImpl;
@@ -332,7 +332,7 @@ Arcadia_Languages_InputFile_getLineImpl
     Arcadia_Languages_InputFile* self,
     Arcadia_SizeValue offset
   )
-{ 
+{
   if (NULL == self->lineMap) {
     doUpdateLineMap(thread, self);
   }

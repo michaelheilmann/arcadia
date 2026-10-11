@@ -113,14 +113,14 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_constructImpl
   if (4 == _numberOfArguments) {
     for (Arcadia_SizeValue i = 0; i < @{numberOfComponents}; ++i) {
       self->components[i] = Arcadia_ValueStack_getReal32Value(thread, 4 - i);
-    }  
+    }
   } else if (0 == _numberOfArguments) {
     for (Arcadia_SizeValue i = 0; i < @{numberOfComponents}; ++i) {
       self->components[i] = @{minimumComponentValue};
     }
   } else {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
-    Arcadia_Thread_jump(thread); 
+    Arcadia_Thread_jump(thread);
   }
   Arcadia_LeaveConstructor(Arcadia_Math_Color@{numberOfComponents}@{componentSuffix});
 }

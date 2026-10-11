@@ -338,11 +338,11 @@ parseDirective
 
 static Directives_Tree*
 parseFile
-  ( 
+  (
     Arcadia_Thread* thread,
     Arcadia_TemplateEngine_Parser* self
   )
-{ 
+{
   self->scanner->textMode = Arcadia_BooleanValue_True;
   if (Arcadia_TemplateEngine_WordType_StartOfInput != Arcadia_Languages_Scanner_getWordType(thread, (Arcadia_Languages_Scanner*)self->scanner)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
@@ -435,6 +435,6 @@ Arcadia_TemplateEngine_Parser_setPosition
     Arcadia_String* file,
     Arcadia_Natural64Value line
   )
-{ 
+{
   Arcadia_TemplateEngine_Scanner_setPosition(thread, self->scanner, file, line);
 }

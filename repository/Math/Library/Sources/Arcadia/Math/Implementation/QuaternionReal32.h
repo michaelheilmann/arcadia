@@ -158,7 +158,7 @@ Arcadia_Math_QuaternionReal32_transformVector
     Arcadia_Math_QuaternionReal32* self,
     Arcadia_Math_Vector3Real32* v
   );
-  
+
 /// @brief Compute the conjugate quaternion of this quaternion. Store the result in this quaternion.
 /// @param thread A pointer to this thread.
 /// @param self A pointer to this quaternion.

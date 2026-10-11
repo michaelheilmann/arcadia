@@ -266,7 +266,7 @@ main1
   } else {
     Arcadia_Thread_popJumpTarget(thread);
     failed |= Arcadia_BooleanValue_True;
-    
+
   }
   Arcadia_Languages_Diagnostics_emit(thread, context->diagnostics);
   failed |= Arcadia_Languages_Diagnostics_hasErrors(thread, context->diagnostics);

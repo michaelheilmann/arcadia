@@ -167,7 +167,7 @@ Arcadia_Media_DSP_WhiteNoise_render
     Arcadia_Media_DSP_WhiteNoise* self,
     Arcadia_Media_DSP_Buffer* target
   )
-{ 
+{
   Arcadia_SizeValue numberOfSamples = Arcadia_Media_DSP_Buffer_getNumberOfSamples(thread, target);
   Arcadia_Real32Value* samples = Arcadia_Media_DSP_Buffer_getSamples(thread, target);
   for (Arcadia_SizeValue i = 0, n = numberOfSamples; i < n; ++i) {

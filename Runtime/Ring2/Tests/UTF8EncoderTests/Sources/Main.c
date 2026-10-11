@@ -27,7 +27,7 @@ regressionTest1
   Arcadia_ByteArrayBuilder* encodingByteBuffer = Arcadia_ByteArrayBuilder_create(thread);
   Arcadia_Unicode_Encoder* encoder = (Arcadia_Unicode_Encoder*)Arcadia_Unicode_UTF8Encoder_create(thread);
   Arcadia_Unicode_Encoder_encodeString(thread, encoder, Arcadia_String_createFromCxxString(thread, u8".."), encodingByteBuffer);
-  
+
   Arcadia_String* u = Arcadia_String_createFromCxxString(thread, u8"..");
   Arcadia_String* v = Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(encodingByteBuffer));
 

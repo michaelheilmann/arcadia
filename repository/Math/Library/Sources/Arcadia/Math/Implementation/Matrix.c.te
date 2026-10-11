@@ -29,7 +29,7 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_initializeDispatchImpl
     Arcadia_Thread* thread,
     Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}Dispatch* self
   );
-  
+
 static void
 Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_isEqualTo
   (

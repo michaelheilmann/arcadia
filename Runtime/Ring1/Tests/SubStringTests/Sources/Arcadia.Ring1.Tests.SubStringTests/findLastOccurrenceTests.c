@@ -23,7 +23,7 @@ findLastOccurrenceTests1
   )
 {
   {
-    Arcadia_RuntimeUTF8String* string; 
+    Arcadia_RuntimeUTF8String* string;
     Arcadia_Value position;
     string = Arcadia_RuntimeUTF8String_create(thread, u8"", sizeof(u8"") - 1);
     position = Arcadia_RuntimeUTF8String_findLastOccurrence(thread, string, 'a');

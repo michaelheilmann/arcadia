@@ -30,7 +30,7 @@ enumeration Arcadia.Engine.Visuals.DepthCompareFunction {
   LessThanOrEqualTo = 5
 
   GreaterThan = 6
-  
+
   GreaterThanOrEqualTo = 7
 
 }

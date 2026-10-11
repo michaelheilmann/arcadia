@@ -181,7 +181,7 @@ Directives_Tree_createFile
   (
     Arcadia_Thread* thread
   )
-{ 
+{
   _Arcadia_BeginCreate(Directives_Tree);
   Arcadia_ValueStack_pushInteger32Value(thread, Arcadia_TemplateEngine_TreeType_File);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);

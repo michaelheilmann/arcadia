@@ -38,7 +38,7 @@ static const Arcadia_Type_Operations _typeOperations = {
 Arcadia_defineObjectType(u8"Arcadia.Math.AxisAngle@{dimensionality}@{scalarSuffix}", Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix},
                          u8"Arcadia.Object", Arcadia_Object,
                          &_typeOperations);
-                         
+
 static void
 Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix}_constructImpl
   (
@@ -64,7 +64,7 @@ Arcadia_Math_AxisAngle@{dimensionality}@{scalarSuffix}_constructImpl
   // (2) Normalize the angle.
   while (self->angle <= -@{threeHundredSixtyScalarLiteral}) {
     self->angle += @{threeHundredSixtyScalarLiteral};
-  } 
+  }
   while (self->angle >= +@{threeHundredSixtyScalarLiteral}) {
     self->angle -= @{threeHundredSixtyScalarLiteral};
   }

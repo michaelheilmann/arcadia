@@ -20,7 +20,7 @@
 #include "Arcadia/Media/Quantization.h"
 
 static Arcadia_SizeValue
-getNumberOfOutputPins 
+getNumberOfOutputPins
   (
     Arcadia_Thread* thread,
     Arcadia_Media_DSP_SineWave* self

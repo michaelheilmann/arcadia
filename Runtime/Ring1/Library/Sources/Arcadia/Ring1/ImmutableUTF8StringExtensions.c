@@ -89,7 +89,7 @@ Arcadia_RuntimeUTF8String_createEmpty
   (
     Arcadia_Thread* thread
   )
-{ 
+{
   _ensureTypeRegistered(thread);
   Arcadia_RuntimeUTF8String* string = NULL;
   Arcadia_Process_allocate(Arcadia_Thread_getProcess(thread), (void**)&string, TypeName, sizeof(TypeName) - 1, sizeof(Arcadia_RuntimeUTF8String));
@@ -109,7 +109,7 @@ Arcadia_RuntimeUTF8String_substring
     Arcadia_SizeValue start,
     Arcadia_Value length
   )
-{ 
+{
   Arcadia_SizeValue byteIndex, byteLength;
   // It's still linear time, its fine :)
   _Arcadia_UTF8ArrayIterator  it;
@@ -130,7 +130,7 @@ Arcadia_RuntimeUTF8String_substring
     // Let's assume n > 1.
     // If start is greater than n, then than this is an error.
     // Example: n = 3 then start can be 4.
- 
+
     // So in either case, we count the number of code points visited (n) and test start > n.
     // If start > n, we have an error.
     if (start > _Arcadia_UTF8ArrayIterator_getNumberOfCodePoints(thread, &it)) {

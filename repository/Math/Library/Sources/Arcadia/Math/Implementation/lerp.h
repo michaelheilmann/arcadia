@@ -55,7 +55,7 @@ Arcadia_Math_Color4Real64Value_lerp
     Arcadia_Math_Color4Real64* result
   );
 
-void 
+void
 Arcadia_Math_Vector3Real32Value_lerp
   (
     Arcadia_Thread* thread,
@@ -65,7 +65,7 @@ Arcadia_Math_Vector3Real32Value_lerp
     Arcadia_Math_Vector3Real32* result
   );
 
-void 
+void
 Arcadia_Math_Vector4Real32Value_lerp
   (
     Arcadia_Thread* thread,

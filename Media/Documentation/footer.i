@@ -24,10 +24,10 @@
 
         <li><a href="@{siteAddress}/Arcadia/Media/#Arcadia_Media_SampleFormat">Arcadia_Media_SampleFormat</a></li>
         <li><a href="@{siteAddress}/Arcadia/Media/#Arcadia_Media_SampleFormat_getNumberOfBytes">Arcadia_Media_SampleFormat_getNumberOfBytes</a></li>
-        
-        <li><a href="@{siteAddress}/Arcadia/Media/#Arcadia_Media_VertexElementDescriptor">Arcadia_Media_VertexElementDescriptor</a></li>    
+
+        <li><a href="@{siteAddress}/Arcadia/Media/#Arcadia_Media_VertexElementDescriptor">Arcadia_Media_VertexElementDescriptor</a></li>
         <li><a href="@{siteAddress}/Arcadia/Media/#Arcadia_Media_VertexElementSemantics">Arcadia_Media_VertexElementSemantics</a></li>
-        <li><a href="@{siteAddress}/Arcadia/Media/#Arcadia_Media_VertexElementSyntactics">Arcadia_Media_VertexElementSyntactics</a></li>          
+        <li><a href="@{siteAddress}/Arcadia/Media/#Arcadia_Media_VertexElementSyntactics">Arcadia_Media_VertexElementSyntactics</a></li>
       </ul>
     </nav>
   </div>

@@ -25,7 +25,7 @@ Arcadia_Engine_Visuals_MaterialNode_constructImpl
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_MaterialNode* self
   );
-  
+
 static void
 Arcadia_Engine_Visuals_MaterialNode_destructImpl
   (
@@ -156,7 +156,7 @@ Arcadia_Engine_Visuals_MaterialNode_initializeDispatchImpl
   )
 {
   ((Arcadia_Engine_Visuals_NodeDispatch*)self)->render = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Node*, Arcadia_Engine_Visuals_EnterPassNode*)) & Arcadia_Engine_Visuals_MaterialNode_renderImpl;
-  ((Arcadia_Engine_NodeDispatch*)self)->setVisualsBackendContext = (void (*)(Arcadia_Thread*, Arcadia_Engine_Node*, Arcadia_Engine_Visuals_BackendContext*)) & Arcadia_Engine_Visuals_MaterialNode_setVisualsBackendContextImpl;  
+  ((Arcadia_Engine_NodeDispatch*)self)->setVisualsBackendContext = (void (*)(Arcadia_Thread*, Arcadia_Engine_Node*, Arcadia_Engine_Visuals_BackendContext*)) & Arcadia_Engine_Visuals_MaterialNode_setVisualsBackendContextImpl;
 }
 
 static void

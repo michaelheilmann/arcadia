@@ -32,5 +32,5 @@ if (NOT TARGET ${MyTool})
   OnModuleDependency(${MyTool} ${MyProjectName}.FileSystem PRIVATE)
 
   EndProduct(${MyTool})
-  
+
 endif()

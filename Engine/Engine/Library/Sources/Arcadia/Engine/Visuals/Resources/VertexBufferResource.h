@@ -31,7 +31,7 @@ Arcadia_declareObjectType(u8"Arcadia.Visuals.VertexBufferResource", Arcadia_Engi
 
 struct Arcadia_Engine_Visuals_VertexBufferResourceDispatch {
   Arcadia_Engine_Visuals_ResourceDispatch _parent;
-  
+
   Arcadia_Media_VertexDescriptor* (*getVertexDescriptor)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_VertexBufferResource* self);
   void (*setData)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_VertexBufferResource* self, Arcadia_Media_VertexDescriptor* vertexDescriptor, Arcadia_SizeValue numberOfVertices, const void* bytes, Arcadia_SizeValue numberOfBytes);
   Arcadia_SizeValue (*getNumberOfVertices)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_VertexBufferResource* self);

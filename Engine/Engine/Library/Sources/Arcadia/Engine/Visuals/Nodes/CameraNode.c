@@ -190,7 +190,7 @@ Arcadia_Engine_Visuals_CameraNode_initializeDispatchImpl
   ((Arcadia_Engine_Visuals_CameraNodeDispatch*)self)->getWorldToViewMatrix =
     (Arcadia_Math_Matrix4Real32* (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_CameraNode*)) & Arcadia_Engine_Visuals_CameraNode_getWorldToViewMatrixImpl;
   ((Arcadia_Engine_Visuals_CameraNodeDispatch*)self)->setWorldToViewMatrix =
-    (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_CameraNode*, Arcadia_Math_Matrix4Real32*)) & Arcadia_Engine_Visuals_CameraNode_setWorldToViewMatrixImpl;  
+    (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_CameraNode*, Arcadia_Math_Matrix4Real32*)) & Arcadia_Engine_Visuals_CameraNode_setWorldToViewMatrixImpl;
 }
 
 static void

@@ -20,7 +20,7 @@ set(this ${MyProjectName}.Engine.Examples.SpaceshipAmbience)
 
 if (NOT TARGET ${this})
   BeginProduct(${this} executable)
-  
+
   SetFolder(${this} "Engine/Examples")
 
   set(${this}.Enabled FALSE)
@@ -29,7 +29,7 @@ if (NOT TARGET ${this})
   if (${${MyProjectName}.Engine.Audials.Implementation.OpenAL.Enabled})
     set(${this}.Enabled TRUE)
   endif()
-  
+
   set(${this}.Windows.ResourceFile ${CMAKE_CURRENT_SOURCE_DIR}/Resources.rc)
 
   OnSourceFile(${this} Arcadia/Engine/Examples/SpaceshipAmbience.c)

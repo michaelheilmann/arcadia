@@ -43,12 +43,12 @@
       <div>offset : Arcadia.Natural8</div>
       <div>The offset, in Bytes, of the vertex element from the beginning of the vertex.</div>
     </div>
-    
+
     <div>
       <div>semantics : Arcadia.Media.VertexElementSemantics</div>
       <div>The semantics of the vertex element.</div>
     </div>
-    
+
     <div>
       <div>syntactics : Arcadia.Media.VertexElementSyntactics</div>
       <div>The syntactics of the vertex element.</div>

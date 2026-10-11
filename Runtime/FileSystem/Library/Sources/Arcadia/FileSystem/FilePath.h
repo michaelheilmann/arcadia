@@ -181,7 +181,7 @@ Arcadia_FilePath_append
 /// @brief Return the root path component if any.
 /// @return The root path component if any, null otherwise.
 /// @remarks
-/// For Linux, this is `/` in native form. 
+/// For Linux, this is `/` in native form.
 /// For Windows this is something like `C:\` in native form.
 Arcadia_FilePath*
 Arcadia_FilePath_getRootPath

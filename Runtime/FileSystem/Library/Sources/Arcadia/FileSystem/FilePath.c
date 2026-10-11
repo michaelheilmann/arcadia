@@ -943,7 +943,7 @@ Arcadia_FilePath_addOrReplaceExtension
     Arcadia_FilePath* self,
     Arcadia_String* extension
   )
-{ 
+{
   Arcadia_UnicodeCodePointReader* reader = (Arcadia_UnicodeCodePointReader*)Arcadia_ByteReader_UnicodeCodePointReader_create(thread, (Arcadia_ByteReader*)Arcadia_String_ByteReader_create(thread, extension));
   // Must not be empty.
   if (!Arcadia_UnicodeCodePointReader_hasValue(thread, reader)) {

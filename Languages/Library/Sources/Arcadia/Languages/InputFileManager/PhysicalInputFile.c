@@ -184,7 +184,7 @@ doUpdateContents
     Arcadia_Thread* thread,
     Arcadia_Languages_PhysicalInputFile* self
   )
-{ 
+{
   self->contents = Arcadia_ByteArrayBuilder_toByteArray(thread, Arcadia_FileSystem_getFileContents(thread, Arcadia_FileSystem_getOrCreate(thread), self->path));
 }
 
@@ -401,7 +401,7 @@ Arcadia_Languages_PhysicalInputFile_getLine
     Arcadia_Languages_PhysicalInputFile* self,
     Arcadia_SizeValue offset
   )
-{ 
+{
   if (NULL == self->lineMap) {
     doUpdateLineMap(thread, self);
   }

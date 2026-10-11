@@ -45,7 +45,7 @@ typedef struct _Arcadia_UTF8ArrayIterator {
   Arcadia_SizeValue codePointIndex;
   /// The number of code points visisted so far.
   Arcadia_SizeValue numberOfCodePoints;
-  
+
   /// The length, in Bytes, of the current code point.
   /// @a 0 if codePoint is CodePoint_Start or CodePoint_Error. Not @a 0 otherwise.
   Arcadia_SizeValue codePointLength;
@@ -77,14 +77,14 @@ _Arcadia_UTF8ArrayIterator_next
     Arcadia_Thread* thread,
     _Arcadia_UTF8ArrayIterator* self
   );
-  
+
 static inline Arcadia_BooleanValue
 _Arcadia_UTF8ArrayIterator_hasError
   (
     Arcadia_Thread* thread,
     _Arcadia_UTF8ArrayIterator* self
   );
-  
+
 static inline Arcadia_BooleanValue
 _Arcadia_UTF8ArrayIterator_hasCodePoint
   (
@@ -206,7 +206,7 @@ _Arcadia_UTF8ArrayIterator_next
   };
 
   if (nextCodePoint != CodePoint_Error) {
-    nextCodePoint = byte & mask[nextCodePointLength - 1]; // Warning that nextNumberOfBytes - 1 might yield -1 can be ignored because of (*). 
+    nextCodePoint = byte & mask[nextCodePointLength - 1]; // Warning that nextNumberOfBytes - 1 might yield -1 can be ignored because of (*).
     for (Arcadia_SizeValue i = 1; i < nextCodePointLength; ++i) {
       byte = self->p[nextByteIndex + i]; // We need to mask with 0011 1111
       if (0x80 != (byte & 0xC0)) {
@@ -227,7 +227,7 @@ _Arcadia_UTF8ArrayIterator_next
     nextCodePoint = CodePoint_Error;
     nextCodePointLength = 0;
   }
-  
+
   self->byteIndex = nextByteIndex;
   self->codePointLength = nextCodePointLength;
   self->numberOfCodePoints++;
@@ -246,7 +246,7 @@ _Arcadia_UTF8ArrayIterator_getCodePointIndex
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  return self->codePointIndex;  
+  return self->codePointIndex;
 }
 
 static inline Arcadia_SizeValue
@@ -300,7 +300,7 @@ _Arcadia_UTF8ArrayIterator_hasError
     Arcadia_Thread* thread,
     _Arcadia_UTF8ArrayIterator* self
   )
-{ 
+{
   if (!self) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);

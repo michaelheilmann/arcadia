@@ -191,7 +191,7 @@ wordTypeToString
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
       Arcadia_Thread_jump(thread);
     } break;
-  }; 
+  };
 }
 
 static Arcadia_String*
@@ -215,7 +215,7 @@ Arcadia_TemplateEngine_Diagnostics_UnexpectedWordDiagnostic_create
     Arcadia_Languages_DiagnosticType type,
     Arcadia_TemplateEngine_WordType received
   )
-{ 
+{
   _Arcadia_BeginCreate(Arcadia_TemplateEngine_Diagnostics_UnexpectedWordDiagnostic);
   Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_Languages_DiagnosticType_getType(thread), type));
   Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_TemplateEngine_WordType_getType(thread), received));

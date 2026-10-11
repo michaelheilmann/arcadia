@@ -89,7 +89,7 @@
 
 void
 Arcadia_Engine_Visuals_registerNodeFactories
-  ( 
+  (
     Arcadia_Thread* thread,
     Arcadia_Set* types
   );

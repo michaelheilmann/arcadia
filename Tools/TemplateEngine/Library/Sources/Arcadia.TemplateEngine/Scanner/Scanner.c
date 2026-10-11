@@ -258,7 +258,7 @@ Arcadia_TemplateEngine_Scanner_initializeDispatchImpl
   ((Arcadia_Languages_ScannerDispatch*)self)->getDiagnostics = (Arcadia_Languages_Diagnostics * (*)(Arcadia_Thread*, Arcadia_Languages_Scanner*)) & Arcadia_TemplateEngine_Scanner_getDiagnosticsImpl;
   ((Arcadia_Languages_ScannerDispatch*)self)->getInput = (Arcadia_UnicodeCodePointReader* (*)(Arcadia_Thread*, Arcadia_Languages_Scanner*)) & Arcadia_TemplateEngine_Scanner_getInputImpl;
   ((Arcadia_Languages_ScannerDispatch*)self)->getStringTable = (Arcadia_Languages_StringTable * (*)(Arcadia_Thread*, Arcadia_Languages_Scanner*)) & Arcadia_TemplateEngine_Scanner_getStringTableImpl;
-  
+
   ((Arcadia_Languages_ScannerDispatch*)self)->getWordText = (Arcadia_String* (*)(Arcadia_Thread*, Arcadia_Languages_Scanner*)) & Arcadia_TemplateEngine_Scanner_getWordTextImpl;
   ((Arcadia_Languages_ScannerDispatch*)self)->getWordType = (Arcadia_Integer32Value (*)(Arcadia_Thread*, Arcadia_Languages_Scanner*)) & Arcadia_TemplateEngine_Scanner_getWordTypeImpl;
 
@@ -324,7 +324,7 @@ Arcadia_TemplateEngine_Scanner_textStepImpl
     Arcadia_Thread* thread,
     Arcadia_TemplateEngine_Scanner* self
   )
-{ 
+{
   Arcadia_Natural32Value codePoint = Arcadia_UnicodeCodePointReader_getValue(thread, self->reader);
   if ('@' != codePoint) {
     do {
@@ -353,7 +353,7 @@ Arcadia_TemplateEngine_Scanner_directivesStepImpl
     Arcadia_Thread* thread,
     Arcadia_TemplateEngine_Scanner* self
   )
-{ 
+{
   Arcadia_Natural32Value current = Arcadia_UnicodeCodePointReader_getValue(thread, self->reader);
   switch (current) {
     case '@': {
@@ -584,7 +584,7 @@ Arcadia_TemplateEngine_Scanner_setPosition
     Arcadia_String* file,
     Arcadia_Natural64Value line
   )
-{ 
+{
   self->file = file;
   self->line = line;
 }

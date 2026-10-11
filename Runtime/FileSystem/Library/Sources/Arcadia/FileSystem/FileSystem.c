@@ -280,7 +280,7 @@ Arcadia_FileSystem_createDirectoryFiles
   }
   // Ensure each path component exists.
   Arcadia_SizeValue n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)path->fileNames);
-  if (!n) { 
+  if (!n) {
     // As the path is absolute and has no filenames, it refers to a file system root.
     // We do not create file system roots.
     Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationFailed);

@@ -48,7 +48,7 @@ struct Arcadia_ByteArrayDispatch {
       Arcadia_Thread* thread,
       Arcadia_ByteArray const* self
     );
-  
+
   Arcadia_SizeValue
   (*getNumberOfBytes)
     (

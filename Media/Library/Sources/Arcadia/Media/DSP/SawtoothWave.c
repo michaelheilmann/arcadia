@@ -18,7 +18,7 @@
 #include "Arcadia/Media/DSP/SawtoothWave.h"
 
 static Arcadia_SizeValue
-getNumberOfOutputPins 
+getNumberOfOutputPins
   (
     Arcadia_Thread* thread,
     Arcadia_Media_DSP_SawtoothWave* self

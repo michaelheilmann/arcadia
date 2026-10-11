@@ -32,7 +32,7 @@ bn8_gn8_rn8_an8_is_equal_to
     const bn8_gn8_rn8_an8* this,
     const bn8_gn8_rn8_an8* other
   )
-{ 
+{
   return this->b == other->b
       && this->g == other->g
       && this->r == other->r
