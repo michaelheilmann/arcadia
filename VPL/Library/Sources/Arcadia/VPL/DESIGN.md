@@ -10,9 +10,8 @@ that language directly. Its in-memory representation is `Arcadia.VPL.IR.*`; it i
 private intermediate layer behind a required expression-language frontend. The textual language
 and the programmatic construction interface describe the same canonical module model.
 
-The expression-based AST is legacy implementation, not part of the target VPL module. Its builders,
-symbol model, and AST semantic phases will be removed as the canonical implementation replaces the
-existing program path. A future higher-level language will live in a **separate module** and produce
+The former expression AST, builders, symbol model, and AST semantic phases have been removed.
+A future higher-level language will live in a **separate module** and produce
 canonical VPL. VPL will not provide a permanent expression-language frontend or structured-statement
 convenience layer.
 
@@ -42,9 +41,9 @@ replace the module interface documentation.
 - Module boundary: chosen. VPL owns canonical three-address syntax, module construction,
   verification, and backend translation. A future higher-level language owns its own AST, symbols,
   expression typing, and lowering in a separate module.
-- Legacy frontend: scheduled for removal. `Tree/*`, `Symbols/*`, AST builders, `EnterPhase`,
-  `ResolvePhase`, and AST `TypePhase` are migration-era code. Do not extend them as a supported VPL
-  frontend, and do not implement the previously planned AST `LowerPhase` within VPL.
+- Legacy frontend: removed. `Tree/*`, `Symbols/*`, AST builders, `EnterPhase`, `ResolvePhase`,
+  AST `TypePhase`, and their context accessors are no longer module code. No AST `LowerPhase` is
+  planned within VPL. Generic scanner forms are private parsing data, not a higher-level frontend.
 - Early scope: chosen. Control flow (basic blocks, branches, loops) and uniform arrays are **not
   deferred**. They belong to the initial canonical-language scope because a small game needs
   `discard` (alpha test), conditional branches, loops, and indexed light arrays almost immediately.
@@ -54,16 +53,17 @@ replace the module interface documentation.
   Explicit entries/linkage, output/helper effects, version-1 text reading/writing, located diagnostics,
   finite binary32 constants, and immutable VerifiedModule publication are implemented. The IR-based
   GLSL 420 core backend and engine artifact consumption are implemented. The old AST transpiler
-  and map/out-parameter API are removed; remaining AST/symbol code is legacy cleanup work.
+  and map/out-parameter API are removed, as are the legacy AST/symbol code and AST-only tests.
 - Plan adjustment: canonical specification, verification, and parsing were brought ahead of output
-  migration and are implemented. The four built-in programs now use a shared canonical-text
-  template and engine consumers use artifacts. Finish externalizing template data and migrate consumers to
-  the verified-module backend, and retire the AST pipeline. Completed AST work is recorded as
+  migration and are implemented. Four checked-in complete `.vpl` descriptions are embedded into
+  the library at build time; engine consumers use artifacts. Phases 0 through 5 are complete.
+  Completed AST work is recorded as
   implementation history; it does not become a permanent convenience feature.
 
 ## Motivation
 
-VPL currently mixes three concerns in one place:
+The original implementation mixed three concerns in one place (all three legacy components below
+are now retired):
 
 1. A hand-written abstract syntax tree in `VPL/Tree/*`.
 2. A semantic model in `VPL/Symbols/*`.
@@ -120,7 +120,7 @@ and instruction model, not that stack-based control flow is inherently unverifia
 
 ```
 Programs_create(flags)
-  -> select substitutions in one canonical three-address text template
+  -> select embedded bytes of a checked-in canonical .vpl program
   -> Text_read -> canonical binding -> IR.Verifier
   -> VerifiedModule immutable publication
 
@@ -133,33 +133,40 @@ OpenGL ProgramResource
   -> bind resolved fragment output before link -> build native bindings from reflection
 ```
 
-The active shader path no longer uses the legacy expression frontend. Its classes and tests remain
-for removal in Phase 5; no permanent AST-to-VPL adapter is planned.
+The module no longer contains the legacy expression frontend or its tests. Context owns shared
+diagnostics only; parser binding, verification, publication, and backends operate on canonical data.
 
-### The four hard-coded variants
+### Built-in source storage and loading
 
-The same four variants
-(`MeshAmbientColor`, `VertexAmbientColor`, `TextureAmbientColor`, `TextureVertexAmbientColor`) are
-selected in MaterialNode.c now call Programs_create. One parameterized canonical-text template
-preserves the original matrix association, vertex attribute locations, uniform record layouts,
-UV/color transfers, and fragment color/texture behavior. Moving that text into external `.vpl`
-assets remains separate data packaging work.
+MaterialNode selects MeshAmbientColor, VertexAmbientColor, TextureAmbientColor, or
+TextureVertexAmbientColor through Programs_create. Their complete, editable descriptions live in
+`VPL/Library/Assets/Programs/*.vpl`; no shader description is assembled from C string fragments.
+The four programs preserve matrix association, attribute locations, uniform layouts, UV/color
+transfers, and fragment behavior. Shared declarations are duplicated explicitly, rather than adding
+an include/template language to canonical VPL.
+
+`EmbedPrograms.cmake` reads the exact source bytes and configures a private `BuiltinPrograms.h`
+under the external build tree. The generated header is a build dependency of VPL; all four sources,
+the generator, and its header template are explicit prerequisites. Programs_create selects a source
+through a fixed descriptor table, reads/binds/verifies it with its filename as a diagnostic label,
+and publishes VerifiedModule. Runtime loading requires no current-directory, source-tree, or copied
+asset dependency. The checked-in `.vpl` descriptions are the source of truth; generated C byte arrays
+are not primary source. Arbitrary caller-provided text still uses Text_read directly.
 
 ### Completed fixes and remaining boundaries
 
 - Resolution moved out of emission, definition conflicts use structured diagnostics, and the
   fragment-output name is derived from the actual emitted declaration.
-- The built-in sampling signature is now `texture(sampler2D, vec2) -> vec4`; procedure symbols
-  retain their stage flags. Canonical output has reviewed new golden files; older snapshots remain
-  reference material rather than the active emitter contract.
-- `TypePhase` records explicit types for the legacy expression frontend and checks conditions, returns,
-  calls, indexing, assignment compatibility, writable storage, and fragment-only discard.
+- Sampling uses `Texture(sampler2D, vec2) -> vec4`. Stage information and semantic checks belong to
+  canonical verification, not retired procedure symbols or AST TypePhase. Canonical goldens and
+  native driver tests are the output contract; obsolete AST-era golden files are removed.
 - The backend consumes VerifiedModule and owns deterministic numeric target names, location spans,
   std140 block bindings, and gl_Position/gl_FragCoord mapping. Engine consumers use artifact
   reflection; logical block binding points stay stable even when the driver optimizes a block away.
 - IR constructor tests establish representation integrity, not executable-module validity.
-- `Tree/NodeVisitor` remains an unused abstraction; removing or adopting it is not a prerequisite
-  for the canonical language.
+- AST-only tests are retired. Diagnostic coverage uses VerificationDiagnostic and canonical
+  duplicate-uniform failure through the shared context; applicable semantics remain covered by
+  parser, verifier, text, GLSL, and driver tests.
 
 ## Target Architecture
 
@@ -229,9 +236,8 @@ Control flow is part of canonical VPL from the start, not deferred. A small game
 `discard` (alpha test), conditional fog/material branches, loops (multi-light, kernel sampling), and
 indexed uniform arrays early, so basic blocks, branches, and arrays are first-class. Three-address
 instructions and control flow are orthogonal: blocks layer on top of the typed register core without
-changing it. Direct VPL uses explicit blocks and branch/return terminators. The legacy AST has
-structured `if`/`for`/`while` and indexing nodes, but those are not the canonical VPL input surface
-and will be retired with the legacy pipeline.
+changing it. Direct VPL uses explicit blocks and branch/return terminators. The retired AST's
+structured nodes are historical work, not a canonical VPL input surface.
 
 All IR objects follow the repository object-type conventions (`Arcadia_declareObjectType`,
 `Arcadia_defineObjectType`, construct/visit, GC rooting) and live under `Arcadia.VPL.IR.*`.
@@ -404,26 +410,18 @@ The initial GLSL 420 backend, typed reflection, engine integration, target diagn
 driver compile/link/pixel tests implement Phase 4. Remaining targets and capabilities are explicit
 extensions, not assumed from target-neutral validity.
 
-## Retiring the Legacy Frontend
+## Legacy Frontend Retirement (Completed)
 
-There is no permanent AST-to-VPL adapter in the target module. The old `LowerPhase` milestone is
-cancelled. Instead, translate the four existing ambient-color program descriptions directly into
-canonical VPL data or canonical builder calls, then replace them with parsed `.vpl` descriptions
-where appropriate. Preserve their stage interfaces, uniforms, output names, and behavior during
-the consumer migration.
+There is no AST-to-VPL adapter. The old LowerPhase milestone remains cancelled. Tree/Symbols,
+builders/visitors, AST phases/modifier helpers, legacy diagnostics, context phase accessors, and
+all related CMake/header registrations are removed. The old Tree test target and its files are
+removed; generic diagnostics are tested against canonical objects. The rejected DiscardInstruction
+scaffold is removed too; its old numeric kind 9 remains reserved/invalid and DiscardTerminator is
+the only discard representation. The canonical verifier and typed metadata replace the retired
+semantic responsibilities. VPL no longer depends directly on Math or DDL.
 
-The existing AST path may remain temporarily to keep the current engine working while the canonical
-backend and replacement programs are built. The reader/verifier/publication boundary already exists.
-That is a migration dependency, not
-a supported convenience frontend. Once the canonical equivalents and consumers pass their checks,
-remove `Tree/*`, `Symbols/*`, `TreeBuilder`, `NodeFactory`, `NodeVisitor`, the AST phase objects,
-their context accessors, and their source/header registrations. Move reusable semantic rules and
-diagnostics into canonical validation rather than leaving dependencies on the retired classes.
-
-AST-only tests and source-language specification sections must also be retired or moved to the
-future higher-level language project if that project deliberately adopts them. The VPL specification
-must lead with the canonical three-address language; expression syntax must not be presented as a
-second VPL language surface.
+The specification and module interface describe only canonical VPL. A future higher-level language
+may deliberately adopt past ideas in its own module, but that is not retained VPL functionality.
 
 ## Backend Contract
 
@@ -491,9 +489,9 @@ supported target contract.
 
 ### Phase 1 - Implemented foundations and legacy frontend work
 
-This phase records completed work under the earlier AST-first plan. Canonical IR objects and their
-tests remain foundations of the new strategy. AST work is migration-era implementation scheduled
-for retirement, not a second supported language surface.
+This phase records historical work under the earlier AST-first plan. Canonical IR objects and their
+tests remain foundations of the new strategy. AST work was retired in Phase 5; checked items below
+record what was implemented, not a second current language surface.
 
 - [x] Add `VPL/IR/*` (`Type`, `Value`, `Instruction`, `Terminator`, `Block`, `Function`, `Stage`,
       `Uniform`, `Module`). All `Arcadia.VPL.IR.*` types live under `Arcadia/VPL/IR/`, follow the
@@ -504,30 +502,27 @@ for retirement, not a second supported language surface.
 - [x] Add basic blocks and terminators (`Branch`, `ConditionalBranch`, `Return`) and `Discard`.
       The IR terminator hierarchy and the `Discard` instruction are in place.
 - [x] Add the matching AST constructs (`if`, `for`/`while`, `return`, `discard`, array indexing) and
-      their builders. `Tree/*StmtNode`, `IndexExprNode`, and `NodeFactory` builders are registered;
-      `VPL/Tests/Tree` covers constructors, optional clauses, nesting, and invalid arguments.
-      `ResolvePhase` traverses these forms with body-local and for-initializer scopes; tree tests
-      also cover name binding, shadowing, visibility boundaries, and duplicate definitions.
+      their builders (historical; removed in Phase 5). Tree tests covered constructors, optional
+      clauses, nesting, argument errors, name binding, shadowing, and visibility boundaries.
 - [x] Register irreducibles in `VPL/Library/CMakeLists.txt` (no source globbing). Every `VPL/IR`
       source and header is registered with `OnSourceFile`/`OnHeaderFile`; `VPL/Include.h` includes
       `Arcadia/VPL/IR/Include.h`.
 - [x] Add the legacy AST `TypePhase` that assigns types to expressions and validates operators,
       swizzles, member access, and array indexing.
-      The context owns the phase and standard program creation runs it after resolution. Node
-      metadata uses IR types, including new scalar bool/int/float types. Conditions, returns,
-      calls, constructors, writable storage, and fragment-only discard are validated. Tree tests
-      cover valid programs, 30 failure cases, diagnostics, stack cleanup, and reruns. The current
-      xy/xyz access surface is checked. Applicable rules will be implemented in canonical verification
-      before this frontend is removed.
+      It used IR types and validated conditions, returns, calls, constructors, storage, and discard.
+      Historical tree tests covered valid programs, 30 failures, diagnostics, cleanup, and reruns.
+      Applicable rules now belong to canonical verification and text/driver tests; the AST phase
+      and its tests were removed in Phase 5. Scalar IR types remain canonical implementation.
 
 **Cancelled:** implementing an AST `LowerPhase` inside VPL and retaining an expression convenience
 frontend. New higher-level language work belongs to a separate module. Replace the built-in program
 descriptions directly rather than extending the legacy frontend to preserve it indefinitely.
 
-**Current milestone:** Phase 4 output migration is implemented: published canonical modules reach
+**Current milestone:** Phases 4 and 5 are complete: published canonical modules reach
 the engine's GLSL artifact path. Native driver tests compile/link all material variants, validate
 std140 layouts and binding names, render expected pixels, and exercise loop dispatch and aggregate
-fixtures. Next is Phase 5 data packaging and remaining legacy frontend removal. Further AST
+fixtures. Built-ins are checked-in `.vpl` files embedded at build time, and the legacy frontend is
+removed. Next is Phase 6 hardening and additional-target work. Further AST
 frontend work is outside the revised VPL strategy.
 
 ### Phase 2 - Canonical language semantics, specification, and verification
@@ -606,14 +601,16 @@ frontend work is outside the revised VPL strategy.
 
 - [x] Replace the four `create*MainProcedureTree` variants with canonical VPL descriptions and
       direct module construction/loading. Preserve existing material selection and shader behavior.
-- [ ] Move program descriptions to `.vpl` data and use a parameterized canonical template or an
-      equivalent declarative selection table where it avoids duplication.
+- [x] Move program descriptions to complete `.vpl` files with a fixed selection table. Embed exact
+      bytes into a private generated build-tree header; track source/generator/template dependencies
+      and avoid runtime file distribution dependencies. GLSL tests independently read each source
+      and compare canonical publication with Programs_create, in addition to unchanged shader goldens.
 - [x] Migrate all engine consumers away from `Symbols.Program` and legacy AST compilation.
-- [ ] Remove `Tree/*`, `Symbols/*`, `TreeBuilder`, `NodeFactory`, `NodeVisitor`, AST `EnterPhase`,
+- [x] Remove `Tree/*`, `Symbols/*`, `TreeBuilder`, `NodeFactory`, `NodeVisitor`, AST `EnterPhase`,
       `ResolvePhase`, and `TypePhase`, their context accessors, and their CMake/include registrations.
-- [ ] Replace or retire AST-only tests; retain canonical construction, parser, verifier, backend,
+- [x] Replace or retire AST-only tests; retain canonical construction, parser, verifier, backend,
       and engine regression coverage. Eliminate backend and diagnostic dependencies on legacy types.
-- [ ] Ensure the VPL specification and module interface expose only the canonical language and its
+- [x] Ensure the VPL specification and module interface expose only the canonical language and its
       compiler services. A future higher-level language is a separate module, not retained VPL code.
 
 ### Phase 6 - Canonical language hardening and additional targets
@@ -642,8 +639,9 @@ It is not a prerequisite for completing canonical VPL and is not an optional VPL
   output. Published `.vpl` examples must be accepted by the actual reader and verifier.
 - Control-flow and array tests: explicit branch/back-edge graphs, uniform arrays of scalars and
   records, aggregate reads/writes, and fragment discard through verified-module backend generation.
-- Legacy tests: keep AST regression tests only during migration; replace their applicable semantic
-  checks with canonical verifier tests before removing the frontend.
+- Legacy tests: the AST target and obsolete golden snapshots are retired. Canonical parser/verifier
+  diagnostics, IR construction, source/embedding equivalence, GLSL goldens, and native driver tests
+  cover the supported language and output paths.
 - End-to-end: the OpenGL4 `ProgramResource` path already compiles the emitted GLSL; keep it in CI.
 
 Build and run with the repository presets; focused test by CTest name where one exists.
@@ -656,9 +654,9 @@ Build and run with the repository presets; focused test by CTest name where one 
   compatibility must be explicit versioned language decisions.
 - **Verifier scope.** Constructor tests and the old AST `TypePhase` are not substitutes for
   validating arbitrary canonical modules. Direct tools must receive the same guarantees as text input.
-- **Migration dependency.** Removing the AST pipeline before canonical program descriptions and
-  their backend consumers work would break existing engine materials. Keep that temporary dependency
-  explicit, complete the replacements, then remove it rather than turning it into permanent API.
+- **Migration dependency (resolved).** Canonical sources, artifact consumers, shader goldens, and
+  native pixel tests replaced the old path before AST removal. There is no remaining temporary
+  expression-frontend dependency to preserve as permanent API.
 - **Format stability.** Textual VPL is decided and required. Specify compatibility/versioning and
   deterministic writing so tool-generated programs remain inspectable and preservable over time.
 - **External higher-level language.** Its design is future work in a separate module. Do not

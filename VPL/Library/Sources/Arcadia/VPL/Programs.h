@@ -24,7 +24,7 @@
 #define Arcadia_VPL_ProgramFlags_TextureAmbientColor (2)
 #define Arcadia_VPL_ProgramFlags_TextureVertexAmbientColor (3)
 
-/// Build/publish the existing material variants directly through canonical VPL text.
+/// Read, verify, and publish a checked-in .vpl source embedded in the library at build time.
 Arcadia_VPL_VerifiedModule*
 Arcadia_VPL_Programs_create
   (

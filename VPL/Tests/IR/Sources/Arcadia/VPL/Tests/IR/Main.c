@@ -203,8 +203,9 @@ testInstructionFamily
   Arcadia_Tests_assertTrue(thread, Arcadia_VPL_IR_InstructionKind_Index == ((Arcadia_VPL_IR_Instruction*)index)->kind);
   Arcadia_Tests_assertTrue(thread, (Arcadia_VPL_IR_Value*)indexConstant == index->index);
 
-  Arcadia_VPL_IR_DiscardInstruction* discard = Arcadia_VPL_IR_DiscardInstruction_create(thread);
-  Arcadia_Tests_assertTrue(thread, Arcadia_VPL_IR_InstructionKind_Discard == ((Arcadia_VPL_IR_Instruction*)discard)->kind);
+  Arcadia_VPL_IR_CopyInstruction* copy = Arcadia_VPL_IR_CopyInstruction_create(thread, r0, (Arcadia_VPL_IR_Value*)r1);
+  Arcadia_Tests_assertTrue(thread, Arcadia_VPL_IR_InstructionKind_Copy == ((Arcadia_VPL_IR_Instruction*)copy)->kind);
+  Arcadia_Tests_assertTrue(thread, r0 == copy->result && (Arcadia_VPL_IR_Value*)r1 == copy->source);
 }
 
 static void
@@ -235,6 +236,8 @@ testTerminatorsAndBlocks
   Arcadia_VPL_IR_ReturnTerminator* returnVoid = Arcadia_VPL_IR_ReturnTerminator_create(thread, NULL);
   Arcadia_Tests_assertTrue(thread, Arcadia_VPL_IR_TerminatorKind_Return == ((Arcadia_VPL_IR_Terminator*)returnVoid)->kind);
   Arcadia_Tests_assertTrue(thread, NULL == returnVoid->value);
+  Arcadia_VPL_IR_DiscardTerminator* discard = Arcadia_VPL_IR_DiscardTerminator_create(thread);
+  Arcadia_Tests_assertTrue(thread, Arcadia_VPL_IR_TerminatorKind_Discard == ((Arcadia_VPL_IR_Terminator*)discard)->kind);
 
   Arcadia_VPL_IR_RegisterValue* result = Arcadia_VPL_IR_RegisterValue_create(thread, (Arcadia_SizeValue)3, (Arcadia_VPL_IR_Type*)vec3);
   Arcadia_VPL_IR_ReturnTerminator* returnValue = Arcadia_VPL_IR_ReturnTerminator_create(thread, (Arcadia_VPL_IR_Value*)result);
@@ -242,7 +245,7 @@ testTerminatorsAndBlocks
   Arcadia_Tests_assertTrue(thread, (Arcadia_VPL_IR_Value*)result == returnValue->value);
 
   Arcadia_List* instructions = createList(thread);
-  Arcadia_List_insertBackObjectReferenceValue(thread, instructions, (Arcadia_Object*)Arcadia_VPL_IR_DiscardInstruction_create(thread));
+  Arcadia_List_insertBackObjectReferenceValue(thread, instructions, (Arcadia_Object*)Arcadia_VPL_IR_CopyInstruction_create(thread, result, (Arcadia_VPL_IR_Value*)condition));
   Arcadia_VPL_IR_Block* block = Arcadia_VPL_IR_Block_create(thread, instructions, (Arcadia_VPL_IR_Terminator*)returnValue);
   Arcadia_Tests_assertTrue(thread, 1 == Arcadia_Collection_getSize(thread, (Arcadia_Collection*)block->instructions));
   Arcadia_Tests_assertTrue(thread, (Arcadia_VPL_IR_Terminator*)returnValue == block->terminator);

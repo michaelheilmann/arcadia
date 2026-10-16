@@ -14,5 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#define ARCADIA_VPL_PRIVATE (1)
-#include "Arcadia/VPL/Symbols/Include.h"
+// Generated from the checked-in .vpl files. Do not edit this build-tree header.
+#if !defined(ARCADIA_VPL_BUILTINPROGRAMS_H_INCLUDED)
+#define ARCADIA_VPL_BUILTINPROGRAMS_H_INCLUDED
+
+#if !defined(ARCADIA_VPL_PRIVATE) || 1 != ARCADIA_VPL_PRIVATE
+  #error("do not include directly, include `Arcadia/VPL/Include.h` instead")
+#endif
+
+@VPL_BUILTIN_PROGRAM_DATA@
+#endif // ARCADIA_VPL_BUILTINPROGRAMS_H_INCLUDED

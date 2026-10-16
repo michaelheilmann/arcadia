@@ -47,8 +47,9 @@
       definite assignment, stage entries/linkage, output definedness, and acyclic helper effects.
       Text reading/writing, immutable publication, and a GLSL 420 core backend are implemented.
       The engine material/output path consumes published canonical modules and artifacts.</p>
-      <p>Legacy AST/symbol implementation remains scheduled for retirement; it is not another
-      public VPL language surface or part of the active shader emitter. This specification describes simple operations and
+      <p>The module contains only the canonical representation and compiler services. The former
+      expression AST, symbol model, builders, and AST phases are removed; a future higher-level
+      language belongs to a separate module. This specification describes simple operations and
       branches, not nested source expressions or structured if/while/for syntax.</p>
 
       <h2 id="lexical-translation">2. Lexical translation</h2>
@@ -355,8 +356,8 @@ result : int = load field</code></pre>
           <tr><td><code>DiscardTerminator</code></td><td>None</td><td>Abandon the fragment invocation, with no successor and no returned value, regardless of function return type.</td></tr>
         </tbody>
       </table>
-      <p>Discard is fragment-only and terminates a block. The older <code>DiscardInstruction</code>
-      scaffold is rejected by canonical verification; producers shall use the terminator form.</p>
+      <p>Discard is fragment-only and terminates a block. It is represented only by
+      <code>DiscardTerminator</code>; the former instruction-kind value 9 is reserved and invalid.</p>
       <p>Loops are explicit back-edges. Higher-level if/while/for/break/continue statements are
       expressed by graph construction in the producing tool or future external language frontend.
       The following version-1 function fragment shows mutable registers and a loop:</p>
@@ -390,15 +391,16 @@ result : int = load field</code></pre>
       nested storage paths, inherited permissions, cyclic references, partial-write initialization,
       selector availability, constructor rejection, reruns, and failure cleanup. Construction tests
       remain in <code>Arcadia.VPL.Tests.IR</code>.
-      Legacy GLSL golden tests check the four existing engine variants during migration.</p>
+      Canonical GLSL golden and native-driver tests check the four engine variants. The GLSL tests
+      also compare each embedded built-in with its independently parsed checked-in source file.
+      Diagnostic tests use canonical verification and the shared diagnostic context.</p>
 
       @{include("./text-format.i")}
       @{include("./glsl-backend.i")}
 
       <h2 id="pending">13. Remaining specification work</h2>
       <ul>
-        <li>Additional targets/profiles, hardware-limit validation, legacy frontend retirement,
-        and externalizing the built-in canonical template data.</li>
+        <li>Additional targets/profiles, hardware-limit validation, and future language extensions.</li>
         <li>Future language extensions and format compatibility beyond version 1.</li>
       </ul>
       <p>Target-neutral validity alone does not imply support by every backend. The migration

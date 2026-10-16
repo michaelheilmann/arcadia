@@ -346,7 +346,7 @@ testGraphs
       case 9: f.right->terminator = NULL; break;
       case 10: ((Arcadia_VPL_IR_ConditionalBranchTerminator*)f.entry->terminator)->condition = (Arcadia_VPL_IR_Value*)f.one; break;
       case 11: f.join->terminator = (Arcadia_VPL_IR_Terminator*)Arcadia_VPL_IR_ReturnTerminator_create(thread, (Arcadia_VPL_IR_Value*)f.yes); break;
-      case 12: append(thread, f.join->instructions, (Arcadia_Object*)Arcadia_VPL_IR_DiscardInstruction_create(thread)); break;
+      case 12: append(thread, f.join->instructions, (Arcadia_Object*)Arcadia_VPL_IR_Instruction_create(thread, 9)); break; // Retired discard opcode stays invalid.
       case 13:
         Arcadia_List_removeAt(thread, f.module->fragment->functions, 0, 1);
         append(thread, f.module->vertex->functions, (Arcadia_Object*)f.function);

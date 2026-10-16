@@ -72,8 +72,17 @@
       compile/link checks. The target does not silently emit placeholder code for unsupported types.</p>
 
       <h3 id="glsl-engine">12.5 Engine integration and verification</h3>
-      <p>Programs_create publishes the four existing ambient-color variants from one parameterized
-      canonical-text template. Material nodes and backend resource creation pass VerifiedModule.
+      <p>Programs_create selects one complete checked-in canonical description from
+      <code>VPL/Library/Assets/Programs/</code>: mesh-ambient-color.vpl, vertex-ambient-color.vpl,
+      texture-ambient-color.vpl, or texture-vertex-ambient-color.vpl. CMake embeds the exact source
+      bytes into a private BuiltinPrograms.h in the external build tree. Changes to a program,
+      embedding script, or header template regenerate that header and rebuild the library.</p>
+      <p>The runtime selects the embedded bytes, reads/binds/verifies them through Text_read with
+      the source filename as its diagnostic label, and publishes VerifiedModule. No runtime file
+      lookup, working-directory convention, or source-tree availability is required for built-ins.
+      Arbitrary external source files still use the ordinary text-reading interface. The embedded
+      data is a build product; the .vpl files are the editable source of truth.</p>
+      <p>Material nodes and backend resource creation pass VerifiedModule.
       The OpenGL resource compiles one artifact, uploads both code strings with explicit lengths,
       binds the resolved fragment output before linking, and uses artifact reflection for uniform
       blocks and scalar locations. Deterministic block binding points remain available to model

@@ -21,16 +21,10 @@
 #undef ARCADIA_VPL_PRIVATE
 #define ARCADIA_VPL_PRIVATE (1)
 
-#include "Arcadia/VPL/Symbols/Include.h"
-#include "Arcadia/VPL/Tree/Include.h"
-
 #include "Arcadia/VPL/IR/Include.h"
 
 #include "Arcadia/VPL/Diagnostics/Include.h"
 #include "Arcadia/VPL/Context.h"
-#include "Arcadia/VPL/EnterPhase.h"
-#include "Arcadia/VPL/ResolvePhase.h"
-#include "Arcadia/VPL/TypePhase.h"
 #include "Arcadia/VPL/Text.h"
 #include "Arcadia/VPL/VerifiedModule.h"
 #include "Arcadia/VPL/Programs.h"

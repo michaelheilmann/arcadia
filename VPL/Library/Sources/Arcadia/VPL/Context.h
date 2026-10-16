@@ -19,12 +19,6 @@
 
 #include "Arcadia/Languages/Include.h"
 
-typedef struct Arcadia_VPL_EnterPhase Arcadia_VPL_EnterPhase;
-
-typedef struct Arcadia_VPL_ResolvePhase Arcadia_VPL_ResolvePhase;
-
-typedef struct Arcadia_VPL_TypePhase Arcadia_VPL_TypePhase;
-
 Arcadia_declareObjectType(u8"Arcadia.VPL.Context", Arcadia_VPL_Context,
                           Arcadia_Object);
 
@@ -35,9 +29,6 @@ struct Arcadia_VPL_ContextDispatch {
 struct Arcadia_VPL_Context {
   Arcadia_Object _parent;
   Arcadia_Languages_Diagnostics* diagnostics;
-  Arcadia_VPL_EnterPhase* enterPhase;
-  Arcadia_VPL_ResolvePhase* resolvePhase;
-  Arcadia_VPL_TypePhase* typePhase;
 };
 
 Arcadia_VPL_Context*
@@ -48,27 +39,6 @@ Arcadia_VPL_Context_create
 
 Arcadia_Languages_Diagnostics*
 Arcadia_VPL_Context_getDiagnostics
-  (
-    Arcadia_Thread* thread,
-    Arcadia_VPL_Context* self
-  );
-
-Arcadia_VPL_EnterPhase*
-Arcadia_VPL_Context_getEnterPhase
-  (
-    Arcadia_Thread* thread,
-    Arcadia_VPL_Context* self
-  );
-
-Arcadia_VPL_ResolvePhase*
-Arcadia_VPL_Context_getResolvePhase
-  (
-    Arcadia_Thread* thread,
-    Arcadia_VPL_Context* self
-  );
-
-Arcadia_VPL_TypePhase*
-Arcadia_VPL_Context_getTypePhase
   (
     Arcadia_Thread* thread,
     Arcadia_VPL_Context* self

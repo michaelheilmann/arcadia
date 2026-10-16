@@ -15,8 +15,18 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/VPL/Include.h"
-
 #include <string.h>
+
+static Arcadia_Object*
+root
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* object
+  )
+{
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, object);
+  return object;
+}
 
 static void
 testDiagnosticObject
@@ -24,79 +34,52 @@ testDiagnosticObject
     Arcadia_Thread* thread
   )
 {
-  Arcadia_VPL_Context* context = Arcadia_VPL_Context_create(thread);
+  Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+  Arcadia_VPL_Context* context = (Arcadia_VPL_Context*)root(thread, (Arcadia_Object*)Arcadia_VPL_Context_create(thread));
   Arcadia_Languages_Diagnostics* diagnostics = Arcadia_VPL_Context_getDiagnostics(thread, context);
-  Arcadia_Tests_assertTrue(thread, context != NULL);
-  Arcadia_Tests_assertTrue(thread, diagnostics != NULL);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Languages_Diagnostics_hasErrors(thread, diagnostics) == Arcadia_BooleanValue_False);
-
-  Arcadia_String* name = Arcadia_String_createFromCxxString(thread, u8"X");
-  Arcadia_VPL_Diagnostics_SymbolAlreadyDefinedDiagnostic* diagnostic =
-    Arcadia_VPL_Diagnostics_SymbolAlreadyDefinedDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, name);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Languages_Diagnostics_hasErrors(thread, diagnostics));
+  const char expected[] = "verification error: duplicate uniform name\n";
+  Arcadia_String* message = (Arcadia_String*)root(thread, (Arcadia_Object*)Arcadia_String_createFromCxxString(thread, expected));
+  Arcadia_VPL_Diagnostics_VerificationDiagnostic* diagnostic = (Arcadia_VPL_Diagnostics_VerificationDiagnostic*)root(thread,
+    (Arcadia_Object*)Arcadia_VPL_Diagnostics_VerificationDiagnostic_create(thread, message, (Arcadia_Object*)context));
   Arcadia_Languages_Diagnostics_add(thread, diagnostics, (Arcadia_Languages_Diagnostic*)diagnostic);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Languages_Diagnostics_hasErrors(thread, diagnostics) == Arcadia_BooleanValue_True);
-
-  Arcadia_String* message = Arcadia_Languages_Diagnostic_getMessage(thread, (Arcadia_Languages_Diagnostic*)diagnostic);
-  const char* expected = "semantical error: symbol `X` already defined\n";
-  Arcadia_Tests_assertTrue(thread, Arcadia_String_isEqualTo_pn(thread, message, expected, strlen(expected)));
-}
-
-static Arcadia_VPL_Tree_VariableDefnNode*
-findConstantDefn
-  (
-    Arcadia_Thread* thread,
-    Arcadia_VPL_Symbols_Program* program
-  )
-{
-  Arcadia_List* elements = program->programDefnNode->elements;
-  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)elements); i < n; ++i) {
-    Arcadia_VPL_Tree_Node* node = (Arcadia_VPL_Tree_Node*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, elements, i, _Arcadia_VPL_Tree_Node_getType(thread));
-    if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)node, _Arcadia_VPL_Tree_VariableDefnNode_getType(thread))) {
-      Arcadia_VPL_Tree_VariableDefnNode* defn = (Arcadia_VPL_Tree_VariableDefnNode*)node;
-      if (Arcadia_VPL_Tree_VariableDefnNode_isConstant(thread, defn)) {
-        return defn;
-      }
-    }
-  }
-  return NULL;
+  Arcadia_Tests_assertTrue(thread, Arcadia_Languages_Diagnostics_hasErrors(thread, diagnostics));
+  Arcadia_Tests_assertTrue(thread, diagnostic->subject == (Arcadia_Object*)context);
+  Arcadia_Tests_assertTrue(thread, diagnostic->sourceName == NULL && diagnostic->line == 0 && diagnostic->column == 0);
+  Arcadia_Tests_assertTrue(thread, Arcadia_String_isEqualTo_pn(thread, Arcadia_Languages_Diagnostic_getMessage(thread, (Arcadia_Languages_Diagnostic*)diagnostic), expected, sizeof(expected) - 1));
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
 }
 
 static void
-testPhaseReportsThroughContext
+testVerifierReportsThroughContext
   (
     Arcadia_Thread* thread
   )
 {
-  Arcadia_VPL_Symbols_Program* program = Arcadia_VPL_Symbols_Program_createProgram(thread, Arcadia_VPL_Symbols_ProgramFlags_MeshAmbientColor);
-  Arcadia_VPL_Context* context = Arcadia_VPL_Symbols_Program_getContext(thread, program);
-  Arcadia_Tests_assertTrue(thread, context != NULL);
+  Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+  Arcadia_VPL_Context* context = (Arcadia_VPL_Context*)root(thread, (Arcadia_Object*)Arcadia_VPL_Context_create(thread));
   Arcadia_Languages_Diagnostics* diagnostics = Arcadia_VPL_Context_getDiagnostics(thread, context);
-  Arcadia_Tests_assertTrue(thread, diagnostics != NULL);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Languages_Diagnostics_hasErrors(thread, diagnostics) == Arcadia_BooleanValue_False);
-  Arcadia_Tests_assertTrue(thread, Arcadia_VPL_EnterPhase_getDiagnostics(thread, Arcadia_VPL_Context_getEnterPhase(thread, context)) == diagnostics);
-  Arcadia_Tests_assertTrue(thread, Arcadia_VPL_ResolvePhase_getDiagnostics(thread, Arcadia_VPL_Context_getResolvePhase(thread, context)) == diagnostics);
-
-  Arcadia_VPL_Tree_VariableDefnNode* original = findConstantDefn(thread, program);
-  Arcadia_Tests_assertTrue(thread, original != NULL);
-  Arcadia_VPL_Tree_VariableDefnNode* duplicate = Arcadia_VPL_Tree_VariableDefnNode_create(thread, original->name, original->type);
-  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)original->modifiers); i < n; ++i) {
-    Arcadia_List_insertBack(thread, duplicate->modifiers, Arcadia_List_getAt(thread, original->modifiers, i));
-  }
-  Arcadia_List_insertBackObjectReferenceValue(thread, program->programDefnNode->elements, (Arcadia_Object*)duplicate);
-
+  Arcadia_VPL_VerifiedModule* program = (Arcadia_VPL_VerifiedModule*)root(thread, (Arcadia_Object*)Arcadia_VPL_Programs_create(thread, Arcadia_VPL_ProgramFlags_MeshAmbientColor));
+  Arcadia_VPL_IR_Module* module = (Arcadia_VPL_IR_Module*)root(thread, (Arcadia_Object*)Arcadia_VPL_VerifiedModule_materialize(thread, program, diagnostics));
+  Arcadia_Object* original = Arcadia_List_getObjectReferenceValueAt(thread, module->uniforms, 0);
+  Arcadia_List_insertBackObjectReferenceValue(thread, module->uniforms, original);
+  Arcadia_VPL_IR_Verifier* verifier = (Arcadia_VPL_IR_Verifier*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_Verifier_create(thread, diagnostics));
+  Arcadia_SizeValue before = Arcadia_ValueStack_getSize(thread);
   Arcadia_BooleanValue raised = Arcadia_BooleanValue_False;
-  Arcadia_JumpTarget jumpTarget;
-  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
-  if (Arcadia_JumpTarget_save(&jumpTarget)) {
-    Arcadia_VPL_EnterPhase_run(thread, Arcadia_VPL_Context_getEnterPhase(thread, context), program);
-  } else {
-    raised = Arcadia_BooleanValue_True;
-  }
+  Arcadia_JumpTarget target;
+  Arcadia_Thread_pushJumpTarget(thread, &target);
+  if (Arcadia_JumpTarget_save(&target)) Arcadia_VPL_IR_Verifier_run(thread, verifier, module);
+  else raised = Arcadia_BooleanValue_True;
   Arcadia_Thread_popJumpTarget(thread);
-
-  Arcadia_Tests_assertTrue(thread, raised == Arcadia_BooleanValue_True);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Languages_Diagnostics_hasErrors(thread, diagnostics) == Arcadia_BooleanValue_True);
+  Arcadia_Status status = Arcadia_Thread_getStatus(thread);
   Arcadia_Thread_setStatus(thread, 0);
+  Arcadia_Tests_assertTrue(thread, raised && status == Arcadia_Status_SemanticalError && before == Arcadia_ValueStack_getSize(thread));
+  Arcadia_Tests_assertTrue(thread, Arcadia_Collection_getSize(thread, (Arcadia_Collection*)diagnostics->diagnostics) == 1);
+  Arcadia_VPL_Diagnostics_VerificationDiagnostic* diagnostic = (Arcadia_VPL_Diagnostics_VerificationDiagnostic*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, diagnostics->diagnostics, 0, _Arcadia_VPL_Diagnostics_VerificationDiagnostic_getType(thread));
+  const char expected[] = "verification error: duplicate uniform name\n";
+  Arcadia_Tests_assertTrue(thread, diagnostic->subject == original);
+  Arcadia_Tests_assertTrue(thread, Arcadia_String_isEqualTo_pn(thread, diagnostic->message, expected, sizeof(expected) - 1));
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
 }
 
 int
@@ -106,11 +89,7 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&testDiagnosticObject)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&testPhaseReportsThroughContext)) {
-    return EXIT_FAILURE;
-  }
+  if (!Arcadia_Tests_safeExecute(&testDiagnosticObject)) return EXIT_FAILURE;
+  if (!Arcadia_Tests_safeExecute(&testVerifierReportsThroughContext)) return EXIT_FAILURE;
   return EXIT_SUCCESS;
 }
