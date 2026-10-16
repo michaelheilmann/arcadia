@@ -29,15 +29,23 @@
 #include "Arcadia/VPL/Include.h"
 
 typedef struct Arcadia_Engine_Visuals_Icon Arcadia_Engine_Visuals_Icon;
+
 typedef struct Arcadia_Engine_Visuals_Window Arcadia_Engine_Visuals_Window;
 
 typedef struct Arcadia_Engine_Visuals_ConstantBufferResource Arcadia_Engine_Visuals_ConstantBufferResource;
+
 typedef struct Arcadia_Engine_Visuals_EnterPassResource Arcadia_Engine_Visuals_EnterPassResource;
+
 typedef struct Arcadia_Engine_Visuals_FrameBufferResource Arcadia_Engine_Visuals_FrameBufferResource;
+
 typedef struct Arcadia_Engine_Visuals_MaterialResource Arcadia_Engine_Visuals_MaterialResource;
+
 typedef struct Arcadia_Engine_Visuals_ModelResource Arcadia_Engine_Visuals_ModelResource;
+
 typedef struct Arcadia_Engine_Visuals_ProgramResource Arcadia_Engine_Visuals_ProgramResource;
+
 typedef struct Arcadia_Engine_Visuals_TextureResource Arcadia_Engine_Visuals_TextureResource;
+
 typedef struct Arcadia_Engine_Visuals_VertexBufferResource Arcadia_Engine_Visuals_VertexBufferResource;
 
 /// @code
@@ -150,7 +158,7 @@ struct Arcadia_Engine_Visuals_BackendContextDispatch {
     (
       Arcadia_Thread* thread,
       Arcadia_Engine_Visuals_BackendContext* self,
-      Arcadia_VPL_Symbols_Program* program
+      Arcadia_VPL_VerifiedModule* program
     );
 
   Arcadia_Engine_Visuals_TextureResource*
@@ -261,7 +269,7 @@ Arcadia_Engine_Visuals_BackendContext_createProgramResource
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_BackendContext* self,
-    Arcadia_VPL_Symbols_Program* program
+    Arcadia_VPL_VerifiedModule* program
   );
 
 // Create a texture resource

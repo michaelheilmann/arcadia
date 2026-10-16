@@ -385,6 +385,234 @@ refer to <a href="https://github.com/michaelheilmann/arcadia/tree/main/README.md
 </section>
 
 <section class="cxx entity object">
+<h1 id="Arcadia_ImmutableHashMap">ImmutableHashMap</h1>
+<p><code>Arcadia_ImmutableHashMap</code> extends <code>Arcadia_Map</code>.</p>
+<p>An immutable map from <code>Arcadia_Value</code> objects, the keys, to <code>Arcadia_Value</code> objects, the values, implemented using hash tables.</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ImmutableHashMap_create">Arcadia_ImmutableHashMap_create</h1>
+
+  <my-signature><code>
+  Arcadia_ImmutableHashMap*<br>
+  Arcadia_ImmutableHashMap_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create an immutable hash map.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div>Arcadia_Thread* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_Value value</div>
+      <div>A map value.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_ImmutableHashMap</code> object.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The entries of the map value are added to the immutable hash map which is created.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity object">
+<h1 id="Arcadia_ImmutableList">ImmutableList</h1>
+<p><code>Arcadia_ImmutableList</code> extends <code>Arcadia_List</code>.</p>
+<p>An immutable list of <code>Arcadia_Value</code> objects.</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ImmutableList_create">Arcadia_ImmutableList_create</h1>
+
+  <my-signature><code>
+  Arcadia_ImmutableList*<br>
+  Arcadia_ImmutableList_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value argument<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create an immutable list.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div>Arcadia_Thread* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_Value argument</div>
+      <div>A list value.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_ImmutableList</code> object.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The elements of the list value are added to the immutable list which is created.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity object">
+<h1 id="Arcadia_ImmutableMap">ImmutableMap</h1>
+<p><code>Arcadia_ImmutableMap</code> extends <code>Arcadia_Map</code>.</p>
+<p>An immutable map from <code>Arcadia_Value</code> objects, the keys, to <code>Arcadia_Value</code> objects, the values.</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ImmutableMap_create">Arcadia_ImmutableMap_create</h1>
+
+  <my-signature><code>
+  Arcadia_ImmutableMap*<br>
+  Arcadia_ImmutableMap_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create an immutable map.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div>Arcadia_Thread* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_Value value</div>
+      <div>A map value.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_ImmutableMap</code> object.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The entries of the map value are added to the immutable map which is created.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity object">
+<h1 id="Arcadia_ImmutableSet">ImmutableSet</h1>
+<p><code>Arcadia_ImmutableSet</code> extends <code>Arcadia_Set</code>.</p>
+<p>An immutable set of <code>Arcadia_Value</code> objects.</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ImmutableSet_create">Arcadia_ImmutableSet_create</h1>
+
+  <my-signature><code>
+  Arcadia_ImmutableSet*<br>
+  Arcadia_ImmutableSet_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create an immutable set.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div>Arcadia_Thread* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_Value value</div>
+      <div>A set value.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_ImmutableSet</code> object.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The elements of the set value are added to the immutable set which is created.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity object">
 <h1 id="Arcadia_List">Arcadia_List</h1>
 <p><code>Arcadia_List</code> extends <code>Arcadia_Collection</code>.</p>
 <p><code>Arcadia_List</code> represents a list of <code>Arcadia_Value</code> objects.</p>
@@ -1323,6 +1551,22 @@ refer to <a href="https://github.com/michaelheilmann/arcadia/tree/main/README.md
 <li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_HashSet">Arcadia_HashSet</a></li>
 <li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_HashSet_create">Arcadia_HashSet_create</a></li>
 
+        <li>Immutable Hash Map</li>
+<li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_ImmutableHashMap">Arcadia_ImmutableHashMap</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_ImmutableHashMap_create">Arcadia_ImmutableHashMap_create</a></li>
+
+        <li>Immutable List</li>
+<li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_ImmutableList">Arcadia_ImmutableList</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_ImmutableList_create">Arcadia_ImmutableList_create</a></li>
+
+        <li>Immutable Map</li>
+<li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_ImmutableMap">Arcadia_ImmutableMap</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_ImmutableMap_create">Arcadia_ImmutableMap_create</a></li>
+
+        <li>Immutable Set</li>
+<li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_ImmutableSet">Arcadia_ImmutableSet</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_ImmutableSet_create">Arcadia_ImmutableSet_create</a></li>
+
         <li>List</li>
 <li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_List">Arcadia_List</a></li>
 <li><a href="https://michaelheilmann.com/Arcadia/Collections/#Arcadia_List_getAt">Arcadia_List_getAt</a></li>
@@ -1357,7 +1601,7 @@ refer to <a href="https://github.com/michaelheilmann/arcadia/tree/main/README.md
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 11 October 2026.</div>
+    <div>Last modified on 16 October 2026.</div>
     </div>
   </div>
   <div class="center-column">

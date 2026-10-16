@@ -99,7 +99,7 @@ Arcadia_Engine_Visuals_MeshNode_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  
+
   if (Arcadia_ValueStack_isVoidValue(thread, 2)) {
     self->backendContext = NULL;
   } else {
@@ -112,92 +112,15 @@ Arcadia_Engine_Visuals_MeshNode_constructImpl
 
   self->constantBufferResource = NULL;
   self->vertexBufferResource = NULL;
-  self->vertexBuffer = NULL;
-  
-  Arcadia_JumpTarget jumpTarget;
-  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
-  if (Arcadia_JumpTarget_save(&jumpTarget)) {
-  
-    Arcadia_Media_VertexDescriptorBuilder* vertexDescriptorBuilder = Arcadia_Media_VertexDescriptorBuilder_create(thread);
 
-    Arcadia_List_insertBackObjectReferenceValue
-      (
-        thread,
-        vertexDescriptorBuilder->vertexElementDescriptors,
-        (Arcadia_ObjectReferenceValue)
-        Arcadia_Media_VertexElementDescriptor_create
-          (
-            thread,
-            sizeof(Arcadia_Real32Value) * 0,
-            Arcadia_Media_VertexElementSemantics_PositionXYZ,
-            Arcadia_Media_VertexElementSyntactics_Real32Real32Real32
-          )
-      );
-    Arcadia_List_insertBackObjectReferenceValue
-      (
-        thread,
-        vertexDescriptorBuilder->vertexElementDescriptors,
-        Arcadia_Media_VertexElementDescriptor_create
-          (
-            thread,
-            sizeof(Arcadia_Real32Value) * 3,
-            Arcadia_Media_VertexElementSemantics_AmbientRGBA,
-            Arcadia_Media_VertexElementSyntactics_Real32Real32Real32Real32
-          )
-      );
-    Arcadia_List_insertBackObjectReferenceValue
-      (
-        thread,
-        vertexDescriptorBuilder->vertexElementDescriptors,
-        (Arcadia_ObjectReferenceValue)
-        Arcadia_Media_VertexElementDescriptor_create
-          (
-            thread,
-            sizeof(Arcadia_Real32Value) * 7,
-            Arcadia_Media_VertexElementSemantics_AmbientUV,
-            Arcadia_Media_VertexElementSyntactics_Real32Real32
-          )
-      );
+  self->geometry = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Media_Geometry_getType(thread));
+  // The mesh node owns its vertex data, because mesh nodes sharing a geometry do not necessarily render the same vertices.
+  // `Arcadia_Media_Geometry_getVertexBuffer` hands out a copy for that reason, and this mesh node adopts it. The vertex
+  // descriptor is shared with the geometry, because it is not mutated.
+  self->vertexBuffer = Arcadia_Media_Geometry_getVertexBuffer(thread, self->geometry);
+  // The ambient color of this mesh node is a copy, because `Arcadia_Engine_Visuals_MeshNode_setAmbientColor` mutates it in place.
+  self->ambientColor = Arcadia_Math_Color4Real32_create4v(thread, Arcadia_Media_Geometry_getAmbientColor(thread, self->geometry)->components);
 
-    Arcadia_ADL_MeshDefinition* source = (Arcadia_ADL_MeshDefinition*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_ADL_MeshDefinition_getType(thread));
-    Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)source);
-    Arcadia_ADL_ColorDefinition* ambientColorDefinition = (Arcadia_ADL_ColorDefinition*)source->ambientColor->definition;
-    self->source = source;
-    // TODO:
-    // Each mesh creates its own material node for an ADL material definition.
-    // This is wasteful.
-    // Meshes using the same ADL material definition should use the material node.
-    self->ambientColor = Arcadia_Math_Color4Real32_create4(thread, ambientColorDefinition->red / 255.f,
-                                                                   ambientColorDefinition->green / 255.f,
-                                                                   ambientColorDefinition->blue / 255.f,
-                                                                   1.f);
-    
-    self->vertexBuffer = Arcadia_Media_VertexBuffer_create(thread, Arcadia_Media_VertexDescriptorBuilder_build(thread, vertexDescriptorBuilder), Arcadia_ADL_MeshDefinition_getNumberOfVertices(thread, source));
-
-    Arcadia_RuntimeByteArray* vertexXZZ = Arcadia_ADL_MeshDefinition_getVertexPositions(thread, source);
-    Arcadia_Real32Value const* vertexYZBytes = (Arcadia_Real32Value const*)Arcadia_RuntimeByteArray_getBytes(thread, vertexXZZ);
-
-    Arcadia_RuntimeByteArray* vertexAmbientRGBA = Arcadia_ADL_MeshDefinition_getVertexAmbientColors(thread, source);
-    Arcadia_Real32Value const* vertexAmbientRGBBytes = (Arcadia_Real32Value const*)Arcadia_RuntimeByteArray_getBytes(thread, vertexAmbientRGBA);
-
-    Arcadia_RuntimeByteArray* vertexAmbientUV = Arcadia_ADL_MeshDefinition_getVertexAmbientTextureCoordinates(thread, source);
-    Arcadia_Real32Value const* vertexAmbientUVBytes = (Arcadia_Real32Value const*)Arcadia_RuntimeByteArray_getBytes(thread, vertexAmbientUV);
-
-    Arcadia_ByteArrayBuilder* temporary = Arcadia_ByteArrayBuilder_create(thread);
-    for (Arcadia_SizeValue i = 0, n = self->vertexBuffer->numberOfVertices; i < n; ++i) {
-      Arcadia_ByteArrayBuilder_insertBackBytes(thread, temporary, &vertexYZBytes[i * 3], sizeof(Arcadia_Real32Value) * 3);
-      Arcadia_ByteArrayBuilder_insertBackBytes(thread, temporary, &vertexAmbientRGBBytes[i * 4], sizeof(Arcadia_Real32Value) * 4);
-      Arcadia_ByteArrayBuilder_insertBackBytes(thread, temporary, &vertexAmbientUVBytes[i * 2], sizeof(Arcadia_Real32Value) * 2);
-    }
-    Arcadia_Memory_copy(thread, self->vertexBuffer->vertices, Arcadia_ByteArrayBuilder_getBytes(thread, temporary),
-                                                              Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, temporary));
-    Arcadia_Thread_popJumpTarget(thread);
-  } else {
-    Arcadia_Thread_popJumpTarget(thread);
-    Arcadia_Object_unlock(thread, (Arcadia_Object*)self->backendContext);
-    Arcadia_Thread_jump(thread);
-  }
-                                              
   Arcadia_LeaveConstructor(Arcadia_Engine_Visuals_MeshNode);
 }
 
@@ -247,8 +170,8 @@ Arcadia_Engine_Visuals_MeshNode_visitImpl
     Arcadia_Engine_Visuals_MeshNode* self
   )
 {
-  if (self->source) {
-    Arcadia_Object_visit(thread, (Arcadia_Object*)self->source);
+  if (self->geometry) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->geometry);
   }
   if (self->vertexBuffer) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->vertexBuffer);
@@ -282,14 +205,17 @@ Arcadia_Engine_Visuals_MeshNode_renderImpl
       Arcadia_Engine_Visuals_Resource_ref(thread, (Arcadia_Engine_Visuals_Resource*)self->vertexBufferResource);
     }
     if (self->dirtyFlags & VerticesDirty) {
+      Arcadia_Media_VertexBuffer* vertexBuffer = self->vertexBuffer;
+      Arcadia_Media_VertexDescriptor* vertexDescriptor = Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, vertexBuffer);
+      Arcadia_SizeValue numberOfVertices = Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer);
       Arcadia_Engine_Visuals_VertexBufferResource_setData
         (
           thread,
           self->vertexBufferResource,
-          ((Arcadia_Engine_Visuals_MeshNode*)self)->vertexBuffer->vertexDescriptor,
-          ((Arcadia_Engine_Visuals_MeshNode*)self)->vertexBuffer->numberOfVertices,
-          (void*)((Arcadia_Engine_Visuals_MeshNode*)self)->vertexBuffer->vertices,
-          ((Arcadia_Engine_Visuals_MeshNode*)self)->vertexBuffer->numberOfVertices * ((Arcadia_Engine_Visuals_MeshNode*)self)->vertexBuffer->vertexDescriptor->stride
+          vertexDescriptor,
+          numberOfVertices,
+          Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer),
+          numberOfVertices * Arcadia_Media_VertexDescriptor_getStride(thread, vertexDescriptor)
         );
       self->dirtyFlags &= ~VerticesDirty;
     }
@@ -342,12 +268,12 @@ Arcadia_Engine_Visuals_MeshNode_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_BackendContext* backendContext,
-    Arcadia_ADL_MeshDefinition* source
+    Arcadia_Media_Geometry* geometry
   )
 {
   _Arcadia_BeginCreate(Arcadia_Engine_Visuals_MeshNode);
   if (backendContext) Arcadia_ValueStack_pushObjectReferenceValue(thread, backendContext); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
-  if (source) Arcadia_ValueStack_pushObjectReferenceValue(thread, source); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+  if (geometry) Arcadia_ValueStack_pushObjectReferenceValue(thread, geometry); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   Arcadia_ValueStack_pushNatural8Value(thread, 2);
   _Arcadia_EndCreate(Arcadia_Engine_Visuals_MeshNode);
 }
@@ -359,7 +285,7 @@ Arcadia_Engine_Visuals_MeshNode_getNumberOfVertices
     Arcadia_Engine_Visuals_MeshNode* self,
     Arcadia_SizeValue* numberOfVertices
   )
-{ *numberOfVertices = self->vertexBuffer->numberOfVertices; }
+{ *numberOfVertices = Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, self->vertexBuffer); }
 
 void
 Arcadia_Engine_Visuals_MeshNode_setAmbientColor
@@ -380,4 +306,22 @@ Arcadia_Engine_Visuals_MeshNode_getAmbientColor
   )
 {
   return Arcadia_Math_Color4Real32_create4v(thread, self->ambientColor->components);
+}
+
+Arcadia_Media_VertexBuffer*
+Arcadia_Engine_Visuals_MeshNode_getVertexBuffer
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_MeshNode* self
+  )
+{ return self->vertexBuffer; }
+
+void
+Arcadia_Engine_Visuals_MeshNode_markVerticesDirty
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_MeshNode* self
+  )
+{
+  self->dirtyFlags |= VerticesDirty;
 }

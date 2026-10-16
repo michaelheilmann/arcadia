@@ -199,18 +199,20 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_loadImpl
     }
   }
   if (((Arcadia_Engine_Visuals_VertexBufferResource*)self)->dirty & Arcadia_Engine_Visuals_VertexBufferResource_VertexDescriptorDirty) {
-    Arcadia_SizeValue stride = ((Arcadia_Engine_Visuals_VertexBufferResource*)self)->vertexDescriptor->stride;
+    Arcadia_Media_VertexDescriptor* vertexDescriptor = ((Arcadia_Engine_Visuals_VertexBufferResource*)self)->vertexDescriptor;
+    Arcadia_SizeValue stride = Arcadia_Media_VertexDescriptor_getStride(thread, vertexDescriptor);
+    Arcadia_ImmutableList* vertexElementDescriptors = Arcadia_Media_VertexDescriptor_getVertexElementDescriptors(thread, vertexDescriptor);
     // (1) bind the vertex array
     gl->glBindVertexArray(self->vertexArrayID);
     if (GL_NO_ERROR != gl->glGetError()) {
       return;
     }
     // (2) specify the vertex element elements and the buffer they are originated from.
-    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)((Arcadia_Engine_Visuals_VertexBufferResource*)self)->vertexDescriptor->vertexElementDescriptors); i < n; ++i) {
-      Arcadia_Media_VertexElementDescriptor* vertexElementDescriptor = (Arcadia_Media_VertexElementDescriptor*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, (Arcadia_List*)((Arcadia_Engine_Visuals_VertexBufferResource*)self)->vertexDescriptor->vertexElementDescriptors, i, _Arcadia_Media_VertexElementDescriptor_getType(thread));
+    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)vertexElementDescriptors); i < n; ++i) {
+      Arcadia_Media_VertexElementDescriptor* vertexElementDescriptor = (Arcadia_Media_VertexElementDescriptor*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, (Arcadia_List*)vertexElementDescriptors, i, _Arcadia_Media_VertexElementDescriptor_getType(thread));
       GLint glType;
       GLsizei glSize;
-      switch (vertexElementDescriptor->syntactics) {
+      switch (Arcadia_Media_VertexElementDescriptor_getSyntactics(thread, vertexElementDescriptor)) {
         case Arcadia_Media_VertexElementSyntactics_Real32: {
           glType = GL_FLOAT;
           glSize = 1;
@@ -238,7 +240,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_VertexBufferResource_loadImpl
         return;
       }
       // (2.2) specify the vertex attribute format of that vertex attribute array.
-      gl->glVertexAttribFormat(i, glSize, glType, GL_FALSE, vertexElementDescriptor->offset);
+      gl->glVertexAttribFormat(i, glSize, glType, GL_FALSE, Arcadia_Media_VertexElementDescriptor_getOffset(thread, vertexElementDescriptor));
       if (GL_NO_ERROR != gl->glGetError()) {
         return;
       }

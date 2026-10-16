@@ -15,13 +15,13 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Input_MouseButtonEvent
-class Arcadia.Engine.Input.MouseButtonEvent extends Arcadia.Engine.Event {
+native class Arcadia.Engine.Input.MouseButtonEvent extends Arcadia.Engine.Event {
 
   variable button : Arcadia.Natural64
   variable action : Arcadia.Engine.Input.MouseButtonAction
   variable x : Arcadia.Integer32
   variable y : Arcadia.Integer32
-  
+
   /// @brief Create a mouse button event.
   /// @param action The action of the mouse button.
   /// @param button The index of the mouse button.
@@ -34,7 +34,7 @@ class Arcadia.Engine.Input.MouseButtonEvent extends Arcadia.Engine.Event {
     (
       variable timestamp : Arcadia.Natural64,
       variable action : Arcadia.Engine.Input.MouseButtonAction,
-      variable button : Natural64,
+      variable button : Arcadia.Natural64,
       variable x : Arcadia.Integer32,
       variable y : Arcadia.Integer32
     )

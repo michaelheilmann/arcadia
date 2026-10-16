@@ -1,20 +1,18 @@
-interface Greeter {
+interface MyModule.Greeter {
 
-  method greet : Void {
-  }
-
-}
-
-interface LoudGreeter extends Greeter {
-
-  method greetLoud : Void {
-  }
+  method greet : Arcadia.Void
 
 }
 
-class GreeterImpl implements Greeter {
+interface MyModule.LoudGreeter extends MyModule.Greeter {
 
-  method greet : Void {
+  method greetLoud : Arcadia.Void
+
+}
+
+class MyModule.GreeterImpl implements MyModule.Greeter {
+
+  method greet : Arcadia.Void {
   }
 
 }

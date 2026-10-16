@@ -118,7 +118,7 @@ static const Arcadia_Type_Operations _Arcadia_Engine_Demo_MainMenuScene_typeOper
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Engine.Demo.MainMenuScene", Arcadia_Engine_Demo_MainMenuScene,
-                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Demo_Scene,
+                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Scene,
                          &_Arcadia_Engine_Demo_MainMenuScene_typeOperations);
 
 static void
@@ -164,12 +164,12 @@ Arcadia_Engine_Demo_MainMenuScene_initializeDispatchImpl
     Arcadia_Engine_Demo_MainMenuSceneDispatch* self
   )
 {
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateAudials = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Demo_MainMenuScene_updateAudialsImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateLogics = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value)) & Arcadia_Engine_Demo_MainMenuScene_updateLogicsImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateVisuals = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Demo_MainMenuScene_updateVisualsImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*)) & Arcadia_Engine_Demo_MainMenuScene_handleKeyboardKeyEventImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_MouseButtonEvent*)) & Arcadia_Engine_Demo_MainMenuScene_handleMouseButtonEventImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_MousePointerEvent*)) & Arcadia_Engine_Demo_MainMenuScene_handleMousePointerEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateAudials = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Demo_MainMenuScene_updateAudialsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateLogics = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value)) & Arcadia_Engine_Demo_MainMenuScene_updateLogicsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateVisuals = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Demo_MainMenuScene_updateVisualsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*)) & Arcadia_Engine_Demo_MainMenuScene_handleKeyboardKeyEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MouseButtonEvent*)) & Arcadia_Engine_Demo_MainMenuScene_handleMouseButtonEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MousePointerEvent*)) & Arcadia_Engine_Demo_MainMenuScene_handleMousePointerEventImpl;
 }
 
 static void
@@ -224,8 +224,8 @@ setFontQuad
   Arcadia_Real32Value const u1 = ((Arcadia_Real32Value)atlasWidth - 0.5f) / (Arcadia_Real32Value)atlasWidth;
   Arcadia_Real32Value const v0 = 0.5f / (Arcadia_Real32Value)atlasHeight;
   Arcadia_Real32Value const v1 = ((Arcadia_Real32Value)atlasHeight - 0.5f) / (Arcadia_Real32Value)atlasHeight;
-  Arcadia_Media_VertexBuffer* vertexBuffer = self->modelNode->mesh->vertexBuffer;
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)vertexBuffer->vertices;
+  Arcadia_Media_VertexBuffer* vertexBuffer = Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->modelNode->mesh);
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
   Arcadia_Real32Value const vertexData[6][5] = {
     { (Arcadia_Real32Value)x0, (Arcadia_Real32Value)y0, 0.f, u0, v1 },
     { (Arcadia_Real32Value)x1, (Arcadia_Real32Value)y0, 0.f, u1, v1 },
@@ -338,7 +338,7 @@ load
     self->definitions = definitions;
   }
 
-  Arcadia_Engine* engine = ((Arcadia_Engine_Demo_Scene*)self)->engine;
+  Arcadia_Engine* engine = ((Arcadia_Engine_Scene*)self)->engine;
 
   if (!self->enterPassNode) {
     self->enterPassNode =
@@ -463,7 +463,7 @@ Arcadia_Engine_Demo_MainMenuScene_updateVisualsImpl
   Arcadia_Engine_Visuals_EnterPassNode_setCameraNode(thread, self->enterPassNode, self->cameraNode);
 
   Arcadia_Engine_Visuals_EnterPassNode_setFrameBufferNode(thread, self->enterPassNode, NULL);
-  Arcadia_Engine_Visuals_renderScene(thread, self->enterPassNode, self->modelNode, (Arcadia_Engine_Visuals_BackendContext*)((Arcadia_Engine_Demo_Scene*)self)->engine->visualsBackendContext);
+  Arcadia_Engine_Visuals_renderScene(thread, self->enterPassNode, self->modelNode, (Arcadia_Engine_Visuals_BackendContext*)((Arcadia_Engine_Scene*)self)->engine->visualsBackendContext);
 }
 
 static void
@@ -479,7 +479,7 @@ Arcadia_Engine_Demo_MainMenuScene_handleKeyboardKeyEventImpl
     Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent* e = Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent_create(thread, Arcadia_getTickCount(thread));
     Arcadia_ValueStack_pushObjectReferenceValue(thread,  (Arcadia_Object*)e);
     Arcadia_ValueStack_pushNatural8Value(thread, 1);
-    Arcadia_Signal_emit(thread, ((Arcadia_Engine_Demo_Scene*)self)->applicationQuitRequestSignal, (Arcadia_Object*)self);
+    Arcadia_Signal_emit(thread, ((Arcadia_Engine_Scene*)self)->applicationQuitRequestSignal, (Arcadia_Object*)self);
     Arcadia_ValueStack_popValues(thread, 2);
   } else if (Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Engine_Input_KeyboardKeyAction_Released &&
     Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event) == Arcadia_Engine_Input_KeyboardKey_R) {
@@ -510,7 +510,7 @@ Arcadia_Engine_Demo_MainMenuScene_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine,
-    Arcadia_Engine_Demo_SceneManager* sceneManager
+    Arcadia_Engine_SceneManager* sceneManager
   )
 {
   _Arcadia_BeginCreate(Arcadia_Engine_Demo_MainMenuScene);

@@ -38,6 +38,14 @@ Arcadia_Engine_Audials_BackendContext_visitImpl
     Arcadia_Engine_Audials_BackendContext* self
   );
 
+static void
+Arcadia_Engine_Audials_BackendContext_setMasterVolumeImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_BackendContext* self,
+    Arcadia_Real64Value volume
+  );
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_Audials_BackendContext_constructImpl,
@@ -79,7 +87,18 @@ Arcadia_Engine_Audials_BackendContext_initializeDispatchImpl
     Arcadia_Thread* thread,
     Arcadia_Engine_Audials_BackendContextDispatch* self
   )
-{/*Intentionally empty.*/}
+{
+  self->setMasterVolume = &Arcadia_Engine_Audials_BackendContext_setMasterVolumeImpl;
+}
+
+static void
+Arcadia_Engine_Audials_BackendContext_setMasterVolumeImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_BackendContext* self,
+    Arcadia_Real64Value volume
+  )
+{ }
 
 static void
 Arcadia_Engine_Audials_BackendContext_visitImpl
@@ -97,3 +116,21 @@ Arcadia_Engine_Audials_BackendContext_createSoundSourceResource
     Arcadia_Media_SampleBuffer* sampleBuffer
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_Engine_Audials_BackendContext, createSoundSourceResource, self, sampleBuffer); }
+
+Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*
+Arcadia_Engine_Audials_BackendContext_createStreamingSoundSourceResource
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_BackendContext* self,
+    Arcadia_Engine_Audials_AudioStreamProvider* provider
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_Engine_Audials_BackendContext, createStreamingSoundSourceResource, self, provider); }
+
+void
+Arcadia_Engine_Audials_BackendContext_setMasterVolume
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_BackendContext* self,
+    Arcadia_Real64Value volume
+  )
+{ Arcadia_VirtualCall(Arcadia_Engine_Audials_BackendContext, setMasterVolume, self, volume); }

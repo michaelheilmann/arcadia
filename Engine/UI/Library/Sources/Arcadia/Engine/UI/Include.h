@@ -21,8 +21,26 @@
 #undef ARCADIA_ENGINE_UI_PRIVATE
 #define ARCADIA_ENGINE_UI_PRIVATE (1)
 
+#include "Arcadia/Engine/UI/Activatable.h"
+#include "Arcadia/Engine/UI/Container.h"
+#include "Arcadia/Engine/UI/DefinitionFactory.h"
+#include "Arcadia/Engine/UI/Focusable.h"
+#include "Arcadia/Engine/UI/HitTestable.h"
+#include "Arcadia/Engine/UI/KeyboardInput.h"
+#include "Arcadia/Engine/UI/PointerInput.h"
+#include "Arcadia/Engine/UI/Renderable.h"
+#include "Arcadia/Engine/UI/Scrollable.h"
+#include "Arcadia/Engine/UI/ValueControl.h"
+#include "Arcadia/Engine/UI/Nodes/ButtonNode.h"
 #include "Arcadia/Engine/UI/Nodes/CanvasNode.h"
+#include "Arcadia/Engine/UI/Nodes/LabelNode.h"
 #include "Arcadia/Engine/UI/Nodes/PanelNode.h"
+#include "Arcadia/Engine/UI/Nodes/ScrollPanelNode.h"
+#include "Arcadia/Engine/UI/Nodes/SegmentedChoiceNode.h"
+#include "Arcadia/Engine/UI/Nodes/SliderNode.h"
+#include "Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h"
+#include "Arcadia/Engine/UI/Nodes/StackPanelNode.h"
+#include "Arcadia/Engine/UI/Nodes/ToggleNode.h"
 
 #undef ARCADIA_ENGINE_UI_PRIVATE
 #pragma pop_macro("ARCADIA_ENGINE_UI_PRIVATE")

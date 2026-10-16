@@ -1,0 +1,17 @@
+interface MyModule.Greeter {
+
+  method greet(variable times : Arcadia.Natural32) : Arcadia.Void
+
+}
+
+class MyModule.GreeterImpl implements MyModule.Greeter {
+
+  constructor(variable times : Arcadia.Natural32)
+
+  method greet(variable times : Arcadia.Natural32) : Arcadia.Void {
+  }
+
+  method repeat(variable times : Arcadia.Natural32, variable offset : Arcadia.Natural32) : Arcadia.Void {
+  }
+
+}

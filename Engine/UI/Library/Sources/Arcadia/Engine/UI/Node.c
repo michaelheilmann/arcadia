@@ -58,7 +58,7 @@ Arcadia_Engine_UI_Node_constructImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_LeaveConstructor(Arcadia_MILC_AST_DefinitionStatementNode);
+  Arcadia_LeaveConstructor(Arcadia_Engine_UI_Node);
 }
 
 static void

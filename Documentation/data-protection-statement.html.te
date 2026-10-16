@@ -17,11 +17,11 @@
     and to what extent. This Privacy Policy applies to all processing of personal data carried out by me, both in the context of providing my services and in particular on our websites,
     in mobile applications, and within external online presences, such as our social media profiles (hereinafter collectively referred to as the "online offering”).
     </p>
-    @{include("./DataProtectionStatement/Controller.i")}
-    @{include("./DataProtectionStatement/OverviewOfProcessingActivities.i")}
-    @{include("./DataProtectionStatement/RelevantLegalBases.i")}
-    @{include("./DataProtectionStatement/RightsOfDataSubjects.i")}
-    @{include("./DataProtectionStatement/DefinitionsOfTerms.i")}
+    @{include("./Data Protection Statement/Controller.i")}
+    @{include("./Data Protection Statement/OverviewOfProcessingActivities.i")}
+    @{include("./Data Protection Statement/RelevantLegalBases.i")}
+    @{include("./Data Protection Statement/RightsOfDataSubjects.i")}
+    @{include("./Data Protection Statement/DefinitionsOfTerms.i")}
   </div>
   <div class="right-column"></div>
   </main>

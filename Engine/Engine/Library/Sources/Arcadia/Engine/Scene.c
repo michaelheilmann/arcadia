@@ -20,102 +20,102 @@
 #include "Arcadia/Engine/Include.h"
 
 static void
-Arcadia_Engine_Demo_Scene_constructImpl
+Arcadia_Engine_Scene_constructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self
+    Arcadia_Engine_Scene* self
   );
 
 static void
-Arcadia_Engine_Demo_Scene_initializeDispatchImpl
+Arcadia_Engine_Scene_initializeDispatchImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneDispatch* self
+    Arcadia_Engine_SceneDispatch* self
   );
 
 static void
-Arcadia_Engine_Demo_Scene_visit
+Arcadia_Engine_Scene_visit
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self
+    Arcadia_Engine_Scene* self
   );
 
 static void
-Arcadia_Engine_Demo_Scene_updateAudialsImpl
+Arcadia_Engine_Scene_updateAudialsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Real64Value tick,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
   );
 
 static void
-Arcadia_Engine_Demo_Scene_updateVisualsImpl
+Arcadia_Engine_Scene_updateVisualsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Real64Value tick,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
   );
 
 static void
-Arcadia_Engine_Demo_Scene_updateLogicsImpl
+Arcadia_Engine_Scene_updateLogicsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Real64Value tick
   );
 
 static void
-Arcadia_Engine_Demo_Scene_handleKeyboardKeyEventImpl
+Arcadia_Engine_Scene_handleKeyboardKeyEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Engine_Input_KeyboardKeyEvent* event
   );
 
 static void
-Arcadia_Engine_Demo_Scene_handleMouseButtonEventImpl
+Arcadia_Engine_Scene_handleMouseButtonEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Engine_Input_MouseButtonEvent* event
   );
 
 static void
-Arcadia_Engine_Demo_Scene_handleMousePointerEventImpl
+Arcadia_Engine_Scene_handleMousePointerEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Engine_Input_MousePointerEvent* event
   );
 
-static const Arcadia_ObjectType_Operations _Arcadia_Engine_Demo_Scene_objectTypeOperations = {
+static const Arcadia_ObjectType_Operations _Arcadia_Engine_Scene_objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
-  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_Demo_Scene_constructImpl,
-  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_Demo_Scene_visit,
-  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_Demo_Scene_initializeDispatchImpl,
+  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_Scene_constructImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_Scene_visit,
+  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_Scene_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_Engine_Demo_Scene_typeOperations = {
+static const Arcadia_Type_Operations _Arcadia_Engine_Scene_typeOperations = {
   Arcadia_Type_Operations_Initializer,
-  .objectTypeOperations = &_Arcadia_Engine_Demo_Scene_objectTypeOperations,
+  .objectTypeOperations = &_Arcadia_Engine_Scene_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Demo_Scene,
+Arcadia_defineObjectType(u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Scene,
                          u8"Arcadia.Object", Arcadia_Object,
-                         &_Arcadia_Engine_Demo_Scene_typeOperations);
+                         &_Arcadia_Engine_Scene_typeOperations);
 
 static void
-Arcadia_Engine_Demo_Scene_constructImpl
+Arcadia_Engine_Scene_constructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self
+    Arcadia_Engine_Scene* self
   )
 {
-  Arcadia_EnterConstructor(Arcadia_Engine_Demo_Scene);
+  Arcadia_EnterConstructor(Arcadia_Engine_Scene);
   {
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
@@ -126,31 +126,31 @@ Arcadia_Engine_Demo_Scene_constructImpl
   }
   self->applicationQuitRequestSignal = Arcadia_Signal_create(thread);
   self->engine = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_getType(thread));
-  self->sceneManager = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_Demo_SceneManager_getType(thread));
-  Arcadia_LeaveConstructor(Arcadia_Engine_Demo_Scene);
+  self->sceneManager = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_SceneManager_getType(thread));
+  Arcadia_LeaveConstructor(Arcadia_Engine_Scene);
 }
 
 static void
-Arcadia_Engine_Demo_Scene_initializeDispatchImpl
+Arcadia_Engine_Scene_initializeDispatchImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneDispatch* self
+    Arcadia_Engine_SceneDispatch* self
   )
 {
-  self->updateAudials = &Arcadia_Engine_Demo_Scene_updateAudialsImpl;
-  self->updateLogics = &Arcadia_Engine_Demo_Scene_updateLogicsImpl;
-  self->updateVisuals = &Arcadia_Engine_Demo_Scene_updateVisualsImpl;
+  self->updateAudials = &Arcadia_Engine_Scene_updateAudialsImpl;
+  self->updateLogics = &Arcadia_Engine_Scene_updateLogicsImpl;
+  self->updateVisuals = &Arcadia_Engine_Scene_updateVisualsImpl;
 
-  self->handleKeyboardKeyEvent = &Arcadia_Engine_Demo_Scene_handleKeyboardKeyEventImpl;
-  self->handleMouseButtonEvent = &Arcadia_Engine_Demo_Scene_handleMouseButtonEventImpl;
-  self->handleMousePointerEvent = &Arcadia_Engine_Demo_Scene_handleMousePointerEventImpl;
+  self->handleKeyboardKeyEvent = &Arcadia_Engine_Scene_handleKeyboardKeyEventImpl;
+  self->handleMouseButtonEvent = &Arcadia_Engine_Scene_handleMouseButtonEventImpl;
+  self->handleMousePointerEvent = &Arcadia_Engine_Scene_handleMousePointerEventImpl;
 }
 
 static void
-Arcadia_Engine_Demo_Scene_visit
+Arcadia_Engine_Scene_visit
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self
+    Arcadia_Engine_Scene* self
   )
 {
   if (self->applicationQuitRequestSignal) {
@@ -165,10 +165,10 @@ Arcadia_Engine_Demo_Scene_visit
 }
 
 static void
-Arcadia_Engine_Demo_Scene_updateVisualsImpl
+Arcadia_Engine_Scene_updateVisualsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Real64Value tick,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
@@ -176,19 +176,19 @@ Arcadia_Engine_Demo_Scene_updateVisualsImpl
 {/*Intentionally empty.*/}
 
 static void
-Arcadia_Engine_Demo_Scene_updateLogicsImpl
+Arcadia_Engine_Scene_updateLogicsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Real64Value tick
   )
 {/*Intentionally empty.*/}
 
 static void
-Arcadia_Engine_Demo_Scene_updateAudialsImpl
+Arcadia_Engine_Scene_updateAudialsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Real64Value tick,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
@@ -196,86 +196,86 @@ Arcadia_Engine_Demo_Scene_updateAudialsImpl
 {/*Intentionally empty.*/ }
 
 static void
-Arcadia_Engine_Demo_Scene_handleKeyboardKeyEventImpl
+Arcadia_Engine_Scene_handleKeyboardKeyEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Engine_Input_KeyboardKeyEvent* event
   )
 {/*Intentionally empty.*/}
 
 static void
-Arcadia_Engine_Demo_Scene_handleMouseButtonEventImpl
+Arcadia_Engine_Scene_handleMouseButtonEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Engine_Input_MouseButtonEvent* event
   )
 {/*Intentionally empty.*/}
 
 static void
-Arcadia_Engine_Demo_Scene_handleMousePointerEventImpl
+Arcadia_Engine_Scene_handleMousePointerEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Engine_Input_MousePointerEvent* event
   )
 {/*Intentionally empty.*/}
 
 void
-Arcadia_Engine_Demo_Scene_updateAudials
+Arcadia_Engine_Scene_updateAudials
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Real64Value tick,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Demo_Scene, updateAudials, self, tick, width, height); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Scene, updateAudials, self, tick, width, height); }
 
 void
-Arcadia_Engine_Demo_Scene_updateLogics
+Arcadia_Engine_Scene_updateLogics
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Real64Value tick
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Demo_Scene, updateLogics, self, tick); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Scene, updateLogics, self, tick); }
 
 void
-Arcadia_Engine_Demo_Scene_updateVisuals
+Arcadia_Engine_Scene_updateVisuals
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Real64Value tick,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Demo_Scene, updateVisuals, self, tick, width, height); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Scene, updateVisuals, self, tick, width, height); }
 
 void
-Arcadia_Engine_Demo_Scene_handleKeyboardKeyEvent
+Arcadia_Engine_Scene_handleKeyboardKeyEvent
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Engine_Input_KeyboardKeyEvent* event
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Demo_Scene, handleKeyboardKeyEvent, self, event); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Scene, handleKeyboardKeyEvent, self, event); }
 
 void
-Arcadia_Engine_Demo_Scene_handleMouseButtonEvent
+Arcadia_Engine_Scene_handleMouseButtonEvent
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Engine_Input_MouseButtonEvent* event
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Demo_Scene, handleMouseButtonEvent, self, event); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Scene, handleMouseButtonEvent, self, event); }
 
 void
-Arcadia_Engine_Demo_Scene_handleMousePointerEvent
+Arcadia_Engine_Scene_handleMousePointerEvent
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_Scene* self,
+    Arcadia_Engine_Scene* self,
     Arcadia_Engine_Input_MousePointerEvent* event
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_Demo_Scene, handleMousePointerEvent, self, event); }
+{ Arcadia_VirtualCall(Arcadia_Engine_Scene, handleMousePointerEvent, self, event); }

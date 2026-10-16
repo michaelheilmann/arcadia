@@ -15,6 +15,10 @@
 @{include("Collection/include.content")}
 @{include("HashMap/include.content")}
 @{include("HashSet/include.content")}
+@{include("ImmutableHashMap/include.content")}
+@{include("ImmutableList/include.content")}
+@{include("ImmutableMap/include.content")}
+@{include("ImmutableSet/include.content")}
 @{include("List/include.content")}
 @{include("Map/include.content")}
 @{include("Set/include.content")}

@@ -167,7 +167,7 @@ my-sem::before {
 
   </style>
 
-  <link rel='canonical' href='https://michaelheilmann.com/specifications/common-lexical-translations/index.html'>  
+  <link rel='canonical' href='https://michaelheilmann.com/specifications/common-lexical-translations/index.html'>
   <title>Common Lexical Translations</title>
 </head>
 <body class="my-content-page-1">
@@ -189,17 +189,23 @@ my-sem::before {
     <div class="left-column"></div>
     <div class="center-column">
     <h1>Common Lexical Translations</h1>
-    <div class="abstract"><p>The <em>Common Lexical Translations</em> specification a lexical translation, that is, it defines translations rules for
-how an input sequence of Unicode code points is translated into an output sequence of transformed and classified sequences
-of Unicode code points called words. The rules for provided by the <em>Common Lexical Translations</em> specification  are
-reused by other specifications within <em>Michael Heilmann’s Arcadia</em>.</p>
+    <div class="abstract"><p>The <em>Common Lexical Translations</em> specification provides reusable lexical categories and
+translation rules. These rules describe how sequences of Unicode code points are recognized,
+transformed, and classified as words, and are reused by language specifications within
+<em>Michael Heilmann's Arcadia</em>.</p>
+<p>Each consuming language defines its own complete lexical grammar, including its start symbol,
+word alternatives, and ambiguity-resolution rules. This specification supplies the common building
+blocks, not a universal word production.</p>
 </div>
 
     <h2 id="introduction">1. Introduction</h2>
-<p>The <em>Common Lexical Translations</em> specification a lexical translation, that is, it defines translations rules for
-how an input sequence of Unicode code points is translated into an output sequence of transformed and classified sequences
-of Unicode code points called words. The rules for provided by the <em>Common Lexical Translations</em> specification  are
-reused by other specifications within <em>Michael Heilmann’s Arcadia</em>.</p>
+<p>The <em>Common Lexical Translations</em> specification provides reusable lexical categories and
+translation rules. These rules describe how sequences of Unicode code points are recognized,
+transformed, and classified as words, and are reused by language specifications within
+<em>Michael Heilmann's Arcadia</em>.</p>
+<p>Each consuming language defines its own complete lexical grammar, including its start symbol,
+word alternatives, and ambiguity-resolution rules. This specification supplies the common building
+blocks, not a universal word production.</p>
 
 
 <p>The rules layed out here are described in terms of the concepts and notations of the <em>Context-Free Grammars</em>
@@ -208,38 +214,21 @@ specification (see <a href="https://michaelheilmann.com/specifications/context-f
 <p>A grammar incorporating these rules must have the set of all Unicode code points as its input alphabet.
 Furthermore, the grammar must ensure that ambiguities are resolved.</p>
 
-    <h2 id="standard-profile">2 Standard Profile</h2>
-<p>The <em>Full Profile</em> contains all possible rules.
-   Other profiles may be added in future versions.
-   Language designers are encouraged to create their own profiles.</p>
+<p>A <em>word</em> is a general term for an item recognized by a lexical translation. The common
+categories do not determine a universal set of words for all languages. Each consuming language
+shall define its own word production and lexical start symbol, selecting the common categories
+it uses and adding language-specific categories such as keywords or register notation.</p>
+<p>The consuming language shall resolve ambiguities among its selected alternatives and specify
+which recognized items are emitted, ignored, or significant to its syntax. It shall state any
+refinement of a common rule explicitly. Reusing a common category does not require accepting
+every other category listed in this specification.</p>
 
-<h3 id="standard-profile-word">2.1 word</h3>
-<p>The word <code>word</code> is defined by</p>
+    <h2 id="productions">2 Productions</h2>
+<p>This section lists reusable lexical productions and their translation rules. A consuming
+language selects and combines these productions with its own additions to define its lexical
+grammar, word alternatives, and start symbol.</p>
 
-<div class="box">
-<div class="body">
-<p><code>
-Lexical.Word : Lexical.Period<br>
-Lexical.Word : Lexical.Semicolon<br>
-Lexical.Word : Lexical.Boolean<br>
-Lexical.Word : Lexical.Number<br>
-Lexical.Word : Lexical.String<br>
-Lexical.Word : Lexical.Void<br>
-Lexical.Word : Lexical.Name<br>
-Lexical.Word : Lexical.LeftCurlyBracket<br>
-Lexical.Word : Lexical.RightCurlyBracket<br>
-Lexical.Word : Lexical.LeftSquareBracket<br>
-Lexical.Word : Lexical.RightSquareBracket<br>
-Lexical.Word : Lexical.Comma<br>
-Lexical.Word : Lexical.Colon<br>
-Lexical.Word : Lexical.Whitespace<br>
-Lexical.Word : Lexical.Newline<br>
-Lexical.Word : Lexical.Comment<br>
-</code></p>
-</div>
-</div>
-
-<h3 id="standard-profile-whitespace">2.2 whitespace</h3>
+<h3 id="productions-whitespace">2.1 whitespace</h3>
 <p>The word <code>whitespace</code> is defined by</p>
 
 <div class="box">
@@ -253,21 +242,21 @@ Lexial.Whitespace : #20
 </div>
 </div>
 
-<h3 id="standard-profile-line-terminator">2.3 line terminator</h3>
-<p>The word <code>Lexical.LineTerminator</code> is defined by</p>
+<h3 id="productions-end-of-line">2.2 end of line</h3>
+<p>The word <code>Lexical.EndOfLine</code> is defined by</p>
 
 <div class="box">
 <div class="body">
 <p><code>
 /* #a is also known as "LINEFEED (LF)" */<br>
 /* #d is also known as "CARRIAGE RETURN (CR)" */<br>
-Lexical.LineTerminator : #a {#d}<br>
-Lexical.LineTerminator : #d {#a}
+Lexical.EndOfLine : #a {#d}<br>
+Lexical.EndOfLine : #d {#a}
 </code></p>
 </div>
 </div>
 
-<h3 id="standard-profile-comments">2.4 comments</h3>
+<h3 id="productions-comment">2.3 comment</h3>
 <p>
 The language using the Common Lexical Specification may use both single-line comments and multi-line comments.
 A <code>Lexical.Comment</code> is either a <code>single_line_comment</code> or a <code>Lexical.MultiLineComment</code>.
@@ -329,7 +318,7 @@ Lexical.MultiLineComment :<br>
   <li>Multi-line comments do not nest.</li>
 </ul>
 
-<h3 id="standard-profile-parentheses">2.5 parentheses</h3>
+<h3 id="productions-parentheses">2.4 parentheses</h3>
 <p>The words <code>Lexical.LeftParenthesis</code> and <code>Lexical.RightParenthesis</code>, respectively, are defined by</p>
 
 <div class="box">
@@ -343,7 +332,7 @@ Lexical.RightParenthesis : #29
 </div>
 </div>
 
-<h3 id="standard-profile-curly-brackets">2.6 curly brackets</h3>
+<h3 id="productions-curly-brackets">2.5 curly brackets</h3>
 <p>The words <code>Lexical.LeftCurlyBracket</code> and <code>Lexical.RightCurlyBracket</code>, respectively, are defined by</p>
 
 <div class="box">
@@ -357,8 +346,8 @@ Lexical.RightCurlyBracket : #7d
 </div>
 </div>
 
-<h3 id="standard-profile-colon">2.7 colon</h3>
-<p>The word <code>Lexical.Colon</code> is defined by</code>
+<h3 id="productions-colon">2.6 colon</h3>
+<p>The word <code>Lexical.Colon</code> is defined by</p>
 
 <div class="box">
 <p><code>
@@ -367,7 +356,7 @@ Lexical.Colon : #3a
 </code></p>
 </div>
 
-<h3 id="standard-profile-square-brackets">2.8 square brackets</h3>
+<h3 id="productions-square-brackets">2.7 square brackets</h3>
 <p>The words <code>Lexical.LeftSquareBracket</code> and <code>Lexica.RightSquareBracket</code>, respectively, are defined by</p>
 
 <div class="box">
@@ -379,7 +368,7 @@ Lexical.RightSquareBracket : #5d
 </code></p>
 </div>
 
-<h3 id="standard-profile-comma">2.9 comma</h3>
+<h3 id="productions-comma">2.8 comma</h3>
 <p>The word <code>Lexical.Comma</code> is defined by</p>
 
 <div class="box">
@@ -389,7 +378,7 @@ Lexical.Comma : #2c
 </code></p>
 </div>
 
-<h3 id="standard-profile-name">2.10 name</h3>
+<h3 id="productions-name">2.9 name</h3>
 <p>The word <code>Lexical.Name</code> is defined by</p>
 
 <div class="box">
@@ -413,7 +402,7 @@ Lexical.NameSuffixCharacter : #5f<br>
 </div>
 </div>
 
-<h3 id="standard-profile-number-literal">2.10 number literal</h3>
+<h3 id="productions-number-literal">2.10 number literal</h3>
 <p>The word <code>Lexical.Number</code> is defined by</p>
 
 <div class="box">
@@ -436,7 +425,7 @@ Lexical.ExponentPrefix : #45<br>
 </code></p>
 </div>
 
-<h3 id="standard-profile-string-literal">2.11 string literal</h2
+<h3 id="productions-string-literal">2.11 string literal</h3>
 <p>The word <code>Lexical.String</code> is defined by</p>
 
 <div class="box">
@@ -479,7 +468,7 @@ Lexical.EscapeSequence : #5c #75
 
 <p>In the lexical translation, several transformations are performed upon the word:</p>
 
-<ul>
+  </ul>
   <li><code>Lexical.DoubleQuote {Lexical.DoubleQuotedStringCharacter} Lexical.DoubleQuote</code> has the leading double quote and the trailing double quote removed.</li>
   <li><code>Lexical.SingleQuote {Lexical.SingleQuotedStringCharacter} Lexical.SingleQuote</code> has the leading single quote and the trailing single quote removed.</li>
   <li><code>#5c #5c</code> (double "REVERSE SOLIDUS") are replaced by <code>#5c</code> ("REVERSE SOLIDUS")</li>
@@ -496,11 +485,11 @@ Lexical.EscapeSequence : #5c #75
   \]
   If \(c\) is outside of the set of Unicode code points, then the lexical translation shall fail.
   </li>
-<ul>
+</ul>
 
 
 
-<h3 id="standard-profile-boolean">2.12 boolean literal</h3>
+<h3 id="productions-boolean-literal">2.12 boolean literal</h3>
 <p>The word <code>Lexical.Boolean</code> is defined by</p>
 
 <div class="box">
@@ -515,7 +504,7 @@ false : #66 #61 #6c #73 #65
 <p>Remark: The word <code>Lexical.Boolean</code> is a so called <em>keyword</em>.
 It takes priority over the <code>Lexical.Name</code>.</p>
 
-<h3 id="standard-profile-void">2.13 void literal</h3>
+<h3 id="productions-void-literal">2.13 void literal</h3>
 <p>The word <code>Lexical.Void</code> is defined by</p>
 
 <div class="box">
@@ -529,7 +518,7 @@ Lexical.Void : #76 #6f # #69 #64
 <p>Remark: The word <code>Lexical.Void</code> is a so called <em>keyword</em>.
 It takes priority over the <code>Lexical.Name</code>.</p>
 
-<h3 id="standard-profile-decimal-digit">2.14 decimal digit</h3>
+<h3 id="productions-decimal-digit">2.14 decimal digit</h3>
 <p>The word <code>Lexical.DecimalDigit</code> is defined by</p>
 
 <div class="box">
@@ -540,7 +529,7 @@ Lexical.DecimalDigit : /* A single Unicode character from the code point range +
 </div>
 </div>
 
-<h3 id="standard-profile-hexadecimal-digit">2.15 hexadecimal digit</h3>
+<h3 id="productions-hexadecimal-digit">2.15 hexadecimal digit</h3>
 <p>The word <code>Lexical.HexadecimalDigit</code> is defined by</p>
 
 <div class="box">
@@ -551,10 +540,10 @@ Lexical.HexadecimalDigit : /* A single Unicode character from the code point ran
 </div>
 </div>
 
-<h3 id="standard-profile-alphanumeric">2.16 alphanumeric</h3>
+<h3 id="productions-alphanumeric">2.16 alphanumeric</h3>
 <p>The word <code>Lexical.Alphanumeric</code> is reserved for future use.</p>
 
-<h3 id="standard-profile-period">2.17 period</h3>
+<h3 id="productions-period">2.17 period</h3>
 <p>The word <code>Lexical.Period</code> is defined by</p>
 
 <div class="box">
@@ -564,29 +553,52 @@ Lexical.Period : 2e
 </code></p>
 </div>
 
+<h3 id="productions-end-of-input">2.18 end of input</h3>
+<p>The word <code>Lexical.EndOfInput</code> is a zero-width condition
+that is satisfied at the position immediately following the last Unicode code point of the input.
+It does not consume or represent a Unicode code point.</p>
+
+<h3 id="productions-start-of-input">2.19 start of input</h3>
+<p>The word <code>Lexical.StartOfInput</code> is a zero-width condition
+that is satisfied at the position immediately preceding the first Unicode code point of the input.
+It does not consume or represent a Unicode code point.</p>
+
+<h3 id="productions-line-continuation">2.20 line continuation</h3>
+<p>The word <code>Lexical.LineContinuation</code> is defined by</p>
+<div class="box">
+<p><code>
+/* #5c is also known as "REVERSE SOLIDUS" */<br>
+Lexical.LineContinuation : #5c Lexical.EndOfLine
+</code></p>
+</div>
+
 
   </div>
   <div class="right-column">
     <nav>
       <ul style="list-style: none">
         <li><a href="#introduction">1. Introduction</a></li>
-        <li><a href="#standard-profile">2 Standard Profile</a></li>
-        <li><a href="#standard-profile-word">2.1 word</a></li>
-        <li><a href="#standard-profile-whitespace">2.2 whitespace</a></li>
-        <li><a href="#standard-profile-line-terminator">2.3 line terminator</a></li>
-        <li><a href="#standard-profile-comment">2.4 comment</a></li>
-        <li><a href="#standard-profile-parentheses">2.5 parentheses</a></li>
-        <li><a href="#standard-profile-curly-brackets">2.6 curly brackets</a></li>
-        <li><a href="#standard-profile-colon">2.7 colon</a></li>
-        <li><a href="#standard-profile-comma">2.9 comma</a></li>
-        <li><a href="#standard-profile-number-literal">2.10 number literal</a></li>
-        <li><a href="#standard-profile-string-literal">2.11 string literal</a></li>
-        <li><a href="#standard-profile-boolean-literal">2.12 boolean literal</a></li>
-        <li><a href="#standard-profile-void-literal">2.13 void literal</a></li>
-        <li><a href="#standard-profile-digit">2.14 decimal digit</a></li>
-        <li><a href="#standard-profile-digit">2.15 hexadecimal digit</a></li>
-        <li><a href="#standard-profile-alphanumeric">2.16 alphanumeric</a></li>
-        <li><a href="#standard-profile-period">2.17 period</a></li>
+        <li><a href="#productions">2 Productions</a></li>
+        <li><a href="#productions-whitespace">2.1 whitespace</a></li>
+        <li><a href="#productions-end-of-line">2.2 end-of-line</a></li>
+        <li><a href="#productions-comment">2.3 comment</a></li>
+        <li><a href="#productions-parentheses">2.4 parentheses</a></li>
+        <li><a href="#productions-curly-brackets">2.5 curly brackets</a></li>
+        <li><a href="#productions-colon">2.6 colon</a></li>
+        <li><a href="#productions-square-brackets">2.7 square brackets</a></li>
+        <li><a href="#productions-comma">2.8 comma</a></li>
+        <li><a href="#productions-name">2.9 name</a></li>
+        <li><a href="#productions-number-literal">2.10 number literal</a></li>
+        <li><a href="#productions-string-literal">2.11 string literal</a></li>
+        <li><a href="#productions-boolean-literal">2.12 boolean literal</a></li>
+        <li><a href="#productions-void-literal">2.13 void literal</a></li>
+        <li><a href="#productions-decimal-digit">2.14 decimal digit</a></li>
+        <li><a href="#productions-hexadecimal-digit">2.15 hexadecimal digit</a></li>
+        <li><a href="#productions-alphanumeric">2.16 alphanumeric</a></li>
+        <li><a href="#productions-period">2.17 period</a></li>
+        <li><a href="#productions-end-of-input">2.18 end of input</a></li>
+        <li><a href="#productions-start-of-input">2.19 start of input</a></li>
+        <li><a href="#productions-line-continuation">2.20 line continuation</a></li>
       </ul>
     </nav>
   </div>
@@ -596,7 +608,7 @@ Lexical.Period : 2e
     <div class="center-column"></div>
     <div class="right-column">
       <div>Website maintained by Michael Heilmann.</div>
-      <div>Last modified on 11 October 2026.</div>
+      <div>Last modified on 16 October 2026.</div>
     </div>
   </footer>
 </body>

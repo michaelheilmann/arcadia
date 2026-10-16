@@ -41,8 +41,8 @@
 ## Interface Dispatch Semantics
 
 - Interface dispatch structs are independent. A derived interface does **not** embed its ancestors' dispatch structs; each interface has its own struct starting with `Arcadia_InterfaceDispatch parent`.
-- Consequently, an object implementing a derived interface must register a separate specification and a separate dispatch for **every** ancestor interface. Registration validates that the specification set is closed under the ancestors of the specified interface types and raises `Arcadia_Status_ArgumentValueInvalid` when it is not.
-- `Arcadia_ObjectType_getInterfaceDispatch` matches the interface type exactly, then walks the ancestor *object* types. It deliberately does **not** fall back to a descendant's dispatch. Implementing an ancestor does not implement a derived interface, and implementing a derived interface does not stand in for an ancestor.
+- Consequently, an object implementing a derived interface also implements every ancestor interface. Registration automatically adds missing ancestor interface implementation records, each with its own dispatch. A synthesized ancestor dispatch has no initializer of its own; if it is not inherited from an ancestor object type, its operation slots are zero until an explicit specification for that interface is provided.
+- `Arcadia_ObjectType_getInterfaceDispatch` matches the interface type exactly, then walks the ancestor *object* types. It deliberately does **not** fall back to a descendant's dispatch. Implementing an ancestor does not implement a derived interface, and implementing a derived interface uses distinct dispatch records for its ancestors.
 - When an object type registers an implementation of an interface type its parent (or another ancestor) also implements, the new dispatch is first zeroed, then initialized with a copy of that interface type's dispatch on the nearest ancestor object type, and only then is the dispatch initializer invoked. This mirrors the object dispatch, which is copied from the parent before its initializer runs. So an object type that overrides only some operations of an inherited interface implementation only has to set *those* operations in its initializer; the rest are inherited for free. A dispatch that is not inherited is all zero until the initializer sets every operation.
 - Because every implemented interface has its own allocation, there is no cross-interface dispatch-size constraint, and the dispatches of two interfaces implemented by one object are distinct pointers. Do not reintroduce a size equality check.
 - An interface value is erased: in C it is just the `Arcadia_Object*`, and on the value stack it is an ordinary object reference value. There is no interface-specific `Arcadia.Value` tag and no interface reference value type. Do not add one.
@@ -60,17 +60,14 @@
 
 ## Error Handling
 
-- Report errors with `Arcadia_Thread_setStatus(thread, ...)` followed by `Arcadia_Thread_jump(thread)`. Do not return error codes.
+- Follow the shared error-handling conventions in `AGENTS/CxxSourceCodeStyle.md`.
 - `Arcadia_JumpTarget` (`Thread.h`) holds a `jmp_buf` plus a `previous` pointer; pair `Arcadia_Thread_pushJumpTarget` with `Arcadia_Thread_popJumpTarget`, and guard the body with `Arcadia_JumpTarget_save`.
-- Re-throw after cleanup by popping the jump target, releasing owned temporaries, and calling `Arcadia_Thread_jump(thread)` again.
 - Common statuses: `Arcadia_Status_AllocationFailed`, `Arcadia_Status_OperationFailed`, `Arcadia_Status_StackCorruption`, `Arcadia_Status_ArgumentValueInvalid`, `Arcadia_Status_NotImplemented`, `Arcadia_Status_TestFailed` (used by the test assertions).
 
 ## Garbage Collection
 
-- Follow the rooting rules in the root `AGENTS.md`: plain C locals holding `Arcadia_Object*` are not GC roots, and `Arcadia_Process_stepARMS` may collect anything not reachable from a precise root.
-- Any object reference stored in a struct or object must be reported from that type's `visit` callback. A missing report lets the collector reclaim a live pointer.
-- `Arcadia_Object_lock`/`Arcadia_Object_unlock` (`Object.h`) are for temporary C-local objects only, and every lock must be exception-safe: if code between lock and unlock can jump, wrap it in a jump-target cleanup path.
-- Prefer a natural owner with a correct `visit` callback over a manual lock.
+- Follow the shared rooting rules in `AGENTS/CxxSourceCodeStyle.md`.
+- `Arcadia_Object_lock`/`Arcadia_Object_unlock` (`Object.h`) are the Ring1 manual root APIs for temporary C-local objects.
 - Object and interface type nodes are visited and finalized through `TypeSystem/ObjectTypeNode.module.c` and `TypeSystem/InterfaceTypeNode.module.c`; interface teardown is ordered so that an implemented interface is destructed after the objects that depend on it.
 - Barriers are gated on `Arcadia_Configuration_withBarriers`, which is defined in `Object.h` as `Arcadia_ARMS_Configuration_WithBarriers`.
 
@@ -112,11 +109,9 @@
 
 ## Conventions
 
-- New C, header, and CMake files carry the AGPL-3.0-or-later notice used by the surrounding files, with the current copyright year range.
-- Source files are CRLF. Verify there are no bare LF line endings after editing; text tools can silently introduce them and the diff then shows whole files as changed.
-- Format function definitions and macro parameter lists in the repo's two-line style: the return type on its own line, then the function name, then the parenthesized parameter list indented by two, one parameter per line, closing paren on its own line.
+- Follow the shared C/C++ source code style guide in `AGENTS/CxxSourceCodeStyle.md`.
 - Prefer adding a test rather than relying on review to catch a regression in the type system.
 
 ## Licensing
 
-- Preserve the AGPL-3.0-or-later header form for new C, header, and CMake files in this module.
+- Preserve the repository AGPL-3.0-or-later header form for new C, header, and CMake files in this module.

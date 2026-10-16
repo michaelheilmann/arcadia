@@ -199,7 +199,7 @@ Arcadia_ADL_MeshReader_read
     Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteBuffer, &v, sizeof(Arcadia_Real32Value));
   }
   Arcadia_RuntimeByteArray* vertexAmbientColors = Arcadia_RuntimeByteArray_create(thread, Arcadia_ByteArrayBuilder_getBytes(thread, byteBuffer), Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, byteBuffer));
-  // (3) read the ambient color texutre coordinates
+  // (3) read the ambient color texture coordinates
   Arcadia_ByteArrayBuilder_clear(thread, byteBuffer);
   list = Arcadia_ADL_Reader_getListValue(thread, (Arcadia_DDL_MapNode*)input, self->VERTEXAMBIENTCOLORTEXTURECOORDINATES);
   n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)list);

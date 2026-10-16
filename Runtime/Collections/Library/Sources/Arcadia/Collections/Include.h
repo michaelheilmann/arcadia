@@ -30,7 +30,10 @@
 #include "Arcadia/Collections/HashMap.h"
 #include "Arcadia/Collections/HashSet.h"
 #include "Arcadia/Collections/ArrayStack.h"
+#include "Arcadia/Collections/ImmutableHashMap.h"
 #include "Arcadia/Collections/ImmutableList.h"
+#include "Arcadia/Collections/ImmutableMap.h"
+#include "Arcadia/Collections/ImmutableSet.h"
 
 #undef ARCADIA_COLLECTIONS_EXPORT
 #pragma pop_macro("ARCADIA_COLLECTIONS_EXPORT")

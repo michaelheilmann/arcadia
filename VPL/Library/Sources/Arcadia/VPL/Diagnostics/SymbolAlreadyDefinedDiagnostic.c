@@ -85,7 +85,9 @@ constructImpl
   {
     Arcadia_Value value = Arcadia_ValueStack_getValue(thread, 2);
     Arcadia_ValueStack_pushValue(thread,  &value);
-    Arcadia_ValueStack_pushNatural8Value(thread, 1);
+    Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+    Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+    Arcadia_ValueStack_pushNatural8Value(thread, 3);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
   self->name = (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_String_getType(thread));
@@ -139,7 +141,7 @@ Arcadia_VPL_Diagnostics_SymbolAlreadyDefinedDiagnostic_create
     Arcadia_Languages_DiagnosticType type,
     Arcadia_String* name
   )
-{ 
+{
   _Arcadia_BeginCreate();
   Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_Languages_DiagnosticType_getType(thread), type));
   Arcadia_ValueStack_pushObjectReferenceValue(thread, name);

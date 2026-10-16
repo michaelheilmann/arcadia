@@ -81,7 +81,7 @@ Arcadia_Engine_Demo_Application_startupImpl
     Arcadia_Engine_Demo_Application* self
   )
 {
-  ((Arcadia_Engine_Application*)self)->configuration = (Arcadia_DDL_Node*)Arcadia_Engine_ApplicationConfiguration_loadConfiguration(thread, Arcadia_String_createFromCxxString(thread, u8"Demo"));
+  ((Arcadia_Engine_Application*)self)->configuration = (Arcadia_DDL_Node*)Arcadia_Engine_ApplicationConfiguration_loadConfiguration(thread, ((Arcadia_Engine_Application*)self)->configurationDirectoryName);
   // (1) Register audials backends.
   Arcadia_Engine_Audials_Implementation_registerBackends(thread, ((Arcadia_Engine_Application*)self)->engine->audialsBackendTypes);
   // (2) Startup audials.
@@ -105,7 +105,7 @@ Arcadia_Engine_Demo_Application_shutdownImpl
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
-    Arcadia_Engine_ApplicationConfiguration_saveConfiguration(thread, Arcadia_String_createFromCxxString(thread, u8"Demo"),
+    Arcadia_Engine_ApplicationConfiguration_saveConfiguration(thread, ((Arcadia_Engine_Application*)self)->configurationDirectoryName,
                                                                       ((Arcadia_Engine_Application*)self)->configuration);
     Arcadia_Thread_popJumpTarget(thread);
   } else {
@@ -159,8 +159,10 @@ Arcadia_Engine_Demo_Application_construct
     Arcadia_Thread_jump(thread);
   }
   //
+  Arcadia_Engine_Application_setConfigurationDirectoryName(thread, (Arcadia_Engine_Application*)self,
+    Arcadia_String_createFromCxxString(thread, u8"TextRenderingExample"));
   ((Arcadia_Engine_Application*)self)->configuration = NULL;
-  self->sceneManager = Arcadia_Engine_Demo_SceneManager_create(thread, ((Arcadia_Engine_Application*)self)->engine);
+  self->sceneManager = Arcadia_Engine_SceneManager_create(thread, ((Arcadia_Engine_Application*)self)->engine);
   self->fontCache = Arcadia_Engine_FontCache_create(thread);
   self->sceneOnQuitRequestedSlot = NULL;
   //

@@ -64,7 +64,20 @@ Arcadia_Media_VertexBuffer_getNumberOfVertices
   );
 
 Arcadia_Media_VertexDescriptor*
-Arcadia_Media_VertexBuffer_getVertexDescriptor  
+Arcadia_Media_VertexBuffer_getVertexDescriptor
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexBuffer* self
+  );
+
+/// @brief Get the vertex data of this vertex buffer.
+/// @details The vertex data is mutable, hence a caller that obtains it must be prepared to have the vertices of this
+///          vertex buffer changed, and should not share the pointer beyond the lifetime of this vertex buffer.
+/// @param thread A pointer to this thread.
+/// @param self A pointer to this vertex buffer.
+/// @return A pointer to the vertex data.
+void*
+Arcadia_Media_VertexBuffer_getVertices
   (
     Arcadia_Thread* thread,
     Arcadia_Media_VertexBuffer* self

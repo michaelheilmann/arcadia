@@ -152,3 +152,11 @@ Arcadia_Media_VertexBuffer_getVertexDescriptor
     Arcadia_Media_VertexBuffer* self
   )
 { return self->vertexDescriptor; }
+
+void*
+Arcadia_Media_VertexBuffer_getVertices
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexBuffer* self
+  )
+{ return self->vertices; }

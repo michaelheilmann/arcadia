@@ -69,10 +69,11 @@ Arcadia_VPL_Symbols_Procedure_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (3 != _numberOfArguments) {
+  if (4 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
+  self->flags = Arcadia_ValueStack_getNatural8Value(thread, 4);
   self->name = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_String_getType(thread));
   self->enclosing = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_VPL_Symbols_Symbol_getType(thread));
   self->node = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_VPL_Tree_Node_getType(thread));
@@ -128,6 +129,7 @@ Arcadia_VPL_Symbols_Procedure_create
   )
 {
   _Arcadia_BeginCreate(Arcadia_VPL_Symbols_Procedure);
+  Arcadia_ValueStack_pushNatural8Value(thread, flags);
   if (name) {
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)name);
   } else {
@@ -143,6 +145,6 @@ Arcadia_VPL_Symbols_Procedure_create
   } else {
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }
-  Arcadia_ValueStack_pushNatural8Value(thread, 3);
+  Arcadia_ValueStack_pushNatural8Value(thread, 4);
   _Arcadia_EndCreate(Arcadia_VPL_Symbols_Procedure);
 }

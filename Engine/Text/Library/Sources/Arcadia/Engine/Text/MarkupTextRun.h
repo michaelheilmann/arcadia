@@ -44,6 +44,7 @@ struct Arcadia_Engine_Text_MarkupTextRun {
   Arcadia_Integer32Value rectangleBottom;
   Arcadia_Integer32Value rectangleWidth;
   Arcadia_Integer32Value rectangleHeight;
+  Arcadia_BooleanValue lineBreakBefore;
   Arcadia_BooleanValue fixedPlacement;
 };
 

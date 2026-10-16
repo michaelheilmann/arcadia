@@ -22,10 +22,16 @@
 #endif
 #include "Arcadia/VPL/Symbols/Symbol.h"
 #include "Arcadia/VPL/Tree/Include.h"
+
 typedef struct Arcadia_VPL_Symbols_Stage Arcadia_VPL_Symbols_Stage;
+
 typedef struct Arcadia_VPL_Symbols_ConstantRecord Arcadia_VPL_Symbols_ConstantRecord;
+
 typedef struct Arcadia_VPL_Symbols_BuiltinType Arcadia_VPL_Symbols_BuiltinType;
+
 typedef struct Arcadia_VPL_Symbols_Procedure Arcadia_VPL_Symbols_Procedure;
+
+typedef struct Arcadia_VPL_Context Arcadia_VPL_Context;
 
 // Mutually exclusive to Arcadia_VPL_Symbols_ProgramFlags_VertexAmbientColor and Arcdia_Visuals_VPL_ProgramFlags_TextureAmbientColor.
 #define Arcadia_VPL_Symbols_ProgramFlags_MeshAmbientColor (1)
@@ -83,10 +89,16 @@ struct Arcadia_VPL_Symbols_Program {
   // `void` as used by the VPL.
   // Happens that this currently coincides with `void` in GLSL.
   Arcadia_VPL_Symbols_BuiltinType* VOID;
+  Arcadia_VPL_Symbols_BuiltinType* BOOL;
+  Arcadia_VPL_Symbols_BuiltinType* INT;
+  Arcadia_VPL_Symbols_BuiltinType* FLOAT;
+  /// Named value types entered in the program scope, including the built-in types.
+  /// Additional array/record type names can be registered here before EnterPhase runs.
+  Arcadia_List* types;
 
   /// The program scope.
   /// The following symbols are added:
-  /// the "mat4", "sampler2D", "vec2", "vec3", "vec4" built-in types
+  /// the registered value types, including "bool", "int", and "float"
   /// all "constant records" and "constant scalars"
   Arcadia_Languages_Scope* scope;
 
@@ -96,6 +108,9 @@ struct Arcadia_VPL_Symbols_Program {
 
   // The program definition node.
   Arcadia_VPL_Tree_ProgramDefnNode* programDefnNode;
+
+  // The compilation context. Owns the diagnostics and the compiler phases.
+  Arcadia_VPL_Context* context;
 };
 
 Arcadia_VPL_Symbols_Program*
@@ -103,6 +118,13 @@ Arcadia_VPL_Symbols_Program_create
   (
     Arcadia_Thread* thread,
     Arcadia_Natural8Value flags
+  );
+
+Arcadia_VPL_Context*
+Arcadia_VPL_Symbols_Program_getContext
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Symbols_Program* self
   );
 
 Arcadia_List*
@@ -128,6 +150,14 @@ Arcadia_VPL_Symbols_Program_createVertexShaderMainProcedureTree
 
 Arcadia_VPL_Tree_ProcedureDefnNode*
 Arcadia_VPL_Symbols_Program_createFragmentShaderMainProcedureTree
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Symbols_Program* self
+  );
+
+/// Type-check an entered and name-resolved program through its compilation context.
+void
+Arcadia_VPL_Symbols_Program_resolveTypes
   (
     Arcadia_Thread* thread,
     Arcadia_VPL_Symbols_Program* self

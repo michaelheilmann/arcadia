@@ -15,12 +15,16 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia.ADL.Tests.Definitions/Audials/SampleBuffer.h"
+#include "Arcadia.ADL.Tests.Definitions/UI/ContainerComposition.h"
 
+#include "Arcadia.ADL.Tests.Definitions/Visuals/BoxMeshGenerator.h"
 #include "Arcadia.ADL.Tests.Definitions/Visuals/Color.h"
 #include "Arcadia.ADL.Tests.Definitions/Visuals/Material.h"
 #include "Arcadia.ADL.Tests.Definitions/Visuals/Mesh.h"
 #include "Arcadia.ADL.Tests.Definitions/Visuals/Model.h"
 #include "Arcadia.ADL.Tests.Definitions/Visuals/PixelBuffer.h"
+#include "Arcadia.ADL.Tests.Definitions/Visuals/PlaneMeshGenerator.h"
+#include "Arcadia.ADL.Tests.Definitions/Visuals/SphereMeshGenerator.h"
 #include "Arcadia.ADL.Tests.Definitions/Visuals/Texture.h"
 
 #include "Arcadia.ADL.Tests.Definitions/DSP/Constant.h"
@@ -35,6 +39,9 @@ main
     char** argv
   )
 {
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_UI_ContainerCompositionTest1)) {
+    return EXIT_FAILURE;
+  }
   if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Audials_SampleBufferDefinitionTest1)) {
     return EXIT_FAILURE;
   }
@@ -92,7 +99,51 @@ main
     return EXIT_FAILURE;
   }
   //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_BoxMeshGeneratorTest1)) {
+    return EXIT_FAILURE;
+  }
+  //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_BoxMeshGeneratorTest2)) {
+    return EXIT_FAILURE;
+  }
+  //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_BoxMeshGeneratorTest3)) {
+    return EXIT_FAILURE;
+  }
+  //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_SphereMeshGeneratorTest1)) {
+    return EXIT_FAILURE;
+  }
+  //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_SphereMeshGeneratorTest2)) {
+    return EXIT_FAILURE;
+  }
+  //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_SphereMeshGeneratorTest3)) {
+    return EXIT_FAILURE;
+  }
+  //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_PlaneMeshGeneratorTest1)) {
+    return EXIT_FAILURE;
+  }
+  //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_PlaneMeshGeneratorTest2)) {
+    return EXIT_FAILURE;
+  }
+  //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_PlaneMeshGeneratorTest3)) {
+    return EXIT_FAILURE;
+  }
+  //
   if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_ModelDefinitionTest1)) {
+    return EXIT_FAILURE;
+  }
+  //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_ModelDefinitionTest2)) {
+    return EXIT_FAILURE;
+  }
+  //
+  if (!Arcadia_Tests_safeExecute(&Arcadia_ADL_Tests_Visuals_ModelDefinitionTest3)) {
     return EXIT_FAILURE;
   }
   //

@@ -1,0 +1,22 @@
+procedure continued : Arcadia.Void {
+  invoke $0 print \
+    "Hello, " \
+    "World!\n"
+  construct $0 \
+    MyClass \
+    $1 \
+    "argument"
+  add \
+    $0 \
+    $1 \
+    $2
+  storeArgument \
+    $0 \
+    output \
+    $1
+  jumpIfTrue \
+    $1 \
+    done
+done:
+  return void
+}

@@ -17,7 +17,7 @@
 - Build target name: `Arcadia.Engine.Examples.CheckerboardTexture` (e.g. `cmake --build C:/develop/Arcadia/Build/x64 --config Debug --target Arcadia.Engine.Examples.CheckerboardTexture`).
 - There are no tests for this module (it is an interactive GUI app; nothing is registered with CTest here).
 - Assets are staged at build time into the binary tree by `CopyProductAssets`: the example's own `Assets/` tree plus the assets of every linked library (collected transitively by `Arcadia_collectTargetAssets` over the link closure via the `ARCADIA_ASSETS_*` target properties in `CMake/all.cmake`). The CSS colors under `Assets/Colors/CSS/` are not stored in this module; they are provided by the `${MyProjectName}.Engine` library the example links. The demo loads assets at runtime with paths relative to the process working directory (e.g. `Assets/Colors/CSS/...`), so run the executable from a directory where the `Assets` folder exists (typically the build tree).
-- On first run, the demo creates its configuration file in the user configuration directory under `<config-dir>/Demo/Configuration.txt` and fills in defaults for missing/invalid settings.
+- On first run, the demo creates its configuration file in the user configuration directory under `<config-dir>/CheckerboardTextureExample/Configuration.txt` and fills in defaults for missing/invalid settings.
 
 ## CMake Conventions
 
@@ -28,7 +28,7 @@
 
 ## Repository Shape
 
-- `Sources/Arcadia/Engine/Examples/CheckerboardTexture/Main.c` — program entry. Acquires a process/thread, creates the `Arcadia.Engine.Demo.Application`, starts it, installs an `onSceneChanged` handler, sets the initial scene (`Arcadia.Engine.Examples.CheckerboardTexture.CheckerboardTextureScene`), runs one GC step, and enters the message loop. Each iteration calls `Arcadia_Process_stepARMS`, updates the audials/visuals backend contexts, updates the scene's logics, then per window (`beginRender`/`endRender`) updates logics/audials/visuals with the canvas size, and finally dequeues engine events (window closed, mouse button/pointer, keyboard key) and dispatches them to the active scene. Quit is requested via window close or Escape (`applicationQuitRequestSignal`).
+- `Sources/Arcadia/Engine/Examples/CheckerboardTexture/Main.c` — program entry. Acquires a process/thread, creates the `Arcadia.Engine.Demo.Application`, starts it, installs an `onSceneChanged` handler, sets the initial scene (`Arcadia.Engine.Examples.CheckerboardTexture.CheckerboardTextureScene`), runs one GC step, and enters the message loop. Each iteration calls `Arcadia_Process_stepARMS`, updates the audials/visuals backend contexts, updates the scene's logics, then per window (`beginRender`/`endRender`) updates audials and visuals with the canvas size, and finally dequeues engine events (window closed, mouse button/pointer, keyboard key) and dispatches them to the active scene. Quit is requested via window close or Escape (`applicationQuitRequestSignal`).
 - `Application` — subclasses `Arcadia.Engine.Application`. Owns the `SceneManager` and a `sceneOnQuitRequestedSlot`, and re-broadcasts the active scene's quit request.
   - Its constructor loads the application configuration (`Arcadia_Engine_ApplicationConfiguration_loadConfiguration`) and creates the `SceneManager`.
   - `startup` registers audials backends and starts audials (`Arcadia_Engine_ApplicationHelper_startupAudials`), then registers visuals backends and starts visuals (`Arcadia_Engine_ApplicationHelper_startupVisuals`), opening the window.

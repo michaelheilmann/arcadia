@@ -18,22 +18,24 @@
 
 #include "Arcadia/Engine/Include.h"
 
+#include <math.h>
+
 static void
 setMasterVolume
   (
     Arcadia_Thread* thread,
     Arcadia_DDL_Node* configuration,
-    Arcadia_Integer32Value value
+    Arcadia_Real64Value value
   )
 {
   char const* path[] = {
     u8"audials",
     u8"masterVolume",
   };
-  Arcadia_Engine_ApplicationConfiguration_setInteger32(thread, configuration, path, 2, value);
+  Arcadia_Engine_ApplicationConfiguration_setReal64(thread, configuration, path, 2, value);
 }
 
-static Arcadia_Integer32Value
+static Arcadia_Real64Value
 getMasterVolume
   (
     Arcadia_Thread* thread,
@@ -44,7 +46,18 @@ getMasterVolume
     u8"audials",
     u8"masterVolume",
   };
-  return Arcadia_Engine_ApplicationConfiguration_getInteger32(thread, configuration, path, 2);
+  return Arcadia_Engine_ApplicationConfiguration_getReal64(thread, configuration, path, 2);
+}
+
+static Arcadia_Real64Value
+projectVolume
+  (
+    Arcadia_Real64Value value
+  )
+{
+  if (value < 0.0) value = 0.0;
+  if (value > 1.0) value = 1.0;
+  return floor(value * 100.0 + 0.5) / 100.0;
 }
 
 static Arcadia_BooleanValue
@@ -121,20 +134,42 @@ Arcadia_Engine_ApplicationHelper_startupAudials
   }
   // (3) Set the master volume.
   {
+    Arcadia_Real64Value masterVolume = 1.0;
+    Arcadia_BooleanValue legacyScale = Arcadia_BooleanValue_True;
     Arcadia_JumpTarget jumpTarget;
     Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
     if (Arcadia_JumpTarget_save(&jumpTarget)) {
-      Arcadia_Integer32Value masterVolume = getMasterVolume(thread, configuration);
-      if (masterVolume < 0 || masterVolume > 10) {
-        Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
-        Arcadia_Thread_jump(thread);
+      char const* versionPath[] = { u8"audials", u8"volumeScale" };
+      Arcadia_Integer32Value volumeScale = Arcadia_Engine_ApplicationConfiguration_getInteger32(thread, configuration, versionPath, 2);
+      legacyScale = volumeScale != 1;
+      Arcadia_Thread_popJumpTarget(thread);
+    } else {
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    }
+
+    Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+    if (Arcadia_JumpTarget_save(&jumpTarget)) {
+      if (legacyScale) {
+        Arcadia_Integer32Value legacyMasterVolume = Arcadia_Engine_ApplicationConfiguration_getInteger32(thread, configuration,
+          (char const*[]){ u8"audials", u8"masterVolume" }, 2);
+        masterVolume = (Arcadia_Real64Value)legacyMasterVolume / 10.0;
+      } else {
+        masterVolume = getMasterVolume(thread, configuration);
       }
       Arcadia_Thread_popJumpTarget(thread);
     } else {
       Arcadia_Thread_popJumpTarget(thread);
       Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
-      setMasterVolume(thread, configuration, 10);
+      masterVolume = 1.0;
     }
+
+    masterVolume = projectVolume(masterVolume);
+    setMasterVolume(thread, configuration, masterVolume);
+    Arcadia_Engine_ApplicationConfiguration_setInteger32(thread, configuration,
+      (char const*[]){ u8"audials", u8"volumeScale" }, 2, 1);
+    Arcadia_Engine_Audials_BackendContext_setMasterVolume(thread,
+      (Arcadia_Engine_Audials_BackendContext*)engine->audialsBackendContext, masterVolume);
   }
   // (4) Create the node factory.
   {

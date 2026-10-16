@@ -39,7 +39,7 @@ struct Arcadia_Engine_UI_WidgetNodeDispatch {
 
 struct Arcadia_Engine_UI_WidgetNode {
   Arcadia_Engine_UI_Node _parent;
-  Arcadia_Integer32Value left, top;
+  Arcadia_Integer32Value left, bottom;
   Arcadia_Integer32Value width, height;
   Arcadia_Signal* propertyChanged;
 };
@@ -62,14 +62,14 @@ Arcadia_Engine_UI_WidgetNode_render
 /// @param thread A pointer to this thread.
 /// @param self A pointer to this widget.
 /// @param left A pointer to a variable which is assigned the left of this widget.
-/// @param top A pointer to a variable which is assigned the top of this widget.
+/// @param bottom A pointer to a variable which is assigned the bottom of this widget.
 void
 Arcadia_Engine_UI_WidgetNode_getPosition
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_WidgetNode* self,
     Arcadia_Integer32Value* left,
-    Arcadia_Integer32Value* top
+    Arcadia_Integer32Value* bottom
   );
 
 /// @brief Get the size of this widget.
@@ -90,16 +90,16 @@ Arcadia_Engine_UI_WidgetNode_getSize
 /// @param thread A pointer to this thread.
 /// @param self A pointer to this widget.
 /// @param left The left of this widget.
-/// @param top The top of this widget.
+/// @param bottom The bottom of this widget.
 /// @error Arcadia_Status_ArgumentValueInvalid left is smaller than Arcadia_Integer32Value_Minimum / 2  or greater than Arcadia_Integer32Value_Maximum / 2
-/// @error Arcadia_Status_ArgumentValueInvalid top is smaller than Arcadia_Integer32Value_Minimum / 2  or greater than Arcadia_Integer32Value_Maximum / 2
+/// @error Arcadia_Status_ArgumentValueInvalid bottom is smaller than Arcadia_Integer32Value_Minimum / 2  or greater than Arcadia_Integer32Value_Maximum / 2
 void
 Arcadia_Engine_UI_WidgetNode_setPosition
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_WidgetNode* self,
     Arcadia_Integer32Value left,
-    Arcadia_Integer32Value top
+    Arcadia_Integer32Value bottom
   );
 
 /// @brief Set the size of this widget.
@@ -116,6 +116,35 @@ Arcadia_Engine_UI_WidgetNode_setSize
     Arcadia_Engine_UI_WidgetNode* self,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
+  );
+
+void
+Arcadia_Engine_UI_WidgetNode_getBounds
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value* left,
+    Arcadia_Integer32Value* bottom,
+    Arcadia_Integer32Value* width,
+    Arcadia_Integer32Value* height
+  );
+
+void
+Arcadia_Engine_UI_WidgetNode_setBounds
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value left,
+    Arcadia_Integer32Value bottom,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  );
+
+Arcadia_Signal*
+Arcadia_Engine_UI_WidgetNode_getPropertyChangedSignal
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self
   );
 
 /// @brief Raise the widget event signal.

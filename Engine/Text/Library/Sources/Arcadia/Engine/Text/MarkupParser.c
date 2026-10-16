@@ -78,6 +78,7 @@ static Arcadia_Value runImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupP
   Arcadia_BooleanValue hasRectangle = Arcadia_BooleanValue_False;
   Arcadia_Integer32Value rectangleLeft = 0, rectangleBottom = 0, rectangleWidth = 0, rectangleHeight = 0;
   Arcadia_BooleanValue fixed = Arcadia_BooleanValue_False;
+  Arcadia_BooleanValue pendingLineBreak = Arcadia_BooleanValue_False;
   next(thread, self);
   while (type(thread, self) != Arcadia_Engine_Text_MarkupWordType_EndOfInput) {
     if (type(thread, self) == Arcadia_Engine_Text_MarkupWordType_LeftBracket) {
@@ -103,11 +104,14 @@ static Arcadia_Value runImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupP
       }
       next(thread, self);
     } else if (type(thread, self) == Arcadia_Engine_Text_MarkupWordType_LineBreak) {
+      pendingLineBreak = Arcadia_BooleanValue_True;
       next(thread, self);
     } else if (type(thread, self) == Arcadia_Engine_Text_MarkupWordType_Text) {
       Arcadia_String* runText = text(thread, self);
       Arcadia_Engine_Text_MarkupTextRun* run = Arcadia_Engine_Text_MarkupTextRun_create(thread, runText, runText, NULL, pixelSize, color, alignment, fixed);
       setRectangle(run, hasRectangle, rectangleLeft, rectangleBottom, rectangleWidth, rectangleHeight);
+      run->lineBreakBefore = pendingLineBreak;
+      pendingLineBreak = Arcadia_BooleanValue_False;
       Arcadia_List_insertBackObjectReferenceValue(thread, runs, (Arcadia_Object*)run);
       next(thread, self);
     } else if (type(thread, self) == Arcadia_Engine_Text_MarkupWordType_LeftBrace) {
@@ -119,6 +123,8 @@ static Arcadia_Value runImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupP
       Arcadia_String* empty = Arcadia_String_createFromCxxString(thread, "");
       Arcadia_Engine_Text_MarkupTextRun* run = Arcadia_Engine_Text_MarkupTextRun_create(thread, empty, token, token, pixelSize, color, alignment, fixed);
       setRectangle(run, hasRectangle, rectangleLeft, rectangleBottom, rectangleWidth, rectangleHeight);
+      run->lineBreakBefore = pendingLineBreak;
+      pendingLineBreak = Arcadia_BooleanValue_False;
       Arcadia_List_insertBackObjectReferenceValue(thread, runs, (Arcadia_Object*)run);
       next(thread, self);
     } else { fail(thread); }

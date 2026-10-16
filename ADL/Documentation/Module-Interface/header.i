@@ -20,5 +20,5 @@
   <ul>
     <li>the context and the reader registry that process ADL assets,</li>
     <li>the container of definitions and the base definition and reference types, and</li>
-    <li>the definition types of the assets an Arcadia application loads: colors, meshes, models, materials, pixel buffers, pixel-buffer operations, textures, sample buffers, and digital signal processing definitions.</li>
+    <li>the definition types of the assets an Arcadia application loads: colors, meshes, models, materials, pixel buffers, pixel-buffer operations, textures, sample buffers, digital signal processing definitions, and user-interface button definitions.</li>
   </ul>

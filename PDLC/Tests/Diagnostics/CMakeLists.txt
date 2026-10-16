@@ -25,15 +25,14 @@ if (NOT TARGET ${this})
 
   SetFolder(${this} ${MyTestFolder})
 
-  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/MILC/Tests/Diagnostics/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/MILC/Tests/Diagnostics/Configure.h.i)
+  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/PDLC/Tests/Diagnostics/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/PDLC/Tests/Diagnostics/Configure.h.i)
 
-  OnSourceFile(${this} Arcadia/MILC/Tests/Diagnostics/Main.c)
+  OnSourceFile(${this} Arcadia/PDLC/Tests/Diagnostics/Main.c)
 
   OnModuleDependency(${this} ${MyProjectName}.PDLC PRIVATE)
 
   EndProduct(${this})
-  
+
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)
-  CopyProductAssets(${this} ${MyTestFolder} ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
 endif()

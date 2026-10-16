@@ -19,9 +19,9 @@
 
 #include "Arcadia/Ring1/Include.h"
 
-/// Test that an object type which implements an interface type must also implement the ancestor
-/// interface types of that interface type. See "InterfaceImplementationMustBeClosedUnderAncestors.c"
-/// for the full scenario.
+/// Test that registering a derived interface implementation automatically registers ancestor
+/// interface dispatches. See "InterfaceImplementationMustBeClosedUnderAncestors.c" for the full
+/// scenario.
 void
 testInterfaceImplementationMustBeClosedUnderAncestors
   (

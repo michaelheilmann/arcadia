@@ -65,12 +65,12 @@ onSceneChanged
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
     Arcadia_Engine_Demo_Application* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 4, _Arcadia_Engine_Demo_Application_getType(thread));
-    Arcadia_Engine_Demo_Scene* oldScene = NULL,
+    Arcadia_Engine_Scene* oldScene = NULL,
                              * newScene = NULL;
     //
     if (Arcadia_ValueStack_isVoidValue(thread, 2)) {
     } else if (Arcadia_ValueStack_isObjectReferenceValue(thread, 2)) {
-      oldScene = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_Demo_Scene_getType(thread));
+      oldScene = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_Scene_getType(thread));
     } else {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
       Arcadia_Thread_jump(thread);
@@ -78,7 +78,7 @@ onSceneChanged
     //
     if (Arcadia_ValueStack_isVoidValue(thread, 1)) {
     } else if (Arcadia_ValueStack_isObjectReferenceValue(thread, 1)) {
-      newScene = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_Demo_Scene_getType(thread));
+      newScene = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_Scene_getType(thread));
     } else {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
       Arcadia_Thread_jump(thread);
@@ -119,7 +119,7 @@ main1
     Arcadia_Signal_connect(thread, application->sceneManager->sceneChangedEvent, (Arcadia_Object*)application,
                                                                                  &onSceneChanged);
 
-    Arcadia_Engine_Demo_SceneManager_setScene(thread, application->sceneManager, (Arcadia_Engine_Demo_Scene*)Arcadia_Engine_Demo_TextRenderingScene_create(thread, ((Arcadia_Engine_Application*)application)->engine, application->sceneManager, application->fontCache));
+    Arcadia_Engine_SceneManager_setScene(thread, application->sceneManager, (Arcadia_Engine_Scene*)Arcadia_Engine_Demo_TextRenderingScene_create(thread, ((Arcadia_Engine_Application*)application)->engine, application->sceneManager, application->fontCache));
 
     // One run of the GC before entering the main loop.
     Arcadia_Process_stepARMS(process);
@@ -133,7 +133,9 @@ main1
       Arcadia_Process_stepARMS(process);
       Arcadia_Engine_BackendContext_update(thread, (Arcadia_Engine_BackendContext*)((Arcadia_Engine_Application*)application)->engine->audialsBackendContext);
       Arcadia_Engine_BackendContext_update(thread, (Arcadia_Engine_BackendContext*)((Arcadia_Engine_Application*)application)->engine->visualsBackendContext);
-      Arcadia_Engine_Demo_Scene_updateLogics(thread, Arcadia_Engine_Demo_SceneManager_getScene(thread, application->sceneManager), deltaTick);
+      // The scene logic updates once per iteration; the loop below only renders, so its
+      // per-window calls are audials and visuals only.
+      Arcadia_Engine_Scene_updateLogics(thread, Arcadia_Engine_SceneManager_getScene(thread, application->sceneManager), deltaTick);
 
       for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)((Arcadia_Engine_Application*)application)->windows); i < n; ++i) {
         Arcadia_Engine_Visuals_Window* window =
@@ -149,32 +151,34 @@ main1
         {
           Arcadia_Integer32Value width, height;
           Arcadia_Engine_Visuals_Window_getCanvasSize(thread, window, &width, &height);
-          Arcadia_Engine_Demo_Scene_updateLogics(thread, Arcadia_Engine_Demo_SceneManager_getScene(thread, application->sceneManager), deltaTick);
-          Arcadia_Engine_Demo_Scene_updateAudials(thread, Arcadia_Engine_Demo_SceneManager_getScene(thread, application->sceneManager), deltaTick, width, height);
-          Arcadia_Engine_Demo_Scene_updateVisuals(thread, Arcadia_Engine_Demo_SceneManager_getScene(thread, application->sceneManager), deltaTick, width, height);
+          Arcadia_Engine_Scene_updateAudials(thread, Arcadia_Engine_SceneManager_getScene(thread, application->sceneManager), deltaTick, width, height);
+          Arcadia_Engine_Scene_updateVisuals(thread, Arcadia_Engine_SceneManager_getScene(thread, application->sceneManager), deltaTick, width, height);
         }
         Arcadia_Engine_Visuals_Window_endRender(thread, window);
       }
-      Arcadia_Engine_Event* event = Arcadia_Engine_dequeEvent(thread, ((Arcadia_Engine_Application*)application)->engine);
-      if (NULL != event) {
+      Arcadia_Engine_Event* event;
+      // Drain the whole queue. Dequeuing a single event per iteration lets the backlog, and
+      // with it the input latency, grow whenever more than one event arrives per iteration,
+      // which mouse-look regularly does.
+      while (NULL != (event = Arcadia_Engine_dequeEvent(thread, ((Arcadia_Engine_Application*)application)->engine))) {
         if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)event, _Arcadia_Engine_Visuals_WindowClosedEvent_getType(thread))) {
           Arcadia_Engine_Visuals_WindowClosedEvent* windowClosedEvent = (Arcadia_Engine_Visuals_WindowClosedEvent*)event;
           Arcadia_Engine_Demo_Application_onWindowClosedEvent(thread, application, windowClosedEvent);
         }
         if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)event, _Arcadia_Engine_Input_MouseButtonEvent_getType(thread))) {
           Arcadia_Engine_Input_MouseButtonEvent* e = (Arcadia_Engine_Input_MouseButtonEvent*)event;
-          Arcadia_Engine_Demo_Scene* scene = Arcadia_Engine_Demo_SceneManager_getScene(thread, application->sceneManager);
-          Arcadia_Engine_Demo_Scene_handleMouseButtonEvent(thread, scene, e);
+          Arcadia_Engine_Scene* scene = Arcadia_Engine_SceneManager_getScene(thread, application->sceneManager);
+          Arcadia_Engine_Scene_handleMouseButtonEvent(thread, scene, e);
         }
         if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)event, _Arcadia_Engine_Input_MousePointerEvent_getType(thread))) {
           Arcadia_Engine_Input_MousePointerEvent* e = (Arcadia_Engine_Input_MousePointerEvent*)event;
-          Arcadia_Engine_Demo_Scene* scene = Arcadia_Engine_Demo_SceneManager_getScene(thread, application->sceneManager);
-          Arcadia_Engine_Demo_Scene_handleMousePointerEvent(thread, scene, e);
+          Arcadia_Engine_Scene* scene = Arcadia_Engine_SceneManager_getScene(thread, application->sceneManager);
+          Arcadia_Engine_Scene_handleMousePointerEvent(thread, scene, e);
         }
         if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)event, _Arcadia_Engine_Input_KeyboardKeyEvent_getType(thread))) {
           Arcadia_Engine_Input_KeyboardKeyEvent* e = (Arcadia_Engine_Input_KeyboardKeyEvent*)event;
-          Arcadia_Engine_Demo_Scene* scene = Arcadia_Engine_Demo_SceneManager_getScene(thread, application->sceneManager);
-          Arcadia_Engine_Demo_Scene_handleKeyboardKeyEvent(thread, scene, e);
+          Arcadia_Engine_Scene* scene = Arcadia_Engine_SceneManager_getScene(thread, application->sceneManager);
+          Arcadia_Engine_Scene_handleKeyboardKeyEvent(thread, scene, e);
         }
       }
       oldTick = newTick;

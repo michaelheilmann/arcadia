@@ -29,6 +29,7 @@ static char const textRunsMarkup[] =
   "[rect=canvas align=center size=32 color=Colors.Yellow]Hello, World!\n"
   "[rect=canvas align=center size=24 color=Colors.Cyan]Hello, World!\n"
   "[rect=canvas align=center size=16 color=Colors.Magenta]Hello, World!\n"
+  "[size=16 color=Colors.White fixed=true]Esc: quit | L/C/R or Left/Up/Right: align\n"
   "[size=16 color=Colors.White fixed=true]{fps}";
 
 // The vertical distance, in pixels, between two adjacent lines.
@@ -36,6 +37,8 @@ static char const textRunsMarkup[] =
 // The distance, in pixels, of the fixed runs (e.g. the FPS counter) from the
 // left and top edges of the canvas.
 #define Arcadia_Engine_Demo_TextRenderingScene_MARGIN (16)
+// The fraction of the canvas width inset from each side for normal text runs.
+#define Arcadia_Engine_Demo_TextRenderingScene_TEXT_AREA_INSET_DENOMINATOR (8)
 // The maximum number of glyphs rendered by the FPS counter run ("FPS: 9999").
 #define Arcadia_Engine_Demo_TextRenderingScene_FPS_MAXIMUM_GLYPHS Arcadia_Engine_FPSCounter_MaximumTextLength
 
@@ -126,7 +129,20 @@ setGlyphQuads
     Arcadia_Engine_Demo_TextRenderingScene* self,
     Arcadia_SizeValue runIndex,
     Arcadia_Integer32Value penX,
-    Arcadia_Integer32Value baselineY
+    Arcadia_Integer32Value baselineY,
+    Arcadia_BooleanValue hasClipRectangle,
+    Arcadia_Integer32Value clipLeft,
+    Arcadia_Integer32Value clipBottom,
+    Arcadia_Integer32Value clipWidth,
+    Arcadia_Integer32Value clipHeight
+  );
+
+static void
+copyGlyphPlacements
+  (
+    Arcadia_Engine_Text_GlyphPlacement* target,
+    Arcadia_FontIO_AtlasGlyphInformation const* source,
+    Arcadia_SizeValue numberOfGlyphs
   );
 
 static Arcadia_SizeValue
@@ -182,6 +198,14 @@ layoutGlyphs
   );
 
 static void
+setTextAlignment
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Demo_TextRenderingScene* self,
+    Arcadia_Engine_Text_TextAlignment alignment
+  );
+
+static void
 setFontTexture
   (
     Arcadia_Thread* thread,
@@ -229,7 +253,7 @@ static const Arcadia_Type_Operations _Arcadia_Engine_Demo_TextRenderingScene_typ
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Engine.Demo.TextRenderingScene", Arcadia_Engine_Demo_TextRenderingScene,
-                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Demo_Scene,
+                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Scene,
                          &_Arcadia_Engine_Demo_TextRenderingScene_typeOperations);
 
 static void
@@ -287,12 +311,12 @@ Arcadia_Engine_Demo_TextRenderingScene_initializeDispatchImpl
     Arcadia_Engine_Demo_TextRenderingSceneDispatch* self
   )
 {
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateAudials = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Demo_TextRenderingScene_updateAudialsImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateLogics = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value)) & Arcadia_Engine_Demo_TextRenderingScene_updateLogicsImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateVisuals = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Demo_TextRenderingScene_updateVisualsImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*)) & Arcadia_Engine_Demo_TextRenderingScene_handleKeyboardKeyEventImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_MouseButtonEvent*)) & Arcadia_Engine_Demo_TextRenderingScene_handleMouseButtonEventImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_MousePointerEvent*)) & Arcadia_Engine_Demo_TextRenderingScene_handleMousePointerEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateAudials = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Demo_TextRenderingScene_updateAudialsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateLogics = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value)) & Arcadia_Engine_Demo_TextRenderingScene_updateLogicsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateVisuals = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Demo_TextRenderingScene_updateVisualsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*)) & Arcadia_Engine_Demo_TextRenderingScene_handleKeyboardKeyEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MouseButtonEvent*)) & Arcadia_Engine_Demo_TextRenderingScene_handleMouseButtonEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MousePointerEvent*)) & Arcadia_Engine_Demo_TextRenderingScene_handleMousePointerEventImpl;
 }
 
 static void
@@ -417,61 +441,45 @@ setGlyphQuads
     Arcadia_Engine_Demo_TextRenderingScene* self,
     Arcadia_SizeValue runIndex,
     Arcadia_Integer32Value penX,
-    Arcadia_Integer32Value baselineY
+    Arcadia_Integer32Value baselineY,
+    Arcadia_BooleanValue hasClipRectangle,
+    Arcadia_Integer32Value clipLeft,
+    Arcadia_Integer32Value clipBottom,
+    Arcadia_Integer32Value clipWidth,
+    Arcadia_Integer32Value clipHeight
   )
 {
   Arcadia_Engine_Examples_TextRendering_TextRun* run = getRunAt(thread, self, runIndex);
-  Arcadia_Real32Value const red = run->red;
-  Arcadia_Real32Value const green = run->green;
-  Arcadia_Real32Value const blue = run->blue;
-  Arcadia_Real32Value const alpha = run->alpha;
-  Arcadia_Real32Value const atlasWidth = (Arcadia_Real32Value)run->fontAtlasWidth;
-  Arcadia_Real32Value const atlasHeight = (Arcadia_Real32Value)run->fontAtlasHeight;
-
-  Arcadia_Media_VertexBuffer* vertexBuffer = run->modelNode->mesh->vertexBuffer;
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)vertexBuffer->vertices;
-  Arcadia_Integer32Value penXCurrent = penX;
-  for (Arcadia_SizeValue i = 0; i < run->numberOfGlyphs; ++i) {
-    Arcadia_FontIO_GlyphInformation const* glyphInformation = &run->glyphs[i].glyphInformation;
-    Arcadia_Integer32Value const width0 = glyphInformation->width;
-    Arcadia_Integer32Value const height0 = glyphInformation->height;
-    Arcadia_Integer32Value const bearingX = glyphInformation->bearingX;
-    Arcadia_Integer32Value const bearingY = glyphInformation->bearingY;
-
-    Arcadia_Real32Value const x0 = (Arcadia_Real32Value)(penXCurrent + bearingX);
-    Arcadia_Real32Value const x1 = x0 + (Arcadia_Real32Value)width0;
-    Arcadia_Real32Value const yTop = (Arcadia_Real32Value)(baselineY + bearingY);
-    Arcadia_Real32Value const yBottom = yTop - (Arcadia_Real32Value)height0;
-
-    Arcadia_Real32Value const u0 = ((Arcadia_Real32Value)run->glyphs[i].x + 0.5f) / atlasWidth;
-    Arcadia_Real32Value const u1 = ((Arcadia_Real32Value)run->glyphs[i].x + (Arcadia_Real32Value)width0 - 0.5f) / atlasWidth;
-    Arcadia_Real32Value const v0 = ((Arcadia_Real32Value)run->glyphs[i].y + 0.5f) / atlasHeight;
-    Arcadia_Real32Value const v1 = ((Arcadia_Real32Value)run->glyphs[i].y + (Arcadia_Real32Value)height0 - 0.5f) / atlasHeight;
-
-    Arcadia_Real32Value const vertexData[6][9] = {
-      { x0, yBottom, 0.f, red, green, blue, alpha, u0, v1 },
-      { x1, yBottom, 0.f, red, green, blue, alpha, u1, v1 },
-      { x0, yTop,    0.f, red, green, blue, alpha, u0, v0 },
-      { x1, yBottom, 0.f, red, green, blue, alpha, u1, v1 },
-      { x1, yTop,    0.f, red, green, blue, alpha, u1, v0 },
-      { x0, yTop,    0.f, red, green, blue, alpha, u0, v0 },
-    };
-    for (Arcadia_SizeValue j = 0; j < 6; ++j) {
-      Arcadia_SizeValue const base = (i * 6 + j) * 9;
-      vertices[base + 0] = vertexData[j][0];
-      vertices[base + 1] = vertexData[j][1];
-      vertices[base + 2] = vertexData[j][2];
-      vertices[base + 3] = vertexData[j][3];
-      vertices[base + 4] = vertexData[j][4];
-      vertices[base + 5] = vertexData[j][5];
-      vertices[base + 6] = vertexData[j][6];
-      vertices[base + 7] = vertexData[j][7];
-      vertices[base + 8] = vertexData[j][8];
-    }
-
-    penXCurrent += glyphInformation->advanceX;
-  }
+  Arcadia_Media_VertexBuffer* vertexBuffer = Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, run->modelNode->mesh);
+  Arcadia_Engine_Text_GlyphPlacement* glyphs = Arcadia_Memory_allocateUnmanaged(thread, run->numberOfGlyphs * sizeof(Arcadia_Engine_Text_GlyphPlacement));
+  copyGlyphPlacements(glyphs, run->glyphs, run->numberOfGlyphs);
+  Arcadia_Engine_Text_writeGlyphQuads(thread, glyphs, run->numberOfGlyphs, penX, baselineY,
+                                      hasClipRectangle, clipLeft, clipBottom, clipWidth, clipHeight,
+                                      (Arcadia_Real32Value)run->fontAtlasWidth, (Arcadia_Real32Value)run->fontAtlasHeight,
+                                      run->red, run->green, run->blue, run->alpha,
+                                      (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer),
+                                      Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer), 9);
+  Arcadia_Memory_deallocateUnmanaged(thread, glyphs);
   run->modelNode->mesh->dirtyFlags |= 1;
+}
+
+static void
+copyGlyphPlacements
+  (
+    Arcadia_Engine_Text_GlyphPlacement* target,
+    Arcadia_FontIO_AtlasGlyphInformation const* source,
+    Arcadia_SizeValue numberOfGlyphs
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < numberOfGlyphs; ++i) {
+    target[i].width = source[i].glyphInformation.width;
+    target[i].height = source[i].glyphInformation.height;
+    target[i].bearingX = source[i].glyphInformation.bearingX;
+    target[i].bearingY = source[i].glyphInformation.bearingY;
+    target[i].advanceX = source[i].glyphInformation.advanceX;
+    target[i].atlasLeft = source[i].x;
+    target[i].atlasTop = source[i].y;
+  }
 }
 
 // Compute the relative to the baseline bounding box of a run's text:
@@ -480,6 +488,7 @@ setGlyphQuads
 static void
 computeTextExtents
   (
+    Arcadia_Thread* thread,
     Arcadia_Engine_Examples_TextRendering_TextRun const* run,
     Arcadia_Integer32Value* top,
     Arcadia_Integer32Value* bottom,
@@ -487,24 +496,15 @@ computeTextExtents
     Arcadia_Integer32Value* totalAdvanceX
   )
 {
-  *top = 0;
-  *bottom = 0;
-  *firstBearingX = 0;
-  *totalAdvanceX = 0;
-  for (Arcadia_SizeValue i = 0; i < run->numberOfGlyphs; ++i) {
-    Arcadia_FontIO_GlyphInformation const* glyphInformation = &run->glyphs[i].glyphInformation;
-    if (0 == i) {
-      *firstBearingX = glyphInformation->bearingX;
-    }
-    *totalAdvanceX += glyphInformation->advanceX;
-    if (glyphInformation->bearingY > *top) {
-      *top = glyphInformation->bearingY;
-    }
-    Arcadia_Integer32Value const bottomEdge = glyphInformation->bearingY - glyphInformation->height;
-    if (bottomEdge < *bottom) {
-      *bottom = bottomEdge;
-    }
-  }
+  Arcadia_Engine_Text_GlyphPlacement* glyphs = Arcadia_Memory_allocateUnmanaged(thread, run->numberOfGlyphs * sizeof(Arcadia_Engine_Text_GlyphPlacement));
+  copyGlyphPlacements(glyphs, run->glyphs, run->numberOfGlyphs);
+  Arcadia_Engine_Text_Extents extents;
+  Arcadia_Engine_Text_computeExtents(thread, glyphs, run->numberOfGlyphs, &extents);
+  Arcadia_Memory_deallocateUnmanaged(thread, glyphs);
+  *top = extents.top;
+  *bottom = extents.bottom;
+  *firstBearingX = extents.firstBearingX;
+  *totalAdvanceX = extents.totalAdvanceX;
 }
 
 // Center the stack of text runs horizontally and vertically on the canvas; runs
@@ -526,54 +526,66 @@ layoutGlyphs
   )
 {
   Arcadia_SizeValue const numberOfRuns = getNumberOfRuns(thread, self);
-  Arcadia_Integer32Value* tops = Arcadia_Memory_allocateUnmanaged(thread, numberOfRuns * sizeof(Arcadia_Integer32Value));
-  Arcadia_Integer32Value* bottoms = Arcadia_Memory_allocateUnmanaged(thread, numberOfRuns * sizeof(Arcadia_Integer32Value));
-  Arcadia_Integer32Value* textWidths = Arcadia_Memory_allocateUnmanaged(thread, numberOfRuns * sizeof(Arcadia_Integer32Value));
-  Arcadia_SizeValue numberOfStackedRuns = 0;
-  Arcadia_Integer32Value totalHeight = 0;
+  Arcadia_Engine_Text_LineLayoutElement* lines = Arcadia_Memory_allocateUnmanaged(thread, numberOfRuns * sizeof(Arcadia_Engine_Text_LineLayoutElement));
   for (Arcadia_SizeValue i = 0; i < numberOfRuns; ++i) {
     Arcadia_Engine_Examples_TextRendering_TextRun* run = getRunAt(thread, self, i);
+    lines[i].active = !run->fixedPlacement;
     if (run->fixedPlacement) {
       continue;
     }
     Arcadia_Integer32Value firstBearingX, totalAdvanceX;
-    computeTextExtents(run, &tops[i], &bottoms[i], &firstBearingX, &totalAdvanceX);
-    textWidths[i] = firstBearingX + totalAdvanceX;
-    totalHeight += tops[i] - bottoms[i];
-    ++numberOfStackedRuns;
+    computeTextExtents(thread, run, &lines[i].textTop, &lines[i].textBottom, &firstBearingX, &totalAdvanceX);
+    lines[i].textWidth = firstBearingX + totalAdvanceX;
+    lines[i].alignment = run->alignment;
+    Arcadia_Integer32Value rectangleLeft = run->hasRectangle ? run->rectangleLeft : 0;
+    Arcadia_Integer32Value rectangleBottom = run->hasRectangle ? run->rectangleBottom : 0;
+    Arcadia_Integer32Value rectangleWidth = (run->hasRectangle && 0 < run->rectangleWidth) ? run->rectangleWidth : width;
+    Arcadia_Integer32Value rectangleHeight = (run->hasRectangle && 0 < run->rectangleHeight) ? run->rectangleHeight : height;
+    if (!run->hasRectangle && width > 2 * Arcadia_Engine_Demo_TextRenderingScene_MARGIN) {
+      Arcadia_Integer32Value inset = width / Arcadia_Engine_Demo_TextRenderingScene_TEXT_AREA_INSET_DENOMINATOR;
+      if (inset < Arcadia_Engine_Demo_TextRenderingScene_MARGIN) {
+        inset = Arcadia_Engine_Demo_TextRenderingScene_MARGIN;
+      }
+      rectangleLeft = inset;
+      rectangleWidth = width - 2 * inset;
+    }
+    lines[i].rectangleLeft = rectangleLeft;
+    lines[i].rectangleBottom = rectangleBottom;
+    lines[i].rectangleWidth = rectangleWidth;
+    lines[i].rectangleHeight = rectangleHeight;
   }
-  totalHeight += (Arcadia_Integer32Value)(numberOfStackedRuns - 1) * Arcadia_Engine_Demo_TextRenderingScene_LINE_GAP;
+  Arcadia_Engine_Text_layoutLineStack(thread, lines, numberOfRuns, height, Arcadia_Engine_Demo_TextRenderingScene_LINE_GAP);
 
-  // The y coordinate of the top-most glyph edge of the top-most run.
-  Arcadia_Integer32Value y = (height + totalHeight) / 2;
   for (Arcadia_SizeValue i = 0; i < numberOfRuns; ++i) {
-    Arcadia_Engine_Examples_TextRendering_TextRun* run = getRunAt(thread, self, i);
-    if (run->fixedPlacement) {
+    if (!lines[i].active) {
       continue;
     }
-    Arcadia_Integer32Value const rectangleLeft = run->hasRectangle ? run->rectangleLeft : 0;
-    Arcadia_Integer32Value const rectangleWidth = (run->hasRectangle && 0 < run->rectangleWidth) ? run->rectangleWidth : width;
-    Arcadia_Integer32Value penX = rectangleLeft + (rectangleWidth - textWidths[i]) / 2;
-    switch (run->alignment) {
-      case Arcadia_Engine_Text_TextAlignment_Left:
-        penX = rectangleLeft;
-        break;
-      case Arcadia_Engine_Text_TextAlignment_Right:
-        penX = rectangleLeft + rectangleWidth - textWidths[i];
-        break;
-      case Arcadia_Engine_Text_TextAlignment_Center:
-      default:
-        break;
-    }
-    Arcadia_Integer32Value const baselineY = y - tops[i];
-    setGlyphQuads(thread, self, i, penX, baselineY);
-    // Descend to the bottom of the current run and to the top of the next run.
-    y = baselineY + bottoms[i] - Arcadia_Engine_Demo_TextRenderingScene_LINE_GAP;
+    setGlyphQuads(thread, self, i, lines[i].penX, lines[i].baselineY, Arcadia_BooleanValue_True,
+                  lines[i].rectangleLeft, lines[i].rectangleBottom, lines[i].rectangleWidth, lines[i].rectangleHeight);
   }
+  Arcadia_Memory_deallocateUnmanaged(thread, lines);
+}
 
-  Arcadia_Memory_deallocateUnmanaged(thread, tops);
-  Arcadia_Memory_deallocateUnmanaged(thread, bottoms);
-  Arcadia_Memory_deallocateUnmanaged(thread, textWidths);
+static void
+setTextAlignment
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Demo_TextRenderingScene* self,
+    Arcadia_Engine_Text_TextAlignment alignment
+  )
+{
+  if (!self->runs) {
+    return;
+  }
+  Arcadia_SizeValue const numberOfRuns = getNumberOfRuns(thread, self);
+  for (Arcadia_SizeValue i = 0; i < numberOfRuns; ++i) {
+    Arcadia_Engine_Examples_TextRendering_TextRun* run = getRunAt(thread, self, i);
+    if (!run->fixedPlacement) {
+      run->alignment = alignment;
+    }
+  }
+  self->textCanvasWidth = -1;
+  self->textCanvasHeight = -1;
 }
 
 // Install the cached font atlas as the ambient color texture of one run's model,
@@ -744,7 +756,7 @@ load
     self->definitions = definitions;
   }
 
-  Arcadia_Engine* engine = ((Arcadia_Engine_Demo_Scene*)self)->engine;
+  Arcadia_Engine* engine = ((Arcadia_Engine_Scene*)self)->engine;
 
   if (!self->enterPassNode) {
     self->enterPassNode =
@@ -798,12 +810,14 @@ load
       Arcadia_Engine_Text_MarkupTextRun* markupRun = getMarkupRunAt(thread, markupRuns, i);
       Arcadia_Engine_Examples_TextRendering_TextRun* run = Arcadia_Engine_Examples_TextRendering_TextRun_create(thread);
       run->fixedPlacement = markupRun->fixedPlacement;
+      run->dynamicFps = isFpsToken(thread, markupRun);
       run->alignment = markupRun->alignment;
       run->hasRectangle = markupRun->hasRectangle;
       run->rectangleLeft = markupRun->rectangleLeft;
       run->rectangleBottom = markupRun->rectangleBottom;
       run->rectangleWidth = markupRun->rectangleWidth;
       run->rectangleHeight = markupRun->rectangleHeight;
+      run->lineBreakBefore = markupRun->lineBreakBefore;
       Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)run);
       Arcadia_List_insertBackObjectReferenceValue(thread, runs, (Arcadia_Object*)run);
       Arcadia_ValueStack_popValues(thread, 1);
@@ -922,8 +936,8 @@ load
       run->fontAtlasWidth = markupRun->pixelSize;
       setFontTexture(thread, self, i, Arcadia_Engine_FontCache_getOrCreate(thread, self->fontCache, fontPath, markupRun->pixelSize), runCodePoints[i], runCodePointCounts[i]);
     }
-    // (7) Set the active text of every non-fixed run. The active text of a
-    // fixed run (e.g. the FPS counter) is set dynamically from `updateVisuals`.
+    // (7) Set the active text of every static run. Dynamic runs (e.g. the FPS
+    // counter) are set from `updateVisuals`.
     for (Arcadia_SizeValue i = 0; i < numberOfRuns; ++i) {
       Arcadia_Engine_Text_MarkupTextRun* markupRun = getMarkupRunAt(thread, markupRuns, i);
       if (!markupRun->dynamicToken) {
@@ -990,47 +1004,49 @@ Arcadia_Engine_Demo_TextRenderingScene_updateVisualsImpl
   }
 
   Arcadia_Engine_FPSCounter_update(&self->fpsCounter, tick);
-  // Render the FPS counter as a fixed run at the top-left corner of the canvas.
+  // Render fixed runs. The FPS counter is dynamic and stays at the top-left;
+  // static fixed runs are anchored at the bottom-right.
   if (NULL != self->runs) {
     Arcadia_SizeValue const numberOfRuns = getNumberOfRuns(thread, self);
-    Arcadia_SizeValue fpsRunIndex = numberOfRuns;
     for (Arcadia_SizeValue i = 0; i < numberOfRuns; ++i) {
       Arcadia_Engine_Examples_TextRendering_TextRun* run = getRunAt(thread, self, i);
-      if (run->fixedPlacement) {
-        fpsRunIndex = i;
-        break;
+      if (!run->fixedPlacement) {
+        continue;
       }
-    }
-    if (fpsRunIndex < numberOfRuns) {
-      char fpsText[Arcadia_Engine_Demo_TextRenderingScene_FPS_MAXIMUM_GLYPHS + 1];
-      Arcadia_SizeValue const numberOfCharacters = Arcadia_Engine_FPSCounter_format(&self->fpsCounter, fpsText);
-      Arcadia_Natural32Value fpsCodePoints[Arcadia_Engine_Demo_TextRenderingScene_FPS_MAXIMUM_GLYPHS + 1];
-      for (Arcadia_SizeValue i = 0; i < numberOfCharacters; ++i) {
-        fpsCodePoints[i] = (Arcadia_Natural32Value)(Arcadia_Natural8Value)fpsText[i];
+      if (run->dynamicFps) {
+        char fpsText[Arcadia_Engine_Demo_TextRenderingScene_FPS_MAXIMUM_GLYPHS + 1];
+        Arcadia_SizeValue const numberOfCharacters = Arcadia_Engine_FPSCounter_format(&self->fpsCounter, fpsText);
+        Arcadia_Natural32Value fpsCodePoints[Arcadia_Engine_Demo_TextRenderingScene_FPS_MAXIMUM_GLYPHS + 1];
+        for (Arcadia_SizeValue j = 0; j < numberOfCharacters; ++j) {
+          fpsCodePoints[j] = (Arcadia_Natural32Value)(Arcadia_Natural8Value)fpsText[j];
+        }
+        setRunText(thread, self, i, fpsCodePoints, numberOfCharacters);
       }
-      setRunText(thread, self, fpsRunIndex, fpsCodePoints, numberOfCharacters);
-      Arcadia_Engine_Examples_TextRendering_TextRun* fpsRun = getRunAt(thread, self, fpsRunIndex);
       Arcadia_Integer32Value top, bottom, firstBearingX, totalAdvanceX;
-      computeTextExtents(fpsRun, &top, &bottom, &firstBearingX, &totalAdvanceX);
+      computeTextExtents(thread, run, &top, &bottom, &firstBearingX, &totalAdvanceX);
       Arcadia_Integer32Value textWidth = firstBearingX + totalAdvanceX;
-      Arcadia_Integer32Value penX = Arcadia_Engine_Demo_TextRenderingScene_MARGIN;
-      Arcadia_Integer32Value baselineY = (height - Arcadia_Engine_Demo_TextRenderingScene_MARGIN) - top;
-      if (fpsRun->hasRectangle && 0 < fpsRun->rectangleWidth && 0 < fpsRun->rectangleHeight) {
-        switch (fpsRun->alignment) {
+      Arcadia_Integer32Value penX = run->dynamicFps ? Arcadia_Engine_Demo_TextRenderingScene_MARGIN
+                                                    : width - Arcadia_Engine_Demo_TextRenderingScene_MARGIN - textWidth;
+      Arcadia_Integer32Value baselineY = run->dynamicFps ? (height - Arcadia_Engine_Demo_TextRenderingScene_MARGIN) - top
+                                                         : Arcadia_Engine_Demo_TextRenderingScene_MARGIN - bottom;
+      if (run->hasRectangle && 0 < run->rectangleWidth && 0 < run->rectangleHeight) {
+        switch (run->alignment) {
           case Arcadia_Engine_Text_TextAlignment_Left:
-            penX = fpsRun->rectangleLeft;
+            penX = run->rectangleLeft;
             break;
           case Arcadia_Engine_Text_TextAlignment_Right:
-            penX = fpsRun->rectangleLeft + fpsRun->rectangleWidth - textWidth;
+            penX = run->rectangleLeft + run->rectangleWidth - textWidth;
             break;
           case Arcadia_Engine_Text_TextAlignment_Center:
           default:
-            penX = fpsRun->rectangleLeft + (fpsRun->rectangleWidth - textWidth) / 2;
+            penX = run->rectangleLeft + (run->rectangleWidth - textWidth) / 2;
             break;
         }
-        baselineY = fpsRun->rectangleBottom + (fpsRun->rectangleHeight - (top - bottom)) / 2 - bottom;
+        baselineY = run->rectangleBottom + (run->rectangleHeight - (top - bottom)) / 2 - bottom;
       }
-      setGlyphQuads(thread, self, fpsRunIndex, penX, baselineY);
+      setGlyphQuads(thread, self, i, penX, baselineY,
+                    run->hasRectangle && 0 < run->rectangleWidth && 0 < run->rectangleHeight,
+                    run->rectangleLeft, run->rectangleBottom, run->rectangleWidth, run->rectangleHeight);
     }
   }
 
@@ -1044,7 +1060,7 @@ Arcadia_Engine_Demo_TextRenderingScene_updateVisualsImpl
   Arcadia_Engine_Visuals_EnterPassNode_setCameraNode(thread, self->enterPassNode, self->cameraNode);
 
   Arcadia_Engine_Visuals_EnterPassNode_setFrameBufferNode(thread, self->enterPassNode, NULL);
-  Arcadia_Engine_Visuals_BackendContext* backendContext = (Arcadia_Engine_Visuals_BackendContext*)((Arcadia_Engine_Demo_Scene*)self)->engine->visualsBackendContext;
+  Arcadia_Engine_Visuals_BackendContext* backendContext = (Arcadia_Engine_Visuals_BackendContext*)((Arcadia_Engine_Scene*)self)->engine->visualsBackendContext;
   Arcadia_SizeValue const numberOfRuns = getNumberOfRuns(thread, self);
   Arcadia_Engine_Visuals_ModelNode** modelNodes = Arcadia_Memory_allocateUnmanaged(thread, (0 < numberOfRuns) ? numberOfRuns * sizeof(Arcadia_Engine_Visuals_ModelNode*) : sizeof(Arcadia_Engine_Visuals_ModelNode*));
   for (Arcadia_SizeValue i = 0; i < numberOfRuns; ++i) {
@@ -1062,13 +1078,22 @@ Arcadia_Engine_Demo_TextRenderingScene_handleKeyboardKeyEventImpl
     Arcadia_Engine_Input_KeyboardKeyEvent* event
   )
 {
-  if (Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Engine_Input_KeyboardKeyAction_Released &&
-    Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event) == Arcadia_Engine_Input_KeyboardKey_Escape) {
+  if (Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) != Arcadia_Engine_Input_KeyboardKeyAction_Released) {
+    return;
+  }
+  Arcadia_Engine_Input_KeyboardKey const key = Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event);
+  if (key == Arcadia_Engine_Input_KeyboardKey_Escape) {
     Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent* e = Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent_create(thread, Arcadia_getTickCount(thread));
     Arcadia_ValueStack_pushObjectReferenceValue(thread,  (Arcadia_Object*)e);
     Arcadia_ValueStack_pushNatural8Value(thread, 1);
-    Arcadia_Signal_emit(thread, ((Arcadia_Engine_Demo_Scene*)self)->applicationQuitRequestSignal, (Arcadia_Object*)self);
+    Arcadia_Signal_emit(thread, ((Arcadia_Engine_Scene*)self)->applicationQuitRequestSignal, (Arcadia_Object*)self);
     Arcadia_ValueStack_popValues(thread, 2);
+  } else if (key == Arcadia_Engine_Input_KeyboardKey_L || key == Arcadia_Engine_Input_KeyboardKey_LeftArrow) {
+    setTextAlignment(thread, self, Arcadia_Engine_Text_TextAlignment_Left);
+  } else if (key == Arcadia_Engine_Input_KeyboardKey_C || key == Arcadia_Engine_Input_KeyboardKey_UpArrow) {
+    setTextAlignment(thread, self, Arcadia_Engine_Text_TextAlignment_Center);
+  } else if (key == Arcadia_Engine_Input_KeyboardKey_R || key == Arcadia_Engine_Input_KeyboardKey_RightArrow) {
+    setTextAlignment(thread, self, Arcadia_Engine_Text_TextAlignment_Right);
   }
 }
 
@@ -1095,7 +1120,7 @@ Arcadia_Engine_Demo_TextRenderingScene_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine,
-    Arcadia_Engine_Demo_SceneManager* sceneManager,
+    Arcadia_Engine_SceneManager* sceneManager,
     Arcadia_Engine_FontCache* fontCache
   )
 {
@@ -1121,4 +1146,5 @@ Arcadia_Engine_Demo_TextRenderingScene_create
 
 #undef Arcadia_Engine_Demo_TextRenderingScene_LINE_GAP
 #undef Arcadia_Engine_Demo_TextRenderingScene_MARGIN
+#undef Arcadia_Engine_Demo_TextRenderingScene_TEXT_AREA_INSET_DENOMINATOR
 #undef Arcadia_Engine_Demo_TextRenderingScene_FPS_MAXIMUM_GLYPHS

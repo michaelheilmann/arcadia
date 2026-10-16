@@ -173,7 +173,7 @@ Arcadia_Engine_Visuals_BackendContext_createProgramResource
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_BackendContext* self,
-    Arcadia_VPL_Symbols_Program* program
+    Arcadia_VPL_VerifiedModule* program
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_BackendContext, createProgramResource, self, program); }
 

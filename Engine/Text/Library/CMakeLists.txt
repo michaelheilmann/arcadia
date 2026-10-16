@@ -29,6 +29,8 @@ if (NOT TARGET ${this})
 
   OnSourceFile(${this} Arcadia/Engine/Text/TextAlignment.c)
   OnHeaderFile(${this} Arcadia/Engine/Text/TextAlignment.h)
+  OnSourceFile(${this} Arcadia/Engine/Text/TextLayout.c)
+  OnHeaderFile(${this} Arcadia/Engine/Text/TextLayout.h)
 
   OnSourceFile(${this} Arcadia/Engine/Text/MarkupWordType.c)
   OnHeaderFile(${this} Arcadia/Engine/Text/MarkupWordType.h)

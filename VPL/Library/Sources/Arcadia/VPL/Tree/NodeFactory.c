@@ -23,6 +23,12 @@
 #include "Arcadia/VPL/Tree/NameExprNode.h"
 #include "Arcadia/VPL/Tree/NumberExprNode.h"
 #include "Arcadia/VPL/Tree/VariableDefnNode.h"
+#include "Arcadia/VPL/Tree/IfStmtNode.h"
+#include "Arcadia/VPL/Tree/ForStmtNode.h"
+#include "Arcadia/VPL/Tree/WhileStmtNode.h"
+#include "Arcadia/VPL/Tree/ReturnStmtNode.h"
+#include "Arcadia/VPL/Tree/DiscardStmtNode.h"
+#include "Arcadia/VPL/Tree/IndexExprNode.h"
 
 Arcadia_VPL_Tree_Node*
 Arcadia_VPL_Tree_NodeFactory_makeCallExpr
@@ -154,4 +160,70 @@ Arcadia_VPL_Tree_NodeFactory_makeProcedureDefn
 {
   Arcadia_VPL_Tree_ProcedureDefnNode* self = Arcadia_VPL_Tree_ProcedureDefnNode_create(thread, modifiers, returnValueType, name, parameters, body);
   return self;
+}
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeIfStmt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Tree_Node* condition,
+    Arcadia_List* thenBody,
+    Arcadia_List* elseBody
+  )
+{
+  return (Arcadia_VPL_Tree_Node*)Arcadia_VPL_Tree_IfStmtNode_create(thread, condition, thenBody, elseBody);
+}
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeForStmt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Tree_Node* initializer,
+    Arcadia_VPL_Tree_Node* condition,
+    Arcadia_VPL_Tree_Node* update,
+    Arcadia_List* body
+  )
+{
+  return (Arcadia_VPL_Tree_Node*)Arcadia_VPL_Tree_ForStmtNode_create(thread, initializer, condition, update, body);
+}
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeWhileStmt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Tree_Node* condition,
+    Arcadia_List* body
+  )
+{
+  return (Arcadia_VPL_Tree_Node*)Arcadia_VPL_Tree_WhileStmtNode_create(thread, condition, body);
+}
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeReturnStmt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Tree_Node* value
+  )
+{
+  return (Arcadia_VPL_Tree_Node*)Arcadia_VPL_Tree_ReturnStmtNode_create(thread, value);
+}
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeDiscardStmt
+  (
+    Arcadia_Thread* thread
+  )
+{
+  return (Arcadia_VPL_Tree_Node*)Arcadia_VPL_Tree_DiscardStmtNode_create(thread);
+}
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeIndexExpr
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Tree_Node* target,
+    Arcadia_VPL_Tree_Node* index
+  )
+{
+  return (Arcadia_VPL_Tree_Node*)Arcadia_VPL_Tree_IndexExprNode_create(thread, target, index);
 }

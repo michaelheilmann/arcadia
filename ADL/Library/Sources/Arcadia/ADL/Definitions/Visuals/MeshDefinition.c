@@ -23,13 +23,6 @@
 #include "Arcadia/ADL/Definitions/Visuals/Include.h"
 
 static void
-Arcadia_ADL_MeshDefinition_linkImpl
-  (
-    Arcadia_Thread* thread,
-    Arcadia_ADL_MeshDefinition* self
-  );
-
-static void
 Arcadia_ADL_MeshDefinition_visitImpl
   (
     Arcadia_Thread* thread,
@@ -63,22 +56,8 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.ADL.MeshDefinition", Arcadia_ADL_MeshDefinition,
-                         u8"Arcadia.ADL.Definition", Arcadia_ADL_Definition,
-                         &_typeOperations);
-
-static void
-Arcadia_ADL_MeshDefinition_linkImpl
-  (
-    Arcadia_Thread* thread,
-    Arcadia_ADL_MeshDefinition* self
-  )
-{
-  Arcadia_ADL_Reference_resolve(thread, self->ambientColor);
-  if (!Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)self->ambientColor->definition, _Arcadia_ADL_ColorDefinition_getType(thread))) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-}
+                          u8"Arcadia.ADL.MeshGenerator", Arcadia_ADL_MeshGenerator,
+                          &_typeOperations);
 
 static void
 Arcadia_ADL_MeshDefinition_visitImpl
@@ -93,9 +72,6 @@ Arcadia_ADL_MeshDefinition_visitImpl
   if (self->vertexAmbientColors) {
     Arcadia_RuntimeByteArray_visit(thread, self->vertexAmbientColors);
   }
-  if (self->ambientColor) {
-    Arcadia_Object_visit(thread, (Arcadia_Object*)self->ambientColor);
-  }
 }
 
 static void
@@ -107,12 +83,14 @@ Arcadia_ADL_MeshDefinition_constructImpl
 {
   Arcadia_EnterConstructor(Arcadia_ADL_MeshDefinition);
   {
-    Arcadia_Value definitions, name;
+    Arcadia_Value definitions, name, ambientColorName;
     definitions = Arcadia_ValueStack_getValue(thread, 7);
     name = Arcadia_ValueStack_getValue(thread, 6);
+    ambientColorName = Arcadia_ValueStack_getValue(thread, 1);
     Arcadia_ValueStack_pushValue(thread, &definitions);
     Arcadia_ValueStack_pushValue(thread, &name);
-    Arcadia_ValueStack_pushNatural8Value(thread, 2);
+    Arcadia_ValueStack_pushValue(thread, &ambientColorName);
+    Arcadia_ValueStack_pushNatural8Value(thread, 3);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
   if (7 != _numberOfArguments) {
@@ -123,8 +101,6 @@ Arcadia_ADL_MeshDefinition_constructImpl
   self->vertexPositions = Arcadia_ValueStack_getRuntimeByteArrayValue(thread, 4);
   self->vertexAmbientColors = Arcadia_ValueStack_getRuntimeByteArrayValue(thread, 3);
   self->vertexAmbientTextureCoordinates = Arcadia_ValueStack_getRuntimeByteArrayValue(thread, 2);
-  self->ambientColor = Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions,
-                                                            (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_String_getType(thread)));
   Arcadia_LeaveConstructor(Arcadia_ADL_MeshDefinition);
 }
 
@@ -135,7 +111,6 @@ Arcadia_ADL_MeshDefinition_initializeDispatchImpl
     Arcadia_ADL_MeshDefinitionDispatch* self
   )
 {
-  ((Arcadia_ADL_DefinitionDispatch*)self)->link = (void (*)(Arcadia_Thread*, Arcadia_ADL_Definition*)) & Arcadia_ADL_MeshDefinition_linkImpl;
 }
 
 Arcadia_ADL_MeshDefinition*

@@ -18,27 +18,16 @@
 #include "Arcadia.Ring1.Tests.InterfaceTypeTests/Helper.h"
 #include "Arcadia.Ring1.Tests.InterfaceTypeTests/InterfaceImplementationMustBeClosedUnderAncestors.h"
 
-/// The registration of the object type is expected to fail, so the operations of the object type
-/// are never invoked, but they have to be provided.
-static const Arcadia_ObjectType_Operations _objectTypeOperations = {
-  Arcadia_ObjectType_Operations_Initializer,
-};
+Helper_defineObjectTypeOperations(closedObject)
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
-  .objectTypeOperations = &_objectTypeOperations,
-};
+#undef Helper_defineObjectTypeOperations
 
 /// Register the interface types "Arcadia.Tests.InterfaceTypeTests.Closed.Ancestor" and
 /// "Arcadia.Tests.InterfaceTypeTests.Closed.Derived", where "Derived" extends "Ancestor". Then
-/// attempt to register an object type which implements only "Derived". The dispatches of interface
-/// types are independent: the dispatch of "Derived" never is a dispatch of "Ancestor", so an
-/// implementation of "Derived" without an implementation of "Ancestor" could never dispatch to
-/// "Ancestor" operations. The set of implemented interface types is therefore required to be
-/// closed under the interface types they extend, and the registration must raise. The object type
-/// operations are provided because they are required, but they are never invoked, since
-/// registration fails before any object of the type can exist. The raise is caught with a jump
-/// target, and the status is cleared afterwards so the test itself is not reported as failed.
+/// register an object type which explicitly implements only "Derived". The runtime automatically
+/// adds an "Ancestor" implementation record, because implementing a derived interface makes the
+/// object type a descendant of its ancestor interfaces as well. The synthesized ancestor dispatch is
+/// distinct from the derived dispatch and starts with the standard "Arcadia.InterfaceDispatch".
 void
 testInterfaceImplementationMustBeClosedUnderAncestors
   (
@@ -67,14 +56,11 @@ testInterfaceImplementationMustBeClosedUnderAncestors
         &Helper_typeDestructing
       );
 
-  // The ancestor interface type is not implemented, so the registration must raise.
+  // The ancestor interface type is not specified explicitly. Registration should synthesize it.
   Arcadia_ObjectType_InterfaceSpecification interfaces[] = {
     { .interfaceType = derived, .dispatchSize = sizeof(Arcadia_InterfaceDispatch), .initializeDispatch = NULL }
   };
-  Arcadia_JumpTarget jumpTarget;
-  Arcadia_BooleanValue raised = Arcadia_BooleanValue_False;
-  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
-  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+  Arcadia_TypeValue object =
     Arcadia_registerObjectTypeWithInterfaces
       (
         thread,
@@ -82,17 +68,27 @@ testInterfaceImplementationMustBeClosedUnderAncestors
         0,
         _Arcadia_Object_getType(thread),
         sizeof(Arcadia_ObjectDispatch),
-        &_typeOperations,
+        &_closedObject_typeOperations,
         interfaces,
         1,
         &Helper_typeDestructing
       );
-  } else {
-    raised = Arcadia_BooleanValue_True;
-  }
-  Arcadia_Thread_popJumpTarget(thread);
+  g_closedObject_type = object;
 
-  // The status has to be cleared, or the test is reported as failed.
-  Arcadia_Tests_assertTrue(thread, raised == Arcadia_BooleanValue_True);
-  Arcadia_Thread_setStatus(thread, 0);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, object, derived));
+  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, object, ancestor));
+
+  Arcadia_InterfaceDispatch* derivedDispatch =
+    (Arcadia_InterfaceDispatch*)Arcadia_ObjectType_getInterfaceDispatch(thread, (Arcadia_ObjectType*)object, (Arcadia_InterfaceType*)derived);
+  Arcadia_InterfaceDispatch* ancestorDispatch =
+    (Arcadia_InterfaceDispatch*)Arcadia_ObjectType_getInterfaceDispatch(thread, (Arcadia_ObjectType*)object, (Arcadia_InterfaceType*)ancestor);
+  Arcadia_Tests_assertTrue(thread, NULL != derivedDispatch);
+  Arcadia_Tests_assertTrue(thread, NULL != ancestorDispatch);
+  if (derivedDispatch && ancestorDispatch) {
+    Arcadia_Tests_assertTrue(thread, derivedDispatch != ancestorDispatch);
+    Arcadia_Tests_assertTrue(thread, derivedDispatch->objectType == object);
+    Arcadia_Tests_assertTrue(thread, derivedDispatch->interfaceType == derived);
+    Arcadia_Tests_assertTrue(thread, ancestorDispatch->objectType == object);
+    Arcadia_Tests_assertTrue(thread, ancestorDispatch->interfaceType == ancestor);
+  }
 }

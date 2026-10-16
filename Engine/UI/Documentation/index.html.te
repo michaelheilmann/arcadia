@@ -1,3 +1,88 @@
 @{include("header.i")}
 <h2>Documentation</h2>
+
+<h3>UI Interfaces</h3>
+
+<p>
+  Engine.UI uses small runtime interfaces to describe widget capabilities. A concrete UI object
+  implements only the interfaces whose operations it supports. Shared widget state such as geometry,
+  focus flags, ownership, and signals should remain on concrete object types or common base objects;
+  optional behavior belongs in these capability interfaces.
+</p>
+
+<p>
+  The interface source definitions live in individual <code>.mil</code> files, one file per interface.
+  The checked-in <code>.c</code> and <code>.h</code> files next to them are the PDLC-generated runtime
+  bindings used by Engine.UI.
+</p>
+
+<p>
+  Interface dispatch remains exact: callers invoke the operation of the requested interface. The
+  runtime adds ancestor interface implementation records for derived interfaces, but ancestor
+  operation slots still need their own implementations. For this reason, operation-bearing UI
+  interfaces are intentionally kept flat in the first UI foundation pass.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Interface</th>
+      <th>Purpose</th>
+      <th>Typical Implementers</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Arcadia.Engine.UI.Renderable</code></td>
+      <td>Renders an object into an active visuals enter pass.</td>
+      <td>Labels, buttons, panels, sliders, scroll panels, dialogs.</td>
+    </tr>
+    <tr>
+      <td><code>Arcadia.Engine.UI.HitTestable</code></td>
+      <td>Answers whether a UI-space point is inside the object's interactive region.</td>
+      <td>Interactive controls and containers.</td>
+    </tr>
+    <tr>
+      <td><code>Arcadia.Engine.UI.Focusable</code></td>
+      <td>Receives or releases keyboard/controller focus and reports focus state.</td>
+      <td>Buttons, toggles, sliders, dropdowns, text fields, key binding rows.</td>
+    </tr>
+    <tr>
+      <td><code>Arcadia.Engine.UI.PointerInput</code></td>
+      <td>Consumes mouse pointer and mouse button events.</td>
+      <td>Buttons, toggles, sliders, dropdowns, scroll panels.</td>
+    </tr>
+    <tr>
+      <td><code>Arcadia.Engine.UI.KeyboardInput</code></td>
+      <td>Consumes keyboard key events routed to the focused object.</td>
+      <td>Focusable controls and key binding rows.</td>
+    </tr>
+    <tr>
+      <td><code>Arcadia.Engine.UI.Activatable</code></td>
+      <td>Exposes a primary action independent of whether it was triggered by pointer, keyboard, or controller.</td>
+      <td>Buttons, toggles, tab buttons, dropdown entries, segmented choice segments.</td>
+    </tr>
+    <tr>
+      <td><code>Arcadia.Engine.UI.ValueControl</code></td>
+      <td>Gets and sets a control value using the current object-valued PDL interface contract.</td>
+      <td>Toggles, sliders, dropdowns, segmented choices, text fields, key binding rows.</td>
+    </tr>
+    <tr>
+      <td><code>Arcadia.Engine.UI.Container</code></td>
+      <td>Owns an ordered child list and defines composition/z-order.</td>
+      <td>Canvas, panels, scroll panels, dialogs, composite controls.</td>
+    </tr>
+    <tr>
+      <td><code>Arcadia.Engine.UI.Scrollable</code></td>
+      <td>Maintains a scroll offset and supports relative or absolute scrolling.</td>
+      <td>Scroll panels and dropdown popup lists.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  The first required options-screen controls should be built by combining these interfaces: button,
+  toggle, slider, dropdown or segmented choice, tab button, scroll panel, key binding row, and warning
+  label. Confirmation dialogs and preview panels should reuse the same contracts later.
+</p>
 @{include("footer.i")}

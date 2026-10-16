@@ -74,7 +74,7 @@ Arcadia_ADL_ModelDefinition_linkImpl
   )
 {
   Arcadia_ADL_Reference_resolve(thread, self->mesh);
-  if (!Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)self->mesh->definition, _Arcadia_ADL_MeshDefinition_getType(thread))) {
+  if (!Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)self->mesh->definition, _Arcadia_ADL_MeshGenerator_getType(thread))) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
     Arcadia_Thread_jump(thread);
   }

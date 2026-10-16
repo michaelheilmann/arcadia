@@ -27,14 +27,14 @@ Helper_defineObjectTypeOperations(objectD)
 #undef Helper_defineObjectTypeOperations
 
 /// Register the interface types "Arcadia.Tests.InterfaceTypeTests.A", "B", and "C", where "B"
-/// extends "A" and "C" extends "B". Also register the object types "ObjectA" (implements "A" and
-/// "B"), "ObjectB" (derived from "ObjectA", so it inherits those implementations), "ObjectC"
+/// extends "A" and "C" extends "B". Also register the object types "ObjectA" (implements "B",
+/// which automatically implements "A"), "ObjectB" (derived from "ObjectA", so it inherits those implementations), "ObjectC"
 /// (implements no interface type), and "ObjectD" (has no parent object type). Then verify that:
 /// - An interface type is an interface kind and not an object kind, and is a descendant of
 ///   itself. "B" and "C" are descendants of "A", "C" is a descendant of "B", and no interface
 ///   type is a descendant of its own descendant. "A" and "B" have children, "C" does not.
 /// - An object type which implements an interface type is a descendant of that interface type,
-///   and the implemented interface types are closed under the interface types they extend.
+///   and ancestor interface implementation records are added automatically.
 ///   "ObjectB" is a descendant of the interface types implemented by its ancestor "ObjectA".
 ///   "ObjectC" and "ObjectD" are not, and "ObjectD" is not a descendant of the root object type
 ///   either. An interface type is never a descendant of an object type, and object type
@@ -104,12 +104,10 @@ testInterfaceTypes
   Arcadia_Tests_assertTrue(thread, Arcadia_Type_hasChildren(thread, interfaceB));
   Arcadia_Tests_assertTrue(thread, !Arcadia_Type_hasChildren(thread, interfaceC));
 
-  // An object type which implements an interface type is a descendant of that interface type. The
-  // implemented interface types must be closed under the interface types they extend, because the
-  // dispatch of a derived interface type never is a dispatch of an ancestor interface type, so
-  // implementing interfaceB requires implementing interfaceA, too.
+  // An object type which implements an interface type is a descendant of that interface type and
+  // of the interface types it extends. Ancestor interface implementation records are added
+  // automatically when they are not specified explicitly.
   Arcadia_ObjectType_InterfaceSpecification objectAInterfaces[] = {
-    { .interfaceType = interfaceA, .dispatchSize = sizeof(Arcadia_InterfaceDispatch), .initializeDispatch = NULL },
     { .interfaceType = interfaceB, .dispatchSize = sizeof(Arcadia_InterfaceDispatch), .initializeDispatch = NULL }
   };
   Arcadia_TypeValue objectA =
@@ -122,7 +120,7 @@ testInterfaceTypes
         sizeof(Arcadia_ObjectDispatch),
         &_objectA_typeOperations,
         objectAInterfaces,
-        2,
+        1,
         &Helper_typeDestructing
       );
   g_objectA_type = objectA;
@@ -206,8 +204,8 @@ testInterfaceTypes
     Arcadia_Tests_assertTrue(thread, objectADispatchOfB->objectType == objectA);
     Arcadia_Tests_assertTrue(thread, objectADispatchOfB->interfaceType == interfaceB);
   }
-  // interfaceA is an ancestor of the implemented interfaceB, but the dispatch of interfaceB is not a
-  // dispatch of interfaceA, so the implementation of interfaceA is used for it.
+  // interfaceA is an ancestor of the specified interfaceB, so a distinct implementation of
+  // interfaceA was added automatically.
   Arcadia_InterfaceDispatch* objectADispatchOfA =
     (Arcadia_InterfaceDispatch*)Arcadia_ObjectType_getInterfaceDispatch(thread, (Arcadia_ObjectType*)objectA, (Arcadia_InterfaceType*)interfaceA);
   Arcadia_Tests_assertTrue(thread, NULL != objectADispatchOfA);

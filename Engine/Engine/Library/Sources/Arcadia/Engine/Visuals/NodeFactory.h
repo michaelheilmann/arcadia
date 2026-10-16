@@ -79,7 +79,7 @@ struct Arcadia_Engine_Visuals_NodeFactoryDispatch {
       Arcadia_Thread* thread,
       Arcadia_Engine_Visuals_NodeFactory* self,
       Arcadia_Engine_Visuals_BackendContext* backendContext,
-      Arcadia_ADL_MeshDefinition* source
+      Arcadia_Media_Geometry* geometry
     );
 
   Arcadia_Engine_Visuals_ModelNode*
@@ -168,7 +168,7 @@ Arcadia_Engine_Visuals_NodeFactory_createMeshNode
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_NodeFactory* self,
     Arcadia_Engine_Visuals_BackendContext* backendContext,
-    Arcadia_ADL_MeshDefinition* source
+    Arcadia_Media_Geometry* geometry
   );
 
 Arcadia_Engine_Visuals_ModelNode*

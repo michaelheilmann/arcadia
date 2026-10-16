@@ -244,8 +244,9 @@ Arcadia_registerEnumerationType
 ///                     interface types it extends, so this is not required to be greater than or equal
 ///                     to their dispatch sizes.
 /// @note An interface type may be implemented by an object type. An object type which implements an
-///       interface type must implement each interface type that interface type extends as well, with a
-///       dispatch of its own.
+///       interface type also implements each interface type that interface type extends. Ancestor
+///       interface implementation records are added automatically when they are not specified
+///       explicitly.
 ///       @see Arcadia_ObjectType_getInterfaceDispatch
 Arcadia_TypeValue
 Arcadia_registerInterfaceType
@@ -271,10 +272,11 @@ Arcadia_registerInternalType
 /// @brief A specification of an interface type implemented by an object type.
 ///
 /// @details
-/// The implemented interface types of an object type must be closed under the interface types those
-/// interface types extend, because the dispatch of an interface type never is the dispatch of a
-/// derived interface type. Each implemented interface type has a dispatch of its own, and the
-/// dispatches of unrelated interface types have no relationship to each other.
+/// The implemented interface types of an object type are closed automatically under the interface
+/// types those interface types extend. Each implemented interface type has a dispatch of its own,
+/// and the dispatches of unrelated interface types have no relationship to each other. A synthesized
+/// ancestor dispatch has no initializer of its own; if it is not inherited from an ancestor object
+/// type, its operation slots are zero until an explicit specification for that interface is provided.
 /// @see Arcadia_registerObjectTypeWithInterfaces
 typedef struct Arcadia_ObjectType_InterfaceSpecification {
   /// The implemented interface type.
@@ -301,9 +303,9 @@ typedef struct Arcadia_ObjectType_InterfaceSpecification {
 /// @a interfaceType itself.
 ///
 /// Only an implementation of @a interfaceType itself matches. The dispatch of an interface type is
-/// an independent dispatch which never is a dispatch of one of its ancestors, so an implementation
-/// of a descendant of @a interfaceType does not match. An object type which implements a derived
-/// interface type implements its ancestors as well, with a dispatch of their own.
+/// an independent dispatch which never is a dispatch of one of its ancestors. An object type which
+/// implements a derived interface type implements its ancestors as well, with dispatch records of
+/// their own.
 ///
 /// @note The returned dispatch begins with an #Arcadia_InterfaceDispatch.
 ///       Its <code>objectType</code> member is the type the implementation was registered for,
@@ -483,8 +485,9 @@ _Arcadia_AtomValue_getType
 /// @param ... A comma separated list of brace enclosed initializers of
 ///        @c Arcadia_ObjectType_InterfaceSpecification, one for each implemented interface type.
 ///        Do not enclose the list in a further pair of braces.
-/// @note The type is declared by @c Arcadia_declareObjectType. Each implemented interface type and
-///       each interface type those interface types extend must have a specification of its own.
+/// @note The type is declared by @c Arcadia_declareObjectType. Ancestor interface implementation
+///       records are added automatically when an implemented interface type extends other interface
+///       types.
 #define Arcadia_defineObjectTypeWithInterfaces(_cilName, _cName, _cilParentName, _cParentName, _cTypeOperations, ...) \
   static Arcadia_TypeValue g_##_cName##_type = NULL; \
   \

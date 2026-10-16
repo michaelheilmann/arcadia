@@ -1,0 +1,7 @@
+{
+  type : "Color",
+  name : "Button.Primary.Color.Disabled",
+  red : 70,
+  green : 76,
+  blue : 88,
+}

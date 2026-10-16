@@ -16,8 +16,8 @@
     </li>
     <li>
     The separate MIL front end, compiler and MIL back end have been merged into a single compiler module, and the
-    MIL compiler has been renamed PDLC. The <em>Arcadia PDLC</em> library and the <code>Arcadia.PDLC.CIL</code>
-    command-line tool are now top-level modules, <code>PDLC</code> and <code>PDLC.CIL</code>, rather than living
+    MIL compiler has been renamed PDLC. The <em>Arcadia PDLC</em> library and the <code>Arcadia.PDLC.CLI</code>
+    command-line tool are now top-level modules, <code>PDLC</code> and <code>PDLC.CLI</code>, rather than living
     under <code>repository/</code>. The tool reads its own DDL configuration file and validates that file against a
     DDLS schema before it compiles.
     </li>

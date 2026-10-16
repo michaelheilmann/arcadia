@@ -1,0 +1,40 @@
+#version 420 core
+struct vpl_R0 {
+  mat4 vpl_m0;
+  mat4 vpl_m1;
+};
+struct vpl_R1 {
+  mat4 vpl_m0;
+};
+struct vpl_R2 {
+  vec4 vpl_m0;
+};
+layout(location = 0) in vec2 vpl_varying_0;
+layout(location = 1) in vec4 vpl_varying_1;
+layout(location = 0) out vec4 vpl_output_0;
+layout(std140, binding = 0) uniform vpl_Block0 {
+  mat4 vpl_m0;
+  mat4 vpl_m1;
+} vpl_u0;
+layout(std140, binding = 1) uniform vpl_Block1 {
+  mat4 vpl_m0;
+} vpl_u1;
+layout(std140, binding = 2) uniform vpl_Block2 {
+  vec4 vpl_m0;
+} vpl_u2;
+uniform sampler2D vpl_u3;
+void vpl_f0();
+void vpl_f0() {
+  vec4 vpl_r0;
+  vec2 vpl_r1;
+  vec4 vpl_r3;
+  vpl_r1 = vpl_varying_0;
+  vpl_r3 = texture(vpl_u3, vpl_r1);
+  vpl_r0 = vpl_varying_1;
+  vpl_r0 = (vpl_r3 * vpl_r0);
+  vpl_output_0 = vpl_r0;
+  return;
+}
+void main() {
+  vpl_f0();
+}

@@ -195,18 +195,35 @@ my-sem::before {
     <div class="left-column"></div>
     <div class="center-column">
     <h1>Arcadia Program Definition Language</h1>
-    <p>The Arcadia Program Definition Language (Arcadia PDL) is the declaration and instruction language consumed by the current compiler implementation in <code>repository/MILC</code>. The command-line interface for that compiler lives in <code>repository/MILC.CIL</code>.</p>
-    <p>This specification records the language accepted by the current compiler implementation as far as it can be inferred from the scanner, parser, and checked-in <code>.mil</code> inputs. Changes to accepted Arcadia PDL source syntax, lexical words, instruction forms, or primitive semantics in <code>repository/MILC</code> should be reflected here. It intentionally does not include the older HLL package, interface, expression, or symbolic-operator grammar because those productions are not accepted by the current parser.</p>
+    <p>The Arcadia Program Definition Language (Arcadia PDL) is the declaration and instruction language consumed by the current compiler implementation in <code>PDLC</code>. The command-line interface for that compiler lives in <code>PDLC.CLI</code>.</p>
+    <p>This specification records the language accepted by the current compiler implementation as far as it can be inferred from the scanner, parser, and checked-in <code>.mil</code> inputs. Changes to accepted Arcadia PDL source syntax, lexical words, instruction forms, or primitive semantics in <code>PDLC</code> should be reflected here. It intentionally does not include the older HLL package, expression, or symbolic-operator grammar because those productions are not accepted by the current parser.</p>
 
     <h2>Notation</h2>
     <p>Grammar productions use single quotes for literal words and symbols. The suffix <code>*</code> means zero or more occurrences, <code>?</code> means an optional occurrence, and alternatives are separated by <code>|</code>.</p>
 
+      <h2>Translation</h2>
+      <p>A program of the Arcadia PDL language is translated into declarations. This translation happens in three phases: The <em>lexical translation</em> translates Unicode code points to words. The <em>syntactical translation</em> filters the resulting sequence of words and then translates these words into a sentence. The <em>semantical translation</em> translates sentences into typed declarations.</p>
+
+      <h3>Module Directories</h3>
+      <p>A compiler invocation supplies one or more <em>module directories</em>. A module directory is the root directory of one Arcadia PDL module. If a supplied module directory path is relative, it is interpreted relative to the compiler invocation's working directory.</p>
+      <p>Each module directory contains a required compilation unit named <code>Module.mil</code>. The compiler parses this file before the other compilation units of the module. If <code>Module.mil</code> is not a regular file, the compiler reports an error.</p>
+      <p>The compiler discovers the remaining compilation units of a module by recursively enumerating the <code>Library/Sources</code> directory below the module directory and selecting regular files with the <code>.mil</code> extension. These files are parsed as compilation units of the same module.</p>
+      <p>The current implementation therefore uses the following directory shape:</p>
+      <pre><code>&lt;module-directory&gt;/
+  Module.mil
+  Library/
+    Sources/
+      ... *.mil</code></pre>
+      <p><code>Module.mil</code> must contain exactly one module definition. A missing module definition is an error. More than one module definition is an error. A module definition in any other compilation unit of the module is an error. The name of the module definition does not have to match the names of declarations in <code>Library/Sources</code>.</p>
+
     <h2>Lexical Translation</h2>
-    <p>The input is read as Unicode code points from UTF-8 bytes. Arcadia PDL reuses the terminology and rules of the <a href="https://michaelheilmann.com/specifications/common-lexical-translations/index.html">Common Lexical Translations</a> Standard Profile unless this section defines a more specific Arcadia PDL rule.</p>
-    <p>Arcadia PDL uses the common definitions for whitespace, line terminators, single-line comments, multi-line comments, periods, parentheses, curly brackets, colons, commas, boolean literals, and the void literal. Whitespace and comments separate words and are otherwise ignored by the parser. Line terminators are significant as statement terminators.</p>
+    <p>The input is read as Unicode code points from UTF-8 bytes. Arcadia PDL selects reusable productions and translation rules from <a href="https://michaelheilmann.com/specifications/common-lexical-translations/index.html">Common Lexical Translations</a> unless this section defines a more specific Arcadia PDL rule.</p>
+    <p>Arcadia PDL defines its own lexical word alternatives and start symbol using the selected common categories and the PDL-specific categories below. The common specification does not supply a universal word production. PDL's reserved-word and other disambiguation rules belong to this consuming language.</p>
+    <p>Arcadia PDL uses the common definitions for whitespace, line terminators, line continuations, single-line comments, multi-line comments, periods, parentheses, curly brackets, colons, commas, boolean literals, and the void literal. Whitespace and comments separate words and are otherwise ignored by the parser. Line terminators are significant as statement terminators unless a line continuation joins the statement with the following line.</p>
     <p><code>
     whiteSpace : Lexical.Whitespace<br>
     lineTerminator : Lexical.LineTerminator<br>
+    lineContinuation : Lexical.LineContinuation<br>
     singleLineComment : Lexical.SingleLineComment<br>
     multiLineComment : Lexical.MultiLineComment<br>
     period : Lexical.Period<br>
@@ -218,6 +235,15 @@ my-sem::before {
     comma : Lexical.Comma<br>
     booleanLiteral : Lexical.Boolean<br>
     voidLiteral : Lexical.Void
+    </code></p>
+
+    <h3>Line Continuations</h3>
+    <p>A line continuation is a reverse solidus immediately followed by a line terminator. The scanner produces one line continuation word that spans the reverse solidus and the line terminator, and the parser ignores that word. A reverse solidus that is not followed by a line terminator is a lexical error.</p>
+    <p>Statements may therefore be written over several lines by ending every line but the last with a line continuation. Only the line terminator of the last line terminates the statement:</p>
+    <p><code>
+    invoke $0 print \<br>
+    &nbsp;&nbsp;&nbsp;c \<br>
+    &nbsp;&nbsp;&nbsp;"done"
     </code></p>
 
     <h3>Names and Identifiers</h3>
@@ -243,7 +269,11 @@ my-sem::before {
     stringCharacter : anyCodePointExceptBackslashQuoteOrEndOfInput | '\\"' | '\\\\' | '\\n' | '\\r'
     </code></p>
 
-    <h2>Syntactical Grammar</h2>
+    <h3>Reserved Words</h3>
+    <p>The following words are reserved and cannot be used as names unless the scanner is changed:</p>
+    <p><code>add and class concatenate construct constructor divide entry enumeration extends false implements interface invoke isEqualTo isGreaterThan isGreaterThanOrEqualTo isLowerThan isLowerThanOrEqualTo isNotEqualTo jump jumpIfFalse jumpIfTrue loadArgument loadField method module multiply native negate not or procedure raise return set storeArgument storeField subtract true variable void</code></p>
+
+    <h2>Syntactical Translation</h2>
     <h3>Compilation Units</h3>
     <p>A compilation unit contains zero or more top-level definitions.</p>
     <p><code>
@@ -275,12 +305,11 @@ my-sem::before {
     interfaceDefinition : 'interface' identifier ('extends' interfaceNames)? interfaceBody<br>
     interfaceBody : '{' interfaceMemberDefinition* '}'<br>
     interfaceMemberDefinition : operationDefinition<br>
-    operationDefinition : methodDefinition<br>
+    operationDefinition : 'method' nativeClause? name parameters? ':' identifier methodBody?<br>
     interfaceNames : identifier (',' identifier)*
     </code></p>
     <p>An interface type may extend one or more interface types. Every extended interface type must be an interface type; the semantic analysis rejects any other symbol. The inheritance graph of interface types is acyclic, and an interface type may extend the same interface type at most once, transitively. The semantic analysis rejects a cyclic interface inheritance graph.</p>
     <p>Each interface type has its own operation table. An interface type does not inherit the operations of the interface types it extends.</p>
-    <p><em>Not yet reflected by the C backend:</em> the return value type of an operation is not yet resolved by the type resolution phase, so the current backend writer emits <code>void</code> for every operation return value.</p>
 
     <h3>Enumerations</h3>
     <p>An enumeration definition names an enumeration and may contain named constants. A constant may have an integer initializer.</p>
@@ -291,7 +320,7 @@ my-sem::before {
     </code></p>
 
     <h3>Procedures, Constructors, and Methods</h3>
-    <p>Procedures and methods declare a return type. Constructors do not. A native declaration has a string literal naming the native target and may omit a body.</p>
+    <p>Procedures and methods declare a return type. Constructors do not. The declaration forms are:</p>
     <p><code>
     procedureDefinition : 'procedure' 'entry'? nativeClause? identifier parameters? ':' identifier procedureBody?<br>
     constructorDefinition : 'constructor' nativeClause? parameters? constructorBody?<br>
@@ -321,22 +350,259 @@ my-sem::before {
     </code></p>
 
     <h3>Instructions</h3>
-    <p>The parser recognizes the following instruction forms.</p>
+    <p>The parser recognizes the following instruction forms. Conditional jumps preserve their condition operand in the AST; unconditional jumps have no condition operand.</p>
     <p><code>
-    instruction : binaryInstruction | unaryInstruction | invokeInstruction | jumpInstruction | argumentInstruction | fieldInstruction | 'raise' | 'return' operand?<br>
-    binaryInstruction : binaryOperator operand ',' operand ',' operand<br>
-    binaryOperator : 'add' | 'subtract' | 'multiply' | 'divide' | 'and' | 'or' | 'concatenate' | 'isEqualTo' | 'isNotEqualTo' | 'isLowerThan' | 'isLowerThanOrEqualTo' | 'isGreaterThan' | 'isGreaterThanOrEqualTo'<br>
-    unaryInstruction : unaryOperator operand ',' operand<br>
-    unaryOperator : 'negate' | 'not' | 'set'<br>
-    invokeInstruction : 'invoke' name '(' (operand (',' operand)*)? ')'<br>
-    jumpInstruction : 'jump' name | 'jumpIfTrue' operand ',' name | 'jumpIfFalse' operand ',' name<br>
-    argumentInstruction : 'loadArgument' operand ',' operand | 'storeArgument' operand ',' operand ',' operand<br>
-    fieldInstruction : 'loadField' operand ',' operand ',' operand | 'storeField' operand ',' operand ',' operand
+    instruction : (binaryInstruction<br>
+                | unaryInstruction<br>
+                | invokeInstruction<br>
+                | constructInstruction<br>
+                | jumpInstruction<br>
+                | argumentInstruction<br>
+                | fieldInstruction<br>
+                | 'raise'<br>
+                | returnInstruction) instructionTerminator<br>
+    instructionTerminator : (Lexical.EndOfInput|Lexical.EndOfLine)<br>
+    binaryInstruction : binaryOperator operand operand operand<br>
+    binaryOperator : 'add'
+                   | 'subtract'
+                   | 'multiply'
+                   | 'divide'
+                   | 'and'
+                   | 'or'
+                   | 'concatenate'
+                   | 'isEqualTo'
+                   | 'isNotEqualTo'
+                   | 'isLowerThan'
+                   | 'isLowerThanOrEqualTo'
+                   | 'isGreaterThan'
+                   | 'isGreaterThanOrEqualTo'<br>
+    unaryInstruction : unaryOperator operand operand<br>
+    unaryOperator : 'negate'
+                  | 'not'
+                  | 'set'<br>
+    invokeInstruction : 'invoke' operand name operand operand*<br>
+    constructInstruction : 'construct' operand name operand operand*<br>
+    jumpInstruction : 'jump' name<br>
+                    | 'jumpIfTrue' operand name<br>
+                    | 'jumpIfFalse' operand name<br>
+    argumentInstruction : 'loadArgument' operand operand<br>
+                        | 'storeArgument' operand operand operand<br>
+    fieldInstruction : 'loadField' operand operand operand<br>
+                     | 'storeField' operand operand operand<br>
+    returnInstruction : 'return' operand?<br>
     </code></p>
 
-    <h2>Reserved Words</h2>
-    <p>The following words are reserved and cannot be used as names unless the scanner is changed:</p>
-    <p><code>add and class concatenate constructor divide entry enumeration extends false implements interface isEqualTo isGreaterThan isGreaterThanOrEqualTo isLowerThan isLowerThanOrEqualTo isNotEqualTo jump jumpIfFalse jumpIfTrue loadArgument loadField method module multiply native negate not or procedure raise return set storeArgument storeField subtract true variable void</code></p>
+    <p>An instruction is terminated by a line terminator of the line of its opcode.
+    The line continuation symbol may be used to continue an instruction in the next line.</p>
+
+
+      <h2>Semantical Translation</h2>
+      <p>The semantical translation resolves the names of a sentence provided by the syntactical translation and binds every declaration to a type.</p>
+
+      <h3>Type Names</h3>
+      <p>Type names are fully qualified, and there is no relative resolution of type names. A type name is matched against the fully qualified names of the compilation as it is written, so <code>Arcadia.Natural32</code> denotes a primitive type and <code>MyModule.Greeter</code> denotes the type declared with the qualified name <code>MyModule.Greeter</code>. A type name that does not spell out the fully qualified name of a type is not defined; for example, <code>Greeter</code> does not denote the type <code>MyModule.Greeter</code>. The same rule applies wherever the grammar expects a type name: a class <code>extends</code> or <code>implements</code> clause, an interface <code>extends</code> clause, a <code>variable</code> or parameter type, and the return type of a procedure, constructor, or method.</p>
+
+      <h3>Member Names</h3>
+      <p>A member of a class type is looked up by its declared name, unqualified, in the scope of the class type that declares it. A member name, unlike a type name, is never fully qualified.</p>
+
+      <h3>Built-in Types</h3>
+      <p>The following types are built in to every compilation. They are always spelled with the fully qualified <code>Arcadia.</code> prefix:</p>
+      <ul>
+        <li><code>Arcadia.Boolean</code></li>
+        <li><code>Arcadia.Integer8</code>, <code>Arcadia.Integer16</code>, <code>Arcadia.Integer32</code>, <code>Arcadia.Integer64</code></li>
+        <li><code>Arcadia.Natural8</code>, <code>Arcadia.Natural16</code>, <code>Arcadia.Natural32</code>, <code>Arcadia.Natural64</code></li>
+        <li><code>Arcadia.Object</code></li>
+        <li><code>Arcadia.Real32</code>, <code>Arcadia.Real64</code></li>
+        <li><code>Arcadia.Void</code></li>
+      </ul>
+      <p><code>Arcadia.Object</code> is a class type; the other built-in types are primitive types.</p>
+      <p>A built-in type is provided by the runtime rather than by a module, so it is not generated: the compiler emits no source or header file for a built-in type, and instead binds a reference to it to the corresponding runtime type.</p>
+
+      <h3>Native Definitions</h3>
+      <p>A procedure, constructor, or method definition may carry an optional <code>native</code> clause. The clause takes a string literal naming the native target. A definition that carries the clause is a <em>native definition</em>; a definition that omits the clause is not native, even though it declares the same kind of member.</p>
+      <p>The string literal names the native target verbatim. It is an ordinary C identifier and is not subject to the qualified-name rules that apply to type names and to defined procedure, constructor, and method names. In particular, the rewriting that derives an implementation name from a fully qualified name by replacing the <code>.</code> separator does not apply to a native target name.</p>
+      <p>A native definition has no body to compile, because its body is provided by the named target. A definition without a <code>native</code> clause is provided with a compiler-generated body, which the current implementation leaves unimplemented.</p>
+      <p>A built-in type may declare members, and such a member is native without a <code>native</code> clause appearing in any compilation unit: a member supplied by a built-in type is native by being supplied, and not by carrying the optional clause.</p>
+
+      <h3>Interface Operations</h3>
+      <p>Interface operations are method declarations. The syntactical translation accepts the same surface method form as class methods, but semantical translation rejects an interface operation that has a method body.</p>
+
+    <h3>Instruction Semantics</h3>
+    <p>Arcadia PDL is currently dynamically typed. The semantical translation does not bind an instruction operand to a type, so the descriptions below state which operand forms an instruction accepts and which effect it has on the values of its operands at run time. An instruction raises an error when it cannot be applied to the values of its operands.</p>
+
+    <h4>Arithmetic Instructions</h4>
+
+    <h5>add</h5>
+    <p>The <code>add</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation adds the value of the 3rd operand to the value of the 2nd operand and stores the result in the 1st operand.
+    If the values cannot be added, then an error is raised.</p>
+
+    <h5>subtract</h5>
+    <p>The <code>subtract</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation subtracts the value of the 3rd operand from the value of the 2nd operand and stores the result in the 1st operand.
+    If the values cannot be subtracted, then an error is raised.</p>
+
+    <h5>multiply</h5>
+    <p>The <code>multiply</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation multiplies the value of the 2nd operand with the value of the 3rd operand and stores the result in the 1st operand.
+    If the values cannot be multiplied, then an error is raised.</p>
+
+    <h5>divide</h5>
+    <p>The <code>divide</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation divides the value of the 2nd operand by the value of the 3rd operand and stores the result in the 1st operand.
+    If the values cannot be divided, or if the value of the 3rd operand is zero, then an error is raised.</p>
+
+    <h5>negate</h5>
+    <p>The <code>negate</code> instruction expects two operands.
+    The 1st operand must be a register, then 2nd operand must be a register or a literal.
+    The operation negates the value of the 2nd operand and stores the result in the 1st operand.
+    If the value cannot be negated, then an error is raised.</p>
+
+    <h4>Concatenation Instructions</h4>
+
+    <h5>concatenate</h5>
+    <p>The <code>concatenate</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation concatenates the value of the 3rd operand to the value of the 2nd operand and stores the result in the 1st operand.
+    If the values cannot be concatenated, then an error is raised.</p>
+
+    <h4>Logic Instructions</h4>
+
+    <h5>and</h5>
+    <p>The <code>and</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation stores the logical conjunction of the values of the 2nd and the 3rd operand in the 1st operand.
+    If the values cannot be combined by a logical conjunction, then an error is raised.</p>
+
+    <h5>or</h5>
+    <p>The <code>or</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation stores the logical disjunction of the values of the 2nd and the 3rd operand in the 1st operand.
+    If the values cannot be combined by a logical disjunction, then an error is raised.</p>
+
+    <h5>not</h5>
+    <p>The <code>not</code> instruction expects two operands.
+    The 1st operand must be a register, then 2nd operand must be a register or a literal.
+    The operation stores the logical negation of the value of the 2nd operand in the 1st operand.
+    If the value cannot be logically negated, then an error is raised.</p>
+
+    <h4>Relational Instructions</h4>
+
+    <h5>isEqualTo</h5>
+    <p>The <code>isEqualTo</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation stores true in the 1st operand if the values of the 2nd and the 3rd operand are equal, and false otherwise.
+    If the values cannot be compared, then an error is raised.</p>
+
+    <h5>isNotEqualTo</h5>
+    <p>The <code>isNotEqualTo</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation stores true in the 1st operand if the values of the 2nd and the 3rd operand are not equal, and false otherwise.
+    If the values cannot be compared, then an error is raised.</p>
+
+    <h5>isLowerThan</h5>
+    <p>The <code>isLowerThan</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation stores true in the 1st operand if the value of the 2nd operand is lower than the value of the 3rd operand, and false otherwise.
+    If the values cannot be compared, then an error is raised.</p>
+
+    <h5>isLowerThanOrEqualTo</h5>
+    <p>The <code>isLowerThanOrEqualTo</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation stores true in the 1st operand if the value of the 2nd operand is lower than or equal to the value of the 3rd operand, and false otherwise.
+    If the values cannot be compared, then an error is raised.</p>
+
+    <h5>isGreaterThan</h5>
+    <p>The <code>isGreaterThan</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation stores true in the 1st operand if the value of the 2nd operand is greater than the value of the 3rd operand, and false otherwise.
+    If the values cannot be compared, then an error is raised.</p>
+
+    <h5>isGreaterThanOrEqualTo</h5>
+    <p>The <code>isGreaterThanOrEqualTo</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd and 3rd operands must be registers or literals.
+    The operation stores true in the 1st operand if the value of the 2nd operand is greater than or equal to the value of the 3rd operand, and false otherwise.
+    If the values cannot be compared, then an error is raised.</p>
+
+    <h4>Data Movement Instructions</h4>
+    <p>Data movement instructions transfer a value into a <em>target</em> operand, which is always given as the first operand. The operand denoted by <code>name</code> is a declared name, not a register.</p>
+
+    <h5>set</h5>
+    <p>The <code>set</code> instruction expects two operands.
+    The 1st operand must be a register or a variable declared in the enclosing procedure, constructor, or method, then 2nd operand must be a register, such a variable, or a literal.
+    The operation stores the value of the 2nd operand in the 1st operand.</p>
+
+    <h5>loadArgument</h5>
+    <p>The <code>loadArgument</code> instruction expects two operands.
+    The 1st operand must be a register, then 2nd operand must be a name denoting a parameter of the current procedure, constructor, or method.
+    The operation loads the value bound to that parameter into the 1st operand.
+    If the 2nd operand does not denote a parameter of the current procedure, constructor, or method, then an error is raised.</p>
+
+    <h5>storeArgument</h5>
+    <p>The <code>storeArgument</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd operand must be a name denoting a parameter of the current procedure, constructor, or method, and the 3rd operand must be a register or a literal.
+    The operation stores the value of the 3rd operand into the argument slot for that parameter of the entity identified by the 1st operand.
+    If the 2nd operand does not denote a parameter of the current procedure, constructor, or method, then an error is raised.</p>
+
+    <h5>loadField</h5>
+    <p>The <code>loadField</code> instruction expects three operands.
+    The 1st operand must be a register, then 2nd operand must be a register holding an object, and the 3rd operand must be a name denoting a field of the class type of that object.
+    The operation reads that field into the 1st operand.
+    If the 3rd operand does not denote a field of that class type, then an error is raised.</p>
+
+    <h5>storeField</h5>
+    <p>The <code>storeField</code> instruction expects three operands.
+    The 1st operand must be a register holding an object, then 2nd operand must be a name denoting a field of the class type of that object, and the 3rd operand must be a register or a literal.
+    The operation stores the value of the 3rd operand into that field.
+    If the 2nd operand does not denote a field of that class type, then an error is raised.</p>
+
+    <h4>Object Instructions</h4>
+
+    <h5>invoke</h5>
+    <p>The <code>invoke</code> instruction invokes a method of an object.
+    It expects the invoked object in its 1st operand in a register and the method to be invoked as its 2nd operand as name.
+    The arguments, which may either be registers or literals, follow.</p>
+
+    <h5>construct</h5>
+    <p>The <code>construct</code> instruction invokes a constructor for the named class and stores the constructed object in the target operand.
+    The 2nd argument is the name of the class of which the constructor shall be invoked.
+    The third argument is a register containing the object upon which the constructor is invoked.
+    The object is stored in the register specified by the first argument on success.
+    The arguments, which may either be registers or literals, follow.</p>
+
+    <h4>Control Flow Instructions</h4>
+
+    <h5>jump</h5>
+    <p>The <code>jump</code> instruction expects one operand, which must be a name denoting a label declared in the body of the current procedure, constructor, or method.
+    The operation transfers control to that label.
+    If the operand does not denote a label declared in the current procedure, constructor, or method, then an error is raised.</p>
+
+    <h5>jumpIfTrue</h5>
+    <p>The <code>jumpIfTrue</code> instruction expects two operands.
+    The 1st operand must be a register or a literal, then 2nd operand must be a name denoting a label declared in the body of the current procedure, constructor, or method.
+    The operation transfers control to that label if the value of the 1st operand is true, and falls through otherwise.
+    If the 2nd operand does not denote a label declared in the current procedure, constructor, or method, then an error is raised.</p>
+
+    <h5>jumpIfFalse</h5>
+    <p>The <code>jumpIfFalse</code> instruction expects two operands.
+    The 1st operand must be a register or a literal, then 2nd operand must be a name denoting a label declared in the body of the current procedure, constructor, or method.
+    The operation transfers control to that label if the value of the 1st operand is false, and falls through otherwise.
+    If the 2nd operand does not denote a label declared in the current procedure, constructor, or method, then an error is raised.</p>
+
+    <h5>raise</h5>
+    <p>The <code>raise</code> instruction expects no operands.
+    The operation raises the current exception.</p>
+
+    <h5>return</h5>
+    <p>The <code>return</code> instruction returns from the current method / procedure / constructor.
+    It may have zero or one operand. It returns a void value with zero operands.
+    If an operand is specified, that operand must be a register or a literal of which the value is returned.</p>
+
+    <p>The target of a jump must be a bare name; a string literal is not accepted. Labels are introduced by a label definition statement, that is by <code>name ':'</code>, in the body of the enclosing procedure, constructor, or method.</p>
 
     <h2>Execution Model</h2>
     <p>This section captures the reusable interpreter model from the older material where it still matches Arcadia PDL instructions. It is descriptive until the compiler backend or runtime defines the behavior normatively.</p>
@@ -376,10 +642,10 @@ enumeration Arcadia.Engine.Visuals.WindingMode {
   CounterClockwise = 1
 }
 
-procedure sum(variable x : Integer32, variable y : Integer32) : Integer32 {
-  loadArgument $1, x
-  loadArgument $2, y
-  add $1, $1, $2
+procedure sum(variable x : Arcadia.Integer32, variable y : Arcadia.Integer32) : Arcadia.Integer32 {
+  loadArgument $1 x
+  loadArgument $2 y
+  add $1 $1 $2
   return $1
 }</code></pre>
   </div>
@@ -390,7 +656,7 @@ procedure sum(variable x : Integer32, variable y : Integer32) : Integer32 {
     <div class="center-column"></div>
     <div class="right-column">
       <div>Website maintained by Michael Heilmann.</div>
-      <div>Last modified on 11 October 2026.</div>
+      <div>Last modified on 16 October 2026.</div>
     </div>
   </footer>
 </body>

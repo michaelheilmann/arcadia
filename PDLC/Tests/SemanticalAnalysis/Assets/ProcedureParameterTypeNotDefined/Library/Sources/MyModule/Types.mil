@@ -1,0 +1,4 @@
+procedure MyModule.MyProcedure (variable a : Arcadia.Nonexistent) : Arcadia.Void
+{
+}
+

@@ -26,14 +26,12 @@
 
 ## Consumers
 
-The public APIs are used by `DDL`, `DDLS`, `ADL`, `VPL`, and `repository/MILC`. Treat function names, object type names, dispatch layouts, and exported structs as cross-module API. Prefer small compatible changes unless all consumers are updated in the same change.
+The public APIs are used by `DDL`, `DDLS`, `ADL`, `VPL`, and `PDLC`. Treat function names, object type names, dispatch layouts, and exported structs as cross-module API. Prefer small compatible changes unless all consumers are updated in the same change.
 
 ## Coding Notes
 
-- Follow the Arcadia object/type pattern used here: `Arcadia_declareObjectType` in headers, `Arcadia_defineObjectType` in sources, explicit construct/destruct/visit/initializeDispatch callbacks, and `_Arcadia_BeginCreate`/`_Arcadia_EndCreate` factories.
-- Follow the root `AGENTS.md` runtime GC/rooting rules for object references, `visit` callbacks, and temporary locks.
-- Use `Arcadia_Thread_setStatus` and `Arcadia_Thread_jump` for runtime errors, matching the surrounding runtime style.
-- Preserve the module include convention. Implementation files define `ARCADIA_LANGUAGES_MODULE` before including module headers directly; public callers include the aggregate `Include.h`.
+- Follow the shared C/C++ source code style guide in `AGENTS/CxxSourceCodeStyle.md`, including object/type patterns, GC/rooting rules, error handling, and aggregate include boundaries.
+- Preserve the module include convention. Implementation files define `ARCADIA_LANGUAGES_MODULE` before including module headers directly.
 - Keep diagnostics reusable. Language-specific diagnostic message objects should usually derive from `Arcadia.Languages.Diagnostic` in the consuming module instead of hard-coding frontend-specific behavior here.
 - Keep `StringTable`, `Scope`, and `LineMap` generic. Do not add frontend-specific keywords, symbol classes, or semantic rules to this module.
 - Be careful with unsigned indices in binary search code. Prefer half-open ranges (`low < high`) to avoid underflow and out-of-bounds access.
@@ -42,6 +40,6 @@ The public APIs are used by `DDL`, `DDLS`, `ADL`, `VPL`, and `repository/MILC`. 
 
 - Configure and build through the repository CMake presets or external build directories described in the root `AGENTS.md`.
 - There are no local `Languages` tests at the time of writing.
-- For line-map or input-file changes, run the focused CTest target `Arcadia.MILC.Tests.LineMap` when available.
-- For scanner/parser/diagnostics API changes, run affected downstream tests, especially DDL lexical/syntactical tests and MILC lexical/syntactical/diagnostics tests.
+- For line-map or input-file changes, run the focused CTest target `Arcadia.PDLC.Tests.LineMap` when available.
+- For scanner/parser/diagnostics API changes, run affected downstream tests, especially DDL lexical/syntactical tests and PDLC lexical/syntactical/diagnostics tests.
 - A minimal source verification is building `${MyProjectName}.Languages`; broader API changes should also build affected consumers.

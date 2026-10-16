@@ -16,6 +16,7 @@
 
 cmake_minimum_required(VERSION 3.29)
 
+add_subdirectory(Geometry)
 add_subdirectory(PixelBuffer)
 add_subdirectory(SampleBuffer)
 add_subdirectory(DSP)

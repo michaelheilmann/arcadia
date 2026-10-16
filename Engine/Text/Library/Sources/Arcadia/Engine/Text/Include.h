@@ -20,6 +20,7 @@
 #define ARCADIA_ENGINE_TEXT_PRIVATE (1)
 
 #include "Arcadia/Engine/Text/TextAlignment.h"
+#include "Arcadia/Engine/Text/TextLayout.h"
 #include "Arcadia/Engine/Text/MarkupWordType.h"
 #include "Arcadia/Engine/Text/MarkupTextRun.h"
 #include "Arcadia/Engine/Text/MarkupScanner.h"

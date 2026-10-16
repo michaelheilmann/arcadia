@@ -1,0 +1,2 @@
+class MyModule.Greeter extends Arcadia.Object {
+}

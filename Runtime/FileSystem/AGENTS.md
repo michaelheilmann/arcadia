@@ -25,10 +25,9 @@
 
 - Files in this module define `ARCADIA_FILESYSTEM_MODULE` before including module headers.
 - Public module users include `Arcadia/FileSystem/Include.h`; many internal headers reject direct inclusion unless `ARCADIA_FILESYSTEM_MODULE` is defined.
-- Errors are reported through `Arcadia_Thread_setStatus(thread, ...)` and `Arcadia_Thread_jump(thread)`, not by returning error codes.
-- Use `Arcadia_JumpTarget` cleanup guards around heap allocations or OS handles when subsequent Arcadia calls may jump.
+- Follow the shared error-handling and jump-target cleanup conventions in `AGENTS/CxxSourceCodeStyle.md`.
 - Use existing status values consistently: allocation failures normally use `Arcadia_Status_AllocationFailed`; OS/API failures normally use `Arcadia_Status_OperationFailed` or, for environment lookup failures, `Arcadia_Status_EnvironmentFailed`.
-- Preserve AGPL-3.0-or-later headers on new C, header, and CMake files.
+- Preserve AGPL-3.0-or-later headers on new C, header, and CMake files as described in `AGENTS/CxxSourceCodeStyle.md`.
 
 ## FileSystem Dispatch
 

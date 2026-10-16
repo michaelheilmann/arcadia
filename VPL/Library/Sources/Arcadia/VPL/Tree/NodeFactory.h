@@ -112,4 +112,52 @@ Arcadia_VPL_Tree_NodeFactory_makeProcedureDefn
   );
 
 
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeIfStmt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Tree_Node* condition,
+    Arcadia_List* thenBody,
+    Arcadia_List* elseBody
+  );
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeForStmt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Tree_Node* initializer,
+    Arcadia_VPL_Tree_Node* condition,
+    Arcadia_VPL_Tree_Node* update,
+    Arcadia_List* body
+  );
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeWhileStmt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Tree_Node* condition,
+    Arcadia_List* body
+  );
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeReturnStmt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Tree_Node* value
+  );
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeDiscardStmt
+  (
+    Arcadia_Thread* thread
+  );
+
+Arcadia_VPL_Tree_Node*
+Arcadia_VPL_Tree_NodeFactory_makeIndexExpr
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Tree_Node* target,
+    Arcadia_VPL_Tree_Node* index
+  );
+
 #endif // ARCADIA_VPL_TREE_NODEFACTORY_H_INCLUDED

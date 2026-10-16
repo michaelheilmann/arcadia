@@ -23,7 +23,9 @@
 
 #include "Arcadia/Engine/BackendContext.h"
 #include "Arcadia/Media/Include.h"
+typedef struct Arcadia_Engine_Audials_AudioStreamProvider Arcadia_Engine_Audials_AudioStreamProvider;
 typedef struct Arcadia_Engine_Audials_Implementation_SoundSourceResource Arcadia_Engine_Audials_Implementation_SoundSourceResource;
+typedef struct Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource;
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Audials.BackendContext", Arcadia_Engine_Audials_BackendContext,
                           u8"Arcadia.Engine.BackendContext");
@@ -38,6 +40,22 @@ struct Arcadia_Engine_Audials_BackendContextDispatch {
       Arcadia_Engine_Audials_BackendContext* self,
       Arcadia_Media_SampleBuffer* sampleBuffer
     );
+
+  Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*
+  (*createStreamingSoundSourceResource)
+    (
+      Arcadia_Thread* thread,
+      Arcadia_Engine_Audials_BackendContext* self,
+      Arcadia_Engine_Audials_AudioStreamProvider* provider
+    );
+
+  void
+  (*setMasterVolume)
+    (
+      Arcadia_Thread* thread,
+      Arcadia_Engine_Audials_BackendContext* self,
+      Arcadia_Real64Value volume
+    );
 };
 
 struct Arcadia_Engine_Audials_BackendContext {
@@ -50,6 +68,22 @@ Arcadia_Engine_Audials_BackendContext_createSoundSourceResource
     Arcadia_Thread* thread,
     Arcadia_Engine_Audials_BackendContext* self,
     Arcadia_Media_SampleBuffer* sampleBuffer
+  );
+
+Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*
+Arcadia_Engine_Audials_BackendContext_createStreamingSoundSourceResource
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_BackendContext* self,
+    Arcadia_Engine_Audials_AudioStreamProvider* provider
+  );
+
+void
+Arcadia_Engine_Audials_BackendContext_setMasterVolume
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_BackendContext* self,
+    Arcadia_Real64Value volume
   );
 
 #endif // ARCADIA_ENGINE_AUDIALS_BACKENDCONTEXT_H_INCLUDED

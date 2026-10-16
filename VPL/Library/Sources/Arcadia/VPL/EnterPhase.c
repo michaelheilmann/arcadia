@@ -19,6 +19,7 @@
 
 #include "Arcadia/VPL/Symbols/Include.h"
 #include "Arcadia/VPL/Tree/Include.h"
+#include "Arcadia/VPL/Diagnostics/Include.h"
 #include "Arcadia/VPL/ModifiersUtilities.h"
 
 static void
@@ -54,7 +55,7 @@ conflictingDefinitionError
   (
     Arcadia_Thread* thread,
     Arcadia_VPL_EnterPhase* self,
-    Arcadia_VPL_Symbols_Program* program
+    Arcadia_String* name
   );
 
 static void
@@ -70,8 +71,7 @@ onConstantRecordField
   (
     Arcadia_Thread* thread,
     Arcadia_VPL_EnterPhase* self,
-    Arcadia_VPL_Symbols_Variable* field,
-    Arcadia_VPL_Symbols_Program* program
+    Arcadia_VPL_Symbols_Variable* field
   );
 
 static void
@@ -112,10 +112,11 @@ Arcadia_VPL_EnterPhase_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (0 != _numberOfArguments) {
+  if (1 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
+  self->diagnostics = (Arcadia_Languages_Diagnostics*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Languages_Diagnostics_getType(thread));
   self->worklist = (Arcadia_Deque*)Arcadia_ArrayDeque_create(thread);
   Arcadia_LeaveConstructor(Arcadia_VPL_EnterPhase);
 }
@@ -135,6 +136,9 @@ Arcadia_VPL_EnterPhase_visit
     Arcadia_VPL_EnterPhase* self
   )
 {
+  if (self->diagnostics) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->diagnostics);
+  }
   if (self->worklist) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->worklist);
   }
@@ -156,8 +160,19 @@ Arcadia_VPL_EnterPhase_create
   )
 {
   _Arcadia_BeginCreate(Arcadia_VPL_EnterPhase);
-  Arcadia_ValueStack_pushNatural8Value(thread, 0);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)diagnostics);
+  Arcadia_ValueStack_pushNatural8Value(thread, 1);
   _Arcadia_EndCreate(Arcadia_VPL_EnterPhase);
+}
+
+Arcadia_Languages_Diagnostics*
+Arcadia_VPL_EnterPhase_getDiagnostics
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_EnterPhase* self
+  )
+{
+  return self->diagnostics;
 }
 
 static void
@@ -165,11 +180,21 @@ conflictingDefinitionError
   (
     Arcadia_Thread* thread,
     Arcadia_VPL_EnterPhase* self,
-    Arcadia_VPL_Symbols_Program* program
+    Arcadia_String* name
   )
 {
-  /*@todo Add and use exceptions. The concept is already in Arcadia.Ring2 and Arcadia.Languages but it was not yet used so far.*/
-  Arcadia_logf(Arcadia_LogFlags_Error, "conflicting definition\n");
+  Arcadia_Languages_Diagnostics_add
+    (
+      thread,
+      self->diagnostics,
+      (Arcadia_Languages_Diagnostic*)
+      Arcadia_VPL_Diagnostics_SymbolAlreadyDefinedDiagnostic_create
+        (
+          thread,
+          Arcadia_Languages_DiagnosticType_Error,
+          name
+        )
+    );
   Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
   Arcadia_Thread_jump(thread);
 }
@@ -187,35 +212,25 @@ createProgramScope
 {
   program->scope = Arcadia_Languages_Scope_create(thread, NULL);
 
-  if (!Arcadia_Languages_Scope_enter(thread, program->scope, program->MAT4->name, (Arcadia_Object*)program->MAT4)) {
-    conflictingDefinitionError(thread, self, program);
-  }
-  if (!Arcadia_Languages_Scope_enter(thread, program->scope, program->SAMPLER2D->name, (Arcadia_Object*)program->SAMPLER2D)) {
-    conflictingDefinitionError(thread, self, program);
-  }
-  if (!Arcadia_Languages_Scope_enter(thread, program->scope, program->VEC2->name, (Arcadia_Object*)program->VEC2)) {
-    conflictingDefinitionError(thread, self, program);
-  }
-  if (!Arcadia_Languages_Scope_enter(thread, program->scope, program->VEC3->name, (Arcadia_Object*)program->VEC3)) {
-    conflictingDefinitionError(thread, self, program);
-  }
-  if (!Arcadia_Languages_Scope_enter(thread, program->scope, program->VEC4->name, (Arcadia_Object*)program->VEC4)) {
-    conflictingDefinitionError(thread, self, program);
-  }
-  if (!Arcadia_Languages_Scope_enter(thread, program->scope, program->VOID->name, (Arcadia_Object*)program->VOID)) {
-    conflictingDefinitionError(thread, self, program);
+  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)program->types); i < n; ++i) {
+    Arcadia_VPL_Symbols_BuiltinType* type = (Arcadia_VPL_Symbols_BuiltinType*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, program->types, i, _Arcadia_VPL_Symbols_BuiltinType_getType(thread));
+    if (!Arcadia_Languages_Scope_enter(thread, program->scope, type->name, (Arcadia_Object*)type)) {
+      conflictingDefinitionError(thread, self, type->name);
+    }
   }
 
+  Arcadia_String* vertexStageName = Arcadia_String_createFromCxxString(thread, u8"<vertex stage>");
   program->vertexStage = Arcadia_VPL_Symbols_Stage_create(thread, program, Arcadia_VPL_Symbols_StageFlags_Vertex);
   program->vertexStage->scope = Arcadia_Languages_Scope_create(thread, program->scope);
-  if (!Arcadia_Languages_Scope_enter(thread, program->scope, Arcadia_String_createFromCxxString(thread, u8"<vertex stage>"), (Arcadia_Object*)program->vertexStage)) {
-    conflictingDefinitionError(thread, self, program);
+  if (!Arcadia_Languages_Scope_enter(thread, program->scope, vertexStageName, (Arcadia_Object*)program->vertexStage)) {
+    conflictingDefinitionError(thread, self, vertexStageName);
   }
 
+  Arcadia_String* fragmentStageName = Arcadia_String_createFromCxxString(thread, u8"<fragment stage>");
   program->fragmentStage = Arcadia_VPL_Symbols_Stage_create(thread, program, Arcadia_VPL_Symbols_StageFlags_Fragment);
   program->fragmentStage->scope = Arcadia_Languages_Scope_create(thread, program->scope);
-  if (!Arcadia_Languages_Scope_enter(thread, program->scope, Arcadia_String_createFromCxxString(thread, u8"<fragment stage>"), (Arcadia_Object*)program->fragmentStage)) {
-    conflictingDefinitionError(thread, self, program);
+  if (!Arcadia_Languages_Scope_enter(thread, program->scope, fragmentStageName, (Arcadia_Object*)program->fragmentStage)) {
+    conflictingDefinitionError(thread, self, fragmentStageName);
   }
 }
 
@@ -224,14 +239,13 @@ onConstantRecordField
   (
     Arcadia_Thread* thread,
     Arcadia_VPL_EnterPhase* self,
-    Arcadia_VPL_Symbols_Variable* field,
-    Arcadia_VPL_Symbols_Program* program
+    Arcadia_VPL_Symbols_Variable* field
   )
 {
   Arcadia_VPL_Symbols_ConstantRecord* enclosing = (Arcadia_VPL_Symbols_ConstantRecord*)field->enclosing;
   Arcadia_Object* object = Arcadia_Languages_Scope_lookup(thread, enclosing->scope, field->name, Arcadia_BooleanValue_False);
   if (object) {
-    conflictingDefinitionError(thread, self, program);
+    conflictingDefinitionError(thread, self, field->name);
   }
   Arcadia_Languages_Scope_enter(thread, enclosing->scope, field->name, (Arcadia_Object*)field);
 }
@@ -252,7 +266,7 @@ onConstantRecord
   // Add the fields to the scope.
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)constantRecord->fields); i < n; ++i) {
     Arcadia_VPL_Symbols_Variable* field = (Arcadia_VPL_Symbols_Variable*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, constantRecord->fields, i, _Arcadia_VPL_Symbols_Variable_getType(thread));
-    onConstantRecordField(thread, self, field, program);
+    onConstantRecordField(thread, self, field);
   }
 }
 
@@ -362,16 +376,20 @@ Step1_onProcedureEnter
     Arcadia_VPL_Tree_VariableDefnNode* parameterDefnNode = (Arcadia_VPL_Tree_VariableDefnNode*)Arcadia_List_getObjectReferenceValueAt(thread, procedureDefnNode->parameters, i);
     // Resolve the paramter type symbol.
     Arcadia_VPL_Symbols_Symbol* typeSymbol = (Arcadia_VPL_Symbols_Symbol*)Arcadia_Languages_Scope_lookup(thread, programSymbol->scope, parameterDefnNode->type, Arcadia_BooleanValue_True);
-    if (!typeSymbol || !Arcadia_Object_isInstanceOf(thread, returnValueTypeSymbol, _Arcadia_VPL_Symbols_BuiltinType_getType(thread))) {
+    if (!typeSymbol || !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)typeSymbol, _Arcadia_VPL_Symbols_BuiltinType_getType(thread))) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
       Arcadia_Thread_jump(thread);
     }
     parameterDefnNode->typeSymbol = typeSymbol;
     Arcadia_VPL_Symbols_Variable* parameterSymbol = Arcadia_VPL_Symbols_Variable_create(thread, parameterDefnNode->name, typeSymbol, (Arcadia_VPL_Symbols_Symbol*)procedureSymbol, (Arcadia_VPL_Tree_Node*)parameterDefnNode);
     Arcadia_List_insertBackObjectReferenceValue(thread, procedureSymbol->parameters, (Arcadia_Object*)parameterSymbol);
-    Arcadia_Languages_Scope_enter(thread, procedureSymbol->scope, parameterSymbol->name, (Arcadia_Object*)parameterSymbol);
+    if (!Arcadia_Languages_Scope_enter(thread, procedureSymbol->scope, parameterSymbol->name, (Arcadia_Object*)parameterSymbol)) {
+      conflictingDefinitionError(thread, self, parameterSymbol->name);
+    }
   }
-  Arcadia_Languages_Scope_enter(thread, enclosingScope, procedureSymbol->name, (Arcadia_Object*)procedureSymbol);
+  if (!Arcadia_Languages_Scope_enter(thread, enclosingScope, procedureSymbol->name, (Arcadia_Object*)procedureSymbol)) {
+    conflictingDefinitionError(thread, self, procedureSymbol->name);
+  }
   return procedureSymbol;
 }
 
@@ -395,9 +413,10 @@ Step1_onConstantScalarEnter
     Arcadia_Thread_jump(thread);
   }
   Arcadia_VPL_Symbols_ConstantScalar* sym = Arcadia_VPL_Symbols_ConstantScalar_create(thread, defn->name, varTypeSym, program);
+  defn->typeSymbol = varTypeSym;
   Arcadia_List_insertBackObjectReferenceValue(thread, program->constants, (Arcadia_Object*)sym);
   if (!Arcadia_Languages_Scope_enter(thread, program->scope, sym->name, (Arcadia_Object*)sym)) {
-    conflictingDefinitionError(thread, self, program);
+    conflictingDefinitionError(thread, self, sym->name);
   }
   return sym;
 }
@@ -414,7 +433,7 @@ Step1_onConstantRecordEnter
   //
   Arcadia_VPL_Symbols_ConstantRecord* sym = Arcadia_VPL_Symbols_ConstantRecord_create(thread, defn->name, program, (Arcadia_VPL_Tree_Node*)defn);
   if (!Arcadia_Languages_Scope_enter(thread, program->scope, sym->name, (Arcadia_Object*)sym)) {
-    conflictingDefinitionError(thread, self, program);
+    conflictingDefinitionError(thread, self, sym->name);
   }
   sym->scope = Arcadia_Languages_Scope_create(thread, program->scope);
   Arcadia_List_insertBackObjectReferenceValue(thread, program->constants, sym);
@@ -428,8 +447,9 @@ Step1_onConstantRecordEnter
       Arcadia_Thread_jump(thread);
     }
     Arcadia_VPL_Symbols_Variable* varSym = Arcadia_VPL_Symbols_Variable_create(thread, varDefn->name, varTypeSym, (Arcadia_VPL_Symbols_Symbol*)sym, (Arcadia_VPL_Tree_Node*)varDefn);
+    varDefn->typeSymbol = varTypeSym;
     if (!Arcadia_Languages_Scope_enter(thread, sym->scope, varSym->name, (Arcadia_Object*)varSym)) {
-      conflictingDefinitionError(thread, self, program);
+      conflictingDefinitionError(thread, self, varSym->name);
     }
     Arcadia_List_insertBackObjectReferenceValue(thread, sym->fields, varSym);
   }

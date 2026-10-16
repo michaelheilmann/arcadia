@@ -35,6 +35,13 @@ Arcadia_Engine_UI_WidgetNode_initializeDispatchImpl
   );
 
 static void
+Arcadia_Engine_UI_WidgetNode_visitImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self
+  );
+
+static void
 Arcadia_Engine_UI_WidgetNode_getPositionImpl
   (
     Arcadia_Thread* thread,
@@ -81,6 +88,7 @@ Arcadia_Engine_UI_WidgetNode_raiseSignalImpl
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_UI_WidgetNode_constructImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_UI_WidgetNode_visitImpl,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_UI_WidgetNode_initializeDispatchImpl,
 };
 
@@ -109,7 +117,24 @@ Arcadia_Engine_UI_WidgetNode_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
+  self->left = 0;
+  self->bottom = 0;
+  self->width = 0;
+  self->height = 0;
+  self->propertyChanged = Arcadia_Signal_create(thread);
   Arcadia_LeaveConstructor(Arcadia_Engine_UI_WidgetNode);
+}
+
+static void
+Arcadia_Engine_UI_WidgetNode_visitImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self
+  )
+{
+  if (self->propertyChanged) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->propertyChanged);
+  }
 }
 
 static void
@@ -132,11 +157,11 @@ Arcadia_Engine_UI_WidgetNode_getPositionImpl
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_WidgetNode* self,
     Arcadia_Integer32Value* left,
-    Arcadia_Integer32Value* top
+    Arcadia_Integer32Value* bottom
   )
 {
-  *left = self->left;
-  *top = self->top;
+  if (left) *left = self->left;
+  if (bottom) *bottom = self->bottom;
 }
 
 static void
@@ -148,8 +173,8 @@ Arcadia_Engine_UI_WidgetNode_getSizeImpl
     Arcadia_Integer32Value* height
   )
 {
-  *width = self->width;
-  *height = self->height;
+  if (width) *width = self->width;
+  if (height) *height = self->height;
 }
 
 static void
@@ -158,24 +183,24 @@ Arcadia_Engine_UI_WidgetNode_setPositionImpl
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_WidgetNode* self,
     Arcadia_Integer32Value left,
-    Arcadia_Integer32Value top
+    Arcadia_Integer32Value bottom
   )
 {
   if (left < Arcadia_Integer32Value_Minimum / 2 || left > Arcadia_Integer32Value_Maximum / 2) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  if (top < Arcadia_Integer32Value_Minimum / 2 || top > Arcadia_Integer32Value_Maximum / 2) {
+  if (bottom < Arcadia_Integer32Value_Minimum / 2 || bottom > Arcadia_Integer32Value_Maximum / 2) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
   Arcadia_BooleanValue changed = Arcadia_BooleanValue_False;
   changed |= self->left != left;
-  changed |= self->top != top;
+  changed |= self->bottom != bottom;
   self->left = left;
-  self->top = top;
+  self->bottom = bottom;
   if (changed) {
-    Arcadia_Engine_UI_WidgetEvent* e = (Arcadia_Engine_UI_WidgetEvent*)Arcadia_Engine_UI_WidgetPositionChangedEvent_create(thread, Arcadia_getTickCount(thread), self, left, top);
+    Arcadia_Engine_UI_WidgetEvent* e = (Arcadia_Engine_UI_WidgetEvent*)Arcadia_Engine_UI_WidgetPositionChangedEvent_create(thread, Arcadia_getTickCount(thread), self, left, bottom);
     Arcadia_Engine_UI_WidgetNode_raiseSignal(thread, self, e);
   }
 }
@@ -189,11 +214,11 @@ Arcadia_Engine_UI_WidgetNode_setSizeImpl
     Arcadia_Integer32Value height
   )
 {
-  if (width < Arcadia_Integer32Value_Minimum / 2 || width > Arcadia_Integer32Value_Maximum / 2) {
+  if (width < 0 || width > Arcadia_Integer32Value_Maximum / 2) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  if (height < Arcadia_Integer32Value_Minimum / 2 || height > Arcadia_Integer32Value_Maximum / 2) {
+  if (height < 0 || height > Arcadia_Integer32Value_Maximum / 2) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
@@ -215,7 +240,12 @@ Arcadia_Engine_UI_WidgetNode_raiseSignalImpl
     Arcadia_Engine_UI_WidgetNode* self,
     Arcadia_Engine_UI_WidgetEvent* event
   )
-{/*@todo Add implementation.*/}
+{
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)event);
+  Arcadia_ValueStack_pushNatural8Value(thread, 1);
+  Arcadia_Signal_emit(thread, self->propertyChanged, (Arcadia_Object*)self);
+  Arcadia_ValueStack_popValues(thread, 2);
+}
 
 Arcadia_Engine_UI_WidgetNode*
 Arcadia_Engine_UI_WidgetNode_create
@@ -234,7 +264,7 @@ Arcadia_Engine_UI_WidgetNode_render
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_WidgetNode* self,
     Arcadia_Engine_Visuals_EnterPassNode* enterPassNode
-  ) 
+  )
 { Arcadia_VirtualCall(Arcadia_Engine_UI_WidgetNode, render, self, enterPassNode); }
 
 void
@@ -243,9 +273,9 @@ Arcadia_Engine_UI_WidgetNode_getPosition
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_WidgetNode* self,
     Arcadia_Integer32Value *left,
-    Arcadia_Integer32Value *top
+    Arcadia_Integer32Value *bottom
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_UI_WidgetNode, getPosition, self, left, top); }
+{ Arcadia_VirtualCall(Arcadia_Engine_UI_WidgetNode, getPosition, self, left, bottom); }
 
 void
 Arcadia_Engine_UI_WidgetNode_getSize
@@ -263,9 +293,9 @@ Arcadia_Engine_UI_WidgetNode_setPosition
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_WidgetNode* self,
     Arcadia_Integer32Value left,
-    Arcadia_Integer32Value top
+    Arcadia_Integer32Value bottom
   )
-{ Arcadia_VirtualCall(Arcadia_Engine_UI_WidgetNode, setPosition, self, left, top); }
+{ Arcadia_VirtualCall(Arcadia_Engine_UI_WidgetNode, setPosition, self, left, bottom); }
 
 void
 Arcadia_Engine_UI_WidgetNode_setSize
@@ -285,3 +315,41 @@ Arcadia_Engine_UI_WidgetNode_raiseSignal
     Arcadia_Engine_UI_WidgetEvent* event
   )
 { Arcadia_VirtualCall(Arcadia_Engine_UI_WidgetNode, raiseSignal, self, event); }
+
+void
+Arcadia_Engine_UI_WidgetNode_getBounds
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value* left,
+    Arcadia_Integer32Value* bottom,
+    Arcadia_Integer32Value* width,
+    Arcadia_Integer32Value* height
+  )
+{
+  Arcadia_Engine_UI_WidgetNode_getPosition(thread, self, left, bottom);
+  Arcadia_Engine_UI_WidgetNode_getSize(thread, self, width, height);
+}
+
+void
+Arcadia_Engine_UI_WidgetNode_setBounds
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value left,
+    Arcadia_Integer32Value bottom,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  )
+{
+  Arcadia_Engine_UI_WidgetNode_setPosition(thread, self, left, bottom);
+  Arcadia_Engine_UI_WidgetNode_setSize(thread, self, width, height);
+}
+
+Arcadia_Signal*
+Arcadia_Engine_UI_WidgetNode_getPropertyChangedSignal
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self
+  )
+{ return self->propertyChanged; }

@@ -15,7 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Visuals_MousePointerEvent
-class Arcadia.Engine.Input.MousePointerEvent extends Arcadia.Engine.Event {
+native class Arcadia.Engine.Input.MousePointerEvent extends Arcadia.Engine.Event {
   variable action: Arcadia.Engine.Input.MousePointerAction
   variable x : Arcadia.Integer32
   variable y : Arcadia.Integer32

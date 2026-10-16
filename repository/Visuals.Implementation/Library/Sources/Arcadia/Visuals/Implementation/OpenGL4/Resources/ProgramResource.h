@@ -19,6 +19,7 @@
 
 #include "Arcadia/Engine/Include.h"
 #include "Arcadia/Visuals/Implementation/OpenGL4/BackendIncludes.h"
+
 typedef struct Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext;
 
 Arcadia_declareObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.ProgramResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource,
@@ -32,15 +33,14 @@ struct Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource {
   Arcadia_Engine_Visuals_ProgramResource _parent;
   Arcadia_Natural8Value dirty;
   /// The underlaying VPL program.
-  Arcadia_VPL_Symbols_Program* program;
+  Arcadia_VPL_VerifiedModule* program;
+  Arcadia_VPL_Backends_GLSL_ProgramArtifact* artifact;
   // The OpenGL ID of the fragment shader.
   GLuint fragmentShaderID;
   // The OpenGL ID of the vertex shader.
   GLuint vertexShaderID;
   // The OpenGL ID of the program.
   GLuint programID;
-  // A map from VPL constant record names/VPL constant scalar names to OpenGL uniform block names / OpenGL uniform names as used by glGetUniformBlockIndex / glGetUniformLocation.
-  Arcadia_Map* constantMapping;
   /// A map from "VPL constant names" to
   /// - for "VPL constant record"s: OpenGL uniform block binding IDs as specified by glUniformBlockBinding(programID, uniformBlockID, uniformmBlockBindingID).
   ///   Specify the name of a VPL constant record and obtain the uniform block binding ID to be used with glBindBufferBase(GL_UNIFORM_BUFFER, uniformBlockBindingID, uniformBufferID).
@@ -56,7 +56,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* backendContext,
-    Arcadia_VPL_Symbols_Program* program
+    Arcadia_VPL_VerifiedModule* program
   );
 
 #endif // ARCADIA_ENGINE_VISUALS_IMPLEMENTATION_OPENGL4_RESOURCES_PROGRAMRESOURCE_H_INCLUDED

@@ -90,7 +90,7 @@ add_subdirectory(DDLS)
 
 # The Program Definition Language Compiler.
 add_subdirectory(PDLC)
-add_subdirectory(PDLC.CIL)
+add_subdirectory(PDLC.CLI)
 
 # Template Engine.
 add_subdirectory(Tools/TemplateEngine)
@@ -98,6 +98,9 @@ add_subdirectory(Tools/PixelBufferGenerator)
 
 # Documentation.
 add_subdirectory(Documentation)
+
+# Games.
+add_subdirectory(Games)
 
 # Asset definition language.
 add_subdirectory(ADL)

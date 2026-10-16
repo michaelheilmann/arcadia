@@ -22,7 +22,11 @@
 #include "Arcadia/Engine/Audials/Node.h"
 #include "Arcadia/Engine/Audials/NodeFactory.h"
 #include "Arcadia/Engine/Audials/Resource.h"
+#include "Arcadia/Engine/Audials/Providers/AudioStreamProvider.h"
+#include "Arcadia/Engine/Audials/Providers/DSPStreamProvider.h"
 #include "Arcadia/Engine/Audials/Resources/SoundSourceResource.h"
+#include "Arcadia/Engine/Audials/Resources/StreamingSoundSourceResource.h"
+#include "Arcadia/Engine/Audials/Nodes/StreamingSoundSourceNode.h"
 
 void
 Arcadia_Engine_Audials_registerNodeFactories

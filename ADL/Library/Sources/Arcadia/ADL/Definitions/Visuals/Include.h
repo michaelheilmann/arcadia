@@ -24,6 +24,7 @@
 
 #include "Arcadia/ADL/Definitions/Visuals/CheckerboardFillOperationDefinition.h"
 #include "Arcadia/ADL/Definitions/Visuals/BlendFunction.h"
+#include "Arcadia/ADL/Definitions/Visuals/BoxMeshGenerator.h"
 #include "Arcadia/ADL/Definitions/Visuals/ColorDefinition.h"
 #include "Arcadia/ADL/Definitions/Visuals/TextureAddressMode.h"
 #include "Arcadia/ADL/Definitions/Visuals/TextureFilter.h"
@@ -31,7 +32,10 @@
 #include "Arcadia/ADL/Definitions/Visuals/MaterialDefinition.h"
 #include "Arcadia/ADL/Definitions/Visuals/ModelDefinition.h"
 #include "Arcadia/ADL/Definitions/Visuals/MeshDefinition.h"
+#include "Arcadia/ADL/Definitions/Visuals/MeshGenerator.h"
 #include "Arcadia/ADL/Definitions/Visuals/PixelBufferDefinition.h"
+#include "Arcadia/ADL/Definitions/Visuals/PlaneMeshGenerator.h"
+#include "Arcadia/ADL/Definitions/Visuals/SphereMeshGenerator.h"
 #include "Arcadia/ADL/Definitions/Visuals/TextureDefinition.h"
 
 #endif  // ARCADIA_ADL_DEFINITIONS_VISUALS_INCLUDE_H_INCLUDED

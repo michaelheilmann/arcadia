@@ -1,0 +1,16 @@
+{
+  type : "UI.Button",
+  name : "Button.Primary",
+  left : 160,
+  bottom : 240,
+  width : 240,
+  height : 64,
+  text : "Start",
+  horizontalAlignment : "Left",
+  verticalAlignment : "Bottom",
+  backgroundColor : "Button.Primary.Color.Normal",
+  hoveredBackgroundColor : "Button.Primary.Color.Hovered",
+  pressedBackgroundColor : "Button.Primary.Color.Pressed",
+  disabledBackgroundColor : "Button.Primary.Color.Disabled",
+  focusedBackgroundColor : "Button.Primary.Color.Focused",
+}

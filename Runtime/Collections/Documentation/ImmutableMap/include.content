@@ -1,0 +1,56 @@
+<section class="cxx entity object">
+<h1 id="Arcadia_ImmutableMap">ImmutableMap</h1>
+<p><code>Arcadia_ImmutableMap</code> extends <code>Arcadia_Map</code>.</p>
+<p>An immutable map from <code>Arcadia_Value</code> objects, the keys, to <code>Arcadia_Value</code> objects, the values.</p>
+</section>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ImmutableMap_create">Arcadia_ImmutableMap_create</h1>
+
+  <my-signature><code>
+  Arcadia_ImmutableMap*<br>
+  Arcadia_ImmutableMap_create<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Create an immutable map.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div>Arcadia_Thread* thread</div>
+      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
+    </div>
+    <div>
+      <div>Arcadia_Value value</div>
+      <div>A map value.</div>
+    </div>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_AllocationFailed</div>
+      <div>An allocation failed.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A pointer to the <code>Arcadia_ImmutableMap</code> object.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The entries of the map value are added to the immutable map which is created.</p>
+  </section>
+
+</section>

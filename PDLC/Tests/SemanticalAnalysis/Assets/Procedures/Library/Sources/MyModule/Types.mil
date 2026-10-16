@@ -1,0 +1,14 @@
+procedure MyModule.MyProcedure : Arcadia.Void
+{
+}
+
+procedure MyModule.MyProcedureWithParameters (variable a : Arcadia.Integer64, variable b : Arcadia.Integer64) : Arcadia.Void
+{
+}
+
+procedure MyModule.MyProcedureWithResult : Arcadia.Natural32
+{
+}
+
+procedure native "nativePrint" MyNativeProcedure (variable a : Arcadia.Natural32) : Arcadia.Void
+

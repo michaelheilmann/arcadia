@@ -1,0 +1,5 @@
+class MyModule.Counter {
+
+  method increment(variable by : Arcadia.Natural32) : Arcadia.Nonexistent
+
+}

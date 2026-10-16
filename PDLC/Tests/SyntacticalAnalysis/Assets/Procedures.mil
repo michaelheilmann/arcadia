@@ -1,7 +1,7 @@
-procedure MyProcedure : Void
+procedure MyProcedure : Arcadia.Void
 {}
 
-procedure MyProcedure (variable a : Integer, variable b : Integer) : Void
+procedure MyProcedure (variable a : Arcadia.Integer64, variable b : Arcadia.Integer64) : Arcadia.Void
 {}
 
-procedure native "print" print (variable a : String) : Void
+procedure native "print" print (variable a : Arcadia.Natural32) : Arcadia.Void

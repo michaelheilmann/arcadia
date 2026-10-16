@@ -1,0 +1,11 @@
+native class MyModule.NativeEvent extends Arcadia.Object {
+
+  method native "MyModule_NativeEvent_getCode" getCode : Arcadia.Integer32
+
+}
+
+interface MyModule.EventHandler {
+
+  method handle(variable event : MyModule.NativeEvent) : Arcadia.Void
+
+}

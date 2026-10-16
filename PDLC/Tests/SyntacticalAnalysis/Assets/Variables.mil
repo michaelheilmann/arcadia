@@ -1,19 +1,19 @@
 
-class MyClassB extends MyClassA {
+class MyModule.MyClassB extends MyModule.MyClassA {
 
-  variable myVariable1 : Integer
+  variable myVariable1 : Arcadia.Integer64
 
   constructor {
   }
 
-  constructor(variable myVariable2 : Integer, variable b : Integer) {
+  constructor(variable myVariable2 : Arcadia.Integer64, variable b : Arcadia.Integer64) {
     variable myVariable3
   }
 
-  method MyMethodA : Void {
+  method MyMethodA : Arcadia.Void {
   }
 
-  method MyMethodB(variable a : Integer, variable b : Integer) : Void {
+  method MyMethodB(variable a : Arcadia.Integer64, variable b : Arcadia.Integer64) : Arcadia.Void {
   }
 
 }

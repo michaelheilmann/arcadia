@@ -21,6 +21,7 @@
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
 #include "Arcadia/ADL/Definition.h"
+#include "Arcadia/ADL/Definitions/Visuals/MeshGenerator.h"
 #include "Arcadia/ADL/Reference.h"
 
 // The definition of a color.
@@ -29,30 +30,33 @@
 // {
 //   type  : "Mesh",
 //   name  : "MyGame.Meshes.MyMesh",
+//   ambientColor : /* reference to a color definition */,
+//   vertexPositions : /* list of triples */,
+//   vertexAmbientColors : /* list of quadruples */
+//   vertexAmbientColorTextureCoordinates : /* list of tuples */,
 // }
 // @endcode
 //
 // @code
-// class Arcadia.ADL.MeshDefinition extends Arcadia.ADL.Definition {
+// class Arcadia.ADL.MeshDefinition extends Arcadia.ADL.MeshGenerator {
 //
-//   constructor(definitions : Arcadia.ADL.Definitions, name : Arcadia.String)
+//   constructor(definitions : Arcadia.ADL.Definitions, name : Arcadia.String, numberOfVertices : Arcadia.Size, vertexPositions, vertexAmbientColors, vertexAmbientColorTextureCoordinates, ambientColorName)
 //
 // };
 // @endcode
 Arcadia_declareObjectType(u8"Arcadia.ADL.MeshDefinition", Arcadia_ADL_MeshDefinition,
-                          u8"Arcadia.ADL.Definition");
+                          u8"Arcadia.ADL.MeshGenerator");
 
 struct Arcadia_ADL_MeshDefinitionDispatch {
-  Arcadia_ADL_DefinitionDispatch _parent;
+  Arcadia_ADL_MeshGeneratorDispatch _parent;
 };
 
 struct Arcadia_ADL_MeshDefinition {
-  Arcadia_ADL_Definition _parent;
+  Arcadia_ADL_MeshGenerator _parent;
   Arcadia_SizeValue numberOfVertices;
   Arcadia_RuntimeByteArray* vertexPositions;
   Arcadia_RuntimeByteArray* vertexAmbientColors;
   Arcadia_RuntimeByteArray* vertexAmbientTextureCoordinates;
-  Arcadia_ADL_Reference* ambientColor;
 };
 
 Arcadia_ADL_MeshDefinition*

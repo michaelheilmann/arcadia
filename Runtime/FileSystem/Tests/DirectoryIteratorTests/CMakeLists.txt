@@ -35,6 +35,4 @@ EndProduct(${this})
 # Adjust working directory.
 set(${this}.WorkingDirectory $<TARGET_FILE_DIR:${this}>)
 
-# Copy assets.
-CopyProductAssets(${this} "Runtime/FileSystem" ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 

@@ -1,23 +1,20 @@
-interface MyInterfaceA {
+interface MyModule.MyInterfaceA {
 
-  method MyOperationA : Void {
-  }
+  method MyOperationA : Arcadia.Void
 
-  method MyOperationB(variable a : Integer, variable b : Integer) : Void {
-  }
+  method MyOperationB(variable a : Arcadia.Integer64, variable b : Arcadia.Integer64) : Arcadia.Void
 
 }
 
-interface MyInterfaceB extends MyInterfaceA {
+interface MyModule.MyInterfaceB extends MyModule.MyInterfaceA {
 
-  method MyOperationC : Void {
-  }
+  method MyOperationC : Arcadia.Void
 
 }
 
-class MyClassC extends MyClassA implements MyInterfaceA, MyInterfaceB {
+class MyModule.MyClassC extends MyModule.MyClassA implements MyModule.MyInterfaceA, MyModule.MyInterfaceB {
 
-  method MyOperationA : Void {
+  method MyOperationA : Arcadia.Void {
   }
 
 }

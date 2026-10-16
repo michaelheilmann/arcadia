@@ -1,0 +1,7 @@
+{
+  type : "Color",
+  name : "Button.Primary.Color.Hovered",
+  red : 82,
+  green : 145,
+  blue : 255,
+}

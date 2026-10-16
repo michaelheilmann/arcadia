@@ -19,6 +19,7 @@
 
 #include "Arcadia/VPL/Symbols/Include.h"
 #include "Arcadia/VPL/Tree/Include.h"
+#include "Arcadia/VPL/Diagnostics/Include.h"
 #include "Arcadia/VPL/ModifiersUtilities.h"
 
 static void
@@ -47,14 +48,6 @@ Arcadia_VPL_ResolvePhase_destruct
   (
     Arcadia_Thread* thread,
     Arcadia_VPL_ResolvePhase* self
-  );
-
-static void
-conflictingDefinitionError
-  (
-    Arcadia_Thread* thread,
-    Arcadia_VPL_ResolvePhase* self,
-    Arcadia_VPL_Symbols_Program* program
   );
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
@@ -86,10 +79,11 @@ Arcadia_VPL_ResolvePhase_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (0 != _numberOfArguments) {
+  if (1 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
+  self->diagnostics = (Arcadia_Languages_Diagnostics*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Languages_Diagnostics_getType(thread));
   Arcadia_LeaveConstructor(Arcadia_VPL_ResolvePhase);
 }
 
@@ -107,7 +101,11 @@ Arcadia_VPL_ResolvePhase_visit
     Arcadia_Thread* thread,
     Arcadia_VPL_ResolvePhase* self
   )
-{/*Intentionally empty.*/}
+{
+  if (self->diagnostics) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->diagnostics);
+  }
+}
 
 static void
 Arcadia_VPL_ResolvePhase_destruct
@@ -125,22 +123,19 @@ Arcadia_VPL_ResolvePhase_create
   )
 {
   _Arcadia_BeginCreate(Arcadia_VPL_ResolvePhase);
-  Arcadia_ValueStack_pushNatural8Value(thread, 0);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)diagnostics);
+  Arcadia_ValueStack_pushNatural8Value(thread, 1);
   _Arcadia_EndCreate(Arcadia_VPL_ResolvePhase);
 }
 
-static void
-conflictingDefinitionError
+Arcadia_Languages_Diagnostics*
+Arcadia_VPL_ResolvePhase_getDiagnostics
   (
     Arcadia_Thread* thread,
-    Arcadia_VPL_ResolvePhase* self,
-    Arcadia_VPL_Symbols_Program* program
+    Arcadia_VPL_ResolvePhase* self
   )
 {
-  /*@todo Add and use exceptions. The concept is already in Arcadia.Ring2 and Arcadia.Languages but it was not yet used so far.*/
-  Arcadia_logf(Arcadia_LogFlags_Error, "conflicting definition\n");
-  Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
-  Arcadia_Thread_jump(thread);
+  return self->diagnostics;
 }
 
 // we expect a variable
@@ -256,6 +251,16 @@ onProcedure
   );
 
 static void
+onBody
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_ResolvePhase* self,
+    Arcadia_VPL_Symbols_Procedure* procedure,
+    Arcadia_Languages_Scope* enclosingScope,
+    Arcadia_List* body
+  );
+
+static void
 onStage
   (
     Arcadia_Thread* thread,
@@ -284,6 +289,11 @@ onAccessExprNode
 {
   Arcadia_VPL_Tree_Node* lhs = accessExprNode->lhs;
   Arcadia_VPL_Tree_Node* rhs = accessExprNode->rhs;
+  if (!isNameExprNode(thread, lhs)) {
+    // The left operand's value type determines member names. TypePhase handles these.
+    onExprNode(thread, self, procedure, scope, lhs);
+    return;
+  }
   while (1) {
     // If the LHS is a name expr, resolve it.
     if (isNameExprNode(thread, lhs)) {
@@ -295,6 +305,18 @@ onAccessExprNode
         // The variable scalar's type's scope is the scope under which to evaluate the RHS.
         Arcadia_VPL_Symbols_VariableScalar* variableScalar = (Arcadia_VPL_Symbols_VariableScalar*)(Arcadia_Object*)((Arcadia_VPL_Tree_NameExprNode*)lhs)->symbol;
         scope = ((Arcadia_VPL_Symbols_BuiltinType*)(variableScalar->type))->scope;
+        if (!scope && ((Arcadia_VPL_Symbols_BuiltinType*)variableScalar->type)->valueType) {
+          return;
+        }
+      } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)((Arcadia_VPL_Tree_NameExprNode*)lhs)->symbol, _Arcadia_VPL_Symbols_Variable_getType(thread))) {
+        Arcadia_VPL_Symbols_Variable* variable = (Arcadia_VPL_Symbols_Variable*)((Arcadia_VPL_Tree_NameExprNode*)lhs)->symbol;
+        scope = ((Arcadia_VPL_Symbols_BuiltinType*)variable->type)->scope;
+        if (!scope && ((Arcadia_VPL_Symbols_BuiltinType*)variable->type)->valueType) {
+          return;
+        }
+      } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)((Arcadia_VPL_Tree_NameExprNode*)lhs)->symbol, _Arcadia_VPL_Symbols_ConstantScalar_getType(thread))) {
+        // Named aggregate uniform types are resolved by TypePhase from their IR fields.
+        return;
       } else {
         scope = NULL;
       }
@@ -348,13 +370,26 @@ onExprNode
       case Arcadia_VPL_Tree_BinaryExprNodeFlags_Assignment: {
         if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)binaryExprNode->lhs, _Arcadia_VPL_Tree_NameExprNode_getType(thread))) {
           onResolveName(thread, self, procedure, scope, ResolveFlags_Variable|ResolveFlags_ConstantScalar| ResolveFlags_VariableScalar, (Arcadia_VPL_Tree_NameExprNode*)binaryExprNode->lhs);
+        } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)binaryExprNode->lhs, _Arcadia_VPL_Tree_IndexExprNode_getType(thread)) || isAccessExprNode(thread, binaryExprNode->lhs)) {
+          onExprNode(thread, self, procedure, scope, binaryExprNode->lhs);
+        } else {
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+          Arcadia_Thread_jump(thread);
         }
         onExprNode(thread, self, procedure, scope, binaryExprNode->rhs);
       } break;
       case Arcadia_VPL_Tree_BinaryExprNodeFlags_Access: {
         onAccessExprNode(thread, self, procedure, scope, binaryExprNode);
       } break;
+      default: {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      } break;
     }
+  } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)exprNode, _Arcadia_VPL_Tree_IndexExprNode_getType(thread))) {
+    Arcadia_VPL_Tree_IndexExprNode* indexExprNode = (Arcadia_VPL_Tree_IndexExprNode*)exprNode;
+    onExprNode(thread, self, procedure, scope, indexExprNode->target);
+    onExprNode(thread, self, procedure, scope, indexExprNode->index);
   } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)exprNode, _Arcadia_VPL_Tree_CallExprNode_getType(thread))) {
     Arcadia_VPL_Tree_CallExprNode* callExprNode = (Arcadia_VPL_Tree_CallExprNode*)exprNode;
     if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)callExprNode->target, _Arcadia_VPL_Tree_NameExprNode_getType(thread))) {
@@ -397,15 +432,76 @@ onStatNode
     Arcadia_VPL_Tree_VariableDefnNode* variableDefnNode = (Arcadia_VPL_Tree_VariableDefnNode*)statNode;
     Arcadia_Object* typeSymbol = Arcadia_Languages_Scope_lookup(thread, scope, variableDefnNode->type, Arcadia_BooleanValue_True);
     if (!typeSymbol || !Arcadia_Object_isInstanceOf(thread, typeSymbol, _Arcadia_VPL_Symbols_BuiltinType_getType(thread))) {
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_LexicalError);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
       Arcadia_Thread_jump(thread);
     }
     variableDefnNode->typeSymbol = (Arcadia_VPL_Symbols_Symbol*)typeSymbol;
     Arcadia_VPL_Symbols_Variable* symbol = Arcadia_VPL_Symbols_Variable_create(thread, variableDefnNode->name, (Arcadia_VPL_Symbols_Symbol*)typeSymbol, (Arcadia_VPL_Symbols_Symbol*)procedure, statNode);
-    Arcadia_Languages_Scope_enter(thread, scope, symbol->name, (Arcadia_Object*)symbol);
+    if (!Arcadia_Languages_Scope_enter(thread, scope, symbol->name, (Arcadia_Object*)symbol)) {
+      Arcadia_Languages_Diagnostics_add(thread, self->diagnostics,
+        (Arcadia_Languages_Diagnostic*)Arcadia_VPL_Diagnostics_SymbolAlreadyDefinedDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, symbol->name));
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+  } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)statNode, _Arcadia_VPL_Tree_IfStmtNode_getType(thread))) {
+    Arcadia_VPL_Tree_IfStmtNode* ifStmtNode = (Arcadia_VPL_Tree_IfStmtNode*)statNode;
+    onExprNode(thread, self, procedure, scope, ifStmtNode->condition);
+    onBody(thread, self, procedure, scope, ifStmtNode->thenBody);
+    if (ifStmtNode->elseBody) {
+      onBody(thread, self, procedure, scope, ifStmtNode->elseBody);
+    }
+  } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)statNode, _Arcadia_VPL_Tree_WhileStmtNode_getType(thread))) {
+    Arcadia_VPL_Tree_WhileStmtNode* whileStmtNode = (Arcadia_VPL_Tree_WhileStmtNode*)statNode;
+    onExprNode(thread, self, procedure, scope, whileStmtNode->condition);
+    onBody(thread, self, procedure, scope, whileStmtNode->body);
+  } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)statNode, _Arcadia_VPL_Tree_ForStmtNode_getType(thread))) {
+    Arcadia_VPL_Tree_ForStmtNode* forStmtNode = (Arcadia_VPL_Tree_ForStmtNode*)statNode;
+    Arcadia_Languages_Scope* loopScope = Arcadia_Languages_Scope_create(thread, scope);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)loopScope);
+    if (forStmtNode->initializer) {
+      if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)forStmtNode->initializer, _Arcadia_VPL_Tree_VariableDefnNode_getType(thread))) {
+        onStatNode(thread, self, procedure, loopScope, forStmtNode->initializer);
+      } else {
+        onExprNode(thread, self, procedure, loopScope, forStmtNode->initializer);
+      }
+    }
+    if (forStmtNode->condition) {
+      onExprNode(thread, self, procedure, loopScope, forStmtNode->condition);
+    }
+    if (forStmtNode->update) {
+      onExprNode(thread, self, procedure, loopScope, forStmtNode->update);
+    }
+    onBody(thread, self, procedure, loopScope, forStmtNode->body);
+    Arcadia_ValueStack_popValues(thread, 1);
+  } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)statNode, _Arcadia_VPL_Tree_ReturnStmtNode_getType(thread))) {
+    Arcadia_VPL_Tree_ReturnStmtNode* returnStmtNode = (Arcadia_VPL_Tree_ReturnStmtNode*)statNode;
+    if (returnStmtNode->value) {
+      onExprNode(thread, self, procedure, scope, returnStmtNode->value);
+    }
+  } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)statNode, _Arcadia_VPL_Tree_DiscardStmtNode_getType(thread))) {
+    // No names to resolve. Stage restrictions are checked by TypePhase.
   } else {
     onExprNode(thread, self, procedure, scope, statNode);
   }
+}
+
+static void
+onBody
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_ResolvePhase* self,
+    Arcadia_VPL_Symbols_Procedure* procedure,
+    Arcadia_Languages_Scope* enclosingScope,
+    Arcadia_List* body
+  )
+{
+  Arcadia_Languages_Scope* scope = Arcadia_Languages_Scope_create(thread, enclosingScope);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)scope);
+  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)body); i < n; ++i) {
+    Arcadia_VPL_Tree_Node* statementNode = (Arcadia_VPL_Tree_Node*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, body, i, _Arcadia_VPL_Tree_Node_getType(thread));
+    onStatNode(thread, self, procedure, scope, statementNode);
+  }
+  Arcadia_ValueStack_popValues(thread, 1);
 }
 
 static void
@@ -417,11 +513,7 @@ onProcedure
   )
 {
   Arcadia_VPL_Tree_ProcedureDefnNode* procedureDefnNode = (Arcadia_VPL_Tree_ProcedureDefnNode*)procedure->node;
-  Arcadia_Languages_Scope* scope = Arcadia_Languages_Scope_create(thread, procedure->scope);
-  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)procedureDefnNode->body); i < n; ++i) {
-    Arcadia_VPL_Tree_Node* statementNode = (Arcadia_VPL_Tree_Node*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, procedureDefnNode->body, i, _Arcadia_VPL_Tree_Node_getType(thread));
-    onStatNode(thread, self, procedure, scope, statementNode);
-  }
+  onBody(thread, self, procedure, procedure->scope, procedureDefnNode->body);
 }
 
 static void
@@ -433,12 +525,14 @@ onStage
   )
 {
   Arcadia_List* entries = Arcadia_Map_getValues(thread, stage->scope->entries);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)entries);
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)entries); i < n; ++i) {
     Arcadia_VPL_Symbols_Symbol* symbol = (Arcadia_VPL_Symbols_Symbol*)Arcadia_List_getObjectReferenceValueAt(thread, entries, i);
     if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)symbol, _Arcadia_VPL_Symbols_Procedure_getType(thread))) {
       onProcedure(thread, self, (Arcadia_VPL_Symbols_Procedure*)symbol);
     }
   }
+  Arcadia_ValueStack_popValues(thread, 1);
 }
 
 static void
@@ -450,6 +544,7 @@ onProgram
   )
 {
   Arcadia_List* entries = Arcadia_Map_getValues(thread, program->scope->entries);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)entries);
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)entries); i < n; ++i) {
     Arcadia_VPL_Symbols_Symbol* symbol = (Arcadia_VPL_Symbols_Symbol*)Arcadia_List_getObjectReferenceValueAt(thread, entries, i);
     if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)symbol, _Arcadia_VPL_Symbols_Stage_getType(thread))) {
@@ -458,6 +553,7 @@ onProgram
       onProcedure(thread, self, (Arcadia_VPL_Symbols_Procedure*)symbol);
     }
   }
+  Arcadia_ValueStack_popValues(thread, 1);
 }
 
 void
@@ -468,5 +564,18 @@ Arcadia_VPL_ResolvePhase_run
     Arcadia_VPL_Symbols_Program* program
   )
 {
-  onProgram(thread, self, program);
+  Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)program);
+    onProgram(thread, self, program);
+    Arcadia_ValueStack_popValues(thread, 2);
+    Arcadia_Thread_popJumpTarget(thread);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+    Arcadia_Thread_jump(thread);
+  }
 }

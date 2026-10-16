@@ -53,6 +53,7 @@ static void constructImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupText
   self->rectangleBottom = 0;
   self->rectangleWidth = 0;
   self->rectangleHeight = 0;
+  self->lineBreakBefore = Arcadia_BooleanValue_False;
   Arcadia_LeaveConstructor(Arcadia_Engine_Text_MarkupTextRun);
 }
 

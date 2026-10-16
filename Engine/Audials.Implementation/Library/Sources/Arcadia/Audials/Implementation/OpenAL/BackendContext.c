@@ -18,6 +18,7 @@
 #include "Arcadia/Audials/Implementation/OpenAL/BackendContext.h"
 
 #include "Arcadia/Audials/Implementation/OpenAL/Resources/SoundSourceResource.h"
+#include "Arcadia/Audials/Implementation/OpenAL/Resources/StreamingSoundSourceResource.h"
 #include <assert.h>
 
 static Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext* g_instance = NULL;
@@ -44,12 +45,28 @@ Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_updateImpl
     Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext* self
   );
 
+static void
+Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_setMasterVolumeImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext* self,
+    Arcadia_Real64Value volume
+  );
+
 static Arcadia_Engine_Audials_Implementation_OpenAL_SoundSourceResource*
 Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_createSoundSourceResouceImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext* self,
     Arcadia_Media_SampleBuffer* sampleBuffer
+  );
+
+static Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*
+Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_createStreamingSoundSourceResourceImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext* self,
+    Arcadia_Engine_Audials_AudioStreamProvider* provider
   );
 
 static void
@@ -105,6 +122,19 @@ Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_updateResourcesImpl
     Arcadia_BooleanValue force
   )
 {
+  // (1) Update all referenced (live) resources.
+  // This drives per-frame resource work such as refilling the queued buffers of a
+  // streaming sound source resource. Referenced resources are updated in the order
+  // in which they were created. Updating is skipped when unloading is forced.
+  if (!force) {
+    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->resources); i < n; ++i) {
+      Arcadia_Engine_Audials_Implementation_Resource* resource = (Arcadia_Engine_Audials_Implementation_Resource*)Arcadia_List_getObjectReferenceValueAt(thread, self->resources, i);
+      if (resource->referenceCount && Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)resource, _Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource_getType(thread))) {
+        Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource_update(thread, (Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*)resource);
+      }
+    }
+  }
+  // (2) Unload, unlink, and remove all unreferenced resources.
   Arcadia_SizeValue removed = 0;
   Arcadia_SizeValue removedNow = 0;
   do {
@@ -137,6 +167,26 @@ Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_updateImpl
   Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_updateResourcesImpl(thread, self, Arcadia_BooleanValue_False);
 }
 
+static void
+Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_setMasterVolumeImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext* self,
+    Arcadia_Real64Value volume
+  )
+{
+  if (!alcMakeContextCurrent(self->alcContext)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  alGetError();
+  alListenerf(AL_GAIN, (ALfloat)volume);
+  if (AL_NO_ERROR != alGetError()) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+}
+
 static Arcadia_Engine_Audials_Implementation_OpenAL_SoundSourceResource*
 Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_createSoundSourceResouceImpl
   (
@@ -149,6 +199,20 @@ Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_createSoundSourceRes
   assert(((Arcadia_Engine_Audials_Implementation_Resource*)resource)->referenceCount == 0);
   Arcadia_List_insertBackObjectReferenceValue(thread, self->resources, (Arcadia_Object*)resource);
   return resource;
+}
+
+static Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*
+Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_createStreamingSoundSourceResourceImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext* self,
+    Arcadia_Engine_Audials_AudioStreamProvider* provider
+  )
+{
+  Arcadia_Engine_Audials_Implementation_OpenAL_StreamingSoundSourceResource* resource = Arcadia_Engine_Audials_Implementation_OpenAL_StreamingSoundSourceResource_create(thread, (Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext*)self, provider);
+  assert(((Arcadia_Engine_Audials_Implementation_Resource*)resource)->referenceCount == 0);
+  Arcadia_List_insertBackObjectReferenceValue(thread, self->resources, (Arcadia_Object*)resource);
+  return (Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*)resource;
 }
 
 static void
@@ -207,6 +271,8 @@ Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_initializeDispatchIm
   )
 {
   ((Arcadia_Engine_Audials_BackendContextDispatch*)self)->createSoundSourceResource = (Arcadia_Engine_Audials_Implementation_SoundSourceResource * (*)(Arcadia_Thread*, Arcadia_Engine_Audials_BackendContext*,Arcadia_Media_SampleBuffer*)) & Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_createSoundSourceResouceImpl;
+  ((Arcadia_Engine_Audials_BackendContextDispatch*)self)->createStreamingSoundSourceResource = (Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource * (*)(Arcadia_Thread*, Arcadia_Engine_Audials_BackendContext*, Arcadia_Engine_Audials_AudioStreamProvider*))&Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_createStreamingSoundSourceResourceImpl;
+  ((Arcadia_Engine_Audials_BackendContextDispatch*)self)->setMasterVolume = (void (*)(Arcadia_Thread*, Arcadia_Engine_Audials_BackendContext*, Arcadia_Real64Value))&Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_setMasterVolumeImpl;
   ((Arcadia_Engine_BackendContextDispatch*)self)->update = (void(*)(Arcadia_Thread*, Arcadia_Engine_BackendContext*)) & Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext_updateImpl;
 }
 

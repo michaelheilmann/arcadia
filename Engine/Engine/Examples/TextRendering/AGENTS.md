@@ -16,7 +16,7 @@
 - Build target name: `Arcadia.Engine.Examples.TextRendering` (e.g. `cmake --build C:/develop/Arcadia/Build/x64 --config Debug --target Arcadia.Engine.Examples.TextRendering`).
 - There are no tests for this module (it is an interactive GUI app; nothing is registered with CTest here).
 - Assets are staged at build time into the binary tree by `CopyProductAssets`: the example's own `Assets/` tree plus the assets of every linked library (collected transitively by `Arcadia_collectTargetAssets` over the link closure via the `ARCADIA_ASSETS_*` target properties in `CMake/all.cmake`). The CSS colors under `Assets/Colors/CSS/` are not stored in this module; they are provided by the `${MyProjectName}.Engine` library the example links. The demo loads assets at runtime with paths relative to the process working directory (e.g. `Assets/TextRenderingScene/...`, `Assets/Colors/CSS/...`), so run the executable from a directory where the `Assets` folder exists (typically the build tree).
-- On first run, the demo creates its configuration file in the user configuration directory under `<config-dir>/Demo/Configuration.txt` and fills in defaults for missing/invalid settings.
+- On first run, the demo creates its configuration file in the user configuration directory under `<config-dir>/TextRenderingExample/Configuration.txt` and fills in defaults for missing/invalid settings.
 
 ## CMake Conventions
 

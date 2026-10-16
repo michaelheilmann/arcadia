@@ -24,6 +24,21 @@
 # - `${folder}` is only used in Visual Studio and can be left unspecified.
 #    It is stored in `${target}.folder`. If specified then it will add generated vcxproj files in that folder in the IDE.
 
+# Designate the target that the page targets of this directory subtree aggregate into.
+# `EndTemplateEngine` adds each page target created in this directory and in its subdirectories as a
+# dependency of the aggregate target, so that building the aggregate target builds every page declared
+# underneath it. A subdirectory inherits the aggregate target from its parent directory, so a page
+# added later in a new subdirectory aggregates without further wiring.
+macro(SetTemplateEngineAggregateTarget target)
+
+  if(NOT ${ARGC} EQUAL 1)
+    message(FATAL_ERROR "SetTemplateEngineAggregateTarget: invalid number of arguments")
+  endif()
+
+  set(g_templateEngineAggregateTarget ${target})
+
+endmacro()
+
 macro(BeginTemplateEngine target folder)
 
   if(NOT ${ARGC} EQUAL 2)
@@ -63,6 +78,15 @@ macro(EndTemplateEngine)
   math(EXPR l "${l} - 1")
   
   add_custom_target(${target} ALL)
+
+  # Add this page target to the aggregate target, if one was designated for this directory subtree.
+  # A subdirectory inherits `g_templateEngineAggregateTarget` from its parent directory, so a page
+  # target added in a subdirectory aggregates without further wiring.
+  if (g_templateEngineAggregateTarget AND NOT "${g_templateEngineAggregateTarget}" STREQUAL "${target}")
+    if (TARGET ${g_templateEngineAggregateTarget})
+      add_dependencies(${g_templateEngineAggregateTarget} ${target})
+    endif()
+  endif()
   
   if (l GREATER -1)
     foreach (i RANGE ${l})

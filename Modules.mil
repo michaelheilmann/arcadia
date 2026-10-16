@@ -17,6 +17,7 @@
 {
   modulePaths : [
     "./Engine/Engine",
+    "./Engine/UI",
     "./Media",
   ],
 }

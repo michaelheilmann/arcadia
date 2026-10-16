@@ -9,11 +9,16 @@
 @{include("./Module-Interface/Mesh.i")}
 @{include("./Module-Interface/Model.i")}
 @{include("./Module-Interface/Material.i")}
+@{include("./Module-Interface/MeshGenerator.i")}
+@{include("./Module-Interface/BoxMeshGenerator.i")}
+@{include("./Module-Interface/PlaneMeshGenerator.i")}
+@{include("./Module-Interface/SphereMeshGenerator.i")}
 @{include("./Module-Interface/PixelBuffer.i")}
 @{include("./Module-Interface/Texture.i")}
 @{include("./Module-Interface/FillOperation.i")}
 @{include("./Module-Interface/CheckerboardFillOperation.i")}
 @{include("./Module-Interface/SampleBuffer.i")}
 @{include("./Module-Interface/DSP.i")}
+@{include("./Module-Interface/Button.i")}
 @{include("./Module-Interface/Enumerations.i")}
 @{include("./Module-Interface/footer.i")}

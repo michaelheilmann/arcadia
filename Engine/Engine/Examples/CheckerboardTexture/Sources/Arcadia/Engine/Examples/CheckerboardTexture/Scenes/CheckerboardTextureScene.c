@@ -104,7 +104,7 @@ static const Arcadia_Type_Operations _Arcadia_Engine_Examples_CheckerboardTextur
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Engine.Examples.CheckerboardTexture.CheckerboardTextureScene", Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene,
-                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Demo_Scene,
+                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Scene,
                          &_Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_typeOperations);
 
 static void
@@ -145,12 +145,12 @@ Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_initializeD
     Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureSceneDispatch* self
   )
 {
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateAudials = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_updateAudialsImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateLogics = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_updateLogicsImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->updateVisuals = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_updateVisualsImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_handleKeyboardKeyEventImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_MouseButtonEvent*)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_handleMouseButtonEventImpl;
-  ((Arcadia_Engine_Demo_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Demo_Scene*, Arcadia_Engine_Input_MousePointerEvent*)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_handleMousePointerEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateAudials = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_updateAudialsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateLogics = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_updateLogicsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateVisuals = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_updateVisualsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_handleKeyboardKeyEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MouseButtonEvent*)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_handleMouseButtonEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MousePointerEvent*)) & Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_handleMousePointerEventImpl;
 }
 
 static void
@@ -207,7 +207,7 @@ load
     self->definitions = definitions;
   }
 
-  Arcadia_Engine* engine = ((Arcadia_Engine_Demo_Scene*)self)->engine;
+  Arcadia_Engine* engine = ((Arcadia_Engine_Scene*)self)->engine;
 
   if (!self->enterPassNode) {
     self->enterPassNode =
@@ -327,7 +327,7 @@ Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_updateVisua
   // Render the enter pass node.
   // Pass mesh nodes to the enter pass node.
   Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)self->enterPassNode, (Arcadia_Engine_Visuals_EnterPassNode*)self->enterPassNode);
-  Arcadia_Engine_Visuals_renderScene(thread, self->enterPassNode, self->modelNode, (Arcadia_Engine_Visuals_BackendContext*)((Arcadia_Engine_Demo_Scene*)self)->engine->visualsBackendContext);
+  Arcadia_Engine_Visuals_renderScene(thread, self->enterPassNode, self->modelNode, (Arcadia_Engine_Visuals_BackendContext*)((Arcadia_Engine_Scene*)self)->engine->visualsBackendContext);
 }
 
 static void
@@ -343,7 +343,7 @@ Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_handleKeybo
     Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent* e = Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent_create(thread, Arcadia_getTickCount(thread));
     Arcadia_ValueStack_pushObjectReferenceValue(thread,  (Arcadia_Object*)e);
     Arcadia_ValueStack_pushNatural8Value(thread, 1);
-    Arcadia_Signal_emit(thread, ((Arcadia_Engine_Demo_Scene*)self)->applicationQuitRequestSignal, (Arcadia_Object*)self);
+    Arcadia_Signal_emit(thread, ((Arcadia_Engine_Scene*)self)->applicationQuitRequestSignal, (Arcadia_Object*)self);
     Arcadia_ValueStack_popValues(thread, 2);
   } else if (Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Engine_Input_KeyboardKeyAction_Released &&
     Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event) == Arcadia_Engine_Input_KeyboardKey_R) {
@@ -374,7 +374,7 @@ Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine,
-    Arcadia_Engine_Demo_SceneManager* sceneManager
+    Arcadia_Engine_SceneManager* sceneManager
   )
 {
   _Arcadia_BeginCreate(Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene);

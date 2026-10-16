@@ -29,6 +29,8 @@ if (NOT TARGET ${this})
 
   OnSourceFile(${this} Arcadia/VPL/Tests/GLSL/Main.c)
 
+  OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
+
   OnModuleDependency(${this} ${MyProjectName}.VPL PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.FileSystem PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)
@@ -38,3 +40,5 @@ if (NOT TARGET ${this})
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)
 
 endif()
+
+add_subdirectory(Driver)

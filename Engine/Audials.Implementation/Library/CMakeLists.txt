@@ -72,6 +72,8 @@ if (NOT TARGET ${this})
 
     OnSourceFile(${this} Arcadia/Audials/Implementation/OpenAL/Resources/SoundSourceResource.c)
     OnHeaderFile(${this} Arcadia/Audials/Implementation/OpenAL/Resources/SoundSourceResource.h)
+    OnSourceFile(${this} Arcadia/Audials/Implementation/OpenAL/Resources/StreamingSoundSourceResource.c)
+    OnHeaderFile(${this} Arcadia/Audials/Implementation/OpenAL/Resources/StreamingSoundSourceResource.h)
     OnSourceFile(${this} Arcadia/Audials/Implementation/OpenAL/BackendContext.c)
     OnHeaderFile(${this} Arcadia/Audials/Implementation/OpenAL/BackendContext.h)
   endif()

@@ -34,17 +34,14 @@
 
 ## Runtime Patterns
 
-- Engine types follow the Arcadia object system. Use nearby files as templates for `Arcadia_declareObjectType`, `Arcadia_defineObjectType`, dispatch structs, constructor functions, visit functions, and virtual-call wrappers.
-- Functions generally take `Arcadia_Thread*` first and use Arcadia status/raise/jump-target conventions from the runtime instead of plain C error returns.
-- Follow the root `AGENTS.md` runtime GC/rooting rules for owned object references, `visit` callbacks, and temporary locks.
+- Follow the shared C/C++ source code style guide in `AGENTS/CxxSourceCodeStyle.md`, including object/type patterns, `Arcadia_Thread*` calling conventions, error handling, and GC/rooting rules.
 - Backend objects represent available systems; backend contexts are heavyweight active resources such as audio or video contexts. Avoid creating contexts implicitly unless nearby code already does so.
 - Engine registration APIs store backend and node-factory type objects in `Arcadia_Set` instances. Register derived type objects, not instances.
 
 ## MIL Files
 
 - Several event and enum-like declarations have `.mil` inputs beside C and header files. Generated-looking `.c`/`.h` files coexist with these inputs.
-- Before editing generated-looking output, inspect the owning `CMakeLists.txt` and MILC workflow. Do not regenerate or rewrite generated files unless the task specifically requires it.
-- Preserve the existing relationship between `.mil`, `.c`, and `.h` files when adding related declarations.
+- Follow the generated-source guidance in `AGENTS/CxxSourceCodeStyle.md` before editing generated-looking output.
 
 ## Documentation
 
@@ -60,5 +57,5 @@
 
 ## Licensing
 
-- New C, header, and CMake files in this folder should use the repository's AGPL-3.0-or-later header style.
+- New C, header, and CMake files in this folder should use the repository's AGPL-3.0-or-later header style described in `AGENTS/CxxSourceCodeStyle.md`.
 - New `.mil` files should use the same AGPL-3.0-or-later header style as existing `.mil` files in this folder.

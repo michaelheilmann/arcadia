@@ -1,0 +1,7 @@
+{
+  type : "Color",
+  name : "Button.Primary.Color.Normal",
+  red : 56,
+  green : 120,
+  blue : 240,
+}

@@ -18,6 +18,10 @@ cmake_minimum_required(VERSION 3.29)
 
 BeginTemplateEngine(${MyProjectName}.Website.Generate "Website")
 
+  # Every page target declared under this directory aggregates into the target above.
+  # Subdirectories inherit the aggregate target, so a page added later needs no further wiring.
+  SetTemplateEngineAggregateTarget(${MyProjectName}.Website.Generate)
+
   # Build "index.html".
   OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
                    "${REPOSITORY_SOURCE_DIR}/.Website/index.html"
@@ -74,3 +78,4 @@ add_subdirectory("Specifications/MDNP")
 add_subdirectory("Specifications/Data Definition Language")
 add_subdirectory("Specifications/Data Definition Language Schema")
 add_subdirectory("Specifications/Program Definition Language")
+add_subdirectory("Specifications/Visuals Programming Language")

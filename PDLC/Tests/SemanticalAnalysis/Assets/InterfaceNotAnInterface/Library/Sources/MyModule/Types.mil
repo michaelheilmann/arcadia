@@ -1,5 +1,5 @@
-class NotAnInterface {
+class MyModule.NotAnInterface {
 }
 
-class MyClass implements NotAnInterface {
+class MyModule.MyClass implements MyModule.NotAnInterface {
 }

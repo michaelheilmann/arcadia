@@ -75,6 +75,7 @@ Arcadia_Engine_Application_construct
   //
   self->quitRequested = Arcadia_BooleanValue_False;
   self->configuration = NULL;
+  self->configurationDirectoryName = Arcadia_String_createFromCxxString(thread, u8"Demo");
   self->engine = Arcadia_Engine_getOrCreate(thread);
   self->windows = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   //
@@ -104,6 +105,9 @@ Arcadia_Engine_Application_visit
   }
   if (self->configuration) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->configuration);
+  }
+  if (self->configurationDirectoryName) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->configurationDirectoryName);
   }
 }
 
@@ -139,3 +143,18 @@ Arcadia_Engine_Application_setQuitRequested
     Arcadia_BooleanValue quitRequested
   )
 { self->quitRequested = quitRequested; }
+
+void
+Arcadia_Engine_Application_setConfigurationDirectoryName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Application* self,
+    Arcadia_String* configurationDirectoryName
+  )
+{
+  if (!configurationDirectoryName || !Arcadia_String_getNumberOfBytes(thread, configurationDirectoryName)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  self->configurationDirectoryName = configurationDirectoryName;
+}

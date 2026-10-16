@@ -20,6 +20,7 @@
 #include "Arcadia/Logging/Include.h"
 #include "Arcadia/VPL/EnterPhase.h"
 #include "Arcadia/VPL/ResolvePhase.h"
+#include "Arcadia/VPL/TypePhase.h"
 
 static void
 Arcadia_VPL_Context_constructImpl
@@ -85,6 +86,7 @@ Arcadia_VPL_Context_constructImpl
   self->diagnostics = Arcadia_Languages_Diagnostics_create(thread, (Arcadia_Log*)Arcadia_ConsoleLog_create(thread));
   self->enterPhase = NULL;
   self->resolvePhase = NULL;
+  self->typePhase = NULL;
   Arcadia_LeaveConstructor(Arcadia_VPL_Context);
 }
 
@@ -112,6 +114,9 @@ Arcadia_VPL_Context_visit
   if (self->resolvePhase) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolvePhase);
   }
+  if (self->typePhase) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->typePhase);
+  }
 }
 
 static void
@@ -131,4 +136,53 @@ Arcadia_VPL_Context_create
   _Arcadia_BeginCreate(Arcadia_VPL_Context);
   Arcadia_ValueStack_pushNatural8Value(thread, 0);
   _Arcadia_EndCreate(Arcadia_VPL_Context);
+}
+
+Arcadia_Languages_Diagnostics*
+Arcadia_VPL_Context_getDiagnostics
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Context* self
+  )
+{
+  return self->diagnostics;
+}
+
+Arcadia_VPL_EnterPhase*
+Arcadia_VPL_Context_getEnterPhase
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Context* self
+  )
+{
+  if (!self->enterPhase) {
+    self->enterPhase = Arcadia_VPL_EnterPhase_create(thread, self->diagnostics);
+  }
+  return self->enterPhase;
+}
+
+Arcadia_VPL_ResolvePhase*
+Arcadia_VPL_Context_getResolvePhase
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Context* self
+  )
+{
+  if (!self->resolvePhase) {
+    self->resolvePhase = Arcadia_VPL_ResolvePhase_create(thread, self->diagnostics);
+  }
+  return self->resolvePhase;
+}
+
+Arcadia_VPL_TypePhase*
+Arcadia_VPL_Context_getTypePhase
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Context* self
+  )
+{
+  if (!self->typePhase) {
+    self->typePhase = Arcadia_VPL_TypePhase_create(thread, self->diagnostics);
+  }
+  return self->typePhase;
 }

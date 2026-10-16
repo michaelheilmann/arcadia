@@ -31,6 +31,8 @@ struct Arcadia_VPL_ResolvePhaseDispatch {
 
 struct Arcadia_VPL_ResolvePhase {
   Arcadia_Object _parent;
+  // The diagnostics to which this phase reports.
+  Arcadia_Languages_Diagnostics* diagnostics;
 };
 
 Arcadia_VPL_ResolvePhase*
@@ -38,6 +40,13 @@ Arcadia_VPL_ResolvePhase_create
   (
     Arcadia_Thread* thread,
     Arcadia_Languages_Diagnostics* diagnostics
+  );
+
+Arcadia_Languages_Diagnostics*
+Arcadia_VPL_ResolvePhase_getDiagnostics
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_ResolvePhase* self
   );
 
 void

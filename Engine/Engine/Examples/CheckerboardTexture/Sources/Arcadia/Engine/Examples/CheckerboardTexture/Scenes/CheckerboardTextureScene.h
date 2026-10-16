@@ -25,11 +25,11 @@ Arcadia_declareObjectType(u8"Arcadia.Engine.Examples.CheckerboardTexture.Checker
                           u8"Arcadia.Engine.Demo.Scene");
 
 struct Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureSceneDispatch {
-  Arcadia_Engine_Demo_SceneDispatch parent;
+  Arcadia_Engine_SceneDispatch parent;
 };
 
 struct Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene {
-  Arcadia_Engine_Demo_Scene parent;
+  Arcadia_Engine_Scene parent;
 
   // @todo This is should be inter-scene not intra-scene.
   Arcadia_ADL_Definitions* definitions;
@@ -49,7 +49,7 @@ Arcadia_Engine_Examples_CheckerboardTexture_CheckerboardTextureScene_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine,
-    Arcadia_Engine_Demo_SceneManager* sceneManager
+    Arcadia_Engine_SceneManager* sceneManager
   );
 
 #endif // ARCADIA_ENGINE_EXAMPLES_CHEKERBOARDTEXTURE_CHECKERBOARDTEXTURESCENE_H_INCLUDED

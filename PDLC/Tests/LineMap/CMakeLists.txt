@@ -25,9 +25,9 @@ if (NOT TARGET ${this})
 
   SetFolder(${this} ${MyTestFolder})
 
-  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/MILC/Tests/LineMap/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/MILC/Tests/LineMap/Configure.h.i)
+  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/PDLC/Tests/LineMap/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/PDLC/Tests/LineMap/Configure.h.i)
 
-  OnSourceFile(${this} Arcadia/MILC/Tests/LineMap/Main.c)
+  OnSourceFile(${this} Arcadia/PDLC/Tests/LineMap/Main.c)
 
   OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
@@ -36,5 +36,4 @@ if (NOT TARGET ${this})
   EndProduct(${this})
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)
 
-  CopyProductAssets(${this} ${MyTestFolder} ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 endif()

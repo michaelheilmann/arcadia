@@ -37,8 +37,6 @@ if (NOT TARGET ${MyTool})
 
   EndProduct(${MyTool})
 
-  CopyProductAssets(${MyTool} "Tools/PixelBufferGenerator" ${CMAKE_CURRENT_BINARY_DIR}/Assets)
-
   set(COMMAND_LINE_ARGS)
   list(APPEND COMMAND_LINE_ARGS "--target=\\\"helloworld.png\\\"")
   list(APPEND COMMAND_LINE_ARGS "--definition=\\\"Assets/Black.adl\\\"")

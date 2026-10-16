@@ -302,6 +302,7 @@ Arcadia_ImmutableHashMap_constructImpl
         self->buckets[i] = selfNode;
       }
     }
+    self->size = other->size;
   } else {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
     Arcadia_Thread_jump(thread);
@@ -418,14 +419,14 @@ Arcadia_ImmutableHashMap_create
     Arcadia_Value value
   )
 {
-  _Arcadia_BeginCreate(Arcadia_HashMap);
+  _Arcadia_BeginCreate(Arcadia_ImmutableHashMap);
   if (Arcadia_Value_isVoidValue(&value)) {
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
   } else {
     Arcadia_ValueStack_pushValue(thread, &value);
     Arcadia_ValueStack_pushNatural8Value(thread, 1);
   }
-  _Arcadia_EndCreate(Arcadia_HashMap);
+  _Arcadia_EndCreate(Arcadia_ImmutableHashMap);
 }
 
 static Arcadia_List*

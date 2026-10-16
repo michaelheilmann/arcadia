@@ -18,39 +18,39 @@
 #include "Arcadia/Engine/SceneManager.h"
 
 static void
-Arcadia_Engine_Demo_SceneManager_constructImpl
+Arcadia_Engine_SceneManager_constructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManager* self
+    Arcadia_Engine_SceneManager* self
   );
 
 static void
-Arcadia_Engine_Demo_SceneManager_initializeDispatchImpl
+Arcadia_Engine_SceneManager_initializeDispatchImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManagerDispatch* self
+    Arcadia_Engine_SceneManagerDispatch* self
   );
 
 static void
-Arcadia_Engine_Demo_SceneManager_destructImpl
+Arcadia_Engine_SceneManager_destructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManager* self
+    Arcadia_Engine_SceneManager* self
   );
 
 static void
-Arcadia_Engine_Demo_SceneManager_visitImpl
+Arcadia_Engine_SceneManager_visitImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManager* self
+    Arcadia_Engine_SceneManager* self
   );
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
-  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_Demo_SceneManager_constructImpl,
-  .destruct = (Arcadia_Object_DestructCallbackFunction*)&Arcadia_Engine_Demo_SceneManager_destructImpl,
-  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_Demo_SceneManager_visitImpl,
-  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_Demo_SceneManager_initializeDispatchImpl,
+  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_SceneManager_constructImpl,
+  .destruct = (Arcadia_Object_DestructCallbackFunction*)&Arcadia_Engine_SceneManager_destructImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_SceneManager_visitImpl,
+  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_SceneManager_initializeDispatchImpl,
 };
 
 static const Arcadia_Type_Operations _typeOperations = {
@@ -58,18 +58,18 @@ static const Arcadia_Type_Operations _typeOperations = {
   .objectTypeOperations = &_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.Engine.Demo.SceneManager", Arcadia_Engine_Demo_SceneManager,
+Arcadia_defineObjectType(u8"Arcadia.Engine.Demo.SceneManager", Arcadia_Engine_SceneManager,
                          u8"Arcadia.Object", Arcadia_Object,
                          &_typeOperations);
 
 static void
-Arcadia_Engine_Demo_SceneManager_constructImpl
+Arcadia_Engine_SceneManager_constructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManager* self
+    Arcadia_Engine_SceneManager* self
   )
 {
-  Arcadia_EnterConstructor(Arcadia_Engine_Demo_SceneManager);
+  Arcadia_EnterConstructor(Arcadia_Engine_SceneManager);
   {
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
@@ -81,30 +81,30 @@ Arcadia_Engine_Demo_SceneManager_constructImpl
   self->engine = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_getType(thread));
   self->scene = NULL;
   self->sceneChangedEvent = Arcadia_Signal_create(thread);
-  Arcadia_LeaveConstructor(Arcadia_Engine_Demo_SceneManager);
+  Arcadia_LeaveConstructor(Arcadia_Engine_SceneManager);
 }
 
 static void
-Arcadia_Engine_Demo_SceneManager_initializeDispatchImpl
+Arcadia_Engine_SceneManager_initializeDispatchImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManagerDispatch* self
+    Arcadia_Engine_SceneManagerDispatch* self
   )
 { }
 
 static void
-Arcadia_Engine_Demo_SceneManager_destructImpl
+Arcadia_Engine_SceneManager_destructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManager* self
+    Arcadia_Engine_SceneManager* self
   )
 { }
 
 static void
-Arcadia_Engine_Demo_SceneManager_visitImpl
+Arcadia_Engine_SceneManager_visitImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManager* self
+    Arcadia_Engine_SceneManager* self
   )
 {
   if (self->sceneChangedEvent) {
@@ -118,20 +118,20 @@ Arcadia_Engine_Demo_SceneManager_visitImpl
   }
 }
 
-Arcadia_Engine_Demo_Scene*
-Arcadia_Engine_Demo_SceneManager_getScene
+Arcadia_Engine_Scene*
+Arcadia_Engine_SceneManager_getScene
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManager* self
+    Arcadia_Engine_SceneManager* self
   )
 { return self->scene; }
 
 void
-Arcadia_Engine_Demo_SceneManager_setScene
+Arcadia_Engine_SceneManager_setScene
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManager* self,
-    Arcadia_Engine_Demo_Scene* scene
+    Arcadia_Engine_SceneManager* self,
+    Arcadia_Engine_Scene* scene
   )
 {
   if (self->scene != scene) {
@@ -155,19 +155,19 @@ Arcadia_Engine_Demo_SceneManager_setScene
   }
 }
 
-Arcadia_Engine_Demo_SceneManager*
-Arcadia_Engine_Demo_SceneManager_create
+Arcadia_Engine_SceneManager*
+Arcadia_Engine_SceneManager_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine
   )
 {
-  _Arcadia_BeginCreate(Arcadia_Engine_Demo_SceneManager);
+  _Arcadia_BeginCreate(Arcadia_Engine_SceneManager);
   if (engine) {
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)engine);
   } else {
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
-  _Arcadia_EndCreate(Arcadia_Engine_Demo_SceneManager);
+  _Arcadia_EndCreate(Arcadia_Engine_SceneManager);
 }

@@ -1,0 +1,7 @@
+{
+  type : "Color",
+  name : "Button.Primary.Color.Focused",
+  red : 92,
+  green : 130,
+  blue : 245,
+}

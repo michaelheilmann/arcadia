@@ -25,11 +25,11 @@ Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.MainMenuScene", Arcadia_Engine_
                           u8"Arcadia.Engine.Demo.Scene");
 
 struct Arcadia_Engine_Demo_MainMenuSceneDispatch {
-  Arcadia_Engine_Demo_SceneDispatch parent;
+  Arcadia_Engine_SceneDispatch parent;
 };
 
 struct Arcadia_Engine_Demo_MainMenuScene {
-  Arcadia_Engine_Demo_Scene parent;
+  Arcadia_Engine_Scene parent;
 
   // @todo This should be inter-scene, not intra-scene.
   Arcadia_ADL_Definitions* definitions;
@@ -56,7 +56,7 @@ Arcadia_Engine_Demo_MainMenuScene_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine,
-    Arcadia_Engine_Demo_SceneManager* sceneManager
+    Arcadia_Engine_SceneManager* sceneManager
   );
 
 #endif // ARCADIA_ENGINE_DEMO_SCENES_MAINMENUSCENE_H_INCLUDED

@@ -63,9 +63,4 @@ if (NOT TARGET ${this})
 
   EndProduct(${this})
 
-  # Copy assets.
-  if (${this}.Enabled)
-    CopyProductAssets(${this} "Engine/Examples" ${CMAKE_CURRENT_BINARY_DIR}/Assets)
-  endif()
-
 endif()

@@ -104,12 +104,14 @@ Arcadia_Engine_Visuals_ModelNode_constructImpl
   Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)source);
   self->source = source;
 
-  // (3) create the mesh node and the material node
-  Arcadia_ADL_MeshDefinition* meshDefinition = (Arcadia_ADL_MeshDefinition*)source->mesh->definition;
+  // (3) create the geometry, the mesh node and the material node
+  // `source->mesh->definition` is an `Arcadia.ADL.MeshGenerator` because `Arcadia_ADL_ModelDefinition_linkImpl` has verified it.
+  Arcadia_ADL_MeshGenerator* meshGenerator = (Arcadia_ADL_MeshGenerator*)source->mesh->definition;
   Arcadia_ADL_MaterialDefinition* materialDefinition = (Arcadia_ADL_MaterialDefinition*)source->material->definition;
 
   Arcadia_Engine* engine = Arcadia_Engine_getOrCreate(thread);
-  self->mesh = Arcadia_Engine_Visuals_NodeFactory_createMeshNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, NULL, meshDefinition);
+  Arcadia_Media_Geometry* geometry = Arcadia_Media_Geometry_createFromMeshGenerator(thread, meshGenerator);
+  self->mesh = Arcadia_Engine_Visuals_NodeFactory_createMeshNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, NULL, geometry);
   self->material = Arcadia_Engine_Visuals_NodeFactory_createMaterialNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, NULL, materialDefinition);
 
   //
@@ -140,7 +142,7 @@ Arcadia_Engine_Visuals_ModelNode_destructImpl
     }
     Arcadia_Object_unlock(thread, (Arcadia_Object*)self->backendContext);
     self->backendContext = NULL;
-  }  
+  }
 }
 
 static void
@@ -149,7 +151,7 @@ Arcadia_Engine_Visuals_ModelNode_initializeDispatchImpl
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_ModelNodeDispatch* self
   )
-{ 
+{
   ((Arcadia_Engine_Visuals_NodeDispatch*)self)->render = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_Node*, Arcadia_Engine_Visuals_EnterPassNode*)) & Arcadia_Engine_Visuals_ModelNode_renderImpl;
   ((Arcadia_Engine_NodeDispatch*)self)->setVisualsBackendContext = (void (*)(Arcadia_Thread*, Arcadia_Engine_Node*, Arcadia_Engine_Visuals_BackendContext*)) & Arcadia_Engine_Visuals_ModelNode_setVisualsBackendContextImpl;
 }

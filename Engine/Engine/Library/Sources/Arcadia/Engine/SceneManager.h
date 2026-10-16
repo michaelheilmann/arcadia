@@ -21,48 +21,48 @@
   #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
 #endif
 #include "Arcadia/Engine/Engine.h"
-typedef struct Arcadia_Engine_Demo_Scene Arcadia_Engine_Demo_Scene;
+typedef struct Arcadia_Engine_Scene Arcadia_Engine_Scene;
 
 /// The scene manager is referenced by any scene.
 /// A scene is "active" if sceneManager.scene = scene.
 /// A scene can - at any point in time - activate another scene by setting sceneManager.scene to the desired scene.
-Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.SceneManager", Arcadia_Engine_Demo_SceneManager,
+Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.SceneManager", Arcadia_Engine_SceneManager,
                           u8"Arcadia.Object")
 
-struct Arcadia_Engine_Demo_SceneManagerDispatch {
+struct Arcadia_Engine_SceneManagerDispatch {
   Arcadia_ObjectDispatch parent;
 };
 
-struct Arcadia_Engine_Demo_SceneManager {
+struct Arcadia_Engine_SceneManager {
   Arcadia_Object parent;
   // The engine.
   Arcadia_Engine* engine;
   // The current scene.
-  Arcadia_Engine_Demo_Scene* scene;
+  Arcadia_Engine_Scene* scene;
   // When a scene truly changed.
   Arcadia_Signal* sceneChangedEvent;
 };
 
 /// @return The active scene or null.
 /// @default The default is null.
-Arcadia_Engine_Demo_Scene*
-Arcadia_Engine_Demo_SceneManager_getScene
+Arcadia_Engine_Scene*
+Arcadia_Engine_SceneManager_getScene
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManager* self
+    Arcadia_Engine_SceneManager* self
   );
 
 /// @param scene The new active scene if any or null.
 void
-Arcadia_Engine_Demo_SceneManager_setScene
+Arcadia_Engine_SceneManager_setScene
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Demo_SceneManager* self,
-    Arcadia_Engine_Demo_Scene* scene
+    Arcadia_Engine_SceneManager* self,
+    Arcadia_Engine_Scene* scene
   );
 
-Arcadia_Engine_Demo_SceneManager*
-Arcadia_Engine_Demo_SceneManager_create
+Arcadia_Engine_SceneManager*
+Arcadia_Engine_SceneManager_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine

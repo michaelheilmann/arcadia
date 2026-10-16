@@ -49,4 +49,26 @@ Arcadia_Media_VertexDescriptor_getVertexSize
     Arcadia_Media_VertexDescriptor* self
   );
 
+/// @brief Get the stride of this vertex descriptor.
+/// @param thread A pointer to this thread.
+/// @param self A pointer to this vertex descriptor.
+/// @return The stride, that is, the distance, in Bytes, from the start of one vertex to the start of the next vertex.
+Arcadia_SizeValue
+Arcadia_Media_VertexDescriptor_getStride
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexDescriptor* self
+  );
+
+/// @brief Get the vertex element descriptors of this vertex descriptor.
+/// @param thread A pointer to this thread.
+/// @param self A pointer to this vertex descriptor.
+/// @return A pointer to the list of vertex element descriptors.
+Arcadia_ImmutableList*
+Arcadia_Media_VertexDescriptor_getVertexElementDescriptors
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexDescriptor* self
+  );
+
 #endif // ARCADIA_MEDIA_VERTEXDESCRIPTOR_H_INCLUDED

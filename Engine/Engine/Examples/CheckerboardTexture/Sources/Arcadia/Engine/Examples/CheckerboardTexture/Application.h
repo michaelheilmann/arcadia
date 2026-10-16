@@ -16,7 +16,7 @@ struct Arcadia_Engine_Demo_Application {
   /// @brief A pointer to the signal slot or null.
   Arcadia_Slot* sceneOnQuitRequestedSlot;
   /// @brief A pointer to the scene manager.
-  Arcadia_Engine_Demo_SceneManager* sceneManager;
+  Arcadia_Engine_SceneManager* sceneManager;
 };
 
 Arcadia_Engine_Demo_Application*

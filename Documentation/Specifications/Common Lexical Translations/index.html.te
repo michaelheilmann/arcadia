@@ -4,7 +4,7 @@
   @{include("./../specification.css.i")}
   </style>
 
-  <link rel='canonical' href='@{siteAddress}/specifications/common-lexical-translations/index.html'>  
+  <link rel='canonical' href='@{siteAddress}/specifications/common-lexical-translations/index.html'>
   <title>Common Lexical Translations</title>
 </head>
 <body class="my-content-page-1">
@@ -21,30 +21,34 @@
     <div class="abstract">@{include("./0. Abstract.i")}</div>
 
     @{include("./1. Introduction.i")}
-    @{include("./2. Standard Profile.i")}
+    @{include("./2. Productions.i")}
 
   </div>
   <div class="right-column">
     <nav>
       <ul style="list-style: none">
         <li><a href="#introduction">1. Introduction</a></li>
-        <li><a href="#standard-profile">2 Standard Profile</a></li>
-        <li><a href="#standard-profile-word">2.1 word</a></li>
-        <li><a href="#standard-profile-whitespace">2.2 whitespace</a></li>
-        <li><a href="#standard-profile-line-terminator">2.3 line terminator</a></li>
-        <li><a href="#standard-profile-comment">2.4 comment</a></li>
-        <li><a href="#standard-profile-parentheses">2.5 parentheses</a></li>
-        <li><a href="#standard-profile-curly-brackets">2.6 curly brackets</a></li>
-        <li><a href="#standard-profile-colon">2.7 colon</a></li>
-        <li><a href="#standard-profile-comma">2.9 comma</a></li>
-        <li><a href="#standard-profile-number-literal">2.10 number literal</a></li>
-        <li><a href="#standard-profile-string-literal">2.11 string literal</a></li>
-        <li><a href="#standard-profile-boolean-literal">2.12 boolean literal</a></li>
-        <li><a href="#standard-profile-void-literal">2.13 void literal</a></li>
-        <li><a href="#standard-profile-digit">2.14 decimal digit</a></li>
-        <li><a href="#standard-profile-digit">2.15 hexadecimal digit</a></li>
-        <li><a href="#standard-profile-alphanumeric">2.16 alphanumeric</a></li>
-        <li><a href="#standard-profile-period">2.17 period</a></li>
+        <li><a href="#productions">2 Productions</a></li>
+        <li><a href="#productions-whitespace">2.1 whitespace</a></li>
+        <li><a href="#productions-end-of-line">2.2 end-of-line</a></li>
+        <li><a href="#productions-comment">2.3 comment</a></li>
+        <li><a href="#productions-parentheses">2.4 parentheses</a></li>
+        <li><a href="#productions-curly-brackets">2.5 curly brackets</a></li>
+        <li><a href="#productions-colon">2.6 colon</a></li>
+        <li><a href="#productions-square-brackets">2.7 square brackets</a></li>
+        <li><a href="#productions-comma">2.8 comma</a></li>
+        <li><a href="#productions-name">2.9 name</a></li>
+        <li><a href="#productions-number-literal">2.10 number literal</a></li>
+        <li><a href="#productions-string-literal">2.11 string literal</a></li>
+        <li><a href="#productions-boolean-literal">2.12 boolean literal</a></li>
+        <li><a href="#productions-void-literal">2.13 void literal</a></li>
+        <li><a href="#productions-decimal-digit">2.14 decimal digit</a></li>
+        <li><a href="#productions-hexadecimal-digit">2.15 hexadecimal digit</a></li>
+        <li><a href="#productions-alphanumeric">2.16 alphanumeric</a></li>
+        <li><a href="#productions-period">2.17 period</a></li>
+        <li><a href="#productions-end-of-input">2.18 end of input</a></li>
+        <li><a href="#productions-start-of-input">2.19 start of input</a></li>
+        <li><a href="#productions-line-continuation">2.20 line continuation</a></li>
       </ul>
     </nav>
   </div>

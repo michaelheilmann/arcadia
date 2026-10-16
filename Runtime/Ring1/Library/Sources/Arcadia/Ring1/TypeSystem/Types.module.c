@@ -49,6 +49,31 @@ ObjectTypeNode_implementsInterface
     InterfaceTypeNode* other
   );
 static Arcadia_BooleanValue
+InterfaceSpecifications_contains
+  (
+    Arcadia_ObjectType_InterfaceSpecification const* interfaceSpecifications,
+    Arcadia_SizeValue numberOfInterfaceSpecifications,
+    Arcadia_TypeValue interfaceType
+  );
+static void
+InterfaceSpecifications_append
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ObjectType_InterfaceSpecification** interfaceSpecifications,
+    Arcadia_SizeValue* numberOfInterfaceSpecifications,
+    Arcadia_SizeValue* capacityOfInterfaceSpecifications,
+    Arcadia_TypeValue interfaceType
+  );
+static void
+InterfaceSpecifications_appendAncestors
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ObjectType_InterfaceSpecification** interfaceSpecifications,
+    Arcadia_SizeValue* numberOfInterfaceSpecifications,
+    Arcadia_SizeValue* capacityOfInterfaceSpecifications,
+    InterfaceTypeNode* interfaceTypeNode
+  );
+static Arcadia_BooleanValue
 InterfaceTypeNode_isDescendantOf
   (
     InterfaceTypeNode* self,
@@ -87,6 +112,87 @@ ObjectTypeNode_implementsInterface
     }
   }
   return Arcadia_BooleanValue_False;
+}
+
+static Arcadia_BooleanValue
+InterfaceSpecifications_contains
+  (
+    Arcadia_ObjectType_InterfaceSpecification const* interfaceSpecifications,
+    Arcadia_SizeValue numberOfInterfaceSpecifications,
+    Arcadia_TypeValue interfaceType
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < numberOfInterfaceSpecifications; ++i) {
+    if (interfaceSpecifications[i].interfaceType == interfaceType) {
+      return Arcadia_BooleanValue_True;
+    }
+  }
+  return Arcadia_BooleanValue_False;
+}
+
+static void
+InterfaceSpecifications_append
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ObjectType_InterfaceSpecification** interfaceSpecifications,
+    Arcadia_SizeValue* numberOfInterfaceSpecifications,
+    Arcadia_SizeValue* capacityOfInterfaceSpecifications,
+    Arcadia_TypeValue interfaceType
+  )
+{
+  if (InterfaceSpecifications_contains(*interfaceSpecifications, *numberOfInterfaceSpecifications, interfaceType)) {
+    return;
+  }
+  if (*numberOfInterfaceSpecifications == *capacityOfInterfaceSpecifications) {
+    Arcadia_SizeValue newCapacity = *capacityOfInterfaceSpecifications ? (*capacityOfInterfaceSpecifications * 2) : 1;
+    Arcadia_ObjectType_InterfaceSpecification* newInterfaceSpecifications =
+      realloc(*interfaceSpecifications, sizeof(Arcadia_ObjectType_InterfaceSpecification) * newCapacity);
+    if (!newInterfaceSpecifications) {
+      free(*interfaceSpecifications);
+      *interfaceSpecifications = NULL;
+      *numberOfInterfaceSpecifications = 0;
+      *capacityOfInterfaceSpecifications = 0;
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+      Arcadia_Thread_jump(thread);
+    }
+    *interfaceSpecifications = newInterfaceSpecifications;
+    *capacityOfInterfaceSpecifications = newCapacity;
+  }
+  (*interfaceSpecifications)[*numberOfInterfaceSpecifications].interfaceType = interfaceType;
+  (*interfaceSpecifications)[*numberOfInterfaceSpecifications].dispatchSize = ((InterfaceTypeNode*)interfaceType)->dispatchSize;
+  (*interfaceSpecifications)[*numberOfInterfaceSpecifications].initializeDispatch = NULL;
+  ++*numberOfInterfaceSpecifications;
+}
+
+static void
+InterfaceSpecifications_appendAncestors
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ObjectType_InterfaceSpecification** interfaceSpecifications,
+    Arcadia_SizeValue* numberOfInterfaceSpecifications,
+    Arcadia_SizeValue* capacityOfInterfaceSpecifications,
+    InterfaceTypeNode* interfaceTypeNode
+  )
+{
+  for (Arcadia_SizeValue i = 0, n = interfaceTypeNode->extends.size; i < n; ++i) {
+    InterfaceTypeNode* ancestorInterfaceTypeNode = (InterfaceTypeNode*)interfaceTypeNode->extends.elements[i];
+    InterfaceSpecifications_append
+      (
+        thread,
+        interfaceSpecifications,
+        numberOfInterfaceSpecifications,
+        capacityOfInterfaceSpecifications,
+        (Arcadia_TypeValue)ancestorInterfaceTypeNode
+      );
+    InterfaceSpecifications_appendAncestors
+      (
+        thread,
+        interfaceSpecifications,
+        numberOfInterfaceSpecifications,
+        capacityOfInterfaceSpecifications,
+        ancestorInterfaceTypeNode
+      );
+  }
 }
 
 void*
@@ -470,6 +576,43 @@ Arcadia_registerObjectTypeWithInterfaces
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
+  Arcadia_ObjectType_InterfaceSpecification* expandedInterfaceSpecifications = NULL;
+  Arcadia_ObjectType_InterfaceSpecification const* effectiveInterfaceSpecifications = interfaceSpecifications;
+  Arcadia_SizeValue numberOfEffectiveInterfaceSpecifications = numberOfInterfaceSpecifications;
+  Arcadia_SizeValue capacityOfEffectiveInterfaceSpecifications = numberOfInterfaceSpecifications;
+  if (numberOfInterfaceSpecifications) {
+    expandedInterfaceSpecifications = malloc(sizeof(Arcadia_ObjectType_InterfaceSpecification) * numberOfInterfaceSpecifications);
+    if (!expandedInterfaceSpecifications) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+      Arcadia_Thread_jump(thread);
+    }
+    memcpy(expandedInterfaceSpecifications, interfaceSpecifications, sizeof(Arcadia_ObjectType_InterfaceSpecification) * numberOfInterfaceSpecifications);
+    for (Arcadia_SizeValue i = 0; i < numberOfInterfaceSpecifications; ++i) {
+      Arcadia_TypeValue interfaceType = expandedInterfaceSpecifications[i].interfaceType;
+      if (!interfaceType || !Arcadia_Type_isInterfacelKind(thread, interfaceType)) {
+        free(expandedInterfaceSpecifications);
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+        Arcadia_Thread_jump(thread);
+      }
+      InterfaceTypeNode* interfaceTypeNode = (InterfaceTypeNode*)interfaceType;
+      if (expandedInterfaceSpecifications[i].dispatchSize < interfaceTypeNode->dispatchSize) {
+        free(expandedInterfaceSpecifications);
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+        Arcadia_Thread_jump(thread);
+      }
+    }
+    for (Arcadia_SizeValue i = 0; i < numberOfEffectiveInterfaceSpecifications; ++i) {
+      InterfaceSpecifications_appendAncestors
+        (
+          thread,
+          &expandedInterfaceSpecifications,
+          &numberOfEffectiveInterfaceSpecifications,
+          &capacityOfEffectiveInterfaceSpecifications,
+          (InterfaceTypeNode*)expandedInterfaceSpecifications[i].interfaceType
+        );
+    }
+    effectiveInterfaceSpecifications = expandedInterfaceSpecifications;
+  }
   ObjectTypeNode* parentObjectTypeNode = (ObjectTypeNode*)parentObjectType;
   TypeNode* typeNode = (TypeNode*)ObjectTypeNode_allocate(thread);
   ObjectTypeNode* objectTypeNode = (ObjectTypeNode*)typeNode;
@@ -501,43 +644,19 @@ Arcadia_registerObjectTypeWithInterfaces
     }
   }
 
-  // The implemented interface types must be closed under their ancestor interface types. The dispatch
-  // of an interface type never is the dispatch of a derived interface type, so a derived interface
-  // type requires its ancestors to be implemented by a dispatch of their own. Checking the direct
-  // ancestors of every implemented interface type is sufficient: by induction, the transitive
-  // closure is covered as every ancestor is itself an implemented interface type.
-  for (Arcadia_SizeValue i = 0; i < numberOfInterfaceSpecifications; ++i) {
-    TypeNode* x = (TypeNode*)interfaceSpecifications[i].interfaceType;
-    if (!x || !Arcadia_Type_isInterfacelKind(thread, x)) {
-      // The implemented interface type itself is validated in the loop below.
-      continue;
-    }
-    InterfaceTypeNode* interfaceTypeNode = (InterfaceTypeNode*)x;
-    for (Arcadia_SizeValue j = 0; j < interfaceTypeNode->extends.size; ++j) {
-      Arcadia_BooleanValue isImplemented = Arcadia_BooleanValue_False;
-      for (Arcadia_SizeValue k = 0; k < numberOfInterfaceSpecifications; ++k) {
-        if (interfaceSpecifications[k].interfaceType == interfaceTypeNode->extends.elements[j]) {
-          isImplemented = Arcadia_BooleanValue_True;
-          break;
-        }
-      }
-      if (!isImplemented) {
-        Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
-        Arcadia_Thread_jump(thread);
-      }
-    }
-  }
-
   // Validate the implemented interface types and initialize their dispatches.
-  if (numberOfInterfaceSpecifications) {
+  if (numberOfEffectiveInterfaceSpecifications) {
     objectTypeNode->interfaceImplementations.elements =
-      malloc(sizeof(ObjectTypeNode_InterfaceImplementation) * numberOfInterfaceSpecifications);
+      malloc(sizeof(ObjectTypeNode_InterfaceImplementation) * numberOfEffectiveInterfaceSpecifications);
     if (!objectTypeNode->interfaceImplementations.elements) {
+      if (expandedInterfaceSpecifications) {
+        free(expandedInterfaceSpecifications);
+      }
       Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
       Arcadia_Thread_jump(thread);
     }
-    for (Arcadia_SizeValue i = 0; i < numberOfInterfaceSpecifications; ++i) {
-      Arcadia_TypeValue interfaceType = interfaceSpecifications[i].interfaceType;
+    for (Arcadia_SizeValue i = 0; i < numberOfEffectiveInterfaceSpecifications; ++i) {
+      Arcadia_TypeValue interfaceType = effectiveInterfaceSpecifications[i].interfaceType;
       if (!interfaceType || !Arcadia_Type_isInterfacelKind(thread, interfaceType)) {
         for (Arcadia_SizeValue j = 0, m = objectTypeNode->interfaceImplementations.size; j < m; ++j) {
           Arcadia_ARMS_unlock(objectTypeNode->interfaceImplementations.elements[j].interfaceType);
@@ -548,11 +667,14 @@ Arcadia_registerObjectTypeWithInterfaces
         free(objectTypeNode->interfaceImplementations.elements);
         objectTypeNode->interfaceImplementations.elements = NULL;
         objectTypeNode->interfaceImplementations.size = 0;
+        if (expandedInterfaceSpecifications) {
+          free(expandedInterfaceSpecifications);
+        }
         Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
         Arcadia_Thread_jump(thread);
       }
       InterfaceTypeNode* interfaceTypeNode = (InterfaceTypeNode*)interfaceType;
-      if (interfaceSpecifications[i].dispatchSize < interfaceTypeNode->dispatchSize) {
+      if (effectiveInterfaceSpecifications[i].dispatchSize < interfaceTypeNode->dispatchSize) {
         for (Arcadia_SizeValue j = 0, m = objectTypeNode->interfaceImplementations.size; j < m; ++j) {
           Arcadia_ARMS_unlock(objectTypeNode->interfaceImplementations.elements[j].interfaceType);
           if (objectTypeNode->interfaceImplementations.elements[j].dispatch) {
@@ -562,13 +684,16 @@ Arcadia_registerObjectTypeWithInterfaces
         free(objectTypeNode->interfaceImplementations.elements);
         objectTypeNode->interfaceImplementations.elements = NULL;
         objectTypeNode->interfaceImplementations.size = 0;
+        if (expandedInterfaceSpecifications) {
+          free(expandedInterfaceSpecifications);
+        }
         Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
         Arcadia_Thread_jump(thread);
       }
       objectTypeNode->interfaceImplementations.elements[i].interfaceType = (TypeNode*)interfaceType;
-      objectTypeNode->interfaceImplementations.elements[i].dispatchSize = interfaceSpecifications[i].dispatchSize;
+      objectTypeNode->interfaceImplementations.elements[i].dispatchSize = effectiveInterfaceSpecifications[i].dispatchSize;
       objectTypeNode->interfaceImplementations.elements[i].dispatch =
-        malloc(interfaceSpecifications[i].dispatchSize ? interfaceSpecifications[i].dispatchSize : 1);
+        malloc(effectiveInterfaceSpecifications[i].dispatchSize ? effectiveInterfaceSpecifications[i].dispatchSize : 1);
       if (!objectTypeNode->interfaceImplementations.elements[i].dispatch) {
         for (Arcadia_SizeValue j = 0; j < i; ++j) {
           Arcadia_ARMS_unlock(objectTypeNode->interfaceImplementations.elements[j].interfaceType);
@@ -579,10 +704,13 @@ Arcadia_registerObjectTypeWithInterfaces
         free(objectTypeNode->interfaceImplementations.elements);
         objectTypeNode->interfaceImplementations.elements = NULL;
         objectTypeNode->interfaceImplementations.size = 0;
+        if (expandedInterfaceSpecifications) {
+          free(expandedInterfaceSpecifications);
+        }
         Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
         Arcadia_Thread_jump(thread);
       }
-      memset(objectTypeNode->interfaceImplementations.elements[i].dispatch, 0, interfaceSpecifications[i].dispatchSize);
+      memset(objectTypeNode->interfaceImplementations.elements[i].dispatch, 0, effectiveInterfaceSpecifications[i].dispatchSize);
       // The dispatch is initialized with a copy of the dispatch of the implemented interface type
       // on the nearest ancestor object type, if any. An object type which inherits an interface
       // implementation and overrides only some of its operations does not have to repeat the
@@ -605,8 +733,8 @@ Arcadia_registerObjectTypeWithInterfaces
         }
       }
       objectTypeNode->interfaceImplementations.size = i + 1;
-      if (interfaceSpecifications[i].initializeDispatch) {
-        (*interfaceSpecifications[i].initializeDispatch)
+      if (effectiveInterfaceSpecifications[i].initializeDispatch) {
+        (*effectiveInterfaceSpecifications[i].initializeDispatch)
           (
             thread,
             (Arcadia_InterfaceDispatch*)objectTypeNode->interfaceImplementations.elements[i].dispatch
@@ -626,10 +754,16 @@ Arcadia_registerObjectTypeWithInterfaces
         free(objectTypeNode->interfaceImplementations.elements);
         objectTypeNode->interfaceImplementations.elements = NULL;
         objectTypeNode->interfaceImplementations.size = 0;
+        if (expandedInterfaceSpecifications) {
+          free(expandedInterfaceSpecifications);
+        }
         Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
         Arcadia_Thread_jump(thread);
       }
     }
+  }
+  if (expandedInterfaceSpecifications) {
+    free(expandedInterfaceSpecifications);
   }
 
   // Initialize dispatch.
@@ -971,15 +1105,15 @@ _Arcadia_Types_onShutDown
     if (status) {
       /* Intentionally empty.*/
     }
+    status = Arcadia_Process_runARMS(process, true);
+    if (status) {
+      /* Intentionally empty.*/
+    }
     TypeNodes_destroy(process, g_typeNodes);
     g_typeNodes = NULL;
     Arcadia_Process_removeArenaFinalizeCallback(process, &_Arcadia_Types_onFinalize);
     Arcadia_Process_removeArenaVisitCallback(process, &_Arcadia_Types_onVisit);
     Arcadia_Process_removeArenaPreMarkCallback(process, &_Arcadia_Types_onPreMark);
-    status = Arcadia_Process_runARMS(process, true);
-    if (status) {
-      /* Intentionally empty.*/
-    }
     shutdownDependencies(thread);
   }
 }

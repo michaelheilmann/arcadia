@@ -1,0 +1,8 @@
+interface MyModule.Greeter {
+}
+
+class MyModule.GreeterImpl {
+
+  method greet(variable greeter : Greeter) : Arcadia.Void
+
+}

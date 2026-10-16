@@ -30,6 +30,10 @@ if (NOT TARGET ${this})
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia.ADL.Tests.Definitions/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.ADL.Tests.Definitions/Configure.h.i)
 
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Main.c)
+  OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/UI/ContainerComposition.c)
+  OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/UI/ContainerComposition.h)
+  OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/BoxMeshGenerator.c)
+  OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/BoxMeshGenerator.h)
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/Color.c)
   OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/Color.h)
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/Material.c)
@@ -40,6 +44,10 @@ if (NOT TARGET ${this})
   OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/Model.h)
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/PixelBuffer.c)
   OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/PixelBuffer.h)
+  OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/PlaneMeshGenerator.c)
+  OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/PlaneMeshGenerator.h)
+  OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/SphereMeshGenerator.c)
+  OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/SphereMeshGenerator.h)
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/Texture.c)
   OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/Texture.h)
 
@@ -55,16 +63,15 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Audials/SampleBuffer.c)
   OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Audials/SampleBuffer.h)
 
-  OnAssetsDirectory(${this}.CopyAssets ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
+  OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
   OnModuleDependency(${this} ${MyProjectName}.ADL PRIVATE)
+  OnModuleDependency(${this} ${MyProjectName}.Engine.UI PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDLS PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)
 
   EndProduct(${this})
 
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)
-
-  CopyProductAssets(${this} ${MyFolder} ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
 endif()

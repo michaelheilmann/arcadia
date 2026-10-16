@@ -31,6 +31,8 @@ struct Arcadia_VPL_EnterPhaseDispatch {
 
 struct Arcadia_VPL_EnterPhase {
   Arcadia_Object _parent;
+  // The diagnostics to which this phase reports.
+  Arcadia_Languages_Diagnostics* diagnostics;
   // Constant records and procedures are added to a work list.
   // They are taken out of the queue for processing.
   Arcadia_Deque* worklist;
@@ -41,6 +43,13 @@ Arcadia_VPL_EnterPhase_create
   (
     Arcadia_Thread* thread,
     Arcadia_Languages_Diagnostics* diagnostics
+  );
+
+Arcadia_Languages_Diagnostics*
+Arcadia_VPL_EnterPhase_getDiagnostics
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_EnterPhase* self
   );
 
 // - create scope of the program

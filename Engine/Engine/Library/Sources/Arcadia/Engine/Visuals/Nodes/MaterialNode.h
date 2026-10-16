@@ -22,10 +22,14 @@
 #endif
 #include "Arcadia/Engine/Visuals/Node.h"
 #include "Arcadia/ADL/Include.h"
+
 typedef struct Arcadia_Engine_Visuals_MaterialResource Arcadia_Engine_Visuals_MaterialResource;
+
 typedef struct Arcadia_Engine_Visuals_NodeFactory Arcadia_Engine_Visuals_NodeFactory;
+
 typedef struct Arcadia_Engine_Visuals_TextureNode Arcadia_Engine_Visuals_TextureNode;
-typedef struct Arcadia_VPL_Symbols_Program Arcadia_VPL_Symbols_Program;
+
+typedef struct Arcadia_VPL_VerifiedModule Arcadia_VPL_VerifiedModule;
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.MaterialNode", Arcadia_Engine_Visuals_MaterialNode,
                           u8"Arcadia.Engine.Visuals.Node");
@@ -38,7 +42,7 @@ struct Arcadia_Engine_Visuals_MaterialNode {
   Arcadia_Engine_Visuals_Node parent;
   Arcadia_ADL_MaterialDefinition* source;
   Arcadia_Engine_Visuals_TextureNode* ambientColorTexture;
-  Arcadia_VPL_Symbols_Program* program;
+  Arcadia_VPL_VerifiedModule* program;
   /// The material resource of this material node.
   Arcadia_Engine_Visuals_MaterialResource* materialResource;
   /// The backend context of this material node.

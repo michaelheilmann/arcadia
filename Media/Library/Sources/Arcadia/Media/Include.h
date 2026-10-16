@@ -45,6 +45,8 @@
 #include "Arcadia/Media/DSP/WhiteNoise.h"
 #include "Arcadia/Media/SampleFormat.h"
 
+#include "Arcadia/Media/Geometry.h"
+
 #include "Arcadia/Media/VertexBuffer.h"
 
 #include "Arcadia/Media/VertexDescriptor.h"

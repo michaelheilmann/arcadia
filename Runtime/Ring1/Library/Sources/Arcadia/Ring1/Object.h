@@ -312,7 +312,7 @@ Arcadia_Object_toString
 /// @note Requires @a thread and @a self in scope. A value of an interface type is represented by an
 ///       "Arcadia.Object" value, so @a self is the receiver.
 /// @note Raises "Arcadia.Status.NotImplemented" if the type of the receiver does not implement the
-///       interface type.
+///       interface type, or if the interface operation is not implemented by the dispatch.
 /// @see Arcadia_VirtualCallWithReturn
 #define Arcadia_InterfaceCallWithReturn(InterfaceType, Function, ...) \
   InterfaceType##Dispatch* interfaceCallDispatch = (InterfaceType##Dispatch*)Arcadia_ObjectType_getInterfaceDispatch \
@@ -325,6 +325,10 @@ Arcadia_Object_toString
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NotImplemented); \
     Arcadia_Thread_jump(thread); \
   } \
+  if (!interfaceCallDispatch->Function) { \
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NotImplemented); \
+    Arcadia_Thread_jump(thread); \
+  } \
   return interfaceCallDispatch->Function(thread, __VA_ARGS__);
 
 /// Utility macro to define the body of an interface call without return value.
@@ -334,7 +338,7 @@ Arcadia_Object_toString
 /// @note Requires @a thread and @a self in scope. A value of an interface type is represented by an
 ///       "Arcadia.Object" value, so @a self is the receiver.
 /// @note Raises "Arcadia.Status.NotImplemented" if the type of the receiver does not implement the
-///       interface type.
+///       interface type, or if the interface operation is not implemented by the dispatch.
 /// @see Arcadia_VirtualCall
 #define Arcadia_InterfaceCall(InterfaceType, Function, ...) \
   InterfaceType##Dispatch* interfaceCallDispatch = (InterfaceType##Dispatch*)Arcadia_ObjectType_getInterfaceDispatch \
@@ -344,6 +348,10 @@ Arcadia_Object_toString
       (Arcadia_InterfaceType*)_##InterfaceType##_getType(thread) \
     ); \
   if (!interfaceCallDispatch) { \
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NotImplemented); \
+    Arcadia_Thread_jump(thread); \
+  } \
+  if (!interfaceCallDispatch->Function) { \
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NotImplemented); \
     Arcadia_Thread_jump(thread); \
   } \

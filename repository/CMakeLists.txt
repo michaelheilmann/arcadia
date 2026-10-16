@@ -18,8 +18,6 @@ cmake_minimum_required(VERSION 3.29)
 
 add_subdirectory(Integrations)
 
-add_subdirectory(Engine.Demo)
-
 add_subdirectory(Tools.ConcatenateFiles)
 add_subdirectory(Tools.CompareFiles)
 

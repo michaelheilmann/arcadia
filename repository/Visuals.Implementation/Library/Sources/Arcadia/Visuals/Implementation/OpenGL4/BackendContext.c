@@ -81,7 +81,7 @@ createProgramResourceImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* self,
-    Arcadia_VPL_Symbols_Program* program
+    Arcadia_VPL_VerifiedModule* program
   );
 
 static Arcadia_Engine_Visuals_Implementation_OpenGL4_TextureResource*
@@ -227,7 +227,7 @@ createProgramResourceImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* self,
-    Arcadia_VPL_Symbols_Program* program
+    Arcadia_VPL_VerifiedModule* program
   )
 {
   Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource* resource = Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource_create(thread, (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)self, program);
@@ -300,7 +300,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext_initializeDispatchI
   ((Arcadia_Engine_Visuals_BackendContextDispatch*)self)->createEnterPassResource = (Arcadia_Engine_Visuals_EnterPassResource * (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_BackendContext*)) & createEnterPassResourceImpl;
   ((Arcadia_Engine_Visuals_BackendContextDispatch*)self)->createMaterialResource = (Arcadia_Engine_Visuals_MaterialResource * (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_BackendContext*, Arcadia_BooleanValue, Arcadia_Engine_Visuals_BlendFunction, Arcadia_Engine_Visuals_BlendFunction, Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource, Arcadia_Engine_Visuals_TextureResource*, Arcadia_Engine_Visuals_ProgramResource*)) & createMaterialResourceImpl;
   ((Arcadia_Engine_Visuals_BackendContextDispatch*)self)->createModelResource = (Arcadia_Engine_Visuals_ModelResource * (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_BackendContext*, Arcadia_Engine_Visuals_ConstantBufferResource*, Arcadia_Engine_Visuals_VertexBufferResource *,Arcadia_Engine_Visuals_MaterialResource*)) & createModelResourceImpl;
-  ((Arcadia_Engine_Visuals_BackendContextDispatch*)self)->createProgramResource = (Arcadia_Engine_Visuals_ProgramResource * (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_BackendContext*, Arcadia_VPL_Symbols_Program*)) & createProgramResourceImpl;
+  ((Arcadia_Engine_Visuals_BackendContextDispatch*)self)->createProgramResource = (Arcadia_Engine_Visuals_ProgramResource * (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_BackendContext*, Arcadia_VPL_VerifiedModule*)) & createProgramResourceImpl;
   ((Arcadia_Engine_Visuals_BackendContextDispatch*)self)->createTextureResource = (Arcadia_Engine_Visuals_TextureResource * (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_BackendContext*)) & createTextureResourceImpl;
   ((Arcadia_Engine_Visuals_BackendContextDispatch*)self)->createVertexBufferResource = (Arcadia_Engine_Visuals_VertexBufferResource * (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_BackendContext*)) & createVertexBufferResourceImpl;
 }

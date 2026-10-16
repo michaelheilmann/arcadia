@@ -27,6 +27,7 @@
 #include "Arcadia/ADL/Definitions/DSP/SineWaveReader.module.h"
 #include "Arcadia/ADL/Definitions/DSP/WhiteNoiseReader.module.h"
 
+#include "Arcadia/ADL/Definitions/Visuals/BoxMeshGeneratorReader.module.h"
 #include "Arcadia/ADL/Definitions/Visuals/CheckerboardFillOperationReader.module.h"
 #include "Arcadia/ADL/Definitions/Visuals/ColorReader.module.h"
 #include "Arcadia/ADL/Definitions/Visuals/FillOperationReader.module.h"
@@ -34,7 +35,12 @@
 #include "Arcadia/ADL/Definitions/Visuals/ModelReader.module.h"
 #include "Arcadia/ADL/Definitions/Visuals/MeshReader.module.h"
 #include "Arcadia/ADL/Definitions/Visuals/PixelBufferReader.module.h"
+#include "Arcadia/ADL/Definitions/Visuals/PlaneMeshGeneratorReader.module.h"
+#include "Arcadia/ADL/Definitions/Visuals/SphereMeshGeneratorReader.module.h"
 #include "Arcadia/ADL/Definitions/Visuals/TextureReader.module.h"
+
+#include "Arcadia/ADL/Definitions/UI/ButtonReader.module.h"
+#include "Arcadia/ADL/Definitions/UI/TreeReader.module.h"
 
 static void
 Arcadia_ADL_Context_constructImpl
@@ -175,12 +181,41 @@ Arcadia_ADL_Context_constructImpl
     Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
   }
   {
+    Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_BoxMeshGeneratorReader_create(thread);
+    Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+  }
+  {
+    Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_SphereMeshGeneratorReader_create(thread);
+    Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+  }
+  {
+    Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_PlaneMeshGeneratorReader_create(thread);
+    Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+  }
+  {
     Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_ModelReader_create(thread);
     Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
   }
   {
     Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_TextureReader_create(thread);
     Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+  }
+  {
+    Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_UI_ButtonReader_create(thread);
+    Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+  }
+  {
+    Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_UI_TreeReader_create(thread);
+    Arcadia_String* typeNames[] = {
+      Arcadia_String_createFromCxxString(thread, u8"UI.Label"),
+      Arcadia_String_createFromCxxString(thread, u8"UI.StackPanel"),
+      Arcadia_String_createFromCxxString(thread, u8"UI.SegmentedChoice"),
+      Arcadia_String_createFromCxxString(thread, u8"UI.Slider"),
+      Arcadia_String_createFromCxxString(thread, u8"UI.Toggle"),
+    };
+    for (Arcadia_SizeValue i = 0; i < sizeof(typeNames) / sizeof(typeNames[0]); ++i) {
+      Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(typeNames[i]), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+    }
   }
   //
   Arcadia_LeaveConstructor(Arcadia_ADL_Context);

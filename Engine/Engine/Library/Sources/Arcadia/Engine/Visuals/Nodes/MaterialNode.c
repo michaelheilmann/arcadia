@@ -100,16 +100,16 @@ Arcadia_Engine_Visuals_MaterialNode_constructImpl
   Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)self->source);
   switch (self->source->ambientColorSource) {
     case Arcadia_ADL_AmbientColorSource_Mesh: {
-      self->program = Arcadia_VPL_Symbols_Program_createProgram(thread, Arcadia_VPL_Symbols_ProgramFlags_MeshAmbientColor);
+      self->program = Arcadia_VPL_Programs_create(thread, Arcadia_VPL_ProgramFlags_MeshAmbientColor);
     } break;
     case Arcadia_ADL_AmbientColorSource_Vertex: {
-      self->program = Arcadia_VPL_Symbols_Program_createProgram(thread, Arcadia_VPL_Symbols_ProgramFlags_VertexAmbientColor);
+      self->program = Arcadia_VPL_Programs_create(thread, Arcadia_VPL_ProgramFlags_VertexAmbientColor);
     } break;
     case Arcadia_ADL_AmbientColorSource_Texture: {
-      self->program = Arcadia_VPL_Symbols_Program_createProgram(thread, Arcadia_VPL_Symbols_ProgramFlags_TextureAmbientColor);
+      self->program = Arcadia_VPL_Programs_create(thread, Arcadia_VPL_ProgramFlags_TextureAmbientColor);
     } break;
     case Arcadia_ADL_AmbientColorSource_TextureVertex: {
-      self->program = Arcadia_VPL_Symbols_Program_createProgram(thread, Arcadia_VPL_Symbols_ProgramFlags_TextureVertexAmbientColor);
+      self->program = Arcadia_VPL_Programs_create(thread, Arcadia_VPL_ProgramFlags_TextureVertexAmbientColor);
     } break;
     default: {
       Arcadia_logf(Arcadia_LogFlags_Error, "unknown/unsupported ADL value for Mesh.ambientSource\n");

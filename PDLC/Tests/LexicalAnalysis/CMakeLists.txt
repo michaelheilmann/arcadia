@@ -25,9 +25,9 @@ if (NOT TARGET ${this})
 
   SetFolder(${this} ${MyTestFolder})
 
-  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/MILC/Tests/LexicalAnalysis/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/MILC/Tests/LexicalAnalysis/Configure.h.i)
+  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/PDLC/Tests/LexicalAnalysis/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/PDLC/Tests/LexicalAnalysis/Configure.h.i)
 
-  OnSourceFile(${this} Arcadia/MILC/Tests/LexicalAnalysis/Main.c)
+  OnSourceFile(${this} Arcadia/PDLC/Tests/LexicalAnalysis/Main.c)
 
   OnModuleDependency(${this} ${MyProjectName}.PDLC PRIVATE)
 

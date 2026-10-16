@@ -28,11 +28,11 @@ Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.TextRenderingScene", Arcadia_En
                           u8"Arcadia.Engine.Demo.Scene");
 
 struct Arcadia_Engine_Demo_TextRenderingSceneDispatch {
-  Arcadia_Engine_Demo_SceneDispatch parent;
+  Arcadia_Engine_SceneDispatch parent;
 };
 
 struct Arcadia_Engine_Demo_TextRenderingScene {
-  Arcadia_Engine_Demo_Scene parent;
+  Arcadia_Engine_Scene parent;
 
   Arcadia_ADL_Definitions* definitions;
 
@@ -62,7 +62,7 @@ Arcadia_Engine_Demo_TextRenderingScene_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine,
-    Arcadia_Engine_Demo_SceneManager* sceneManager,
+    Arcadia_Engine_SceneManager* sceneManager,
     Arcadia_Engine_FontCache* fontCache
   );
 

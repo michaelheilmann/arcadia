@@ -112,7 +112,7 @@ computeVertexSize
     Arcadia_Thread* thread,
     Arcadia_ImmutableList* vertexElementDescriptors
   )
-{ 
+{
   Arcadia_Natural32Value vertexSize = 0;
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)vertexElementDescriptors); i < n; ++i) {
     Arcadia_Media_VertexElementDescriptor* vertexElementDescriptor = (Arcadia_Media_VertexElementDescriptor*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, (Arcadia_List*)vertexElementDescriptors, i, _Arcadia_Media_VertexElementDescriptor_getType(thread));
@@ -147,3 +147,19 @@ Arcadia_Media_VertexDescriptor_getVertexSize
     Arcadia_Media_VertexDescriptor* self
   )
 { return self->vertexSize; }
+
+Arcadia_SizeValue
+Arcadia_Media_VertexDescriptor_getStride
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexDescriptor* self
+  )
+{ return self->stride; }
+
+Arcadia_ImmutableList*
+Arcadia_Media_VertexDescriptor_getVertexElementDescriptors
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexDescriptor* self
+  )
+{ return self->vertexElementDescriptors; }

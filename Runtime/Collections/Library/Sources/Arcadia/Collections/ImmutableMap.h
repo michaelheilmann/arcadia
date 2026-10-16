@@ -17,7 +17,7 @@
 #if !defined(ARCADIA_COLLECTIONS_IMMUTABLEMAP_H_INCLUDED)
 #define ARCADIA_COLLECTIONS_IMMUTABLEMAP_H_INCLUDED
 
-#if !defined(ARCADIA_COLLECTIONS_PRIVATE)
+#if !defined(ARCADIA_COLLECTIONS_MODULE)
   #error("do not include directly, include `Arcadia/Collections/Include.h` instead")
 #endif
 
@@ -26,8 +26,15 @@
 Arcadia_declareObjectType(u8"Arcadia.ImmutableMap", Arcadia_ImmutableMap,
                           u8"Arcadia.Map");
 
+struct Arcadia_ImmutableMapDispatch {
+  Arcadia_MapDispatch _parent;
+};
+
 struct Arcadia_ImmutableMap {
   Arcadia_Map parent;
+  Arcadia_Value* keys;
+  Arcadia_Value* values;
+  Arcadia_SizeValue size;
 };
 
 // https://michaelheilmann.com/Arcadia/Collections/#Arcadia_ImmutableMap_create

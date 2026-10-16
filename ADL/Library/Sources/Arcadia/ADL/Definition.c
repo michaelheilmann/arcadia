@@ -40,6 +40,13 @@ Arcadia_ADL_Definition_initializeDispatchImpl
     Arcadia_ADL_DefinitionDispatch* self
   );
 
+static void
+Arcadia_ADL_Definition_linkImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_Definition* self
+  );
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_ADL_Definition_constructImpl,
@@ -98,8 +105,15 @@ Arcadia_ADL_Definition_initializeDispatchImpl
     Arcadia_Thread* thread,
     Arcadia_ADL_DefinitionDispatch* self
   )
-{
-}
+{ self->link = &Arcadia_ADL_Definition_linkImpl; }
+
+static void
+Arcadia_ADL_Definition_linkImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_Definition* self
+  )
+{ }
 
 Arcadia_ADL_Definitions*
 Arcadia_ADL_Definitions_getDefinitions

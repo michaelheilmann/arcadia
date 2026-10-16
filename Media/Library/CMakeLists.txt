@@ -25,6 +25,9 @@ if (NOT TARGET ${this})
 
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Media/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Media/Configure.h.i)
 
+  OnSourceFile(${this} Arcadia/Media/Geometry.c)
+  OnHeaderFile(${this} Arcadia/Media/Geometry.h)
+
   OnSourceFile(${this} Arcadia/Media/Include.c)
   OnHeaderFile(${this} Arcadia/Media/Include.h)
 
@@ -90,8 +93,10 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Media/VertexElementSyntactics.c)
   OnHeaderFile(${this} Arcadia/Media/VertexElementSyntactics.h)
 
-  list(APPEND ${this}.Libraries ${MyProjectName}.ADL)
+list(APPEND ${this}.Libraries ${MyProjectName}.ADL)
   list(APPEND ${this}.Libraries ${MyProjectName}.Collections)
+
+  OnModuleDependency(${this} ${MyProjectName}.Math)
 
   EndProduct(${this})
 

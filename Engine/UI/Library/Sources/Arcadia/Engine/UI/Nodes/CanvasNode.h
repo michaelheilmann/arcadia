@@ -41,14 +41,25 @@ struct Arcadia_Engine_UI_CanvasNode {
   Arcadia_Engine_Visuals_ViewportNode* viewportNode;
   /// The camera node.
   Arcadia_Engine_Visuals_CameraNode* cameraNode;
-  /// The list of rectangles.
-  Arcadia_List* rectangles;
+  /// The child widgets.
+  Arcadia_List* children;
+  Arcadia_Object* hoveredChild;
+  Arcadia_Object* pressedChild;
+  Arcadia_Object* focusedChild;
 };
 
 Arcadia_Engine_UI_CanvasNode*
 Arcadia_Engine_UI_CanvasNode_create
   (
     Arcadia_Thread* thread
+  );
+
+Arcadia_Engine_UI_CanvasNode*
+Arcadia_Engine_UI_CanvasNode_createFromDefinition
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_BackendContext* backendContext,
+    Arcadia_ADL_UI_CanvasDefinition* source
   );
 
 /// @brief Set the size of the visuals canvass.

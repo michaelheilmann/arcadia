@@ -80,6 +80,8 @@ Arcadia_VPL_Symbols_BuiltinType_constructImpl
     Arcadia_Thread_jump(thread);
   }
   self->scope = NULL;
+  self->type = NULL;
+  self->valueType = NULL;
   self->name = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_String_getType(thread));
   Arcadia_LeaveConstructor(Arcadia_VPL_Symbols_BuiltinType);
 }
@@ -106,6 +108,9 @@ Arcadia_VPL_Symbols_BuiltinType_visitImpl
   }
   if (self->scope) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->scope);
+  }
+  if (self->valueType) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->valueType);
   }
 }
 

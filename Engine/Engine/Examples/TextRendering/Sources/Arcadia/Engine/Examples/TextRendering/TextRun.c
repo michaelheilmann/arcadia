@@ -81,12 +81,14 @@ Arcadia_Engine_Examples_TextRendering_TextRun_constructImpl
   self->fontAtlasWidth = 0;
   self->fontAtlasHeight = 0;
   self->fixedPlacement = Arcadia_BooleanValue_False;
+  self->dynamicFps = Arcadia_BooleanValue_False;
   self->alignment = Arcadia_Engine_Text_TextAlignment_Center;
   self->hasRectangle = Arcadia_BooleanValue_False;
   self->rectangleLeft = 0;
   self->rectangleBottom = 0;
   self->rectangleWidth = 0;
   self->rectangleHeight = 0;
+  self->lineBreakBefore = Arcadia_BooleanValue_False;
   self->allCodePoints = NULL;
   self->allGlyphInformation = NULL;
   self->allCodePointCount = 0;

@@ -132,7 +132,7 @@ Arcadia_VPL_Symbols_ConstantRecord_visitImpl
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->mappedName);
   }
   if (self->scope) {
-    Arcadia_Object_visit(thread, (Arcadia_Object*)self->fields);
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->scope);
   }
 }
 

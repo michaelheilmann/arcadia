@@ -562,8 +562,8 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_BackendContext_windowCallbackP
           (
             thread,
             Arcadia_getTickCount(thread),
-            Arcadia_Engine_Input_MouseButtonAction_Released,
-            1,
+            Arcadia_Engine_Input_MouseButtonAction_Pressed,
+            0,
             x,
             y
           );
@@ -677,7 +677,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_BackendContext_windowCallbackP
               thread,
               Arcadia_getTickCount(thread),
               Arcadia_Engine_Input_MouseButtonAction_Pressed,
-              0,
+              2,
               x,
               y
             );

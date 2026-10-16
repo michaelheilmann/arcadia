@@ -123,6 +123,26 @@ _createInteger32
 }
 
 static void
+_createReal64
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_MapNode* node,
+    char const* name,
+    Arcadia_Real64Value value
+  )
+{
+  Arcadia_String* nameString = Arcadia_String_create(thread, Arcadia_Value_makeRuntimeUTF8StringValue(Arcadia_RuntimeUTF8String_create(thread, name, strlen(name))));
+  Arcadia_SizeValue i = _findIndex(thread, node, 0, nameString);
+  if (i != Arcadia_SizeValue_Maximum) {
+    Arcadia_List_removeAt(thread, node->entries, i, 1);
+  }
+  Arcadia_DDL_NameNode* key = Arcadia_DDL_NameNode_create(thread, nameString);
+  Arcadia_DDL_Node* valueNode = (Arcadia_DDL_Node*)Arcadia_DDL_NumberNode_createReal64(thread, value);
+  Arcadia_DDL_MapEntryNode* entry = Arcadia_DDL_MapEntryNode_create(thread, key, valueNode);
+  Arcadia_List_insertBackObjectReferenceValue(thread, node->entries, (Arcadia_ObjectReferenceValue)entry);
+}
+
+static void
 _createString
   (
     Arcadia_Thread* thread,
@@ -301,6 +321,70 @@ Arcadia_Engine_ApplicationConfiguration_getInteger32
 }
 
 void
+Arcadia_Engine_ApplicationConfiguration_setReal64
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_Node* node,
+    char const* names[],
+    Arcadia_SizeValue numberOfNames,
+    Arcadia_Real64Value value
+  )
+{
+  if (!isMapNode(thread, node)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NotExists);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_DDL_MapNode* current = (Arcadia_DDL_MapNode*)node;
+  for (Arcadia_SizeValue i = 0, n = numberOfNames - 1; i < n; ++i) {
+    current = _getOrCreateMap(thread, current, names[i]);
+  }
+  if (!current) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NotExists);
+    Arcadia_Thread_jump(thread);
+  }
+  _createReal64(thread, current, names[numberOfNames - 1], value);
+}
+
+Arcadia_Real64Value
+Arcadia_Engine_ApplicationConfiguration_getReal64
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_Node* node,
+    char const* names[],
+    Arcadia_SizeValue numberOfNames
+  )
+{
+  Arcadia_DDL_Node* current = node;
+  for (Arcadia_SizeValue i = 0, n = numberOfNames; i < n; ++i) {
+    if (!isMapNode(thread, current)) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_NotExists);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_String* nameString = Arcadia_String_create(thread, Arcadia_Value_makeRuntimeUTF8StringValue(Arcadia_RuntimeUTF8String_create(thread, names[i], strlen(names[i]))));
+    Arcadia_SizeValue index = _findIndex(thread, (Arcadia_DDL_MapNode*)current, 0, nameString);
+    if (index == Arcadia_SizeValue_Maximum) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_NotExists);
+      Arcadia_Thread_jump(thread);
+    }
+    current = (Arcadia_DDL_Node*)Arcadia_List_getObjectReferenceValueAt(thread, ((Arcadia_DDL_MapNode*)current)->entries, index);
+    if (!isMapEntryNode(thread, current)) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_NotExists);
+      Arcadia_Thread_jump(thread);
+    }
+    current = ((Arcadia_DDL_MapEntryNode*)current)->value;
+  }
+  if (!current) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NotExists);
+    Arcadia_Thread_jump(thread);
+  }
+  if (!isNumberNode(thread, current)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ConversionFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  return Arcadia_String_toReal64(thread, ((Arcadia_DDL_NumberNode*)current)->value);
+}
+
+void
 Arcadia_Engine_ApplicationConfiguration_setString
   (
     Arcadia_Thread* thread,
@@ -387,7 +471,7 @@ void
 Arcadia_Engine_ApplicationConfiguration_saveConfiguration
   (
     Arcadia_Thread* thread,
-    Arcadia_String* name,
+    Arcadia_String* applicationDirectoryName,
     Arcadia_DDL_Node* configuration
   )
 {
@@ -398,8 +482,7 @@ Arcadia_Engine_ApplicationConfiguration_saveConfiguration
   Arcadia_FileSystem_createDirectoryFile(thread, fileSystem, file);
 
   // (2) Ensure the product's configuration folder exists.
-  file = Arcadia_FilePath_clone(thread, file);
-  Arcadia_FilePath_append(thread, file, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Demo")));
+  Arcadia_FilePath_append(thread, file, Arcadia_FilePath_parseGeneric(thread, applicationDirectoryName));
   Arcadia_FileSystem_createDirectoryFile(thread, fileSystem, file);
 
   // (3) Create/update configuration file.
@@ -417,7 +500,7 @@ Arcadia_DDL_MapNode*
 Arcadia_Engine_ApplicationConfiguration_loadConfiguration
   (
     Arcadia_Thread* thread,
-    Arcadia_String* name
+    Arcadia_String* applicationDirectoryName
   )
 {
   Arcadia_FileSystem* fileSystem = Arcadia_FileSystem_getOrCreate(thread);
@@ -428,8 +511,7 @@ Arcadia_Engine_ApplicationConfiguration_loadConfiguration
   Arcadia_FileSystem_createDirectoryFile(thread, fileSystem, file);
 
   // (2) Ensure the product's configuration folder exists.
-  file = Arcadia_FilePath_clone(thread, file);
-  Arcadia_FilePath_append(thread, file, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Demo")));
+  Arcadia_FilePath_append(thread, file, Arcadia_FilePath_parseGeneric(thread, applicationDirectoryName));
   Arcadia_FileSystem_createDirectoryFile(thread, fileSystem, file);
 
   // (3) Ensure the product's configuration file exists.

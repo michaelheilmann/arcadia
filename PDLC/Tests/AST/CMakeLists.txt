@@ -25,10 +25,10 @@ if (NOT TARGET ${this})
 
   SetFolder(${this} ${MyTestFolder})
 
-  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/MILC/Tests/AST/Configure.h
-                              ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/MILC/Tests/AST/Configure.h.i)
+  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/PDLC/Tests/AST/Configure.h
+                              ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/PDLC/Tests/AST/Configure.h.i)
 
-  OnSourceFile(${this} Arcadia/MILC/Tests/AST/Main.c)
+  OnSourceFile(${this} Arcadia/PDLC/Tests/AST/Main.c)
 
   OnModuleDependency(${this} ${MyProjectName}.PDLC PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.Collections PRIVATE)

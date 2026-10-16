@@ -66,9 +66,4 @@ if (NOT TARGET ${this})
 
   target_compile_definitions(${this} PRIVATE ARCADIA_ENGINE_EXAMPLES_FONT_TEXTURE=1)
 
-  # Copy assets.
-  if (${this}.Enabled)
-    CopyProductAssets(${this} "Engine/Examples" ${CMAKE_CURRENT_BINARY_DIR}/Assets)
-  endif()
-
 endif()

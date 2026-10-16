@@ -34,6 +34,7 @@
 #include "Arcadia/ADL/Definitions/DSP/Include.h"
 #include "Arcadia/ADL/Definitions/Audials/Include.h"
 #include "Arcadia/ADL/Definitions/Visuals/Include.h"
+#include "Arcadia/ADL/Definitions/UI/Include.h"
 
 #undef ARCADIA_ADL_EXPORT
 #pragma pop_macro("ARCADIA_ADL_EXPORT")

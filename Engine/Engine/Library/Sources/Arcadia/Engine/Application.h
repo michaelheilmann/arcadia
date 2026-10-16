@@ -50,6 +50,8 @@ struct Arcadia_Engine_Application {
   Arcadia_List* windows;
   /// @brief A pointer to the configuration
   Arcadia_DDL_Node* configuration;
+  /// @brief The application-specific directory under the user's configuration directory.
+  Arcadia_String* configurationDirectoryName;
 };
 
 // Invoked when the application starts up.
@@ -83,6 +85,14 @@ Arcadia_Engine_Application_setQuitRequested
     Arcadia_Thread* thread,
     Arcadia_Engine_Application* self,
     Arcadia_BooleanValue quitRequested
+  );
+
+void
+Arcadia_Engine_Application_setConfigurationDirectoryName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Application* self,
+    Arcadia_String* configurationDirectoryName
   );
 
 #endif // ARCADIA_ENGINE_APPLICATION_H_INCLUDED

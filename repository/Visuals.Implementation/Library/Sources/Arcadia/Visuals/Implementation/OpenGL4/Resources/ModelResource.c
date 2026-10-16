@@ -215,7 +215,6 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_ModelResource_renderImpl
   //
   gl->glUseProgram(material->program->programID);
   //
-  gl->glBindFragDataLocation(material->program->programID, 0, Arcadia_String_getBytes(thread, material->program->fragmentColorOutput));
   gl->glBindVertexArray(meshVertexBuffer->vertexArrayID);
 
   //

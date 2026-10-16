@@ -118,14 +118,15 @@ macro(CopyProductAssets target folder targetDirectory)
 
  endforeach()
 
- add_custom_target(${target}.CopyAssets ALL DEPENDS ${targetFiles})
- add_dependencies(${target} ${target}.CopyAssets)
+  if (targetFiles)
+    add_custom_target(${target}.CopyAssets ALL DEPENDS ${targetFiles})
+    add_dependencies(${target} ${target}.CopyAssets)
 
-
- # If a folder was specified.
- if (NOT "${folder}" STREQUAL "")
-   set_target_properties(${target}.CopyAssets PROPERTIES FOLDER ${folder})
- endif()
+    # If a folder was specified.
+    if (NOT "${folder}" STREQUAL "")
+      set_target_properties(${target}.CopyAssets PROPERTIES FOLDER ${folder})
+    endif()
+  endif()
 
 endmacro()
 
@@ -162,6 +163,7 @@ macro(BeginProduct target type)
   
   set(${target}.Assets.Files "")
   set(${target}.Assets.Directories "")
+  set(${target}.Assets.TargetDirectory ${CMAKE_CURRENT_BINARY_DIR}/Assets)
   
   set(${target}.AssemblerFiles "")
   
@@ -375,6 +377,10 @@ macro(EndProduct target)
 
     else()
       message(FATAL_ERROR "unknown/unsupported product type")
+    endif()
+
+    if (NOT "${${target}.Type}" STREQUAL "library")
+      CopyProductAssets(${target} "${${target}.Folder}" ${${target}.Assets.TargetDirectory})
     endif()
   endif()
 

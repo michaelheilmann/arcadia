@@ -1,6 +1,10 @@
-procedure sum (variable x : Integer32, variable y : Integer32) : Integer32 {
-  loadArgument $1, x
-  loadArgument $2, y
-  add $1, $1, $2
+procedure sum (variable x : Arcadia.Integer32, variable y : Arcadia.Integer32) : Arcadia.Integer32 {
+  loadArgument $1 x
+  loadArgument $2 y
+  add $1 $1 $2
   return $1
+}
+
+procedure doNothing : Arcadia.Void {
+  return void
 }

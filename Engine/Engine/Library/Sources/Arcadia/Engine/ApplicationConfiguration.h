@@ -65,6 +65,25 @@ Arcadia_Engine_ApplicationConfiguration_getInteger32
     Arcadia_SizeValue numberOfNames
   );
 
+void
+Arcadia_Engine_ApplicationConfiguration_setReal64
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_Node* node,
+    char const* names[],
+    Arcadia_SizeValue numberOfNames,
+    Arcadia_Real64Value value
+  );
+
+Arcadia_Real64Value
+Arcadia_Engine_ApplicationConfiguration_getReal64
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_Node* node,
+    char const* names[],
+    Arcadia_SizeValue numberOfNames
+  );
+
 // { <name[0]> = { <name[1]> : { <name[2]> : ... { <name[n-1]> : <value>} } } }
 // node must be a map node
 void
@@ -103,7 +122,7 @@ void
 Arcadia_Engine_ApplicationConfiguration_saveConfiguration
   (
     Arcadia_Thread* thread,
-    Arcadia_String* name,
+    Arcadia_String* applicationDirectoryName,
     Arcadia_DDL_Node* configuration
   );
 
@@ -111,7 +130,7 @@ Arcadia_DDL_MapNode*
 Arcadia_Engine_ApplicationConfiguration_loadConfiguration
   (
     Arcadia_Thread* thread,
-    Arcadia_String* name
+    Arcadia_String* applicationDirectoryName
   );
 
 #endif // ARCADIA_ENGINE_APPLICATIONCONFIGURATION_H_INCLUDED

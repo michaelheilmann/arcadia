@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/svg+xml' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+  <link rel="icon" type="image/png" sizes="64x64" href="https://michaelheilmann.com/assets/favicon/64x64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://michaelheilmann.com/assets/favicon/32x32.png">
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=7'>
+
+  <link rel='canonical' href='https://michaelheilmann.com/specifications/visuals-programming-language/index.html'>
+  <title>Arcadia Visuals Programming Language - Specification</title>
+  <style>
+  /* the left-hand side of a grammar rule */
+my-lhs {
+  display: block;
+}
+
+/* the right-hand side of a grammar rule */
+my-rhs {
+  display: block;
+  margin-left: 1rem;
+}
+
+/* A box used to surround out of text contents e.g., theorems, lemmas, examples, etc. */
+div.box {
+  --base-color: rgb(219, 212, 205);
+  --background-color: color-mix(in srgb, var(--base-color) 20%, white 100%);
+  --border-color: color-mix(in srgb, var(--base-color) 100%, white 20%);
+
+  padding-bottom: 8px;
+  padding-top: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  border-width: 1.75px;
+  border-style: solid;
+  border-radius: 4px;
+
+  border-color: var(--border-color);
+  background-color: var(--background-color);
+}
+
+div.box.todo {
+  --todo-base-color: rgb(234, 136, 145);
+  --todo-background-color: color-mix(in srgb, var(--todo-base-color) 20%, white 100%);
+  --todo-border-color: color-mix(in srgb, var(--todo-base-color) 100%, white 20%);
+
+  padding-bottom: 8px;
+  padding-top: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  border-width: 1.75px;
+  border-style: solid;
+  border-radius: 4px;
+
+  border-color: var(--todo-border-color);
+  background-color: var(--todo-background-color);
+}
+
+div.box > div.header
+{/*Intentionally empty.*/}
+
+div.box > div.body
+{/*Intentionally empty.*/}
+
+div.box code {
+  /*background-color: rgb(215, 210, 203);*/
+}
+
+my-formula-box.align-left > mjx-container {
+  text-align: left!important;
+}
+my-formula-box.align-right > mjx-container {
+  text-align: right!important;
+}
+
+table.syntax-directed-translation {
+  width: 80%;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+table.syntax-directed-translation, tr, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+table.syntax-directed-translation td {
+  padding: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+table.syntax-directed-translation td:nth-child(2)  {
+  width: 50%;
+  text-align: right;
+}
+
+div.abstract {
+  font-style: italic;
+}
+
+my-formula-box.align-left > mjx-container {
+  text-align: left!important;
+}
+
+my-sem, my-syn, my-lex {
+  font-family: my-code-font, monospace;
+}
+my-syn::after {
+  content: "<sub>syn/sub>"
+}
+my-sem {
+  font-style: italic;
+  font-family: my-default-font;
+}
+my-sem::after {
+  content: "<sub>sem</sub>"
+}
+
+my-sem, my-syn, my-lex {
+  font-family: my-code-font, monospace;
+}
+my-syn::after {
+  content: "<sub>syn/sub>"
+}
+my-sem {
+  font-style: italic;
+  font-family: my-default-font;
+}
+my-sem::before {
+  content: "sem:"
+}
+
+  table { border-collapse: collapse; margin: 1rem 0; }
+  th, td { border: 1px solid currentColor; padding: 0.25rem 0.5rem; text-align: left; vertical-align: top; }
+  pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body class="my-content-page-1">
+  <header><div><a href="https://michaelheilmann.com/">Home</a></div></header>
+  <main>
+    <div class="left-column"></div>
+    <div class="center-column">
+      <h1>Arcadia Visuals Programming Language</h1>
+      <h2>Specification (draft)</h2>
+      <p>Arcadia VPL is a public, typed, three-address, virtual-register language for visual
+      processing. Authors and tools describe typed operations and explicit control-flow graphs.
+      The canonical in-memory representation is <code>Arcadia.VPL.IR.*</code>. A future higher-level
+      language belongs to a separate module and produces canonical VPL.</p>
+      <p>The words <em>shall</em> and <em>must</em> express requirements. This draft specifies the
+      canonical object model, verifier contract, and implemented version-1 textual format. The
+      grammar and public reading/writing/publication APIs are specified in sections 10 and 11.</p>
+      <nav aria-label="Specification contents">
+        <ol>
+          <li><a href="#status">Scope and status</a></li>
+          <li><a href="#lexical-translation">Lexical translation</a></li>
+          <li><a href="#model">Modules, stages, functions, and blocks</a></li>
+          <li><a href="#types">Types</a></li>
+          <li><a href="#values">Values and mutable registers</a></li>
+          <li><a href="#storage">Storage references</a></li>
+          <li><a href="#instructions">Instructions</a></li>
+          <li><a href="#control-flow">Control flow</a></li>
+          <li><a href="#verification">Verification</a></li>
+          <li><a href="#text-format">Canonical text format</a></li>
+          <li><a href="#publication">Text APIs and verified publication</a></li>
+          <li><a href="#glsl-backend">GLSL backend</a></li>
+          <li><a href="#pending">Remaining specification work</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="status">1. Scope and status</h2>
+      <p>VPL's canonical types, values, instructions, terminators, and module containers are
+      implemented. The initial <code>IR.Verifier</code> checks directly constructed modules,
+      including operand types, block ownership, root and derived storage bindings, register
+      definite assignment, stage entries/linkage, output definedness, and acyclic helper effects.
+      Text reading/writing, immutable publication, and a GLSL 420 core backend are implemented.
+      The engine material/output path consumes published canonical modules and artifacts.</p>
+      <p>Legacy AST/symbol implementation remains scheduled for retirement; it is not another
+      public VPL language surface or part of the active shader emitter. This specification describes simple operations and
+      branches, not nested source expressions or structured if/while/for syntax.</p>
+
+      <h2 id="lexical-translation">2. Lexical translation</h2>
+      <p>Canonical textual VPL shall select reusable productions and translation rules from
+      <a href="https://michaelheilmann.com/specifications/common-lexical-translations/index.html">Common Lexical
+      Translations</a>. The lexical input alphabet is the set of Unicode code points. Shared rules
+      are incorporated by reference; VPL-specific additions or refinements shall be stated explicitly.</p>
+      <pre><code>name                : Lexical.Name
+numberLiteral       : Lexical.Number
+stringLiteral       : Lexical.String
+booleanLiteral      : Lexical.Boolean
+voidLiteral         : Lexical.Void
+whitespace          : Lexical.Whitespace
+endOfLine           : Lexical.EndOfLine
+lineContinuation    : Lexical.LineContinuation
+singleLineComment   : Lexical.SingleLineComment
+multiLineComment    : Lexical.MultiLineComment
+period              : Lexical.Period
+leftParenthesis     : Lexical.LeftParenthesis
+rightParenthesis    : Lexical.RightParenthesis
+leftCurlyBracket    : Lexical.LeftCurlyBracket
+rightCurlyBracket   : Lexical.RightCurlyBracket
+leftSquareBracket   : Lexical.LeftSquareBracket
+rightSquareBracket  : Lexical.RightSquareBracket
+colon               : Lexical.Colon
+comma               : Lexical.Comma
+startOfInput        : Lexical.StartOfInput
+endOfInput          : Lexical.EndOfInput</code></pre>
+      <p>VPL shall define its own lexical start symbol and word alternatives from selected common
+      and VPL-specific productions. The common specification supplies no universal word production.
+      A production's availability does not imply that it is permitted in every operand position,
+      or that VPL has a corresponding value type.</p>
+      <p>The selected word alternatives, register/label spelling, boundaries, and disambiguation
+      are defined in section 10. The aliases above name available common productions, not a promise
+      that every punctuation category is a version-1 word. VPL and PDL are independent languages:
+      PDL's syntax and lexical refinements are not
+      inherited. Possible grammar convergence is deferred.</p>
+
+      <h2 id="model">3. Modules, stages, functions, and blocks</h2>
+      <table>
+        <thead><tr><th>Object</th><th>Contents</th><th>Requirements</th></tr></thead>
+        <tbody>
+          <tr><td><code>Module</code></td><td>uniforms, vertex stage, fragment stage</td><td>Both stage objects shall have their designated stage kinds.</td></tr>
+          <tr><td><code>Stage</code></td><td>kind, ordered interface list, functions, entryFunction</td><td>Names are unique within their collections. The selected entry is a same-stage parameterless void function.</td></tr>
+          <tr><td><code>Function</code></td><td>name, return type, ordered parameters, ordered blocks</td><td>The function shall have at least one block. Its first block is the entry block.</td></tr>
+          <tr><td><code>Block</code></td><td>ordered instructions, one terminator</td><td>A block belongs to exactly one function and appears once in that function's list.</td></tr>
+        </tbody>
+      </table>
+      <p>Branches target block objects in the same function. There is no implicit fall-through.
+      Instructions execute in list order, followed by the block's terminator. NULL terminators may
+      be used while building a graph, but are invalid in a verified function.</p>
+      <p>Function parameters are reference descriptors in ordered parameter slots, supplied by
+      value at invocation. Calls shall refer to functions in the calling stage. Each stage explicitly
+      selects one function in its own list as entry; neither a main name nor list order selects it.
+      Ordinary helpers may have parameters and non-void returns. Function/block objects shall not
+      be shared between stages. Stage_create creates an unfinished stage with NULL entry, and
+      Stage_createWithEntryFunction can supply it at construction; verification requires it.</p>
+      <h3 id="interface-linkage">3.1 Interface linkage</h3>
+      <p>Every ordinary fragment input, whether used or not, requires exactly one ordinary vertex
+      output. An explicit input location matches the same explicit output location, regardless of
+      names. If both locations are -1, match by exact case-sensitive name. There is no mixed-mode
+      inference or name fallback from an explicit location. Types must be equal, including array
+      lengths and nominal record identity. Non-None Color/TexCoord tags must agree when both sides
+      specify one. None leaves that tag unspecified, not the type. Unconsumed vertex outputs are
+      allowed; vertex inputs and fragment outputs are not linkage candidates.</p>
+      <p>Position is a floating vec4 vertex output or fragment input with location -1. It is not
+      a varying match: fragment Position is supplied by rasterization. FragmentColor is a floating
+      vec4 fragment output. Required declarations and definedness are specified in section 6.3.</p>
+
+      <h2 id="types">4. Types</h2>
+      <table>
+        <thead><tr><th>Type</th><th>Shape</th></tr></thead>
+        <tbody>
+          <tr><td><code>VoidType</code></td><td>No value; permitted as a function return type.</td></tr>
+          <tr><td><code>ScalarType</code></td><td>Boolean, Integer, or Floating element kind.</td></tr>
+          <tr><td><code>VectorType</code></td><td>One scalar element kind and 2, 3, or 4 components.</td></tr>
+          <tr><td><code>MatrixType</code></td><td>Floating elements, 2 to 4 rows, and 2 to 4 columns.</td></tr>
+          <tr><td><code>SamplerType</code></td><td>The currently supported kind is Sampler2D.</td></tr>
+          <tr><td><code>RecordType</code></td><td>A name and ordered, uniquely named fields, each with a value type.</td></tr>
+          <tr><td><code>ArrayType</code></td><td>A value element type and a positive fixed element count.</td></tr>
+        </tbody>
+      </table>
+      <p>Void shall not be a register, parameter, uniform, interface, record-field, or array-element
+      value type. Recursive value types are invalid. Empty records are representable. Unsized arrays
+      are not supported by the initial verifier, including an <code>ArrayUniform</code> with count zero.</p>
+      <p>Scalar kinds, vector element kinds and sizes, matrix dimensions, sampler kinds, and array
+      element types and lengths participate in structural type equality. Records have nominal
+      identity: distinct record type objects are not interchangeable merely because their names or
+      fields match. Textual named-type binding must preserve this identity.</p>
+      <p>The current scalar constant representation uses Boolean values, signed 32-bit integer
+      values, and IEEE binary32 floating values. Constants must be finite; positive and negative
+      zero are distinct stored bit patterns preserved by text round trips. Additional numeric kinds
+      and target resource limits are extensions.</p>
+      <h3 id="numeric-contract">4.1 Initial numeric contract</h3>
+      <p>Integer arithmetic is signed 32-bit. Division truncates toward zero. Signed overflow,
+      division by zero, and minimum-integer divided by -1 have undefined execution behavior;
+      statically explicit constant zero divisors and constant minimum/-1 divisions are rejected.
+      The verifier checks types and those explicit invalid divisions, not general range proofs.</p>
+      <p>Floating storage is binary32. Literal conversion rounds nearest-even, preserving signed
+      zero; finite underflow may yield subnormals or signed zero. Arithmetic may produce infinities
+      and NaNs even though literals cannot encode them. A backend must declare its rounding,
+      subnormal, and contraction behavior; version 1 does not promise bit-identical arithmetic across
+      targets. Equal treats signed zeros as equal and NaNs as unequal; NotEqual is its complement,
+      and ordered comparisons with NaN are false. No algebraic rewrite may silently change these
+      control-flow comparison results. Section 12 defines the implemented GLSL target profile.</p>
+
+      <h2 id="values">5. Values and mutable registers</h2>
+      <table>
+        <thead><tr><th>Value form</th><th>Fields</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>RegisterValue</code></td><td>index, type</td><td>A function-local, statically typed, mutable virtual register.</td></tr>
+          <tr><td><code>ConstantValue</code></td><td>type, boxed literal</td><td>A Boolean/Integer32/Real32 scalar literal matching its explicit type.</td></tr>
+          <tr><td><code>ReferenceValue</code></td><td>storageKind, slot, type</td><td>A root storage descriptor, also the base class of derived reference descriptors.</td></tr>
+          <tr><td><code>MemberReferenceValue</code></td><td>base reference, fieldName, inherited type</td><td>An access path to a record field, used by loads and stores.</td></tr>
+          <tr><td><code>IndexReferenceValue</code></td><td>base reference, index value, inherited type</td><td>An access path to an array element, used by loads and stores.</td></tr>
+        </tbody>
+      </table>
+      <p>Computation operands shall be registers or scalar constants. A storage reference is not
+      implicitly loaded when used in an arithmetic operation, constructor, call, or return; a
+      <code>LoadInstruction</code> is required. Aggregate values are loaded, copied, or constructed
+      rather than boxed as scalar constants.</p>
+      <h3 id="register-declarations">5.1 Declarations and assignment</h3>
+      <p>All registers shall be declared exactly once in a prefix of <code>DeclareLocalInstruction</code>
+      objects in the entry block, before the first executable operation. These declarations are
+      function-wide metadata and do not initialize values. Register indices need not be dense.</p>
+      <p>A register keeps its declared type but may be assigned repeatedly, including within loops
+      and on different branch paths. Every descriptor using the same index in a function shall
+      agree with that declared type. Copy, load, arithmetic, construction, extraction, non-void
+      calls, and whole-local stores can assign registers. An instruction reads its inputs before
+      assigning its destination, so <code>r0 = add r0, r1</code> requires both old input values.</p>
+      <h3 id="definite-assignment">5.2 Definite assignment</h3>
+      <p>Every reachable register read shall be preceded by assignment on every incoming control-flow
+      path. The invocation begins with no assigned local registers. At a join, the incoming assigned
+      set is the intersection of predecessor outgoing sets; a write adds its destination to that set.
+      Loops are analyzed to a fixed point. Assignment only on a back-edge cannot justify a read on
+      the first iteration.</p>
+      <p>The verifier considers both successors of a conditional branch, even for a constant
+      condition. It validates types and graph structure in unreachable blocks too, while checking
+      register availability only in executable prefixes reachable from entry. Non-returning calls
+      cut continuation as specified in section 6.3. There are no phi operations or
+      block parameters in this mutable-register model.</p>
+
+      <h2 id="storage">6. Storage references</h2>
+      <table>
+        <thead><tr><th>Namespace</th><th>Slot meaning</th><th>Permissions</th></tr></thead>
+        <tbody>
+          <tr><td><code>StorageKind_Local</code></td><td>A declared register's numeric index.</td><td>Read/write; a whole-local store assigns that register, and a load requires definite assignment.</td></tr>
+          <tr><td><code>StorageKind_Parameter</code></td><td>Position in the current function's parameter list.</td><td>Read/write invocation-local parameter storage; writes do not alter the caller's argument storage.</td></tr>
+          <tr><td><code>StorageKind_Uniform</code></td><td>Position in the module's uniform list.</td><td>Read-only.</td></tr>
+          <tr><td><code>StorageKind_StageIO</code></td><td>Position in the current stage's interface list, including inputs and outputs.</td><td>Inputs are read-only; outputs are writable.</td></tr>
+        </tbody>
+      </table>
+      <p>A reference's type shall equal the stored value type of its bound slot. Parameter descriptors
+      shall use the Parameter namespace and their list positions. The legacy two-argument reference
+      constructor defaults to the Local namespace; canonical producers can use
+      <code>ReferenceValue_createWithStorage</code> to specify a namespace explicitly.</p>
+      <p>Uniform names shall be unique. Scalar uniforms carry a value type, record uniforms carry a
+      nominal record type, and array uniforms carry an element type and positive count. A whole
+      array or record can be loaded into a register. <code>MemberInstruction</code> and
+      <code>IndexInstruction</code> extract values; they do not create references to sub-storage.
+      Loads and stores through sub-storage instead use the derived reference descriptors below.</p>
+      <p>Interface directions, semantics, and locations are checked within each stage. Location -1
+      denotes an unspecified location. Names shall be unique, and locations and non-None semantics
+      shall not repeat within one direction. The semantic tags are None, Position, Color, TexCoord,
+      and FragmentColor. Position is a floating vec4 vertex output or fragment
+      input; FragmentColor is a floating vec4 fragment output. Output initialization and
+      interprocedural storage effects use section 6.3.</p>
+
+      <h3 id="derived-references">6.1 Derived storage references</h3>
+      <table>
+        <thead><tr><th>Descriptor</th><th>Base and selector</th><th>Stored value type</th></tr></thead>
+        <tbody>
+          <tr><td><code>MemberReferenceValue</code></td><td>A reference to record storage and an existing field name.</td><td>The selected field's declared type.</td></tr>
+          <tr><td><code>IndexReferenceValue</code></td><td>A reference to array storage and an integer register or scalar constant.</td><td>The array element type.</td></tr>
+        </tbody>
+      </table>
+      <p>These descriptors derive from <code>ReferenceValue</code>, with kind Member or Index and
+      inherited slot zero. Their inherited type shall match the selected stored value type. A base
+      reference may itself be derived, so paths can select an array field, an element of that array,
+      and a field of that element, or index multiple nested arrays. Paths shall be acyclic, and
+      object class, kind, selector, and type shall agree. Parameter declarations still require root
+      Parameter descriptors, not derived references with a forged Parameter kind.</p>
+      <p>A path inherits read/write permissions from its root. A field or element of a uniform or
+      stage input remains read-only; the derived descriptor cannot grant writable access. A member
+      selector requires record storage, not a vector swizzle or a computed record value. An index
+      selector requires array storage and an integer operand. Literal indices must be nonnegative
+      and smaller than the containing array's count at each selection level.</p>
+      <p>Reference descriptors describe access paths, not frozen pointer values. A mutable index
+      register is read when a load or store uses the path, rather than when the descriptor is
+      constructed. All index reads and storage-address selection occur before a load assigns its
+      result or a store writes its value. Reusing a path after changing an index register can select
+      a different element. Dynamic index registers must be definitely assigned at each use;
+      out-of-bounds dynamic access has undefined execution behavior, with no implicit clamp or wrap.</p>
+      <p>A load through a derived reference produces the selected stored value. A store through it
+      requires an exactly matching value and updates that sub-storage, preserving the other fields
+      and elements. The descriptors are storage operands, not computation values or call arguments.
+      The following notation is descriptive, not a finalized text grammar:</p>
+      <pre><code>root  = LocalReference(containerRegister)
+cells = MemberReference(root, "cells", arrayType)
+cell  = IndexReference(cells, indexRegister, recordType)
+field = MemberReference(cell, "value", int)
+store field, replacementValue
+result : int = load field</code></pre>
+
+      <h3 id="partial-write-availability">6.2 Local aggregate availability</h3>
+      <p>Local availability is tracked for whole registers, not independently for every field or
+      element. A local aggregate must be wholly assigned before any derived load or partial store.
+      Construct, copy, whole-slot load, or whole-local store can establish that assignment.</p>
+      <p>A partial store shall not establish whole-register assignment: writing one field does not
+      initialize its siblings, even if the producer later writes more fields. This conservative
+      rule avoids implicit partial-initialization tracking. Parameter values are supplied in full
+      at invocation; their mutable sub-storage follows the normal parameter permissions. Stage
+      output initialization follows the finer-grained rules in section 6.3.</p>
+
+      <h3 id="output-definedness">6.3 Output declarations and definedness</h3>
+      <p>A vertex stage shall declare its Position output, and a fragment stage its primary
+      FragmentColor output, even if it always discards. Every declared output must be fully assigned
+      on each normal entry-function return. No output is initially assigned. A read requires prior
+      definite assignment on every incoming path. Termination itself is not proved.</p>
+      <p>Output records and fixed arrays are split recursively into observable leaves; scalar,
+      vector, matrix, and sampler values are each one leaf. Empty records have no leaves. Whole
+      stores establish all selected leaves; member and constant-index stores establish their
+      selected subranges without requiring assigned siblings. Dynamic-index reads require every
+      potentially selected leaf, and dynamic-index stores establish no new definite leaf, even
+      for one-element arrays. These output rules are distinct from the whole-local rule in 6.2.</p>
+      <p>Each helper has output read-before-write prerequisites, guaranteed assignments on normal
+      returns, and a normal-return possibility. A caller must satisfy read prerequisites and receives
+      those guarantees on normal continuation. Discarded paths do not contribute to return guarantees;
+      reads before discard remain checked. A helper with no normal return cuts the caller's remaining
+      instructions and successors for availability checks. All syntactic instructions still receive
+      structural/type validation. Direct and indirect recursion, even in unused functions or
+      unreachable blocks, are rejected. Summaries use acyclic call-graph order and loop must fixed
+      points. Both conditional successors are considered, even for constant conditions.</p>
+
+      <h2 id="instructions">7. Instructions</h2>
+      <p>Each result-producing operation has an explicit destination register. Three-address does
+      not mean every operation has exactly three operands: calls and constructors have ordered
+      operand lists, while loads, stores, and control transfers have their own shapes. Each operation
+      consumes simple operands; nested source-language expression trees are outside canonical VPL.</p>
+      <table>
+        <thead><tr><th>Instruction</th><th>Fields</th><th>Semantics</th></tr></thead>
+        <tbody>
+          <tr><td><code>DeclareLocalInstruction</code></td><td>registerValue, type</td><td>Declare a register of that type; no initialization or runtime value computation.</td></tr>
+          <tr><td><code>CopyInstruction</code></td><td>result, source</td><td>Assign a value of exactly the result's type. Copying a reference is not an implicit load.</td></tr>
+          <tr><td><code>LoadInstruction</code></td><td>result, source reference</td><td>Read root or derived storage into a register of the same type.</td></tr>
+          <tr><td><code>StoreInstruction</code></td><td>target reference, value</td><td>Write an exactly matching value to writable root or derived storage. No result register.</td></tr>
+          <tr><td><code>BinaryInstruction</code></td><td>result, operatorKind, lhs, rhs</td><td>Compute typed arithmetic or a scalar comparison.</td></tr>
+          <tr><td><code>CallInstruction</code></td><td>result?, calleeFunction?, builtin, arguments</td><td>Call a same-stage function or a supported built-in with signature-matching values.</td></tr>
+          <tr><td><code>ConstructInstruction</code></td><td>result, type, arguments</td><td>Explicitly construct a value or perform a supported scalar conversion.</td></tr>
+          <tr><td><code>SwizzleInstruction</code></td><td>result, source, pattern</td><td>Extract 1 to 4 xyzw components from a vector, in pattern order.</td></tr>
+          <tr><td><code>MemberInstruction</code></td><td>result, source, fieldName</td><td>Extract an existing record field with its declared type.</td></tr>
+          <tr><td><code>IndexInstruction</code></td><td>result, source, index</td><td>Extract an array element using an integer scalar index. Literal indices must be in bounds.</td></tr>
+        </tbody>
+      </table>
+      <h3 id="arithmetic">7.1 Arithmetic and comparisons</h3>
+      <p>Add, Subtract, Multiply, and Divide require numeric operands. Matching scalars/vectors
+      produce the same type; vector operations are component-wise. Matching matrices support
+      addition, subtraction, and component-wise division. Matrix multiplication requires matching
+      inner dimensions and produces the outer dimensions; matrix-times-vector produces a vector
+      with the matrix's row count.</p>
+      <p>A floating vector or matrix may be multiplied or divided by a floating scalar, retaining
+      its type. Floating scalar multiplication in the opposite order is also supported.
+      Vector-times-matrix and other mixed arithmetic types are currently rejected. Numeric-to-Boolean
+      conversion is not implicit. Integer-to-float conversion shall be an explicit construction
+      before arithmetic, assignment, calls, or returns requiring float.</p>
+      <p>Equal and NotEqual accept matching Boolean, integer, or floating scalars and produce bool.
+      Less, LessEqual, Greater, and GreaterEqual require matching numeric scalars and produce bool.
+      Composite comparisons are not defined. Floating special-value comparisons follow section 4.1.</p>
+      <h3 id="construction">7.2 Construction and conversion</h3>
+      <p>A scalar construction takes one operand of the same scalar type, or an integer operand
+      for a floating result. This explicitly represents integer widening. Floating-to-integer and
+      numeric-to-Boolean conversions are not currently supported.</p>
+      <p>A vector construction supplies matching scalar/vector components totaling its dimension,
+      or one matching scalar to fill every component. Floating vector/matrix construction also
+      accepts integer scalar components as an explicit part of that construction. Matrix components
+      are supplied in column-major order, totaling rows times columns; one scalar instead forms a
+      diagonal matrix with zero off-diagonal entries.</p>
+      <p>An array construction supplies exactly its element count, with each operand matching the
+      element type. Record construction supplies one exactly matching operand per field, in field
+      order. Empty record construction is permitted. Samplers cannot be constructed.</p>
+      <h3 id="calls">7.3 Calls</h3>
+      <p>A function call shall select a non-NULL <code>calleeFunction</code> and
+      <code>BuiltinFunction_None</code>. Its operand count and types shall match the ordered
+      parameters. A non-void callee requires a matching destination register; a void callee requires
+      NULL result. For a built-in call, the function reference shall be NULL and the selector shall
+      be supported. The current built-in is <code>Texture(sampler2D, vec2) -&gt; vec4</code>, with
+      floating vectors.</p>
+      <h3 id="extraction">7.4 Extraction</h3>
+      <p>A swizzle's pattern shall contain only xyzw selectors valid for the source dimension.
+      One selector produces a scalar of the source element kind; multiple selectors produce a
+      vector of that kind and pattern length. Repeated components are allowed for extraction.</p>
+      <p>A member operation requires a record value and a declared field name. An index operation
+      requires an array value and integer index. Both produce values of the selected element type,
+      not storage addresses; use MemberReferenceValue/IndexReferenceValue for storage access.
+      Dynamic out-of-bounds access has undefined execution behavior as in section 6.1.</p>
+
+      <h2 id="control-flow">8. Control flow</h2>
+      <table>
+        <thead><tr><th>Terminator</th><th>Fields</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td><code>BranchTerminator</code></td><td>target</td><td>Transfer to a block in the same function.</td></tr>
+          <tr><td><code>ConditionalBranchTerminator</code></td><td>condition, trueTarget, falseTarget</td><td>Test a bool value and transfer to one of the two same-function blocks.</td></tr>
+          <tr><td><code>ReturnTerminator</code></td><td>value?</td><td>Finish the function. Void returns require NULL value; non-void returns require an exactly matching value.</td></tr>
+          <tr><td><code>DiscardTerminator</code></td><td>None</td><td>Abandon the fragment invocation, with no successor and no returned value, regardless of function return type.</td></tr>
+        </tbody>
+      </table>
+      <p>Discard is fragment-only and terminates a block. The older <code>DiscardInstruction</code>
+      scaffold is rejected by canonical verification; producers shall use the terminator form.</p>
+      <p>Loops are explicit back-edges. Higher-level if/while/for/break/continue statements are
+      expressed by graph construction in the producing tool or future external language frontend.
+      The following version-1 function fragment shows mutable registers and a loop:</p>
+      <pre><code>(registers (register r0 IntType) (register r1 BoolType))
+(block entry
+  (copy r0 (int 0))
+  (branch test))
+(block test
+  (less r1 r0 (int 10))
+  (branch_if r1 body exit))
+(block body
+  (add r0 r0 (int 1))
+  (branch test))
+(block exit (return r0))</code></pre>
+      <p>The enclosing function in this sketch returns int. Removing the initial copy makes its
+      first comparison invalid: assignment on the loop back-edge does not define r0 on first entry.</p>
+
+      <h2 id="verification">9. Verification</h2>
+      <p><code>Arcadia_VPL_IR_Verifier_run(thread, verifier, module)</code> checks a current module
+      graph without the legacy AST or symbol phases. It reports the first invalid object through a
+      <code>VerificationDiagnostic</code> containing a message and an optional subject object, and
+      raises <code>Arcadia_Status_SemanticalError</code>. It releases scratch memory and restores
+      the value stack on success or failure. The same verifier can be used for subsequent runs.</p>
+      <p>Object constructors do not establish all canonical invariants. Direct builders and
+      parsed text shall use the same verifier. A successful check applies to that graph at that
+      moment; mutations require re-verification. Immutable publication through VerifiedModule
+      separates saved compiler input from mutable builders and fresh materializations (section 11).</p>
+      <p><code>Arcadia.VPL.Tests.Verifier</code> covers branch joins, repeated writes, first-iteration
+      loop availability, register/type consistency, storage permissions, calls including void calls,
+      cyclic types, fragment discard, arrays of records, constructors, swizzles, texture sampling,
+      nested storage paths, inherited permissions, cyclic references, partial-write initialization,
+      selector availability, constructor rejection, reruns, and failure cleanup. Construction tests
+      remain in <code>Arcadia.VPL.Tests.IR</code>.
+      Legacy GLSL golden tests check the four existing engine variants during migration.</p>
+
+            <h2 id="text-format">10. Canonical text format, version 1</h2>
+      <p>A <code>.vpl</code> file is UTF-8 without a byte-order mark. It contains one module form
+      followed by end of input. Parenthesized forms make declarations, scopes, instruction operands,
+      and boundaries explicit. Line endings are trivia, not instruction terminators. This format
+      is independent of PDL and contains no nested arithmetic expressions.</p>
+
+      <h3 id="text-lexical">10.1 Lexical selection and refinements</h3>
+      <p>VPL selects Common Lexical Translations names, decimal numbers, quoted strings, Boolean
+      and void words, parentheses, spaces/tabs, end-of-line sequences, comments, line continuations,
+      and start/end conditions. Names are ASCII alphabetic names with the common underscore and
+      digit suffix rules; matching is case-sensitive. Names <code>true</code>, <code>false</code>,
+      and <code>void</code> are reserved. Other form-head words are contextual. Register identifiers
+      refine names to <code>r</code> followed by decimal digits; their numeric IDs are function-local.</p>
+      <p>Outside strings, spaces, tabs, common line endings, non-nesting solidus/asterisk comments,
+      double-solidus line comments, and reverse-solidus immediately followed by a line ending are
+      ignored. Comments separate words. Other punctuation is not a version-1 word alternative.
+      Integer and real spelling overlap is resolved by operand/declaration context; a maximal
+      number word must match the common decimal grammar in its entirety.</p>
+      <p>Both quote styles are accepted. Raw C0 controls and line endings are forbidden inside
+      strings. VPL explicitly refines the common escape spelling: reverse-solidus, either quote,
+      <code>\b</code>, <code>\f</code>, <code>\n</code>, <code>\r</code>, and <code>\t</code> decode
+      to reverse-solidus, that quote, U+0008, U+000C, U+000A, U+000D, and U+0009 respectively.
+      <code>\uHHHH</code> uses exactly four hexadecimal digits (0-9, a-f, A-F). Surrogates are
+      rejected rather than paired; non-BMP scalar characters can be written directly in UTF-8.
+      These explicit refinements resolve the short-control/hexadecimal inconsistencies in the
+      current common listing without inheriting another language's rules.</p>
+      <p>Signed integer operands and locations accept an optional sign and decimal digits, within
+      signed 32-bit range. Sizes and counts use unsigned decimal digits within Arcadia.Size range;
+      register IDs use the digits following r. Decimal float operands accept a sign, decimal point,
+      and/or exponent under the common number spelling, then round directly to binary32 using
+      nearest-even conversion in a private C numeric locale. Underflow to signed zero is allowed;
+      overflow to infinity is rejected. Invalid UTF-8, overlong encodings, encoded surrogates,
+      unclosed strings/comments, and malformed numbers are lexical errors.</p>
+
+      <h3 id="text-grammar">10.2 Grammar</h3>
+      <p>In the following grammar, braces denote repetition and brackets optional syntax.
+      Parentheses and words in quotes are literal. <code>id</code>, <code>reg</code>,
+      <code>string</code>, <code>size</code>, <code>signedInteger</code>, and <code>number</code>
+      denote the lexical categories/refinements above. Every count is exact unless repetition is shown.</p>
+      <pre><code>module       : '(' 'module' version types uniforms vertex fragment ')'
+version      : size /* its numeric value shall equal 1 */
+types        : '(' 'types' {type} ')'
+type         : '(' 'type' id scalarShape ')'
+             | '(' 'type' id 'vector' elementKind size ')'
+             | '(' 'type' id 'matrix' size size ')'
+             | '(' 'type' id 'array' id size ')'
+             | '(' 'type' id 'record' string {field} ')'
+scalarShape  : 'void' | 'bool' | 'int' | 'float' | 'sampler2D'
+elementKind  : 'bool' | 'int' | 'float'
+field        : '(' 'field' string id ')'
+uniforms     : '(' 'uniforms' {uniform} ')'
+uniform      : '(' 'scalar' id string id ')'
+             | '(' 'record' id string id ')'
+             | '(' 'array' id string id size ')'
+vertex       : '(' 'vertex' id interface functions ')'
+fragment     : '(' 'fragment' id interface functions ')'
+interface    : '(' 'interface' {io} ')'
+io           : '(' direction id string id signedInteger semantic ')'
+direction    : 'in' | 'out'
+semantic     : 'none' | 'position' | 'color' | 'texcoord' | 'fragment_color'
+functions    : '(' 'functions' {function} ')'
+function     : '(' 'function' id string id parameters registers block {block} ')'
+parameters   : '(' 'parameters' {parameter} ')'
+parameter    : '(' 'parameter' id id ')'
+registers    : '(' 'registers' {register} ')'
+register     : '(' 'register' reg id ')'
+block        : '(' 'block' id {instruction} terminator ')'
+
+operand      : reg | '(' 'bool' boolean ')' | '(' 'int' signedInteger ')'
+             | '(' 'float' number ')'
+boolean      : 'true' | 'false'
+reference    : '(' 'local' reg ')' | '(' 'parameter' id ')'
+             | '(' 'uniform' id ')' | '(' 'stage' id ')'
+             | '(' 'member_ref' reference string ')'
+             | '(' 'index_ref' reference operand ')'
+
+instruction  : '(' 'copy' reg operand ')'
+             | '(' 'load' reg reference ')' | '(' 'store' reference operand ')'
+             | '(' binary reg operand operand ')'
+             | '(' 'construct' reg {operand} ')'
+             | '(' 'call' result id {operand} ')'
+             | '(' 'texture' reg operand operand ')'
+             | '(' 'swizzle' reg operand string ')'
+             | '(' 'member' reg operand string ')'
+             | '(' 'index' reg operand operand ')'
+binary       : 'add' | 'subtract' | 'multiply' | 'divide' | 'equal' | 'not_equal'
+             | 'less' | 'less_equal' | 'greater' | 'greater_equal'
+result       : reg | 'void'
+terminator   : '(' 'branch' id ')' | '(' 'branch_if' operand id id ')'
+             | '(' 'return' [operand] ')' | '(' 'discard' ')'</code></pre>
+      <p>The module's second item is an unsigned integer value equal to 1; other versions are
+      rejected. Matrix dimensions are rows then columns. Type IDs are module-wide; uniform IDs
+      are module-wide; interface/function IDs are stage-local; parameter/register/block IDs are
+      function-local. Display names and field names are quoted strings, distinct from binding IDs.</p>
+      <p>Type, same-stage function, and same-function block forward references are permitted.
+      Types must be acyclic, including unused declarations. Duplicate identifiers in each scope
+      are rejected. Register spellings with the same numeric ID (for example r0 and r00) duplicate
+      one register. The registers form creates the declaration prefix in the first block.</p>
+      <p>References bind to explicitly declared slot types; field/element descriptors inherit the
+      selected type. A construct uses its destination's declared type. This is binding of declared
+      types, not source-expression type inference. Calls cannot name a function in another stage.
+      A block has exactly one final terminator. Text reading always invokes canonical verification.</p>
+      <p>Version 1 limits syntactic form/atom nesting and named-type dependency depth to 128.
+      Canonical writing limits derived reference depth to 120 so emitted forms fit that reader
+      bound. All counts, ranges, entry signatures, interfaces, operands, and output flows must also
+      satisfy the semantic sections above.</p>
+
+      <h3 id="text-example">10.3 Complete example</h3>
+      <p>This exact source is also read and verified by <code>Arcadia.VPL.Tests.Text</code>:</p>
+      <pre><code>// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see https://www.gnu.org/licenses/.
+//
+// Canonical VPL text, version 1. This exact example is parsed by Arcadia.VPL.Tests.Text.
+(module 1
+  (types
+    (type Void void)
+    (type Color vector float 4))
+  (uniforms)
+  (vertex vertex_entry
+    (interface
+      (out position "position" Color -1 position))
+    (functions
+      (function vertex_entry "vertex_main" Void
+        (parameters)
+        (registers (register r0 Color))
+        (block entry
+          (construct r0 (float 1.0))
+          (store (stage position) r0)
+          (return)))))
+  (fragment fragment_entry
+    (interface
+      (out color "color" Color 0 fragment_color))
+    (functions
+      (function fragment_entry "fragment_main" Void
+        (parameters)
+        (registers (register r0 Color))
+        (block entry
+          (construct r0 (float 1.0) (float 0.0) (float 0.0) (float 1.0))
+          (store (stage color) r0)
+          (return))))))
+</code></pre>
+
+      <h2 id="publication">11. Text APIs and verified publication</h2>
+      <p><code>Arcadia_VPL_Text_read</code> accepts bytes, byte count, diagnostics, and an optional
+      source label. It returns a verified mutable module. Lexical, syntactic, and binding/verification
+      failures raise LexicalError, SyntacticalError, or SemanticalError respectively. Structured
+      diagnostics carry a source label, byte offset in <code>inputPosition</code>, and one-based
+      Unicode-code-point line/column. Common CR/LF groups count as one line ending. Missing-object
+      verifier diagnostics fall back to the module opening when no precise subject is available.</p>
+      <p><code>Arcadia_VPL_Text_write</code> verifies a current module, emits deterministic text,
+      and reads that result back through the same verifier before returning it. Type IDs are t0,
+      t1, and so on in deterministic first-discovery order; uniforms, interface slots, functions,
+      parameters, and blocks use u/s/f/p/b plus their list positions. Numeric register IDs are
+      preserved. Display names, declaration/instruction/block order, nominal record relationships,
+      and floating bits (including signed zero) are preserved. Unused type declarations, comments,
+      trivia, and original binding-ID spellings are not preserved. The writer uses double quotes
+      and Unicode escapes for controls, LF endings, and round-trippable finite decimal floats.</p>
+      <p><code>Arcadia_VPL_VerifiedModule_create</code> publishes an opaque immutable canonical-text
+      snapshot of a verified module. No mutable graph or cached-validity flag is exposed.
+      <code>getText</code> returns immutable text; <code>materialize</code> returns a fresh, separately
+      verified module. Mutating the original builder or one materialization cannot alter the saved
+      snapshot or later materializations. The GLSL backend consumes this publication boundary.</p>
+      <p>These APIs restore the value stack on success/failure and hold transient objects through
+      a private text context. The scanner's generic forms are private parsing data, not a public
+      expression AST or a higher-level convenience language.</p>
+
+            <h2 id="glsl-backend">12. GLSL 420 core backend</h2>
+      <p><code>Arcadia_VPL_Backends_GLSL_compile(thread, publishedModule, diagnostics, version)</code>
+      materializes and verifies an independent snapshot and returns a <code>ProgramArtifact</code>.
+      The implemented configuration is version 420 core; another version is a target error.
+      The backend receives no legacy expression AST or symbol graph and has no caller-owned mapping
+      or fragment-name out-parameters.</p>
+
+      <h3 id="glsl-artifact">12.1 Artifact and bindings</h3>
+      <p>The artifact owns immutable vertexCode and fragmentCode strings, uniform bindings,
+      vertexInterface and fragmentInterface bindings, version, and the resolved primary
+      fragmentColorOutput and fragmentColorLocation. Code strings contain no extra terminator;
+      GL consumers pass their explicit byte lengths. Binding glName strings include one trailing
+      zero byte for native GL name queries.</p>
+      <p>Each binding records its logical name, exact GLSL name, type, source-list slot, and resolved
+      location. Uniform bindings additionally record the canonical uniform kind and a blockBinding
+      point (-1 for non-blocks). Interface bindings record direction and semantics; their uniform
+      kind/block fields are not meaningful.</p>
+      <p>Record uniforms become std140 interface blocks. Their fields keep canonical declaration
+      order and are named vpl_m0, vpl_m1, and so on; nested records use deterministic vpl_R names.
+      Block names are vpl_Block followed by source uniform slot, and instance names vpl_u followed
+      by slot. Block binding points are assigned in record-uniform order, independently of driver
+      optimization. Other uniforms use vpl_u names and preserve declared array lengths. Reflection
+      describes root declarations, not a table of every active leaf location; array/record uploads
+      may query selectors such as [0].vpl_m0 using the reflected type.</p>
+
+      <h3 id="glsl-locations">12.2 Names and interface locations</h3>
+      <p>Explicit interface locations are preserved. Unspecified locations are allocated in source
+      order, avoiding explicit and previously assigned ranges within each direction. Linked fragment
+      inputs inherit the resolved vertex-output location. Matrices consume one location per column;
+      arrays and records consume their recursive spans. Target overlap/range errors are rejected.</p>
+      <p>Vertex inputs use vpl_attribute names, linked varyings vpl_varying names, and fragment
+      outputs vpl_output names, suffixed by location. Thus linked declarations use consistent names
+      even when their logical names differ. Position maps to gl_Position in vertex output and
+      gl_FragCoord in fragment input, with no user declaration. Integer-containing varyings use flat
+      interpolation. Canonical names cannot inject GLSL identifiers: emitted functions, registers,
+      parameters, records, fields, blocks, and bindings use deterministic generated names.</p>
+
+      <h3 id="glsl-operations">12.3 Operations and control flow</h3>
+      <p>Result-producing instructions assign statically typed function-scope register variables.
+      Loads, stores, constructors, extraction, calls, comparisons, and arithmetic follow the canonical
+      operations without reassociating matrix products. Parameters are invocation-local by-value
+      function parameters. Whole block-uniform loads explicitly construct a record value from block
+      fields; an interface-block instance is not treated as an ordinary struct value.</p>
+      <p>One-block return/discard functions emit directly. General graphs use a function-local
+      integer block selector, a while loop, and a switch with one case per block. Branches set the
+      selector and leave the switch iteration; returns leave the function, and discard abandons the
+      fragment. A default return value in non-void dispatch fallback code is unreachable in the
+      verified graph. A main wrapper invokes the explicitly selected canonical entry function.
+      Forward declarations permit source-independent helper ordering.</p>
+      <p>Finite float literals are emitted with a private C numeric locale and nine significant
+      digits, preserving binary32 values and signed zero. Minimum integer spelling avoids an
+      out-of-range positive signed literal. Arithmetic and comparisons use GLSL 420 operators.
+      Driver rounding, contraction, and subnormal behavior follow the target implementation;
+      cross-driver bit-identical floating arithmetic is not promised.</p>
+
+      <h3 id="glsl-capabilities">12.4 Initial target restrictions</h3>
+      <ul>
+        <li>Empty records, arrays of arrays, aggregate-contained samplers, and array lengths beyond
+        signed GL integer range are rejected. Arrays of nonempty records, including record fields
+        that are one-dimensional arrays, are supported.</li>
+        <li>Boolean/opaque interface types are rejected. Vertex attributes support numeric scalars,
+        vectors, and floating matrices. Ordinary varyings support numeric aggregates; fragment
+        outputs support numeric scalars/vectors and one-dimensional arrays of those.</li>
+        <li>Opaque sampler registers are static aliases rather than assignable GLSL locals. A used
+        sampler register has one load/copy/local-store alias definition whose chain ends at a
+        sampler uniform or sampler parameter. Multiple definitions, cycles, sampler return values,
+        or mutation of sampler parameter storage are target errors. Unused sampler declarations
+        do not require definitions.</li>
+      </ul>
+      <p>These restrictions are checked after target-neutral verification and produce structured
+      target diagnostics. Hardware-specific limits and active-resource optimization remain driver
+      compile/link checks. The target does not silently emit placeholder code for unsupported types.</p>
+
+      <h3 id="glsl-engine">12.5 Engine integration and verification</h3>
+      <p>Programs_create publishes the four existing ambient-color variants from one parameterized
+      canonical-text template. Material nodes and backend resource creation pass VerifiedModule.
+      The OpenGL resource compiles one artifact, uploads both code strings with explicit lengths,
+      binds the resolved fragment output before linking, and uses artifact reflection for uniform
+      blocks and scalar locations. Deterministic block binding points remain available to model
+      resources even when a driver optimizes an unused block away.</p>
+      <p>Canonical goldens cover all four variants and reflection. The Windows GLSL.Driver test
+      creates a hidden 4.2 core context, compiles/links, checks std140 block sizes and output/attribute
+      locations, and renders each variant into an RGBA8 framebuffer. Additional loop variants check
+      dispatch execution with expected pixels. A general fixture compiles/links record/array
+      uniforms, integer-containing varyings, calls, storage selectors, and terminating discard.
+      Driver tests report skipped status if no suitable core context is available.</p>
+
+
+      <h2 id="pending">13. Remaining specification work</h2>
+      <ul>
+        <li>Additional targets/profiles, hardware-limit validation, legacy frontend retirement,
+        and externalizing the built-in canonical template data.</li>
+        <li>Future language extensions and format compatibility beyond version 1.</li>
+      </ul>
+      <p>Target-neutral validity alone does not imply support by every backend. The migration
+      checklist and register-based control-flow rationale are recorded in
+      <code>VPL/Library/Sources/Arcadia/VPL/DESIGN.md</code>.</p>
+    </div>
+    <div class="right-column"></div>
+  </main>
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column"></div>
+    <div class="right-column">
+      <div>Website maintained by Michael Heilmann.</div>
+      <div>Last modified on 16 October 2026.</div>
+    </div>
+  </footer>
+</body>
+</html>

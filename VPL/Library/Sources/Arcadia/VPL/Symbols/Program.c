@@ -20,7 +20,11 @@
 #include "Arcadia/Logging/Include.h"
 #include "Arcadia/Languages/Include.h"
 #include "Arcadia/VPL/Tree/Include.h"
+#include "Arcadia/VPL/Context.h"
 #include "Arcadia/VPL/EnterPhase.h"
+#include "Arcadia/VPL/ResolvePhase.h"
+#include "Arcadia/VPL/TypePhase.h"
+#include "Arcadia/VPL/IR/Include.h"
 #include "Arcadia/VPL/Symbols/Include.h"
 #include "Arcadia/VPL/TreeBuilder.h"
 #include "Arcadia/VPL/Configure.h"
@@ -49,10 +53,12 @@ createBuiltinProcedureDefns
     Arcadia_List* modifiers = (Arcadia_List*)Arcadia_ArrayList_create(thread);
     Arcadia_List_insertBackObjectReferenceValue(thread, modifiers, S(thread, "builtin"));
     Arcadia_List* parameters = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+    Arcadia_List_insertBackObjectReferenceValue(thread, parameters, (Arcadia_Object*)Arcadia_VPL_Tree_VariableDefnNode_create(thread, S(thread, "sampler"), self->SAMPLER2D->name));
+    Arcadia_List_insertBackObjectReferenceValue(thread, parameters, (Arcadia_Object*)Arcadia_VPL_Tree_VariableDefnNode_create(thread, S(thread, "coordinates"), self->VEC2->name));
     Arcadia_List* body = (Arcadia_List*)Arcadia_ArrayList_create(thread);
     Arcadia_VPL_Tree_ProcedureDefnNode* defn = Arcadia_VPL_Tree_ProcedureDefnNode_create(thread, modifiers,
-                                                                                                 Arcadia_VPL_Tree_NameExprNode_create(thread, self->VEC2->name),
-                                                                                                 S(thread, u8"texture2D"),
+                                                                                                  Arcadia_VPL_Tree_NameExprNode_create(thread, self->VEC4->name),
+                                                                                                 S(thread, u8"texture"),
                                                                                                  parameters,
                                                                                                  body);
     Arcadia_List_insertBackObjectReferenceValue(thread, defns, (Arcadia_Object*)defn);
@@ -322,13 +328,13 @@ Arcadia_VPL_Symbols_Program_createFragmentShaderMainProcedureTree
       TreeBuilder_assignmentExpr
         (
           TreeBuilder_name("rasterizerProgram_inputs_fragmentColor"),
-          TreeBuilder_callExpr
-            (
-              TreeBuilder_name("texture2D"),
-              TreeBuilder_name("ambientColorTexture"),
-              TreeBuilder_name("fragmentProgram_inputs_vertex_ambientColorTextureCoordinate")
-            )
-        );
+TreeBuilder_callExpr
+                (
+                  TreeBuilder_name("texture"),
+                  TreeBuilder_name("ambientColorTexture"),
+                  TreeBuilder_name("fragmentProgram_inputs_vertex_ambientColorTextureCoordinate")
+                )
+            );
   } else if (self->flags == Arcadia_VPL_Symbols_ProgramFlags_TextureVertexAmbientColor) {
     fragmentColorAssignmentTree =
       TreeBuilder_assignmentExpr
@@ -338,7 +344,7 @@ Arcadia_VPL_Symbols_Program_createFragmentShaderMainProcedureTree
             (
               TreeBuilder_callExpr
                 (
-                  TreeBuilder_name("texture2D"),
+                  TreeBuilder_name("texture"),
                   TreeBuilder_name("ambientColorTexture"),
                   TreeBuilder_name("fragmentProgram_inputs_vertex_ambientColorTextureCoordinate")
                 ),
@@ -373,6 +379,24 @@ Arcadia_VPL_Symbols_Program_constructImpl
     Arcadia_Thread* thread,
     Arcadia_VPL_Symbols_Program* self
   );
+
+static Arcadia_VPL_Symbols_BuiltinType*
+createValueType
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Symbols_Program* self,
+    const char* name,
+    Arcadia_VPL_IR_Type* valueType
+  )
+{
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)valueType);
+  Arcadia_VPL_Symbols_BuiltinType* symbol = Arcadia_VPL_Symbols_BuiltinType_create(thread, S(thread, name));
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)symbol);
+  symbol->valueType = valueType;
+  Arcadia_List_insertBackObjectReferenceValue(thread, self->types, (Arcadia_Object*)symbol);
+  Arcadia_ValueStack_popValues(thread, 2);
+  return symbol;
+}
 
 static void
 Arcadia_VPL_Symbols_Program_initializeDispatchImpl
@@ -424,12 +448,16 @@ Arcadia_VPL_Symbols_Program_constructImpl
   self->scope = NULL;
   self->flags = Arcadia_ValueStack_getNatural8Value(thread, 1);
 
-  self->MAT4 = Arcadia_VPL_Symbols_BuiltinType_create(thread, S(thread, u8"mat4"));
-  self->SAMPLER2D = Arcadia_VPL_Symbols_BuiltinType_create(thread, S(thread, u8"sampler2D"));
-  self->VEC2 = Arcadia_VPL_Symbols_BuiltinType_create(thread, S(thread, u8"vec2"));
-  self->VEC3 = Arcadia_VPL_Symbols_BuiltinType_create(thread, S(thread, u8"vec3"));
-  self->VEC4 = Arcadia_VPL_Symbols_BuiltinType_create(thread, S(thread, u8"vec4"));
-  self->VOID = Arcadia_VPL_Symbols_BuiltinType_create(thread, S(thread, u8"void"));
+  self->types = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  self->MAT4 = createValueType(thread, self, "mat4", (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_MatrixType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating, 4, 4));
+  self->SAMPLER2D = createValueType(thread, self, "sampler2D", (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_SamplerType_create(thread, Arcadia_VPL_IR_SamplerKind_Sampler2D));
+  self->VEC2 = createValueType(thread, self, "vec2", (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_VectorType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating, 2));
+  self->VEC3 = createValueType(thread, self, "vec3", (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_VectorType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating, 3));
+  self->VEC4 = createValueType(thread, self, "vec4", (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_VectorType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating, 4));
+  self->VOID = createValueType(thread, self, "void", (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_VoidType_create(thread));
+  self->BOOL = createValueType(thread, self, "bool", (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_ScalarType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Boolean));
+  self->INT = createValueType(thread, self, "int", (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_ScalarType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Integer));
+  self->FLOAT = createValueType(thread, self, "float", (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_ScalarType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating));
 
   Arcadia_VPL_Symbols_Variable* symbol;
   Arcadia_VPL_Tree_VariableDefnNode* defnNode;
@@ -478,6 +506,9 @@ Arcadia_VPL_Symbols_Program_constructImpl
   self->vertexStage = NULL;
   self->fragmentStage = NULL;
 
+  self->programDefnNode = NULL;
+  self->context = NULL;
+
   self->constants = (Arcadia_List*)Arcadia_ArrayList_create(thread);
 
   Arcadia_LeaveConstructor(Arcadia_VPL_Symbols_Program);
@@ -510,6 +541,9 @@ Arcadia_VPL_Symbols_Program_visitImpl
   if (self->MAT4) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->MAT4);
   }
+  if (self->types) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->types);
+  }
   if (self->SAMPLER2D) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->SAMPLER2D);
   }
@@ -531,6 +565,9 @@ Arcadia_VPL_Symbols_Program_visitImpl
   if (self->programDefnNode) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->programDefnNode);
   }
+  if (self->context) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->context);
+  }
 }
 
 Arcadia_VPL_Symbols_Program*
@@ -544,6 +581,16 @@ Arcadia_VPL_Symbols_Program_create
   Arcadia_ValueStack_pushNatural8Value(thread, flags);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
   _Arcadia_EndCreate(Arcadia_VPL_Symbols_Program);
+}
+
+Arcadia_VPL_Context*
+Arcadia_VPL_Symbols_Program_getContext
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Symbols_Program* self
+  )
+{
+  return self->context;
 }
 
 Arcadia_List*
@@ -569,8 +616,9 @@ Arcadia_VPL_Symbols_Program_createProgram
 {
   Arcadia_VPL_Symbols_Program* program = Arcadia_VPL_Symbols_Program_create(thread, flags);
 
-  // (1) Create the enter phase.
-  Arcadia_VPL_EnterPhase* enterPhase = Arcadia_VPL_EnterPhase_create(thread, Arcadia_Languages_Diagnostics_create(thread, (Arcadia_Log*)Arcadia_ConsoleLog_create(thread)));
+  // (1) Create the compilation context and the enter phase.
+  program->context = Arcadia_VPL_Context_create(thread);
+  Arcadia_VPL_EnterPhase* enterPhase = Arcadia_VPL_Context_getEnterPhase(thread, program->context);
 
   program->programDefnNode = Arcadia_VPL_Tree_ProgramDefnNode_create(thread);
 
@@ -616,6 +664,10 @@ Arcadia_VPL_Symbols_Program_createProgram
   // (3) See description of method for more information.
   Arcadia_VPL_EnterPhase_run(thread, enterPhase, program);
 
+  // (4) Resolve the program before any backend consumes it.
+  Arcadia_VPL_ResolvePhase_run(thread, Arcadia_VPL_Context_getResolvePhase(thread, program->context), program);
+  Arcadia_VPL_Symbols_Program_resolveTypes(thread, program);
+
   return program;
 }
 
@@ -625,4 +677,6 @@ Arcadia_VPL_Symbols_Program_resolveTypes
     Arcadia_Thread* thread,
     Arcadia_VPL_Symbols_Program* self
   )
-{/*Intentionally empty.*/}
+{
+  Arcadia_VPL_TypePhase_run(thread, Arcadia_VPL_Context_getTypePhase(thread, self->context), self);
+}

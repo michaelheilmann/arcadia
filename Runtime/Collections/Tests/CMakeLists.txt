@@ -17,6 +17,10 @@
 cmake_minimum_required(VERSION 3.29)
 
 add_subdirectory(DequeTests)
+add_subdirectory(ImmutableHashMapTests)
+add_subdirectory(ImmutableListTests)
+add_subdirectory(ImmutableMapTests)
+add_subdirectory(ImmutableSetTests)
 add_subdirectory(ListTests)
 add_subdirectory(MapTests)
 add_subdirectory(SetTests)

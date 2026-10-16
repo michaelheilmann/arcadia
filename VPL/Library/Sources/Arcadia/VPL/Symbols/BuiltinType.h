@@ -22,6 +22,8 @@
 #endif
 #include "Arcadia/VPL/Symbols/Symbol.h"
 
+typedef struct Arcadia_VPL_IR_Type Arcadia_VPL_IR_Type;
+
 // A member of a constant record.
 Arcadia_declareObjectType(u8"Arcadia.VPL.Symbols.BuiltinType", Arcadia_VPL_Symbols_BuiltinType,
                           u8"Arcadia.VPL.Symbols.Symbol");
@@ -36,6 +38,8 @@ struct Arcadia_VPL_Symbols_BuiltinType {
   Arcadia_String* type;
   // The scope of this builtin type.
   Arcadia_Languages_Scope* scope;
+  /// The target-neutral value type used by semantic analysis and lowering.
+  Arcadia_VPL_IR_Type* valueType;
 };
 
 Arcadia_VPL_Symbols_BuiltinType*

@@ -22,11 +22,9 @@
 #endif
 #include "Arcadia/Engine/UI/WidgetNode.h"
 
-// A "model node" consists of a
-// - a mesh
-// - a material
+// The UI panel node.
 Arcadia_declareObjectType(u8"Arcadia.Engine.UI.PanelNode", Arcadia_Engine_UI_PanelNode,
-                          u8"Arcadia.Engine.Visuals.Node")
+                          u8"Arcadia.Engine.UI.WidgetNode")
 
 struct Arcadia_Engine_UI_PanelNodeDispatch {
   Arcadia_Engine_UI_WidgetNodeDispatch parent;

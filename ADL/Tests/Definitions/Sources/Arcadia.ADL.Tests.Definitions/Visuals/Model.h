@@ -25,4 +25,16 @@ Arcadia_ADL_Tests_Visuals_ModelDefinitionTest1
     Arcadia_Thread* thread
   );
 
+void
+Arcadia_ADL_Tests_Visuals_ModelDefinitionTest2
+  (
+    Arcadia_Thread* thread
+  );
+
+void
+Arcadia_ADL_Tests_Visuals_ModelDefinitionTest3
+  (
+    Arcadia_Thread* thread
+  );
+
 #endif // ARCADIA_ADL_TESTS_VISUALS_MODEL_H_INCLUDED

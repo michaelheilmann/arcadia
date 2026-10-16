@@ -17,6 +17,6 @@
 #if !defined(ARCADIA_VPL_GLSL_INCLUDE_H_INCLUDED)
 #define ARCADIA_VPL_GLSL_INCLUDE_H_INCLUDED
 
-#include "Arcadia/VPL/GLSL/Transpiler.h"
+#include "Arcadia/VPL/GLSL/ProgramArtifact.h"
 
 #endif // ARCADIA_VPL_GLSL_INCLUDE_H_INCLUDED

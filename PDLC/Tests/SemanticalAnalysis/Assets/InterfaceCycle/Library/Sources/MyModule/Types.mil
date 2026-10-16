@@ -1,13 +1,11 @@
-interface A extends B {
+interface MyModule.A extends MyModule.B {
 
-  method a : Void {
-  }
+  method a : Arcadia.Void
 
 }
 
-interface B extends A {
+interface MyModule.B extends MyModule.A {
 
-  method b : Void {
-  }
+  method b : Arcadia.Void
 
 }

@@ -1,0 +1,7 @@
+{
+  type : "Color",
+  name : "Button.Primary.Color.Pressed",
+  red : 36,
+  green : 90,
+  blue : 200,
+}

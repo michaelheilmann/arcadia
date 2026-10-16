@@ -52,6 +52,13 @@ typedef struct Arcadia_VPL_Tree_NodeVisitor Arcadia_VPL_Tree_NodeVisitor;
 // See Arcadia.VPL.Tree.ConstantRecordDefn for more information.
 #define Arcadia_VPL_Tree_NodeFlags_ConstantRecordDefn (7)
 
+#define Arcadia_VPL_Tree_NodeFlags_IfStmt (8)
+#define Arcadia_VPL_Tree_NodeFlags_ForStmt (9)
+#define Arcadia_VPL_Tree_NodeFlags_WhileStmt (10)
+#define Arcadia_VPL_Tree_NodeFlags_ReturnStmt (11)
+#define Arcadia_VPL_Tree_NodeFlags_DiscardStmt (12)
+#define Arcadia_VPL_Tree_NodeFlags_IndexExpr (13)
+
 Arcadia_declareObjectType(u8"Arcadia.VPL.Tree.Node", Arcadia_VPL_Tree_Node,
                           u8"Arcadia.Object");
 

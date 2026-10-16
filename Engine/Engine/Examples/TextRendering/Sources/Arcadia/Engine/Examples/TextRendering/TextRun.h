@@ -41,12 +41,14 @@ struct Arcadia_Engine_Examples_TextRendering_TextRun {
   // Whether this run is placed at a fixed position instead of participating in
   // the centered text stack.
   Arcadia_BooleanValue fixedPlacement;
+  Arcadia_BooleanValue dynamicFps;
   Arcadia_Engine_Text_TextAlignment alignment;
   Arcadia_BooleanValue hasRectangle;
   Arcadia_Integer32Value rectangleLeft;
   Arcadia_Integer32Value rectangleBottom;
   Arcadia_Integer32Value rectangleWidth;
   Arcadia_Integer32Value rectangleHeight;
+  Arcadia_BooleanValue lineBreakBefore;
 
   // Glyph-source code points and glyph information. This unmanaged memory is
   // owned by the run and freed when the run is destroyed.
