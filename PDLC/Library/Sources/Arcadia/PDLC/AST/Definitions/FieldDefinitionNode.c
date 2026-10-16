@@ -76,7 +76,13 @@ Arcadia_PDLC_AST_FieldDefinitionNode_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 1);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  self->type = (Arcadia_PDLC_AST_IdentifierNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_PDLC_AST_IdentifierNode_getType(thread));
+  self->type = Arcadia_ValueStack_isVoidValue(thread, 1) ? NULL : (Arcadia_PDLC_AST_IdentifierNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_PDLC_AST_IdentifierNode_getType(thread));
+  self->isReference = Arcadia_BooleanValue_False;
+  self->isReadOnly = Arcadia_BooleanValue_False;
+  self->isOutput = Arcadia_BooleanValue_False;
+  self->ownership = Arcadia_PDLC_Ownership_Managed;
+  self->recordFields = NULL;
+  self->initializer = NULL;
   self->name = (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_String_getType(thread));
   Arcadia_LeaveConstructor(Arcadia_PDLC_AST_FieldDefinitionNode);
 }
@@ -96,6 +102,8 @@ Arcadia_PDLC_AST_FieldDefinitionNode_visitImpl
     Arcadia_PDLC_AST_FieldDefinitionNode* self
   )
 {
+  if (self->recordFields) Arcadia_Object_visit(thread, (Arcadia_Object*)self->recordFields);
+  if (self->initializer) Arcadia_Object_visit(thread, (Arcadia_Object*)self->initializer);
   if (self->name) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->name);
   }
@@ -121,7 +129,8 @@ Arcadia_PDLC_AST_FieldDefinitionNode_create
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }
   if (type) {
-    Arcadia_ValueStack_pushObjectReferenceValue(thread, type);
+  if (type) Arcadia_ValueStack_pushObjectReferenceValue(thread, type);
+  else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   } else {
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }

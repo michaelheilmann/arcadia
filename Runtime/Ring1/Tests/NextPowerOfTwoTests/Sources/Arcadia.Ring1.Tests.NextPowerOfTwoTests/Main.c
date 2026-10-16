@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 
 #include "Arcadia/Ring1/Include.h"
@@ -38,14 +40,19 @@
       Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed); \
       Arcadia_Thread_jump(thread); \
     } else { \
+      Arcadia_Thread_popJumpTarget(thread); \
       if (Arcadia_Thread_getStatus(thread) != Arcadia_Status_NotExists) { \
-        Arcadia_Thread_popJumpTarget(thread); \
         Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed); \
         Arcadia_Thread_jump(thread); \
       } else { \
         Arcadia_Thread_setStatus(thread, Arcadia_Status_Success); \
       } \
     } \
+    Arcadia_JumpTarget probe; \
+    Arcadia_Thread_pushJumpTarget(thread, &probe); \
+    Arcadia_BooleanValue restored = probe.previous == jumpTarget.previous; \
+    Arcadia_Thread_popJumpTarget(thread); \
+    Arcadia_Tests_assertTrue(thread, restored); \
   }
 
 static void
@@ -216,24 +223,54 @@ nextPowerOfTwoNatural8ValueTests
   EXPECT_FAILURE(Arcadia_Natural8, Natural8, GreaterThan, Arcadia_Natural8Value_Maximum - 0);
 }
 
+static int
+runNatural64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&nextPowerOfTwoNatural64ValueTests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural32
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&nextPowerOfTwoNatural32ValueTests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural16
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&nextPowerOfTwoNatural16ValueTests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural8
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&nextPowerOfTwoNatural8ValueTests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&nextPowerOfTwoNatural64ValueTests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&nextPowerOfTwoNatural32ValueTests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&nextPowerOfTwoNatural16ValueTests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&nextPowerOfTwoNatural8ValueTests)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "Natural64", &runNatural64 },
+    { "Natural32", &runNatural32 },
+    { "Natural16", &runNatural16 },
+    { "Natural8", &runNatural8 },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -34,15 +36,27 @@ setTest1
   Arcadia_Set_add(thread, v, b, NULL);
 }
 
-int
-main
+static int
+runTests
   (
-    int argc,
-    char **argv
+    void
   )
 {
   if (!Arcadia_Tests_safeExecute(&setTest1)) {
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
+}
+
+int
+main
+  (
+    int argc,
+    char** argv
+  )
+{
+  static const Arcadia_Testing_Case cases[] = {
+    { "SetTests", &runTests },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

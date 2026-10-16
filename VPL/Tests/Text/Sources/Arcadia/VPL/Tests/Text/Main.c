@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/VPL/Include.h"
 #include <string.h>
 #include <math.h>
@@ -101,6 +103,58 @@ read
 }
 
 static Arcadia_String*
+replaceSpan
+  (
+    Arcadia_Thread* thread,
+    const void* sourceBytes,
+    Arcadia_SizeValue sourceLength,
+    const char* find,
+    const void* replacement,
+    Arcadia_SizeValue replacementLength
+  )
+{
+  const char* source = sourceBytes;
+  Arcadia_SizeValue findLength = strlen(find), offset = 0;
+  while (offset <= sourceLength && (findLength > sourceLength - offset || memcmp(source + offset, find, findLength))) ++offset;
+  Arcadia_Tests_assertTrue(thread, offset <= sourceLength);
+  Arcadia_StringBuilder* builder = (Arcadia_StringBuilder*)root(thread, (Arcadia_Object*)Arcadia_StringBuilder_create(thread));
+  const void* pieces[] = { source, replacement, source + offset + findLength };
+  Arcadia_SizeValue lengths[] = { offset, replacementLength, sourceLength - offset - findLength };
+  for (int i = 0; i < 3; ++i) {
+    Arcadia_Value v = Arcadia_Value_makeRuntimeUTF8StringValue(Arcadia_RuntimeUTF8String_create(thread, pieces[i], lengths[i]));
+    Arcadia_ValueStack_pushValue(thread, &v);
+    Arcadia_StringBuilder_insertBack(thread, builder, v);
+    Arcadia_ValueStack_popValues(thread, 1);
+  }
+  return (Arcadia_String*)root(thread, (Arcadia_Object*)Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)builder)));
+}
+
+static Arcadia_String*
+replaceBytes
+  (
+    Arcadia_Thread* thread,
+    const char* source,
+    const char* find,
+    const void* replacement,
+    Arcadia_SizeValue replacementLength
+  )
+{
+  return replaceSpan(thread, source, strlen(source), find, replacement, replacementLength);
+}
+
+static Arcadia_String*
+replaceSource
+  (
+    Arcadia_Thread* thread,
+    Arcadia_String* source,
+    const char* find,
+    const char* replacement
+  )
+{
+  return replaceSpan(thread, Arcadia_String_getBytes(thread, source), Arcadia_String_getNumberOfBytes(thread, source), find, replacement, strlen(replacement));
+}
+
+static Arcadia_String*
 replace
   (
     Arcadia_Thread* thread,
@@ -109,18 +163,7 @@ replace
     const char* replacement
   )
 {
-  const char* position = strstr(source, find);
-  Arcadia_Tests_assertTrue(thread, position != NULL);
-  Arcadia_StringBuilder* builder = (Arcadia_StringBuilder*)root(thread, (Arcadia_Object*)Arcadia_StringBuilder_create(thread));
-  const char* pieces[] = { source, replacement, position + strlen(find) };
-  Arcadia_SizeValue lengths[] = { (Arcadia_SizeValue)(position - source), strlen(replacement), strlen(position + strlen(find)) };
-  for (int i = 0; i < 3; ++i) {
-    Arcadia_Value v = Arcadia_Value_makeRuntimeUTF8StringValue(Arcadia_RuntimeUTF8String_create(thread, pieces[i], lengths[i]));
-    Arcadia_ValueStack_pushValue(thread, &v);
-    Arcadia_StringBuilder_insertBack(thread, builder, v);
-    Arcadia_ValueStack_popValues(thread, 1);
-  }
-  return (Arcadia_String*)root(thread, (Arcadia_Object*)Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)builder)));
+  return replaceBytes(thread, source, find, replacement, strlen(replacement));
 }
 
 static void
@@ -145,12 +188,13 @@ testRoundTrips
 }
 
 static void
-expectReadFailure
+expectReadFailureAt
   (
     Arcadia_Thread* thread,
     const void* bytes,
     Arcadia_SizeValue n,
-    Arcadia_Status expected
+    Arcadia_Status expected,
+    Arcadia_SizeValue expectedOffset
   )
 {
   Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
@@ -170,7 +214,20 @@ expectReadFailure
   Arcadia_VPL_Diagnostics_VerificationDiagnostic* diagnostic = (Arcadia_VPL_Diagnostics_VerificationDiagnostic*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, d->diagnostics, 0, _Arcadia_VPL_Diagnostics_VerificationDiagnostic_getType(thread));
   Arcadia_Tests_assertTrue(thread, diagnostic->sourceName == name && diagnostic->line >= 1 && diagnostic->column >= 1);
   Arcadia_Tests_assertTrue(thread, Arcadia_Value_isSizeValue(&diagnostic->_parent.inputPosition));
+  if (expectedOffset != (Arcadia_SizeValue)-1) Arcadia_Tests_assertTrue(thread, Arcadia_Value_getSizeValue(&diagnostic->_parent.inputPosition) == expectedOffset);
   Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+}
+
+static void
+expectReadFailure
+  (
+    Arcadia_Thread* thread,
+    const void* bytes,
+    Arcadia_SizeValue n,
+    Arcadia_Status expected
+  )
+{
+  expectReadFailureAt(thread, bytes, n, expected, (Arcadia_SizeValue)-1);
 }
 
 static void
@@ -193,7 +250,7 @@ testFailures
     { "(type Z void)", "(type Z void) (type Z int)", Arcadia_Status_SemanticalError },
     { "(type V vector float 4)", "(type V array V 2)", Arcadia_Status_SemanticalError },
     { "(type V vector float 4)", "(type V array Z 2)", Arcadia_Status_SemanticalError },
-    { "(type V vector float 4)", "(type V vector float 256)", Arcadia_Status_SyntacticalError },
+    { "(type V vector float 4)", "(type V vector float 256)", Arcadia_Status_SemanticalError },
     { "(register r42 V)", "(register r42 V) (register r042 V)", Arcadia_Status_SemanticalError },
     { "(register r42 V)", "(register x42 V)", Arcadia_Status_SyntacticalError },
     { "(construct r42", "(construct r43", Arcadia_Status_SemanticalError },
@@ -375,6 +432,329 @@ testBinary32RoundTrips
   Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
 }
 
+static void
+testGrammarAndBindingConformance
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const struct {
+    const char* source;
+    const char* find;
+    const char* replacement;
+    Arcadia_Status status; // Zero means valid.
+  } cases[] = {
+    { minimal, "start \"vertex_main\" Z", "start\"vertex_main\"Z", 0 },
+    { minimal, "(type Z void)", "(type Z void) (type function int) (type start bool) (type entry int)", 0 },
+    { minimal, "(type Z void)", "(type Z void) (type Empty record \"Empty\")", 0 },
+    { minimal, "(type Z void)", "(type Z void) (type Empty record \"\")", Arcadia_Status_SemanticalError },
+    { minimal, "(type Z void)", "(type Z void) (type R record \"R\" (field \"\" V))", Arcadia_Status_SemanticalError },
+    { minimal, "(float 1.0)", "(float +.5E+1)", 0 },
+    { minimal, "module 1", "module 0001", 0 },
+    { minimal, "(module", "(module/**/", 0 },
+    { minimal, "(module", "(module\\\n", 0 },
+    { minimal, "vertex start", "Vertex start", Arcadia_Status_SyntacticalError },
+    { minimal, "module", "mod\\\nule", Arcadia_Status_SyntacticalError },
+    { minimal, "(type Z void)", "(type Z void) (type true int)", Arcadia_Status_SyntacticalError },
+    { minimal, "(type Z void)", "(type Z void) (type false int)", Arcadia_Status_SyntacticalError },
+    { minimal, "(type Z void)", "(type Z void) (type void int)", Arcadia_Status_SyntacticalError },
+    { minimal, "(type Z void)", "(type Z void extra)", Arcadia_Status_SyntacticalError },
+    { minimal, "(type Z void)", "(type Z void) (type Bad missing)", Arcadia_Status_SyntacticalError },
+    { minimal, "(type Z void)", "(type Z void) (type Bad array Missing 1)", Arcadia_Status_SemanticalError },
+    { minimal, "(type Z void)", "(type Z void) (type Bad array V 0)", Arcadia_Status_SemanticalError },
+    { minimal, "(type Z void)", "(type Z void) (type Bad vector float 1)", Arcadia_Status_SemanticalError },
+    { minimal, "(type Z void)", "(type Z void) (type Bad matrix 5 2)", Arcadia_Status_SemanticalError },
+    { minimal, "(type Z void)", "(type Z void) (type Bad record \"R\" (field \"x\" Z))", Arcadia_Status_SemanticalError },
+    { minimal, "(type Z void)", "(type Z void) (type Bad record \"R\" (field \"x\" V) (field \"x\" V))", Arcadia_Status_SemanticalError },
+    { minimal, "(uniforms)", "(uniforms (scalar u \"u\" V) (scalar u \"other\" V))", Arcadia_Status_SemanticalError },
+    { minimal, "(uniforms)", "(uniforms (scalar u \"same\" V) (scalar other \"same\" V))", Arcadia_Status_SemanticalError },
+    { minimal, "(uniforms)", "(uniforms (record u \"u\" V))", Arcadia_Status_SemanticalError },
+    { minimal, "(uniforms)", "(uniforms (scalar u \"\" V))", Arcadia_Status_SemanticalError },
+    { minimal, "\"vertex_main\"", "\"\"", Arcadia_Status_SemanticalError },
+    { minimal, "\"position\"", "\"\"", Arcadia_Status_SemanticalError },
+    { minimal, "(uniforms)", "(uniforms (scalar u \"u\" Missing))", Arcadia_Status_SemanticalError },
+    { minimal, "(interface (out pos \"position\" V -1 position))", "(interface (out pos \"position\" V -1 position) (out pos \"other\" V 0 none))", Arcadia_Status_SemanticalError },
+    { minimal, "(register r42 V)", "(register r V)", Arcadia_Status_SyntacticalError },
+    { minimal, "(register r42 V)", "(register r42 Missing)", Arcadia_Status_SemanticalError },
+    { minimal, "(register r42 V)", "(register \"r42\" V)", Arcadia_Status_SyntacticalError },
+    { minimal, "(uniforms)", "(uniforms (array u \"u\" V \"2\"))", Arcadia_Status_SyntacticalError },
+    { minimal, "(return)", "(return) (return)", Arcadia_Status_SyntacticalError },
+    { minimal, "(store (stage pos) r42)", "(store (uniform pos) r42)", Arcadia_Status_SemanticalError },
+    { minimal, "(store (stage pos) r42)", "(store (parameter pos) r42)", Arcadia_Status_SemanticalError },
+    { minimal, "(store (stage pos) r42)", "(store (member_ref (local r42) \"x\") r42)", Arcadia_Status_SemanticalError },
+    { minimal, "(store (stage pos) r42)", "(store (index_ref (local r42) (int 0)) r42)", Arcadia_Status_SemanticalError },
+    { minimal, "(return)", "(branch_if (bool true) entry Missing)", Arcadia_Status_SemanticalError },
+    { complete, "(parameter input F)", "(parameter input F) (parameter input F)", Arcadia_Status_SemanticalError },
+    { complete, "(function helper 'helper' F", "(function main 'helper' F", Arcadia_Status_SemanticalError },
+    { complete, "(function helper 'helper' F", "(function helper 'vertex_main' F", Arcadia_Status_SemanticalError },
+    { complete, "(return r0)", "(return r0)) (block entry (return r0)", Arcadia_Status_SemanticalError },
+    { complete, "(call r1 helper (float 2.0))", "(call r1 count (int 0))", Arcadia_Status_SemanticalError },
+    { complete, "(texture r0 r7 r8)", "(texture void r7 r8)", Arcadia_Status_SyntacticalError },
+    { complete, "(texture r0 r7 r8)", "(texture r0 r7 r8 r8)", Arcadia_Status_SyntacticalError },
+    { complete, "(call void sink)", "(call void Missing)", Arcadia_Status_SemanticalError },
+    { complete, "(call void sink)", "(call void sink (int 0))", Arcadia_Status_SemanticalError },
+    { complete, "(swizzle r6 r5 \"xyz\")", "(swizzle r6 r5 \"\")", Arcadia_Status_SemanticalError },
+    { complete, "(block kill (discard))", "(block kill (discard) (return))", Arcadia_Status_SyntacticalError }
+  };
+
+  for (Arcadia_SizeValue i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+    Arcadia_String* source = replace(thread, cases[i].source, cases[i].find, cases[i].replacement);
+    if (cases[i].status) expectReadFailure(thread, Arcadia_String_getBytes(thread, source), Arcadia_String_getNumberOfBytes(thread, source), cases[i].status);
+    else {
+      Arcadia_Languages_Diagnostics* d = diagnostics(thread);
+      Arcadia_VPL_IR_Module* module = read(thread, Arcadia_String_getBytes(thread, source), Arcadia_String_getNumberOfBytes(thread, source), d);
+      Arcadia_VPL_VerifiedModule* snapshot = (Arcadia_VPL_VerifiedModule*)root(thread, (Arcadia_Object*)Arcadia_VPL_VerifiedModule_create(thread, module, d));
+      Arcadia_Tests_assertTrue(thread, snapshot != NULL && !Arcadia_Languages_Diagnostics_hasErrors(thread, d));
+    }
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+  }
+  char trailing[sizeof(minimal) + 2];
+  memcpy(trailing, minimal, sizeof(minimal) - 1);
+  trailing[sizeof(minimal) - 1] = ')';
+  trailing[sizeof(minimal)] = 0;
+  expectReadFailureAt(thread, trailing, sizeof(minimal), Arcadia_Status_SyntacticalError, sizeof(minimal) - 1);
+}
+
+static void
+appendText
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* builder,
+    const char* text
+  )
+{
+  Arcadia_Value value = Arcadia_Value_makeRuntimeUTF8StringValue(Arcadia_RuntimeUTF8String_create(thread, text, strlen(text)));
+  Arcadia_ValueStack_pushValue(thread, &value);
+  Arcadia_StringBuilder_insertBack(thread, builder, value);
+  Arcadia_ValueStack_popValues(thread, 1);
+}
+
+static void
+appendNumber
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* builder,
+    Arcadia_SizeValue number
+  )
+{
+  Arcadia_String* value = Arcadia_String_createFromSize(thread, number);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)value);
+  Arcadia_StringBuilder_insertBack(thread, builder, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)value));
+  Arcadia_ValueStack_popValues(thread, 1);
+}
+
+static void
+testTypeDepthIndependentOfDeclarationOrder
+  (
+    Arcadia_Thread* thread
+  )
+{
+  for (int reverse = 0; reverse < 2; ++reverse) {
+    for (Arcadia_SizeValue depth = 128; depth <= 129; ++depth) {
+      Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+      Arcadia_StringBuilder* definitions = (Arcadia_StringBuilder*)root(thread, (Arcadia_Object*)Arcadia_StringBuilder_create(thread));
+      appendText(thread, definitions, "(type Z void) ");
+      for (Arcadia_SizeValue j = 0; j <= depth; ++j) {
+        Arcadia_SizeValue i = reverse ? depth - j : j;
+        appendText(thread, definitions, "(type T"); appendNumber(thread, definitions, i);
+        if (!i) appendText(thread, definitions, " int) ");
+        else {
+          appendText(thread, definitions, " array T"); appendNumber(thread, definitions, i - 1); appendText(thread, definitions, " 1) ");
+        }
+      }
+      Arcadia_String* source = replaceBytes(thread, minimal, "(type Z void)", Arcadia_StringBuilder_getBytes(thread, definitions), Arcadia_StringBuilder_getNumberOfBytes(thread, definitions));
+      if (depth == 129) expectReadFailure(thread, Arcadia_String_getBytes(thread, source), Arcadia_String_getNumberOfBytes(thread, source), Arcadia_Status_SemanticalError);
+      else {
+        Arcadia_Languages_Diagnostics* d = diagnostics(thread);
+        read(thread, Arcadia_String_getBytes(thread, source), Arcadia_String_getNumberOfBytes(thread, source), d);
+        Arcadia_Tests_assertTrue(thread, !Arcadia_Languages_Diagnostics_hasErrors(thread, d));
+      }
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+    }
+  }
+}
+
+static void
+testConstructorConformance
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const struct {
+    const char* type;
+    const char* arguments;
+    Arcadia_BooleanValue valid;
+  } cases[] = {
+    { "F", "(int 1)", 1 }, { "I", "(float 1.0)", 0 },
+    { "B", "(bool true)", 1 }, { "B", "(int 0)", 0 },
+    { "F", "", 0 }, { "F", "(float 1) (float 2)", 0 },
+    { "V", "(float 1)", 1 }, { "V", "(int 1)", 1 }, { "V", "(bool false)", 0 },
+    { "V", "r61 (float 1)", 1 }, { "V", "r61", 0 },
+    { "V3", "r61", 1 }, { "V2", "r61", 0 },
+    { "IV2", "(int 1)", 1 }, { "IV2", "(float 1)", 0 },
+    { "BV2", "(bool true)", 1 }, { "BV2", "(int 1)", 0 },
+    { "V2", "r62", 0 }, { "BV2", "r62", 0 },
+    { "M", "(float 1)", 1 }, { "M", "(int 1)", 1 }, { "M", "r61 r61", 1 },
+    { "M", "(bool false)", 0 }, { "M", "(float 1) (float 2) (float 3) (float 4) (float 5)", 0 },
+    { "A", "(float 1) (float 2)", 1 }, { "A", "(int 1) (float 2)", 0 },
+    { "R", "(float 1) (int 2)", 1 }, { "R", "(int 1) (int 2)", 0 },
+    { "R", "(int 1) (float 2)", 0 }, { "R", "(float 1)", 0 },
+    { "E", "", 1 }, { "S", "", 0 }, { "Z", "", 0 }
+  };
+
+  for (Arcadia_SizeValue i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+    Arcadia_String* source = replace(thread, minimal, "(type Z void)",
+      "(type Z void) (type F float) (type I int) (type B bool) (type V2 vector float 2)"
+      " (type V3 vector float 3) (type IV2 vector int 2) (type BV2 vector bool 2)"
+      " (type M matrix 2 3) (type A array F 2) (type R record \"Pair\" (field \"x\" F) (field \"y\" I))"
+      " (type E record \"Empty\") (type S sampler2D)");
+    Arcadia_StringBuilder* registers = (Arcadia_StringBuilder*)root(thread, (Arcadia_Object*)Arcadia_StringBuilder_create(thread));
+    appendText(thread, registers, "(register r42 V) (register r61 V3) (register r62 IV2) (register r60 ");
+    appendText(thread, registers, cases[i].type); appendText(thread, registers, ")");
+    source = replaceSpan(thread, Arcadia_String_getBytes(thread, source), Arcadia_String_getNumberOfBytes(thread, source), "(register r42 V)", Arcadia_StringBuilder_getBytes(thread, registers), Arcadia_StringBuilder_getNumberOfBytes(thread, registers));
+    Arcadia_StringBuilder* operations = (Arcadia_StringBuilder*)root(thread, (Arcadia_Object*)Arcadia_StringBuilder_create(thread));
+    appendText(thread, operations, "(construct r42 (float 1.0)) (construct r61 (float 1)) (construct r62 (int 1)) (construct r60 ");
+    appendText(thread, operations, cases[i].arguments); appendText(thread, operations, ")");
+    source = replaceSpan(thread, Arcadia_String_getBytes(thread, source), Arcadia_String_getNumberOfBytes(thread, source), "(construct r42 (float 1.0))", Arcadia_StringBuilder_getBytes(thread, operations), Arcadia_StringBuilder_getNumberOfBytes(thread, operations));
+    if (!cases[i].valid) expectReadFailure(thread, Arcadia_String_getBytes(thread, source), Arcadia_String_getNumberOfBytes(thread, source), Arcadia_Status_SemanticalError);
+    else {
+      Arcadia_Languages_Diagnostics* d = diagnostics(thread);
+      Arcadia_VPL_IR_Module* module = read(thread, Arcadia_String_getBytes(thread, source), Arcadia_String_getNumberOfBytes(thread, source), d);
+      root(thread, (Arcadia_Object*)Arcadia_VPL_VerifiedModule_create(thread, module, d));
+      Arcadia_Tests_assertTrue(thread, !Arcadia_Languages_Diagnostics_hasErrors(thread, d));
+    }
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+  }
+}
+
+static void
+testHandwrittenExamples
+  (
+    Arcadia_Thread* thread
+  )
+{
+  const char* files[] = { VPL_TEXT_SPEC_DIRECTORY "/control-flow.vpl", VPL_TEXT_SPEC_DIRECTORY "/aggregate-storage.vpl" };
+  for (int i = 0; i < 2; ++i) {
+    char bytes[8192];
+    FILE* file = fopen(files[i], "rb");
+    Arcadia_Tests_assertTrue(thread, file != NULL);
+    size_t n = fread(bytes, 1, sizeof(bytes), file);
+    int failed = ferror(file), extra = fgetc(file);
+    fclose(file);
+    Arcadia_Tests_assertTrue(thread, !failed && extra == EOF);
+    Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+    Arcadia_Languages_Diagnostics* d = diagnostics(thread);
+    Arcadia_VPL_IR_Module* module = read(thread, bytes, n, d);
+    Arcadia_VPL_VerifiedModule* snapshot = (Arcadia_VPL_VerifiedModule*)root(thread, (Arcadia_Object*)Arcadia_VPL_VerifiedModule_create(thread, module, d));
+    Arcadia_VPL_IR_Module* copy = (Arcadia_VPL_IR_Module*)root(thread, (Arcadia_Object*)Arcadia_VPL_VerifiedModule_materialize(thread, snapshot, d));
+    Arcadia_String* canonical = (Arcadia_String*)root(thread, (Arcadia_Object*)Arcadia_VPL_Text_write(thread, copy, d));
+    Arcadia_String* original = Arcadia_VPL_VerifiedModule_getText(thread, snapshot);
+    Arcadia_Tests_assertTrue(thread, Arcadia_String_isEqualTo_pn(thread, original, Arcadia_String_getBytes(thread, canonical), Arcadia_String_getNumberOfBytes(thread, canonical)));
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+  }
+}
+
+static int
+runRoundTrips
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testRoundTrips) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runFailures
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testFailures) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runPublicationAndLexicalDetails
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testPublicationAndLexicalDetails) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runLocatedDiagnostics
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testLocatedDiagnostics) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNumericPublicationRejection
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testNumericPublicationRejection) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runPublishedExample
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testPublishedExample) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runBinary32RoundTrips
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testBinary32RoundTrips) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runGrammarAndBindingConformance
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testGrammarAndBindingConformance) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runTypeDepthIndependentOfDeclarationOrder
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testTypeDepthIndependentOfDeclarationOrder) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runConstructorConformance
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testConstructorConformance) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runHandwrittenExamples
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testHandwrittenExamples) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -382,12 +762,18 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&testRoundTrips)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testFailures)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testPublicationAndLexicalDetails)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testLocatedDiagnostics)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testNumericPublicationRejection)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testPublishedExample)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testBinary32RoundTrips)) return EXIT_FAILURE;
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "RoundTrips", &runRoundTrips },
+    { "Failures", &runFailures },
+    { "PublicationAndLexicalDetails", &runPublicationAndLexicalDetails },
+    { "LocatedDiagnostics", &runLocatedDiagnostics },
+    { "NumericPublicationRejection", &runNumericPublicationRejection },
+    { "PublishedExample", &runPublishedExample },
+    { "Binary32RoundTrips", &runBinary32RoundTrips },
+    { "GrammarAndBindingConformance", &runGrammarAndBindingConformance },
+    { "TypeDepthIndependentOfDeclarationOrder", &runTypeDepthIndependentOfDeclarationOrder },
+    { "ConstructorConformance", &runConstructorConformance },
+    { "HandwrittenExamples", &runHandwrittenExamples },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

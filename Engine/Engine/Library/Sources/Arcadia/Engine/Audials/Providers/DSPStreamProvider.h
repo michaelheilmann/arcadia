@@ -18,6 +18,7 @@
 #define ARCADIA_ENGINE_AUDIALS_PROVIDERS_DSPSTREAMPROVIDER_H_INCLUDED
 
 #include "Arcadia/Engine/Audials/Providers/AudioStreamProvider.h"
+#include "Arcadia/Media/Include.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Audials.DSPStreamProvider", Arcadia_Engine_Audials_DSPStreamProvider,
                           u8"Arcadia.Engine.Audials.AudioStreamProvider");

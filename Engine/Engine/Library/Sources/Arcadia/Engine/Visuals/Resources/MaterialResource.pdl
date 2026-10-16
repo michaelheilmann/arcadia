@@ -1,0 +1,39 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Scalar material state is backend-neutral. Texture/program ownership and GPU
+// operations remain in the native backend subtype. Preserve the mapped header
+// path and inherited, unbound Resource operations.
+abstract class "Arcadia/Engine/Visuals/Resources/MaterialResource.h" Arcadia.Engine.Visuals.MaterialResource extends Arcadia.Engine.Visuals.Resource {
+  variable blendEnabled : Arcadia.Boolean
+  variable blendSourceFunction : Arcadia.Engine.Visuals.BlendFunction
+  variable blendDestinationFunction : Arcadia.Engine.Visuals.BlendFunction
+  variable ambientColorSource : Arcadia.Engine.Visuals.ColorSource
+
+  constructor(
+    variable context : Arcadia.Engine.Visuals.BackendContext,
+    variable blendEnabled : Arcadia.Boolean,
+    variable blendSourceFunction : Arcadia.Engine.Visuals.BlendFunction,
+    variable blendDestinationFunction : Arcadia.Engine.Visuals.BlendFunction,
+    variable ambientColorSource : Arcadia.Engine.Visuals.ColorSource
+  ) {
+    construct $0 Arcadia.Engine.Visuals.Resource self context
+    storeField self blendEnabled blendEnabled
+    storeField self blendSourceFunction blendSourceFunction
+    storeField self blendDestinationFunction blendDestinationFunction
+    storeField self ambientColorSource ambientColorSource
+  }
+}

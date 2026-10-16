@@ -23,14 +23,25 @@ Arcadia_defineInterfaceType(u8"Arcadia.Engine.UI.Scrollable", Arcadia_Engine_UI_
                          )
 
 void
-Arcadia_Engine_UI_Scrollable_scrollBy(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Integer32Value deltaX, Arcadia_Integer32Value deltaY)
+Arcadia_Engine_UI_Scrollable_scrollBy
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Integer32Value deltaX,
+    Arcadia_Integer32Value deltaY
+  )
 {
   Arcadia_InterfaceCall(Arcadia_Engine_UI_Scrollable, scrollBy, self, deltaX, deltaY);
 }
 
 void
-Arcadia_Engine_UI_Scrollable_scrollTo(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Integer32Value x, Arcadia_Integer32Value y)
+Arcadia_Engine_UI_Scrollable_scrollTo
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Integer32Value x,
+    Arcadia_Integer32Value y
+  )
 {
   Arcadia_InterfaceCall(Arcadia_Engine_UI_Scrollable, scrollTo, self, x, y);
 }
-

@@ -41,8 +41,7 @@
 #define Arcadia_VPL_IR_InstructionKind_Member (7)
 // See Arcadia.VPL.IR.IndexInstruction for more information.
 #define Arcadia_VPL_IR_InstructionKind_Index (8)
-// See Arcadia.VPL.IR.DiscardInstruction for more information.
-#define Arcadia_VPL_IR_InstructionKind_Discard (9)
+// Kind 9 was the retired, non-terminating discard scaffold. Do not reuse it.
 #define Arcadia_VPL_IR_InstructionKind_Copy (10)
 
 // The base of all intermediate-representation instructions.

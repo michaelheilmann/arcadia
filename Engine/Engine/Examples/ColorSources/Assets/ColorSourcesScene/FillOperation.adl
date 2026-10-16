@@ -1,0 +1,8 @@
+{
+  type : "PixelBufferOperations.CheckerboardFillOperation",
+  name : "ColorSourcesScene.FillOperation",
+  checkerWidth : 32,
+  checkerHeight : 32,
+  firstCheckerColor : "ColorSourcesScene.FirstColor",
+  secondCheckerColor : "ColorSourcesScene.SecondColor",
+}

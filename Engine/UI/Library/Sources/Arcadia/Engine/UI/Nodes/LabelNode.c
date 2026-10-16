@@ -441,6 +441,7 @@ Arcadia_Engine_UI_LabelNode_createFromDefinition
                                                                          source->verticalAlignment, source->red, source->green,
                                                                          source->blue, source->alpha);
   Arcadia_Engine_UI_LabelNode_setPixelSize(thread, node, source->pixelSize);
+  Arcadia_Engine_UI_WidgetNode_setName(thread, (Arcadia_Engine_UI_WidgetNode*)node, ((Arcadia_ADL_Definition*)source)->name);
   Arcadia_ValueStack_popValues(thread, 1);
   return node;
 }

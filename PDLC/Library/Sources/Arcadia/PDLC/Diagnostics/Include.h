@@ -21,6 +21,7 @@
 #include "Arcadia/PDLC/Diagnostics/CyclicInheritanceDiagnostic.h"
 #include "Arcadia/PDLC/Diagnostics/CyclicInterfaceInheritanceDiagnostic.h"
 #include "Arcadia/PDLC/Diagnostics/FileNotFoundDiagnostic.h"
+#include "Arcadia/PDLC/Diagnostics/FileSystemDiagnostic.h"
 #include "Arcadia/PDLC/Diagnostics/IntegerLiteralOutOfRangeDiagnostic.h"
 #include "Arcadia/PDLC/Diagnostics/InterfaceOperationHasBodyDiagnostic.h"
 #include "Arcadia/PDLC/Diagnostics/InvalidPathDiagnostic.h"

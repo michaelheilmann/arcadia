@@ -1,0 +1,8 @@
+native class MyModule.External {
+  method native "MyModule_External_read_impl" read : Arcadia.Natural64
+}
+
+procedure use(variable self : MyModule.External) : Arcadia.Natural64 {
+  invoke $0 read self
+  return $0
+}

@@ -1,0 +1,36 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Immutable descriptor of a vertex. Declaration generation only: the existing
+// constructor, visitor, algorithms and private module factory remain native.
+native implementation "Arcadia/Media/VertexDescriptor.h" class Arcadia.Media.VertexDescriptor extends Arcadia.Object {
+  // Distance in Bytes between the starts of consecutive vertices.
+  // TODO: store padding between vertices instead of stride, as in the native API.
+  variable stride : Arcadia.Size
+  // The list of vertex element descriptors.
+  variable vertexElementDescriptors : Arcadia.ImmutableList
+  // Size of a vertex in Bytes; retain native Natural32 wrapping arithmetic.
+  variable vertexSize : Arcadia.Natural32
+  method nonvirtual getVertexSize : Arcadia.Natural32
+  // Get the stride (the distance in Bytes between consecutive vertex starts).
+  // thread points to this thread; self points to this vertex descriptor.
+  // Returns the stride in Bytes.
+  method nonvirtual getStride : Arcadia.Size
+  // Get the immutable list of vertex element descriptors.
+  // thread points to this thread; self points to this vertex descriptor.
+  // Returns a pointer to the list of vertex element descriptors.
+  method nonvirtual getVertexElementDescriptors : Arcadia.ImmutableList
+}

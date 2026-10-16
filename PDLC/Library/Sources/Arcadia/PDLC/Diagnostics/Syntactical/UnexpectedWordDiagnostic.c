@@ -213,6 +213,9 @@ wordTypeToString
       return Arcadia_String_createFromCxxString(thread, u8"<void literal>");
     } break;
 
+    case Arcadia_PDLC_WordType_Abstract: {
+      return Arcadia_String_createFromCxxString(thread, u8"`abstract`");
+    } break;
     case Arcadia_PDLC_WordType_Class: {
       return Arcadia_String_createFromCxxString(thread, u8"`class`");
     } break;

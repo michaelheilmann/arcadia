@@ -18,7 +18,7 @@ platform:
     - x64
     - Win32
 
-# Build configurations.
+# Build configurations "Release", "Debug", "MinSizeRel", and "RelWithDebInfo".
 configuration:
     - Release
     - Debug
@@ -93,9 +93,13 @@ before_build:
     # Generate build files.
     - ps: |
         # Generate the build files.
-        cd ${env:BUILD_DIRECTORY}; cmake -G ${env:CMAKE_GENERATOR_NAME} -A ${env:CMAKE_ARCHITECTURE_NAME} -D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=TRUE -D"Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled"=TRUE ${env:CLONE_DIRECTORY}\CMakeLists.txt
+        cmake -S "${env:CLONE_DIRECTORY}" -B "${env:BUILD_DIRECTORY}" -G ${env:CMAKE_GENERATOR_NAME} -A ${env:CMAKE_ARCHITECTURE_NAME} -D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=TRUE -D"Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled"=TRUE
+        if ($LASTEXITCODE) { exit $LASTEXITCODE }
         # Install dependencies.
-        cd ${env:BUILD_DIRECTORY}; cmake --build . --target "Arcadia.InstallDependencies"
+        if (!(Test-Path "${env:BUILD_DIRECTORY}/.Dependencies")) {
+          cmake --build "${env:BUILD_DIRECTORY}" --target "Arcadia.InstallDependencies"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+        }
 
 build:
     parallel: true # enable MSBuild parallel builds
@@ -109,14 +113,37 @@ after_build:
     - ps: Push-AppveyorArtifact ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} -FileName ${env:ARCHIVE_FILENAME} -DeploymentName ${env:ARCHIVE_FILENAME}
 
 test_script:
-    - ps: ctest --output-junit ${env:BUILD_DIRECTORY}/test-results-${env:APPVEYOR_JOB_ID}.xml -C ${env:CONFIGURATION}
+    - ps: |
+        $report = Join-Path $env:BUILD_DIRECTORY "test-results-$($env:APPVEYOR_JOB_ID).xml"
+
+        ctest --test-dir "$env:BUILD_DIRECTORY" -C "$env:CONFIGURATION" --output-on-failure --output-junit "$report"
+
+        $testExitCode = $LASTEXITCODE
+        Write-Host "CTest exit code: $testExitCode"
+
+        if ($testExitCode -ne 0) {
+          throw "CTest failed with exit code $testExitCode"
+        }
+
+        Write-Host "CTest completed successfully."
 on_finish:
+    #Do not print the full log file. Use `Get-Content $log -Tail 100` or something.
+    #- ps: |
+    #    $log = Join-Path $env:BUILD_DIRECTORY "Testing/Temporary/LastTest.log"
+    #    if (Test-Path $log) { Get-Content $log }
     - ps: |
-        get-content ${env:BUILD_DIRECTORY}/Testing/Temporary/LastTest.log
-        get-content (Resolve-Path .\test-results-${env:APPVEYOR_JOB_ID}.xml)
-    - ps: |
-        $webClient = New-Object 'System.Net.WebClient'
-        $webClient.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test-results-${env:APPVEYOR_JOB_ID}.xml))
+        $report = Join-Path $env:BUILD_DIRECTORY "test-results-$($env:APPVEYOR_JOB_ID).xml"
+        if (Test-Path $report) {
+          $webClient = New-Object 'System.Net.WebClient'
+          try {
+            $webClient.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", $report) | Out-Null
+            Write-Host "JUnit report uploaded successfully."
+          } catch {
+            Write-Warning "JUnit upload failed: $($_.Exception.Message)"
+          } finally {
+            $webClient.Dispose()
+          }
+        } else { Write-Warning "CTest report not produced: $report" }
 
 # If one matrix entry fails, all entries fails (https://www.appveyor.com/docs/build-configuration#failing-strategy).
 matrix:
@@ -133,7 +160,7 @@ deploy:
     provider: GitHub
     auth_token:
         secure: iTg7jon0UCvoGT5y2flVxD+NxPVU7uUV5dGZYhUuaUmMZHW1Fa35A34q4ab1AH+26aSnKZMPggvjms206GEmcEF/ZkZbXhi9fniN2fHXjmwKe6zJhWBwBl+/7B+qwLPl # encrypted token from GitHub
-        artifact: $(ARCHIVE_FILENAME) # name (not path) of the artifact
+    artifact: $(ARCHIVE_FILENAME) # name (not path) of the artifact
     draft: true
     prerelease: false
     force_update: true

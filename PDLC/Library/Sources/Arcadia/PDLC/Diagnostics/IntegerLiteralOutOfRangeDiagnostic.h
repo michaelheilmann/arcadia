@@ -38,7 +38,7 @@ struct Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnosticDispatch {
 struct Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic {
   Arcadia_Languages_Diagnostic _parent;
   /// @brief The symbol of the enumeration constant.
-  Arcadia_PDLC_EnumerationConstantSymbol* symbol;
+  Arcadia_PDLC_Symbol* symbol;
   /// @brief The textual value of the initializer of the enumeration constant.
   Arcadia_String* value;
 };
@@ -51,6 +51,17 @@ Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic_create
     Arcadia_Languages_InputFile* file,
     Arcadia_SizeValue offset,
     Arcadia_PDLC_EnumerationConstantSymbol* symbol,
+    Arcadia_String* value
+  );
+
+Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic*
+Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic_createForSymbol
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_DiagnosticType type,
+    Arcadia_Languages_InputFile* file,
+    Arcadia_SizeValue offset,
+    Arcadia_PDLC_Symbol* symbol,
     Arcadia_String* value
   );
 

@@ -169,6 +169,7 @@ onCompleteOperation
   // Enter the operation symbol into the interface symbol.
   Arcadia_PDLC_MethodSymbol* methodSymbol = Arcadia_PDLC_MethodSymbol_create(thread, node->name);
   methodSymbol->ast = node;
+  methodSymbol->isAbstract = Arcadia_BooleanValue_True;
   ((Arcadia_PDLC_Symbol*)methodSymbol)->enclosing = (Arcadia_PDLC_Symbol*)interfaceSymbol;
   Arcadia_List_insertBack(thread, interfaceSymbol->operations, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)methodSymbol));
   if (Arcadia_Languages_Scope_contains(thread, interfaceSymbol->scope, ((Arcadia_PDLC_Symbol*)methodSymbol)->name, Arcadia_BooleanValue_False)) {

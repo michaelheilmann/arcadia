@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
@@ -284,18 +286,34 @@ Arcadia_Ring1_Tests_UTF8ArrayIteratorTests2
   }
 }
 
+static int
+runEmptyInput
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_UTF8ArrayIteratorTests1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runEncodingsAndOverlong
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_UTF8ArrayIteratorTests2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_UTF8ArrayIteratorTests1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_UTF8ArrayIteratorTests2)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "EmptyInput", &runEmptyInput },
+    { "EncodingsAndOverlong", &runEncodingsAndOverlong },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

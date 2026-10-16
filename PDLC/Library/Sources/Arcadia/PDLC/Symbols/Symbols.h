@@ -45,6 +45,8 @@ struct Arcadia_PDLC_Symbols {
   /// intrinsic property a built-in type needs. Membership of this registry is what makes a symbol
   /// built-in, so the registry cannot drift out of sync with `Arcadia_PDLC_Symbols_isBuiltIn`.
   Arcadia_Map* builtIns;
+  /// Native callable targets supplied by the built-in registry, keyed by member symbol.
+  Arcadia_Map* nativeTargets;
 };
 
 Arcadia_PDLC_Symbols*
@@ -107,6 +109,25 @@ Arcadia_PDLC_Symbols_isBuiltIn
     Arcadia_Thread* thread,
     Arcadia_PDLC_Symbols* self,
     Arcadia_PDLC_Symbol* symbol
+  );
+
+/// Resolve source annotations and registry-supplied native bindings at one boundary.
+/// Returns null for a non-native callable. Native target names are verbatim C identifiers.
+Arcadia_String*
+Arcadia_PDLC_Symbols_getNativeTarget
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Symbols* self,
+    Arcadia_PDLC_Symbol* symbol
+  );
+
+void
+Arcadia_PDLC_Symbols_setNativeTarget
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Symbols* self,
+    Arcadia_PDLC_Symbol* symbol,
+    Arcadia_String* target
   );
 
 #endif // ARCADIA_PDLC_SYMBOLS_SYMBOLS_H_INCLUDED

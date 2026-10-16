@@ -17,45 +17,46 @@
 #if !defined(ARCADIA_ENGINE_APPLICATION_H_INCLUDED)
 #define ARCADIA_ENGINE_APPLICATION_H_INCLUDED
 
-#include "Arcadia/DDL/Include.h"
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Application.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
 
-#include "Arcadia/Engine/Visuals/ApplicationQuitRequestedEvent.h"
-#include "Arcadia/Engine/Input/KeyboardKeyEvent.h"
-#include "Arcadia/Engine/Visuals/WindowClosedEvent.h"
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_DDL_Node Arcadia_DDL_Node;
 typedef struct Arcadia_Engine Arcadia_Engine;
+typedef struct Arcadia_Engine_Application Arcadia_Engine_Application;
+typedef struct Arcadia_Engine_Input_KeyboardKeyEvent Arcadia_Engine_Input_KeyboardKeyEvent;
+typedef struct Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent;
+typedef struct Arcadia_Engine_Visuals_WindowClosedEvent Arcadia_Engine_Visuals_WindowClosedEvent;
+typedef struct Arcadia_List Arcadia_List;
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Application", Arcadia_Engine_Application,
                           u8"Arcadia.Object");
 
 struct Arcadia_Engine_ApplicationDispatch {
-  Arcadia_ObjectDispatch parent;
+  Arcadia_ObjectDispatch _parent;
+
   void (*startup)(Arcadia_Thread*, Arcadia_Engine_Application*);
+
   void (*shutdown)(Arcadia_Thread*, Arcadia_Engine_Application*);
 
   void (*onApplicationQuitRequestedEvent)(Arcadia_Thread*, Arcadia_Engine_Application*, Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent*);
+
   void (*onKeyboardKeyEvent)(Arcadia_Thread*, Arcadia_Engine_Application*, Arcadia_Engine_Input_KeyboardKeyEvent*);
+
   void (*onWindowClosedEvent)(Arcadia_Thread*, Arcadia_Engine_Application*, Arcadia_Engine_Visuals_WindowClosedEvent*);
 };
 
 struct Arcadia_Engine_Application {
-  Arcadia_Object parent;
-  /// @a Arcadia_BooleanValue_False if quit was not requested.
-  /// @a Arcadia_BooleanValue_True if quit was requested.
-  /// @default Arcadia_BooleanValue_False
+  Arcadia_Object _parent;
   Arcadia_BooleanValue quitRequested;
-  /// @brief A pointer to the engine.
   Arcadia_Engine* engine;
-  /// @brief A list of windows. When a window is closed, it is removed from that list.
-  /// If all windows were removed, an application quit request message is sent.
   Arcadia_List* windows;
-  /// @brief A pointer to the configuration
   Arcadia_DDL_Node* configuration;
-  /// @brief The application-specific directory under the user's configuration directory.
   Arcadia_String* configurationDirectoryName;
 };
 
-// Invoked when the application starts up.
-// @remarks If you override this, make sure to call the superclass implementation at the start of the override.
 void
 Arcadia_Engine_Application_startup
   (
@@ -63,13 +64,35 @@ Arcadia_Engine_Application_startup
     Arcadia_Engine_Application* self
   );
 
-// Invoked when the application shuts down.
-// @remarks If you override this, make sure th call the superclass implementation at the end of the override.
 void
 Arcadia_Engine_Application_shutdown
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Application* self
+  );
+
+void
+Arcadia_Engine_Application_onApplicationQuitRequestedEvent
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Application* self,
+    Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent* event
+  );
+
+void
+Arcadia_Engine_Application_onKeyboardKeyEvent
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Application* self,
+    Arcadia_Engine_Input_KeyboardKeyEvent* event
+  );
+
+void
+Arcadia_Engine_Application_onWindowClosedEvent
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Application* self,
+    Arcadia_Engine_Visuals_WindowClosedEvent* event
   );
 
 Arcadia_BooleanValue

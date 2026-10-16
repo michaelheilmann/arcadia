@@ -1,0 +1,6 @@
+{
+  type : "SampleBuffer",
+  name : "ColorSourcesScene.AmbienceSampleBuffer",
+  duration : 2,
+  dsp : "ColorSourcesScene.Internal.Ambience.DSP.WhiteNoise",
+}

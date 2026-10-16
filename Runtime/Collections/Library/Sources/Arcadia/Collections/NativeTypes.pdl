@@ -1,0 +1,32 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Defining-module ownership for shared opaque native collection types. Their
+// storage, headers, constructors and executable implementations remain native.
+native "Arcadia/Collections/Include.h" class Arcadia.Collection extends Arcadia.Object {
+  method nonvirtual native "Arcadia_Collection_isEmpty" isEmpty : Arcadia.Boolean
+}
+native "Arcadia/Collections/Include.h" class Arcadia.List extends Arcadia.Collection {}
+native "Arcadia/Collections/Include.h" class Arcadia.ArrayList extends Arcadia.List {}
+native "Arcadia/Collections/Include.h" class Arcadia.ImmutableList extends Arcadia.List {}
+native "Arcadia/Collections/Include.h" class Arcadia.Set extends Arcadia.Collection {}
+native "Arcadia/Collections/Include.h" class Arcadia.HashSet extends Arcadia.Set {}
+native "Arcadia/Collections/Include.h" class Arcadia.Deque extends Arcadia.Collection {
+  method nonvirtual native "Arcadia_Deque_insertBack" insertBack(variable value : Arcadia.Value) : Arcadia.Void
+  method nonvirtual native "Arcadia_Deque_getFront" getFront : Arcadia.Value
+  method nonvirtual native "Arcadia_Deque_removeFront" removeFront : Arcadia.Void
+}
+native "Arcadia/Collections/Include.h" class Arcadia.ArrayDeque extends Arcadia.Deque {}

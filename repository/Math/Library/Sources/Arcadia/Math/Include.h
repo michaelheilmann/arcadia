@@ -32,6 +32,7 @@
 #include "Arcadia/Math/Implementation/Color4Real32.h"
 #include "Arcadia/Math/Implementation/Color4Real64.h"
 #include "Arcadia/Math/Implementation/QuaternionReal32.h"
+#include "Arcadia/Math/Implementation/setLookAt.h"
 #include "Arcadia/Math/Implementation/setOrthographicProjection.h"
 #include "Arcadia/Math/Implementation/setPerspectiveProjection.h"
 #include "Arcadia/Math/Implementation/setRotationX.h"
@@ -39,6 +40,8 @@
 #include "Arcadia/Math/Implementation/setRotationZ.h"
 #include "Arcadia/Math/Implementation/setScaling.h"
 #include "Arcadia/Math/Implementation/setTranslation.h"
+#include "Arcadia/Math/Implementation/transformDirection.h"
+#include "Arcadia/Math/Implementation/transformPoint.h"
 #include "Arcadia/Math/Implementation/Vector3Real32.h"
 #include "Arcadia/Math/Implementation/Vector3Real64.h"
 

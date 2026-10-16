@@ -17,6 +17,9 @@
 #define ARCADIA_ENGINE_UI_PRIVATE (1)
 #include "Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h"
 
-static const Arcadia_Type_Operations _typeOperations = { Arcadia_Type_Operations_Initializer };
+static const Arcadia_Type_Operations _typeOperations = {
+  Arcadia_Type_Operations_Initializer,
+};
 
-Arcadia_defineEnumerationType(u8"Arcadia.Engine.UI.StackPanelNodeAlignment", Arcadia_Engine_UI_StackPanelNodeAlignment, &_typeOperations);
+Arcadia_defineEnumerationType(u8"Arcadia.Engine.UI.StackPanelNodeAlignment", Arcadia_Engine_UI_StackPanelNodeAlignment,
+                              &_typeOperations);

@@ -27,6 +27,7 @@
 #include "Arcadia/Engine/Audials/Resources/SoundSourceResource.h"
 #include "Arcadia/Engine/Audials/Resources/StreamingSoundSourceResource.h"
 #include "Arcadia/Engine/Audials/Nodes/StreamingSoundSourceNode.h"
+#include "Arcadia/Engine/Audials/Nodes/SoundSourceNode.h"
 
 void
 Arcadia_Engine_Audials_registerNodeFactories

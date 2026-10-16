@@ -13,7 +13,10 @@
       refine names to <code>r</code> followed by decimal digits; their numeric IDs are function-local.</p>
       <p>Outside strings, spaces, tabs, common line endings, non-nesting solidus/asterisk comments,
       double-solidus line comments, and reverse-solidus immediately followed by a line ending are
-      ignored. Comments separate words. Other punctuation is not a version-1 word alternative.
+      ignored. Comments and line continuations separate words; a continuation does not join name
+      fragments. Parentheses and either quote delimiter terminate a preceding name or number, so
+      <code>id"display"Type</code> contains three tokens without intervening spaces.
+      Other punctuation is not a version-1 word alternative.
       Integer and real spelling overlap is resolved by operand/declaration context; a maximal
       number word must match the common decimal grammar in its entirety.</p>
       <p>Both quote styles are accepted. Raw C0 controls and line endings are forbidden inside
@@ -31,6 +34,15 @@
       nearest-even conversion in a private C numeric locale. Underflow to signed zero is allowed;
       overflow to infinity is rejected. Invalid UTF-8, overlong encodings, encoded surrogates,
       unclosed strings/comments, and malformed numbers are lexical errors.</p>
+      <p>Size/count and numeric register-ID storage limits are implementation resource bounds,
+      separate from shader arithmetic int32. The current Arcadia reader uses unsigned Arcadia.Size:
+      at most 2^32-1 on a 32-bit build or 2^64-1 on a 64-bit build, with zero forbidden for array
+      lengths. Values beyond that bound are rejected with a range diagnostic. They are not rounded
+      or truncated. This explicitly retains the implementation-defined bound rather than silently
+      narrowing existing v1 inputs; implementations must disclose their bound. GLSL target and
+      hardware resource limits are additional checks. For source portability between these builds,
+      keep register IDs within unsigned 32 bits and GLSL array counts within positive signed 32 bits;
+      this is not a guarantee that a GPU can allocate arrays of that size.</p>
 
       <h3 id="text-grammar">10.2 Grammar</h3>
       <p>In the following grammar, braces denote repetition and brackets optional syntax.
@@ -101,13 +113,26 @@ terminator   : '(' 'branch' id ')' | '(' 'branch_if' operand id id ')'
       types, not source-expression type inference. Calls cannot name a function in another stage.
       A block has exactly one final terminator. Text reading always invokes canonical verification.</p>
       <p>Version 1 limits syntactic form/atom nesting and named-type dependency depth to 128.
+      The type bound counts dependency edges on the longest path, including unused types, regardless
+      of declaration order or whether a referenced type has already been resolved.
       Canonical writing limits derived reference depth to 120 so emitted forms fit that reader
       bound. All counts, ranges, entry signatures, interfaces, operands, and output flows must also
       satisfy the semantic sections above.</p>
 
-      <h3 id="text-example">10.3 Complete example</h3>
+      <h3 id="text-example">10.3 Complete examples</h3>
       <p>This exact source is also read and verified by <code>Arcadia.VPL.Tests.Text</code>:</p>
       <pre><code>@{include("./example.vpl")}</code></pre>
+      <p>The following two hand-authored modules are also read, published, materialized, and
+      round-tripped by that test. <code>Arcadia.VPL.Tests.GLSL.Driver</code> compiles and links those
+      same files and checks their opaque-green fragment results on a native OpenGL driver.</p>
+      <h4 id="text-example-control-flow">Loop and helper call</h4>
+      <p>This module uses an explicit loop back-edge, mutable registers, a forward-referenced helper,
+      a parameter load, and explicit integer-to-floating conversion.</p>
+      <pre><code>@{include("./control-flow.vpl")}</code></pre>
+      <h4 id="text-example-aggregate-storage">Nested aggregate storage</h4>
+      <p>This module initializes a complete local array of records before a dynamic indexed field
+      store and load. The derived reference aliases storage in the local register.</p>
+      <pre><code>@{include("./aggregate-storage.vpl")}</code></pre>
 
       <h2 id="publication">11. Text APIs and verified publication</h2>
       <p><code>Arcadia_VPL_Text_read</code> accepts bytes, byte count, diagnostics, and an optional
@@ -116,6 +141,11 @@ terminator   : '(' 'branch' id ')' | '(' 'branch_if' operand id id ')'
       diagnostics carry a source label, byte offset in <code>inputPosition</code>, and one-based
       Unicode-code-point line/column. Common CR/LF groups count as one line ending. Missing-object
       verifier diagnostics fall back to the module opening when no precise subject is available.</p>
+      <p>Malformed form shapes or token categories are syntactic failures; for example,
+      <code>texture</code> requires a register destination and cannot use <code>void</code>.
+      Unknown or duplicate bindings, invalid type dimensions or uniform kinds, invalid member/index
+      base types, and constructor type/count mismatches are semantic failures. Trailing input is a
+      syntactic failure located at the first trailing token.</p>
       <p><code>Arcadia_VPL_Text_write</code> verifies a current module, emits deterministic text,
       and reads that result back through the same verifier before returning it. Type IDs are t0,
       t1, and so on in deterministic first-discovery order; uniforms, interface slots, functions,

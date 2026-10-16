@@ -81,6 +81,7 @@ contextConstruct
   self->roots = NULL;
   self->locations = NULL;
   self->types = NULL;
+  self->typeDepths = NULL;
   self->uniforms = NULL;
   self->functions = NULL;
   self->registers = NULL;
@@ -90,6 +91,7 @@ contextConstruct
   self->output = NULL;
   self->typeOrder = NULL;
   self->position = 0;
+  self->moduleOffset = 0;
   Arcadia_LeaveConstructor(Arcadia_VPL_Text_Context);
 }
 
@@ -106,6 +108,7 @@ contextVisit
   if (self->roots) Arcadia_Object_visit(thread, (Arcadia_Object*)self->roots);
   if (self->locations) Arcadia_Object_visit(thread, (Arcadia_Object*)self->locations);
   if (self->types) Arcadia_Object_visit(thread, (Arcadia_Object*)self->types);
+  if (self->typeDepths) Arcadia_Object_visit(thread, (Arcadia_Object*)self->typeDepths);
   if (self->uniforms) Arcadia_Object_visit(thread, (Arcadia_Object*)self->uniforms);
   if (self->functions) Arcadia_Object_visit(thread, (Arcadia_Object*)self->functions);
   if (self->registers) Arcadia_Object_visit(thread, (Arcadia_Object*)self->registers);
@@ -155,6 +158,7 @@ Arcadia_VPL_Text_createContext
   self->roots = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   self->locations = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
   self->types = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
+  self->typeDepths = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
   self->uniforms = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
   self->output = Arcadia_StringBuilder_create(thread);
   return self;

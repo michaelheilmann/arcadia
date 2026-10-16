@@ -277,6 +277,9 @@ TypeNodes_destroy
       }
     }
   }
+  // Entries are managed by ARMS; the bucket array and container are unmanaged.
+  Arcadia_Memory_deallocateUnmanaged(Arcadia_Process_getThread(process), typeNodes->buckets);
+  Arcadia_Memory_deallocateUnmanaged(Arcadia_Process_getThread(process), typeNodes);
 }
 
 Arcadia_SizeValue

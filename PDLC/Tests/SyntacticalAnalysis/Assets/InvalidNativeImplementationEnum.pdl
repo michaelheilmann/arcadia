@@ -1,0 +1,3 @@
+native implementation "Generated/Type.h" enumeration Test.E {
+  Value = 0
+}

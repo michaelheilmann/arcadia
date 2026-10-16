@@ -1,0 +1,70 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+native "Arcadia/DDL/Include.h" class Arcadia.DDL.Node extends Arcadia.Object {}
+
+/// Core application state. Native subclasses supply all five dispatch slots;
+/// this base exposes no public create factory or implicit startup/shutdown.
+abstract class Arcadia.Engine.Application extends Arcadia.Object {
+  /// False until an application quit request has been recorded.
+  variable quitRequested : Arcadia.Boolean
+  /// The engine singleton, retained by this application.
+  variable engine : Arcadia.Engine
+  /// List of windows. Closing the last window causes consumers to request quit;
+  /// the base itself does not remove windows or emit quit events.
+  variable windows : Arcadia.List
+  /// The configuration document, initially void.
+  variable configuration : Arcadia.DDL.Node
+  /// Application-specific directory under the user's configuration directory.
+  /// Intentionally void initially; subclasses must choose the value.
+  variable configurationDirectoryName : Arcadia.String
+
+  constructor {
+    storeField self quitRequested false
+    storeField self configuration void
+    storeField self configurationDirectoryName void
+    call $0 Arcadia.Engine.getOrCreate
+    storeField self engine $0
+    call $0 Arcadia.Engine.Visuals.createVisualsWindowsList
+    storeField self windows $0
+  }
+
+  /// On startup, subclasses historically call the superclass implementation
+  /// first when it supplies one; this base's native slot is intentionally empty.
+  method abstract startup : Arcadia.Void
+  /// On shutdown, subclasses historically call the superclass implementation
+  /// last when it supplies one; this base's native slot is intentionally empty.
+  method abstract shutdown : Arcadia.Void
+  method abstract onApplicationQuitRequestedEvent(variable event : Arcadia.Engine.Visuals.ApplicationQuitRequestedEvent) : Arcadia.Void
+  method abstract onKeyboardKeyEvent(variable event : Arcadia.Engine.Input.KeyboardKeyEvent) : Arcadia.Void
+  method abstract onWindowClosedEvent(variable event : Arcadia.Engine.Visuals.WindowClosedEvent) : Arcadia.Void
+
+  method nonvirtual getQuitRequested : Arcadia.Boolean {
+    loadField $0 self quitRequested
+    return $0
+  }
+  method nonvirtual setQuitRequested(variable quitRequested : Arcadia.Boolean) : Arcadia.Void {
+    storeField self quitRequested quitRequested
+  }
+  method nonvirtual setConfigurationDirectoryName(variable configurationDirectoryName : Arcadia.String) : Arcadia.Void {
+    call $0 Arcadia.Engine.requireConfigurationDirectoryName configurationDirectoryName
+    storeField self configurationDirectoryName $0
+  }
+}
+
+// Preserve the native setter's non-null/nonempty string contract and precise
+// ArgumentValueInvalid status. PDL references are otherwise nullable by default.
+procedure native "Arcadia_Engine_requireConfigurationDirectoryNameImpl" Arcadia.Engine.requireConfigurationDirectoryName(variable name : Arcadia.String) : Arcadia.String

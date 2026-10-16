@@ -17,7 +17,7 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_VISUALS_COLORREADER_MODULE_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_VISUALS_COLORREADER_MODULE_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
+#if !defined(ARCADIA_ADL_PRIVATE)
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
 #include "Arcadia/ADL/Reader.h"
@@ -48,6 +48,8 @@ struct Arcadia_ADL_ColorReader {
   Arcadia_String* GREEN;
   // The string `blue` cached here.
   Arcadia_String* BLUE;
+  // The optional string `alpha` cached here.
+  Arcadia_String* ALPHA;
 
   // The validation context. Cached here.
   Arcadia_DDLS_ValidationContext* validationContext;

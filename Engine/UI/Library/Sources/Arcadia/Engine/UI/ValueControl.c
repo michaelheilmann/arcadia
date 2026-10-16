@@ -23,13 +23,22 @@ Arcadia_defineInterfaceType(u8"Arcadia.Engine.UI.ValueControl", Arcadia_Engine_U
                          )
 
 Arcadia_Value
-Arcadia_Engine_UI_ValueControl_getValue(Arcadia_Thread* thread, Arcadia_Object* self)
+Arcadia_Engine_UI_ValueControl_getValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self
+  )
 {
   Arcadia_InterfaceCallWithReturn(Arcadia_Engine_UI_ValueControl, getValue, self);
 }
 
 void
-Arcadia_Engine_UI_ValueControl_setValue(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Value value)
+Arcadia_Engine_UI_ValueControl_setValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Value value
+  )
 {
   Arcadia_InterfaceCall(Arcadia_Engine_UI_ValueControl, setValue, self, value);
 }

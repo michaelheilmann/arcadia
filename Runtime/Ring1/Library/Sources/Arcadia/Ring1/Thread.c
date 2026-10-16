@@ -92,6 +92,21 @@ Arcadia_ValueStack_reverse
   }
 }
 
+void
+Arcadia_ValueStack_setValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_SizeValue index,
+    Arcadia_Value const* value
+  )
+{
+  if (!value || index >= thread->stack.size) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  thread->stack.elements[thread->stack.size - index - 1] = *value;
+}
+
 
 void
 Arcadia_Thread_raise

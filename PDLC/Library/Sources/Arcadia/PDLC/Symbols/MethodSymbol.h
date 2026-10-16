@@ -47,6 +47,8 @@ struct Arcadia_PDLC_MethodSymbol {
 
   /// The method this method is an override of if any. null otherwise.
   Arcadia_PDLC_MethodSymbol* overrideOf;
+  Arcadia_BooleanValue isNonvirtual;
+  Arcadia_BooleanValue isAbstract;
 
   /// The scope for the parameters.
   Arcadia_Languages_Scope* scope;

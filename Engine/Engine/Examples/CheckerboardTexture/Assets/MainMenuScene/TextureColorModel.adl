@@ -1,6 +1,0 @@
-{
-  type : "Model",
-  name : "MainMenuScene.TextureColorModel",
-  mesh : "MainMenuScene.Mesh",
-  material : "MainMenuScene.TextureColorMaterial",
-}

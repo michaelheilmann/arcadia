@@ -33,7 +33,7 @@
     <div class="center-column">
     <h1>Arcadia Program Definition Language</h1>
     <p>The Arcadia Program Definition Language (Arcadia PDL) is the declaration and instruction language consumed by the current compiler implementation in <code>PDLC</code>. The command-line interface for that compiler lives in <code>PDLC.CLI</code>.</p>
-    <p>This specification records the language accepted by the current compiler implementation as far as it can be inferred from the scanner, parser, and checked-in <code>.mil</code> inputs. Changes to accepted Arcadia PDL source syntax, lexical words, instruction forms, or primitive semantics in <code>PDLC</code> should be reflected here. It intentionally does not include the older HLL package, expression, or symbolic-operator grammar because those productions are not accepted by the current parser.</p>
+    <p>This specification records the language accepted by the current compiler implementation as far as it can be inferred from the scanner, parser, and checked-in <code>.pdl</code> inputs. Changes to accepted Arcadia PDL source syntax, lexical words, instruction forms, or primitive semantics in <code>PDLC</code> should be reflected here. It intentionally does not include the older HLL package, expression, or symbolic-operator grammar because those productions are not accepted by the current parser.</p>
 
 @{include("./1. Notation.i")}
 @{include("./2. Translation.i")}

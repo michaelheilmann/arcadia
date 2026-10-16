@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef ARCADIA_MEDIA_VERTEXELEMENTSYNTACTICS_H_INCLUDED
+#if !defined(ARCADIA_MEDIA_VERTEXELEMENTSYNTACTICS_H_INCLUDED)
 #define ARCADIA_MEDIA_VERTEXELEMENTSYNTACTICS_H_INCLUDED
 
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE

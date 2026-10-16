@@ -1,0 +1,6 @@
+{
+  type : "Model",
+  name : "ColorSourcesScene.VertexColorModel",
+  mesh : "ColorSourcesScene.Mesh",
+  material : "ColorSourcesScene.VertexColorMaterial",
+}

@@ -18,6 +18,7 @@
 #include "Arcadia/Media/SampleBuffer.h"
 
 #include "Arcadia/Media/SampleFormat.h"
+#include "Arcadia/Media/SampleFormat/getNumberOfBytes.h"
 #include "Arcadia/Media/DSP.h"
 #include "Arcadia/Media/Quantization.h"
 

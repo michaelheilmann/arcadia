@@ -30,6 +30,8 @@ if (NOT TARGET ${this})
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia.ADL.Tests.Definitions/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.ADL.Tests.Definitions/Configure.h.i)
 
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Main.c)
+  OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/ClassModels.c)
+  OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/ClassModels.h)
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/UI/ContainerComposition.c)
   OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/UI/ContainerComposition.h)
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Visuals/BoxMeshGenerator.c)
@@ -62,6 +64,17 @@ if (NOT TARGET ${this})
 
   OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Audials/SampleBuffer.c)
   OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Audials/SampleBuffer.h)
+  OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Audials/SoundSourceNodes.c)
+  OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Audials/SoundSourceNodes.h)
+
+  OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Graphs/Checkerboard.c)
+  OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Graphs/Checkerboard.h)
+  OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Graphs/Sine.c)
+  OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Graphs/Sine.h)
+  OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Graphs/ReferenceEdges.c)
+  OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Graphs/ReferenceEdges.h)
+  OnSourceFile(${this} Arcadia.ADL.Tests.Definitions/Graphs/Dual.c)
+  OnHeaderFile(${this} Arcadia.ADL.Tests.Definitions/Graphs/Dual.h)
 
   OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
@@ -69,7 +82,9 @@ if (NOT TARGET ${this})
   OnModuleDependency(${this} ${MyProjectName}.Engine.UI PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDLS PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)
+  OnModuleDependency(${this} ${MyProjectName}.Media PRIVATE)
 
+  OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
   EndProduct(${this})
 
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)

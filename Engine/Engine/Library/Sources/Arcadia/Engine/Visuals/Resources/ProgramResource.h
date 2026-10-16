@@ -17,13 +17,17 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_RESOURCES_PROGRAMRESOURCE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_RESOURCES_PROGRAMRESOURCE_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/Resources/ProgramResource.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Visuals/Resource.h"
 
-typedef struct Arcadia_Engine_Visuals_VertexProgramResource Arcadia_Engine_Visuals_VertexProgramResource;
-typedef struct Arcadia_Engine_Visuals_FragmentProgramResource Arcadia_Engine_Visuals_FragmentProgramResource;
+typedef struct Arcadia_Engine_Visuals_ProgramResource Arcadia_Engine_Visuals_ProgramResource;
 
-Arcadia_declareObjectType(u8"Arcadia.Visuals.ProgramResource", Arcadia_Engine_Visuals_ProgramResource,
-                          u8"Arcadia.Visuals.Resource");
+Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.ProgramResource", Arcadia_Engine_Visuals_ProgramResource,
+                          u8"Arcadia.Engine.Visuals.Resource");
 
 struct Arcadia_Engine_Visuals_ProgramResourceDispatch {
   Arcadia_Engine_Visuals_ResourceDispatch _parent;

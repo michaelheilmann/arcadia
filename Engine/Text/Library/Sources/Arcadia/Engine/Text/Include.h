@@ -23,6 +23,7 @@
 #include "Arcadia/Engine/Text/TextLayout.h"
 #include "Arcadia/Engine/Text/MarkupWordType.h"
 #include "Arcadia/Engine/Text/MarkupTextRun.h"
+#include "Arcadia/Engine/Text/requireRunStrings.h"
 #include "Arcadia/Engine/Text/MarkupScanner.h"
 #include "Arcadia/Engine/Text/MarkupParser.h"
 

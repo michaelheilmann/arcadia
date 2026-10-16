@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/PDLC/Include.h"
+#include "Arcadia/PDLC/Tests/AST/Bases.h"
 
 #include "Arcadia/Collections/Include.h"
 
@@ -65,16 +68,55 @@ test1
   Arcadia_List_insertBackObjectReferenceValue(thread, temporary, Arcadia_String_createFromCxxString(thread, "Definition"));
   extendedClassName = Arcadia_ImmutableList_create(thread, Arcadia_Value_makeObjectReferenceValue(temporary));
 
-  Arcadia_PDLC_AST_ClassDefinitionNode_create
+  Arcadia_PDLC_AST_ClassDefinitionNode* node = Arcadia_PDLC_AST_ClassDefinitionNode_create
     (
       thread,
       0,
       Arcadia_BooleanValue_False,
+      Arcadia_BooleanValue_True,
       Arcadia_PDLC_AST_IdentifierNode_create(thread, 0, className),
       Arcadia_PDLC_AST_IdentifierNode_create(thread, 0, extendedClassName),
       NULL,
       classBody
     );
+  Arcadia_Tests_assertTrue(thread, node->isAbstract && !node->isNative);
+}
+
+static void
+testReturnOperands
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_PDLC_AST_ReturnInstructionNode* bare = Arcadia_PDLC_AST_ReturnInstructionNode_create(thread, 0, NULL);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, bare);
+  Arcadia_PDLC_AST_OperandNode* operand = (void*)Arcadia_PDLC_AST_VariableOperandNode_create(thread, 0, Arcadia_String_createFromCxxString(thread, "result"));
+  Arcadia_PDLC_AST_ReturnInstructionNode* valued = Arcadia_PDLC_AST_ReturnInstructionNode_create(thread, 0, operand);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, valued);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+  Arcadia_Tests_assertTrue(thread, !bare->operand && valued->operand == operand);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)valued->operand, _Arcadia_PDLC_AST_VariableOperandNode_getType(thread)));
+  Arcadia_ValueStack_popValues(thread, 2);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+static int
+runClassDefinition
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runReturnOperands
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testReturnOperands) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int
@@ -84,8 +126,10 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&test1)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "ClassDefinition", &runClassDefinition },
+    { "ReturnOperands", &runReturnOperands },
+    { "Bases", &Arcadia_PDLC_Tests_AST_bases },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

@@ -17,8 +17,6 @@
 #if !defined(ARCADIA_VPL_DIAGNOSTICS_INCLUDE_H_INCLUDED)
 #define ARCADIA_VPL_DIAGNOSTICS_INCLUDE_H_INCLUDED
 
-#include "Arcadia/VPL/Diagnostics/SymbolAlreadyDefinedDiagnostic.h"
-#include "Arcadia/VPL/Diagnostics/TypeErrorDiagnostic.h"
 #include "Arcadia/VPL/Diagnostics/VerificationDiagnostic.h"
 
 #endif // ARCADIA_VPL_DIAGNOSTICS_INCLUDE_H_INCLUDED

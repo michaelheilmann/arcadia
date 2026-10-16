@@ -98,13 +98,8 @@ subtract
     Arcadia_Thread* thread
   );
 
-static const Arcadia_ObjectType_Operations _objectTypeOperations = {
-  Arcadia_ObjectType_Operations_Initializer,
-};
-
 static const Arcadia_Type_Operations _typeOperations = {
   Arcadia_Type_Operations_Initializer,
-  .objectTypeOperations = &_objectTypeOperations,
   .add = &add,
   .divide = &divide,
   .isEqualTo = &isEqualTo,

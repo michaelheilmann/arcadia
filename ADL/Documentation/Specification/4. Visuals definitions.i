@@ -6,7 +6,10 @@
 
       <h3>Color</h3>
       <p>
-      Type name: <code>"Color"</code>. A color with red, green, and blue components.
+      Type name: <code>"Color"</code>. A color with straight/unassociated red,
+      green, blue and alpha components. RGB entries are required; alpha is optional
+      and defaults to 255 (opaque). Explicit alpha 0 remains zero. Components are
+      integers in [0, 255]; no premultiplication or color-space conversion is implied.
       Holds no references and therefore links trivially.
       </p>
       <pre>
@@ -15,7 +18,24 @@
 "red"   : &lt;number&gt;    // Natural8, the red component
 "green" : &lt;number&gt;    // Natural8, the green component
 "blue"  : &lt;number&gt;    // Natural8, the blue component
+"alpha" : &lt;number&gt;    // optional Natural8, defaults to 255
       </pre>
+
+      <p>Both forms are valid:</p>
+      <pre>
+{ type: "Color", name: "Colors.Red", red: 255, green: 0, blue: 0 }
+{ type: "Color", name: "Colors.TranslucentRed", red: 255, green: 0, blue: 0, alpha: 128 }
+      </pre>
+      <p>
+      Alpha is stored in the definition, not an instruction to enable blending.
+      Existing RGB-only consumers intentionally retain their behavior:
+      Media Fill/CheckerboardFill write opaque pixels (alpha 255), mesh-generator
+      geometry conversion uses alpha 1, UI Button color state copies RGB only,
+      and current example clear-color/text-run conversions use alpha 1.
+      Explicit four-component vertex colors and material blend settings are
+      separate contracts. No new transparency or material defaults are introduced.
+      Graph expansion preserves explicit Color alpha when cloning local nodes.
+      </p>
 
       <h3>Mesh</h3>
       <p>Type name: <code>"Mesh"</code>. A polygonal mesh given explicitly by its vertex data.</p>

@@ -16,6 +16,7 @@
 
 #define ARCADIA_PDLC_PRIVATE (1)
 #include "Arcadia/PDLC/TypeResolutionPhase/ClassCompleter.h"
+#include "Arcadia/PDLC/TypeResolutionPhase.h"
 
 #include "Arcadia/PDLC/Context.h"
 #include "Arcadia/PDLC/Diagnostics/Include.h"
@@ -50,14 +51,6 @@ Arcadia_PDLC_TypeResolutionPhase_ClassCompleter_visitImpl
   (
     Arcadia_Thread* thread,
     Arcadia_PDLC_TypeResolutionPhase_ClassCompleter* self
-  );
-
-static Arcadia_PDLC_Symbol*
-getEnclosingClassSymbol
-  (
-    Arcadia_Thread* thread,
-    Arcadia_PDLC_Symbol* symbol,
-    Arcadia_PDLC_Context* context
   );
 
 static void
@@ -181,24 +174,6 @@ Arcadia_PDLC_TypeResolutionPhase_ClassCompleter_visitImpl
   }
 }
 
-static Arcadia_PDLC_Symbol*
-getEnclosingClassSymbol
-  (
-    Arcadia_Thread* thread,
-    Arcadia_PDLC_Symbol* symbol,
-    Arcadia_PDLC_Context* context
-  )
-{
-  while (symbol && !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)symbol, _Arcadia_PDLC_ClassSymbol_getType(thread))) {
-    symbol = symbol->enclosing;
-  }
-  if (!symbol) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-  return symbol;
-}
-
 static void
 onCompleteField
   (
@@ -208,34 +183,7 @@ onCompleteField
     Arcadia_PDLC_VariableSymbol* symbol
   )
 {
-  Arcadia_PDLC_Symbol* moduleSymbol = (Arcadia_PDLC_Symbol*)symbol;
-  do {
-    moduleSymbol = moduleSymbol->enclosing;
-    assert(NULL != moduleSymbol);
-  } while (!Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)moduleSymbol, _Arcadia_PDLC_ModuleSymbol_getType(thread)));
-  Arcadia_String* typeName = Arcadia_PDLC_Names_toTypeName(thread, symbol->ast->type->names);
-  Arcadia_PDLC_Symbol* typeSymbol = (Arcadia_PDLC_Symbol*)Arcadia_Languages_Scope_lookup(thread, ((Arcadia_PDLC_ModuleSymbol*)moduleSymbol)->scope, typeName, Arcadia_BooleanValue_True);
-  if (!typeSymbol) {
-    Arcadia_PDLC_ClassSymbol* classSymbol = (Arcadia_PDLC_ClassSymbol*)getEnclosingClassSymbol(thread, (Arcadia_PDLC_Symbol*)symbol, context);
-    Arcadia_PDLC_Environment* e = (Arcadia_PDLC_Environment*)Arcadia_Map_getObjectReferenceValueChecked(thread, context->environments, Arcadia_Value_makeObjectReferenceValue(classSymbol), _Arcadia_PDLC_Environment_getType(thread));
-    Arcadia_Languages_Diagnostics_add
-      (
-        thread,
-        context->diagnostics,
-        (Arcadia_Languages_Diagnostic*)
-        Arcadia_PDLC_Diagnostics_SymbolIsNotDefinedDiagnostic_create
-          (
-            thread,
-            Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, context->inputFileManager, Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
-            Arcadia_SizeValue_Literal(0),
-            typeName
-          )
-      );
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
-    Arcadia_Thread_jump(thread);
-  }
-  symbol->type = typeSymbol;
+  Arcadia_PDLC_TypeResolutionPhase_resolveParameter(thread, Arcadia_PDLC_TypeResolutionPhase_getInstance(thread, context), symbol);
 }
 
 static void

@@ -165,13 +165,26 @@ constructImpl
     Arcadia_PDLC_Backend_ModuleSymbolInfo* moduleSymbolInfo =
       (Arcadia_PDLC_Backend_ModuleSymbolInfo*)Arcadia_PDLC_Backend_Implementation_getOrCreateInfo(thread, implementation, moduleSymbol);
 
-    self->cxxHeaderFilePath = Arcadia_PDLC_Backend_Implementation_makeCxxHeaderFilePath(thread, implementation, self->symbol);
-    self->cxxHeaderFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
-    Arcadia_FilePath_append(thread, self->cxxHeaderFileAbsolutePath, self->cxxHeaderFilePath);
+    Arcadia_PDLC_EnumerationSymbol* e = (Arcadia_PDLC_EnumerationSymbol*)self->symbol;
+    Arcadia_String* header = e->ast ? e->ast->nativeHeaderPath : NULL;
+    self->cxxHeaderFilePath = header ? Arcadia_FilePath_parseGeneric(thread, header)
+      : Arcadia_PDLC_Backend_Implementation_makeCxxHeaderFilePath(thread, implementation, self->symbol);
+    if (!e->isNative) {
+      self->cxxHeaderFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
+      Arcadia_FilePath_append(thread, self->cxxHeaderFileAbsolutePath, self->cxxHeaderFilePath);
 
-    self->cxxSourceFilePath = Arcadia_PDLC_Backend_Implementation_makeCxxSourceFilePath(thread, implementation, self->symbol);
-    self->cxxSourceFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
-    Arcadia_FilePath_append(thread, self->cxxSourceFileAbsolutePath, self->cxxSourceFilePath);
+      if (header) {
+        Arcadia_StringBuilder* path = Arcadia_StringBuilder_create(thread);
+        Arcadia_ValueStack_pushObjectReferenceValue(thread, path);
+        Arcadia_StringBuilder_insertBack(thread, path, Arcadia_Value_makeRuntimeUTF8StringValue(Arcadia_RuntimeUTF8String_create(thread,
+          Arcadia_String_getBytes(thread, header), Arcadia_String_getNumberOfBytes(thread, header) - 2)));
+        Arcadia_StringBuilder_insertBackCxxString(thread, path, ".c");
+        self->cxxSourceFilePath = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(path)));
+        Arcadia_ValueStack_popValues(thread, 1);
+      } else self->cxxSourceFilePath = Arcadia_PDLC_Backend_Implementation_makeCxxSourceFilePath(thread, implementation, self->symbol);
+      self->cxxSourceFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
+      Arcadia_FilePath_append(thread, self->cxxSourceFileAbsolutePath, self->cxxSourceFilePath);
+    }
   }
 
   Arcadia_LeaveConstructor(Arcadia_PDLC_Backend_EnumerationSymbolInfo);

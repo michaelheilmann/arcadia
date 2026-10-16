@@ -1,0 +1,33 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Enumeration of blend functions. The values correspond to the engine's blend
+// functions and OpenGL blend factors. None is the default: blending is disabled
+// and no blend functions are applied. The native reader uses omitted properties
+// for None; the literal asset string "None" is not accepted.
+enumeration "Arcadia/ADL/Definitions/Visuals/BlendFunction.h" Arcadia.ADL.BlendFunction {
+  None = 10
+  Zero = 0
+  One = 1
+  SourceColor = 2
+  OneMinusSourceColor = 3
+  DestinationColor = 4
+  OneMinusDestinationColor = 5
+  SourceAlpha = 6
+  OneMinusSourceAlpha = 7
+  DestinationAlpha = 8
+  OneMinusDestinationAlpha = 9
+}

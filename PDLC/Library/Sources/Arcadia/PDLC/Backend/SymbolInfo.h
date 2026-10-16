@@ -100,12 +100,22 @@ Arcadia_PDLC_Backend_SymbolInfo_getModule
 
 /// For classes, enumerations, procedures, this path is relative to the module source directory.
 /// that is `<module source directory>/<relative type path>` path.
-/// For module types, this is the `<module source directory>/<module name as path>/Include.c` path.
+/// For module types, this is the module master header, `<module name as path>/Include.h`.
 Arcadia_FilePath*
 Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFilePath
   (
     Arcadia_Thread* thread,
     Arcadia_PDLC_Backend_SymbolInfo* self
+  );
+
+/// Select a dependency include from a consumer module. Foreign symbols use
+/// their owning module's master header; local symbols use their own mapping.
+Arcadia_FilePath*
+Arcadia_PDLC_Backend_SymbolInfo_getDependencyHeaderFilePath
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Backend_SymbolInfo* self,
+    Arcadia_PDLC_Backend_SymbolInfo* consumerModule
   );
 
 Arcadia_FilePath*

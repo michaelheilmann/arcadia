@@ -490,6 +490,7 @@ Arcadia_Engine_UI_CanvasNode_createFromDefinition
   )
 {
   Arcadia_Engine_UI_CanvasNode* node = Arcadia_Engine_UI_CanvasNode_create(thread);
+  Arcadia_Engine_UI_WidgetNode_setName(thread, (Arcadia_Engine_UI_WidgetNode*)node, ((Arcadia_ADL_Definition*)source)->name);
   Arcadia_Engine_UI_CanvasNode_setVisualsCanvasSize(thread, node, source->width, source->height);
   Arcadia_Engine_UI_populateContainerFromDefinition(thread, backendContext, (Arcadia_Object*)node, (Arcadia_Object*)source);
   return node;

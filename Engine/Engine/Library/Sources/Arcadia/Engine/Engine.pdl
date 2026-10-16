@@ -1,0 +1,82 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Shared native collection declarations belong to the Collections module.
+
+/// Engine state. The native weak singleton binding is the only allocator;
+/// there is no public create function. update deliberately remains unbound.
+abstract class "Arcadia/Engine/Engine.h" Arcadia.Engine extends Arcadia.Object {
+  /// Set of Arcadia.Engine.Visuals.Backend derived type objects.
+  variable visualsBackendTypes : Arcadia.Set
+  /// Set of Arcadia.Engine.Visuals.NodeFactory derived type objects.
+  variable visualsNodeFactoryTypes : Arcadia.Set
+  /// Set of Arcadia.Engine.Audials.Backend derived type objects.
+  variable audialsBackendTypes : Arcadia.Set
+  /// Set of Arcadia.Engine.Audials.NodeFactory derived type objects.
+  variable audialsNodeFactoryTypes : Arcadia.Set
+  /// Active visuals backend context, or void when inactive.
+  variable visualsBackendContext : Arcadia.Engine.BackendContext
+  /// The visuals node factory, or void when inactive.
+  variable visualsNodeFactory : Arcadia.Engine.NodeFactory
+  /// Active audials backend context, or void when inactive.
+  variable audialsBackendContext : Arcadia.Engine.BackendContext
+  /// The audials node factory, or void when inactive.
+  variable audialsNodeFactory : Arcadia.Engine.NodeFactory
+  /// The event queue.
+  variable events : Arcadia.Deque
+
+  constructor {
+    call $0 Arcadia.Engine.createTypeSet
+    storeField self visualsBackendTypes $0
+    call $0 Arcadia.Engine.createTypeSet
+    storeField self visualsNodeFactoryTypes $0
+    storeField self visualsBackendContext void
+    storeField self visualsNodeFactory void
+    call $0 Arcadia.Engine.createTypeSet
+    storeField self audialsBackendTypes $0
+    call $0 Arcadia.Engine.createTypeSet
+    storeField self audialsNodeFactoryTypes $0
+    storeField self audialsBackendContext void
+    storeField self audialsNodeFactory void
+    call $0 Arcadia.Engine.createEventQueue
+    storeField self events $0
+  }
+
+  /// Enqueue an event at the back of this engine's queue.
+  method nonvirtual enqueEvent(variable event : Arcadia.Engine.Event) : Arcadia.Void {
+    loadField $0 self events
+    invoke $1 insertBack $0 event
+  }
+  /// Remove the front event, returning void when the queue is empty.
+  method nonvirtual dequeEvent : Arcadia.Engine.Event {
+    loadField $0 self events
+    invoke $1 isEmpty $0
+    jumpIfTrue $1 empty
+    invoke $2 getFront $0
+    invoke $3 removeFront $0
+    return $2
+  empty:
+    return void
+  }
+  /// Update this engine. Native subclasses supply this operation.
+  method abstract update : Arcadia.Void
+}
+
+procedure native "Arcadia_HashSet_create" Arcadia.Engine.createTypeSet : Arcadia.HashSet
+procedure native "Arcadia_ArrayDeque_create" Arcadia.Engine.createEventQueue : Arcadia.ArrayDeque
+/// Get or create the engine singleton. The cache is weak: it must not keep
+/// an otherwise unreachable engine alive and is reset when the engine dies.
+procedure native "Arcadia_Engine_getOrCreateImpl" Arcadia.Engine.getOrCreate : Arcadia.Engine

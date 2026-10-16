@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,9 +32,75 @@
 #include "Arcadia.Ring1.Tests.BigIntegerTests/Shift.h"
 #include "Arcadia.Ring1.Tests.BigIntegerTests/TwosComplement.h"
 
+static void
+expectScalarConversionFailure
+  (
+    Arcadia_Thread* thread,
+    Arcadia_BigInteger* value,
+    Arcadia_BooleanValue signedResult
+  )
+{
+  Arcadia_JumpTarget target;
+  Arcadia_Thread_pushJumpTarget(thread, &target);
+  if (Arcadia_JumpTarget_save(&target)) {
+    if (signedResult) Arcadia_BigInteger_toInteger64(thread, value);
+    else Arcadia_BigInteger_toNatural64(thread, value);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, false);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_ConversionFailed, status);
+  }
+}
+
+static void
+testScalarConversionSafety
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_BigInteger* value = Arcadia_BigInteger_create(thread);
+  Arcadia_BooleanValue truncated = true;
+  // Canonical zero has no readable limbs, including immediately after create.
+  Arcadia_Tests_assertEqualSize(thread, 0, value->numberOfLimps);
+  Arcadia_Tests_assertEqualNatural64(thread, 0, Arcadia_BigInteger_toNatural64(thread, value));
+  Arcadia_Tests_assertEqualInteger64(thread, 0, Arcadia_BigInteger_toInteger64(thread, value));
+  Arcadia_Tests_assertEqualNatural64(thread, 0, Arcadia_BigInteger_toNatural64WithTruncation(thread, value, &truncated));
+  Arcadia_Tests_assertFalse(thread, truncated);
+  Arcadia_BigInteger_setNatural64(thread, value, UINT64_MAX);
+  Arcadia_Tests_assertEqualNatural64(thread, UINT64_MAX, Arcadia_BigInteger_toNatural64(thread, value));
+  expectScalarConversionFailure(thread, value, true);
+  Arcadia_BigInteger_setInteger64(thread, value, INT64_MIN);
+  Arcadia_Tests_assertTrue(thread, Arcadia_BigInteger_isNegative(thread, value));
+  Arcadia_Tests_assertEqualSize(thread, 2, value->numberOfLimps);
+  Arcadia_Tests_assertEqualInteger64(thread, INT64_MIN, Arcadia_BigInteger_toInteger64(thread, value));
+  expectScalarConversionFailure(thread, value, false);
+  Arcadia_BigInteger_setInteger64(thread, value, INT64_MAX);
+  Arcadia_Tests_assertEqualInteger64(thread, INT64_MAX, Arcadia_BigInteger_toInteger64(thread, value));
+  Arcadia_BigInteger_setPowerOfTwoNatural8(thread, value, 64);
+  expectScalarConversionFailure(thread, value, true);
+  expectScalarConversionFailure(thread, value, false);
+  Arcadia_Tests_assertEqualNatural64(thread, UINT64_C(4294967296), Arcadia_BigInteger_toNatural64WithTruncation(thread, value, &truncated));
+  Arcadia_Tests_assertTrue(thread, truncated);
+  Arcadia_BigInteger_setZero(thread, value);
+  Arcadia_Tests_assertEqualNatural64(thread, 0, Arcadia_BigInteger_toNatural64(thread, value));
+  Arcadia_Tests_assertEqualInteger64(thread, 0, Arcadia_BigInteger_toInteger64(thread, value));
+}
+
+static int
+runScalarConversionSafety
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScalarConversionSafety) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 // Regression.
 static void
-test0
+testZeroInitialization
   (
     Arcadia_Thread* thread
   )
@@ -43,7 +111,7 @@ test0
 
 // Regression.
 static void
-test1
+testDecimalToInteger64
   (
     Arcadia_Thread* thread
   )
@@ -59,7 +127,7 @@ test1
 
 // Regression.
 static void
-test2
+testDecimalToNatural64
   (
     Arcadia_Thread* thread
   )
@@ -75,7 +143,7 @@ test2
 
 // Regression.
 static void
-test3
+testDecimalToNatural64WithTruncation
   (
     Arcadia_Thread* thread
   )
@@ -92,7 +160,7 @@ test3
 
 // Regression.
 static void
-test3_1
+testMultiplyInteger8
   (
     Arcadia_Thread* thread
   )
@@ -106,7 +174,7 @@ test3_1
 
 // Regression.
 static void
-test3_2
+testAddInteger8
   (
     Arcadia_Thread* thread
   )
@@ -120,7 +188,7 @@ test3_2
 
 // Regression.
 static void
-test4
+testAddThenMultiply
   (
     Arcadia_Thread* thread
   )
@@ -134,7 +202,7 @@ test4
 
 // Regression.
 static void
-test5
+testDecimalAccumulation
   (
     Arcadia_Thread* thread
   )
@@ -161,7 +229,7 @@ test5
 
 // Regression.
 static void
-test6
+testLargePowerOfTen
   (
     Arcadia_Thread* thread
   )
@@ -177,7 +245,7 @@ test6
 // Regression. Natural8.Maximum == 1 << Natural8.NumberOfbits - 1.
 // @todo: Add this to the subtraction test suite.
 static void
-test7
+testNatural8Maximum
   (
     Arcadia_Thread* thread
   )
@@ -194,7 +262,7 @@ test7
 // Regression. Natural16.Maximum == 1 << Natural16.NumberOfbits - 1.
 // @todo: Add this to the subtraction test suite.
 static void
-test8
+testNatural16Maximum
   (
     Arcadia_Thread* thread
   )
@@ -211,7 +279,7 @@ test8
 // Regression. Natural32.Maximum == 1 << Natural32.NumberOfbits - 1.
 // @todo: Add this to the subtraction test suite.
 static void
-test9
+testNatural32Maximum
   (
     Arcadia_Thread* thread
   )
@@ -228,7 +296,7 @@ test9
 // Regression. Natural64.Maximum == 1 << Natural64.NumberOBits - 1.
 // @todo: Add this to the subtraction test suite.
 static void
-test10
+testNatural64Maximum
   (
     Arcadia_Thread* thread
   )
@@ -291,87 +359,265 @@ checkTwosComplementIntegers
   }
 }
 
+static int
+runNativeTwosComplement
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&checkTwosComplementIntegers) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runZeroInitialization
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testZeroInitialization) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runDecimalToInteger64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testDecimalToInteger64) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runDecimalToNatural64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testDecimalToNatural64) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runDecimalToNatural64WithTruncation
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testDecimalToNatural64WithTruncation) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runMultiplyInteger8
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testMultiplyInteger8) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAddInteger8
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testAddInteger8) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAddThenMultiply
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testAddThenMultiply) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runDecimalAccumulation
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testDecimalAccumulation) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runLargePowerOfTen
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testLargePowerOfTen) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural8Maximum
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testNatural8Maximum) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural16Maximum
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testNatural16Maximum) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural32Maximum
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testNatural32Maximum) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural64Maximum
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testNatural64Maximum) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runDecimalStringOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_decimalStringOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runSetIntegerOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_setIntegerOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAdditiveOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_additiveOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAndOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_andOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runMultiplicativeOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_multiplicativeOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runOrOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_orOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runPowersOfOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_powersOfOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runQuotientRemainderOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_quotientRemainderOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRelationalOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_relationalOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runShiftOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_shiftOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runTwosComplementOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_twosComplementOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&checkTwosComplementIntegers)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test0)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test2)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test3)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test3_1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test3_2)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test4)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test5)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test6)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test7)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test8)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test9)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test10)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_decimalStringOperations)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_setIntegerOperations)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_additiveOperations)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_andOperations)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_multiplicativeOperations)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_orOperations)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_powersOfOperations)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_quotientRemainderOperations)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_relationalOperations)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_shiftOperations)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_twosComplementOperations)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "NativeTwosComplement", &runNativeTwosComplement },
+    { "ZeroInitialization", &runZeroInitialization },
+    { "ScalarConversionSafety", &runScalarConversionSafety },
+    { "DecimalToInteger64", &runDecimalToInteger64 },
+    { "DecimalToNatural64", &runDecimalToNatural64 },
+    { "DecimalToNatural64WithTruncation", &runDecimalToNatural64WithTruncation },
+    { "MultiplyInteger8", &runMultiplyInteger8 },
+    { "AddInteger8", &runAddInteger8 },
+    { "AddThenMultiply", &runAddThenMultiply },
+    { "DecimalAccumulation", &runDecimalAccumulation },
+    { "LargePowerOfTen", &runLargePowerOfTen },
+    { "Natural8Maximum", &runNatural8Maximum },
+    { "Natural16Maximum", &runNatural16Maximum },
+    { "Natural32Maximum", &runNatural32Maximum },
+    { "Natural64Maximum", &runNatural64Maximum },
+    { "DecimalStringOperations", &runDecimalStringOperations },
+    { "SetIntegerOperations", &runSetIntegerOperations },
+    { "AdditiveOperations", &runAdditiveOperations },
+    { "AndOperations", &runAndOperations },
+    { "MultiplicativeOperations", &runMultiplicativeOperations },
+    { "OrOperations", &runOrOperations },
+    { "PowersOfOperations", &runPowersOfOperations },
+    { "QuotientRemainderOperations", &runQuotientRemainderOperations },
+    { "RelationalOperations", &runRelationalOperations },
+    { "ShiftOperations", &runShiftOperations },
+    { "TwosComplementOperations", &runTwosComplementOperations },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

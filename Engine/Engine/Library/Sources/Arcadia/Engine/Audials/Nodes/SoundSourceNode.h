@@ -18,6 +18,8 @@
 #define ARCADIA_ENGINE_AUDIALS_NODES_SOUNDSOURCENODE_H_INCLUDED
 
 #include "Arcadia/Engine/Audials/Node.h"
+#include "Arcadia/ADL/Include.h"
+typedef struct Arcadia_Engine_Audials_Implementation_SoundSourceResource Arcadia_Engine_Audials_Implementation_SoundSourceResource;
 typedef struct Arcadia_Engine_Audials_BackendContext Arcadia_Engine_Audials_BackendContext;
 
 // A simple mono sound source with position and velocity.

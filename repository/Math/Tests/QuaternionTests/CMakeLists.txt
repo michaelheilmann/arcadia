@@ -27,4 +27,5 @@ OnSourceFile(${this} Arcadia.Math.Tests.QuaternionTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.Math PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

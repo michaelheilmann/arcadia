@@ -17,29 +17,16 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_DSP_SINEWAVEDEFINITION_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_DSP_SINEWAVEDEFINITION_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
-  #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
+#if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
+  #error("do not include `Arcadia/ADL/Definitions/DSP/SineWaveDefinition.h` directly, include `Arcadia/ADL/Include.h` instead")
 #endif
-#include "Arcadia/ADL/Definition.h"
-#include "Arcadia/ADL/Reference.h"
 
-// A DSP generating a sine wave signal of a constant frequency.
-//
-// @code
-// {
-//   type  : "DSP.SineWave",
-//   name  : "MyGame.MyDSPs.MySineWave",
-//   frequency : 220, /* Frequency in Hz. */
-// }
-// @endcode
-//
-// @code
-// class Arcadia.ADL.SineWaveDefinition extends Arcadia.ADL.Definition {
-//
-//   constructor(definitions : Arcadia.ADL.Definitions, name : Arcadia.String, frequency : Arcadia.Natural32)
-//
-// };
-// @endcode
+#include "Arcadia/Ring1/Include.h"
+#include "Arcadia/ADL/Definition.h"
+
+typedef struct Arcadia_ADL_Definitions Arcadia_ADL_Definitions;
+typedef struct Arcadia_ADL_SineWaveDefinition Arcadia_ADL_SineWaveDefinition;
+
 Arcadia_declareObjectType(u8"Arcadia.ADL.SineWaveDefinition", Arcadia_ADL_SineWaveDefinition,
                           u8"Arcadia.ADL.Definition");
 
@@ -52,13 +39,11 @@ struct Arcadia_ADL_SineWaveDefinition {
   Arcadia_Integer32Value frequency;
 };
 
-Arcadia_ADL_SineWaveDefinition*
-Arcadia_ADL_SineWaveDefinition_create
+void
+Arcadia_ADL_SineWaveDefinition_link
   (
     Arcadia_Thread* thread,
-    Arcadia_ADL_Definitions* definitions,
-    Arcadia_String* name,
-    Arcadia_Integer32Value frequency
+    Arcadia_ADL_SineWaveDefinition* self
   );
 
 Arcadia_Integer32Value
@@ -68,4 +53,13 @@ Arcadia_ADL_SineWaveDefinition_getFrequency
     Arcadia_ADL_SineWaveDefinition* self
   );
 
-#endif  // ARCADIA_ADL_DEFINITIONS_DSP_SINEWAVEDEFINITION_H_INCLUDED
+Arcadia_ADL_SineWaveDefinition*
+Arcadia_ADL_SineWaveDefinition_create
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_Definitions* definitions,
+    Arcadia_String* name,
+    Arcadia_Integer32Value frequency
+  );
+
+#endif // ARCADIA_ADL_DEFINITIONS_DSP_SINEWAVEDEFINITION_H_INCLUDED

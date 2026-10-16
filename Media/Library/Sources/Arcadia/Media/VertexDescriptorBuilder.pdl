@@ -1,0 +1,59 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+class Arcadia.Media.VertexDescriptorBuilder extends Arcadia.Object {
+  /// The flags (retained for layout compatibility).
+  variable flags : Arcadia.Natural8
+  /// Distance in bytes between vertices. build computes its own local stride;
+  /// it does not mutate this legacy public field or the flags.
+  variable stride : Arcadia.Size
+  /// Mutable list of vertex element descriptors.
+  variable vertexElementDescriptors : Arcadia.List
+
+  constructor() {
+    call $0 Arcadia.Media.createVertexElements
+    storeField self vertexElementDescriptors $0
+  }
+
+  /// Snapshot the element list and use the greatest offset-plus-size as stride.
+  /// Preserve element order and leave the builder and its elements unchanged.
+  method nonvirtual build : Arcadia.Media.VertexDescriptor {
+    loadField $0 self vertexElementDescriptors
+    call $1 Arcadia.Media.vertexElementCount $0
+    set $2 0
+    set $3 0
+  nextElement:
+    isEqualTo $4 $2 $1
+    jumpIfTrue $4 finish
+    call $5 Arcadia.Media.vertexElementEndAt $0 $2
+    isGreaterThan $6 $5 $3
+    jumpIfFalse $6 advance
+    set $3 $5
+  advance:
+    add $2 $2 1
+    jump nextElement
+  finish:
+    call $7 Arcadia.Media.createVertexDescriptor $0 $3
+    return $7
+  }
+}
+
+// Native boundaries preserve collection protocols, Size-width offset arithmetic
+// and the immutable descriptor's private factory without exposing raw storage.
+procedure native "Arcadia_ArrayList_create" Arcadia.Media.createVertexElements : Arcadia.ArrayList
+procedure native "Arcadia_Media_vertexElementCountImpl" Arcadia.Media.vertexElementCount(variable elements : Arcadia.List) : Arcadia.Natural64
+procedure native "Arcadia_Media_vertexElementEndAtImpl" Arcadia.Media.vertexElementEndAt(variable elements : Arcadia.List, variable index : Arcadia.Natural64) : Arcadia.Natural64
+procedure native "Arcadia_Media_createVertexDescriptorImpl" Arcadia.Media.createVertexDescriptor(variable elements : Arcadia.List, variable stride : Arcadia.Natural64) : Arcadia.Media.VertexDescriptor

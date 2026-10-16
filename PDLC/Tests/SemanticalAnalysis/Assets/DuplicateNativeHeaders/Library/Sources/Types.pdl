@@ -1,0 +1,4 @@
+native implementation "Owned.h" class MyModule.A {
+}
+native implementation "Owned.h" class MyModule.B {
+}

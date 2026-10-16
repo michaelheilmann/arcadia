@@ -1,0 +1,48 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Signal retains its native runtime storage and provider.
+native "Arcadia/Ring1/Include.h" class Arcadia.Signal extends Arcadia.Object {}
+
+/// Base scene, initialized by native subclasses; there is no public factory.
+abstract class Arcadia.Engine.Scene extends Arcadia.Object {
+  variable engine : Arcadia.Engine
+  variable sceneManager : Arcadia.Engine.SceneManager
+  /// The "application quit request" event.
+  variable applicationQuitRequestSignal : Arcadia.Signal
+
+  constructor(variable engine : Arcadia.Engine, variable sceneManager : Arcadia.Engine.SceneManager) {
+    // This runtime binding preserves the native constructor's non-null
+    // dependency contract rather than broadening it to PDL's nullable default.
+    call $0 Arcadia.Engine.createSceneQuitRequestSignal engine sceneManager
+    storeField self applicationQuitRequestSignal $0
+    storeField self engine engine
+    storeField self sceneManager sceneManager
+  }
+
+  /// tick is measured in milliseconds. All six operations have intentional
+  /// bound no-op defaults; none is an abstract/unbound dispatch operation.
+  method updateAudials(variable tick : Arcadia.Real64, variable width : Arcadia.Integer32, variable height : Arcadia.Integer32) : Arcadia.Void {}
+  /// tick is measured in milliseconds.
+  method updateLogics(variable tick : Arcadia.Real64) : Arcadia.Void {}
+  /// tick is measured in milliseconds.
+  method updateVisuals(variable tick : Arcadia.Real64, variable width : Arcadia.Integer32, variable height : Arcadia.Integer32) : Arcadia.Void {}
+  method handleKeyboardKeyEvent(variable event : Arcadia.Engine.Input.KeyboardKeyEvent) : Arcadia.Void {}
+  method handleMouseButtonEvent(variable event : Arcadia.Engine.Input.MouseButtonEvent) : Arcadia.Void {}
+  method handleMousePointerEvent(variable event : Arcadia.Engine.Input.MousePointerEvent) : Arcadia.Void {}
+}
+
+procedure native "Arcadia_Engine_createSceneQuitRequestSignalImpl" Arcadia.Engine.createSceneQuitRequestSignal(variable engine : Arcadia.Engine, variable sceneManager : Arcadia.Engine.SceneManager) : Arcadia.Signal

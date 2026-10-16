@@ -1,0 +1,26 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+/// Capability interface for UI objects with a scrollable content offset.
+/// scrollBy takes relative deltas; scrollTo takes absolute coordinates.
+/// Offset queries belong to the concrete ScrollPanelNode API, not this interface.
+interface Arcadia.Engine.UI.Scrollable {
+
+  method scrollBy(variable deltaX : Arcadia.Integer32, variable deltaY : Arcadia.Integer32) : Arcadia.Void
+
+  method scrollTo(variable x : Arcadia.Integer32, variable y : Arcadia.Integer32) : Arcadia.Void
+
+}

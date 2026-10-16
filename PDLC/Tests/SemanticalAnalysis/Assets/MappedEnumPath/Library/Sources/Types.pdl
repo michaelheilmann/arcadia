@@ -1,0 +1,3 @@
+enumeration "../Outside.h" Test.Invalid {
+  Zero = 0
+}

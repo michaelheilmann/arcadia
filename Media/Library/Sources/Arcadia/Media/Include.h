@@ -28,8 +28,12 @@
 #include "Arcadia/Media/PixelBuffer.h"
 #include "Arcadia/Media/PixelBufferOperations/CheckerboardFill.h"
 #include "Arcadia/Media/PixelBufferOperations/Fill.h"
+#include "Arcadia/Media/PixelBufferOperations/requireDefinition.h"
 #include "Arcadia/Media/PixelBufferOperation.h"
 #include "Arcadia/Media/PixelFormat.h"
+#include "Arcadia/Media/PixelFormat/getNumberOfBytes.h"
+#include "Arcadia/Media/PixelFormat/getNumberOfComponents.h"
+#include "Arcadia/Media/PixelFormat/checkedCount.h"
 
 #include "Arcadia/Media/SampleBuffer.h"
 #include "Arcadia/Media/DSP/Affine.h"
@@ -44,6 +48,8 @@
 #include "Arcadia/Media/DSP/SineWave.h"
 #include "Arcadia/Media/DSP/WhiteNoise.h"
 #include "Arcadia/Media/SampleFormat.h"
+#include "Arcadia/Media/SampleFormat/getNumberOfBytes.h"
+#include "Arcadia/Media/SampleFormat/checkedByteCount.h"
 
 #include "Arcadia/Media/Geometry.h"
 
@@ -51,6 +57,10 @@
 
 #include "Arcadia/Media/VertexDescriptor.h"
 #include "Arcadia/Media/VertexDescriptorBuilder.h"
+#include "Arcadia/Media/createVertexElements.h"
+#include "Arcadia/Media/vertexElementCount.h"
+#include "Arcadia/Media/vertexElementEndAt.h"
+#include "Arcadia/Media/createVertexDescriptor.h"
 #include "Arcadia/Media/VertexElementDescriptor.h"
 #include "Arcadia/Media/VertexElementSemantics.h"
 #include "Arcadia/Media/VertexElementSyntactics.h"

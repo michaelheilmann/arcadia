@@ -17,28 +17,25 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_VISUALS_AMBIENTCOLORSOURCE_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_VISUALS_AMBIENTCOLORSOURCE_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
-  #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
+#if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
+  #error("do not include `Arcadia/ADL/Definitions/Visuals/AmbientColorSource.h` directly, include `Arcadia/ADL/Include.h` instead")
 #endif
-#include "Arcadia/ADL/Definition.h"
 
-// Enumeration of ambient color sources.
-//
-// @code
-// enumeration Arcadia.ADL.AmbientSource {
-//   Mesh,
-//   Vertex,
-//   Texture,
-//   TextureVertex
-// };
-// @endcode
-Arcadia_declareEnumerationType(u8"Arcadia.ADL.AmbientColorSource", Arcadia_ADL_AmbientColorSource);
+#include "Arcadia/Ring1/Include.h"
+
+Arcadia_declareEnumerationType("Arcadia.ADL.AmbientColorSource",
+                               Arcadia_ADL_AmbientColorSource);
 
 enum Arcadia_ADL_AmbientColorSource {
-  Arcadia_ADL_AmbientColorSource_Mesh,
-  Arcadia_ADL_AmbientColorSource_Vertex,
-  Arcadia_ADL_AmbientColorSource_Texture,
-  Arcadia_ADL_AmbientColorSource_TextureVertex,
+
+  Arcadia_ADL_AmbientColorSource_Mesh = 0,
+
+  Arcadia_ADL_AmbientColorSource_Vertex = 1,
+
+  Arcadia_ADL_AmbientColorSource_Texture = 2,
+
+  Arcadia_ADL_AmbientColorSource_TextureVertex = 3,
+
 };
 
-#endif  // ARCADIA_ADL_DEFINITIONS_VISUALS_AMBIENTCOLORSOURCE_H_INCLUDED
+#endif // ARCADIA_ADL_DEFINITIONS_VISUALS_AMBIENTCOLORSOURCE_H_INCLUDED

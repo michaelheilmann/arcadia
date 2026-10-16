@@ -1,0 +1,42 @@
+class Example.B.Derived extends Example.A.Base {
+  constructor(variable stamp : Arcadia.Natural64) {
+    construct $0 Example.A.Base self stamp
+  }
+}
+
+// Foreign superclass lookup must select the type, not module Example.A.
+class Example.B extends Example.A {
+  constructor(variable stamp : Arcadia.Natural64) {
+    construct $0 Example.A self stamp
+  }
+}
+
+class Example.B.Holder {
+  variable value : Example.A.Base
+  variable flavor : Example.A.Flavor
+  constructor(variable value : Example.A.Base, variable flavor : Example.A.Flavor) {
+    storeField self value value
+    storeField self flavor flavor
+  }
+  method getStamp : Arcadia.Natural64 {
+    loadField $0 self value
+    invoke $1 getStamp $0
+    return $1
+  }
+}
+
+interface Example.B.Child extends Example.A.Root {
+  method choose(variable value : Example.A.Flavor) : Example.A.Flavor
+}
+
+procedure Example.B.answer : Arcadia.Natural64 {
+  return 42
+}
+
+procedure Example.B.answerFromA : Arcadia.Natural64 {
+  call $0 Example.A.answer
+  return $0
+}
+procedure Example.B.defaultFlavor : Arcadia.Value {
+  return Example.A.Flavor.High
+}

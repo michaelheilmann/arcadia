@@ -14,18 +14,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_VISUALS_CANVASDPICHANGEDMESSAGE_H_INCLUDED)
-#define ARCADIA_ENGINE_VISUALS_CANVASDPICHANGEDMESSAGE_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_VISUALS_CANVASDPICHANGEDEVENT_H_INCLUDED)
+#define ARCADIA_ENGINE_VISUALS_CANVASDPICHANGEDEVENT_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/CanvasDPIChangedEvent.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Visuals/CanvasEvent.h"
-typedef struct Arcadia_Engine_Visuals_Window Arcadia_Engine_Visuals_Window;
 
-// https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Visuals_CanvasDPIChangedEvent
+typedef struct Arcadia_Engine_Visuals_CanvasDPIChangedEvent Arcadia_Engine_Visuals_CanvasDPIChangedEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.CanvasDPIChangedEvent", Arcadia_Engine_Visuals_CanvasDPIChangedEvent,
                           u8"Arcadia.Engine.Visuals.CanvasEvent");
 
 struct Arcadia_Engine_Visuals_CanvasDPIChangedEventDispatch {
-  Arcadia_Engine_Visuals_CanvasEventDispatch parent;
+  Arcadia_Engine_Visuals_CanvasEventDispatch _parent;
 };
 
 struct Arcadia_Engine_Visuals_CanvasDPIChangedEvent {
@@ -34,4 +39,13 @@ struct Arcadia_Engine_Visuals_CanvasDPIChangedEvent {
   Arcadia_Integer32Value verticalDpi;
 };
 
-#endif // ARCADIA_ENGINE_VISUALS_CANVASDPICHANGEDMESSAGE_H_INCLUDED
+Arcadia_Engine_Visuals_CanvasDPIChangedEvent*
+Arcadia_Engine_Visuals_CanvasDPIChangedEvent_create
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Natural64Value timestamp,
+    Arcadia_Integer32Value horizontalDpi,
+    Arcadia_Integer32Value verticalDpi
+  );
+
+#endif // ARCADIA_ENGINE_VISUALS_CANVASDPICHANGEDEVENT_H_INCLUDED

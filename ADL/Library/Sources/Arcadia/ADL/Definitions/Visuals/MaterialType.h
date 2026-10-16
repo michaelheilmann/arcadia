@@ -17,22 +17,19 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_VISUALS_MATERIALTYPE_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_VISUALS_MATERIALTYPE_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
-  #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
+#if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
+  #error("do not include `Arcadia/ADL/Definitions/Visuals/MaterialType.h` directly, include `Arcadia/ADL/Include.h` instead")
 #endif
-#include "Arcadia/ADL/Definition.h"
 
-// Enumeration of material types.
-//
-// @code
-// enumeration Arcadia.ADL.MaterialType {
-//   BlinnPhong,
-// };
-// @endcode
-Arcadia_declareEnumerationType(u8"Arcadia.ADL.MaterialType", Arcadia_ADL_MaterialType);
+#include "Arcadia/Ring1/Include.h"
+
+Arcadia_declareEnumerationType("Arcadia.ADL.MaterialType",
+                               Arcadia_ADL_MaterialType);
 
 enum Arcadia_ADL_MaterialType {
-  Arcadia_ADL_MaterialType_BlinnPhong,
+
+  Arcadia_ADL_MaterialType_BlinnPhong = 0,
+
 };
 
-#endif  // ARCADIA_ADL_DEFINITIONS_VISUALS_MATERIALTYPE_H_INCLUDED
+#endif // ARCADIA_ADL_DEFINITIONS_VISUALS_MATERIALTYPE_H_INCLUDED

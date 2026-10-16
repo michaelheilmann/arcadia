@@ -28,7 +28,8 @@ typedef struct Arcadia_PDLC_AST_IdentifierNode Arcadia_PDLC_AST_IdentifierNode;
 /// @endcode
 /// Represents
 /// @code
-/// enumerationDefinition : 'enumeration' identifier enumerationBody
+/// enumerationDefinition : 'enumeration' stringLiteral? identifier enumerationBody
+///                       | 'native' stringLiteral? 'enumeration' identifier enumerationBody
 /// enumerationBody : '{' enumerationMemberDefinition* '}'
 /// @endcode
 Arcadia_declareObjectType(u8"Arcadia.PDLC.AST.EnumerationDefinitionNode", Arcadia_PDLC_AST_EnumerationDefinitionNode,
@@ -42,6 +43,9 @@ struct Arcadia_PDLC_AST_EnumerationDefinitionNode {
   Arcadia_PDLC_AST_DefinitionNode _parent;
   Arcadia_PDLC_AST_IdentifierNode* enumerationName;
   Arcadia_List* enumerationBody;
+  Arcadia_BooleanValue isNative;
+  // Optional mapped include/output path; ownership is determined by isNative.
+  Arcadia_String* nativeHeaderPath;
 };
 
 /// @brief Create a MIL enumeration definition AST node.

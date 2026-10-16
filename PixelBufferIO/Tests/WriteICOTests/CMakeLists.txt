@@ -27,4 +27,5 @@ OnSourceFile(${this} Arcadia.PixelBufferIO.Tests.WriteICOTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.PixelBufferIO PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

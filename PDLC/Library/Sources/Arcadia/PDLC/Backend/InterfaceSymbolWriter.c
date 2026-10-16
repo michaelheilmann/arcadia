@@ -22,6 +22,7 @@
 #include "Arcadia/PDLC/Backend/Implementation.h"
 #include "Arcadia/PDLC/Backend/ModuleSymbolInfo.h"
 #include <assert.h>
+#include <string.h>
 
 static const char* COPYRIGHT =
   "// Arcadia\n"
@@ -60,6 +61,76 @@ onWriteInterfaceHeaderFile
     Arcadia_PDLC_Backend_SymbolInfo* symbolInfo,
     Arcadia_StringBuilder* stringBuilder
   );
+
+static void
+collectDependency
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Context* context,
+    Arcadia_PDLC_Backend_SymbolInfo* consumer,
+    Arcadia_PDLC_Symbol* symbol,
+    Arcadia_List* paths
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_PDLC_Backend_Implementation* implementation = Arcadia_PDLC_Backend_Implementation_getInstance(thread, context);
+  Arcadia_PDLC_Backend_SymbolInfo* info = Arcadia_PDLC_Backend_Implementation_getOrCreateInfo(thread, implementation, symbol);
+  Arcadia_FilePath* path = Arcadia_PDLC_Backend_SymbolInfo_getDependencyHeaderFilePath(thread, info, consumer);
+  if (!path) return;
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, path);
+  Arcadia_String* name = Arcadia_PDLC_Backend_Implementation_pathToCxxPath(thread, implementation, path);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, name);
+  Arcadia_SizeValue length = Arcadia_String_getNumberOfBytes(thread, name);
+  Arcadia_SizeValue index = 0;
+  for (; index < Arcadia_Collection_getSize(thread, (Arcadia_Collection*)paths); ++index) {
+    Arcadia_String* previous = Arcadia_List_getObjectReferenceValueAt(thread, paths, index);
+    Arcadia_SizeValue previousLength = Arcadia_String_getNumberOfBytes(thread, previous);
+    int comparison = memcmp(Arcadia_String_getBytes(thread, name), Arcadia_String_getBytes(thread, previous), length < previousLength ? length : previousLength);
+    if (!comparison && length == previousLength) {
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+      return;
+    }
+    if (comparison < 0 || (!comparison && length < previousLength)) break;
+  }
+  Arcadia_List_insertObjectReferenceValueAt(thread, paths, index, name);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+}
+
+static void
+onWriteDependencies
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Context* context,
+    Arcadia_PDLC_Backend_SymbolInfo* symbolInfo,
+    Arcadia_StringBuilder* output,
+    Arcadia_BooleanValue header
+  )
+{
+  Arcadia_List* paths = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, paths);
+  Arcadia_PDLC_Backend_SymbolInfo* consumer = Arcadia_PDLC_Backend_SymbolInfo_getModule(thread, symbolInfo);
+  Arcadia_PDLC_InterfaceSymbol* interfaceSymbol = (void*)symbolInfo->symbol;
+  if (header) {
+    for (Arcadia_SizeValue i = 0; i < Arcadia_Collection_getSize(thread, (void*)interfaceSymbol->operations); ++i) {
+      Arcadia_PDLC_MethodSymbol* operation = Arcadia_List_getObjectReferenceValueAt(thread, interfaceSymbol->operations, i);
+      if (operation->returnValueType->kind == Arcadia_PDLC_SymbolKind_Enumeration) collectDependency(thread, context, consumer, operation->returnValueType, paths);
+      for (Arcadia_SizeValue j = 0; j < Arcadia_Collection_getSize(thread, (void*)operation->parameters); ++j) {
+        Arcadia_PDLC_VariableSymbol* parameter = Arcadia_List_getObjectReferenceValueAt(thread, operation->parameters, j);
+        if (parameter->type->kind == Arcadia_PDLC_SymbolKind_Enumeration) collectDependency(thread, context, consumer, parameter->type, paths);
+      }
+    }
+  } else {
+    for (Arcadia_SizeValue i = 0; i < Arcadia_Collection_getSize(thread, (void*)interfaceSymbol->extendedInterfaceSymbols); ++i) {
+      collectDependency(thread, context, consumer, Arcadia_List_getObjectReferenceValueAt(thread, interfaceSymbol->extendedInterfaceSymbols, i), paths);
+    }
+  }
+  for (Arcadia_SizeValue i = 0; i < Arcadia_Collection_getSize(thread, (void*)paths); ++i) {
+    Arcadia_StringBuilder_insertBackCxxString(thread, output, "#include \"");
+    Arcadia_StringBuilder_insertBackString(thread, output, Arcadia_List_getObjectReferenceValueAt(thread, paths, i));
+    Arcadia_StringBuilder_insertBackCxxString(thread, output, "\"\n");
+  }
+  Arcadia_ValueStack_popValues(thread, 1);
+}
 
 static void
 onWriteSourceFile
@@ -258,7 +329,9 @@ onWriteTypeName
     case Arcadia_PDLC_SymbolKind_PrimitiveType: {
       Arcadia_PDLC_Backend_SymbolInfo* typeInfo = Arcadia_PDLC_Backend_Implementation_getOrCreateInfo(thread, implementation, type);
       Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_SymbolInfo_getCxxName(thread, typeInfo));
-      Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"Value");
+      if (!Arcadia_String_isEqualTo_pn(thread, type->name, u8"Arcadia.Value", sizeof(u8"Arcadia.Value") - 1)) {
+        Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"Value");
+      }
     } break;
     case Arcadia_PDLC_SymbolKind_Interface: {
       Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"Arcadia_Object*");
@@ -291,6 +364,29 @@ onWriteParameterList
     Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8" ");
     Arcadia_StringBuilder_insertBackString(thread, stringBuilder, parameter->name);
   }
+}
+
+/// Write the parameter list of @c operation in the multi-line declaration layout,
+/// from the opening parenthesis through the closing parenthesis.
+static void
+onWriteParameterListMultiline
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Backend_InterfaceSymbolWriter* self,
+    Arcadia_PDLC_Context* context,
+    Arcadia_PDLC_MethodSymbol* operation,
+    Arcadia_StringBuilder* stringBuilder
+  )
+{
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n  (\n    Arcadia_Thread* thread,\n    Arcadia_Object* self");
+  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)operation->parameters); i < n; ++i) {
+    Arcadia_PDLC_Symbol* parameter = (Arcadia_PDLC_Symbol*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, operation->parameters, i, _Arcadia_PDLC_Symbol_getType(thread));
+    Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, ",\n    ");
+    onWriteTypeName(thread, self, context, ((Arcadia_PDLC_VariableSymbol*)parameter)->type, stringBuilder);
+    Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, " ");
+    Arcadia_StringBuilder_insertBackString(thread, stringBuilder, parameter->name);
+  }
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n  )");
 }
 
 /// Write the argument list passed from an interface operation wrapper to the dispatch operation,
@@ -327,7 +423,7 @@ onWriteOperationSignature
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, ((Arcadia_PDLC_Symbol*)operation)->name);
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8")(");
   onWriteParameterList(thread, self, context, operation, stringBuilder);
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8");\n");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8");\n"); // keep single-line structure as-is for dispatch struct per plan? plan says "dispatch struct function-pointer members stay single-line"; keep as-is.
 }
 
 /// Write the prototype of a single interface operation to @c stringBuilder.
@@ -343,13 +439,12 @@ onWriteOperationPrototype
   )
 {
   onWriteReturnType(thread, self, context, operation, stringBuilder);
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8" ");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_SymbolInfo_getCxxName(thread, interfaceSymbolInfo));
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"_");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_");
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, ((Arcadia_PDLC_Symbol*)operation)->name);
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"(");
-  onWriteParameterList(thread, self, context, operation, stringBuilder);
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8");\n");
+  onWriteParameterListMultiline(thread, self, context, operation, stringBuilder);
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, ";\n\n");
 }
 
 /// Write the definition of a single interface operation wrapper to @c stringBuilder.
@@ -365,13 +460,12 @@ onWriteOperationDefinition
   )
 {
   onWriteReturnType(thread, self, context, operation, stringBuilder);
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"\n");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_SymbolInfo_getCxxName(thread, interfaceSymbolInfo));
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"_");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_");
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, ((Arcadia_PDLC_Symbol*)operation)->name);
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"(");
-  onWriteParameterList(thread, self, context, operation, stringBuilder);
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8")\n{\n");
+  onWriteParameterListMultiline(thread, self, context, operation, stringBuilder);
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n{\n");
   if (isVoidType(thread, operation->returnValueType)) {
     Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"  Arcadia_InterfaceCall(");
   } else {
@@ -382,7 +476,7 @@ onWriteOperationDefinition
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, ((Arcadia_PDLC_Symbol*)operation)->name);
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8", ");
   onWriteArgumentList(thread, operation, stringBuilder);
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8");\n}\n\n");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8");\n}\n");
 }
 
 static void
@@ -419,6 +513,9 @@ onWriteInterfaceSourceFile
 
   Arcadia_List* operations = ((Arcadia_PDLC_InterfaceSymbol*)symbolInfo->symbol)->operations;
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)operations); i < n; ++i) {
+    if (i) {
+      Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
+    }
     Arcadia_PDLC_MethodSymbol* operation = (Arcadia_PDLC_MethodSymbol*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, operations, i, _Arcadia_PDLC_MethodSymbol_getType(thread));
     onWriteOperationDefinition(thread, self, context, symbolInfo, operation, stringBuilder);
   }
@@ -501,6 +598,7 @@ onWriteSourceFile
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
 
+  onWriteDependencies(thread, context, symbolInfo, stringBuilder, Arcadia_BooleanValue_False);
   onWriteInterfaceSourceFile(thread, self, context, symbolInfo, stringBuilder);
 }
 
@@ -525,9 +623,9 @@ onWriteHeaderFile
   Arcadia_FilePath* includePath = NULL;
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, COPYRIGHT);
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "#ifndef ");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "#if !defined(");
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_SymbolInfo_getCxxNameUpperCase(thread, symbolInfo));
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_H_INCLUDED");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_H_INCLUDED)");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "#define ");
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_SymbolInfo_getCxxNameUpperCase(thread, symbolInfo));
@@ -554,6 +652,7 @@ onWriteHeaderFile
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "#include \"Arcadia/Ring1/Include.h\"\n");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
 
+  onWriteDependencies(thread, context, symbolInfo, stringBuilder, Arcadia_BooleanValue_True);
   onWriteClassTypeForwardDeclarations(thread, context, (Arcadia_PDLC_InterfaceSymbol*)symbolInfo->symbol, stringBuilder);
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
 
@@ -561,8 +660,7 @@ onWriteHeaderFile
 
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "#endif // ");
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_SymbolInfo_getCxxNameUpperCase(thread, symbolInfo));
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_H_INCLUDED");
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_H_INCLUDED\n");
 }
 
 static void

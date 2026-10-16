@@ -18,14 +18,15 @@
 #define ARCADIA_ENGINE_NODEFACTORY_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
+  #error("do not include `Arcadia/Engine/NodeFactory.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
-#include "Arcadia/Ring2/Include.h"
 
-/// The base of all node factories.
-/// The bases of implementations specific to audials and visuals can be found in Arcadia.Audials and Arcadia.Visuals, respectively.
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_Engine_NodeFactory Arcadia_Engine_NodeFactory;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.NodeFactory", Arcadia_Engine_NodeFactory,
-                          Arcadia_Object);
+                          u8"Arcadia.Object");
 
 struct Arcadia_Engine_NodeFactoryDispatch {
   Arcadia_ObjectDispatch _parent;

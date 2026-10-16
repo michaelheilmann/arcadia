@@ -24,7 +24,14 @@ BeginProduct(${this} test)
 SetFolder(${this} "Media")
 
 OnSourceFile(${this} Arcadia.Media.Tests.PixelBuffer/Main.c)
+OnSourceFile(${this} Arcadia.Media.Tests.PixelBuffer/Operations.c)
+OnHeaderFile(${this} Arcadia.Media.Tests.PixelBuffer/Operations.h)
+OnSourceFile(${this} Arcadia.Media.Tests.PixelBuffer/FillModels.c)
+OnHeaderFile(${this} Arcadia.Media.Tests.PixelBuffer/FillModels.h)
+OnSourceFile(${this} Arcadia.Media.Tests.PixelBuffer/Formats.c)
+OnHeaderFile(${this} Arcadia.Media.Tests.PixelBuffer/Formats.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Media PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

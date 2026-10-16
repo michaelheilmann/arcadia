@@ -31,4 +31,28 @@ Arcadia_ADL_Tests_Visuals_ColorDefinitionTest2
     Arcadia_Thread* thread
   );
 
+int
+Arcadia_ADL_Tests_Visuals_colorAlpha
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_Visuals_colorAlphaInvalid
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_Visuals_colorAlphaGraph
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_Visuals_colorAlphaAssets
+  (
+    void
+  );
+
 #endif // ARCADIA_ADL_TESTS_VISUALS_COLOR_H_INCLUDED

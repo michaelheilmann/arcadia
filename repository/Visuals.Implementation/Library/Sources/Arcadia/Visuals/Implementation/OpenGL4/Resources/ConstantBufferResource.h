@@ -22,7 +22,7 @@
 typedef struct Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext;
 
 Arcadia_declareObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.ConstantBufferResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_ConstantBufferResource,
-                          u8"Arcadia.Visuals.ConstantBufferResource");
+                          u8"Arcadia.Engine.Visuals.ConstantBufferResource");
 
 struct Arcadia_Engine_Visuals_Implementation_OpenGL4_ConstantBufferResourceDispatch {
   Arcadia_Engine_Visuals_ConstantBufferResourceDispatch _parent;

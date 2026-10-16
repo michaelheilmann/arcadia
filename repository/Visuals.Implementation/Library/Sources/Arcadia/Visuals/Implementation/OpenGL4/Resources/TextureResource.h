@@ -22,7 +22,7 @@
 typedef struct Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext;
 
 Arcadia_declareObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.TextureResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_TextureResource,
-                          u8"Arcadia.Visuals.TextureResource");
+                          u8"Arcadia.Engine.Visuals.TextureResource");
 
 struct Arcadia_Engine_Visuals_Implementation_OpenGL4_TextureResourceDispatch {
   Arcadia_Engine_Visuals_TextureResourceDispatch _parent;

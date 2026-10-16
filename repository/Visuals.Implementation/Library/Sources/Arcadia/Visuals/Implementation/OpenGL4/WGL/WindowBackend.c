@@ -842,6 +842,19 @@ setSizeImpl
     Arcadia_Integer32Value height
   )
 {
+  if (self->windowHandle) {
+    DWORD dwStyle = (DWORD)GetWindowLongPtr(self->windowHandle, GWL_STYLE);
+    DWORD dwExStyle = (DWORD)GetWindowLongPtr(self->windowHandle, GWL_EXSTYLE);
+    RECT rectangle;
+    rectangle.left = 0;
+    rectangle.top = 0;
+    rectangle.right = width;
+    rectangle.bottom = height;
+    if (AdjustWindowRectExForDpi(&rectangle, dwStyle, FALSE, dwExStyle, GetDpiForWindow(self->windowHandle))) {
+      width = rectangle.right - rectangle.left;
+      height = rectangle.bottom - rectangle.top;
+    }
+  }
   ((Arcadia_Engine_Visuals_WindowBackend*)self)->bounds.width = width;
   ((Arcadia_Engine_Visuals_WindowBackend*)self)->bounds.height = height;
   if (self->windowHandle) {

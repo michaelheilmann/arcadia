@@ -1,0 +1,75 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Opaque external dependencies retain their native headers and implementations.
+native "Arcadia/VPL/Include.h" class Arcadia.VPL.VerifiedModule extends Arcadia.Object {
+}
+
+/// Backend-neutral visuals context. Implementations create icons, windows,
+/// enumerate display devices and manufacture the resources listed below.
+/// The former header's sketch of createIcon(width, height, RGBA) was stale:
+/// the actual public API accepts a PixelBuffer.
+abstract class Arcadia.Engine.Visuals.BackendContext extends Arcadia.Engine.BackendContext {
+  /// List of windows. The constructor creates a native ArrayList through the
+  /// qualified binding below; the generated visit callback traces the list.
+  variable windows : Arcadia.List
+
+  constructor {
+    call $0 Arcadia.Engine.Visuals.createVisualsWindowsList
+    storeField self windows $0
+  }
+
+  method abstract createIcon(variable pixelBuffer : Arcadia.Media.PixelBuffer) : Arcadia.Engine.Visuals.Icon
+  method abstract createWindow : Arcadia.Engine.Visuals.Window
+
+  /// Enumerate all display devices for this backend context.
+  method abstract getDisplayDevices : Arcadia.List
+
+  /// Create a constant buffer resource with initial reference count zero;
+  /// it may be destroyed at the backend's next update unless retained.
+  method abstract createConstantBufferResource : Arcadia.Engine.Visuals.ConstantBufferResource
+  /// Create a frame buffer resource with initial reference count zero.
+  method abstract createFrameBufferResource : Arcadia.Engine.Visuals.FrameBufferResource
+  /// Create a rendering-context resource with initial reference count zero.
+  method abstract createEnterPassResource : Arcadia.Engine.Visuals.EnterPassResource
+  /// Create a material resource with initial reference count zero.
+  method abstract createMaterialResource
+    (
+      variable blendEnabled : Arcadia.Boolean,
+      variable blendSourceFunction : Arcadia.Engine.Visuals.BlendFunction,
+      variable blendDestinationFunction : Arcadia.Engine.Visuals.BlendFunction,
+      variable ambientColorSource : Arcadia.Engine.Visuals.ColorSource,
+      variable ambientTexture : Arcadia.Engine.Visuals.TextureResource,
+      variable program : Arcadia.Engine.Visuals.ProgramResource
+    ) : Arcadia.Engine.Visuals.MaterialResource
+  /// Create a model resource with initial reference count zero.
+  method abstract createModelResource
+    (
+      variable meshConstantBufferResource : Arcadia.Engine.Visuals.ConstantBufferResource,
+      variable vertexBufferResource : Arcadia.Engine.Visuals.VertexBufferResource,
+      variable material : Arcadia.Engine.Visuals.MaterialResource
+    ) : Arcadia.Engine.Visuals.ModelResource
+  /// Create a program resource with initial reference count zero.
+  method abstract createProgramResource(variable program : Arcadia.VPL.VerifiedModule) : Arcadia.Engine.Visuals.ProgramResource
+  /// Create a texture resource with initial reference count zero.
+  method abstract createTextureResource : Arcadia.Engine.Visuals.TextureResource
+  /// Create a vertex buffer resource with initial reference count zero.
+  method abstract createVertexBufferResource : Arcadia.Engine.Visuals.VertexBufferResource
+}
+
+// Allocate the concrete native collection through its exact native signature;
+// the context stores and traces it through the backend-independent List type.
+procedure native "Arcadia_ArrayList_create" Arcadia.Engine.Visuals.createVisualsWindowsList : Arcadia.ArrayList

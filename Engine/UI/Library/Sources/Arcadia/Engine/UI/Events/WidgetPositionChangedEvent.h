@@ -18,20 +18,24 @@
 #define ARCADIA_ENGINE_UI_EVENTS_WIDGETPOSITIONCHANGEDEVENT_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_UI_PRIVATE) || 1 != ARCADIA_ENGINE_UI_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/UI/Include.h` instead")
+  #error("do not include `Arcadia/Engine/UI/Events/WidgetPositionChangedEvent.h` directly, include `Arcadia/Engine/UI/Include.h` instead")
 #endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/UI/WidgetEvent.h"
 
-// https://michaelheilmann.com/Arcadia/Egine/UI/#Arcadia_Engine_UI_WidgetPositionChangedEvent
+typedef struct Arcadia_Engine_UI_WidgetNode Arcadia_Engine_UI_WidgetNode;
+typedef struct Arcadia_Engine_UI_WidgetPositionChangedEvent Arcadia_Engine_UI_WidgetPositionChangedEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.UI.WidgetPositionChangedEvent", Arcadia_Engine_UI_WidgetPositionChangedEvent,
                           u8"Arcadia.Engine.UI.WidgetEvent");
 
 struct Arcadia_Engine_UI_WidgetPositionChangedEventDispatch {
-  Arcadia_Engine_UI_EventDispatch _parent;
+  Arcadia_Engine_UI_WidgetEventDispatch _parent;
 };
 
 struct Arcadia_Engine_UI_WidgetPositionChangedEvent {
-  Arcadia_Engine_UI_Event _parent;
+  Arcadia_Engine_UI_WidgetEvent _parent;
   Arcadia_Integer32Value horizontalPosition;
   Arcadia_Integer32Value verticalPosition;
 };

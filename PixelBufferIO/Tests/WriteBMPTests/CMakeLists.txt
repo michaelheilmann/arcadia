@@ -27,5 +27,7 @@ OnSourceFile(${this} Arcadia.PixelBufferIO.Tests.WriteBMPTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.PixelBufferIO)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
+set(${this}.TestIsolated TRUE)
+set(${this}.TestParallelSafe TRUE)
 EndProduct(${this})
-

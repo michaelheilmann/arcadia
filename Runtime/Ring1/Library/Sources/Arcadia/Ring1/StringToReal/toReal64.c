@@ -61,13 +61,13 @@ Arcadia_NumberLiteral_approximateExponent
   Arcadia_Integer64Value v = 0;
   Arcadia_SizeValue i, j;
   for (i = self->exponent.integral.start + self->exponent.integral.leadingZeroes.length, j = 0;
-    i < self->exponent.integral.start + self->exponent.integral.leadingZeroes.length + self->exponent.integral.length && j < 19; ++i) {
+    i < self->exponent.integral.start + self->exponent.integral.length && j < 19; ++i) {
     v = v * 10 + (p[i] - '0');
   }
   if (self->exponent.sign.length) {
     v = p[self->exponent.sign.start] == '-' ? -v : +v;
   }
-  *approximated = i < self->exponent.integral.start + self->exponent.integral.leadingZeroes.length + self->exponent.integral.length;
+  *approximated = i < self->exponent.integral.start + self->exponent.integral.length;
   return v;
 }
 

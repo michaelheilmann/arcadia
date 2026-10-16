@@ -17,15 +17,20 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_CANVASSIZECHANGEDEVENT_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_CANVASSIZECHANGEDEVENT_H_INCLUDED
 
-#include "Arcadia/Engine/Visuals/CanvasEvent.h"
-typedef struct Arcadia_Engine_Visuals_Window Arcadia_Engine_Visuals_Window;
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/CanvasSizeChangedEvent.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
 
-// https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Visuals_CanvasSizeChangedEvent
+#include "Arcadia/Ring1/Include.h"
+#include "Arcadia/Engine/Visuals/CanvasEvent.h"
+
+typedef struct Arcadia_Engine_Visuals_CanvasSizeChangedEvent Arcadia_Engine_Visuals_CanvasSizeChangedEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.CanvasSizeChangedEvent", Arcadia_Engine_Visuals_CanvasSizeChangedEvent,
                           u8"Arcadia.Engine.Visuals.CanvasEvent");
 
 struct Arcadia_Engine_Visuals_CanvasSizeChangedEventDispatch {
-  Arcadia_Engine_Visuals_CanvasEventDispatch parent;
+  Arcadia_Engine_Visuals_CanvasEventDispatch _parent;
 };
 
 struct Arcadia_Engine_Visuals_CanvasSizeChangedEvent {
@@ -33,5 +38,14 @@ struct Arcadia_Engine_Visuals_CanvasSizeChangedEvent {
   Arcadia_Integer32Value horizontalSize;
   Arcadia_Integer32Value verticalSize;
 };
+
+Arcadia_Engine_Visuals_CanvasSizeChangedEvent*
+Arcadia_Engine_Visuals_CanvasSizeChangedEvent_create
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Natural64Value timestamp,
+    Arcadia_Integer32Value horizontalSize,
+    Arcadia_Integer32Value verticalSize
+  );
 
 #endif // ARCADIA_ENGINE_VISUALS_CANVASSIZECHANGEDEVENT_H_INCLUDED

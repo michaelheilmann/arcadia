@@ -1,5 +1,0 @@
-{
-  type  : "Texture",
-  name  : "MainMenuScene.NewGameButtonTexture",
-  pixelBuffer : "MainMenuScene.NewGameButtonPixelBuffer",
-}

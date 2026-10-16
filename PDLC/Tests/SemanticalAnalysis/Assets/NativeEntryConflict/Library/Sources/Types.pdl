@@ -1,0 +1,3 @@
+class MyModule.C {
+  method native "MyModule_C_read" read : Arcadia.Natural64
+}

@@ -7,6 +7,7 @@
 - The library API is `Arcadia_PDLC_*`; the public include is `Arcadia/PDLC/Include.h`. Do not reintroduce the former `MILC` spelling.
 - `--mil2c` and `--mil2mil` are still current command-line option names; do not rename command-line options here unless the user explicitly asks for that rename.
 - Keep compiler language behavior in `PDLC`; this folder should contain only command-line, configuration, help, and tool-invocation behavior.
+- `PDLC.CLI` must remain hand-written C: no production PDL port, generated headers/bodies, self-hosting or compiler/CLI production regeneration entries. Follow the [root native-C invariant](../AGENTS.md#start-here) for the full protected set, test/import exceptions and explicit-approval requirement.
 
 ## Language Specification
 
@@ -25,7 +26,8 @@
 
 - `Tool/Sources/Arcadia/PDLC/CLI/Main.c` owns argument parsing, configuration loading, DDL schema validation, and dispatch to compilation tasks.
 - `HelpSystem.c` owns user-facing help text. Keep help output synchronized with accepted command-line options and configuration schema.
-- The configuration file is DDL and currently provides `modulePaths`, a list of module directories. Relative paths are interpreted relative to the current working directory.
+- The configuration file is DDL and currently provides `modulePaths`, a list of module directories. Relative entries resolve against the parent directory of the configuration file, not the shell process CWD. Resolving a relative `--configuration` argument itself uses the process CWD; that is a separate step.
+- Example: from `C:/develop/Arcadia/Build/x64`, launch the built CLI with `--mil2c --configuration=\"C:/develop/Arcadia/Repository/Modules.pdl\"` (through a `.cmd` wrapper on PowerShell 5.1, as below). A `modulePaths` entry `./ADL` in that file resolves to `C:/develop/Arcadia/Repository/ADL`, not to a directory beneath the build tree.
 - Preserve the current non-interactive command style: commands are selected by flags such as `--help`, `--mil2c`, and `--mil2mil` with named arguments such as `--configuration=<path>`.
 - An argument value must be quoted: a value that does not start with `"` is parsed as an integer and fails with `invalid command-line argument`. Pass `--configuration=\"<path>\"` so the program actually receives the quote characters; note that Windows PowerShell 5.1 strips embedded quotes from native-command arguments, so verify invocations through a `.cmd` wrapper rather than assuming a direct `& exe` call works.
 - The CLI reports compiler diagnostics but does not print them on the `--mil2c` path, and it exits non-zero without output when compilation raises. Drive `Arcadia_PDLC_CompilationTask` from a test when the diagnostics themselves matter.

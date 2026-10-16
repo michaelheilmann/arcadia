@@ -18,7 +18,7 @@
 #include "Arcadia/Ring1/Objects/ByteReader.UnicodeCodePointReader.h"
 
 #include "Arcadia/Ring1/Include.h"
-#include <memory.h>
+#include <string.h>
 
 static void
 Arcadia_ByteReader_UnicodeCodePointReader_constructImpl

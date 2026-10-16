@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/VPL/Include.h"
 #include "Arcadia/FileSystem/Include.h"
 #include <string.h>
@@ -127,6 +129,61 @@ testTargetRejection
   }
 }
 
+static void
+testEmbeddedSourcesMatchFiles
+  (
+    Arcadia_Thread* thread
+  )
+{
+  const char* files[] = { "mesh-ambient-color.vpl", "vertex-ambient-color.vpl", "texture-ambient-color.vpl", "texture-vertex-ambient-color.vpl" };
+  for (Arcadia_Natural8Value flags = 0; flags < 4; ++flags) {
+    Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+    Arcadia_VPL_Context* context = (Arcadia_VPL_Context*)root(thread, (Arcadia_Object*)Arcadia_VPL_Context_create(thread));
+    Arcadia_Languages_Diagnostics* diagnostics = Arcadia_VPL_Context_getDiagnostics(thread, context);
+    Arcadia_String* directory = (Arcadia_String*)root(thread, (Arcadia_Object*)Arcadia_String_createFromCxxString(thread, VPL_PROGRAMS_SOURCE_DIRECTORY));
+    Arcadia_String* filename = (Arcadia_String*)root(thread, (Arcadia_Object*)Arcadia_String_createFromCxxString(thread, files[flags]));
+    Arcadia_FilePath* path = (Arcadia_FilePath*)root(thread, (Arcadia_Object*)Arcadia_FilePath_parseNative(thread, directory));
+    Arcadia_FilePath* relative = (Arcadia_FilePath*)root(thread, (Arcadia_Object*)Arcadia_FilePath_parseGeneric(thread, filename));
+    Arcadia_FilePath_append(thread, path, relative);
+    Arcadia_ByteArrayBuilder* source = (Arcadia_ByteArrayBuilder*)root(thread, (Arcadia_Object*)Arcadia_FileSystem_getFileContents(thread, Arcadia_FileSystem_getOrCreate(thread), path));
+    Arcadia_VPL_IR_Module* module = (Arcadia_VPL_IR_Module*)root(thread, (Arcadia_Object*)Arcadia_VPL_Text_read(thread, Arcadia_ByteArrayBuilder_getBytes(thread, source), Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, source), diagnostics, filename));
+    Arcadia_VPL_VerifiedModule* fromFile = (Arcadia_VPL_VerifiedModule*)root(thread, (Arcadia_Object*)Arcadia_VPL_VerifiedModule_create(thread, module, diagnostics));
+    Arcadia_VPL_VerifiedModule* embedded = (Arcadia_VPL_VerifiedModule*)root(thread, (Arcadia_Object*)Arcadia_VPL_Programs_create(thread, flags));
+    Arcadia_String* first = Arcadia_VPL_VerifiedModule_getText(thread, fromFile);
+    Arcadia_String* second = Arcadia_VPL_VerifiedModule_getText(thread, embedded);
+    Arcadia_Tests_assertTrue(thread, Arcadia_String_isEqualTo_pn(thread, first, Arcadia_String_getBytes(thread, second), Arcadia_String_getNumberOfBytes(thread, second)));
+    Arcadia_Tests_assertTrue(thread, !Arcadia_Languages_Diagnostics_hasErrors(thread, diagnostics));
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+  }
+}
+
+static int
+runPrograms
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testPrograms) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runTargetRejection
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testTargetRejection) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runEmbeddedSourcesMatchFiles
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testEmbeddedSourcesMatchFiles) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -134,7 +191,10 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&testPrograms)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testTargetRejection)) return EXIT_FAILURE;
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "Programs", &runPrograms },
+    { "TargetRejection", &runTargetRejection },
+    { "EmbeddedSourcesMatchFiles", &runEmbeddedSourcesMatchFiles },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

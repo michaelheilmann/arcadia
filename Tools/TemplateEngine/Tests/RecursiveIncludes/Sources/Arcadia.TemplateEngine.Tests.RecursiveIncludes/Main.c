@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -150,6 +152,42 @@ test_1_2_3_2
   }
 }
 
+static int
+runInclude1_1
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test_1_1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runInclude1_2_1
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test_1_2_1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runInclude1_2_3_1
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test_1_2_3_1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runInclude1_2_3_2
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test_1_2_3_2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -157,17 +195,11 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&test_1_1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test_1_2_1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test_1_2_3_1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test_1_2_3_2)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "Include1_1", &runInclude1_1 },
+    { "Include1_2_1", &runInclude1_2_1 },
+    { "Include1_2_3_1", &runInclude1_2_3_1 },
+    { "Include1_2_3_2", &runInclude1_2_3_2 },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

@@ -18,21 +18,20 @@
 #define ARCADIA_ENGINE_AUDIALS_NODE_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Audials/Node.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
-#include "Arcadia/Engine/Node.h"
-#include "Arcadia/Math/Include.h"
-typedef struct Arcadia_Engine_Audials_BackendContext Arcadia_Engine_Audials_BackendContext;
 
-// The base of all audials nodes.
-// A "resource" is owned by a "backend context".
-// That is, the "backend context" holds a STRONG reference to its "resources".
-// In addition, the "backend context" retains a GC lock unless its "resources" such that they are only gc'ed if the "backend context" drops this lock.
+#include "Arcadia/Ring1/Include.h"
+#include "Arcadia/Engine/Node.h"
+
+typedef struct Arcadia_Engine_Audials_Node Arcadia_Engine_Audials_Node;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Audials.Node", Arcadia_Engine_Audials_Node,
                           u8"Arcadia.Engine.Node");
 
 struct Arcadia_Engine_Audials_NodeDispatch {
   Arcadia_Engine_NodeDispatch _parent;
+
   void (*render)(Arcadia_Thread*, Arcadia_Engine_Audials_Node*);
 };
 
@@ -40,7 +39,6 @@ struct Arcadia_Engine_Audials_Node {
   Arcadia_Engine_Node _parent;
 };
 
-// Render this node.
 void
 Arcadia_Engine_Audials_Node_render
   (

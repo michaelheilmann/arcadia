@@ -21,6 +21,7 @@
   #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
 #endif
 #include "Arcadia/Engine/Visuals/Node.h"
+typedef struct Arcadia_Engine_Visuals_FrameBufferResource Arcadia_Engine_Visuals_FrameBufferResource;
 typedef struct Arcadia_Engine_Visuals_ViewportNode Arcadia_Engine_Visuals_ViewportNode;
 
 // A "framebuffer" node may be attached the "rendering context" node.

@@ -1,0 +1,10 @@
+class MyModule.Base {
+  method nonvirtual read : Arcadia.Natural64 {
+    return 1
+  }
+}
+class MyModule.Derived extends MyModule.Base {
+  method read : Arcadia.Natural64 {
+    return 2
+  }
+}

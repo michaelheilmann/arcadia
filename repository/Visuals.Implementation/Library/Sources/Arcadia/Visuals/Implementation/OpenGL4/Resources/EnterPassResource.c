@@ -99,7 +99,7 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.EnterPassResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource,
-                         u8"Arcadia.Visuals.EnterPassResource", Arcadia_Engine_Visuals_EnterPassResource,
+                         u8"Arcadia.Engine.Visuals.EnterPassResource", Arcadia_Engine_Visuals_EnterPassResource,
                          &_typeOperations);
 
 static void

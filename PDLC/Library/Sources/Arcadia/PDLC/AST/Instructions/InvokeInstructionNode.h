@@ -44,6 +44,8 @@ struct Arcadia_PDLC_AST_InvokeInstructionNode {
   Arcadia_PDLC_AST_OperandNode* target;
   Arcadia_PDLC_AST_VariableOperandNode* callee;
   Arcadia_List* operands;
+  /// True for the explicit procedure-only `call` spelling.
+  Arcadia_BooleanValue procedureOnly;
 };
 
 Arcadia_PDLC_AST_InvokeInstructionNode*

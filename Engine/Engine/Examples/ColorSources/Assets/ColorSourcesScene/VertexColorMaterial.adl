@@ -1,0 +1,7 @@
+{
+  type : "Material",
+  name : "ColorSourcesScene.VertexColorMaterial",
+  materialType : "Blinn-Phong",
+  ambientColorSource : "Vertex",
+  ambientColorTexture : "ColorSourcesScene.Texture",
+}

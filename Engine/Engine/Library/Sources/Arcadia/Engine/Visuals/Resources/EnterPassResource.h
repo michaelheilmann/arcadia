@@ -17,161 +17,71 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_RESOURCES_ENTERPASSRESOURCE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_RESOURCES_ENTERPASSRESOURCE_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/Resources/EnterPassResource.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Visuals/Resource.h"
-typedef struct Arcadia_Engine_Visuals_BackendContext Arcadia_Engine_Visuals_BackendContext;
 
 typedef struct Arcadia_Engine_Visuals_ConstantBufferResource Arcadia_Engine_Visuals_ConstantBufferResource;
+typedef struct Arcadia_Engine_Visuals_EnterPassResource Arcadia_Engine_Visuals_EnterPassResource;
 typedef struct Arcadia_Engine_Visuals_FrameBufferResource Arcadia_Engine_Visuals_FrameBufferResource;
+typedef struct Arcadia_Math_Color4Real32 Arcadia_Math_Color4Real32;
+typedef struct Arcadia_Math_Matrix4Real32 Arcadia_Math_Matrix4Real32;
 
-#define Arcadia_Engine_Visuals_EnterPassResource_ViewToProjectionMatrixDirty (1 << 0)
-#define Arcadia_Engine_Visuals_EnterPassResource_WorldToViewMatrixDirty (1 << 1)
-#define Arcadia_Engine_Visuals_EnterPassResource_CanvasSizeDirty (1 << 2)
-#define Arcadia_Engine_Visuals_EnterPassResource_ClearColorDirty (1 << 3)
-#define Arcadia_Engine_Visuals_EnterPassResource_ClearDepthDirty (1 << 4)
-#define Arcadia_Engine_Visuals_EnterPassResource_RelativeViewportRectangleDirty (1 << 5)
-
-#define Arcadia_Engine_Visuals_EnterPassResource_AllDirty \
-    ( \
-      Arcadia_Engine_Visuals_EnterPassResource_ViewToProjectionMatrixDirty | \
-      Arcadia_Engine_Visuals_EnterPassResource_WorldToViewMatrixDirty | \
-      Arcadia_Engine_Visuals_EnterPassResource_CanvasSizeDirty | \
-      Arcadia_Engine_Visuals_EnterPassResource_ClearColorDirty | \
-      Arcadia_Engine_Visuals_EnterPassResource_ClearDepthDirty | \
-      Arcadia_Engine_Visuals_EnterPassResource_RelativeViewportRectangleDirty \
-    )
-
-// The representation of a enter pass node in the backend.
-Arcadia_declareObjectType(u8"Arcadia.Visuals.EnterPassResource", Arcadia_Engine_Visuals_EnterPassResource,
-                          u8"Arcadia.Visuals.Resource");
+Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.EnterPassResource", Arcadia_Engine_Visuals_EnterPassResource,
+                          u8"Arcadia.Engine.Visuals.Resource");
 
 struct Arcadia_Engine_Visuals_EnterPassResourceDispatch {
   Arcadia_Engine_Visuals_ResourceDispatch _parent;
 
-  void (*setTargetFrameBuffer)
-    (
-      Arcadia_Thread*,
-      Arcadia_Engine_Visuals_EnterPassResource*,
-      Arcadia_Engine_Visuals_FrameBufferResource*
-    );
+  void (*setTargetFrameBuffer)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Engine_Visuals_FrameBufferResource*);
 
-  void (*setViewToProjectionMatrix)
-    (
-      Arcadia_Thread*,
-      Arcadia_Engine_Visuals_EnterPassResource*,
-      Arcadia_Math_Matrix4Real32*
-    );
+  void (*setViewToProjectionMatrix)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Math_Matrix4Real32*);
 
-  void (*setWorldToViewMatrix)
-    (
-      Arcadia_Thread*,
-      Arcadia_Engine_Visuals_EnterPassResource*,
-      Arcadia_Math_Matrix4Real32*
-    );
+  void (*setWorldToViewMatrix)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Math_Matrix4Real32*);
 
-  void (*setClearColorBuffer)
-    (
-      Arcadia_Thread* thread,
-      Arcadia_Engine_Visuals_EnterPassResource* self,
-      Arcadia_BooleanValue clearColorBuffer
-    );
+  void (*setClearColorBuffer)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_BooleanValue);
 
-  void (*setClearColor)
-    (
-      Arcadia_Thread* thread,
-      Arcadia_Engine_Visuals_EnterPassResource* self,
-      Arcadia_Math_Color4Real32* clearColor
-    );
+  void (*setClearColor)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Math_Color4Real32*);
 
+  void (*setClearDepthBuffer)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_BooleanValue);
 
-  void (*setClearDepthBuffer)
-    (
-      Arcadia_Thread* thread,
-      Arcadia_Engine_Visuals_EnterPassResource* self,
-      Arcadia_BooleanValue clearDepthBuffer
-    );
+  void (*setClearDepth)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Real32Value);
 
-  void (*setClearDepth)
-    (
-      Arcadia_Thread* thread,
-      Arcadia_Engine_Visuals_EnterPassResource* self,
-      Arcadia_Real32Value clearDepth
-    );
+  void (*setRelativeViewportRectangle)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Real32Value, Arcadia_Real32Value, Arcadia_Real32Value, Arcadia_Real32Value);
 
-  void
-  (*setRelativeViewportRectangle)
-    (
-      Arcadia_Thread* thread,
-      Arcadia_Engine_Visuals_EnterPassResource* self,
-      Arcadia_Real32Value left,
-      Arcadia_Real32Value bottom,
-      Arcadia_Real32Value right,
-      Arcadia_Real32Value top
-    );
-
-  void
-  (*setCanvasSize)
-    (
-      Arcadia_Thread* thread,
-      Arcadia_Engine_Visuals_EnterPassResource* self,
-      Arcadia_Real32Value width,
-      Arcadia_Real32Value height
-    );
+  void (*setCanvasSize)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Real32Value, Arcadia_Real32Value);
 };
 
 struct Arcadia_Engine_Visuals_EnterPassResource {
   Arcadia_Engine_Visuals_Resource _parent;
-
   Arcadia_Natural32Value dirty;
-
-  // The world space to view space matrix.
   Arcadia_Math_Matrix4Real32* worldToViewMatrix;
-
-  // The view space to projection space matrix.
   Arcadia_Math_Matrix4Real32* viewToProjectionMatrix;
-
-  // The canvas size.
-  struct {
-
-    // The width of the canvas.
-    // Default is 320.
-    Arcadia_Real32Value width;
-
-    // The height of the canvas.
-    // Default is 240.
-    Arcadia_Real32Value height;
-
-  } canvasSize;
-
-  struct {
-
-    // Default is 0.
-    Arcadia_Real32Value left;
-
-    // Default is 0.
-    Arcadia_Real32Value bottom;
-
-    // Default is 1.
-    Arcadia_Real32Value right;
-
-    // Default is 1.
-    Arcadia_Real32Value top;
-
-  } relativeViewportRectangle;
-
-  // If the color buffer should be cleared.
+  struct { Arcadia_Real32Value width; Arcadia_Real32Value height; } canvasSize;
+  struct { Arcadia_Real32Value left; Arcadia_Real32Value bottom; Arcadia_Real32Value right; Arcadia_Real32Value top; } relativeViewportRectangle;
   Arcadia_BooleanValue clearColorBuffer;
-  // The color to clear the color buffer with.
-  // Default is 193, 216, 195, 255.
   Arcadia_Math_Color4Real32* clearColor;
-
-  // If the depth buffer should be cleared.
   Arcadia_BooleanValue clearDepthBuffer;
-  // The depth to clear the depth buffer with.
-  // Default is 1.
   Arcadia_Real32Value clearDepth;
-
   Arcadia_Engine_Visuals_ConstantBufferResource* viewerConstantBuffer;
 };
+
+#define Arcadia_Engine_Visuals_EnterPassResource_ViewToProjectionMatrixDirty INT32_C(1)
+
+#define Arcadia_Engine_Visuals_EnterPassResource_WorldToViewMatrixDirty INT32_C(2)
+
+#define Arcadia_Engine_Visuals_EnterPassResource_CanvasSizeDirty INT32_C(4)
+
+#define Arcadia_Engine_Visuals_EnterPassResource_ClearColorDirty INT32_C(8)
+
+#define Arcadia_Engine_Visuals_EnterPassResource_ClearDepthDirty INT32_C(16)
+
+#define Arcadia_Engine_Visuals_EnterPassResource_RelativeViewportRectangleDirty INT32_C(32)
+
+#define Arcadia_Engine_Visuals_EnterPassResource_AllDirty INT32_C(63)
 
 void
 Arcadia_Engine_Visuals_EnterPassResource_setTargetFrameBuffer
@@ -197,8 +107,6 @@ Arcadia_Engine_Visuals_EnterPassResource_setWorldToViewMatrix
     Arcadia_Math_Matrix4Real32* worldToViewMatrix
   );
 
-/// Enable or disable clearing the color buffer.
-/// @param clearDepthBuffer #Arcadia_BooleanValue_True to enable clearing the color buffer. #Arcadia_BooleanValue_False to disable.
 void
 Arcadia_Engine_Visuals_EnterPassResource_setClearColorBuffer
   (
@@ -207,8 +115,6 @@ Arcadia_Engine_Visuals_EnterPassResource_setClearColorBuffer
     Arcadia_BooleanValue clearColorBuffer
   );
 
-/// Set the clear color.
-/// Default values are red = 193, green = 216, blue = 195, and alpha = 255.
 void
 Arcadia_Engine_Visuals_EnterPassResource_setClearColor
   (
@@ -217,8 +123,6 @@ Arcadia_Engine_Visuals_EnterPassResource_setClearColor
     Arcadia_Math_Color4Real32* clearColor
   );
 
-/// Enable or disable clearing the depth buffer.
-/// @param clearDepthBuffer #Arcadia_BooleanValue_True to enable clearing the depth buffer. #Arcadia_BooleanValue_False to disable.
 void
 Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBuffer
   (
@@ -227,8 +131,6 @@ Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBuffer
     Arcadia_BooleanValue clearDepthBuffer
   );
 
-/// Set the clear depth.
-/// Default values are
 void
 Arcadia_Engine_Visuals_EnterPassResource_setClearDepth
   (
@@ -237,9 +139,6 @@ Arcadia_Engine_Visuals_EnterPassResource_setClearDepth
     Arcadia_Real32Value clearDepth
   );
 
-/// Set the viewport relative rectangle.
-/// x axis going from left to right, y axis going from bottom to top
-/// Default values are left = 0, bottom = 0, right = 1, and top  = 1.
 void
 Arcadia_Engine_Visuals_EnterPassResource_setRelativeViewportRectangle
   (
@@ -251,8 +150,6 @@ Arcadia_Engine_Visuals_EnterPassResource_setRelativeViewportRectangle
     Arcadia_Real32Value top
   );
 
-/// Set the canvas size.
-/// Default values are width = 320 and height = 240.
 void
 Arcadia_Engine_Visuals_EnterPassResource_setCanvasSize
   (

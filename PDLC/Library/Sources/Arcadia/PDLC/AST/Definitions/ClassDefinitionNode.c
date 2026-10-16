@@ -63,17 +63,20 @@ Arcadia_PDLC_AST_ClassDefinitionNode_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_PDLC_AST_ClassDefinitionNode);
-  if (6 != _numberOfArguments) {
+  if (7 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
   {
-    Arcadia_Value startOffset = Arcadia_ValueStack_getValue(thread, 6);
+    Arcadia_Value startOffset = Arcadia_ValueStack_getValue(thread, 7);
     Arcadia_ValueStack_pushValue(thread, &startOffset);
     Arcadia_ValueStack_pushNatural8Value(thread, 1);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  self->isNative = Arcadia_ValueStack_getBooleanValue(thread, 5);
+  self->isNative = Arcadia_ValueStack_getBooleanValue(thread, 6);
+  self->isNativeImplementation = Arcadia_BooleanValue_False;
+  self->isAbstract = Arcadia_ValueStack_getBooleanValue(thread, 5);
+  self->nativeHeaderPath = NULL;
   self->className = (Arcadia_PDLC_AST_IdentifierNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 4, _Arcadia_PDLC_AST_IdentifierNode_getType(thread));
   if (Arcadia_ValueStack_isObjectReferenceValue(thread, 3)) {
     self->extendedClassName = (Arcadia_PDLC_AST_IdentifierNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_PDLC_AST_IdentifierNode_getType(thread));
@@ -110,6 +113,9 @@ Arcadia_PDLC_AST_ClassDefinitionNode_visitImpl
     Arcadia_PDLC_AST_ClassDefinitionNode* self
   )
 {
+  if (self->nativeHeaderPath) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->nativeHeaderPath);
+  }
   if (self->className) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->className);
   }
@@ -130,6 +136,7 @@ Arcadia_PDLC_AST_ClassDefinitionNode_create
     Arcadia_Thread* thread,
     Arcadia_SizeValue startOffset,
     Arcadia_BooleanValue isNative,
+    Arcadia_BooleanValue isAbstract,
     Arcadia_PDLC_AST_IdentifierNode* className,
     Arcadia_PDLC_AST_IdentifierNode* extendedClassName,
     Arcadia_List* implementsInterfaceNames,
@@ -139,6 +146,7 @@ Arcadia_PDLC_AST_ClassDefinitionNode_create
   _Arcadia_BeginCreate(Arcadia_PDLC_AST_ClassDefinitionNode);
   Arcadia_ValueStack_pushSizeValue(thread, startOffset);
   Arcadia_ValueStack_pushBooleanValue(thread, isNative);
+  Arcadia_ValueStack_pushBooleanValue(thread, isAbstract);
   if (className) {
     Arcadia_ValueStack_pushObjectReferenceValue(thread, className);
   } else {
@@ -159,6 +167,6 @@ Arcadia_PDLC_AST_ClassDefinitionNode_create
   } else {
     Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   }
-  Arcadia_ValueStack_pushNatural8Value(thread, 6);
+  Arcadia_ValueStack_pushNatural8Value(thread, 7);
   _Arcadia_EndCreate(Arcadia_PDLC_AST_ClassDefinitionNode);
 }

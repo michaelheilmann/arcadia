@@ -18,9 +18,6 @@
 #include "Arcadia/VPL/Context.h"
 
 #include "Arcadia/Logging/Include.h"
-#include "Arcadia/VPL/EnterPhase.h"
-#include "Arcadia/VPL/ResolvePhase.h"
-#include "Arcadia/VPL/TypePhase.h"
 
 static void
 Arcadia_VPL_Context_constructImpl
@@ -84,9 +81,6 @@ Arcadia_VPL_Context_constructImpl
     Arcadia_Thread_jump(thread);
   }
   self->diagnostics = Arcadia_Languages_Diagnostics_create(thread, (Arcadia_Log*)Arcadia_ConsoleLog_create(thread));
-  self->enterPhase = NULL;
-  self->resolvePhase = NULL;
-  self->typePhase = NULL;
   Arcadia_LeaveConstructor(Arcadia_VPL_Context);
 }
 
@@ -107,15 +101,6 @@ Arcadia_VPL_Context_visit
 {
   if (self->diagnostics) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->diagnostics);
-  }
-  if (self->enterPhase) {
-    Arcadia_Object_visit(thread, (Arcadia_Object*)self->enterPhase);
-  }
-  if (self->resolvePhase) {
-    Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolvePhase);
-  }
-  if (self->typePhase) {
-    Arcadia_Object_visit(thread, (Arcadia_Object*)self->typePhase);
   }
 }
 
@@ -146,43 +131,4 @@ Arcadia_VPL_Context_getDiagnostics
   )
 {
   return self->diagnostics;
-}
-
-Arcadia_VPL_EnterPhase*
-Arcadia_VPL_Context_getEnterPhase
-  (
-    Arcadia_Thread* thread,
-    Arcadia_VPL_Context* self
-  )
-{
-  if (!self->enterPhase) {
-    self->enterPhase = Arcadia_VPL_EnterPhase_create(thread, self->diagnostics);
-  }
-  return self->enterPhase;
-}
-
-Arcadia_VPL_ResolvePhase*
-Arcadia_VPL_Context_getResolvePhase
-  (
-    Arcadia_Thread* thread,
-    Arcadia_VPL_Context* self
-  )
-{
-  if (!self->resolvePhase) {
-    self->resolvePhase = Arcadia_VPL_ResolvePhase_create(thread, self->diagnostics);
-  }
-  return self->resolvePhase;
-}
-
-Arcadia_VPL_TypePhase*
-Arcadia_VPL_Context_getTypePhase
-  (
-    Arcadia_Thread* thread,
-    Arcadia_VPL_Context* self
-  )
-{
-  if (!self->typePhase) {
-    self->typePhase = Arcadia_VPL_TypePhase_create(thread, self->diagnostics);
-  }
-  return self->typePhase;
 }

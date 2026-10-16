@@ -1,0 +1,6 @@
+enumeration Test.Kind {
+  Present = 0
+}
+procedure Test.write : Arcadia.Void {
+  set Test.Kind.Present Test.Kind.Present
+}

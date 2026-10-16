@@ -24,6 +24,7 @@
 #include "Arcadia/Ring1/Atoms.module.h"
 #include "Arcadia/Ring1/Thread.module.h"
 #include "Arcadia/Ring1/TypeSystem/Types.module.h"
+#include <assert.h>
 #include <stdbool.h>
 
 typedef const ModuleInfo* (GetModuleInfo)();
@@ -185,6 +186,8 @@ Arcadia_Process_relinquish
     }
     Arcadia_Process_runARMS(process, true);
     shutdownModules(process);
+    Arcadia_Process_removeArenaVisitCallback(process, &ThreadVisitCallback);
+    assert(process->armsCallbackNodes == NULL);
     Arcadia_Thread_uninitialize(&process->thread);
     Arcadia_ARMS_MemoryManager_deallocate(Arcadia_ARMS_getDefaultMemoryManager(), g_process);
     g_process = NULL;
@@ -229,6 +232,7 @@ Arcadia_Process_get
       Arcadia_Thread_popJumpTarget(&g_process->thread);
       shutdownModules(g_process);
       Arcadia_Process_removeArenaVisitCallback(g_process, &ThreadVisitCallback);
+      assert(g_process->armsCallbackNodes == NULL);
       Arcadia_Thread_uninitialize(&g_process->thread);
       Arcadia_ARMS_MemoryManager_deallocate(Arcadia_ARMS_getDefaultMemoryManager(), g_process);
       g_process = NULL;
@@ -322,6 +326,13 @@ Arcadia_Process_stepARMS
     Arcadia_Process* process
   )
 {
+  Arcadia_Thread* thread = Arcadia_Process_getThread(process);
+  for (ARMSCallbackNode* node = process->armsCallbackNodes; node; node = node->next) {
+    if (node->onPreMark) node->onPreMark(thread, false);
+  }
+  for (ARMSCallbackNode* node = process->armsCallbackNodes; node; node = node->next) {
+    if (node->onVisit) node->onVisit(thread);
+  }
   Arcadia_ARMS_RunStatistics statistics = Arcadia_ARMS_RunStatistics_StaticInitializer();
   Arcadia_ARMS_Status status = Arcadia_ARMS_run(&statistics);
   switch (status) {
@@ -356,6 +367,10 @@ Arcadia_Process_runARMS
       if (node->onPreMark) {
         node->onPreMark(thread, purgeCaches);
       }
+    }
+    // Re-mark external roots for every sweep, including sweeps caused by finalizers.
+    for (ARMSCallbackNode* node = process->armsCallbackNodes; node; node = node->next) {
+      if (node->onVisit) node->onVisit(thread);
     }
     Arcadia_ARMS_Status status = Arcadia_ARMS_run(&statistics);
     switch (status) {

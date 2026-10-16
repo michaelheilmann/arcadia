@@ -1,0 +1,89 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Native definition: Arcadia/Engine/Visuals/Resources/EnterPassResource.h.
+// Value records and ownership describe the program; physical layout is a backend concern.
+/// The representation of an enter-pass node in the backend.
+native implementation "Arcadia/Engine/Visuals/Resources/EnterPassResource.h" class Arcadia.Engine.Visuals.EnterPassResource extends Arcadia.Engine.Visuals.Resource {
+  constant ViewToProjectionMatrixDirty : Arcadia.Integer32 = 1
+  constant WorldToViewMatrixDirty : Arcadia.Integer32 = 2
+  constant CanvasSizeDirty : Arcadia.Integer32 = 4
+  constant ClearColorDirty : Arcadia.Integer32 = 8
+  constant ClearDepthDirty : Arcadia.Integer32 = 16
+  constant RelativeViewportRectangleDirty : Arcadia.Integer32 = 32
+  constant AllDirty : Arcadia.Integer32 = 63
+
+  variable dirty : Arcadia.Natural32
+  /// The world-space to view-space matrix.
+  variable worldToViewMatrix : Arcadia.Math.Matrix4Real32
+  /// The view-space to projection-space matrix.
+  variable viewToProjectionMatrix : Arcadia.Math.Matrix4Real32
+  /// The canvas size.
+  variable canvasSize : record {
+    /// The width of the canvas. Default is 320.
+    variable width : Arcadia.Real32
+    /// The height of the canvas. Default is 240.
+    variable height : Arcadia.Real32
+  }
+  variable relativeViewportRectangle : record {
+    /// Default is 0.
+    variable left : Arcadia.Real32
+    /// Default is 0.
+    variable bottom : Arcadia.Real32
+    /// Default is 1.
+    variable right : Arcadia.Real32
+    /// Default is 1.
+    variable top : Arcadia.Real32
+  }
+  /// Whether the color buffer should be cleared.
+  variable clearColorBuffer : Arcadia.Boolean
+  /// The color to clear the color buffer with.
+  /// Default components are red = 193, green = 216, blue = 195, alpha = 255.
+  variable clearColor : Arcadia.Math.Color4Real32
+  /// Whether the depth buffer should be cleared.
+  variable clearDepthBuffer : Arcadia.Boolean
+  /// The depth to clear the depth buffer with. Default is 1.
+  variable clearDepth : Arcadia.Real32
+  // Retained by the resource lifetime protocol, not by this object's GC visitor.
+  variable viewerConstantBuffer : retained Arcadia.Engine.Visuals.ConstantBufferResource
+
+  method native "Arcadia_Engine_Visuals_EnterPassResource_setTargetFrameBuffer" setTargetFrameBuffer(variable frameBuffer : Arcadia.Engine.Visuals.FrameBufferResource) : Arcadia.Void
+  method native "Arcadia_Engine_Visuals_EnterPassResource_setViewToProjectionMatrix" setViewToProjectionMatrix(variable viewToProjectionMatrix : Arcadia.Math.Matrix4Real32) : Arcadia.Void
+  method native "Arcadia_Engine_Visuals_EnterPassResource_setWorldToViewMatrix" setWorldToViewMatrix(variable worldToViewMatrix : Arcadia.Math.Matrix4Real32) : Arcadia.Void
+
+  /// Enable or disable clearing the color buffer.
+  /// @param clearColorBuffer true to enable clearing; false to disable.
+  method native "Arcadia_Engine_Visuals_EnterPassResource_setClearColorBuffer" setClearColorBuffer(variable clearColorBuffer : Arcadia.Boolean) : Arcadia.Void
+
+  /// Set the clear color.
+  /// Default components are red = 193, green = 216, blue = 195, alpha = 255.
+  method native "Arcadia_Engine_Visuals_EnterPassResource_setClearColor" setClearColor(variable clearColor : Arcadia.Math.Color4Real32) : Arcadia.Void
+
+  /// Enable or disable clearing the depth buffer.
+  /// @param clearDepthBuffer true to enable clearing; false to disable.
+  method native "Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBuffer" setClearDepthBuffer(variable clearDepthBuffer : Arcadia.Boolean) : Arcadia.Void
+
+  /// Set the clear depth. Default is 1.
+  method native "Arcadia_Engine_Visuals_EnterPassResource_setClearDepth" setClearDepth(variable clearDepth : Arcadia.Real32) : Arcadia.Void
+
+  /// Set the relative viewport rectangle.
+  /// The x axis goes from left to right; the y axis goes from bottom to top.
+  /// Defaults are left = 0, bottom = 0, right = 1, top = 1.
+  method native "Arcadia_Engine_Visuals_EnterPassResource_setRelativeViewportRectangle" setRelativeViewportRectangle(variable left : Arcadia.Real32, variable bottom : Arcadia.Real32, variable right : Arcadia.Real32, variable top : Arcadia.Real32) : Arcadia.Void
+
+  /// Set the canvas size. Defaults are width = 320 and height = 240.
+  method native "Arcadia_Engine_Visuals_EnterPassResource_setCanvasSize" setCanvasSize(variable width : Arcadia.Real32, variable height : Arcadia.Real32) : Arcadia.Void
+}

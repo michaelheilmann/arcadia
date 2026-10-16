@@ -1,0 +1,1 @@
+procedure native "Test_Qualified_f" Test.Qualified.f : Arcadia.Void

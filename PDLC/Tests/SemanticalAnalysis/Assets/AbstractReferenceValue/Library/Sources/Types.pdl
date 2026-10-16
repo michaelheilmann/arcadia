@@ -1,0 +1,6 @@
+abstract class Test.Reference {
+  method abstract send(variable bytes : readonly reference Arcadia.Void) : Arcadia.Void
+}
+procedure invalid(variable receiver : Test.Reference) : Arcadia.Void {
+  invoke $0 send receiver void
+}

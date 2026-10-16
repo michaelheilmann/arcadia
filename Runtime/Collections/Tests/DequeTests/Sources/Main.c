@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -115,18 +117,34 @@ dequeTest3
   Arcadia_Deque_insertFront(thread, a, Arcadia_Value_makeInteger32Value(5));
 }
 
+static int
+runEmptyConstruction
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&dequeTest1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runFrontInsertionAndRemoval
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&dequeTest2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&dequeTest1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&dequeTest2)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "EmptyConstruction", &runEmptyConstruction },
+    { "FrontInsertionAndRemoval", &runFrontInsertionAndRemoval },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

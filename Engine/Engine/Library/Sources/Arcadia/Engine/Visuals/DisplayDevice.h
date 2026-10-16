@@ -18,11 +18,14 @@
 #define ARCADIA_ENGINE_VISUALS_DISPLAYDEVICE_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Visuals/DisplayDevice.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
-#include "Arcadia/Ring2/Include.h"
-#include "Arcadia/Collections/Include.h"
+
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_Engine_Visuals_DisplayDevice Arcadia_Engine_Visuals_DisplayDevice;
 typedef struct Arcadia_Engine_Visuals_DisplayMode Arcadia_Engine_Visuals_DisplayMode;
+typedef struct Arcadia_List Arcadia_List;
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.DisplayDevice", Arcadia_Engine_Visuals_DisplayDevice,
                           u8"Arcadia.Object");
@@ -30,11 +33,15 @@ Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.DisplayDevice", Arcadia_Engi
 struct Arcadia_Engine_Visuals_DisplayDeviceDispatch {
   Arcadia_ObjectDispatch _parent;
 
-  Arcadia_Engine_Visuals_DisplayMode* (*getCurrentDisplayMode)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_DisplayDevice* self);
-  Arcadia_List* (*getAvailableDisplayModes)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_DisplayDevice* self);
+  Arcadia_Engine_Visuals_DisplayMode* (*getCurrentDisplayMode)(Arcadia_Thread*, Arcadia_Engine_Visuals_DisplayDevice*);
+
+  Arcadia_List* (*getAvailableDisplayModes)(Arcadia_Thread*, Arcadia_Engine_Visuals_DisplayDevice*);
+
   void (*getBounds)(Arcadia_Thread*, Arcadia_Engine_Visuals_DisplayDevice*, Arcadia_Integer32Value*, Arcadia_Integer32Value*, Arcadia_Integer32Value*, Arcadia_Integer32Value*);
-  Arcadia_String* (*getName)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_DisplayDevice* self);
-  Arcadia_String* (*getId)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_DisplayDevice* self);
+
+  Arcadia_String* (*getName)(Arcadia_Thread*, Arcadia_Engine_Visuals_DisplayDevice*);
+
+  Arcadia_String* (*getId)(Arcadia_Thread*, Arcadia_Engine_Visuals_DisplayDevice*);
 };
 
 struct Arcadia_Engine_Visuals_DisplayDevice {
@@ -55,25 +62,17 @@ Arcadia_Engine_Visuals_DisplayDevice_getAvailableDisplayModes
     Arcadia_Engine_Visuals_DisplayDevice* self
   );
 
-/// @brief Get the bounds of this display.
-/// @param thread A pointer to this thread.
-/// @param self A pointer to this display device.
-/// @param left, top, width, bottom Pointers to Arcadia_Integer32Value variable receiving the left, top, right, bottom coordinates of the display.
 void
 Arcadia_Engine_Visuals_DisplayDevice_getBounds
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_DisplayDevice* self,
-    Arcadia_Integer32Value *left,
-    Arcadia_Integer32Value *top,
-    Arcadia_Integer32Value *right,
-    Arcadia_Integer32Value *bottom
+    Arcadia_Integer32Value* left,
+    Arcadia_Integer32Value* top,
+    Arcadia_Integer32Value* right,
+    Arcadia_Integer32Value* bottom
   );
 
-// @brief The a human-readable/display name of the device.
-// @param thread A pointer to this thread.
-// @param self A pointer to this display device.
-// @return A pointer to the name.
 Arcadia_String*
 Arcadia_Engine_Visuals_DisplayDevice_getName
   (
@@ -81,10 +80,6 @@ Arcadia_Engine_Visuals_DisplayDevice_getName
     Arcadia_Engine_Visuals_DisplayDevice* self
   );
 
-// @brief Get the unique identifier of this device.
-// @param thread A pointer to this thread.
-// @param self A pointer to this display device.
-// @return A pointer to the unique identifier.
 Arcadia_String*
 Arcadia_Engine_Visuals_DisplayDevice_getId
   (

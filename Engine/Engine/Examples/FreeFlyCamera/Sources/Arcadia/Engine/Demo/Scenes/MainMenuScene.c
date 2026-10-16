@@ -181,7 +181,7 @@ static const Arcadia_Type_Operations _Arcadia_Engine_Demo_MainMenuScene_typeOper
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Engine.Demo.MainMenuScene", Arcadia_Engine_Demo_MainMenuScene,
-                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Scene,
+                         u8"Arcadia.Engine.Scene", Arcadia_Engine_Scene,
                          &_Arcadia_Engine_Demo_MainMenuScene_typeOperations);
 
 static void

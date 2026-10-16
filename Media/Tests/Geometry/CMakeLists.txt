@@ -24,9 +24,14 @@ BeginProduct(${this} test)
 SetFolder(${this} "Media")
 
 OnSourceFile(${this} Arcadia.Media.Tests.Geometry/Main.c)
+OnSourceFile(${this} Arcadia.Media.Tests.Geometry/VertexBuilder.c)
+OnHeaderFile(${this} Arcadia.Media.Tests.Geometry/VertexBuilder.h)
+OnSourceFile(${this} Arcadia.Media.Tests.Geometry/VertexEnums.c)
+OnHeaderFile(${this} Arcadia.Media.Tests.Geometry/VertexEnums.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Media PRIVATE)
 OnModuleDependency(${this} ${MyProjectName}.ADL PRIVATE)
 OnModuleDependency(${this} ${MyProjectName}.Math PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

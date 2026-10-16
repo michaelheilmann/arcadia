@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <math.h>
 #include <stdlib.h>
 
@@ -637,17 +639,27 @@ test
   testLowPass(thread);
 }
 
-int
-main
+static int
+runTests
   (
-    int argc,
-    char **argv
+    void
   )
 {
-  (void)argc;
-  (void)argv;
   if (!Arcadia_Tests_safeExecute(&test)) {
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
+}
+
+int
+main
+  (
+    int argc,
+    char** argv
+  )
+{
+  static const Arcadia_Testing_Case cases[] = {
+    { "DSP", &runTests },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

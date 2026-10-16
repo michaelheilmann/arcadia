@@ -114,7 +114,7 @@ Arcadia_ARMS_NotifyDestroyModule_startup
   }
   g_notifyDestroyMap->size = 0;
   g_notifyDestroyMap->capacity = 8;
-  g_notifyDestroyMap->buckets = malloc(sizeof(NotifyDestroyMapNode) * g_notifyDestroyMap->capacity);
+  g_notifyDestroyMap->buckets = malloc(sizeof(NotifyDestroyMapNode*) * g_notifyDestroyMap->capacity);
   if (!g_notifyDestroyMap->buckets) {
     free(g_notifyDestroyMap);
     g_notifyDestroyMap = NULL;
@@ -132,6 +132,15 @@ Arcadia_ARMS_NotifyDestroyModule_shutdown
   )
 {
   if (g_notifyDestroyMap) {
+    for (size_t i = 0; i < g_notifyDestroyMap->capacity; ++i) {
+      while (g_notifyDestroyMap->buckets[i]) {
+        NotifyDestroyMapNode* node = g_notifyDestroyMap->buckets[i];
+        g_notifyDestroyMap->buckets[i] = node->next;
+        NodeList_clear(node);
+        free(node);
+      }
+    }
+    free(g_notifyDestroyMap->buckets);
     free(g_notifyDestroyMap);
     g_notifyDestroyMap = NULL;
   }

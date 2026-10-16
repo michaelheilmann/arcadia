@@ -23,6 +23,8 @@
 
 #include "Arcadia/Ring1/BigInteger/BigInteger.h"
 
+// Read a nonempty little-endian two's-complement word array. Replace the owned
+// magnitude buffer only after copying the input, which may alias that buffer.
 void
 Arcadia_BigInteger_fromTwosComplement
   (

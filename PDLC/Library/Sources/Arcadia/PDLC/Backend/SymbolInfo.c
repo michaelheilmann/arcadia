@@ -279,6 +279,19 @@ Arcadia_PDLC_Backend_SymbolInfo_getModule
 { Arcadia_VirtualCallWithReturn(Arcadia_PDLC_Backend_SymbolInfo, getModule, self); }
 
 Arcadia_FilePath*
+Arcadia_PDLC_Backend_SymbolInfo_getDependencyHeaderFilePath
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Backend_SymbolInfo* self,
+    Arcadia_PDLC_Backend_SymbolInfo* consumerModule
+  )
+{
+  if (Arcadia_PDLC_Backend_SymbolInfo_isBuiltIn(thread, self)) return NULL;
+  Arcadia_PDLC_Backend_SymbolInfo* owner = Arcadia_PDLC_Backend_SymbolInfo_getModule(thread, self);
+  return Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFilePath(thread, owner && owner != consumerModule ? owner : self);
+}
+
+Arcadia_FilePath*
 Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFilePath
   (
     Arcadia_Thread* thread,

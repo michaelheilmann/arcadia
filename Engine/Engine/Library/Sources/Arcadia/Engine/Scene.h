@@ -18,38 +18,45 @@
 #define ARCADIA_ENGINE_SCENE_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Scene.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
-#include "Arcadia/Engine/Input/KeyboardKeyEvent.h"
-#include "Arcadia/Engine/Input/MouseButtonEvent.h"
-#include "Arcadia/Engine/Input/MousePointerEvent.h"
-typedef struct Arcadia_Engine Arcadia_Engine;
-typedef struct Arcadia_Engine_SceneManager Arcadia_Engine_SceneManager;
 
-Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Scene,
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_Engine Arcadia_Engine;
+typedef struct Arcadia_Engine_Input_KeyboardKeyEvent Arcadia_Engine_Input_KeyboardKeyEvent;
+typedef struct Arcadia_Engine_Input_MouseButtonEvent Arcadia_Engine_Input_MouseButtonEvent;
+typedef struct Arcadia_Engine_Input_MousePointerEvent Arcadia_Engine_Input_MousePointerEvent;
+typedef struct Arcadia_Engine_Scene Arcadia_Engine_Scene;
+typedef struct Arcadia_Engine_SceneManager Arcadia_Engine_SceneManager;
+typedef struct Arcadia_Signal Arcadia_Signal;
+
+Arcadia_declareObjectType(u8"Arcadia.Engine.Scene", Arcadia_Engine_Scene,
                           u8"Arcadia.Object");
 
 struct Arcadia_Engine_SceneDispatch {
-  Arcadia_ObjectDispatch parent;
+  Arcadia_ObjectDispatch _parent;
 
   void (*updateAudials)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value);
-  void (*updateLogics)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value tick);
+
+  void (*updateLogics)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value);
+
   void (*updateVisuals)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value);
 
   void (*handleKeyboardKeyEvent)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*);
+
   void (*handleMouseButtonEvent)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MouseButtonEvent*);
+
   void (*handleMousePointerEvent)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MousePointerEvent*);
 };
 
 struct Arcadia_Engine_Scene {
-  Arcadia_Object parent;
+  Arcadia_Object _parent;
   Arcadia_Engine* engine;
   Arcadia_Engine_SceneManager* sceneManager;
-  /// The "application quit request" event.
   Arcadia_Signal* applicationQuitRequestSignal;
 };
 
-/// @param tick The tick, in milliseconds.
 void
 Arcadia_Engine_Scene_updateAudials
   (
@@ -60,7 +67,6 @@ Arcadia_Engine_Scene_updateAudials
     Arcadia_Integer32Value height
   );
 
-/// @param tick The tick, in milliseconds.
 void
 Arcadia_Engine_Scene_updateLogics
   (
@@ -69,7 +75,6 @@ Arcadia_Engine_Scene_updateLogics
     Arcadia_Real64Value tick
   );
 
-/// @param tick The tick, in milliseconds.
 void
 Arcadia_Engine_Scene_updateVisuals
   (

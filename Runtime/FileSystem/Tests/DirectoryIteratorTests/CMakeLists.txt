@@ -30,9 +30,6 @@ OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BIN
 OnModuleDependency(${this} ${MyProjectName}.FileSystem)
 OnModuleDependency(${this} ${MyProjectName}.Ring2)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
+set(${this}.WorkingDirectory "${CMAKE_CURRENT_BINARY_DIR}")
 EndProduct(${this})
-
-# Adjust working directory.
-set(${this}.WorkingDirectory $<TARGET_FILE_DIR:${this}>)
-
-

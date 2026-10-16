@@ -28,11 +28,14 @@ if (NOT TARGET ${this})
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/PDLC/Tests/SyntacticalAnalysis/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/PDLC/Tests/SyntacticalAnalysis/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/PDLC/Tests/SyntacticalAnalysis/Main.c)
+  OnInlayFile(${this} Arcadia/PDLC/Tests/SyntacticalAnalysis/NegativeCases.i)
 
   OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
   OnModuleDependency(${this} ${MyProjectName}.PDLC PRIVATE)
 
+  OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
+  OnModuleDependency(${this} ${MyProjectName}.PDLC.Tests.Support PRIVATE)
   EndProduct(${this})
 
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)

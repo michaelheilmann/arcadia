@@ -27,5 +27,5 @@ OnSourceFile(${this} Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.ARMS)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})
-

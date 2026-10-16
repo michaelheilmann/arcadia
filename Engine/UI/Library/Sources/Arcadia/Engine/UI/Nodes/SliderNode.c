@@ -763,6 +763,7 @@ Arcadia_Engine_UI_SliderNode_createFromDefinition
   Arcadia_Engine_UI_SliderNode* node = Arcadia_Engine_UI_SliderNode_create(thread, backendContext, source->left, source->bottom,
                                                                            source->width, source->height, source->minimum,
                                                                            source->maximum, source->value, source->step);
+  Arcadia_Engine_UI_WidgetNode_setName(thread, (Arcadia_Engine_UI_WidgetNode*)node, ((Arcadia_ADL_Definition*)source)->name);
   Arcadia_ValueStack_popValues(thread, 1);
   return node;
 }

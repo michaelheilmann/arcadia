@@ -1,0 +1,36 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+/// The base of all nodes, including audials and visuals nodes.
+/// Resources represent nodes in terms of the audials and visuals backends.
+/// Nodes manage backend resources using explicit reference counting. A backend
+/// context owns strong references to its resources and retains their GC locks
+/// until the resources are released by the context.
+/// The base node stores no backend context. Derived nodes implement the context
+/// setters; the base declarations have no default attach/detach implementation.
+abstract class Arcadia.Engine.Node extends Arcadia.Object {
+  /// Set the audials backend context; a null context detaches the current one.
+  method abstract setAudialsBackendContext
+    (
+      variable backendContext : Arcadia.Engine.Audials.BackendContext
+    ) : Arcadia.Void
+
+  /// Set the visuals backend context; a null context detaches the current one.
+  method abstract setVisualsBackendContext
+    (
+      variable backendContext : Arcadia.Engine.Visuals.BackendContext
+    ) : Arcadia.Void
+}

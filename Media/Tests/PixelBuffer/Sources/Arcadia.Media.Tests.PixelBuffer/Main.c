@@ -14,27 +14,31 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 #include <string.h>
 
 #include "Arcadia/Media/Include.h"
-
-static void
-test1
-  (
-    Arcadia_Thread* thread
-  )
-{/*Intentionally empty.*/}
+#include "Operations.h"
+#include "FillModels.h"
+#include "Formats.h"
 
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&test1)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "Operations", &Arcadia_Media_Tests_PixelBuffer_operations },
+    { "Fills", &Arcadia_Media_Tests_PixelBuffer_fills },
+    { "FormatMetadata", &Arcadia_Media_Tests_PixelBuffer_formatMetadata },
+    { "FormatQueries", &Arcadia_Media_Tests_PixelBuffer_formatQueries },
+    { "FormatConsumers", &Arcadia_Media_Tests_PixelBuffer_formatConsumers },
+    { "Resize", &Arcadia_Media_Tests_PixelBuffer_resize },
+    { "BulkResize", &Arcadia_Media_Tests_PixelBuffer_bulkResize },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

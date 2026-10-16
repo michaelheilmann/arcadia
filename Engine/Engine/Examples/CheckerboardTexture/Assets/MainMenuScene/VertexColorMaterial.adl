@@ -1,7 +1,0 @@
-{
-  type : "Material",
-  name : "MainMenuScene.VertexColorMaterial",
-  materialType : "Blinn-Phong",
-  ambientColorSource : "Vertex",
-  ambientColorTexture : "MainMenuScene.Texture",
-}

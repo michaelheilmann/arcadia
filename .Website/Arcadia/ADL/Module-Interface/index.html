@@ -615,6 +615,59 @@ If the referenced definition does not exist, an error is raised.
 </section>
 
 </section>
+<section class="cxx entity procedure">
+<h1 id="Arcadia_ADL_Graphs_readFromNodes">Arcadia_ADL_Graphs_readFromNodes</h1>
+<my-signature><code>
+void Arcadia_ADL_Graphs_readFromNodes<br>
+&nbsp;&nbsp;(Arcadia_Thread* thread,<br>
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Context* context,<br>
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,<br>
+&nbsp;&nbsp;&nbsp;Arcadia_List* nodes)
+</code></my-signature>
+<my-summary>
+Collect graph templates and instances from a batch of DDL root maps and expand
+them into ordinary ADL definitions. Include <code>Arcadia/ADL/Include.h</code>.
+</my-summary>
+<section class="cxx parameters">
+<h1>Parameters</h1>
+<div><div>thread</div><div>The calling runtime thread.</div></div>
+<div><div>context</div><div>The ADL context used to read ordinary batch definitions.</div></div>
+<div><div>definitions</div><div>A fresh destination definitions container.</div></div>
+<div><div>nodes</div><div>An ordered list of DDL map-node object references, including ordinary assets and graph front-end forms.</div></div>
+</section>
+<my-remarks>
+<p>
+The function does not link or render the resulting definitions. Call
+<code>Arcadia_ADL_Definitions_link</code> after successful expansion. Generated
+nodes are currently read using <code>Arcadia_ADL_Context_getOrCreate</code> in the
+expander; the explicit context argument is used for ordinary batch nodes.
+</p>
+<p>
+Graph shape/binding errors raise <code>Arcadia_Status_SemanticalError</code>;
+allocation and ordinary reader/link operations retain their own error behavior.
+Do not assume the destination is unchanged on failure: ordinary definitions are
+read before instance staging, and generated definitions are published individually.
+</p>
+<p>
+Supported local audio nodes are <code>DSP.SineWave</code> and <code>DSP.Mix</code>.
+Mix's required nonempty <code>inputs</code> list is rewritten in its original
+order to generated local names, preserving repeated references. Each input must
+name a supported local DSP node; unresolved names, wrong families, references to
+<code>Graph.Output</code>, and local cycles raise
+<code>Arcadia_Status_SemanticalError</code>. A mix can be published as the single
+<code>Graph.Output</code> with <code>referenceType: "DSP.Mix"</code> and consumed
+by ordinary <code>SampleBuffer.dsp</code> after linking. Reference parameters
+remain Color-only; no output/source type-equality check is added.
+</p>
+<p>
+See <a href="https://michaelheilmann.com/Arcadia/ADL/Specification/#graph-composition">Graph
+composition</a> for accepted local types, parameter bindings, generated names and
+the current reference-validation limitations. That section describes the current
+source implementation, not a broader historical graph-composition proposal.
+</p>
+</my-remarks>
+</section>
+
 <section class="cxx entity class">
 <h1 id="Arcadia_ADL_ColorDefinition">Arcadia_ADL_ColorDefinition</h1>
 <my-signature><code>
@@ -622,14 +675,31 @@ Arcadia_ADL_ColorDefinition
 </code></my-signature>
 
 <my-summary>
-The definition of a color, with red, green, and blue components.
+The definition of a color, with straight/unassociated red, green, blue and alpha components.
 </my-summary>
 
 <my-remarks>
 <p>
 The type name of the definition, used as the <code>type</code> entry of an ADL
-asset, is <code>"Color"</code>. The definition holds no references and therefore
-links trivially.
+asset, is <code>"Color"</code>. Its public scalar fields are <code>red</code>,
+<code>green</code>, <code>blue</code>, then <code>alpha</code>, each
+<code>Arcadia_Natural8Value</code>. RGB asset fields are required; alpha is optional,
+defaulting to 255. Explicit alpha 0 is preserved. The definition adds no reference
+fields and links trivially; its native parent still retains definitions/name.
+</p>
+<p>
+The existing five-argument factory remains unchanged and initializes alpha to 255.
+Native callers may assign the public alpha field afterward. The PDL constructor
+owns initialization and uses a narrow native typed-255 helper, since ordinary PDL
+integer literals are not Natural8 values. No new getter or dispatch slot is added.
+Nonintegral/out-of-range numeric asset alpha raises <code>Arcadia_Status_ConversionFailed</code>,
+as for RGB; a non-number raises <code>Arcadia_Status_SemanticalError</code> during schema validation.
+</p>
+<p>
+Stored alpha does not enable blending, premultiply RGB or change RGB-only consumers.
+Media fills retain pixel alpha 255; mesh-generator color conversion and current
+example clear-color/text-run conversions retain alpha 1; UI Button color state
+retains RGB-only copying. Material blend settings remain separate.
 </p>
 </my-remarks>
 
@@ -649,7 +719,7 @@ Arcadia_ADL_ColorDefinition* Arcadia_ADL_ColorDefinition_create
 </code></my-signature>
 
 <my-summary>
-Create the definition of a color.
+Create the definition of a color with the supplied RGB and alpha initialized to 255.
 </my-summary>
 
 <section class="cxx parameters">
@@ -694,6 +764,7 @@ The definition of the color.
 </section>
 
 </section>
+
 <section class="cxx entity class">
 <h1 id="Arcadia_ADL_MeshDefinition">Arcadia_ADL_MeshDefinition</h1>
 <my-signature><code>
@@ -1864,6 +1935,89 @@ The definition of the sample buffer.
 
 </section>
 <section class="cxx entity class">
+<h1 id="Arcadia_ADL_DSPStreamProviderDefinition">Arcadia_ADL_DSPStreamProviderDefinition</h1>
+<my-signature><code>Arcadia_ADL_DSPStreamProviderDefinition</code></my-signature>
+<my-summary>A DSP-backed stream-provider description.</my-summary>
+<my-remarks>
+<p>The ADL type name is <code>DSPStreamProvider</code>. It references a DSP
+definition and specifies a sample rate. Its optional duration is in seconds;
+absence means that the provider is infinite. The Engine audials node factory
+creates the runtime DSP graph and provider from this linked definition.</p>
+</my-remarks>
+<section class="cxx methods">
+<h1>Methods</h1>
+<section class="cxx method">
+<h1 id="Arcadia_ADL_DSPStreamProviderDefinition_create">Arcadia_ADL_DSPStreamProviderDefinition_create</h1>
+<my-signature><code>Arcadia_ADL_DSPStreamProviderDefinition* Arcadia_ADL_DSPStreamProviderDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Reference* dsp,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural32Value sampleRate,
+&nbsp;&nbsp;&nbsp;Arcadia_BooleanValue hasDuration,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural32Value duration)</code></my-signature>
+<my-summary>Create a DSP stream-provider definition.</my-summary>
+<p><code>duration</code> is meaningful only when <code>hasDuration</code> is true; its unit is seconds.</p>
+</section>
+</section>
+</section>
+
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_SoundSourceNodeDefinition">Arcadia_ADL_SoundSourceNodeDefinition</h1>
+<my-signature><code>Arcadia_ADL_SoundSourceNodeDefinition</code></my-signature>
+<my-summary>A runtime finite-buffer sound source description.</my-summary>
+<my-remarks>
+<p>The ADL type name is <code>SoundSourceNode</code>. It references a
+<code>SampleBuffer</code> and has optional <code>isLooping</code> (default
+<code>false</code>) and <code>volume</code> (default <code>1.0</code>) entries.
+The Engine audials node factory turns the linked definition into a runtime
+<code>SoundSourceNode</code>.</p>
+</my-remarks>
+<section class="cxx methods">
+<h1>Methods</h1>
+<section class="cxx method">
+<h1 id="Arcadia_ADL_SoundSourceNodeDefinition_create">Arcadia_ADL_SoundSourceNodeDefinition_create</h1>
+<my-signature><code>Arcadia_ADL_SoundSourceNodeDefinition* Arcadia_ADL_SoundSourceNodeDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Reference* sampleBuffer,
+&nbsp;&nbsp;&nbsp;Arcadia_BooleanValue isLooping,
+&nbsp;&nbsp;&nbsp;Arcadia_Real32Value volume)</code></my-signature>
+<my-summary>Create a finite-buffer sound-source definition.</my-summary>
+<p><code>sampleBuffer</code> references the finite buffer to play. <code>isLooping</code> and
+<code>volume</code> are the node settings represented in the ADL description.</p>
+</section>
+</section>
+</section>
+
+<section class="cxx entity class">
+<h1 id="Arcadia_ADL_StreamingSoundSourceNodeDefinition">Arcadia_ADL_StreamingSoundSourceNodeDefinition</h1>
+<my-signature><code>Arcadia_ADL_StreamingSoundSourceNodeDefinition</code></my-signature>
+<my-summary>A runtime streaming sound-source description.</my-summary>
+<my-remarks>
+<p>The ADL type name is <code>StreamingSoundSourceNode</code>. It references a
+provider definition and has optional <code>volume</code> (default
+<code>1.0</code>). Playback ends when the provider reaches end-of-stream or the
+runtime node is stopped.</p>
+</my-remarks>
+<section class="cxx methods">
+<h1>Methods</h1>
+<section class="cxx method">
+<h1 id="Arcadia_ADL_StreamingSoundSourceNodeDefinition_create">Arcadia_ADL_StreamingSoundSourceNodeDefinition_create</h1>
+<my-signature><code>Arcadia_ADL_StreamingSoundSourceNodeDefinition* Arcadia_ADL_StreamingSoundSourceNodeDefinition_create
+&nbsp;&nbsp;(Arcadia_Thread* thread,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Definitions* definitions,
+&nbsp;&nbsp;&nbsp;Arcadia_String* name,
+&nbsp;&nbsp;&nbsp;Arcadia_ADL_Reference* provider,
+&nbsp;&nbsp;&nbsp;Arcadia_Real32Value volume)</code></my-signature>
+<my-summary>Create a streaming sound-source definition.</my-summary>
+<p><code>provider</code> references the stream provider used by the runtime node.</p>
+</section>
+</section>
+</section>
+
+<section class="cxx entity class">
 <h1 id="Arcadia_ADL_ConstantDefinition">Arcadia_ADL_ConstantDefinition</h1>
 <my-signature><code>
 Arcadia_ADL_ConstantDefinition
@@ -2575,7 +2729,7 @@ identified by a string literal of the same name, e.g. <code>"ClampToEdge"</code>
     <div class="center-column"></div>
     <div class="right-column">
       <div>Website maintained by Michael Heilmann.</div>
-      <div>Last modified on 16 October 2026.</div>
+      <div>Last modified on 31 October 2026.</div>
     </div>
   </footer>
   </body>

@@ -19,8 +19,6 @@
 
 #include "Arcadia/Ring1/Include.h"
 
-#define isZero(thread, self) ((self)->limps[0] == 0 && (self)->numberOfLimps == 1)
-
 Arcadia_Integer16Value
 Arcadia_BigInteger_toInteger16
   (
@@ -62,7 +60,7 @@ Arcadia_BigInteger_toInteger64
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  if (isZero(thread, self)) {
+  if (Arcadia_BigInteger_isZero(thread, self)) {
     return Arcadia_Integer64Value_Literal(0);
   }
   if (self->numberOfLimps > 2) {
@@ -79,6 +77,9 @@ Arcadia_BigInteger_toInteger64
     if (v > ((Arcadia_Natural64Value)(-(Arcadia_Integer64Value_Minimum + 1))) + 1) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ConversionFailed);
       Arcadia_Thread_jump(thread);
+    }
+    if (v == (Arcadia_Natural64Value)Arcadia_Integer64Value_Maximum + 1) {
+      return Arcadia_Integer64Value_Minimum;
     }
     return -(Arcadia_Integer64Value)v;
   } else {

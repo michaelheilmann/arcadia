@@ -14,10 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 #include <string.h>
 
 #include "Arcadia/Media/Include.h"
+#include "Formats.h"
 
 // If defined and 1, then omit slow tests.
 #define Arcadia_Media_Tests_SampleBuffer_OmitSlowTests (1)
@@ -29,6 +32,7 @@ test1
   )
 {
   Arcadia_List* sampleRates = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, sampleRates);
   Arcadia_List_insertBackInteger32Value(thread, sampleRates, 8000);
   Arcadia_List_insertBackInteger32Value(thread, sampleRates, 11025);
   Arcadia_List_insertBackInteger32Value(thread, sampleRates, 16000);
@@ -65,17 +69,28 @@ test1
     Arcadia_Media_SampleBuffer_create(thread, 8, sampleRate, Arcadia_Media_SampleFormat_Natural16);
     Arcadia_Media_SampleBuffer_create(thread, 8, sampleRate, Arcadia_Media_SampleFormat_Natural8);
   }
+  Arcadia_ValueStack_popValues(thread, 1);
+}
+
+static int
+runConstruction
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test1) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&test1)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "Construction", &runConstruction },
+    { "Formats", &Arcadia_Media_Tests_SampleBuffer_formats },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

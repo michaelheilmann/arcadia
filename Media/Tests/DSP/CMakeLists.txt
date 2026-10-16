@@ -26,4 +26,5 @@ OnSourceFile(${this} Arcadia.Media.Tests.DSP/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.Media PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

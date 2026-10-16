@@ -19,7 +19,7 @@
 #   - *.h
 #   - *.i
 #   - *.tl
-#   - *.mil
+#   - *.pdl
 # - and normalizes the line endings of those files to the Linux line ending
 #   convention, that is '\n' (LF), never '\r\n' (CRLF).
 #
@@ -28,7 +28,7 @@
 # endings or trailing spaces and tabs are left alone as well.
 function removeWhitespaceAtEndOfLinesAndNormalizeLineEndings {
   $forbiddenFolders=@(".git",".vs");
-  $allowedExtensions=@(".txt", ".c", ".h", ".i",  ".tl", ".te", ".mil", ".pdl");
+  $allowedExtensions=@(".txt", ".c", ".h", ".i",  ".tl", ".te", ".pdl", ".pdl");
 
   # ISO-8859-1 maps every byte value 0-255 onto the code point with the same
   # value and back. Round-tripping file content through it is therefore

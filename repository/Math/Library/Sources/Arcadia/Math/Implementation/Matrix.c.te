@@ -294,3 +294,54 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_multiply
   }
   return result;
 }
+
+void
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_transpose
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* self,
+    Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* other
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+    self->elements[i][i] = other->elements[i][i];
+    for (Arcadia_SizeValue j = i + 1; j < @{dimensionality}; ++j) {
+      @{scalarType} upper = other->elements[i][j];
+      @{scalarType} lower = other->elements[j][i];
+      self->elements[i][j] = lower;
+      self->elements[j][i] = upper;
+    }
+  }
+}
+
+@{scalarType}
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_getDeterminant
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* self
+  )
+{
+  // Laplace expansion along the first row; no division or singularity threshold.
+  @{scalarType} result = @{zeroScalarLiteral};
+  for (Arcadia_SizeValue column = 0; column < 4; ++column) {
+    @{scalarType} minor[3][3];
+    for (Arcadia_SizeValue i = 1; i < 4; ++i) {
+      Arcadia_SizeValue destination = 0;
+      for (Arcadia_SizeValue j = 0; j < 4; ++j) {
+        if (j != column) {
+          minor[i - 1][destination++] = self->elements[i][j];
+        }
+      }
+    }
+    @{scalarType} determinant =
+        minor[0][0] * (minor[1][1] * minor[2][2] - minor[1][2] * minor[2][1])
+      - minor[0][1] * (minor[1][0] * minor[2][2] - minor[1][2] * minor[2][0])
+      + minor[0][2] * (minor[1][0] * minor[2][1] - minor[1][1] * minor[2][0]);
+    if (column % 2) {
+      result -= self->elements[0][column] * determinant;
+    } else {
+      result += self->elements[0][column] * determinant;
+    }
+  }
+  return result;
+}

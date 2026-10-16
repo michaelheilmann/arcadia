@@ -17,22 +17,6 @@
 #include "Arcadia/Starship/Viewer3D.h"
 
 static void
-Arcadia_Math_Matrix4x4Real32_transformDirection
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Math_Matrix4Real32* self,
-    Arcadia_Math_Vector3Real32* direction
-  );
-
-static void
-Arcadia_Math_Matrix4x4Real32_transformPosition
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Math_Matrix4Real32* self,
-    Arcadia_Math_Vector3Real32* position
-  );
-
-static void
 Arcadia_Starship_Viewer3D_constructImpl
   (
     Arcadia_Thread* thread,
@@ -68,50 +52,6 @@ static const Arcadia_Type_Operations _Arcadia_Starship_Viewer3D_typeOperations =
 Arcadia_defineObjectType(u8"Arcadia.Starship.Viewer3D", Arcadia_Starship_Viewer3D,
                          u8"Arcadia.Object", Arcadia_Object,
                          &_Arcadia_Starship_Viewer3D_typeOperations);
-
-static void
-Arcadia_Math_Matrix4x4Real32_transformDirection
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Math_Matrix4Real32* self,
-    Arcadia_Math_Vector3Real32* direction
-  )
-{
-  direction->elements[0] = self->elements[0][0] * direction->elements[0]
-                         + self->elements[0][1] * direction->elements[1]
-                         + self->elements[0][2] * direction->elements[2]
-                         + self->elements[0][3] * 0.f;
-  direction->elements[1] = self->elements[1][0] * direction->elements[0]
-                         + self->elements[1][1] * direction->elements[1]
-                         + self->elements[1][2] * direction->elements[2]
-                         + self->elements[1][3] * 0.f;
-  direction->elements[2] = self->elements[2][0] * direction->elements[0]
-                         + self->elements[2][1] * direction->elements[1]
-                         + self->elements[2][2] * direction->elements[2]
-                         + self->elements[2][3] * 0.f;
-}
-
-static void
-Arcadia_Math_Matrix4x4Real32_transformPosition
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Math_Matrix4Real32* self,
-    Arcadia_Math_Vector3Real32* position
-  )
-{
-  position->elements[0] = self->elements[0][0] * position->elements[0]
-                        + self->elements[0][1] * position->elements[1]
-                        + self->elements[0][2] * position->elements[2]
-                        + self->elements[0][3] * 1.f;
-  position->elements[1] = self->elements[1][0] * position->elements[0]
-                        + self->elements[1][1] * position->elements[1]
-                        + self->elements[1][2] * position->elements[2]
-                        + self->elements[1][3] * 1.f;
-  position->elements[2] = self->elements[2][0] * position->elements[0]
-                        + self->elements[2][1] * position->elements[1]
-                        + self->elements[2][2] * position->elements[2]
-                        + self->elements[2][3] * 1.f;
-}
 
 static void
 Arcadia_Starship_Viewer3D_constructImpl

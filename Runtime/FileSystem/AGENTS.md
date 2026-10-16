@@ -2,7 +2,7 @@
 
 ## Module Shape
 
-- `Runtime/FileSystem` builds the `Arcadia.FileSystem` library and currently has tests for file paths and directory iterators.
+- `Runtime/FileSystem` builds the `Arcadia.FileSystem` library and has three test suites: `FilePathTests`, `DirectoryIteratorTests`, and `FileContentsTests`.
 - Public API lives under `Library/Sources/Arcadia/FileSystem`, especially `FileSystem.h`, `FilePath.h`, `FileHandle.h`, and `DirectoryIterator.h`.
 - Default implementations live in `Library/Sources/Arcadia/FileSystem/Implementation`.
 - Platform-specific helpers live in `Library/Sources/Arcadia/FileSystem/Linux` and `Library/Sources/Arcadia/FileSystem/Windows`.
@@ -11,9 +11,10 @@
 
 ## Tests
 
-- `Runtime/FileSystem/Tests/CMakeLists.txt` includes `FilePathTests` and `DirectoryIteratorTests`.
-- Existing tests cover file path parsing/conversion and directory iteration assets.
-- There is no dedicated temporary-file test directory yet; if adding tests for temporary files, register a new test subdirectory in `Runtime/FileSystem/Tests/CMakeLists.txt` and follow the local test product pattern.
+- `Runtime/FileSystem/Tests/CMakeLists.txt` includes `FilePathTests`, `DirectoryIteratorTests`, and `FileContentsTests`.
+- Existing tests cover file path parsing/conversion, directory iteration assets, and temporary-file contents/lifecycle.
+- FilePathTests exposes `Normalization` and `ParentTraversal` through Arcadia.Testing; DirectoryIteratorTests exposes `Directory1` and `Directory2` over the existing asset directories. Omit arguments to run both in their original order, or use `--case NAME` to run one. Each case retains its safeExecute/process boundary; CTest discovers individual `Executable.Case` registrations through `--list`, retaining RUN_SERIAL and the suite's binary working directory. The former whole-suite selectors for these two suites are retired.
+- FileContentsTests exercises the native temporary-file API and overwrite/read/delete sequence. CTest gives it a unique build-tree working directory and TMP/TEMP/TMPDIR per case/configuration/session; this audited suite opts in to parallel execution. DirectoryIteratorTests and the remaining FileSystem suites retain serial scheduling. See Runtime/Testing/Isolation.md before changing output paths or scheduling.
 
 ## CMake Notes
 

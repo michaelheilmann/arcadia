@@ -1,0 +1,35 @@
+enumeration "Example/A/Types/Flavor.h" Example.A.Flavor {
+  Low = 3
+  High = 9
+}
+
+// The type and its defining module deliberately have the identical name.
+class Example.A {
+  variable stamp : Arcadia.Natural64
+  constructor(variable stamp : Arcadia.Natural64) {
+    storeField self stamp stamp
+  }
+  method getStamp : Arcadia.Natural64 {
+    loadField $0 self stamp
+    return $0
+  }
+}
+
+class Example.A.Base {
+  variable stamp : Arcadia.Natural64
+  constructor(variable stamp : Arcadia.Natural64) {
+    storeField self stamp stamp
+  }
+  method getStamp : Arcadia.Natural64 {
+    loadField $0 self stamp
+    return $0
+  }
+}
+
+interface Example.A.Root {
+  method getValue : Arcadia.Natural64
+}
+
+procedure Example.A.answer : Arcadia.Natural64 {
+  return 41
+}

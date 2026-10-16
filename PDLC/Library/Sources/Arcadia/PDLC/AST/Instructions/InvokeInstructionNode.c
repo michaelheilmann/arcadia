@@ -77,6 +77,7 @@ Arcadia_PDLC_AST_InvokeInstructionNode_constructImpl
   self->target = (Arcadia_PDLC_AST_OperandNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_PDLC_AST_OperandNode_getType(thread));
   self->callee = (Arcadia_PDLC_AST_VariableOperandNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_PDLC_AST_VariableOperandNode_getType(thread));
   self->operands = (Arcadia_List*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_List_getType(thread));
+  self->procedureOnly = Arcadia_BooleanValue_False;
   Arcadia_LeaveConstructor(Arcadia_PDLC_AST_InvokeInstructionNode);
 }
 

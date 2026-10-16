@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/Ring2/Include.h"
 #include <stdlib.h>
 #include <string.h>
@@ -35,15 +37,27 @@ regressionTest1
   Arcadia_Tests_assertTrue(thread, Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)u, &t));
 }
 
-int
-main
+static int
+runTests
   (
-    int argc,
-    char **argv
+    void
   )
 {
   if (!Arcadia_Tests_safeExecute(&regressionTest1)) {
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
+}
+
+int
+main
+  (
+    int argc,
+    char** argv
+  )
+{
+  static const Arcadia_Testing_Case cases[] = {
+    { "UTF8EncoderTests", &runTests },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

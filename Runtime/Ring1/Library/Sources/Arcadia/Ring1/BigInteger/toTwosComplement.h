@@ -25,7 +25,7 @@
 
 /// Convert to an array (*limps) of length (*numberOfLimps) of Arcadia_BigInteger_Limp values.
 /// The array elements contain the two's complement representation of the value of the big integer in little endian form.
-/// The array must be deallocated using Arcadia_Process_deallocateMemory when no longer required.
+/// The array must be deallocated using Arcadia_Memory_deallocateUnmanaged when no longer required.
 void
 Arcadia_BigInteger_toTwosComplement
   (

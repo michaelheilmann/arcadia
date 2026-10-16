@@ -27,4 +27,6 @@ OnSourceFile(${this} Arcadia.FontIO.Tests.CreateBitmapFontTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.FontIO PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
+set(${this}.TestArguments "${ARCADIA_FONT_TEST_FILE}")
 EndProduct(${this})

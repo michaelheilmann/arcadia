@@ -17,11 +17,16 @@
 #if !defined(ARCADIA_ENGINE_INPUT_MOUSEPOINTEREVENT_H_INCLUDED)
 #define ARCADIA_ENGINE_INPUT_MOUSEPOINTEREVENT_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Input/MousePointerEvent.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Event.h"
 #include "Arcadia/Engine/Input/MousePointerAction.h"
-typedef struct Arcadia_Engine_Visuals_Window Arcadia_Engine_Visuals_Window;
 
-// https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Input_MousePointerEvent
+typedef struct Arcadia_Engine_Input_MousePointerEvent Arcadia_Engine_Input_MousePointerEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Input.MousePointerEvent", Arcadia_Engine_Input_MousePointerEvent,
                           u8"Arcadia.Engine.Event");
 
@@ -36,11 +41,6 @@ struct Arcadia_Engine_Input_MousePointerEvent {
   Arcadia_Integer32Value y;
 };
 
-/// @brief Create a mouse pointer event.
-/// @param action The action.
-/// @param x The position of the mouse pointer along the x-axis.
-/// @param y The position of the mouse pointer along the y-axis.
-/// @return The mouse pointer event.
 Arcadia_Engine_Input_MousePointerEvent*
 Arcadia_Engine_Input_MousePointerEvent_create
   (

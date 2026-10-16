@@ -945,6 +945,7 @@ Arcadia_Engine_UI_StackPanelNode_createFromDefinition
     }
     node->backgroundPanelNode = Arcadia_Engine_UI_PanelNode_create(thread, backendContext, (Arcadia_ADL_ModelDefinition*)backgroundModel);
   }
+  Arcadia_Engine_UI_WidgetNode_setName(thread, (Arcadia_Engine_UI_WidgetNode*)node, ((Arcadia_ADL_Definition*)source)->name);
   Arcadia_Engine_UI_populateContainerFromDefinition(thread, backendContext, (Arcadia_Object*)node, (Arcadia_Object*)source);
   return node;
 }

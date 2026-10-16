@@ -16,18 +16,10 @@
 
 cmake_minimum_required(VERSION 3.29)
 
-set(MyTestName ${MyProjectName}.Ring1.Tests.LiteralTests)
-
-# Create test executable.
-add_executable(${MyTestName})
-BeginProduct(${MyTestName})
-
-add_test(NAME ${MyTestName} COMMAND ${MyTestName} WORKING_DIRECTORY $<TARGET_FILE_DIR:${MyTestName}>)
-
-list(APPEND ${MyTestName}.SourceFiles ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia.Ring1.Tests.LiteralTests/Main.c)
-
-target_link_libraries(${MyTestName} ${MyProjectName}.Ring1 ${MyProjectName}.Arms)
-
-set_target_properties(${MyTestName} PROPERTIES FOLDER "Arcadia")
-
-EndProduct(${MyTestName} executable)
+set(this ${MyProjectName}.Ring1.Tests.LiteralTests)
+BeginProduct(${this} test)
+SetFolder(${this} "Runtime/Ring1")
+OnSourceFile(${this} Arcadia.Ring1.Tests.LiteralTests/Main.c)
+OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
+EndProduct(${this})

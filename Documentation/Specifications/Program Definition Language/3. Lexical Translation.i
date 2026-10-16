@@ -53,4 +53,4 @@
 
     <h3>Reserved Words</h3>
     <p>The following words are reserved and cannot be used as names unless the scanner is changed:</p>
-    <p><code>add and class concatenate construct constructor divide entry enumeration extends false implements interface invoke isEqualTo isGreaterThan isGreaterThanOrEqualTo isLowerThan isLowerThanOrEqualTo isNotEqualTo jump jumpIfFalse jumpIfTrue loadArgument loadField method module multiply native negate not or procedure raise return set storeArgument storeField subtract true variable void</code></p>
+    <p><code>abstract add and call class concatenate construct constructor divide entry enumeration extends false implements interface invoke isEqualTo isGreaterThan isGreaterThanOrEqualTo isLowerThan isLowerThanOrEqualTo isNotEqualTo jump jumpIfFalse jumpIfTrue loadArgument loadField method module multiply native negate not or procedure raise return set storeArgument storeField subtract true variable void</code></p>

@@ -17,38 +17,18 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_VISUALS_COLORDEFINITION_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_VISUALS_COLORDEFINITION_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
-  #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
+#if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
+  #error("do not include `Arcadia/ADL/Definitions/Visuals/ColorDefinition.h` directly, include `Arcadia/ADL/Include.h` instead")
 #endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/ADL/Definition.h"
 
-// The definition of a color.
-//
-// @code
-// {
-//   type  : "Color",
-//   name  : "MyGame.Colors.Red",
-//   red   : 255,
-//   green : 0,
-//   blue  : 0,
-// }
-// @endcode
-//
-// @code
-// class Arcadia.ADL.ColorDefinition extends Arcadia.ADL.Definition {
-//
-//   field red, green, blue : Arcadia.Natural8
-//
-//   constructor(definitions : Arcadia.ADL.Definitions, name : Arcadia.String, red, green, blue : Arcadia.Natural8)
-//
-//   method getRed() : Arcadia.Natural8
-//   method getGreen() : Arcadia.Natural8
-//   method getBlue() : Arcadia.Natural8
-//
-// };
-// @endcode
+typedef struct Arcadia_ADL_ColorDefinition Arcadia_ADL_ColorDefinition;
+typedef struct Arcadia_ADL_Definitions Arcadia_ADL_Definitions;
+
 Arcadia_declareObjectType(u8"Arcadia.ADL.ColorDefinition", Arcadia_ADL_ColorDefinition,
-                          u8"Arcadia.Object");
+                          u8"Arcadia.ADL.Definition");
 
 struct Arcadia_ADL_ColorDefinitionDispatch {
   Arcadia_ADL_DefinitionDispatch _parent;
@@ -59,7 +39,15 @@ struct Arcadia_ADL_ColorDefinition {
   Arcadia_Natural8Value red;
   Arcadia_Natural8Value green;
   Arcadia_Natural8Value blue;
+  Arcadia_Natural8Value alpha;
 };
+
+void
+Arcadia_ADL_ColorDefinition_link
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_ColorDefinition* self
+  );
 
 Arcadia_ADL_ColorDefinition*
 Arcadia_ADL_ColorDefinition_create
@@ -72,4 +60,4 @@ Arcadia_ADL_ColorDefinition_create
     Arcadia_Natural8Value blue
   );
 
-#endif  // ARCADIA_ADL_DEFINITIONS_VISUALS_COLORDEFINITION_H_INCLUDED
+#endif // ARCADIA_ADL_DEFINITIONS_VISUALS_COLORDEFINITION_H_INCLUDED

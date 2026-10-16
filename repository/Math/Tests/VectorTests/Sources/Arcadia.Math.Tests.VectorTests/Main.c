@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 
 #include "Arcadia/Math/Include.h"
@@ -43,15 +45,27 @@ test1
   Arcadia_Tests_assertTrue(thread, Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)u, &t));
 }
 
-int
-main
+static int
+runTests
   (
-    int argc,
-    char **argv
+    void
   )
 {
   if (!Arcadia_Tests_safeExecute(&test1)) {
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
+}
+
+int
+main
+  (
+    int argc,
+    char** argv
+  )
+{
+  static const Arcadia_Testing_Case cases[] = {
+    { "VectorTests", &runTests },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

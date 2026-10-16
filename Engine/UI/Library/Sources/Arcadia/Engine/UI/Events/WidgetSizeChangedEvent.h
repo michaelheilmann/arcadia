@@ -14,15 +14,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_UI_WIDGETSIZECHANGEDEVENT_H_INCLUDED)
-#define ARCADIA_ENGINE_UI_WIDGETSIZECHANGEDEVENT_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_UI_EVENTS_WIDGETSIZECHANGEDEVENT_H_INCLUDED)
+#define ARCADIA_ENGINE_UI_EVENTS_WIDGETSIZECHANGEDEVENT_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_UI_PRIVATE) || 1 != ARCADIA_ENGINE_UI_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/UI/Include.h` instead")
+  #error("do not include `Arcadia/Engine/UI/Events/WidgetSizeChangedEvent.h` directly, include `Arcadia/Engine/UI/Include.h` instead")
 #endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/UI/WidgetEvent.h"
 
-// https://michaelheilmann.com/Arcadia/Engine/UI/#Arcadia_Engine_UI_WidgetSizeChangedEvent
+typedef struct Arcadia_Engine_UI_WidgetNode Arcadia_Engine_UI_WidgetNode;
+typedef struct Arcadia_Engine_UI_WidgetSizeChangedEvent Arcadia_Engine_UI_WidgetSizeChangedEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.UI.WidgetSizeChangedEvent", Arcadia_Engine_UI_WidgetSizeChangedEvent,
                           u8"Arcadia.Engine.UI.WidgetEvent");
 
@@ -46,4 +50,4 @@ Arcadia_Engine_UI_WidgetSizeChangedEvent_create
     Arcadia_Integer32Value verticalSize
   );
 
-#endif // ARCADIA_ENGINE_UI_WIDGETSIZECHANGEDEVENT_H_INCLUDED
+#endif // ARCADIA_ENGINE_UI_EVENTS_WIDGETSIZECHANGEDEVENT_H_INCLUDED

@@ -63,6 +63,8 @@ Arcadia_PDLC_AST_EnumerationDefinitionNode_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_PDLC_AST_EnumerationDefinitionNode);
+  self->isNative = Arcadia_BooleanValue_False;
+  self->nativeHeaderPath = NULL;
   if (3 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
@@ -96,6 +98,7 @@ Arcadia_PDLC_AST_EnumerationDefinitionNode_visitImpl
   if (self->enumerationName) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->enumerationName);
   }
+  if (self->nativeHeaderPath) Arcadia_Object_visit(thread, (Arcadia_Object*)self->nativeHeaderPath);
   if (self->enumerationBody) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->enumerationBody);
   }

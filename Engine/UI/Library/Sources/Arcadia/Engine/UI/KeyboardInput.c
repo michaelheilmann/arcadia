@@ -23,8 +23,12 @@ Arcadia_defineInterfaceType(u8"Arcadia.Engine.UI.KeyboardInput", Arcadia_Engine_
                          )
 
 Arcadia_BooleanValue
-Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Engine_Input_KeyboardKeyEvent* event)
+Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Engine_Input_KeyboardKeyEvent* event
+  )
 {
   Arcadia_InterfaceCallWithReturn(Arcadia_Engine_UI_KeyboardInput, handleKeyboardKeyEvent, self, event);
 }
-

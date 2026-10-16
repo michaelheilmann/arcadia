@@ -37,6 +37,11 @@ struct Arcadia_PDLC_AST_ClassDefinitionNodeDispatch {
 struct Arcadia_PDLC_AST_ClassDefinitionNode {
   Arcadia_PDLC_AST_DefinitionNode _parent;
   Arcadia_BooleanValue isNative;
+  /// PDL owns declarations; executable implementation is supplied natively.
+  Arcadia_BooleanValue isNativeImplementation;
+  Arcadia_BooleanValue isAbstract;
+  /// Optional include-search-root-relative header path for a native class.
+  Arcadia_String* nativeHeaderPath;
   Arcadia_PDLC_AST_IdentifierNode* className;
   Arcadia_PDLC_AST_IdentifierNode* extendedClassName;
   /// The identifiers of the implemented interface types in order of appearance.
@@ -53,6 +58,7 @@ Arcadia_PDLC_AST_ClassDefinitionNode_create
     Arcadia_Thread* thread,
     Arcadia_SizeValue startOffset,
     Arcadia_BooleanValue isNative,
+    Arcadia_BooleanValue isAbstract,
     Arcadia_PDLC_AST_IdentifierNode* className,
     Arcadia_PDLC_AST_IdentifierNode* extendedClassName,
     Arcadia_List* implementsInterfaceNames,

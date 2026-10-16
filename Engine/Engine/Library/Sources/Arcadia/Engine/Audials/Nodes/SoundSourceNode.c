@@ -16,6 +16,7 @@
 
 #define ARCADIA_ENGINE_PRIVATE (1)
 #include "Arcadia/Engine/Audials/Nodes/SoundSourceNode.h"
+#include "Arcadia/Engine/Audials/DSPFactory.h"
 
 #include "Arcadia/Engine/Include.h"
 
@@ -49,13 +50,6 @@ Arcadia_Engine_Audials_SoundSourceNode_visitImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Audials_SoundSourceNode* self
-  );
-
-static Arcadia_Media_DSP*
-makeDSP
-  (
-    Arcadia_Thread* thread,
-    Arcadia_ADL_Reference* reference
   );
 
 static void
@@ -230,25 +224,6 @@ Arcadia_Engine_Audials_SoundSourceNode_visitImpl
   }
 }
 
-static Arcadia_Media_DSP*
-makeDSP
-  (
-    Arcadia_Thread* thread,
-    Arcadia_ADL_Reference* reference
-  )
-{
-  Arcadia_ADL_Definition* definition = reference->definition;
-  if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)definition, _Arcadia_ADL_SineWaveDefinition_getType(thread))) {
-    Arcadia_ADL_SineWaveDefinition* sineWaveDefinition = (Arcadia_ADL_SineWaveDefinition*)definition;
-    return (Arcadia_Media_DSP*)Arcadia_Media_DSP_SineWave_create(thread, sineWaveDefinition->frequency); // TODO: Unchecked cast from Natural32 to Integer32.
-  } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)definition, _Arcadia_ADL_WhiteNoiseDefinition_getType(thread))) {
-    return (Arcadia_Media_DSP*)Arcadia_Media_DSP_WhiteNoise_create(thread, 1u, 1.0f);
-  } else {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-}
-
 static void
 Arcadia_Engine_Audials_SoundSourceNode_renderImpl
   (
@@ -264,7 +239,7 @@ Arcadia_Engine_Audials_SoundSourceNode_renderImpl
       Arcadia_Integer32Value sampleRate = 44100;
       Arcadia_Media_SampleBuffer* sampleBuffer = Arcadia_Media_SampleBuffer_create(thread, 2, sampleRate, Arcadia_Media_SampleFormat_Integer16);
       Arcadia_ADL_SampleBufferDefinition* sampleBufferSource = ((Arcadia_Engine_Audials_SoundSourceNode*)self)->source;
-      Arcadia_Media_DSP* dsp = makeDSP(thread, sampleBufferSource->dsp);
+      Arcadia_Media_DSP* dsp = Arcadia_Engine_Audials_DSPFactory_createFromReference(thread, sampleBufferSource->dsp);
       Arcadia_Media_SampleBuffer_fill(thread, sampleBuffer, dsp);
 
       // (2) sound source
@@ -418,7 +393,7 @@ Arcadia_Engine_Audials_SoundSourceNode_create
 {
   _Arcadia_BeginCreate(Arcadia_Engine_Audials_SoundSourceNode);
   if (backendContext) Arcadia_ValueStack_pushObjectReferenceValue(thread, backendContext); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
-  if (backendContext) Arcadia_ValueStack_pushObjectReferenceValue(thread, source); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)source);
   Arcadia_ValueStack_pushNatural8Value(thread, 2);
   _Arcadia_EndCreate(Arcadia_Engine_Audials_SoundSourceNode);
 }

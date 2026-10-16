@@ -1,0 +1,37 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Native definition: Arcadia/Engine/Visuals/Resources/ModelResource.h.
+// Matrix references are GC-managed; retained resources follow the resource lifetime protocol.
+native implementation "Arcadia/Engine/Visuals/Resources/ModelResource.h" class Arcadia.Engine.Visuals.ModelResource extends Arcadia.Engine.Visuals.Resource {
+  constant LocalToWorldMatrixDirty : Arcadia.Integer32 = 1
+  /// The dirty flags.
+  variable dirty : Arcadia.Natural8
+  /// The local-to-world matrix of the model. Default is the identity matrix.
+  variable localToWorldMatrix : Arcadia.Math.Matrix4Real32
+  /// Constant buffer with model-specific information.
+  /// Currently this contains only the model-to-world matrix.
+  variable constantBuffer : retained Arcadia.Engine.Visuals.ConstantBufferResource
+  /// Constant buffer with mesh-specific information.
+  /// Currently this contains only the mesh color.
+  variable meshConstantBuffer : retained Arcadia.Engine.Visuals.ConstantBufferResource
+  /// The vertices of the mesh.
+  variable meshVertexBuffer : retained Arcadia.Engine.Visuals.VertexBufferResource
+  /// The material of the model.
+  variable material : retained Arcadia.Engine.Visuals.MaterialResource
+
+  method native "Arcadia_Engine_Visuals_ModelResource_setLocalToWorldMatrix" setLocalToWorldMatrix(variable localToWorldMatrix : Arcadia.Math.Matrix4Real32) : Arcadia.Void
+}

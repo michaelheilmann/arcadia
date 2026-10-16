@@ -17,32 +17,23 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_VISUALS_TEXTUREFILTER_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_VISUALS_TEXTUREFILTER_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
-  #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
+#if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
+  #error("do not include `Arcadia/ADL/Definitions/Visuals/TextureFilter.h` directly, include `Arcadia/ADL/Include.h` instead")
 #endif
-#include "Arcadia/ADL/Definition.h"
 
-// Enumeration of texture magnification and minification filters.
-// The values correspond to the texture filters of the engine.
-// The value `None` is used as the default value and indicates that no
-// filter is specified and the engine's default filter is used.
-//
-// @code
-// enumeration Arcadia.ADL.TextureFilter {
-//   None,
-//   Linear,
-//   Nearest,
-// };
-// @endcode
-Arcadia_declareEnumerationType(u8"Arcadia.ADL.TextureFilter", Arcadia_ADL_TextureFilter);
+#include "Arcadia/Ring1/Include.h"
+
+Arcadia_declareEnumerationType("Arcadia.ADL.TextureFilter",
+                               Arcadia_ADL_TextureFilter);
 
 enum Arcadia_ADL_TextureFilter {
-  // No filter is specified. This is the default value.
+
   Arcadia_ADL_TextureFilter_None = 10,
-  // Linear filtering (e.g. bilinear interpolation).
+
   Arcadia_ADL_TextureFilter_Linear = 0,
-  // Nearest-neighbor filtering.
+
   Arcadia_ADL_TextureFilter_Nearest = 1,
+
 };
 
-#endif  // ARCADIA_ADL_DEFINITIONS_VISUALS_TEXTUREFILTER_H_INCLUDED
+#endif // ARCADIA_ADL_DEFINITIONS_VISUALS_TEXTUREFILTER_H_INCLUDED

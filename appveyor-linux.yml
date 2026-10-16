@@ -11,8 +11,8 @@ branches:
     - develop
 
 environment:
-  CLONE_DIRECTORY: "~/Source"
-  BUILD_DIRECTORY: "~/Build"
+  CLONE_DIRECTORY: /tmp/arcadia-source
+  BUILD_DIRECTORY: /tmp/arcadia-build
 
 # The clone directory.
 clone_folder: '%CLONE_DIRECTORY%'
@@ -23,24 +23,18 @@ skip_tags: true
 install:
     - sh: sudo apt-get --assume-yes install libopenal-dev
     - sh: sudo apt-get --assume-yes install libflac-dev
-    #- sh: |
-    #    sudo apt-get remove cmake -y
-    #    mkdir /tmp/cmake
-    #    cd /tmp/cmake 
-    #    wget https://github.com/Kitware/CMake/releases/download/v4.1.3/cmake-4.1.3.tar.gz
-    #    tar xf cmake-4.1.3.tar.gz
-    #    cd cmake-4.1.3
-    #    ./configure
-    #    make
-    #    sudo make install
+    - sh: sudo apt-get --assume-yes install ninja-build python3-pip fonts-dejavu-core libfreetype-dev libpng-dev libgl-dev libx11-dev
+    - sh: python3 -m pip install --user 'cmake>=3.29,<5'
 
 # Generate solution and project files.
 before_build:
+    - sh: |
+        set -e
+        "$HOME/.local/bin/cmake" -S "$CLONE_DIRECTORY" -B "$BUILD_DIRECTORY" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DArcadia.Engine.Visuals.Implementation.OpenGL4.Enabled=TRUE -DArcadia.Engine.Audials.Implementation.OpenAL.Enabled=TRUE
     - ps: |
         # Create the build directory.
-        New-Item -Path "${env:BUILD_DIRECTORY}" -ItemType Directory
+        New-Item -Path "${env:BUILD_DIRECTORY}" -ItemType Directory -Force
 
-        cd ${env:BUILD_DIRECTORY}; cmake -D"Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled"=TRUE -D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=TRUE ${env:CLONE_DIRECTORY}\CMakeLists.txt
 
         ${env:RELEASE_NAME}="arcadia-linux-$(${env:APPVEYOR_REPO_BRANCH})-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())"
 
@@ -51,17 +45,31 @@ before_build:
         ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}.tar.gz";
 
 build_script:
-    - sh: make all
+    - sh: '"$HOME/.local/bin/cmake" --build "$BUILD_DIRECTORY" --parallel 2'
 
 after_build:
     - ps: New-Item ${env:BUILD_DIRECTORY}/.keepme -type file
     - ps: tar -czvf ${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}/.keepme
 
 test_script:
-    - ps: ctest --output-junit test-results-${env:APPVEYOR_JOB_ID}.xml
+    - sh: |
+        # Preserve failures while still attempting the independent sanitizer gate.
+        status=0
+        "$HOME/.local/bin/ctest" --test-dir "$BUILD_DIRECTORY" --output-on-failure --output-junit "$BUILD_DIRECTORY/test-results-$APPVEYOR_JOB_ID.xml" || status=$?
+        "$HOME/.local/bin/cmake" -S "$CLONE_DIRECTORY/Runtime/Testing/Tests/Sanitizers" -B "$BUILD_DIRECTORY/sanitizers" -G Ninja -DCMAKE_BUILD_TYPE=Debug &&
+        "$HOME/.local/bin/cmake" --build "$BUILD_DIRECTORY/sanitizers" --parallel 2 &&
+        ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 "$HOME/.local/bin/ctest" --test-dir "$BUILD_DIRECTORY/sanitizers" --output-on-failure --output-junit "$BUILD_DIRECTORY/sanitizer-results-$APPVEYOR_JOB_ID.xml" || status=$?
+        exit "$status"
+on_finish:
     - ps: |
-        $webClient = New-Object 'System.Net.WebClient'
-        $webClient.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test-results-${env:APPVEYOR_JOB_ID}.xml))
+        foreach ($name in @("test-results-$($env:APPVEYOR_JOB_ID).xml", "sanitizer-results-$($env:APPVEYOR_JOB_ID).xml")) {
+          $report = Join-Path $env:BUILD_DIRECTORY $name
+          if (Test-Path $report) {
+            $webClient = New-Object 'System.Net.WebClient'
+            try { $webClient.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", $report) }
+            finally { $webClient.Dispose() }
+          } else { Write-Warning "CTest report not produced: $report" }
+        }
 
 # If one matrix entry fails, all entries fails (https://www.appveyor.com/docs/build-configuration#failing-strategy).
 matrix:

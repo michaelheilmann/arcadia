@@ -12,3 +12,4 @@
 @{include("./Matrix/setScaling.i")}
 @{include("./Matrix/setTranslation.i")}
 @{include("./Matrix/setZero.i")}
+@{include("./Matrix/operations.i")}

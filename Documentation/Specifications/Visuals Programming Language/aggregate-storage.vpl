@@ -1,0 +1,60 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see https://www.gnu.org/licenses/.
+
+// Construct complete local values, then update one record field in an array.
+// The fragment result is opaque green; the other element remains red.
+(module 1
+  (types
+    (type Void void)
+    (type Int int)
+    (type Position vector float 3)
+    (type Color vector float 4)
+    (type Cell record "Cell" (field "color" Color) (field "weight" Int))
+    (type Cells array Cell 2))
+  (uniforms)
+  (vertex vertex_entry
+    (interface
+      (in attribute "input_position" Position 0 none)
+      (out clip "clip_position" Color -1 position))
+    (functions
+      (function vertex_entry "vertex_entry" Void
+        (parameters)
+        (registers (register r0 Position) (register r1 Color))
+        (block entry
+          (load r0 (stage attribute))
+          (construct r1 r0 (float 1.0))
+          (store (stage clip) r1)
+          (return)))))
+  (fragment fragment_entry
+    (interface (out pixel "pixel_color" Color 0 fragment_color))
+    (functions
+      (function fragment_entry "fragment_entry" Void
+        (parameters)
+        (registers
+          (register r0 Color)
+          (register r1 Cell)
+          (register r2 Cells)
+          (register r3 Int))
+        (block entry
+          (construct r0 (float 1.0) (float 0.0) (float 0.0) (float 1.0))
+          (construct r1 r0 (int 1))
+          (construct r2 r1 r1)
+          (copy r3 (int 1))
+          (construct r0 (float 0.0) (float 1.0) (float 0.0) (float 1.0))
+          (store (member_ref (index_ref (local r2) r3) "color") r0)
+          (load r0 (member_ref (index_ref (local r2) r3) "color"))
+          (store (stage pixel) r0)
+          (return))))))

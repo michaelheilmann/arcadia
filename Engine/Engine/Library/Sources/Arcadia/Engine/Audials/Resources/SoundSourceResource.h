@@ -14,26 +14,39 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_AUDIALS_IMPLEMENTATION_RESOURCES_SOUNDSOURCERESOURCE_H_INCLUDED)
-#define ARCADIA_ENGINE_AUDIALS_IMPLEMENTATION_RESOURCES_SOUNDSOURCERESOURCE_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_AUDIALS_RESOURCES_SOUNDSOURCERESOURCE_H_INCLUDED)
+#define ARCADIA_ENGINE_AUDIALS_RESOURCES_SOUNDSOURCERESOURCE_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Audials/Resources/SoundSourceResource.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Audials/Resource.h"
-#include "Arcadia/Math/Include.h"
+
+typedef struct Arcadia_Engine_Audials_Implementation_SoundSourceResource Arcadia_Engine_Audials_Implementation_SoundSourceResource;
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Audials.Implementation.SoundSourceResource", Arcadia_Engine_Audials_Implementation_SoundSourceResource,
-                          u8"Arcadia.Engine.Audials.Implementation.Resource")
+                          u8"Arcadia.Engine.Audials.Implementation.Resource");
 
 struct Arcadia_Engine_Audials_Implementation_SoundSourceResourceDispatch {
   Arcadia_Engine_Audials_Implementation_ResourceDispatch _parent;
 
-  Arcadia_BooleanValue(*isPlaying)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_SoundSourceResource*);
+  Arcadia_BooleanValue (*isPlaying)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_SoundSourceResource*);
+
   void (*pause)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_SoundSourceResource*);
+
   void (*play)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_SoundSourceResource*);
+
   void (*stop)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_SoundSourceResource*);
+
   void (*setIsLooping)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_SoundSourceResource*, Arcadia_BooleanValue);
+
   Arcadia_BooleanValue (*getIsLooping)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_SoundSourceResource*);
+
   void (*setVolume)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_SoundSourceResource*, Arcadia_Real32Value);
-  Arcadia_Real32Value(*getVolume)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_SoundSourceResource*);
+
+  Arcadia_Real32Value (*getVolume)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_SoundSourceResource*);
 };
 
 struct Arcadia_Engine_Audials_Implementation_SoundSourceResource {
@@ -98,4 +111,4 @@ Arcadia_Engine_Audials_Implementation_SoundSourceResource_getVolume
     Arcadia_Engine_Audials_Implementation_SoundSourceResource* self
   );
 
-#endif // ARCADIA_ENGINE_AUDIALS_IMPLEMENTATION_RESOURCES_SOUNDSOURCERESOURCE_H_INCLUDED
+#endif // ARCADIA_ENGINE_AUDIALS_RESOURCES_SOUNDSOURCERESOURCE_H_INCLUDED

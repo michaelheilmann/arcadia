@@ -32,5 +32,5 @@ OnHeaderFile(${this} Arcadia.Ring1.Tests.ObjectTypeTests/MyObjectB.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})
-

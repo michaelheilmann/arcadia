@@ -26,11 +26,18 @@ if (NOT TARGET ${this})
   SetFolder(${this} ${MyTestFolder})
 
   OnSourceFile(${this} Arcadia/PDLC/Tests/SemanticalAnalysis/Main.c)
+  OnInlayFile(${this} Arcadia/PDLC/Tests/SemanticalAnalysis/NegativeCases.i)
 
   OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 
   OnModuleDependency(${this} ${MyProjectName}.PDLC PRIVATE)
 
+  OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
+  OnModuleDependency(${this} ${MyProjectName}.PDLC.Tests.Support PRIVATE)
+  set(${this}.TestIsolated TRUE)
+  set(${this}.TestParallelSafe TRUE)
+  set(${this}.TestFixtureDirectory "${CMAKE_CURRENT_SOURCE_DIR}/Assets")
+  set(${this}.TestFixtureDestination Assets)
   EndProduct(${this})
 
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)

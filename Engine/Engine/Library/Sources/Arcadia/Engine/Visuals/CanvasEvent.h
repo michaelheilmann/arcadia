@@ -17,14 +17,20 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_CANVASEVENT_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_CANVASEVENT_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/CanvasEvent.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Event.h"
 
-// https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Visuals_CanvasEvent
+typedef struct Arcadia_Engine_Visuals_CanvasEvent Arcadia_Engine_Visuals_CanvasEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.CanvasEvent", Arcadia_Engine_Visuals_CanvasEvent,
                           u8"Arcadia.Engine.Event");
 
 struct Arcadia_Engine_Visuals_CanvasEventDispatch {
-  Arcadia_Engine_EventDispatch parent;
+  Arcadia_Engine_EventDispatch _parent;
 };
 
 struct Arcadia_Engine_Visuals_CanvasEvent {

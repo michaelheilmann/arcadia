@@ -328,7 +328,23 @@ Buffer_append
   )
 {
   if (buffer->m - buffer->n < numberOfBytes) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    // Grow the buffer (doubling the capacity until it is large enough) so that
+    // appending never overruns the allocated region.
+    size_t m = buffer->m;
+    if (m == 0) {
+      m = 1;
+    }
+    while (m - buffer->n < numberOfBytes) {
+      if (m > ((size_t)-1) / 2) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+        Arcadia_Thread_jump(thread);
+      }
+      m *= 2;
+    }
+    void* p = buffer->p;
+    Arcadia_Memory_reallocateUnmanaged(thread, &p, m);
+    buffer->p = (Arcadia_Natural8Value*)p;
+    buffer->m = m;
   }
   Arcadia_Memory_copy(thread, buffer->p + buffer->n, bytes, numberOfBytes);
   buffer->n += numberOfBytes;

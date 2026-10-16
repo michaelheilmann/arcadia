@@ -16,6 +16,7 @@
 
 #define ARCADIA_MEDIA_PRIVATE (1)
 #include "Arcadia/Media/PixelBuffer.h"
+#include "Arcadia/Media/PixelFormat/getNumberOfBytes.h"
 
 #include "Arcadia/Ring2/Include.h"
 
@@ -436,7 +437,7 @@ Arcadia_Media_PixelBuffer_setPixelFormat
   Arcadia_Natural8Value* sourceBytes = self->bytes;
   Arcadia_Natural8Value* targetBytes = NULL;
   if (sourceNumberOfBytesPerPixel != targetNumberOfBytesPerPixel) {
-    targetBytes = Arcadia_Memory_allocateUnmanaged(thread, (self->width * sourceNumberOfBytesPerPixel + self->linePadding) * self->height);
+    targetBytes = Arcadia_Memory_allocateUnmanaged(thread, (self->width * targetNumberOfBytesPerPixel + self->linePadding) * self->height);
   } else {
     targetBytes = self->bytes;
   }
@@ -675,10 +676,10 @@ Arcadia_Media_PixelBuffer_fillRectangle
       Arcadia_Natural8Value* p = self->bytes;
       p = p + top * stride; // "p" points to (top, 0)
       for (Arcadia_SizeValue y = top; y < bottom; ++y) {
-        Arcadia_Natural8Value* column = p + left * bytesPerPixel; // "q" points to(y, left)
+        Arcadia_Natural8Value* q = p + left * bytesPerPixel; // "q" points to(y, left)
         for (Arcadia_SizeValue x = left; x < right; ++x) {
-          ENCODE_BGR(column, &pixel);
-          column += bytesPerPixel;
+          ENCODE_BGR(q, &pixel);
+          q += bytesPerPixel;
         }
         p += stride;
       }
@@ -789,7 +790,7 @@ Arcadia_Media_PixelBuffer_fill
       Arcadia_Natural8Value* p = self->bytes;
       for (Arcadia_SizeValue y = 0; y < self->height; ++y) {
         for (Arcadia_SizeValue x = 0; x < self->width; ++x) {
-          ENCODE_BGRA(p + x * bytesPerPixel, &pixel);
+          ENCODE_BGRA(p, &pixel);
           p += bytesPerPixel;
         }
         p += self->linePadding;
@@ -1008,6 +1009,44 @@ Arcadia_Media_PixelBuffer_createClone
   _Arcadia_EndCreate(Arcadia_Media_PixelBuffer);
 }
 
+static void
+resizePreservingPixels
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_PixelBuffer* self,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, self);
+  Arcadia_Media_PixelBuffer* temporary = Arcadia_Media_PixelBuffer_create(thread, self->linePadding, width, height, self->pixelFormat);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, temporary);
+
+  // The format is unchanged. Copy only retained pixels, not padding or the
+  // constructor-initialized new area; no per-pixel decoding is necessary.
+  Arcadia_SizeValue bytesPerPixel = Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, self);
+  Arcadia_SizeValue rowBytes = (self->width < width ? self->width : width) * bytesPerPixel;
+  Arcadia_SizeValue sourceStride = self->width * bytesPerPixel + self->linePadding;
+  Arcadia_SizeValue targetStride = width * bytesPerPixel + self->linePadding;
+  Arcadia_Integer32Value rows = self->height < height ? self->height : height;
+  if (rowBytes) {
+    for (Arcadia_Integer32Value y = 0; y < rows; ++y) {
+      Arcadia_Memory_copy(thread, temporary->bytes + y * targetStride, self->bytes + y * sourceStride, rowBytes);
+    }
+  }
+  Arcadia_Media_PixelBuffer_swap(thread, self, temporary);
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+}
+
 Arcadia_Integer32Value
 Arcadia_Media_PixelBuffer_getWidth
   (
@@ -1024,26 +1063,8 @@ Arcadia_Media_PixelBuffer_setWidth
     Arcadia_Integer32Value width
   )
 {
-  if (self->width < width) {
-    Arcadia_Media_PixelBuffer* temporary = Arcadia_Media_PixelBuffer_create(thread, self->linePadding, width, self->height, self->pixelFormat);
-    for (size_t y = 0; y < self->height; ++y) {
-      for (size_t x = 0; x < self->width; ++x) {
-        Arcadia_Natural8Value r, g, b, a;
-        Arcadia_Media_PixelBuffer_getPixelRGBA(thread, self, x, y, &r, &g, &b, &a);
-        Arcadia_Media_PixelBuffer_setPixelRGBA(thread, temporary, x, y, r, g, b, a);
-      }
-    }
-    Arcadia_Media_PixelBuffer_swap(thread, self, temporary);
-  } else if (self->width > width) {
-    Arcadia_Media_PixelBuffer* temporary = Arcadia_Media_PixelBuffer_create(thread, self->linePadding, width, self->height, self->pixelFormat);
-    for (size_t y = 0; y < self->height; ++y) {
-      for (size_t x = 0; x < width; ++x) {
-        Arcadia_Natural8Value r, g, b, a;
-        Arcadia_Media_PixelBuffer_getPixelRGBA(thread, self, x, y, &r, &g, &b, &a);
-        Arcadia_Media_PixelBuffer_setPixelRGBA(thread, temporary, x, y, r, g, b, a);
-      }
-    }
-    Arcadia_Media_PixelBuffer_swap(thread, self, temporary);
+  if (self->width != width) {
+    resizePreservingPixels(thread, self, width, self->height);
   }
 }
 
@@ -1063,26 +1084,8 @@ Arcadia_Media_PixelBuffer_setHeight
     Arcadia_Integer32Value height
   )
 {
-  if (self->height < height) {
-    Arcadia_Media_PixelBuffer* temporary = Arcadia_Media_PixelBuffer_create(thread, self->linePadding, self->width, height, self->pixelFormat);
-    for (size_t y = 0; y < self->height; ++y) {
-      for (size_t x = 0; x < self->width; ++x) {
-        Arcadia_Natural8Value r, g, b, a;
-        Arcadia_Media_PixelBuffer_getPixelRGBA(thread, self, x, y, &r, &g, &b, &a);
-        Arcadia_Media_PixelBuffer_setPixelRGBA(thread, temporary, x, y, r, g, b, a);
-      }
-    }
-    Arcadia_Media_PixelBuffer_swap(thread, self, temporary);
-  } else if (self->height > height) {
-    Arcadia_Media_PixelBuffer* temporary = Arcadia_Media_PixelBuffer_create(thread, self->linePadding, self->width, height, self->pixelFormat);
-    for (size_t y = 0; y < height; ++y) {
-      for (size_t x = 0; x < self->width; ++x) {
-        Arcadia_Natural8Value r, g, b, a;
-        Arcadia_Media_PixelBuffer_getPixelRGBA(thread, self, x, y, &r, &g, &b, &a);
-        Arcadia_Media_PixelBuffer_setPixelRGBA(thread, temporary, x, y, r, g, b, a);
-      }
-    }
-    Arcadia_Media_PixelBuffer_swap(thread, self, temporary);
+  if (self->height != height) {
+    resizePreservingPixels(thread, self, self->width, height);
   }
 }
 

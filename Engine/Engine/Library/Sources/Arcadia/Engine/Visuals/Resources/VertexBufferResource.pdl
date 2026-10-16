@@ -1,0 +1,33 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Native definition: Arcadia/Engine/Visuals/Resources/VertexBufferResource.h.
+// The descriptor is GC-managed; this resource owns its external byte storage.
+native implementation "Arcadia/Engine/Visuals/Resources/VertexBufferResource.h" class Arcadia.Engine.Visuals.VertexBufferResource extends Arcadia.Engine.Visuals.Resource {
+  /// @brief Flag indicating the vertex data of a vertex-buffer resource is dirty.
+  constant VertexDataDirty : Arcadia.Integer32 = 1
+  /// @brief Flag indicating the vertex descriptor of a vertex-buffer resource is dirty.
+  constant VertexDescriptorDirty : Arcadia.Integer32 = 2
+  variable dirty : Arcadia.Natural8
+  variable vertexDescriptor : Arcadia.Media.VertexDescriptor
+  variable numberOfVertices : Arcadia.Size
+  variable bytes : owned reference Arcadia.Void
+  variable numberOfBytes : Arcadia.Size
+
+  method native "Arcadia_Engine_Visuals_VertexBufferResource_getVertexDescriptor" getVertexDescriptor : Arcadia.Media.VertexDescriptor
+  method native "Arcadia_Engine_Visuals_VertexBufferResource_setData" setData(variable vertexDescriptor : Arcadia.Media.VertexDescriptor, variable numberOfVertices : Arcadia.Size, variable bytes : readonly reference Arcadia.Void, variable numberOfBytes : Arcadia.Size) : Arcadia.Void
+  method native "Arcadia_Engine_Visuals_VertexBufferResource_getNumberOfVertices" getNumberOfVertices : Arcadia.Size
+}

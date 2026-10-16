@@ -28,6 +28,7 @@ if (NOT TARGET ${this})
 
   OnSourceFile(${this} Arcadia/Collections/Include.c)
   OnHeaderFile(${this} Arcadia/Collections/Include.h)
+  OnSourceFile(${this} Arcadia/Collections/NativeTypes.pdl)
   OnSourceFile(${this} Arcadia/Collections/ArrayList.c)
   OnHeaderFile(${this} Arcadia/Collections/ArrayList.h)
   OnSourceFile(${this} Arcadia/Collections/ArrayDeque.c)

@@ -25,7 +25,7 @@ typedef struct Arcadia_PDLC_AST_ModuleNode Arcadia_PDLC_AST_ModuleNode;
 /// @code
 /// class Arcadia.PDLC.AST.CompilationUnitNode extends Arcadia.PDLC.AST.Node
 /// @endcode
-/// @brief A compilation unit is a single `.mil` file.
+/// @brief A compilation unit is a single `.pdl` file.
 Arcadia_declareObjectType(u8"Arcadia.PDLC.AST.CompilationUnitNode", Arcadia_PDLC_AST_CompilationUnitNode,
                           u8"Arcadia.PDLC.AST.Node");
 
@@ -37,7 +37,7 @@ struct Arcadia_PDLC_AST_CompilationUnitNode {
   Arcadia_PDLC_AST_Node _parent;
   /// The module in which this compilation unit is located in (`Arcadia.PDLC.AST.ModuleNode`).
   Arcadia_PDLC_AST_ModuleNode* moduleNode;
-  /// The file path of the compilation unit (e.g., `Module.mil` or `Source/MyClass.mil`).
+  /// The file path of the compilation unit (e.g., `Module.pdl` or `Source/MyClass.pdl`).
   Arcadia_FilePath* filePath;
   /// The definitions in this compilation unit.
   Arcadia_List* definitions;

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/DDLS/Include.h"
 
 #include "Arcadia/DDL/Include.h"
@@ -257,6 +259,123 @@ Arcadia_DDLS_Tests_Validation_optionalReject1
   }
 }
 
+static int
+runAcceptColor
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_test1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectTypeNotDefined
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectTypeNotDefined) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectRedNotDefined
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectRedNotDefined) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectGreenNotDefined
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectGreenNotDefined) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectBlueNotDefined
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectBlueNotDefined) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectTypeDefinedTwice
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectTypeDefinedTwice) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectRedDefinedTwice
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectRedDefinedTwice) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectGreenDefinedTwice
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectGreenDefinedTwice) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectBlueDefinedTwice
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectBlueDefinedTwice) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAcceptChoice
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_choiceAccept1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectChoice
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_choiceReject1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAcceptOptional
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_optionalAccept1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectOptional
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_optionalReject1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -264,49 +383,20 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_test1)) {
-    return EXIT_FAILURE;
-  }
-
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectTypeNotDefined)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectRedNotDefined)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectGreenNotDefined)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectBlueNotDefined)) {
-    return EXIT_FAILURE;
-  }
-
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectTypeDefinedTwice)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectRedDefinedTwice)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectGreenDefinedTwice)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_testRejectBlueDefinedTwice)) {
-    return EXIT_FAILURE;
-  }
-
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_choiceAccept1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_choiceReject1)) {
-    return EXIT_FAILURE;
-  }
-
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_optionalAccept1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_optionalReject1)) {
-    return EXIT_FAILURE;
-  }
-
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "AcceptColor", &runAcceptColor },
+    { "RejectTypeNotDefined", &runRejectTypeNotDefined },
+    { "RejectRedNotDefined", &runRejectRedNotDefined },
+    { "RejectGreenNotDefined", &runRejectGreenNotDefined },
+    { "RejectBlueNotDefined", &runRejectBlueNotDefined },
+    { "RejectTypeDefinedTwice", &runRejectTypeDefinedTwice },
+    { "RejectRedDefinedTwice", &runRejectRedDefinedTwice },
+    { "RejectGreenDefinedTwice", &runRejectGreenDefinedTwice },
+    { "RejectBlueDefinedTwice", &runRejectBlueDefinedTwice },
+    { "AcceptChoice", &runAcceptChoice },
+    { "RejectChoice", &runRejectChoice },
+    { "AcceptOptional", &runAcceptOptional },
+    { "RejectOptional", &runRejectOptional },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

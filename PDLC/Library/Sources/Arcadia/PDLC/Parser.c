@@ -20,7 +20,9 @@
 #include "Arcadia/PDLC/Include.h"
 #include "Arcadia/PDLC/AST/Include.h"
 #include "Arcadia/PDLC/Scanner.h"
+#include "Arcadia/PDLC/Names.h"
 #include <assert.h>
+#include <string.h>
 
 struct Arcadia_PDLC_ParserDispatch {
   Arcadia_Languages_ParserDispatch _parent;
@@ -532,8 +534,21 @@ onExpression
     } break;
     case Arcadia_PDLC_WordType_Name: {
       Arcadia_SizeValue startOffset = getStartOffset(thread, self);
-      Arcadia_PDLC_AST_OperandNode* expressionNode = (Arcadia_PDLC_AST_OperandNode*)Arcadia_PDLC_AST_VariableOperandNode_create(thread, startOffset, getText(thread, self));
-      next(thread, self);
+      Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+      Arcadia_JumpTarget jump;
+      Arcadia_Thread_pushJumpTarget(thread, &jump);
+      if (!Arcadia_JumpTarget_save(&jump)) {
+        Arcadia_Thread_popJumpTarget(thread);
+        Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+        Arcadia_Thread_jump(thread);
+      }
+      Arcadia_PDLC_AST_IdentifierNode* identifier = onIdentifier(thread, self);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, identifier);
+      Arcadia_String* name = Arcadia_PDLC_Names_toTypeName(thread, identifier->names);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, name);
+      Arcadia_PDLC_AST_OperandNode* expressionNode = (Arcadia_PDLC_AST_OperandNode*)Arcadia_PDLC_AST_VariableOperandNode_create(thread, startOffset, name);
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
       return expressionNode;
     } break;
     case Arcadia_PDLC_WordType_Register: {
@@ -595,8 +610,17 @@ onIdentifier
   if (!is(thread, self, Arcadia_PDLC_WordType_Name)) {
     onUnexpectedWord(thread, self);
   }
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
   Arcadia_SizeValue startOffset = getStartOffset(thread, self);
   Arcadia_List* names = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, names);
   Arcadia_List_insertBackObjectReferenceValue(thread, names, getText(thread, self));
   next(thread, self);
   while (is(thread, self, Arcadia_PDLC_WordType_Period)) {
@@ -607,7 +631,11 @@ onIdentifier
     Arcadia_List_insertBackObjectReferenceValue(thread, names, getText(thread, self));
     next(thread, self);
   }
-  Arcadia_PDLC_AST_IdentifierNode* node = Arcadia_PDLC_AST_IdentifierNode_create(thread, startOffset, Arcadia_ImmutableList_create(thread, Arcadia_Value_makeObjectReferenceValue(names)));
+  Arcadia_ImmutableList* snapshot = Arcadia_ImmutableList_create(thread, Arcadia_Value_makeObjectReferenceValue(names));
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, snapshot);
+  Arcadia_PDLC_AST_IdentifierNode* node = Arcadia_PDLC_AST_IdentifierNode_create(thread, startOffset, snapshot);
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   return node;
 }
 
@@ -619,26 +647,46 @@ onInvokeInstruction
     Arcadia_PDLC_Parser* self
   )
 {
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
   Arcadia_SizeValue invokeInstructionStartOffset = getStartOffset(thread, self);
+  Arcadia_BooleanValue procedureOnly = is(thread, self, Arcadia_PDLC_WordType_Call);
   next(thread, self);
   Arcadia_PDLC_AST_OperandNode* target = onExpression(thread, self);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, target);
   if (!is(thread, self, Arcadia_PDLC_WordType_Name)) {
     onUnexpectedWord(thread, self);
   }
   Arcadia_SizeValue calleeStartOffset = getStartOffset(thread, self);
-  Arcadia_String* calleeName = getText(thread, self);
-  next(thread, self);
+  Arcadia_PDLC_AST_IdentifierNode* calleeIdentifier = onIdentifier(thread, self);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, calleeIdentifier);
+  Arcadia_String* calleeName = Arcadia_PDLC_Names_toTypeName(thread, calleeIdentifier->names);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, calleeName);
   Arcadia_List* operands = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, operands);
   // The grammar requires a first argument: the parenthesized argument list it replaced had a spelling for the
   // empty list, the unparenthesized one does not.
-  Arcadia_PDLC_AST_OperandNode* firstOperand = onExpression(thread, self);
-  Arcadia_List_insertBackObjectReferenceValue(thread, operands, (Arcadia_ObjectReferenceValue)firstOperand);
+  if (!procedureOnly) {
+    Arcadia_PDLC_AST_OperandNode* firstOperand = onExpression(thread, self);
+    Arcadia_List_insertBackObjectReferenceValue(thread, operands, (Arcadia_ObjectReferenceValue)firstOperand);
+  }
   onOperands(thread, self, operands);
   Arcadia_PDLC_AST_VariableOperandNode* calleeNode = Arcadia_PDLC_AST_VariableOperandNode_create(thread, calleeStartOffset, calleeName);
-  return Arcadia_PDLC_AST_InvokeInstructionNode_create(thread, invokeInstructionStartOffset, target, calleeNode, operands);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, calleeNode);
+  Arcadia_PDLC_AST_InvokeInstructionNode* result = Arcadia_PDLC_AST_InvokeInstructionNode_create(thread, invokeInstructionStartOffset, target, calleeNode, operands);
+  result->procedureOnly = procedureOnly;
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+  return result;
 }
 
-// constructInstruction : 'construct' operand name operand operand*
+// constructInstruction : 'construct' operand identifier operand operand*
 static Arcadia_PDLC_AST_ConstructInstructionNode*
 onConstructInstruction
   (
@@ -653,8 +701,8 @@ onConstructInstruction
     onUnexpectedWord(thread, self);
   }
   Arcadia_SizeValue calleeStartOffset = getStartOffset(thread, self);
-  Arcadia_String* calleeName = getText(thread, self);
-  next(thread, self);
+  Arcadia_PDLC_AST_IdentifierNode* className = onIdentifier(thread, self);
+  Arcadia_String* calleeName = Arcadia_PDLC_Names_toTypeName(thread, className->names);
   Arcadia_List* operands = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   // The grammar requires a first argument: the parenthesized argument list it replaced had a spelling for the
   // empty list, the unparenthesized one does not.
@@ -687,7 +735,8 @@ onConstructInstruction
 // unaryOperator : 'negate' | 'not' | 'set'
 //
 // invokeInstruction : 'invoke' operand name operand operand*
-// constructInstruction : 'construct' operand name operand operand*
+// constructInstruction : 'construct' operand identifier operand operand*
+// callInstruction : 'call' operand name operand*
 //
 // jumpInstruction : | 'jump' name
 //                 | 'jumpIfTrue' operand name
@@ -761,6 +810,7 @@ onInstruction
     case Arcadia_PDLC_WordType_Not: {
       return onUnaryInstruction(thread, self, Arcadia_PDLC_AST_UnaryInstructionKind_Not);
     } break;
+    case Arcadia_PDLC_WordType_Call:
     case Arcadia_PDLC_WordType_Invoke: {
       return (Arcadia_PDLC_AST_InstructionNode*)onInvokeInstruction(thread, self);
     } break;
@@ -933,7 +983,9 @@ onInstructionStatement
     Arcadia_PDLC_Parser* self
   )
 {
+  Arcadia_SizeValue startOffset = getStartOffset(thread, self);
   Arcadia_PDLC_AST_InstructionNode* instruction = onInstruction(thread, self);
+  ((Arcadia_PDLC_AST_StatementNode*)instruction)->startOffset = startOffset;
   Arcadia_PDLC_AST_InstructionStatementNode* statement = (Arcadia_PDLC_AST_InstructionStatementNode*)instruction;
   onEndOfStatement(thread, self);
   while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
@@ -959,6 +1011,7 @@ onVariableDefinitionStatement
     onUnexpectedWord(thread, self);
   }
   Arcadia_PDLC_AST_VariableDefinitionStatementNode* statement = Arcadia_PDLC_AST_VariableDefinitionStatementNode_create(thread, startOffset, getText(thread, self));
+  ((Arcadia_PDLC_AST_StatementNode*)statement)->startOffset = startOffset;
   next(thread, self);
   onEndOfStatement(thread, self);
   while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
@@ -999,6 +1052,7 @@ onStatement
     }
     next(thread, self);
     statementNode = (Arcadia_PDLC_AST_StatementNode*)Arcadia_PDLC_AST_LabelDefinitionStatementNode_create(thread, startOffset, name);
+    statementNode->startOffset = startOffset;
     onEndOfStatement(thread, self);
     while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
       next(thread, self);
@@ -1040,6 +1094,67 @@ onUnexpectedWord
   Arcadia_Thread_jump(thread);
 }
 
+static Arcadia_PDLC_AST_FieldDefinitionNode* onFieldDefinition(Arcadia_Thread*, Arcadia_PDLC_Parser*);
+
+static Arcadia_BooleanValue
+isName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Parser* self,
+    const char* name
+  )
+{
+  return is(thread, self, Arcadia_PDLC_WordType_Name) && Arcadia_String_isEqualTo_pn(thread, getText(thread, self), name, strlen(name));
+}
+
+static Arcadia_PDLC_AST_FieldDefinitionNode*
+onAnnotatedType
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Parser* self,
+    Arcadia_SizeValue offset,
+    Arcadia_String* name
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, name);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_PDLC_AST_FieldDefinitionNode* result = Arcadia_PDLC_AST_FieldDefinitionNode_create(thread, offset, name, NULL);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, result);
+  if (isName(thread, self, "borrowed")) { result->ownership = Arcadia_PDLC_Ownership_Borrowed; next(thread, self); }
+  else if (isName(thread, self, "owned")) { result->ownership = Arcadia_PDLC_Ownership_Owned; next(thread, self); }
+  else if (isName(thread, self, "retained")) { result->ownership = Arcadia_PDLC_Ownership_Retained; next(thread, self); }
+  if (isName(thread, self, "output")) { result->isOutput = Arcadia_BooleanValue_True; next(thread, self); }
+  if (isName(thread, self, "readonly")) { result->isReadOnly = Arcadia_BooleanValue_True; next(thread, self); }
+  if (isName(thread, self, "reference")) { result->isReference = Arcadia_BooleanValue_True; next(thread, self); }
+  if (isName(thread, self, "record")) {
+    next(thread, self);
+    if (!is(thread, self, Arcadia_PDLC_WordType_LeftCurlyBracket)) onUnexpectedWord(thread, self);
+    result->recordFields = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+    next(thread, self);
+    while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) next(thread, self);
+    while (is(thread, self, Arcadia_PDLC_WordType_Variable)) {
+      Arcadia_PDLC_AST_FieldDefinitionNode* child = onFieldDefinition(thread, self);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, child);
+      Arcadia_List_insertBackObjectReferenceValue(thread, result->recordFields, child);
+      Arcadia_ValueStack_popValues(thread, 1);
+    }
+    if (!is(thread, self, Arcadia_PDLC_WordType_RightCurlyBracket)) onUnexpectedWord(thread, self);
+    next(thread, self);
+  } else {
+    result->type = onIdentifier(thread, self);
+  }
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+  return result;
+}
+
 // parameter : <name> ':' <type>
 // <name> : lexical.name
 // <type> : lexical.name
@@ -1064,11 +1179,7 @@ onParameter
     onUnexpectedWord(thread, self);
   }
   next(thread, self);
-  if (!is(thread, self, Arcadia_PDLC_WordType_Name)) {
-    onUnexpectedWord(thread, self);
-  }
-  Arcadia_PDLC_AST_IdentifierNode* type = onIdentifier(thread, self);
-  return Arcadia_PDLC_AST_FieldDefinitionNode_create(thread, startOffset, name, type);
+  return onAnnotatedType(thread, self, startOffset, name);
 }
 
 // parameters : '(' (parameter (',' parameter)*)? ')'
@@ -1079,7 +1190,16 @@ onParameters
     Arcadia_PDLC_Parser* self
   )
 {
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
   Arcadia_List* parameters = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, parameters);
   while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
     next(thread, self);
   }
@@ -1091,7 +1211,9 @@ onParameters
     Arcadia_PDLC_AST_FieldDefinitionNode* parameter = NULL;
     if (is(thread, self, Arcadia_PDLC_WordType_Variable)) {
       parameter = onParameter(thread, self);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, parameter);
       Arcadia_List_insertBackObjectReferenceValue(thread, parameters, (Arcadia_ObjectReferenceValue)parameter);
+      Arcadia_ValueStack_popValues(thread, 1);
       while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
         next(thread, self);
       }
@@ -1101,7 +1223,9 @@ onParameters
           next(thread, self);
         }
         parameter = onParameter(thread, self);
+        Arcadia_ValueStack_pushObjectReferenceValue(thread, parameter);
         Arcadia_List_insertBackObjectReferenceValue(thread, parameters, (Arcadia_ObjectReferenceValue)parameter);
+        Arcadia_ValueStack_popValues(thread, 1);
         while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
           next(thread, self);
         }
@@ -1112,6 +1236,8 @@ onParameters
     }
     next(thread, self);
   }
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   return parameters;
 }
 
@@ -1187,6 +1313,10 @@ onMethodDefinition
   }
   Arcadia_SizeValue startOffset = getStartOffset(thread, self);
   next(thread, self);
+  Arcadia_BooleanValue abstract = is(thread, self, Arcadia_PDLC_WordType_Abstract);
+  if (abstract) next(thread, self);
+  Arcadia_BooleanValue nonvirtual = isName(thread, self, "nonvirtual");
+  if (nonvirtual) next(thread, self);
   Arcadia_String* nativeName = NULL;
   if (is(thread, self, Arcadia_PDLC_WordType_Native)) {
     next(thread, self);
@@ -1230,6 +1360,8 @@ onMethodDefinition
     next(thread, self);
   }
   Arcadia_PDLC_AST_MethodDefinitionNode* methodDefinitionNode = Arcadia_PDLC_AST_MethodDefinitionNode_create(thread, startOffset, nativeName, methodName, methodParameters, returnType, methodBody);
+  methodDefinitionNode->isNonvirtual = nonvirtual;
+  methodDefinitionNode->isAbstract = abstract;
   return methodDefinitionNode;
 }
 
@@ -1241,7 +1373,8 @@ onFieldDefinition
     Arcadia_PDLC_Parser* self
   )
 {
-  if (Arcadia_PDLC_WordType_Variable != getType(thread, self)) {
+  Arcadia_BooleanValue constant = isName(thread, self, "constant");
+  if (Arcadia_PDLC_WordType_Variable != getType(thread, self) && !constant) {
     onUnexpectedWord(thread, self);
   }
   Arcadia_SizeValue startOffset = getStartOffset(thread, self);
@@ -1255,11 +1388,19 @@ onFieldDefinition
     onUnexpectedWord(thread, self);
   }
   next(thread, self);
-  Arcadia_PDLC_AST_IdentifierNode* type = onIdentifier(thread, self);
-  Arcadia_PDLC_AST_FieldDefinitionNode* variableDefinitionNode = Arcadia_PDLC_AST_FieldDefinitionNode_create(thread, startOffset, name, type);
+  Arcadia_PDLC_AST_FieldDefinitionNode* variableDefinitionNode = onAnnotatedType(thread, self, startOffset, name);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, variableDefinitionNode);
+  if (constant) {
+    if (!is(thread, self, Arcadia_PDLC_WordType_EqualsSign)) onUnexpectedWord(thread, self);
+    next(thread, self);
+    if (!is(thread, self, Arcadia_PDLC_WordType_IntegerLiteral)) onUnexpectedWord(thread, self);
+    variableDefinitionNode->initializer = Arcadia_PDLC_AST_IntegerLiteralNode_create(thread, getStartOffset(thread, self), getText(thread, self));
+    next(thread, self);
+  }
   while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
     next(thread, self);
   }
+  Arcadia_ValueStack_popValues(thread, 1);
   return variableDefinitionNode;
 }
 
@@ -1272,6 +1413,7 @@ onClassMemberDefinition
     Arcadia_PDLC_Parser* self
   )
 {
+  if (isName(thread, self, "constant")) return (Arcadia_PDLC_AST_Node*)onFieldDefinition(thread, self);
   switch (getType(thread, self)) {
     case Arcadia_PDLC_WordType_Constructor: {
       return (Arcadia_PDLC_AST_Node*)onConstructorDefinition(thread, self);
@@ -1288,7 +1430,31 @@ onClassMemberDefinition
   };
 }
 
-// classDefinition : 'native'? 'class' name ('extends' name)? ('implements' name (',' name)*)? classBody
+static Arcadia_BooleanValue
+isValidNativeHeaderPath
+  (
+    Arcadia_Thread* thread,
+    Arcadia_String* path
+  )
+{
+  const char* bytes = Arcadia_String_getBytes(thread, path);
+  Arcadia_SizeValue length = Arcadia_String_getNumberOfBytes(thread, path);
+  Arcadia_SizeValue start = 0;
+  for (Arcadia_SizeValue i = 0; i <= length; ++i) {
+    if (i == length || bytes[i] == '/') {
+      Arcadia_SizeValue count = i - start;
+      if (!count || (count == 1 && bytes[start] == '.') ||
+          (count == 2 && bytes[start] == '.' && bytes[start + 1] == '.')) return Arcadia_BooleanValue_False;
+      start = i + 1;
+    } else {
+      unsigned char c = (unsigned char)bytes[i];
+      if (c < 32 || c == 127 || c == '\\' || c == '"' || c == '<' || c == '>' || c == ':') return Arcadia_BooleanValue_False;
+    }
+  }
+  return Arcadia_BooleanValue_True;
+}
+
+// classDefinition : 'abstract'? ('native' 'implementation'? stringLiteral? 'class' | 'class' stringLiteral?) name ('extends' name)? ('implements' name (',' name)*)? classBody
 // classBody : '{' classBodyDefinition* '}'
 static Arcadia_PDLC_AST_ClassDefinitionNode*
 onClassDefinition
@@ -1299,21 +1465,68 @@ onClassDefinition
 {
   Arcadia_BooleanValue isNative = Arcadia_BooleanValue_False;
   Arcadia_SizeValue startOffset = getStartOffset(thread, self);
+  Arcadia_BooleanValue nativeImplementation = Arcadia_BooleanValue_False;
+  Arcadia_BooleanValue isAbstract = Arcadia_BooleanValue_False;
+  Arcadia_String* nativeHeaderPath = NULL;
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
+  if (is(thread, self, Arcadia_PDLC_WordType_Abstract)) {
+    isAbstract = Arcadia_BooleanValue_True;
+    next(thread, self);
+    while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) next(thread, self);
+  }
   if (is(thread, self, Arcadia_PDLC_WordType_Native)) {
     isNative = Arcadia_BooleanValue_True;
     next(thread, self);
     while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
       next(thread, self);
     }
+    if (isName(thread, self, "implementation")) {
+      nativeImplementation = Arcadia_BooleanValue_True;
+      next(thread, self);
+      while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) next(thread, self);
+    }
+    if (is(thread, self, Arcadia_PDLC_WordType_StringLiteral)) {
+      nativeHeaderPath = getText(thread, self);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, nativeHeaderPath);
+      if (!isValidNativeHeaderPath(thread, nativeHeaderPath)) {
+        Arcadia_Languages_Diagnostics_add(thread, self->diagnostics, (Arcadia_Languages_Diagnostic*)
+          Arcadia_PDLC_Diagnostics_InvalidPathDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, nativeHeaderPath));
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      next(thread, self);
+      while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) next(thread, self);
+    }
   }
   if (!is(thread, self, Arcadia_PDLC_WordType_Class)) {
     onUnexpectedWord(thread, self);
   }
   next(thread, self);
+  if (!isNative && is(thread, self, Arcadia_PDLC_WordType_StringLiteral)) {
+    nativeHeaderPath = getText(thread, self);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, nativeHeaderPath);
+    Arcadia_SizeValue length = Arcadia_String_getNumberOfBytes(thread, nativeHeaderPath);
+    const char* bytes = Arcadia_String_getBytes(thread, nativeHeaderPath);
+    if (!isValidNativeHeaderPath(thread, nativeHeaderPath) || length < 2 || bytes[length - 2] != '.' || bytes[length - 1] != 'h') {
+      Arcadia_Languages_Diagnostics_add(thread, self->diagnostics, (Arcadia_Languages_Diagnostic*)
+        Arcadia_PDLC_Diagnostics_InvalidPathDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, nativeHeaderPath));
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    next(thread, self);
+  }
   while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
     next(thread, self);
   }
   Arcadia_PDLC_AST_IdentifierNode* className = onIdentifier(thread, self);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, className);
   Arcadia_PDLC_AST_IdentifierNode* extendedClassName = NULL;
   if (is(thread, self, Arcadia_PDLC_WordType_Extends)) {
     next(thread, self);
@@ -1321,6 +1534,7 @@ onClassDefinition
       next(thread, self);
     }
     extendedClassName = onIdentifier(thread, self);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, extendedClassName);
   }
   Arcadia_List* implementsInterfaceNames = NULL;
   if (is(thread, self, Arcadia_PDLC_WordType_Implements)) {
@@ -1329,6 +1543,7 @@ onClassDefinition
       next(thread, self);
     }
     implementsInterfaceNames = onInterfaceNames(thread, self);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, implementsInterfaceNames);
   }
   Arcadia_List* classBody = NULL;
   if (is(thread, self, Arcadia_PDLC_WordType_LeftCurlyBracket)) {
@@ -1337,6 +1552,7 @@ onClassDefinition
       next(thread, self);
     }
     classBody = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, classBody);
     while (!is(thread, self, Arcadia_PDLC_WordType_EndOfInput) && !is(thread, self, Arcadia_PDLC_WordType_RightCurlyBracket)) {
       Arcadia_PDLC_AST_Node* classMemberDefinitionNode = onClassMemberDefinition(thread, self);
       Arcadia_List_insertBackObjectReferenceValue(thread, classBody, (Arcadia_ObjectReferenceValue)classMemberDefinitionNode);
@@ -1349,7 +1565,11 @@ onClassDefinition
   while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
     next(thread, self);
   }
-  Arcadia_PDLC_AST_ClassDefinitionNode* classDefinitionNode = Arcadia_PDLC_AST_ClassDefinitionNode_create(thread, startOffset, isNative, className, extendedClassName, implementsInterfaceNames, classBody);
+  Arcadia_PDLC_AST_ClassDefinitionNode* classDefinitionNode = Arcadia_PDLC_AST_ClassDefinitionNode_create(thread, startOffset, isNative, isAbstract, className, extendedClassName, implementsInterfaceNames, classBody);
+  classDefinitionNode->nativeHeaderPath = nativeHeaderPath;
+  classDefinitionNode->isNativeImplementation = nativeImplementation;
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   return classDefinitionNode;
 }
 
@@ -1463,8 +1683,10 @@ onEnumerationMemberDefinition
   if (!is(thread, self, Arcadia_PDLC_WordType_Name)) {
     onUnexpectedWord(thread, self);
   }
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   Arcadia_SizeValue startOffset = getStartOffset(thread, self);
   Arcadia_String* enumerationConstantName = getText(thread, self);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, enumerationConstantName);
   next(thread, self);
   Arcadia_PDLC_AST_IntegerLiteralNode* enumerationConstantInitializer = NULL;
   if (is(thread, self, Arcadia_PDLC_WordType_EqualsSign)) {
@@ -1474,17 +1696,20 @@ onEnumerationMemberDefinition
     }
     Arcadia_SizeValue startOffset = Arcadia_PDLC_Scanner_getStartOffset(thread, self->scanner);
     enumerationConstantInitializer = Arcadia_PDLC_AST_IntegerLiteralNode_create(thread, startOffset, getText(thread, self));
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, enumerationConstantInitializer);
     next(thread, self);
   }
   Arcadia_PDLC_AST_EnumerationConstantDefinitionNode* enumerationConstantDefinitionNode = Arcadia_PDLC_AST_EnumerationConstantDefinitionNode_create(thread, startOffset, enumerationConstantName, enumerationConstantInitializer);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, enumerationConstantDefinitionNode);
 
   while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
     next(thread, self);
   }
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   return (Arcadia_PDLC_AST_Node*)enumerationConstantDefinitionNode;
 }
 
-// enumerationDefinition : 'enumeration' identifier enumerationBody
+// enumerationDefinition : 'enumeration' stringLiteral? identifier enumerationBody
 // enumerationBody : '{' enumerationBodyDefinition* '}'
 static Arcadia_PDLC_AST_EnumerationDefinitionNode*
 onEnumerationDefinition
@@ -1493,6 +1718,14 @@ onEnumerationDefinition
     Arcadia_PDLC_Parser* self
   )
 {
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
   if (!is(thread, self, Arcadia_PDLC_WordType_Enumeration)) {
     onUnexpectedWord(thread, self);
   }
@@ -1501,17 +1734,37 @@ onEnumerationDefinition
   while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
     next(thread, self);
   }
+  Arcadia_String* headerPath = NULL;
+  if (is(thread, self, Arcadia_PDLC_WordType_StringLiteral)) {
+    headerPath = getText(thread, self);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, headerPath);
+    Arcadia_SizeValue length = Arcadia_String_getNumberOfBytes(thread, headerPath);
+    const char* bytes = Arcadia_String_getBytes(thread, headerPath);
+    if (!isValidNativeHeaderPath(thread, headerPath) || length < 2 || bytes[length - 2] != '.' || bytes[length - 1] != 'h') {
+      Arcadia_Languages_Diagnostics_add(thread, self->diagnostics, (Arcadia_Languages_Diagnostic*)
+        Arcadia_PDLC_Diagnostics_InvalidPathDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, headerPath));
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    next(thread, self);
+  }
+  while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) next(thread, self);
   Arcadia_PDLC_AST_IdentifierNode* enumerationName = onIdentifier(thread, self);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, enumerationName);
   Arcadia_List* enumerationBody = NULL;
+  if (!is(thread, self, Arcadia_PDLC_WordType_LeftCurlyBracket)) onUnexpectedWord(thread, self);
   if (is(thread, self, Arcadia_PDLC_WordType_LeftCurlyBracket)) {
     next(thread, self);
     while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) {
       next(thread, self);
     }
     enumerationBody = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, enumerationBody);
     while (!is(thread, self, Arcadia_PDLC_WordType_EndOfInput) && !is(thread, self, Arcadia_PDLC_WordType_RightCurlyBracket)) {
       Arcadia_PDLC_AST_Node* enumerationMemberDefinitionNode = onEnumerationMemberDefinition(thread, self);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, enumerationMemberDefinitionNode);
       Arcadia_List_insertBackObjectReferenceValue(thread, enumerationBody, (Arcadia_ObjectReferenceValue)enumerationMemberDefinitionNode);
+      Arcadia_ValueStack_popValues(thread, 1);
     }
     if (!is(thread, self, Arcadia_PDLC_WordType_RightCurlyBracket)) {
       onUnexpectedWord(thread, self);
@@ -1522,6 +1775,9 @@ onEnumerationDefinition
     next(thread, self);
   }
   Arcadia_PDLC_AST_EnumerationDefinitionNode* enumerationDefinitionNode = Arcadia_PDLC_AST_EnumerationDefinitionNode_create(thread, startOffset, enumerationName, enumerationBody);
+  enumerationDefinitionNode->nativeHeaderPath = headerPath;
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   return enumerationDefinitionNode;
 }
 
@@ -1632,6 +1888,65 @@ onProcedureDefinition
   return procedureDefinitionNode;
 }
 
+static Arcadia_PDLC_AST_DefinitionNode*
+onNativeDefinition
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Parser* self
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_SizeValue offset = getStartOffset(thread, self);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
+  next(thread, self);
+  while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) next(thread, self);
+  Arcadia_BooleanValue nativeImplementation = isName(thread, self, "implementation");
+  if (nativeImplementation) {
+    next(thread, self);
+    while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) next(thread, self);
+  }
+  Arcadia_String* header = NULL;
+  if (is(thread, self, Arcadia_PDLC_WordType_StringLiteral)) {
+    header = getText(thread, self);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, header);
+    if (!isValidNativeHeaderPath(thread, header)) {
+      Arcadia_Languages_Diagnostics_add(thread, self->diagnostics, (Arcadia_Languages_Diagnostic*)
+        Arcadia_PDLC_Diagnostics_InvalidPathDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error, header));
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SyntacticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    next(thread, self);
+    while (is(thread, self, Arcadia_PDLC_WordType_LineTerminator)) next(thread, self);
+  }
+  Arcadia_PDLC_AST_DefinitionNode* result = NULL;
+  if (is(thread, self, Arcadia_PDLC_WordType_Class)) {
+    Arcadia_PDLC_AST_ClassDefinitionNode* c = onClassDefinition(thread, self);
+    c->isNative = Arcadia_BooleanValue_True;
+    c->isNativeImplementation = nativeImplementation;
+    c->nativeHeaderPath = header;
+    result = (Arcadia_PDLC_AST_DefinitionNode*)c;
+  } else if (is(thread, self, Arcadia_PDLC_WordType_Enumeration)) {
+    if (nativeImplementation) onUnexpectedWord(thread, self);
+    Arcadia_PDLC_AST_EnumerationDefinitionNode* e = onEnumerationDefinition(thread, self);
+    if (e->nativeHeaderPath) onUnexpectedWord(thread, self);
+    e->isNative = Arcadia_BooleanValue_True;
+    e->nativeHeaderPath = header;
+    result = (Arcadia_PDLC_AST_DefinitionNode*)e;
+  } else {
+    onUnexpectedWord(thread, self);
+  }
+  result->startOffset = offset;
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+  return result;
+}
+
 /// compilationUnit : (classDefinition|enumerationDefinition|interfaceDefinition|moduleDefinition|proceduredefinition)*
 static Arcadia_PDLC_AST_CompilationUnitNode*
 onCompilationUnit
@@ -1651,6 +1966,7 @@ onCompilationUnit
     }
     Arcadia_PDLC_AST_DefinitionNode* definitionNode = NULL;
     switch (getType(thread, self)) {
+      case Arcadia_PDLC_WordType_Abstract:
       case Arcadia_PDLC_WordType_Class: {
         definitionNode = (Arcadia_PDLC_AST_DefinitionNode*)onClassDefinition(thread, self);
         Arcadia_PDLC_AST_CompilationUnitNode_appendDefinition(thread, compilationUnitNode, definitionNode);
@@ -1658,7 +1974,7 @@ onCompilationUnit
         assert(NULL != definitionNode->compilationUnitNode);
       } break;
       case Arcadia_PDLC_WordType_Native: {
-        definitionNode = (Arcadia_PDLC_AST_DefinitionNode*)onClassDefinition(thread, self);
+        definitionNode = onNativeDefinition(thread, self);
         Arcadia_PDLC_AST_CompilationUnitNode_appendDefinition(thread, compilationUnitNode, definitionNode);
         definitionNode->compilationUnitNode = compilationUnitNode;
         assert(NULL != definitionNode->compilationUnitNode);

@@ -23,6 +23,7 @@
 
 #include "Arcadia/ADL/Include.h"
 #include "Arcadia/Engine/Include.h"
+#include "Arcadia/Engine/UI/populateContainerFromDefinition.h"
 
 Arcadia_Object*
 Arcadia_Engine_UI_createNodeFromDefinition
@@ -30,15 +31,6 @@ Arcadia_Engine_UI_createNodeFromDefinition
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_BackendContext* backendContext,
     Arcadia_ADL_Definition* source
-  );
-
-void
-Arcadia_Engine_UI_populateContainerFromDefinition
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_BackendContext* backendContext,
-    Arcadia_Object* target,
-    Arcadia_Object* source
   );
 
 #endif // ARCADIA_ENGINE_UI_DEFINITIONFACTORY_H_INCLUDED

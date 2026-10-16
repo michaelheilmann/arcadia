@@ -25,6 +25,9 @@
 #include "Arcadia/Engine/BackendContext.h"
 
 #include "Arcadia/Engine/Engine.h"
+#include "Arcadia/Engine/getOrCreate.h"
+#include "Arcadia/Engine/createTypeSet.h"
+#include "Arcadia/Engine/createEventQueue.h"
 #include "Arcadia/Engine/Event.h"
 #include "Arcadia/Engine/FPSCounter.h"
 #include "Arcadia/Engine/FontCache.h"
@@ -33,6 +36,7 @@
 #include "Arcadia/Engine/NodeFactory.h"
 
 #include "Arcadia/Engine/Application.h"
+#include "Arcadia/Engine/requireConfigurationDirectoryName.h"
 #include "Arcadia/Engine/ApplicationConfiguration.h"
 #include "Arcadia/Engine/ApplicationHelper/Audials.h"
 #include "Arcadia/Engine/ApplicationHelper/Visuals.h"
@@ -44,7 +48,11 @@
 #include "Arcadia/Engine/Audials/Include.h"
 
 #include "Arcadia/Engine/Scene.h"
+#include "Arcadia/Engine/createSceneQuitRequestSignal.h"
 #include "Arcadia/Engine/SceneManager.h"
+#include "Arcadia/Engine/createSceneManagerSignal.h"
+#include "Arcadia/Engine/scenesAreIdentical.h"
+#include "Arcadia/Engine/emitSceneChanged.h"
 
 #undef ARCADIA_ENGINE_PRIVATE
 #pragma pop_macro("ARCADIA_ENGINE_PRIVATE")

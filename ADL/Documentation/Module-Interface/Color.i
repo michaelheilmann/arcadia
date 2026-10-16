@@ -5,14 +5,31 @@ Arcadia_ADL_ColorDefinition
 </code></my-signature>
 
 <my-summary>
-The definition of a color, with red, green, and blue components.
+The definition of a color, with straight/unassociated red, green, blue and alpha components.
 </my-summary>
 
 <my-remarks>
 <p>
 The type name of the definition, used as the <code>type</code> entry of an ADL
-asset, is <code>"Color"</code>. The definition holds no references and therefore
-links trivially.
+asset, is <code>"Color"</code>. Its public scalar fields are <code>red</code>,
+<code>green</code>, <code>blue</code>, then <code>alpha</code>, each
+<code>Arcadia_Natural8Value</code>. RGB asset fields are required; alpha is optional,
+defaulting to 255. Explicit alpha 0 is preserved. The definition adds no reference
+fields and links trivially; its native parent still retains definitions/name.
+</p>
+<p>
+The existing five-argument factory remains unchanged and initializes alpha to 255.
+Native callers may assign the public alpha field afterward. The PDL constructor
+owns initialization and uses a narrow native typed-255 helper, since ordinary PDL
+integer literals are not Natural8 values. No new getter or dispatch slot is added.
+Nonintegral/out-of-range numeric asset alpha raises <code>Arcadia_Status_ConversionFailed</code>,
+as for RGB; a non-number raises <code>Arcadia_Status_SemanticalError</code> during schema validation.
+</p>
+<p>
+Stored alpha does not enable blending, premultiply RGB or change RGB-only consumers.
+Media fills retain pixel alpha 255; mesh-generator color conversion and current
+example clear-color/text-run conversions retain alpha 1; UI Button color state
+retains RGB-only copying. Material blend settings remain separate.
 </p>
 </my-remarks>
 
@@ -32,7 +49,7 @@ Arcadia_ADL_ColorDefinition* Arcadia_ADL_ColorDefinition_create
 </code></my-signature>
 
 <my-summary>
-Create the definition of a color.
+Create the definition of a color with the supplied RGB and alpha initialized to 255.
 </my-summary>
 
 <section class="cxx parameters">

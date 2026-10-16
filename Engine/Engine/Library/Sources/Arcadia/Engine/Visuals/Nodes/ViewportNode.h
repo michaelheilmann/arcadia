@@ -21,6 +21,7 @@
   #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
 #endif
 #include "Arcadia/Engine/Visuals/Node.h"
+#include "Arcadia/Math/Include.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.ViewportNode", Arcadia_Engine_Visuals_ViewportNode,
                           u8"Arcadia.Engine.Visuals.Node");

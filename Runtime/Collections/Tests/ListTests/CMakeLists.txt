@@ -29,4 +29,5 @@ OnHeaderFile(${this} Arcadia.Ring2.Tests.ListTests/removeAt.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Collections PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

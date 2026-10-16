@@ -141,7 +141,7 @@ Arcadia_PDLC_Backend_Implementation_computeCxxNameUpperCase
 }
 
 // For modules: `<name as path>/Include.c`
-// For clases, enumerations, procedures: `<name as path>.c`
+// For classes/enumerations/interfaces/procedures: `<declared name as path>.c[.g]`.
 static inline Arcadia_FilePath*
 Arcadia_PDLC_Backend_Implementation_makeCxxSourceFilePath
   (
@@ -174,7 +174,7 @@ Arcadia_PDLC_Backend_Implementation_makeCxxSourceFilePath
 }
 
 // For modules: `<name as path>/Include.h`
-// For clases, enumerations, procedures: `<name as path>.h`
+// For classes/enumerations/interfaces/procedures: `<declared name as path>.h`.
 static inline Arcadia_FilePath*
 Arcadia_PDLC_Backend_Implementation_makeCxxHeaderFilePath
   (
@@ -194,13 +194,7 @@ Arcadia_PDLC_Backend_Implementation_makeCxxHeaderFilePath
     Arcadia_String* fileName = Arcadia_List_getObjectReferenceValueAt(thread, filePath->fileNames, Arcadia_Collection_getSize(thread, (Arcadia_Collection*)filePath->fileNames) - 1);
     Arcadia_List_removeBack(thread, filePath->fileNames, 1);
     Arcadia_StringBuilder_insertBackString(thread, stringBuilder, fileName);
-    if (symbol->kind != Arcadia_PDLC_SymbolKind_Enumeration && symbol->kind != Arcadia_PDLC_SymbolKind_Interface) {
-      // Currently a hack as we are merely able to produce proper ".h" files for enumerations and interfaces.
-      // All other types emit "h.g" in order to avoid overwriting the ".h" files with broken contents.
-      Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, ".h.g");
-    } else {
-      Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, ".h");
-    }
+    Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, ".h");
     Arcadia_List_insertBackObjectReferenceValue(thread, filePath->fileNames, (Arcadia_Object*)Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(stringBuilder)));
     return filePath;
   }

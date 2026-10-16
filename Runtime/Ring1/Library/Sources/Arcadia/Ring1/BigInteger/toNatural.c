@@ -19,8 +19,6 @@
 
 #include "Arcadia/Ring1/Include.h"
 
-#define isZero(thread, self) ((self)->limps[0] == 0 && (self)->numberOfLimps == 1)
-
 Arcadia_Natural16Value
 Arcadia_BigInteger_toNatural16
   (
@@ -62,7 +60,7 @@ Arcadia_BigInteger_toNatural64
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  if (isZero(thread, self)) {
+  if (Arcadia_BigInteger_isZero(thread, self)) {
     return Arcadia_Natural64Value_Literal(0);
   }
   if (self->numberOfLimps > 2) {
@@ -95,7 +93,7 @@ Arcadia_BigInteger_toNatural64WithTruncation
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  if (isZero(thread, self)) {
+  if (Arcadia_BigInteger_isZero(thread, self)) {
     *truncated = Arcadia_BooleanValue_False;
     return Arcadia_Natural64Value_Literal(0);
   }

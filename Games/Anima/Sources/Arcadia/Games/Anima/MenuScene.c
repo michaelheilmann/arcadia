@@ -121,6 +121,24 @@ onMusicVolumeChanged
     Arcadia_Thread* thread
   );
 
+static void
+onEffectsVolumeChanged
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
+onUIVolumeChanged
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
+onVoiceVolumeChanged
+  (
+    Arcadia_Thread* thread
+  );
+
 static Arcadia_String*
 createResolutionLabel
   (
@@ -169,7 +187,7 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
 static const Arcadia_Type_Operations _typeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &_objectTypeOperations };
 
 Arcadia_defineObjectType(u8"Arcadia.Games.Anima.MenuScene", Arcadia_Games_Anima_MenuScene,
-                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Scene, &_typeOperations);
+                         u8"Arcadia.Engine.Scene", Arcadia_Engine_Scene, &_typeOperations);
 
 static void
 insertDefinition
@@ -269,6 +287,17 @@ createOptionRow
     (Arcadia_ADL_UI_StackPanelDefinition*)getDefinition(thread, self->definitions, name));
 }
 
+static Arcadia_Object*
+findWidget
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* root,
+    char const* name
+  )
+{
+  return Arcadia_Engine_UI_Node_findByName(thread, root, Arcadia_String_createFromCxxString(thread, name));
+}
+
 static void
 setMode
   (
@@ -357,6 +386,9 @@ rebuildOptionsContent
     case 1: {
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->masterVolumeRow);
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->musicVolumeRow);
+      Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->effectsVolumeRow);
+      Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->uiVolumeRow);
+      Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->voiceVolumeRow);
     } break;
     case 2: {
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->mouseSensitivityRow);
@@ -451,6 +483,110 @@ getReal64ConfigurationValueOrDefault
   return defaultValue;
 }
 
+typedef enum Arcadia_Games_Anima_AudioCategory {
+  Arcadia_Games_Anima_AudioCategory_Master,
+  Arcadia_Games_Anima_AudioCategory_Music,
+  Arcadia_Games_Anima_AudioCategory_Effects,
+  Arcadia_Games_Anima_AudioCategory_UserInterface,
+  Arcadia_Games_Anima_AudioCategory_Voice,
+} Arcadia_Games_Anima_AudioCategory;
+
+typedef struct Arcadia_Games_Anima_AudioVolumeSetting {
+  char const* key;
+  Arcadia_Real64Value defaultValue;
+} Arcadia_Games_Anima_AudioVolumeSetting;
+
+static const Arcadia_Games_Anima_AudioVolumeSetting _audioVolumeSettings[] = {
+  { u8"masterVolume",    1.00 },
+  { u8"musicVolume",     0.70 },
+  { u8"effectsVolume",   1.00 },
+  { u8"uiVolume",        1.00 },
+  { u8"voiceVolume",     1.00 },
+};
+
+static Arcadia_Engine_UI_SliderNode*
+getVolumeSlider
+  (
+    Arcadia_Games_Anima_MenuScene* self,
+    Arcadia_Games_Anima_AudioCategory category
+  )
+{
+  switch (category) {
+    case Arcadia_Games_Anima_AudioCategory_Master: return self->masterVolumeSlider;
+    case Arcadia_Games_Anima_AudioCategory_Music: return self->musicVolumeSlider;
+    case Arcadia_Games_Anima_AudioCategory_Effects: return self->effectsVolumeSlider;
+    case Arcadia_Games_Anima_AudioCategory_UserInterface: return self->uiVolumeSlider;
+    case Arcadia_Games_Anima_AudioCategory_Voice: return self->voiceVolumeSlider;
+  }
+  return NULL;
+}
+
+static Arcadia_Engine_UI_LabelNode*
+getVolumeValueLabel
+  (
+    Arcadia_Games_Anima_MenuScene* self,
+    Arcadia_Games_Anima_AudioCategory category
+  )
+{
+  switch (category) {
+    case Arcadia_Games_Anima_AudioCategory_Master: return self->masterVolumeValueLabel;
+    case Arcadia_Games_Anima_AudioCategory_Music: return self->musicVolumeValueLabel;
+    case Arcadia_Games_Anima_AudioCategory_Effects: return self->effectsVolumeValueLabel;
+    case Arcadia_Games_Anima_AudioCategory_UserInterface: return self->uiVolumeValueLabel;
+    case Arcadia_Games_Anima_AudioCategory_Voice: return self->voiceVolumeValueLabel;
+  }
+  return NULL;
+}
+
+static void
+applyAudioCategoryVolume
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self,
+    Arcadia_Games_Anima_AudioCategory category,
+    Arcadia_Real64Value volume
+  )
+{
+  switch (category) {
+    case Arcadia_Games_Anima_AudioCategory_Master: {
+      if (((Arcadia_Engine_Scene*)self)->engine->audialsBackendContext) {
+        Arcadia_Engine_Audials_BackendContext_setMasterVolume(thread,
+          (Arcadia_Engine_Audials_BackendContext*)((Arcadia_Engine_Scene*)self)->engine->audialsBackendContext,
+          volume);
+      }
+    } break;
+    case Arcadia_Games_Anima_AudioCategory_Music: {
+      if (self->ambienceNode) {
+        Arcadia_Engine_Audials_StreamingSoundSourceNode_setVolume(thread, self->ambienceNode,
+          self->ambienceBaseVolume * (Arcadia_Real32Value)volume);
+      }
+    } break;
+    case Arcadia_Games_Anima_AudioCategory_Effects:
+    case Arcadia_Games_Anima_AudioCategory_UserInterface:
+    case Arcadia_Games_Anima_AudioCategory_Voice: {
+    } break;
+  }
+}
+
+static void
+syncVolumeSetting
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self,
+    Arcadia_Games_Anima_AudioCategory category
+  )
+{
+  char const* path[] = { u8"audials", _audioVolumeSettings[category].key };
+  Arcadia_Real64Value volume = getReal64ConfigurationValueOrDefault(thread,
+    self->application->configuration, path, 2, _audioVolumeSettings[category].defaultValue);
+  Arcadia_Engine_UI_SliderNode* slider = getVolumeSlider(self, category);
+  Arcadia_Engine_UI_SliderNode_setValue(thread, slider, volume);
+  volume = Arcadia_Engine_UI_SliderNode_getValue(thread, slider);
+  Arcadia_Engine_ApplicationConfiguration_setReal64(thread, self->application->configuration, path, 2, volume);
+  applyAudioCategoryVolume(thread, self, category, volume);
+  Arcadia_Engine_UI_LabelNode_setText(thread, getVolumeValueLabel(self, category), formatVolumeValue(thread, volume));
+}
+
 static void
 populateVolumeSettings
   (
@@ -458,28 +594,35 @@ populateVolumeSettings
     Arcadia_Games_Anima_MenuScene* self
   )
 {
-  char const* masterVolumePath[] = { u8"audials", u8"masterVolume" };
-  Arcadia_Real64Value masterVolume = Arcadia_Engine_ApplicationConfiguration_getReal64(thread,
-    self->application->configuration, masterVolumePath, 2);
-  Arcadia_Engine_UI_SliderNode_setValue(thread, self->masterVolumeSlider, masterVolume);
-  masterVolume = Arcadia_Engine_UI_SliderNode_getValue(thread, self->masterVolumeSlider);
-  Arcadia_Engine_ApplicationConfiguration_setReal64(thread, self->application->configuration,
-    masterVolumePath, 2, masterVolume);
-  if (((Arcadia_Engine_Scene*)self)->engine->audialsBackendContext) {
-    Arcadia_Engine_Audials_BackendContext_setMasterVolume(thread,
-      (Arcadia_Engine_Audials_BackendContext*)((Arcadia_Engine_Scene*)self)->engine->audialsBackendContext,
-      masterVolume);
-  }
-  Arcadia_Engine_UI_LabelNode_setText(thread, self->masterVolumeValueLabel, formatVolumeValue(thread, masterVolume));
+  syncVolumeSetting(thread, self, Arcadia_Games_Anima_AudioCategory_Master);
+  syncVolumeSetting(thread, self, Arcadia_Games_Anima_AudioCategory_Music);
+  syncVolumeSetting(thread, self, Arcadia_Games_Anima_AudioCategory_Effects);
+  syncVolumeSetting(thread, self, Arcadia_Games_Anima_AudioCategory_UserInterface);
+  syncVolumeSetting(thread, self, Arcadia_Games_Anima_AudioCategory_Voice);
+}
 
-  char const* musicVolumePath[] = { u8"audials", u8"musicVolume" };
-  Arcadia_Real64Value musicVolume = getReal64ConfigurationValueOrDefault(thread,
-    self->application->configuration, musicVolumePath, 2, 0.70);
-  Arcadia_Engine_UI_SliderNode_setValue(thread, self->musicVolumeSlider, musicVolume);
-  musicVolume = Arcadia_Engine_UI_SliderNode_getValue(thread, self->musicVolumeSlider);
-  Arcadia_Engine_ApplicationConfiguration_setReal64(thread, self->application->configuration,
-    musicVolumePath, 2, musicVolume);
-  Arcadia_Engine_UI_LabelNode_setText(thread, self->musicVolumeValueLabel, formatVolumeValue(thread, musicVolume));
+static void
+handleVolumeChanged
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_AudioCategory category
+  )
+{
+  Arcadia_Natural8Value numberOfArgumentValues = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (2 != numberOfArgumentValues) {
+    Arcadia_ValueStack_popValues(thread, numberOfArgumentValues + 1);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Games_Anima_MenuScene* self = (Arcadia_Games_Anima_MenuScene*)Arcadia_ValueStack_getObjectReferenceValueChecked
+    (thread, 2, _Arcadia_Games_Anima_MenuScene_getType(thread));
+  Arcadia_Engine_UI_SliderNode* slider = (Arcadia_Engine_UI_SliderNode*)Arcadia_ValueStack_getObjectReferenceValueChecked
+    (thread, 1, _Arcadia_Engine_UI_SliderNode_getType(thread));
+  Arcadia_Real64Value volume = Arcadia_Engine_UI_SliderNode_getValue(thread, slider);
+  char const* path[] = { u8"audials", _audioVolumeSettings[category].key };
+  Arcadia_Engine_ApplicationConfiguration_setReal64(thread, self->application->configuration, path, 2, volume);
+  applyAudioCategoryVolume(thread, self, category, volume);
+  Arcadia_Engine_UI_LabelNode_setText(thread, getVolumeValueLabel(self, category), formatVolumeValue(thread, volume));
 }
 
 static void
@@ -488,23 +631,7 @@ onMasterVolumeChanged
     Arcadia_Thread* thread
   )
 {
-  Arcadia_Natural8Value numberOfArgumentValues = Arcadia_ValueStack_getNatural8Value(thread, 0);
-  if (2 != numberOfArgumentValues) {
-    Arcadia_ValueStack_popValues(thread, numberOfArgumentValues + 1);
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-  Arcadia_Games_Anima_MenuScene* self = (Arcadia_Games_Anima_MenuScene*)Arcadia_ValueStack_getObjectReferenceValueChecked
-    (thread, 2, _Arcadia_Games_Anima_MenuScene_getType(thread));
-  Arcadia_Engine_UI_SliderNode* slider = (Arcadia_Engine_UI_SliderNode*)Arcadia_ValueStack_getObjectReferenceValueChecked
-    (thread, 1, _Arcadia_Engine_UI_SliderNode_getType(thread));
-  Arcadia_Real64Value volume = Arcadia_Engine_UI_SliderNode_getValue(thread, slider);
-  char const* path[] = { u8"audials", u8"masterVolume" };
-  Arcadia_Engine_ApplicationConfiguration_setReal64(thread, self->application->configuration, path, 2, volume);
-  Arcadia_Engine_Audials_BackendContext_setMasterVolume(thread,
-    (Arcadia_Engine_Audials_BackendContext*)((Arcadia_Engine_Scene*)self)->engine->audialsBackendContext,
-    volume);
-  Arcadia_Engine_UI_LabelNode_setText(thread, self->masterVolumeValueLabel, formatVolumeValue(thread, volume));
+  handleVolumeChanged(thread, Arcadia_Games_Anima_AudioCategory_Master);
 }
 
 static void
@@ -513,20 +640,34 @@ onMusicVolumeChanged
     Arcadia_Thread* thread
   )
 {
-  Arcadia_Natural8Value numberOfArgumentValues = Arcadia_ValueStack_getNatural8Value(thread, 0);
-  if (2 != numberOfArgumentValues) {
-    Arcadia_ValueStack_popValues(thread, numberOfArgumentValues + 1);
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-  Arcadia_Games_Anima_MenuScene* self = (Arcadia_Games_Anima_MenuScene*)Arcadia_ValueStack_getObjectReferenceValueChecked
-    (thread, 2, _Arcadia_Games_Anima_MenuScene_getType(thread));
-  Arcadia_Engine_UI_SliderNode* slider = (Arcadia_Engine_UI_SliderNode*)Arcadia_ValueStack_getObjectReferenceValueChecked
-    (thread, 1, _Arcadia_Engine_UI_SliderNode_getType(thread));
-  Arcadia_Real64Value volume = Arcadia_Engine_UI_SliderNode_getValue(thread, slider);
-  char const* path[] = { u8"audials", u8"musicVolume" };
-  Arcadia_Engine_ApplicationConfiguration_setReal64(thread, self->application->configuration, path, 2, volume);
-  Arcadia_Engine_UI_LabelNode_setText(thread, self->musicVolumeValueLabel, formatVolumeValue(thread, volume));
+  handleVolumeChanged(thread, Arcadia_Games_Anima_AudioCategory_Music);
+}
+
+static void
+onEffectsVolumeChanged
+  (
+    Arcadia_Thread* thread
+  )
+{
+  handleVolumeChanged(thread, Arcadia_Games_Anima_AudioCategory_Effects);
+}
+
+static void
+onUIVolumeChanged
+  (
+    Arcadia_Thread* thread
+  )
+{
+  handleVolumeChanged(thread, Arcadia_Games_Anima_AudioCategory_UserInterface);
+}
+
+static void
+onVoiceVolumeChanged
+  (
+    Arcadia_Thread* thread
+  )
+{
+  handleVolumeChanged(thread, Arcadia_Games_Anima_AudioCategory_Voice);
 }
 
 static void
@@ -660,6 +801,7 @@ applySelectedResolution
   Arcadia_String* windowMode = Arcadia_Engine_ApplicationConfiguration_getString(thread, self->application->configuration, windowModePath, 2);
   Arcadia_Engine_Visuals_Window* window = (Arcadia_Engine_Visuals_Window*)Arcadia_List_getObjectReferenceValueAt(thread,
     self->application->windows, 0);
+  Arcadia_Engine_Visuals_Window_setSize(thread, window, width, height);
   if (stringEquals(thread, windowMode, u8"fullscreen")) {
     Arcadia_Engine_Visuals_DisplayMode_apply(thread, mode);
     Arcadia_Integer32Value left, top, right, bottom;
@@ -668,10 +810,11 @@ applySelectedResolution
   } else {
     Arcadia_Integer32Value left, top, right, bottom;
     Arcadia_Engine_Visuals_DisplayDevice_getBounds(thread, self->displayDevice, &left, &top, &right, &bottom);
-    Arcadia_Engine_Visuals_Window_setPosition(thread, window, left + ((right - left) - width) / 2,
-      top + ((bottom - top) - height) / 2);
+    Arcadia_Integer32Value windowWidth, windowHeight;
+    Arcadia_Engine_Visuals_WindowBackend_getSize(thread, window->backend, &windowWidth, &windowHeight);
+    Arcadia_Engine_Visuals_Window_setPosition(thread, window, left + ((right - left) - windowWidth) / 2,
+      top + ((bottom - top) - windowHeight) / 2);
   }
-  Arcadia_Engine_Visuals_Window_setSize(thread, window, width, height);
 }
 
 static void
@@ -697,6 +840,24 @@ ensureScene
   ensureDefinitions(thread, self);
   Arcadia_Engine* engine = ((Arcadia_Engine_Scene*)self)->engine;
   Arcadia_Engine_Visuals_BackendContext* backendContext = (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext;
+  if (!self->ambienceNode) {
+    Arcadia_ADL_StreamingSoundSourceNodeDefinition* definition =
+      (Arcadia_ADL_StreamingSoundSourceNodeDefinition*)getDefinition(thread, self->definitions, u8"Anima.Audio.ShipAmbience");
+    if (!Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)definition, _Arcadia_ADL_StreamingSoundSourceNodeDefinition_getType(thread))) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+      Arcadia_Thread_jump(thread);
+    }
+    self->ambienceBaseVolume = definition->volume;
+    self->ambienceNode = Arcadia_Engine_Audials_NodeFactory_createStreamingSoundSourceNodeFromDefinition
+      (
+        thread,
+        (Arcadia_Engine_Audials_NodeFactory*)engine->audialsNodeFactory,
+        (Arcadia_Engine_Audials_BackendContext*)engine->audialsBackendContext,
+        definition
+      );
+    Arcadia_Engine_Audials_Node_render(thread, (Arcadia_Engine_Audials_Node*)self->ambienceNode);
+    Arcadia_Engine_Audials_StreamingSoundSourceNode_play(thread, self->ambienceNode);
+  }
   if (!self->enterPassNode) self->enterPassNode = Arcadia_Engine_Visuals_NodeFactory_createEnterPassNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, backendContext);
   if (!self->viewportNode) {
     self->viewportNode = Arcadia_Engine_Visuals_NodeFactory_createViewportNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, backendContext);
@@ -708,12 +869,10 @@ ensureScene
   if (!self->startRoot) {
     self->startRoot = Arcadia_Engine_UI_StackPanelNode_createFromDefinition(thread, backendContext,
       (Arcadia_ADL_UI_StackPanelDefinition*)getDefinition(thread, self->definitions, u8"Anima.StackPanel.StartRoot"));
-    self->titleLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->startRoot, 0);
-    self->diagnosticsLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->startRoot, 1);
-    self->continueButton = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->startRoot, 2);
-    self->newGameButton = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->startRoot, 3);
-    self->optionsButton = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->startRoot, 4);
-    self->exitButton = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->startRoot, 5);
+    self->continueButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->startRoot, u8"Anima.Button.Continue");
+    self->newGameButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->startRoot, u8"Anima.Button.NewGame");
+    self->optionsButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->startRoot, u8"Anima.Button.Options");
+    self->exitButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->startRoot, u8"Anima.Button.Exit");
     Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->continueButton, Arcadia_BooleanValue_False);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->continueButton), (Arcadia_Object*)self, &onButtonActivated);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->newGameButton), (Arcadia_Object*)self, &onButtonActivated);
@@ -723,47 +882,49 @@ ensureScene
   if (!self->optionsRoot) {
     self->optionsRoot = Arcadia_Engine_UI_StackPanelNode_createFromDefinition(thread, backendContext,
       (Arcadia_ADL_UI_StackPanelDefinition*)getDefinition(thread, self->definitions, u8"Anima.StackPanel.OptionsRoot"));
-    self->optionsTitleLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->optionsRoot, 0);
-    self->optionsTabs = (Arcadia_Engine_UI_SegmentedChoiceNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->optionsRoot, 1);
-    self->optionsContentRoot = (Arcadia_Engine_UI_StackPanelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->optionsRoot, 2);
-    self->optionsFooterRoot = (Arcadia_Engine_UI_StackPanelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->optionsRoot, 3);
+    self->optionsTabs = (Arcadia_Engine_UI_SegmentedChoiceNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.SegmentedChoice.OptionsTabs");
+    self->optionsContentRoot = (Arcadia_Engine_UI_StackPanelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.StackPanel.OptionsContent");
+    self->optionsFooterRoot = (Arcadia_Engine_UI_StackPanelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.StackPanel.OptionsFooter");
     self->resolutionRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.Resolution");
-    self->resolutionLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->resolutionRow, 0);
-    self->resolutionSelector = (Arcadia_Engine_UI_StackPanelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->resolutionRow, 1);
-    self->resolutionPreviousButton = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->resolutionSelector, 0);
-    Arcadia_Engine_UI_LabelNode* resolutionValueLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->resolutionSelector, 1);
-    self->resolutionNextButton = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->resolutionSelector, 2);
-    self->resolutionLabel = resolutionValueLabel;
-    self->backButton = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->optionsFooterRoot, 0);
-    self->resetButton = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->optionsFooterRoot, 1);
-    self->applyButton = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->optionsFooterRoot, 2);
+    self->resolutionSelector = (Arcadia_Engine_UI_StackPanelNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.StackPanel.ResolutionSelector");
+    self->resolutionLabel = (Arcadia_Engine_UI_LabelNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Label.ResolutionValue");
+    self->resolutionPreviousButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Button.ResolutionPrevious");
+    self->resolutionNextButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Button.ResolutionNext");
+    self->backButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Back");
+    self->resetButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Reset");
+    self->applyButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Apply");
     self->vsyncRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.VSync");
     self->brightnessRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.Brightness");
     self->masterVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.MasterVolume");
     self->musicVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.MusicVolume");
+    self->effectsVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.EffectsVolume");
+    self->uiVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.UIVolume");
+    self->voiceVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.VoiceVolume");
     self->mouseSensitivityRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.MouseSensitivity");
     self->subtitlesRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.Subtitles");
     self->highContrastRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.HighContrast");
-    self->vsyncLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->vsyncRow, 0);
-    self->vsyncToggle = (Arcadia_Engine_UI_ToggleNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->vsyncRow, 1);
-    self->brightnessLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->brightnessRow, 0);
-    self->brightnessSlider = (Arcadia_Engine_UI_SliderNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->brightnessRow, 1);
-    self->masterVolumeLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->masterVolumeRow, 0);
-    self->masterVolumeSlider = (Arcadia_Engine_UI_SliderNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->masterVolumeRow, 1);
-    self->masterVolumeValueLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->masterVolumeRow, 2);
-    self->musicVolumeLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->musicVolumeRow, 0);
-    self->musicVolumeSlider = (Arcadia_Engine_UI_SliderNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->musicVolumeRow, 1);
-    self->musicVolumeValueLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->musicVolumeRow, 2);
-    self->mouseSensitivityLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->mouseSensitivityRow, 0);
-    self->mouseSensitivitySlider = (Arcadia_Engine_UI_SliderNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->mouseSensitivityRow, 1);
-    self->subtitlesLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->subtitlesRow, 0);
-    self->subtitlesToggle = (Arcadia_Engine_UI_ToggleNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->subtitlesRow, 1);
-    self->highContrastLabel = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->highContrastRow, 0);
-    self->highContrastToggle = (Arcadia_Engine_UI_ToggleNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self->highContrastRow, 1);
+    self->vsyncToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->vsyncRow, u8"Anima.Toggle.VSync");
+    self->brightnessSlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->brightnessRow, u8"Anima.Slider.Brightness");
+    self->masterVolumeSlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->masterVolumeRow, u8"Anima.Slider.MasterVolume");
+    self->masterVolumeValueLabel = (Arcadia_Engine_UI_LabelNode*)findWidget(thread, (Arcadia_Object*)self->masterVolumeRow, u8"Anima.Label.MasterVolumeValue");
+    self->musicVolumeSlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->musicVolumeRow, u8"Anima.Slider.MusicVolume");
+    self->musicVolumeValueLabel = (Arcadia_Engine_UI_LabelNode*)findWidget(thread, (Arcadia_Object*)self->musicVolumeRow, u8"Anima.Label.MusicVolumeValue");
+    self->effectsVolumeSlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->effectsVolumeRow, u8"Anima.Slider.EffectsVolume");
+    self->effectsVolumeValueLabel = (Arcadia_Engine_UI_LabelNode*)findWidget(thread, (Arcadia_Object*)self->effectsVolumeRow, u8"Anima.Label.EffectsVolumeValue");
+    self->uiVolumeSlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->uiVolumeRow, u8"Anima.Slider.UIVolume");
+    self->uiVolumeValueLabel = (Arcadia_Engine_UI_LabelNode*)findWidget(thread, (Arcadia_Object*)self->uiVolumeRow, u8"Anima.Label.UIVolumeValue");
+    self->voiceVolumeSlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->voiceVolumeRow, u8"Anima.Slider.VoiceVolume");
+    self->voiceVolumeValueLabel = (Arcadia_Engine_UI_LabelNode*)findWidget(thread, (Arcadia_Object*)self->voiceVolumeRow, u8"Anima.Label.VoiceVolumeValue");
+    self->mouseSensitivitySlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->mouseSensitivityRow, u8"Anima.Slider.MouseSensitivity");
+    self->subtitlesToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->subtitlesRow, u8"Anima.Toggle.Subtitles");
+    self->highContrastToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->highContrastRow, u8"Anima.Toggle.HighContrast");
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->vsyncRow, (Arcadia_Object*)self->vsyncToggle, 384, 0, 0, 0);
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->brightnessRow, (Arcadia_Object*)self->brightnessSlider, 160, 0, 0, 0);
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->masterVolumeRow, (Arcadia_Object*)self->masterVolumeSlider, 100, 0, 0, 0);
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->musicVolumeRow, (Arcadia_Object*)self->musicVolumeSlider, 100, 0, 0, 0);
+    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->effectsVolumeRow, (Arcadia_Object*)self->effectsVolumeSlider, 100, 0, 0, 0);
+    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->uiVolumeRow, (Arcadia_Object*)self->uiVolumeSlider, 100, 0, 0, 0);
+    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->voiceVolumeRow, (Arcadia_Object*)self->voiceVolumeSlider, 100, 0, 0, 0);
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->mouseSensitivityRow, (Arcadia_Object*)self->mouseSensitivitySlider, 160, 0, 0, 0);
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->subtitlesRow, (Arcadia_Object*)self->subtitlesToggle, 384, 0, 0, 0);
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->highContrastRow, (Arcadia_Object*)self->highContrastToggle, 384, 0, 0, 0);
@@ -782,6 +943,9 @@ ensureScene
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->resolutionNextButton), (Arcadia_Object*)self, &onButtonActivated);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SliderNode_getChangedSignal(thread, self->masterVolumeSlider), (Arcadia_Object*)self, &onMasterVolumeChanged);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SliderNode_getChangedSignal(thread, self->musicVolumeSlider), (Arcadia_Object*)self, &onMusicVolumeChanged);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SliderNode_getChangedSignal(thread, self->effectsVolumeSlider), (Arcadia_Object*)self, &onEffectsVolumeChanged);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SliderNode_getChangedSignal(thread, self->uiVolumeSlider), (Arcadia_Object*)self, &onUIVolumeChanged);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SliderNode_getChangedSignal(thread, self->voiceVolumeSlider), (Arcadia_Object*)self, &onVoiceVolumeChanged);
   }
   if (Arcadia_Engine_UI_Container_getChildCount(thread, (Arcadia_Object*)self->canvasNode) == 0) {
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->canvasNode, (Arcadia_Object*)self->startRoot);
@@ -812,14 +976,15 @@ constructImpl
   self->displayDevice = NULL;
   self->selectedResolutionIndex = 0;
   self->cameraNode = NULL; self->enterPassNode = NULL; self->viewportNode = NULL; self->canvasNode = NULL;
-  self->startRoot = NULL; self->optionsRoot = NULL; self->optionsContentRoot = NULL; self->optionsFooterRoot = NULL; self->titleLabel = NULL; self->diagnosticsLabel = NULL;
-  self->vsyncRow = NULL; self->brightnessRow = NULL; self->masterVolumeRow = NULL; self->musicVolumeRow = NULL; self->mouseSensitivityRow = NULL; self->subtitlesRow = NULL; self->highContrastRow = NULL;
+  self->ambienceNode = NULL;
+  self->ambienceBaseVolume = 1.f;
+  self->startRoot = NULL; self->optionsRoot = NULL; self->optionsContentRoot = NULL; self->optionsFooterRoot = NULL;
+  self->vsyncRow = NULL; self->brightnessRow = NULL; self->masterVolumeRow = NULL; self->musicVolumeRow = NULL; self->effectsVolumeRow = NULL; self->uiVolumeRow = NULL; self->voiceVolumeRow = NULL; self->mouseSensitivityRow = NULL; self->subtitlesRow = NULL; self->highContrastRow = NULL;
   self->resolutionRow = NULL; self->resolutionSelector = NULL;
   self->continueButton = NULL; self->newGameButton = NULL; self->optionsButton = NULL; self->exitButton = NULL;
-  self->optionsTitleLabel = NULL; self->vsyncLabel = NULL; self->brightnessLabel = NULL; self->masterVolumeLabel = NULL; self->musicVolumeLabel = NULL; self->mouseSensitivityLabel = NULL; self->subtitlesLabel = NULL; self->highContrastLabel = NULL;
-  self->masterVolumeValueLabel = NULL; self->musicVolumeValueLabel = NULL;
+  self->masterVolumeValueLabel = NULL; self->musicVolumeValueLabel = NULL; self->effectsVolumeValueLabel = NULL; self->uiVolumeValueLabel = NULL; self->voiceVolumeValueLabel = NULL;
   self->resolutionLabel = NULL;
-  self->optionsTabs = NULL; self->vsyncToggle = NULL; self->brightnessSlider = NULL; self->masterVolumeSlider = NULL; self->musicVolumeSlider = NULL; self->mouseSensitivitySlider = NULL; self->subtitlesToggle = NULL; self->highContrastToggle = NULL;
+  self->optionsTabs = NULL; self->vsyncToggle = NULL; self->brightnessSlider = NULL; self->masterVolumeSlider = NULL; self->musicVolumeSlider = NULL; self->effectsVolumeSlider = NULL; self->uiVolumeSlider = NULL; self->voiceVolumeSlider = NULL; self->mouseSensitivitySlider = NULL; self->subtitlesToggle = NULL; self->highContrastToggle = NULL;
   self->applyButton = NULL; self->resetButton = NULL; self->backButton = NULL;
   self->resolutionPreviousButton = NULL; self->resolutionNextButton = NULL;
   Arcadia_LeaveConstructor(Arcadia_Games_Anima_MenuScene);
@@ -851,6 +1016,7 @@ visitImpl
   if (self->availableResolutionModes) Arcadia_Object_visit(thread, (Arcadia_Object*)self->availableResolutionModes);
   if (self->availableResolutionLabels) Arcadia_Object_visit(thread, (Arcadia_Object*)self->availableResolutionLabels);
   if (self->cameraNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->cameraNode);
+  if (self->ambienceNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->ambienceNode);
   if (self->enterPassNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->enterPassNode);
   if (self->viewportNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->viewportNode);
   if (self->canvasNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->canvasNode);
@@ -860,30 +1026,13 @@ visitImpl
   if (self->brightnessRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->brightnessRow);
   if (self->masterVolumeRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->masterVolumeRow);
   if (self->musicVolumeRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->musicVolumeRow);
+  if (self->effectsVolumeRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->effectsVolumeRow);
+  if (self->uiVolumeRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->uiVolumeRow);
+  if (self->voiceVolumeRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->voiceVolumeRow);
   if (self->mouseSensitivityRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->mouseSensitivityRow);
   if (self->subtitlesRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->subtitlesRow);
   if (self->highContrastRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->highContrastRow);
   if (self->resolutionRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolutionRow);
-  if (self->resolutionSelector) Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolutionSelector);
-  if (self->vsyncLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->vsyncLabel);
-  if (self->brightnessLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->brightnessLabel);
-  if (self->masterVolumeLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->masterVolumeLabel);
-  if (self->masterVolumeValueLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->masterVolumeValueLabel);
-  if (self->musicVolumeLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->musicVolumeLabel);
-  if (self->musicVolumeValueLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->musicVolumeValueLabel);
-  if (self->mouseSensitivityLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->mouseSensitivityLabel);
-  if (self->subtitlesLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->subtitlesLabel);
-  if (self->highContrastLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->highContrastLabel);
-  if (self->resolutionLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolutionLabel);
-  if (self->vsyncToggle) Arcadia_Object_visit(thread, (Arcadia_Object*)self->vsyncToggle);
-  if (self->brightnessSlider) Arcadia_Object_visit(thread, (Arcadia_Object*)self->brightnessSlider);
-  if (self->masterVolumeSlider) Arcadia_Object_visit(thread, (Arcadia_Object*)self->masterVolumeSlider);
-  if (self->musicVolumeSlider) Arcadia_Object_visit(thread, (Arcadia_Object*)self->musicVolumeSlider);
-  if (self->mouseSensitivitySlider) Arcadia_Object_visit(thread, (Arcadia_Object*)self->mouseSensitivitySlider);
-  if (self->subtitlesToggle) Arcadia_Object_visit(thread, (Arcadia_Object*)self->subtitlesToggle);
-  if (self->highContrastToggle) Arcadia_Object_visit(thread, (Arcadia_Object*)self->highContrastToggle);
-  if (self->resolutionPreviousButton) Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolutionPreviousButton);
-  if (self->resolutionNextButton) Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolutionNextButton);
 }
 
 static void

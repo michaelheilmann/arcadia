@@ -18,13 +18,16 @@
 #define ARCADIA_ENGINE_UI_NODE_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_UI_PRIVATE) || 1 != ARCADIA_ENGINE_UI_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/UI/Include.h` instead")
+  #error("do not include `Arcadia/Engine/UI/Node.h` directly, include `Arcadia/Engine/UI/Include.h` instead")
 #endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Include.h"
 
-// The base of all UI nodes.
+typedef struct Arcadia_Engine_UI_Node Arcadia_Engine_UI_Node;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.UI.Node", Arcadia_Engine_UI_Node,
-                          u8"Arcadia.Engine.Node")
+                          u8"Arcadia.Engine.Node");
 
 struct Arcadia_Engine_UI_NodeDispatch {
   Arcadia_Engine_NodeDispatch _parent;

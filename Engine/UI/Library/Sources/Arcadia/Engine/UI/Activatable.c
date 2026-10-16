@@ -23,8 +23,11 @@ Arcadia_defineInterfaceType(u8"Arcadia.Engine.UI.Activatable", Arcadia_Engine_UI
                          )
 
 void
-Arcadia_Engine_UI_Activatable_activate(Arcadia_Thread* thread, Arcadia_Object* self)
+Arcadia_Engine_UI_Activatable_activate
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self
+  )
 {
   Arcadia_InterfaceCall(Arcadia_Engine_UI_Activatable, activate, self);
 }
-

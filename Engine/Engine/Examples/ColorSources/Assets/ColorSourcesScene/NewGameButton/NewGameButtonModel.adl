@@ -1,0 +1,6 @@
+{
+  type : "Model",
+  name : "ColorSourcesScene.NewGameButtonModel",
+  mesh : "ColorSourcesScene.NewGameButtonMesh",
+  material : "ColorSourcesScene.NewGameButtonMaterial",
+}

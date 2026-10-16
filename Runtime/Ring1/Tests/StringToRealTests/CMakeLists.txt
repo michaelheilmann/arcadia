@@ -24,7 +24,10 @@ BeginProduct(${this} test)
 SetFolder(${this} "Runtime/Ring1")
 
 OnSourceFile(${this} Arcadia.Ring1.Tests.StringToReal/Main.c)
+OnSourceFile(${this} Arcadia.Ring1.Tests.StringToReal/Tests.c)
+OnHeaderFile(${this} Arcadia.Ring1.Tests.StringToReal/Tests.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

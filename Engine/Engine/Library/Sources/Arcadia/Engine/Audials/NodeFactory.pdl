@@ -1,0 +1,24 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// The implementation of a node factory for audials nodes. All three slots have
+// bound native creation defaults; this is not an abstract factory or DSP port.
+class Arcadia.Engine.Audials.NodeFactory extends Arcadia.Engine.NodeFactory {
+  constructor() {}
+  method native "Arcadia_Engine_Audials_NodeFactory_createSoundSourceNodeNative" createSoundSourceNode(variable backendContext : Arcadia.Engine.Audials.BackendContext, variable sampleBufferDefinition : Arcadia.ADL.SampleBufferDefinition) : Arcadia.Engine.Audials.SoundSourceNode
+  method native "Arcadia_Engine_Audials_NodeFactory_createSoundSourceNodeFromDefinitionNative" createSoundSourceNodeFromDefinition(variable backendContext : Arcadia.Engine.Audials.BackendContext, variable definition : Arcadia.ADL.SoundSourceNodeDefinition) : Arcadia.Engine.Audials.SoundSourceNode
+  method native "Arcadia_Engine_Audials_NodeFactory_createStreamingSoundSourceNodeFromDefinitionNative" createStreamingSoundSourceNodeFromDefinition(variable backendContext : Arcadia.Engine.Audials.BackendContext, variable definition : Arcadia.ADL.StreamingSoundSourceNodeDefinition) : Arcadia.Engine.Audials.StreamingSoundSourceNode
+}

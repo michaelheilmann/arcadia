@@ -1,0 +1,6 @@
+enumeration "Test/Shared.h" Test.First {
+  Zero = 0
+}
+native "Test/Shared.h" enumeration Test.Second {
+  Zero = 0
+}

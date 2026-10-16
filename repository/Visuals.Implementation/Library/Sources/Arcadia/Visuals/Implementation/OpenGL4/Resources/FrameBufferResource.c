@@ -131,7 +131,7 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.FrameBufferResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_FrameBufferResource,
-                         u8"Arcadia.Visuals.FrameBufferResource", Arcadia_Engine_Visuals_FrameBufferResource,
+                         u8"Arcadia.Engine.Visuals.FrameBufferResource", Arcadia_Engine_Visuals_FrameBufferResource,
                          &_typeOperations);
 
 static void

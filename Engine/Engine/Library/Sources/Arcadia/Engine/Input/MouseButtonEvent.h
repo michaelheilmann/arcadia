@@ -17,10 +17,16 @@
 #if !defined(ARCADIA_ENGINE_INPUT_MOUSEBUTTONEVENT_H_INCLUDED)
 #define ARCADIA_ENGINE_INPUT_MOUSEBUTTONEVENT_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Input/MouseButtonEvent.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Event.h"
 #include "Arcadia/Engine/Input/MouseButtonAction.h"
 
-// https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Input_MouseButtonEvent
+typedef struct Arcadia_Engine_Input_MouseButtonEvent Arcadia_Engine_Input_MouseButtonEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Input.MouseButtonEvent", Arcadia_Engine_Input_MouseButtonEvent,
                           u8"Arcadia.Engine.Event");
 
@@ -36,14 +42,6 @@ struct Arcadia_Engine_Input_MouseButtonEvent {
   Arcadia_Integer32Value y;
 };
 
-/// @brief Create a mouse button event.
-/// @param action The action of the mouse button.
-/// @param button The index of the mouse button.
-/// #Arcadia_MouseButtonAction_Pressed if the button was pressed.
-/// #Arcadia_MouseButtonAction_Released if the button was released.
-/// @param x The position of the mouse pointer along the x-axis.
-/// @param y The position of the mouse pointer along the y-axis.
-/// @return The mouse button event.
 Arcadia_Engine_Input_MouseButtonEvent*
 Arcadia_Engine_Input_MouseButtonEvent_create
   (

@@ -1,0 +1,4 @@
+enumeration "Test/Shared.h" Test.First {
+  Zero = 0
+}
+class "Test/Shared.h" Test.Second {}

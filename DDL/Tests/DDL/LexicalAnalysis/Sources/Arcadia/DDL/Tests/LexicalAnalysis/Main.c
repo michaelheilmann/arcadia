@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/DDL/Include.h"
 
 #include "Arcadia/Logging/Include.h"
@@ -134,6 +136,24 @@ testScanner2
   expectAndNext(thread, scanner, Arcadia_DDL_WordType_EndOfInput, u8"<end of input>", sizeof(u8"<end of input>") - 1);
 }
 
+static int
+runEmptyInput
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScanner1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runLiteralsAndPunctuation
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScanner2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -141,11 +161,9 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&testScanner1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&testScanner2)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "EmptyInput", &runEmptyInput },
+    { "LiteralsAndPunctuation", &runLiteralsAndPunctuation },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

@@ -1,0 +1,76 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelFormat
+enumeration Arcadia.Media.PixelFormat {
+  AlphaBlueGreenRedNatural8 = 0
+  AlphaGrayNatural8 = 1
+  AlphaRedGreenBlueNatural8 = 2
+  BlueGreenRedNatural8 = 3
+  BlueGreenRedAlphaNatural8 = 4
+  GrayNatural8 = 5
+  GrayAlphaNatural8 = 6
+  RedGreenBlueNatural8 = 7
+  RedGreenBlueAlphaNatural8 = 8
+}
+
+// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelFormat_getNumberOfBytes
+procedure Arcadia.Media.PixelFormat.getNumberOfBytes(variable self : Arcadia.Media.PixelFormat) : Arcadia.Size {
+  isEqualTo $0 self Arcadia.Media.PixelFormat.AlphaBlueGreenRedNatural8
+  jumpIfTrue $0 four
+  isEqualTo $0 self Arcadia.Media.PixelFormat.AlphaGrayNatural8
+  jumpIfTrue $0 two
+  isEqualTo $0 self Arcadia.Media.PixelFormat.AlphaRedGreenBlueNatural8
+  jumpIfTrue $0 four
+  isEqualTo $0 self Arcadia.Media.PixelFormat.BlueGreenRedNatural8
+  jumpIfTrue $0 three
+  isEqualTo $0 self Arcadia.Media.PixelFormat.BlueGreenRedAlphaNatural8
+  jumpIfTrue $0 four
+  isEqualTo $0 self Arcadia.Media.PixelFormat.GrayNatural8
+  jumpIfTrue $0 one
+  isEqualTo $0 self Arcadia.Media.PixelFormat.GrayAlphaNatural8
+  jumpIfTrue $0 two
+  isEqualTo $0 self Arcadia.Media.PixelFormat.RedGreenBlueNatural8
+  jumpIfTrue $0 three
+  isEqualTo $0 self Arcadia.Media.PixelFormat.RedGreenBlueAlphaNatural8
+  jumpIfTrue $0 four
+  set $1 0
+  jump finish
+one:
+  set $1 1
+  jump finish
+two:
+  set $1 2
+  jump finish
+three:
+  set $1 3
+  jump finish
+four:
+  set $1 4
+finish:
+  call $2 Arcadia.Media.PixelFormat.checkedCount $1
+  return $2
+}
+
+// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelFormat_getNumberComponents
+// Every declared format uses one byte per component, including ABGR.
+procedure Arcadia.Media.PixelFormat.getNumberOfComponents(variable self : Arcadia.Media.PixelFormat) : Arcadia.Size {
+  call $1 Arcadia.Media.PixelFormat.getNumberOfBytes self
+  return $1
+}
+
+// Size conversion and the original invalid-format error boundary only.
+procedure native "Arcadia_Media_PixelFormat_checkedCountImpl" Arcadia.Media.PixelFormat.checkedCount(variable count : Arcadia.Natural64) : Arcadia.Size

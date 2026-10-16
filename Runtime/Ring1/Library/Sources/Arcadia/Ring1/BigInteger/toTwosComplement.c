@@ -18,7 +18,22 @@
 #include "Arcadia/Ring1/BigInteger/toTwosComplement.h"
 
 #include "Arcadia/Ring1/Include.h"
-#include <assert.h>
+
+static Arcadia_BigInteger_Limp
+magnitudeLimp
+  (
+    Arcadia_BigInteger* self,
+    Arcadia_SizeValue index
+  )
+{
+#if Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_LittleEndian
+  return self->limps[index];
+#elif Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_BigEndian
+  return self->limps[self->numberOfLimps - 1 - index];
+#else
+  #error("unknown/unsupported limp order")
+#endif
+}
 
 void
 Arcadia_BigInteger_toTwosComplement
@@ -29,108 +44,52 @@ Arcadia_BigInteger_toTwosComplement
     Arcadia_SizeValue* numberOfLimps
   )
 {
-  // How to convert a sign magnitude representation consisting of the sign bit and the magnitude bits to its corresponding two's complement form.
-  // [1] the sign magnitude representation is zero. Its two's complement representation is zero.
-  // [2] the sign magnitude representation is positive. Its two's complement representation is the bits of the magnitude.
-  //     If the MSB is 1, add a new MSB with 0.
-  // [3] the sign magnitude representation is negative. Its two's complementation representation is computed by
-  //     negating the magnitude bits and adding one to them. If the MSB is 0, add a new MSB with 1. This shortcut allows
-  //     to convert a number to its two's complement without first forming its ones' complement.
-
-  // Obviously, [1] and [2] can be implemented using word operations.
-  // [3] requires a little more thought:
-  // Given words x = a[0] ... a[k - 1], a[k], a[k+1] ..., a[k + n - 1]
-  // where a[0] to a[k - 1] are all zeroes, we can simply copy those.
-  // a[k] is the first word which contains the first one bit. We can
-  // simply to the per-word to two's complement conversion by inverting
-  // and adding 1 on that word. In C, this can be done by casting this
-  // to signed and negating then casting back to unsigned. a[k+1] ...
-  // a[k + n - 1] are simply inverted and copied.
-
-  if (self->sign == 0) {
-    // case [1]
-    Arcadia_SizeValue numberOfLimps0 = 1;
-    Arcadia_BigInteger_Limp* limps0 = Arcadia_Memory_allocateUnmanaged(thread, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps0);
-    limps0[0] = 0;
-    *limps = limps0;
-    *numberOfLimps = numberOfLimps0;
-  } else if (self->sign == 1) {
-    // case [2]
-    Arcadia_SizeValue numberOfLimps0 = self->numberOfLimps;
-    Arcadia_BigInteger_Limp* limps0 = NULL;
-    limps0 = Arcadia_Memory_allocateUnmanaged(thread, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps0);
-  #if Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_LittleEndian
-    Arcadia_Memory_copy(thread, limps0, self->limps, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps0);
-  #elif Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_BigEndian
-    Arcadia_Memory_copy(thread, limps0, self->limps, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps0);
-    for (Arcadia_SizeValue i = 0; i < numberOfLimps0 / 2; ++i) {
-      Arcadia_BigInteger_Limp temporary = limps0[numberOfLimps0 - 1 - i];
-      limps0[numberOfLimps0 - 1 - i] = limps0[i];
-      limps0[i] = temporary;
-    }
-  #else
-    #error("unknown/unsupported limp order")
-  #endif
-    if (limps0[numberOfLimps0 - 1] & (1 << (Arcadia_BigInteger_BitsPerLimp - 1)) == 1) {
-      numberOfLimps0++;
-      Arcadia_Memory_reallocateUnmanaged(thread, (void**)&limps0, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps0);
-      limps0[numberOfLimps0 - 1] = 0;
-    }
-    *limps = limps0;
-    *numberOfLimps = numberOfLimps0;
-  } else /*if (self->sign == -1)*/ {
-    // case [3]
-    Arcadia_SizeValue numberOfLimps0 = self->numberOfLimps;
-    Arcadia_BigInteger_Limp* limps0 = Arcadia_Memory_allocateUnmanaged(thread, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps0);
-    Arcadia_Memory_copy(thread, limps0, self->limps, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps0);
-  #if Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_LittleEndian
-  #elif Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_BigEndian
-    for (Arcadia_SizeValue i = 0; i < numberOfLimps0 / 2; ++i) {
-      Arcadia_BigInteger_Limp temporary = limps0[numberOfLimps0 - 1 - i];
-      limps0[numberOfLimps0 - 1 - i] = limps0[i];
-      limps0[i] = temporary;
-    }
-  #else
-    #error("unknown/unsupported limp order")
-  #endif
-  #if Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_LittleEndian
-    Arcadia_SizeValue i = 0;
-    // copy the zero limps
-    while (limps0[i] == 0) { // This is fine as there must be a at least one non-zero limp.
-     // limps0[i] = self->limps0[i];
-      i++;
-    }
-    limps0[i] = -(Arcadia_Integer32Value)limps0[i];
-    i++;
-    while (i < numberOfLimps0) {
-      limps0[i] = ~(limps0[i]);
-    }
-    if (limps0[numberOfLimps0 - 1] & (1 << (Arcadia_BigInteger_BitsPerLimp - 1)) == 0) {
-      numberOfLimps0++;
-      Arcadia_Memory_reallocateUnmanaged(thread, (void**)&limps0, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps0);
-      limps0[numberOfLimps0 - 1] = Arcadia_BigInteger_Limp_Maximum;
-    }
-  #elif Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_BigEndian
-    Arcadia_SizeValue i = numberOf;
-    // copy the zero limps
-    while (limps0[i] == 0) { // This is fine as there must be a at least one non-zero limp.
-     // limps0[i] = self->limps0[i];
-      i++;
-    }
-    limps0[i] = -(Arcadia_Integer32Value)limps0[i];
-    i++;
-    while (i < numberOfLimps0) {
-      limps0[i] = ~(limps0[i]);
-    }
-    if (limps0[numberOfLimps0 - 1] & (1 << (Arcadia_BigInteger_BitsPerLimp - 1)) == 0) {
-      numberOfLimps0++;
-      Arcadia_Process_reallocateUnmanaged(Arcadia_Thread_getProcess(thread), &limps0, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps0);
-      limps0[numberOfLimps0 - 1] = Arcadia_BigInteger_Limp_Maximum;
-    }
-  #else
-    #error("unknown/unsupported limp order")
-  #endif
-    *limps = limps0;
-    *numberOfLimps = numberOfLimps0;
+  if (!self || !limps || !numberOfLimps) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
   }
+  if (Arcadia_BigInteger_isZero(thread, self)) {
+    Arcadia_BigInteger_Limp* result = Arcadia_Memory_allocateUnmanaged(thread, sizeof(Arcadia_BigInteger_Limp));
+    result[0] = 0;
+    *limps = result;
+    *numberOfLimps = 1;
+    return;
+  }
+
+  Arcadia_SizeValue size = self->numberOfLimps;
+  Arcadia_BooleanValue negative = self->sign < 0;
+  Arcadia_BigInteger_Limp signBit = (Arcadia_BigInteger_Limp)((Arcadia_BigInteger_DoubleLimp)1 << (Arcadia_BigInteger_BitsPerLimp - 1));
+  Arcadia_BigInteger_Limp high = magnitudeLimp(self, size - 1);
+  if (negative) {
+    // Carry reaches the highest limb only when every lower magnitude limb is 0.
+    Arcadia_BooleanValue carry = true;
+    for (Arcadia_SizeValue i = 0; i + 1 < size; ++i) {
+      if (magnitudeLimp(self, i)) {
+        carry = false;
+        break;
+      }
+    }
+    high = carry ? (Arcadia_BigInteger_Limp)(0u - high) : (Arcadia_BigInteger_Limp)~high;
+  }
+  Arcadia_BooleanValue extend = negative ? (high & signBit) == 0 : (high & signBit) != 0;
+  if (size > Arcadia_BigInteger_MaximumNumberOfLimps - (Arcadia_SizeValue)extend) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  // Compute the size first: no reallocating an unowned temporary on failure.
+  Arcadia_BigInteger_Limp* result = Arcadia_Memory_allocateUnmanaged(thread, sizeof(Arcadia_BigInteger_Limp) * (size + extend));
+  Arcadia_BigInteger_DoubleLimp carry = 1;
+  for (Arcadia_SizeValue i = 0; i < size; ++i) {
+    Arcadia_BigInteger_Limp input = magnitudeLimp(self, i);
+    if (negative) {
+      Arcadia_BigInteger_DoubleLimp digit = (Arcadia_BigInteger_DoubleLimp)(Arcadia_BigInteger_Limp)~input + carry;
+      result[i] = (Arcadia_BigInteger_Limp)digit;
+      carry = digit >> Arcadia_BigInteger_BitsPerLimp;
+    } else {
+      result[i] = input;
+    }
+  }
+  if (extend) result[size] = negative ? Arcadia_BigInteger_Limp_Maximum : 0;
+  *limps = result;
+  *numberOfLimps = size + extend;
 }

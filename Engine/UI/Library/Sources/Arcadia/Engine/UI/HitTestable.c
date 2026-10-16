@@ -23,8 +23,13 @@ Arcadia_defineInterfaceType(u8"Arcadia.Engine.UI.HitTestable", Arcadia_Engine_UI
                          )
 
 Arcadia_BooleanValue
-Arcadia_Engine_UI_HitTestable_hitTest(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Integer32Value x, Arcadia_Integer32Value y)
+Arcadia_Engine_UI_HitTestable_hitTest
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Integer32Value x,
+    Arcadia_Integer32Value y
+  )
 {
   Arcadia_InterfaceCallWithReturn(Arcadia_Engine_UI_HitTestable, hitTest, self, x, y);
 }
-

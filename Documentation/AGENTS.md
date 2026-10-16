@@ -13,13 +13,14 @@ This folder contains the source for Arcadia's generated static website and proje
 
 ## Current CMake Wiring
 
-- Root website outputs: `index.html`, `error.html`, `imprint.html`, `data-protection-statement.html`, `sitemap.xml`, `.htaccess`, `assets/index.css`, `assets/reset.css`, and `assets/cxx-doc.css`.
+- Root website outputs: `index.html`, `building.html`, `error.html`, `imprint.html`, `data-protection-statement.html`, `sitemap.xml`, `.htaccess`, `assets/index.css`, `assets/reset.css`, and `assets/cxx-doc.css`.
 - `add_subdirectory("Arcadia")` builds `.Website/Arcadia/index.html`, `.Website/Arcadia/roadmap.html`, `.Website/Arcadia/roadmap-archive.html`, and `.Website/Arcadia/news.html`.
 - `add_subdirectory("Specifications/Common Lexical Translations")` builds `.Website/specifications/common-lexical-translations/index.html`.
 - `add_subdirectory("Specifications/MDNP")` builds `.Website/specifications/mathematical-definitions-notations-and-proofs/index.html`.
 - `add_subdirectory("Specifications/Data Definition Language")` builds `.Website/specifications/data-definition-language/index.html`.
 - `add_subdirectory("Specifications/Data Definition Language Schema")` builds `.Website/specifications/data-definition-language-schema/index.html`.
 - `add_subdirectory("Specifications/Program Definition Language")` builds `.Website/specifications/program-definition-language/index.html`.
+- `add_subdirectory("Specifications/Visuals Programming Language")` builds `.Website/specifications/visuals-programming-language/index.html`.
 
 ## Template Conventions
 
@@ -33,13 +34,13 @@ This folder contains the source for Arcadia's generated static website and proje
 
 ## Main Areas
 
-- Root website pages: homepage, error page, imprint, data-protection statement, sitemap, `.htaccess`, and shared CSS.
+- Root website pages: homepage, building guide, error page, imprint, data-protection statement, sitemap, `.htaccess`, and shared CSS.
 - `Arcadia/`: project documentation landing page, roadmap, roadmap archive, news, sitemap fragment, and engine-concepts page sources. Only the pages listed in `Arcadia/CMakeLists.txt` are currently generated.
 - `Arcadia/Roadmap/`: active milestone fragments. Completed milestones are under `Arcadia/Roadmap/Archive/`.
 - `Arcadia/News/`: dated news fragments included from `Arcadia/news.html.te` and other pages.
 - `Commons/`: shared HTML head and MathJax fragments.
 - `DataProtectionStatement/`: legal/privacy content fragments included by `data-protection-statement.html.te`.
-- `Specifications/`: generated specification source directories for Common Lexical Translations, MDNP, DDL, DDLS, and Arcadia PDL, plus shared `specification.css.i`.
+- `Specifications/`: generated specification source directories for Common Lexical Translations, MDNP, DDL, DDLS, Arcadia PDL, and VPL, plus shared `specification.css.i`.
 - `Trigonometric Functions/`: present as a directory, but not wired from the current documentation CMake files.
 
 ## Specifications
@@ -55,6 +56,8 @@ This folder contains the source for Arcadia's generated static website and proje
    directly in `Specifications/Program Definition Language/index.html.te`, including the grammar accepted by the current
    parser and the compatible abstract execution-model material. The name intentionally does not imply a particular abstraction
    level, storage duration, or implementation strategy; it simply says the language defines a program.
+
+- `Specifications/Visuals Programming Language` documents the *Arcadia Visuals Programming Language*, or *Arcadia VPL* for short.
 
 ## Editing Guidance
 

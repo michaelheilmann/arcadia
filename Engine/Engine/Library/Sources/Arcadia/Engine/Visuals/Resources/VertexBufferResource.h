@@ -17,45 +17,41 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_RESOURCES_VERTEXBUFFERRESOURCE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_RESOURCES_VERTEXBUFFERRESOURCE_H_INCLUDED
 
-#include "Arcadia/Media/Include.h"
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/Resources/VertexBufferResource.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Visuals/Resource.h"
 
-/// @brief Flag indicating the vertex data of a vertex buffer resource is dirty.
-#define Arcadia_Engine_Visuals_VertexBufferResource_VertexDataDirty (1)
+typedef struct Arcadia_Engine_Visuals_VertexBufferResource Arcadia_Engine_Visuals_VertexBufferResource;
+typedef struct Arcadia_Media_VertexDescriptor Arcadia_Media_VertexDescriptor;
 
-/// @brief Flag indicating the vertex descriptor of a vertex buffer resource is dirty.
-#define Arcadia_Engine_Visuals_VertexBufferResource_VertexDescriptorDirty (2)
-
-Arcadia_declareObjectType(u8"Arcadia.Visuals.VertexBufferResource", Arcadia_Engine_Visuals_VertexBufferResource,
-                          u8"Arcadia.Visuals.Resource");
+Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.VertexBufferResource", Arcadia_Engine_Visuals_VertexBufferResource,
+                          u8"Arcadia.Engine.Visuals.Resource");
 
 struct Arcadia_Engine_Visuals_VertexBufferResourceDispatch {
   Arcadia_Engine_Visuals_ResourceDispatch _parent;
 
-  Arcadia_Media_VertexDescriptor* (*getVertexDescriptor)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_VertexBufferResource* self);
-  void (*setData)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_VertexBufferResource* self, Arcadia_Media_VertexDescriptor* vertexDescriptor, Arcadia_SizeValue numberOfVertices, const void* bytes, Arcadia_SizeValue numberOfBytes);
-  Arcadia_SizeValue (*getNumberOfVertices)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_VertexBufferResource* self);
+  Arcadia_Media_VertexDescriptor* (*getVertexDescriptor)(Arcadia_Thread*, Arcadia_Engine_Visuals_VertexBufferResource*);
+
+  void (*setData)(Arcadia_Thread*, Arcadia_Engine_Visuals_VertexBufferResource*, Arcadia_Media_VertexDescriptor*, Arcadia_SizeValue, const void*, Arcadia_SizeValue);
+
+  Arcadia_SizeValue (*getNumberOfVertices)(Arcadia_Thread*, Arcadia_Engine_Visuals_VertexBufferResource*);
 };
 
 struct Arcadia_Engine_Visuals_VertexBufferResource {
   Arcadia_Engine_Visuals_Resource _parent;
-
   Arcadia_Natural8Value dirty;
-
   Arcadia_Media_VertexDescriptor* vertexDescriptor;
-
   Arcadia_SizeValue numberOfVertices;
-
   void* bytes;
   Arcadia_SizeValue numberOfBytes;
 };
 
-Arcadia_SizeValue
-Arcadia_Engine_Visuals_VertexBufferResource_getNumberOfVertices
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_VertexBufferResource* self
-  );
+#define Arcadia_Engine_Visuals_VertexBufferResource_VertexDataDirty INT32_C(1)
+
+#define Arcadia_Engine_Visuals_VertexBufferResource_VertexDescriptorDirty INT32_C(2)
 
 Arcadia_Media_VertexDescriptor*
 Arcadia_Engine_Visuals_VertexBufferResource_getVertexDescriptor
@@ -73,6 +69,13 @@ Arcadia_Engine_Visuals_VertexBufferResource_setData
     Arcadia_SizeValue numberOfVertices,
     const void* bytes,
     Arcadia_SizeValue numberOfBytes
+  );
+
+Arcadia_SizeValue
+Arcadia_Engine_Visuals_VertexBufferResource_getNumberOfVertices
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_VertexBufferResource* self
   );
 
 #endif // ARCADIA_ENGINE_VISUALS_RESOURCES_VERTEXBUFFERRESOURCE_H_INCLUDED

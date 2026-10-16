@@ -1,0 +1,30 @@
+{
+  type : "Mesh",
+  name : "ColorSourcesScene.TextureColorMesh",
+  ambientColor : "ColorSourcesScene.MeshColor",
+  // Left quad: centered at (-1.2, 0), with the same colors/UVs as the other quads.
+  vertexPositions : [
+    -1.7, -0.5, 0.0,
+    -0.7, -0.5, 0.0,
+    -1.7,  0.5, 0.0,
+    -0.7, -0.5, 0.0,
+    -0.7,  0.5, 0.0,
+    -1.7,  0.5, 0.0,
+  ],
+  vertexAmbientColors : [
+    1, 0, 0, 1,
+    0, 1, 0, 1,
+    0, 0, 1, 1,
+    0, 1, 0, 1,
+    1, 1, 1, 1,
+    0, 0, 1, 1,
+  ],
+  vertexAmbientColorTextureCoordinates : [
+    0, 0,
+    1, 0,
+    0, 1,
+    1, 0,
+    1, 1,
+    0, 1,
+  ],
+}

@@ -214,7 +214,8 @@ static Arcadia_SizeValue
 updateResources
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext* self
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext* self,
+    Arcadia_BooleanValue force
   );
 
 static void
@@ -1009,13 +1010,14 @@ static Arcadia_SizeValue
 updateResources
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext* self
+    Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext* self,
+    Arcadia_BooleanValue force
   )
 {
   Arcadia_SizeValue removed = 0;
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)((Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)self)->resources); i < n;) {
     Arcadia_Engine_Visuals_Resource* resource = (Arcadia_Engine_Visuals_Resource*)Arcadia_List_getObjectReferenceValueAt(thread, ((Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)self)->resources, i);
-    if (!((Arcadia_Engine_Visuals_Resource*)self)->referenceCount) {
+    if (!resource->referenceCount) {
       Arcadia_Engine_Visuals_Resource_unload(thread, resource);
       Arcadia_Engine_Visuals_Resource_unlink(thread, resource);
       Arcadia_List_removeAt(thread, ((Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)self)->resources, i, 1);
@@ -1129,7 +1131,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_updateImpl
   }
 
   // (2) Update the resources.
-  updateResources(thread, self);
+  updateResources(thread, self, Arcadia_BooleanValue_False);
 }
 
 static void
@@ -1272,7 +1274,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_destruct
   )
 {
   // (1) Update resources until no resources are left.
-  while (updateResources(thread, self))
+  while (updateResources(thread, self, Arcadia_BooleanValue_True))
   {/*Intentionally empty.*/}
   //
   _Arcadia_Engine_Visuals_Implementation_OpenGL4_Functions_uninitialize(thread, &self->_functions);

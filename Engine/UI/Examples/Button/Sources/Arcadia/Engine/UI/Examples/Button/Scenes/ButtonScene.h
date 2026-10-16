@@ -22,7 +22,7 @@
 #include "Arcadia/Engine/UI/Include.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.UI.Examples.Button.ButtonScene", Arcadia_Engine_UI_Examples_Button_ButtonScene,
-                          u8"Arcadia.Engine.Demo.Scene");
+                          u8"Arcadia.Engine.Scene");
 
 struct Arcadia_Engine_UI_Examples_Button_ButtonSceneDispatch {
   Arcadia_Engine_SceneDispatch parent;

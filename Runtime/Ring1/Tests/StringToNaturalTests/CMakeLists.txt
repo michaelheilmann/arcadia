@@ -27,4 +27,5 @@ OnSourceFile(${this} Arcadia.Ring1.Tests.StringToNatural/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.Ring1 PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

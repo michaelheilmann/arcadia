@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 // EXIT_SUCCESS, EXIT_FAILURE
 #include <stdlib.h>
 // strlen
@@ -59,11 +61,10 @@ check2
   return Arcadia_ARMS_Status_Success;
 }
 
-int
-main
+static int
+runTests
   (
-    int argc,
-    char **argv
+    void
   )
 {
   if (Arcadia_ARMS_startup()) {
@@ -79,4 +80,17 @@ main
   }
   Arcadia_ARMS_shutdown();
   return EXIT_SUCCESS;
+}
+
+int
+main
+  (
+    int argc,
+    char** argv
+  )
+{
+  static const Arcadia_Testing_Case cases[] = {
+    { "TypeName", &runTests },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

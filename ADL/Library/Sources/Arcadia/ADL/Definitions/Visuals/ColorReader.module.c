@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#define ARCADIA_ADL_MODULE (1)
+#define ARCADIA_ADL_PRIVATE (1)
 #include "Arcadia/ADL/Definitions/Visuals/ColorReader.module.h"
 
 #include "Arcadia/ADL/Context.h"
@@ -65,6 +65,12 @@ static const char* SCHEMA =
   "          kind : \"Number\",\n"
   "        },\n"
   "      },\n"
+  "      {\n"
+  "        kind : \"MapEntry\",\n"
+  "        name : \"alpha\",\n"
+  "        type : { kind : \"Number\" },\n"
+  "        optional : \"true\",\n"
+  "      },\n"
   "    ],\n"
   "  },\n"
   "}\n"
@@ -76,6 +82,25 @@ Arcadia_ADL_ColorReader_getTypeName
     Arcadia_Thread* thread,
     Arcadia_ADL_ColorReader* self
   );
+
+static Arcadia_Natural8Value
+readAlpha
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_MapNode* input,
+    Arcadia_String* key
+  )
+{
+  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)input->entries); i < n; ++i) {
+    Arcadia_DDL_MapEntryNode* entry = (Arcadia_DDL_MapEntryNode*)Arcadia_List_getObjectReferenceValueCheckedAt(
+      thread, input->entries, i, _Arcadia_DDL_MapEntryNode_getType(thread));
+    Arcadia_Value keyValue = Arcadia_Value_makeObjectReferenceValue(key);
+    if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)entry->key->value, &keyValue)) {
+      return Arcadia_ADL_Reader_getNatural8Value(thread, input, key);
+    }
+  }
+  return 255;
+}
 
 static Arcadia_ADL_ColorDefinition*
 Arcadia_ADL_ColorReader_read
@@ -149,6 +174,7 @@ Arcadia_ADL_ColorReader_read
   Arcadia_Natural8Value red = Arcadia_ADL_Reader_getNatural8Value(thread, (Arcadia_DDL_MapNode*)input, self->RED);
   Arcadia_Natural8Value green = Arcadia_ADL_Reader_getNatural8Value(thread, (Arcadia_DDL_MapNode*)input, self->GREEN);
   Arcadia_Natural8Value blue = Arcadia_ADL_Reader_getNatural8Value(thread, (Arcadia_DDL_MapNode*)input, self->BLUE);
+  Arcadia_Natural8Value alpha = readAlpha(thread, (Arcadia_DDL_MapNode*)input, self->ALPHA);
 
   // Assert the definition has the correct type.
   Arcadia_Value t = Arcadia_Value_makeObjectReferenceValue(self->TYPENAME);
@@ -158,6 +184,7 @@ Arcadia_ADL_ColorReader_read
   }
 
   Arcadia_ADL_ColorDefinition* definition = Arcadia_ADL_ColorDefinition_create(thread, definitions, name, red, green, blue);
+  definition->alpha = alpha;
   return definition;
 }
 
@@ -197,6 +224,7 @@ Arcadia_ADL_ColorReader_constructImpl
   self->RED = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"red");
   self->GREEN = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"green");
   self->BLUE = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"blue");
+  self->ALPHA = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"alpha");
   //
   Arcadia_LeaveConstructor(Arcadia_ADL_ColorReader);
 }
@@ -245,6 +273,9 @@ Arcadia_ADL_ColorReader_visitImpl
   }
   if (self->BLUE) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->BLUE);
+  }
+  if (self->ALPHA) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->ALPHA);
   }
   //
 }

@@ -1,0 +1,16 @@
+native "NativeResources/External.h" class Test.External {
+}
+
+abstract native
+  "NativeResources/Abstract.h"
+  class Test.AbstractExternal extends Test.External {
+}
+
+native class Test.DefaultHeader {
+}
+
+native implementation "Generated/Type.h" class Test.Generated {
+}
+
+abstract native implementation "Generated/Abstract.h" class Test.GeneratedAbstract {
+}

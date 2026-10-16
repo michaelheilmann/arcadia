@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 
 #include "Arcadia/Ring1/Include.h"
@@ -73,13 +75,8 @@ safeAddNatural8Tests
 
   // MAX + MAX = (MAX - 1,1)
   Arcadia_safeAddFullNatural8Value(thread, Arcadia_Natural8Value_Maximum, Arcadia_Natural8Value_Maximum, &v, &u);
-  Arcadia_Tests_assertTrue(thread, u == Arcadia_Natural8Value_Maximum - 1);
-  Arcadia_Tests_assertTrue(thread, v == 1);
-
-  // MAX + MAX = (MAX - 1, 1)
-  Arcadia_safeAddFullNatural8Value(thread, Arcadia_Natural8Value_Maximum, Arcadia_Natural8Value_Maximum, &v, &u);
-  Arcadia_Tests_assertTrue(thread, u == Arcadia_Natural8Value_Maximum - 1);
-  Arcadia_Tests_assertTrue(thread, v == 1);
+  Arcadia_Tests_assertEqualNatural64(thread, Arcadia_Natural8Value_Maximum - 1, u);
+  Arcadia_Tests_assertEqualNatural64(thread, 1, v);
 }
 
 static void
@@ -137,13 +134,8 @@ safeAddNatural16Tests
 
   // MAX + MAX = (MAX - 1, 1)
   Arcadia_safeAddFullNatural16Value(thread, Arcadia_Natural16Value_Maximum, Arcadia_Natural16Value_Maximum, &v, &u);
-  Arcadia_Tests_assertTrue(thread, u == Arcadia_Natural16Value_Maximum - 1);
-  Arcadia_Tests_assertTrue(thread, v == 1);
-
-  // MAX + MAX = (MAX - 1, 1)
-  Arcadia_safeAddFullNatural16Value(thread, Arcadia_Natural16Value_Maximum, Arcadia_Natural16Value_Maximum, &v, &u);
-  Arcadia_Tests_assertTrue(thread, u == Arcadia_Natural16Value_Maximum - 1);
-  Arcadia_Tests_assertTrue(thread, v == 1);
+  Arcadia_Tests_assertEqualNatural64(thread, Arcadia_Natural16Value_Maximum - 1, u);
+  Arcadia_Tests_assertEqualNatural64(thread, 1, v);
 }
 
 static void
@@ -201,13 +193,8 @@ safeAddNatural32Tests
 
   // MAX + MAX = (MAX - 1, 1)
   Arcadia_safeAddFullNatural32Value(thread, Arcadia_Natural32Value_Maximum, Arcadia_Natural32Value_Maximum, &v, &u);
-  Arcadia_Tests_assertTrue(thread, u == Arcadia_Natural32Value_Maximum - 1);
-  Arcadia_Tests_assertTrue(thread, v == 1);
-
-  // MAX + MAX = (MAX - 1, 1)
-  Arcadia_safeAddFullNatural32Value(thread, Arcadia_Natural32Value_Maximum, Arcadia_Natural32Value_Maximum, &v, &u);
-  Arcadia_Tests_assertTrue(thread, u == Arcadia_Natural32Value_Maximum - 1);
-  Arcadia_Tests_assertTrue(thread, v == 1);
+  Arcadia_Tests_assertEqualNatural64(thread, Arcadia_Natural32Value_Maximum - 1, u);
+  Arcadia_Tests_assertEqualNatural64(thread, 1, v);
 }
 
 static void
@@ -265,35 +252,60 @@ safeAddNatural64Tests
 
   // MAX + MAX = (MAX - 1, 1)
   Arcadia_safeAddFullNatural64Value(thread, Arcadia_Natural64Value_Maximum, Arcadia_Natural64Value_Maximum, &v, &u);
-  Arcadia_Tests_assertTrue(thread, u == Arcadia_Natural64Value_Maximum - 1);
-  Arcadia_Tests_assertTrue(thread, v == 1);
-
-  // MAX + MAX = (MAX - 1, 1)
-  Arcadia_safeAddFullNatural64Value(thread, Arcadia_Natural64Value_Maximum, Arcadia_Natural64Value_Maximum, &v, &u);
-  Arcadia_Tests_assertTrue(thread, u == Arcadia_Natural64Value_Maximum - 1);
-  Arcadia_Tests_assertTrue(thread, v == 1);
+  Arcadia_Tests_assertEqualNatural64(thread, Arcadia_Natural64Value_Maximum - 1, u);
+  Arcadia_Tests_assertEqualNatural64(thread, 1, v);
 }
 
 #undef Define
+
+static int
+runNatural16
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeAddNatural16Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural32
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeAddNatural32Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeAddNatural64Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural8
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeAddNatural8Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
 
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&safeAddNatural16Tests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&safeAddNatural32Tests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&safeAddNatural64Tests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&safeAddNatural8Tests)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "Natural16", &runNatural16 },
+    { "Natural32", &runNatural32 },
+    { "Natural64", &runNatural64 },
+    { "Natural8", &runNatural8 },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

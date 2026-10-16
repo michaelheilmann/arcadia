@@ -111,7 +111,7 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.ProgramResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource,
-                         u8"Arcadia.Visuals.ProgramResource", Arcadia_Engine_Visuals_ProgramResource,
+                         u8"Arcadia.Engine.Visuals.ProgramResource", Arcadia_Engine_Visuals_ProgramResource,
                          &_typeOperations);
 
 static void

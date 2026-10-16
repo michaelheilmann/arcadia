@@ -39,6 +39,7 @@ struct Arcadia_PDLC_EnumerationSymbol {
   Arcadia_PDLC_Symbol _parent;
   /// The abstract syntax tree defining this enumeration symbol if any. A null pointer otherwise.
   Arcadia_PDLC_AST_EnumerationDefinitionNode* ast;
+  Arcadia_BooleanValue isNative;
   /// The symbols of the enumeration members of this enumeration in order of appearance.
   Arcadia_List* members;
   /// The scope of this enumeration.

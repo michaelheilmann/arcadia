@@ -14,27 +14,32 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined (ARCADIA_ENGINE_VISUALS_DISPLAYMODE_H_INCLUDED)
+#if !defined(ARCADIA_ENGINE_VISUALS_DISPLAYMODE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_DISPLAYMODE_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Visuals/DisplayMode.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
-#include "Arcadia/Ring2/Include.h"
 
-// Information on a display mode available on a display device.
-// See Arcadia.Engine.Visuals.DisplayDevice for more information.
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_Engine_Visuals_DisplayMode Arcadia_Engine_Visuals_DisplayMode;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.DisplayMode", Arcadia_Engine_Visuals_DisplayMode,
                           u8"Arcadia.Object");
 
 struct Arcadia_Engine_Visuals_DisplayModeDispatch {
   Arcadia_ObjectDispatch _parent;
 
-  Arcadia_Integer32Value (*getHorizontalResolution)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_DisplayMode* self);
-  Arcadia_Integer32Value (*getVerticalResolution)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_DisplayMode* self);
-  Arcadia_Integer32Value (*getColorDepth)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_DisplayMode* self);
-  Arcadia_Integer32Value (*getFrequency)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_DisplayMode* self);
-  void (*apply)(Arcadia_Thread* thread, Arcadia_Engine_Visuals_DisplayMode* self);
+  Arcadia_Integer32Value (*getHorizontalResolution)(Arcadia_Thread*, Arcadia_Engine_Visuals_DisplayMode*);
+
+  Arcadia_Integer32Value (*getVerticalResolution)(Arcadia_Thread*, Arcadia_Engine_Visuals_DisplayMode*);
+
+  Arcadia_Integer32Value (*getColorDepth)(Arcadia_Thread*, Arcadia_Engine_Visuals_DisplayMode*);
+
+  Arcadia_Integer32Value (*getFrequency)(Arcadia_Thread*, Arcadia_Engine_Visuals_DisplayMode*);
+
+  void (*apply)(Arcadia_Thread*, Arcadia_Engine_Visuals_DisplayMode*);
 };
 
 struct Arcadia_Engine_Visuals_DisplayMode {

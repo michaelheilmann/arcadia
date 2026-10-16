@@ -32,7 +32,9 @@ if (NOT TARGET ${this})
 
   SetFolder(${this} "Engine/Examples")
 
-  OnSourceFile(${this} Arcadia/Engine/Examples/SpaceshipAmbienceStreaming.c)
+  OnSourceFile(${this} Arcadia/Engine/Examples/SpaceshipAmbienceStreaming/Main.c)
+  OnSourceFile(${this} Arcadia/Engine/Examples/SpaceshipAmbienceStreaming/Application.c)
+  OnHeaderFile(${this} Arcadia/Engine/Examples/SpaceshipAmbienceStreaming/Application.h)
 
   OnModuleDependency(${this} ${MyProjectName}.Engine PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.Engine.Audials.Implementation PRIVATE)

@@ -41,6 +41,9 @@ struct Arcadia_PDLC_ClassSymbol {
   Arcadia_PDLC_AST_ClassDefinitionNode* ast;
   /// True if this class is a native declaration and must not emit generated C/H files.
   Arcadia_BooleanValue isNative;
+  Arcadia_BooleanValue isNativeImplementation;
+  /// True if this class cannot be instantiated directly.
+  Arcadia_BooleanValue isAbstract;
   /// The symbols of the class members of this class in order of appearance.
   Arcadia_List* members;
   /// The scope of this class.

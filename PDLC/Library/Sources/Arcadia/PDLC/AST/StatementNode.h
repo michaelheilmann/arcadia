@@ -38,6 +38,7 @@ struct Arcadia_PDLC_AST_StatementNodeDispatch {
 
 struct Arcadia_PDLC_AST_StatementNode {
   Arcadia_PDLC_AST_Node _parent;
+  Arcadia_SizeValue startOffset;
 };
 
 #endif // ARCADIA_PDLC_AST_STATEMENTNODE_H_INCLUDED

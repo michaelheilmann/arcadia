@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/DDLS/Tests/Reader/Schema1.h"
 
 #include "Arcadia/DDLS/Include.h"
@@ -61,6 +63,78 @@ testAcceptChoice1
   ddlsNode = NULL;
 }
 
+static int
+runAcceptMap
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testAccept1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAcceptSchemaReferences
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testAccept2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectMissingKind
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testReject1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectMissingEntries
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testReject2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectEntriesNotList
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testReject3) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectDuplicateKind
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testReject4) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectDuplicateEntryName
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testReject5) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAcceptChoice
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testAcceptChoice1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -68,31 +142,15 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testAccept1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testAccept2)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testReject1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testReject2)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testReject3)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testReject4)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Reader_testReject5)) {
-    return EXIT_FAILURE;
-  }
-  //
-  if (!Arcadia_Tests_safeExecute(&testAcceptChoice1)) {
-    return EXIT_FAILURE;
-  }
-  //
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "AcceptMap", &runAcceptMap },
+    { "AcceptSchemaReferences", &runAcceptSchemaReferences },
+    { "RejectMissingKind", &runRejectMissingKind },
+    { "RejectMissingEntries", &runRejectMissingEntries },
+    { "RejectEntriesNotList", &runRejectEntriesNotList },
+    { "RejectDuplicateKind", &runRejectDuplicateKind },
+    { "RejectDuplicateEntryName", &runRejectDuplicateEntryName },
+    { "AcceptChoice", &runAcceptChoice },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

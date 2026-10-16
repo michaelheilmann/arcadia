@@ -25,7 +25,7 @@
 
 Arcadia_declareEnumerationType(u8"Arcadia.Engine.Text.MarkupWordType", Arcadia_Engine_Text_MarkupWordType);
 
-typedef enum Arcadia_Engine_Text_MarkupWordType {
+enum Arcadia_Engine_Text_MarkupWordType {
   Arcadia_Engine_Text_MarkupWordType_StartOfInput,
   Arcadia_Engine_Text_MarkupWordType_EndOfInput,
   Arcadia_Engine_Text_MarkupWordType_LeftBracket,
@@ -37,6 +37,6 @@ typedef enum Arcadia_Engine_Text_MarkupWordType {
   Arcadia_Engine_Text_MarkupWordType_LineBreak,
   Arcadia_Engine_Text_MarkupWordType_Name,
   Arcadia_Engine_Text_MarkupWordType_Text,
-} Arcadia_Engine_Text_MarkupWordType;
+};
 
 #endif // ARCADIA_ENGINE_TEXT_MARKUPWORDTYPE_H_INCLUDED

@@ -28,9 +28,13 @@ if (NOT TARGET ${this})
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/PDLC/Tests/Diagnostics/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/PDLC/Tests/Diagnostics/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/PDLC/Tests/Diagnostics/Main.c)
+  OnSourceFile(${this} Arcadia/PDLC/Tests/Diagnostics/Expected.c)
+  OnHeaderFile(${this} Arcadia/PDLC/Tests/Diagnostics/Expected.h)
 
   OnModuleDependency(${this} ${MyProjectName}.PDLC PRIVATE)
 
+  OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
+  OnModuleDependency(${this} ${MyProjectName}.PDLC.Tests.Support PRIVATE)
   EndProduct(${this})
 
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)

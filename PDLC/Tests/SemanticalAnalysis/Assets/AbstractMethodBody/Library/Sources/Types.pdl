@@ -1,0 +1,4 @@
+abstract class MyModule.C {
+  method abstract read : Arcadia.Void {
+  }
+}

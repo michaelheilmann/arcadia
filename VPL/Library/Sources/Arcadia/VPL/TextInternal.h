@@ -56,6 +56,7 @@ struct Arcadia_VPL_Text_Context {
   Arcadia_List* roots;
   Arcadia_Map* locations;
   Arcadia_Map* types;
+  Arcadia_Map* typeDepths;
   Arcadia_Map* uniforms;
   Arcadia_Map* functions;
   Arcadia_Map* registers;
@@ -65,6 +66,7 @@ struct Arcadia_VPL_Text_Context {
   Arcadia_StringBuilder* output;
   Arcadia_List* typeOrder;
   Arcadia_SizeValue position;
+  Arcadia_SizeValue moduleOffset;
 };
 
 Arcadia_VPL_Text_Context*

@@ -23,7 +23,10 @@ BeginProduct(${this} test)
 SetFolder(${this} "Engine")
 
 OnSourceFile(${this} Main.c)
+OnSourceFile(${this} GraphDualTone.c)
+OnHeaderFile(${this} GraphDualTone.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Engine PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

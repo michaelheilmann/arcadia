@@ -18,61 +18,40 @@
 #define ARCADIA_ENGINE_ENGINE_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Engine.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
-#include "Arcadia/Ring2/Include.h"
-#include "Arcadia/Collections/Include.h"
+
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_Deque Arcadia_Deque;
+typedef struct Arcadia_Engine Arcadia_Engine;
+typedef struct Arcadia_Engine_BackendContext Arcadia_Engine_BackendContext;
 typedef struct Arcadia_Engine_Event Arcadia_Engine_Event;
 typedef struct Arcadia_Engine_NodeFactory Arcadia_Engine_NodeFactory;
-typedef struct Arcadia_Engine_BackendContext Arcadia_Engine_BackendContext;
+typedef struct Arcadia_Set Arcadia_Set;
 
-/// @code
-/// class Arcadia.Engine {
-///   construct
-///     (
-///     )
-/// }
-/// @endcode
 Arcadia_declareObjectType(u8"Arcadia.Engine", Arcadia_Engine,
-                          u8"Arcadia.Object")
+                          u8"Arcadia.Object");
 
 struct Arcadia_EngineDispatch {
   Arcadia_ObjectDispatch _parent;
 
-  void (*update)(Arcadia_Thread* thread, Arcadia_Engine* self);
+  void (*update)(Arcadia_Thread*, Arcadia_Engine*);
 };
 
 struct Arcadia_Engine {
   Arcadia_Object _parent;
-
-  /// Set of Arcadia.Engine.Visuals.Backend derived type objects.
   Arcadia_Set* visualsBackendTypes;
-  /// Set of Arcadia.Engine.Visuals.NodeFactory derived type objects.
   Arcadia_Set* visualsNodeFactoryTypes;
-
-  /// Set of Arcadia.Engine.Audials.Backend derived type objects.
   Arcadia_Set* audialsBackendTypes;
-  /// Set of Arcadia.Engine.Audials.NodeFactory derived type objects.
   Arcadia_Set* audialsNodeFactoryTypes;
-
-  /// Pointer to the active visuals backend context if any, null otherwise.
   Arcadia_Engine_BackendContext* visualsBackendContext;
-  /// The visuals node factory.
   Arcadia_Engine_NodeFactory* visualsNodeFactory;
-
-  /// Pointer to the active audials backend context if any, null otherwise.
   Arcadia_Engine_BackendContext* audialsBackendContext;
-  /// The audials node factory.
   Arcadia_Engine_NodeFactory* audialsNodeFactory;
-
-  /// @brief The event queue.
   Arcadia_Deque* events;
 };
 
-/// @brief Enque an event to this application.
-/// @param thread A pointer to this thread.
-/// @param self A pointer to this application.
-/// @param event A pointer to the event.
 void
 Arcadia_Engine_enqueEvent
   (
@@ -81,10 +60,6 @@ Arcadia_Engine_enqueEvent
     Arcadia_Engine_Event* event
   );
 
-/// @brief Deque an event from this engine.
-/// @param thread A pointer to this thread.
-/// @param self A pointer to this engine.
-/// @return A pointer to the event (if there is an event), a null pointer otherwise.
 Arcadia_Engine_Event*
 Arcadia_Engine_dequeEvent
   (
@@ -92,23 +67,11 @@ Arcadia_Engine_dequeEvent
     Arcadia_Engine* self
   );
 
-/// @brief Update this engine.
-/// @param thread A pointer to this thread.
-/// @param self A pointer to this engine.
 void
 Arcadia_Engine_update
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* self
-  );
-
-/// @brief Get or create the engine singleton.
-/// @param thread A pointer to this thread.
-/// @return A pointer to the engine singleton.
-Arcadia_Engine*
-Arcadia_Engine_getOrCreate
-  (
-    Arcadia_Thread* thread
   );
 
 #endif // ARCADIA_ENGINE_ENGINE_H_INCLUDED

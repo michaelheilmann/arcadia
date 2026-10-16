@@ -1,0 +1,12 @@
+native class MyModule.Model {
+  variable context : borrowed Arcadia.Object
+  variable bytes : owned reference Arcadia.Void
+  variable dimensions : record {
+    variable width : Arcadia.Real32
+    variable height : Arcadia.Real32
+  }
+  constant Dirty : Arcadia.Integer32 = 1
+  method nonvirtual native "nativeRef" ref : Arcadia.Void
+  method native "nativeWrite" write(variable data : readonly reference Arcadia.Void) : Arcadia.Void
+  method native "nativeGet" get(variable value : output reference Arcadia.Integer32) : Arcadia.Void
+}

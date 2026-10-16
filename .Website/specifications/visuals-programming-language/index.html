@@ -177,12 +177,17 @@ my-sem::before {
     <div class="left-column"></div>
     <div class="center-column">
       <h1>Arcadia Visuals Programming Language</h1>
-      <h2>Specification (draft)</h2>
+      <h2>Specification, version 1</h2>
       <p>Arcadia VPL is a public, typed, three-address, virtual-register language for visual
       processing. Authors and tools describe typed operations and explicit control-flow graphs.
       The canonical in-memory representation is <code>Arcadia.VPL.IR.*</code>. A future higher-level
       language belongs to a separate module and produces canonical VPL.</p>
-      <p>The words <em>shall</em> and <em>must</em> express requirements. This draft specifies the
+      <p>The initial scope is a rendering shader/material-editor compiler target: vertex/fragment
+      interfaces, values, shader operations, sampling, and control flow. A material graph tool can
+      produce these operations directly. The comparison with tools such as Unreal's material editor
+      is a scope guide, not a requirement to implement their entire node catalog or a general-purpose
+      GPU, compute, memory, scheduling, or exception language.</p>
+      <p>The words <em>shall</em> and <em>must</em> express requirements. This specification defines the
       canonical object model, verifier contract, and implemented version-1 textual format. The
       grammar and public reading/writing/publication APIs are specified in sections 10 and 11.</p>
       <nav aria-label="Specification contents">
@@ -199,7 +204,7 @@ my-sem::before {
           <li><a href="#text-format">Canonical text format</a></li>
           <li><a href="#publication">Text APIs and verified publication</a></li>
           <li><a href="#glsl-backend">GLSL backend</a></li>
-          <li><a href="#pending">Remaining specification work</a></li>
+          <li><a href="#pending">Conformance and extensions</a></li>
         </ol>
       </nav>
 
@@ -210,8 +215,13 @@ my-sem::before {
       definite assignment, stage entries/linkage, output definedness, and acyclic helper effects.
       Text reading/writing, immutable publication, and a GLSL 420 core backend are implemented.
       The engine material/output path consumes published canonical modules and artifacts.</p>
-      <p>Legacy AST/symbol implementation remains scheduled for retirement; it is not another
-      public VPL language surface or part of the active shader emitter. This specification describes simple operations and
+      <p>Version 1 fixes the language scope and text grammar described here. The consistency review
+      covers the reader, canonical verifier, publication boundary, GLSL backend, and executable
+      examples. Target restrictions remain part of conformance; successful canonical verification
+      alone does not promise acceptance by every graphics driver.</p>
+      <p>The module contains only the canonical representation and compiler services. The former
+      expression AST, symbol model, builders, and AST phases are removed; a future higher-level
+      language belongs to a separate module. This specification describes simple operations and
       branches, not nested source expressions or structured if/while/for syntax.</p>
 
       <h2 id="lexical-translation">2. Lexical translation</h2>
@@ -269,6 +279,12 @@ endOfInput          : Lexical.EndOfInput</code></pre>
       Ordinary helpers may have parameters and non-void returns. Function/block objects shall not
       be shared between stages. Stage_create creates an unfinished stage with NULL entry, and
       Stage_createWithEntryFunction can supply it at construction; verification requires it.</p>
+      <p>Record display names, record field names, uniform names, interface names, and function names
+      shall be nonempty strings. They are compared by their exact decoded contents, without case
+      folding or Unicode normalization. Record display names need not be globally unique; their
+      nominal identity follows section 4. Uniform names are unique module-wide, interface names
+      across both directions within a stage, and function names within a stage. Interface and
+      function name collections are separate. Field names are unique within their record.</p>
       <h3 id="interface-linkage">3.1 Interface linkage</h3>
       <p>Every ordinary fragment input, whether used or not, requires exactly one ordinary vertex
       output. An explicit input location matches the same explicit output location, regardless of
@@ -280,6 +296,34 @@ endOfInput          : Lexical.EndOfInput</code></pre>
       <p>Position is a floating vec4 vertex output or fragment input with location -1. It is not
       a varying match: fragment Position is supplied by rasterization. FragmentColor is a floating
       vec4 fragment output. Required declarations and definedness are specified in section 6.3.</p>
+
+      <h3 id="execution-model">3.2 Invocation and execution model</h3>
+      <p>A module describes vertex and fragment processing, not a general-purpose program entry.
+      The graphics execution environment invokes the selected vertex entry for each processed
+      vertex and the fragment entry for each processed fragment, supplying the stage inputs,
+      uniform values, textures, sampler state, and pipeline state. Vertex outputs participate in
+      rasterization and interface interpolation; they are not direct function-call arguments to a
+      particular fragment invocation. The target profile defines those graphics operations.</p>
+      <p>Each function call has private parameter values and local registers. Arguments are read
+      from caller operands and copied by value into ordered parameters, including records/arrays.
+      Registers begin unassigned at every function invocation; register IDs are local to that
+      function. A call begins at its first block. Its return supplies a value, if any, to the caller's
+      destination register and resumes the instruction after the call. Parameter or register writes
+      do not mutate the caller's values. Stage outputs are shared across calls within the same
+      shader invocation, so helper writes are visible to callers; they are not shared registers
+      between unrelated vertex/fragment invocations.</p>
+      <p>An instruction reads its simple input values and any storage selectors before writing its
+      result or target. Register assignment and aggregate copying use values, not references to
+      another register's mutable contents. A block executes instructions in order and then exactly
+      its terminator; a branch changes the current block without resetting the function frame.
+      Return leaves that frame, while discard abandons the whole fragment invocation and all of
+      its active call frames. Infinite execution is not rejected merely for lacking a return.</p>
+      <p>Lexical/syntactic errors and violated verifier requirements are invalid programs and require
+      rejection. Explicitly undefined dynamic numeric/index/resource cases are execution conditions
+      for which the language does not require runtime checking or a portable result; they do not
+      relax structural/type validation. Target-dependent precision and resource bounds must be
+      distinguished from invalid program structure. A valid canonical module may still be rejected
+      by a backend capability or hardware-limit check.</p>
 
       <h2 id="types">4. Types</h2>
       <table>
@@ -299,24 +343,54 @@ endOfInput          : Lexical.EndOfInput</code></pre>
       are not supported by the initial verifier, including an <code>ArrayUniform</code> with count zero.</p>
       <p>Scalar kinds, vector element kinds and sizes, matrix dimensions, sampler kinds, and array
       element types and lengths participate in structural type equality. Records have nominal
-      identity: distinct record type objects are not interchangeable merely because their names or
-      fields match. Textual named-type binding must preserve this identity.</p>
+      identity defined by their record declaration in a module instance. Every reference to that
+      declaration denotes the same record type; a separate declaration denotes a distinct type,
+      even if its quoted display name and fields match. A builder creates a record declaration by
+      creating one RecordType node and reuses it for that declaration's references. Object identity
+      is the C implementation of the rule, not the language's definition.</p>
+      <p>Parsing or materializing a module creates a new module instance. Serialization preserves
+      which uses share a record declaration and which declarations are distinct; it does not preserve
+      C pointers or establish cross-module type equality. V1 has no cross-module type linker.
+      Structural wrappers such as arrays are equal only when their element types are equal under
+      these rules.</p>
       <p>The current scalar constant representation uses Boolean values, signed 32-bit integer
-      values, and IEEE binary32 floating values. Constants must be finite; positive and negative
-      zero are distinct stored bit patterns preserved by text round trips. Additional numeric kinds
-      and target resource limits are extensions.</p>
-      <h3 id="numeric-contract">4.1 Initial numeric contract</h3>
-      <p>Integer arithmetic is signed 32-bit. Division truncates toward zero. Signed overflow,
-      division by zero, and minimum-integer divided by -1 have undefined execution behavior;
+      values, and IEEE binary32 floating values. Literal constants must be finite; positive and
+      negative zero are distinct stored literal bit patterns preserved by text round trips.
+      Shader arithmetic is governed by the native execution rules below, not the CPU conversion
+      contract. Additional numeric kinds and target resource limits are extensions.</p>
+      <h3 id="numeric-contract">4.1 GLSL-friendly v1 numeric contract</h3>
+      <p>The v1 execution baseline is deliberately aligned with
+      <a href="https://registry.khronos.org/OpenGL/specs/gl/GLSLangSpec.4.20.pdf">GLSL 4.20 core</a>,
+      sections 4.1.3, 4.7.1, 5.4, and 5.9. A conforming backend may use its native corresponding
+      operators and constructors; VPL does not require software IEEE emulation, floating exception
+      handling, programmable shader rounding, saturating integer arithmetic, or a stronger fast-math
+      model. A different target must state any capability restriction rather than assume identical
+      precision guarantees.</p>
+      <p>Integers are signed 32-bit two's-complement values. Add, Subtract, and Multiply, including
+      integer-vector component operations, keep the low 32 bits of the mathematical result and
+      interpret them as signed two's complement. Overflow wraps; it does not saturate or raise an
+      exception. Division truncates toward zero. Integer division by zero and minimum-integer divided
+      by -1 have undefined execution results and must not raise a VPL arithmetic exception;
       statically explicit constant zero divisors and constant minimum/-1 divisions are rejected.
       The verifier checks types and those explicit invalid divisions, not general range proofs.</p>
-      <p>Floating storage is binary32. Literal conversion rounds nearest-even, preserving signed
-      zero; finite underflow may yield subnormals or signed zero. Arithmetic may produce infinities
-      and NaNs even though literals cannot encode them. A backend must declare its rounding,
-      subnormal, and contraction behavior; version 1 does not promise bit-identical arithmetic across
-      targets. Equal treats signed zeros as equal and NaNs as unequal; NotEqual is its complement,
-      and ordered comparisons with NaN are false. No algebraic rewrite may silently change these
-      control-flow comparison results. Section 12 defines the implemented GLSL target profile.</p>
+      <p>CPU literal reading is a separate guarantee: decimal text rounds nearest-even to finite
+      binary32, preserving signed zero and representable subnormals, and serialization preserves
+      those bits. That does not force a shader to retain a subnormal or a zero sign during execution.</p>
+      <p>Shader float storage and ordinary finite operations use GLSL 4.20's single-precision range
+      and precision rules. Shader rounding is not programmable; positive/negative zero may be
+      interchanged, subnormal inputs/results may flush to zero, and contraction such as multiply/add
+      may follow GLSL's permitted evaluation. Register boundaries alone are not precise-rounding
+      barriers. Floating arithmetic does not raise VPL exceptions. NaN generation and propagation,
+      signaling NaNs, and portable NaN-dependent branch outcomes are not additional VPL promises.
+      Nonzero float division by zero follows GLSL's infinity rules, including its zero-sign allowance;
+      indeterminate operations retain the GLSL allowances. Compare ordinary finite numbers normally,
+      with equal positive/negative zeros; no stronger cross-driver special-value reproducibility is
+      required. Section 12 specifies the implemented target contract.</p>
+      <p>Runtime int-to-float construction converts the signed mathematical value, not its bit
+      pattern. Exactly representable integers retain their value. Other integers may lose precision
+      under GLSL's correctly-rounded conversion/unspecified shader-rounding rules. This applies to
+      explicit scalar conversions and integer scalar components in floating vector/matrix
+      construction. It does not introduce implicit arithmetic, call, store, or return conversions.</p>
 
       <h2 id="values">5. Values and mutable registers</h2>
       <table>
@@ -408,7 +482,8 @@ endOfInput          : Lexical.EndOfInput</code></pre>
       <p>A load through a derived reference produces the selected stored value. A store through it
       requires an exactly matching value and updates that sub-storage, preserving the other fields
       and elements. The descriptors are storage operands, not computation values or call arguments.
-      The following notation is descriptive, not a finalized text grammar:</p>
+      The following notation is descriptive pseudo-code; canonical text syntax is defined in
+      section 10:</p>
       <pre><code>root  = LocalReference(containerRegister)
 cells = MemberReference(root, "cells", arrayType)
 cell  = IndexReference(cells, indexRegister, recordType)
@@ -479,16 +554,37 @@ result : int = load field</code></pre>
       before arithmetic, assignment, calls, or returns requiring float.</p>
       <p>Equal and NotEqual accept matching Boolean, integer, or floating scalars and produce bool.
       Less, LessEqual, Greater, and GreaterEqual require matching numeric scalars and produce bool.
-      Composite comparisons are not defined. Floating special-value comparisons follow section 4.1.</p>
+      Composite comparisons are not defined. Integer/Boolean comparisons are exact; floating
+      precision and special-value allowances follow section 4.1.</p>
+      <p>The complete v1 operand table below is normative. A and B denote floating matrices,
+      V a floating vector, and S a floating scalar. Other operands have exactly matching types
+      where stated. All combinations not listed are rejected; there is no implicit promotion.</p>
+      <table>
+        <thead><tr><th>Operands</th><th>Operations</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>Matching int or float scalars</td><td>Add, Subtract, Multiply, Divide</td><td>The matching scalar type</td></tr>
+          <tr><td>Matching integer or floating vectors</td><td>Add, Subtract, Multiply, Divide</td><td>The matching vector, component-wise</td></tr>
+          <tr><td>Matching floating matrix shapes</td><td>Add, Subtract, Divide</td><td>The matching matrix, component-wise</td></tr>
+          <tr><td>A with c columns, B with c rows</td><td>Multiply</td><td>Matrix with A's rows and B's columns</td></tr>
+          <tr><td>A with c columns, floating V with c components</td><td>Multiply</td><td>Floating vector with A's row count</td></tr>
+          <tr><td>Floating V or matrix, S</td><td>Multiply, Divide</td><td>The aggregate type, component-wise scalar operation</td></tr>
+          <tr><td>S, floating V or matrix</td><td>Multiply</td><td>The aggregate type</td></tr>
+          <tr><td>Matching bool, int, or float scalars</td><td>Equal, NotEqual</td><td>bool</td></tr>
+          <tr><td>Matching int or float scalars</td><td>Less, LessEqual, Greater, GreaterEqual</td><td>bool</td></tr>
+        </tbody>
+      </table>
       <h3 id="construction">7.2 Construction and conversion</h3>
       <p>A scalar construction takes one operand of the same scalar type, or an integer operand
       for a floating result. This explicitly represents integer widening. Floating-to-integer and
       numeric-to-Boolean conversions are not currently supported.</p>
-      <p>A vector construction supplies matching scalar/vector components totaling its dimension,
-      or one matching scalar to fill every component. Floating vector/matrix construction also
-      accepts integer scalar components as an explicit part of that construction. Matrix components
-      are supplied in column-major order, totaling rows times columns; one scalar instead forms a
-      diagonal matrix with zero off-diagonal entries.</p>
+      <p>A vector construction supplies matching scalar/vector components totaling exactly its
+      dimension, or one matching scalar to fill every component. Vector operands contribute all
+      their components in order; excess components are rejected rather than truncated.
+      Floating vector/matrix construction also accepts integer scalar components as an explicit
+      part of that construction, but does not convert integer-vector operands. Matrix construction
+      takes floating scalar/vector components, with that same integer-scalar allowance, in
+      column-major order, totaling exactly rows times columns; one scalar instead forms a diagonal
+      matrix with zero off-diagonal entries. Matrix operands are not constructor components.</p>
       <p>An array construction supplies exactly its element count, with each operand matching the
       element type. Record construction supplies one exactly matching operand per field, in field
       order. Empty record construction is permitted. Samplers cannot be constructed.</p>
@@ -499,6 +595,30 @@ result : int = load field</code></pre>
       NULL result. For a built-in call, the function reference shall be NULL and the selector shall
       be supported. The current built-in is <code>Texture(sampler2D, vec2) -&gt; vec4</code>, with
       floating vectors.</p>
+      <h4 id="texture-semantics">7.3.1 Texture sampling</h4>
+      <p>Texture performs the ordinary non-shadow, non-projective, two-dimensional floating
+      sampling operation corresponding to <code>texture(sampler2D, vec2)</code> without explicit
+      bias, LOD, gradients, or offset. The two coordinates are normalized texture coordinates,
+      not integer texel indices. Coordinates outside [0,1] are handled by sampler addressing state;
+      VPL does not implicitly clamp them or promise one wrapping mode.</p>
+      <p>The host binds a compatible complete 2D texture and supplies filtering, addressing, mipmap,
+      base/max-level, LOD-clamp, border, swizzle, and applicable format/decode state. Sampling returns
+      the floating vec4 defined by that texture and sampler state. Normalized formats convert their
+      texels to floating values; floating texture values are not universally clamped to [0,1].
+      Integer and shadow-sampler operations are not part of v1. Incompatible resource/sampler
+      combinations and invalid texture state have the underlying graphics API's undefined-result
+      behavior, not a portable VPL fallback color.</p>
+      <p>Vertex-stage implicit base LOD is zero; actual level selection still obeys the bound
+      texture/sampler state. Fragment-stage implicit LOD uses the target's ordinary derivative-based
+      selection when needed. Implicit derivatives are undefined in non-uniform control flow;
+      non-mipmapped sampling need not require them. VPL neither supplies invented gradients nor
+      promises reconvergence across arbitrary branch/back-edge graphs. The GLSL dispatch lowering
+      preserves explicit per-invocation control flow but is not a derivative-reconvergence guarantee.</p>
+      <p>The verifier checks the signature and storage permissions. It does not prove dynamic
+      uniformity, derivative availability, texture completeness, or external resource compatibility.
+      Those are execution preconditions, as described by GLSL 4.20 section 8.9 and the OpenGL 4.2
+      texture/sampler rules. This bounded shader/material-editor target scope does not require a
+      general-purpose GPU execution or resource language.</p>
       <h3 id="extraction">7.4 Extraction</h3>
       <p>A swizzle's pattern shall contain only xyzw selectors valid for the source dimension.
       One selector produces a scalar of the source element kind; multiple selectors produce a
@@ -518,8 +638,8 @@ result : int = load field</code></pre>
           <tr><td><code>DiscardTerminator</code></td><td>None</td><td>Abandon the fragment invocation, with no successor and no returned value, regardless of function return type.</td></tr>
         </tbody>
       </table>
-      <p>Discard is fragment-only and terminates a block. The older <code>DiscardInstruction</code>
-      scaffold is rejected by canonical verification; producers shall use the terminator form.</p>
+      <p>Discard is fragment-only and terminates a block. It is represented only by
+      <code>DiscardTerminator</code>; the former instruction-kind value 9 is reserved and invalid.</p>
       <p>Loops are explicit back-edges. Higher-level if/while/for/break/continue statements are
       expressed by graph construction in the producing tool or future external language frontend.
       The following version-1 function fragment shows mutable registers and a loop:</p>
@@ -553,7 +673,9 @@ result : int = load field</code></pre>
       nested storage paths, inherited permissions, cyclic references, partial-write initialization,
       selector availability, constructor rejection, reruns, and failure cleanup. Construction tests
       remain in <code>Arcadia.VPL.Tests.IR</code>.
-      Legacy GLSL golden tests check the four existing engine variants during migration.</p>
+      Canonical GLSL golden and native-driver tests check the four engine variants. The GLSL tests
+      also compare each embedded built-in with its independently parsed checked-in source file.
+      Diagnostic tests use canonical verification and the shared diagnostic context.</p>
 
             <h2 id="text-format">10. Canonical text format, version 1</h2>
       <p>A <code>.vpl</code> file is UTF-8 without a byte-order mark. It contains one module form
@@ -570,7 +692,10 @@ result : int = load field</code></pre>
       refine names to <code>r</code> followed by decimal digits; their numeric IDs are function-local.</p>
       <p>Outside strings, spaces, tabs, common line endings, non-nesting solidus/asterisk comments,
       double-solidus line comments, and reverse-solidus immediately followed by a line ending are
-      ignored. Comments separate words. Other punctuation is not a version-1 word alternative.
+      ignored. Comments and line continuations separate words; a continuation does not join name
+      fragments. Parentheses and either quote delimiter terminate a preceding name or number, so
+      <code>id"display"Type</code> contains three tokens without intervening spaces.
+      Other punctuation is not a version-1 word alternative.
       Integer and real spelling overlap is resolved by operand/declaration context; a maximal
       number word must match the common decimal grammar in its entirety.</p>
       <p>Both quote styles are accepted. Raw C0 controls and line endings are forbidden inside
@@ -588,6 +713,15 @@ result : int = load field</code></pre>
       nearest-even conversion in a private C numeric locale. Underflow to signed zero is allowed;
       overflow to infinity is rejected. Invalid UTF-8, overlong encodings, encoded surrogates,
       unclosed strings/comments, and malformed numbers are lexical errors.</p>
+      <p>Size/count and numeric register-ID storage limits are implementation resource bounds,
+      separate from shader arithmetic int32. The current Arcadia reader uses unsigned Arcadia.Size:
+      at most 2^32-1 on a 32-bit build or 2^64-1 on a 64-bit build, with zero forbidden for array
+      lengths. Values beyond that bound are rejected with a range diagnostic. They are not rounded
+      or truncated. This explicitly retains the implementation-defined bound rather than silently
+      narrowing existing v1 inputs; implementations must disclose their bound. GLSL target and
+      hardware resource limits are additional checks. For source portability between these builds,
+      keep register IDs within unsigned 32 bits and GLSL array counts within positive signed 32 bits;
+      this is not a guarantee that a GPU can allocate arrays of that size.</p>
 
       <h3 id="text-grammar">10.2 Grammar</h3>
       <p>In the following grammar, braces denote repetition and brackets optional syntax.
@@ -658,11 +792,13 @@ terminator   : '(' 'branch' id ')' | '(' 'branch_if' operand id id ')'
       types, not source-expression type inference. Calls cannot name a function in another stage.
       A block has exactly one final terminator. Text reading always invokes canonical verification.</p>
       <p>Version 1 limits syntactic form/atom nesting and named-type dependency depth to 128.
+      The type bound counts dependency edges on the longest path, including unused types, regardless
+      of declaration order or whether a referenced type has already been resolved.
       Canonical writing limits derived reference depth to 120 so emitted forms fit that reader
       bound. All counts, ranges, entry signatures, interfaces, operands, and output flows must also
       satisfy the semantic sections above.</p>
 
-      <h3 id="text-example">10.3 Complete example</h3>
+      <h3 id="text-example">10.3 Complete examples</h3>
       <p>This exact source is also read and verified by <code>Arcadia.VPL.Tests.Text</code>:</p>
       <pre><code>// Arcadia
 // Copyright (C) 2024-2026 Michael Heilmann
@@ -709,6 +845,150 @@ terminator   : '(' 'branch' id ')' | '(' 'branch_if' operand id id ')'
           (store (stage color) r0)
           (return))))))
 </code></pre>
+      <p>The following two hand-authored modules are also read, published, materialized, and
+      round-tripped by that test. <code>Arcadia.VPL.Tests.GLSL.Driver</code> compiles and links those
+      same files and checks their opaque-green fragment results on a native OpenGL driver.</p>
+      <h4 id="text-example-control-flow">Loop and helper call</h4>
+      <p>This module uses an explicit loop back-edge, mutable registers, a forward-referenced helper,
+      a parameter load, and explicit integer-to-floating conversion.</p>
+      <pre><code>// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see https://www.gnu.org/licenses/.
+
+// A loop with an ordinary helper call. The fragment result is opaque green.
+// The quoted strings are display names; the unquoted names are binding IDs.
+(module 1
+  (types
+    (type Void void)
+    (type Int int)
+    (type Bool bool)
+    (type Float float)
+    (type Position vector float 3)
+    (type Color vector float 4))
+  (uniforms)
+  (vertex vertex_entry
+    (interface
+      (in attribute "input_position" Position 0 none)
+      (out clip "clip_position" Color -1 position))
+    (functions
+      (function vertex_entry "vertex_entry" Void
+        (parameters)
+        (registers (register r0 Position) (register r1 Color))
+        (block entry
+          (load r0 (stage attribute))
+          (construct r1 r0 (float 1.0))
+          (store (stage clip) r1)
+          (return)))))
+  (fragment fragment_entry
+    (interface (out pixel "pixel_color" Color 0 fragment_color))
+    (functions
+      (function fragment_entry "fragment_entry" Void
+        (parameters)
+        (registers
+          (register r0 Int)
+          (register r1 Bool)
+          (register r2 Float)
+          (register r3 Color))
+        (block entry
+          (copy r0 (int 0))
+          (branch test))
+        (block test
+          (less r1 r0 (int 2))
+          (branch_if r1 body finish))
+        (block body
+          (call r0 increment r0)
+          (branch test))
+        (block finish
+          (construct r2 r0)
+          (divide r2 r2 (float 2.0))
+          (construct r3 (float 0.0) r2 (float 0.0) (float 1.0))
+          (store (stage pixel) r3)
+          (return)))
+      // Function/block/register IDs are scoped; r0 here is a different register.
+      (function increment "increment" Int
+        (parameters (parameter value Int))
+        (registers (register r0 Int))
+        (block entry
+          (load r0 (parameter value))
+          (add r0 r0 (int 1))
+          (return r0))))))
+</code></pre>
+      <h4 id="text-example-aggregate-storage">Nested aggregate storage</h4>
+      <p>This module initializes a complete local array of records before a dynamic indexed field
+      store and load. The derived reference aliases storage in the local register.</p>
+      <pre><code>// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see https://www.gnu.org/licenses/.
+
+// Construct complete local values, then update one record field in an array.
+// The fragment result is opaque green; the other element remains red.
+(module 1
+  (types
+    (type Void void)
+    (type Int int)
+    (type Position vector float 3)
+    (type Color vector float 4)
+    (type Cell record "Cell" (field "color" Color) (field "weight" Int))
+    (type Cells array Cell 2))
+  (uniforms)
+  (vertex vertex_entry
+    (interface
+      (in attribute "input_position" Position 0 none)
+      (out clip "clip_position" Color -1 position))
+    (functions
+      (function vertex_entry "vertex_entry" Void
+        (parameters)
+        (registers (register r0 Position) (register r1 Color))
+        (block entry
+          (load r0 (stage attribute))
+          (construct r1 r0 (float 1.0))
+          (store (stage clip) r1)
+          (return)))))
+  (fragment fragment_entry
+    (interface (out pixel "pixel_color" Color 0 fragment_color))
+    (functions
+      (function fragment_entry "fragment_entry" Void
+        (parameters)
+        (registers
+          (register r0 Color)
+          (register r1 Cell)
+          (register r2 Cells)
+          (register r3 Int))
+        (block entry
+          (construct r0 (float 1.0) (float 0.0) (float 0.0) (float 1.0))
+          (construct r1 r0 (int 1))
+          (construct r2 r1 r1)
+          (copy r3 (int 1))
+          (construct r0 (float 0.0) (float 1.0) (float 0.0) (float 1.0))
+          (store (member_ref (index_ref (local r2) r3) "color") r0)
+          (load r0 (member_ref (index_ref (local r2) r3) "color"))
+          (store (stage pixel) r0)
+          (return))))))
+</code></pre>
 
       <h2 id="publication">11. Text APIs and verified publication</h2>
       <p><code>Arcadia_VPL_Text_read</code> accepts bytes, byte count, diagnostics, and an optional
@@ -717,6 +997,11 @@ terminator   : '(' 'branch' id ')' | '(' 'branch_if' operand id id ')'
       diagnostics carry a source label, byte offset in <code>inputPosition</code>, and one-based
       Unicode-code-point line/column. Common CR/LF groups count as one line ending. Missing-object
       verifier diagnostics fall back to the module opening when no precise subject is available.</p>
+      <p>Malformed form shapes or token categories are syntactic failures; for example,
+      <code>texture</code> requires a register destination and cannot use <code>void</code>.
+      Unknown or duplicate bindings, invalid type dimensions or uniform kinds, invalid member/index
+      base types, and constructor type/count mismatches are semantic failures. Trailing input is a
+      syntactic failure located at the first trailing token.</p>
       <p><code>Arcadia_VPL_Text_write</code> verifies a current module, emits deterministic text,
       and reads that result back through the same verifier before returning it. Type IDs are t0,
       t1, and so on in deterministic first-discovery order; uniforms, interface slots, functions,
@@ -786,8 +1071,14 @@ terminator   : '(' 'branch' id ')' | '(' 'branch_if' operand id id ')'
       <p>Finite float literals are emitted with a private C numeric locale and nine significant
       digits, preserving binary32 values and signed zero. Minimum integer spelling avoids an
       out-of-range positive signed literal. Arithmetic and comparisons use GLSL 420 operators.
-      Driver rounding, contraction, and subnormal behavior follow the target implementation;
-      cross-driver bit-identical floating arithmetic is not promised.</p>
+      Signed add/subtract/multiply therefore wrap to low 32 bits. Runtime conversion, rounding,
+      zero signs, subnormal flushing, NaN behavior, and contraction follow GLSL 4.20 core rather
+      than an emulated CPU IEEE contract. Cross-driver bit-identical floating arithmetic is not
+      promised, and VPL registers do not imply the GLSL precise qualifier.</p>
+      <p>Texture emits native texture(sampler, coordinates). Vertex implicit base LOD is zero;
+      fragment implicit LOD and addressing/filtering use the driver and external sampler state.
+      Dispatch loops do not provide a portable implicit-derivative reconvergence promise. No
+      uniformity analysis or explicit gradient/LOD emulation is inserted.</p>
 
       <h3 id="glsl-capabilities">12.4 Initial target restrictions</h3>
       <ul>
@@ -808,8 +1099,17 @@ terminator   : '(' 'branch' id ')' | '(' 'branch_if' operand id id ')'
       compile/link checks. The target does not silently emit placeholder code for unsupported types.</p>
 
       <h3 id="glsl-engine">12.5 Engine integration and verification</h3>
-      <p>Programs_create publishes the four existing ambient-color variants from one parameterized
-      canonical-text template. Material nodes and backend resource creation pass VerifiedModule.
+      <p>Programs_create selects one complete checked-in canonical description from
+      <code>VPL/Library/Assets/Programs/</code>: mesh-ambient-color.vpl, vertex-ambient-color.vpl,
+      texture-ambient-color.vpl, or texture-vertex-ambient-color.vpl. CMake embeds the exact source
+      bytes into a private BuiltinPrograms.h in the external build tree. Changes to a program,
+      embedding script, or header template regenerate that header and rebuild the library.</p>
+      <p>The runtime selects the embedded bytes, reads/binds/verifies them through Text_read with
+      the source filename as its diagnostic label, and publishes VerifiedModule. No runtime file
+      lookup, working-directory convention, or source-tree availability is required for built-ins.
+      Arbitrary external source files still use the ordinary text-reading interface. The embedded
+      data is a build product; the .vpl files are the editable source of truth.</p>
+      <p>Material nodes and backend resource creation pass VerifiedModule.
       The OpenGL resource compiles one artifact, uploads both code strings with explicit lengths,
       binds the resolved fragment output before linking, and uses artifact reflection for uniform
       blocks and scalar locations. Deterministic block binding points remain available to model
@@ -820,13 +1120,24 @@ terminator   : '(' 'branch' id ')' | '(' 'branch_if' operand id id ')'
       dispatch execution with expected pixels. A general fixture compiles/links record/array
       uniforms, integer-containing varyings, calls, storage selectors, and terminating discard.
       Driver tests report skipped status if no suitable core context is available.</p>
+      <p>Numeric/sampling conformance renders a pass color only when native signed wrapping,
+      negative integer division, exact runtime conversion, finite arithmetic, and zero comparison
+      behave as specified. Sampler cases distinguish repeat from clamp addressing and verify
+      fragment implicit mip selection versus vertex base LOD zero using different mip colors.
+      Tests do not assert nonportable NaN payloads, zero-sign arithmetic, subnormal retention,
+      correctly-rounded shader division, or implicit derivatives in divergent flow.</p>
 
 
-      <h2 id="pending">13. Remaining specification work</h2>
+      <h2 id="pending">13. Conformance and extensions</h2>
+      <p>Version-1 conformance evidence includes positive and negative text/binding cases, constructor
+      and binary-operation tables, verifier data-flow/output checks, deterministic publication and
+      GLSL goldens, and native driver compile/link/pixel checks. The complete examples in section
+      10.3 are read from the same files included in this specification. Driver tests may be skipped
+      when no suitable context exists; such a skip is not native-driver execution evidence.</p>
+      <p>The following work extends the established version-1 scope:</p>
       <ul>
-        <li>Additional targets/profiles, hardware-limit validation, legacy frontend retirement,
-        and externalizing the built-in canonical template data.</li>
-        <li>Future language extensions and format compatibility beyond version 1.</li>
+        <li>Additional targets/profiles and earlier hardware-limit validation.</li>
+        <li>Additional language operations/types and format compatibility beyond version 1.</li>
       </ul>
       <p>Target-neutral validity alone does not imply support by every backend. The migration
       checklist and register-based control-flow rationale are recorded in
@@ -839,7 +1150,7 @@ terminator   : '(' 'branch' id ')' | '(' 'branch_if' operand id id ')'
     <div class="center-column"></div>
     <div class="right-column">
       <div>Website maintained by Michael Heilmann.</div>
-      <div>Last modified on 16 October 2026.</div>
+      <div>Last modified on 31 October 2026.</div>
     </div>
   </footer>
 </body>

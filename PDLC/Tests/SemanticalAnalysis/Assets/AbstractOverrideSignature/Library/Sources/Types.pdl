@@ -1,0 +1,8 @@
+abstract class MyModule.Base {
+  method abstract read(variable value : Arcadia.Natural64) : Arcadia.Natural64
+}
+class MyModule.Concrete extends MyModule.Base {
+  method read(variable value : Arcadia.Integer32) : Arcadia.Natural64 {
+    return 1
+  }
+}

@@ -18,6 +18,9 @@
 #include "Arcadia/Engine/UI/DefinitionFactory.h"
 
 #include "Arcadia/Engine/UI/Include.h"
+#include "Arcadia/Engine/UI/definitionChildCount.h"
+#include "Arcadia/Engine/UI/resolveDefinitionChild.h"
+#include "Arcadia/Engine/UI/appendDefinitionChild.h"
 
 Arcadia_Object*
 Arcadia_Engine_UI_createNodeFromDefinition
@@ -55,20 +58,40 @@ Arcadia_Engine_UI_createNodeFromDefinition
   Arcadia_Thread_jump(thread);
 }
 
-void
-Arcadia_Engine_UI_populateContainerFromDefinition
+Arcadia_Natural64Value
+Arcadia_Engine_UI_definitionChildCountImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_Visuals_BackendContext* backendContext,
-    Arcadia_Object* target,
-    Arcadia_Object* source
+    Arcadia_List* children
   )
 {
-  Arcadia_List* childReferences = Arcadia_ADL_UI_ContainerDefinition_getChildReferences(thread, source);
-  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)childReferences); i < n; ++i) {
-    Arcadia_ADL_Reference* childReference = (Arcadia_ADL_Reference*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, childReferences, i, _Arcadia_ADL_Reference_getType(thread));
-    Arcadia_ADL_Reference_resolve(thread, childReference);
-    Arcadia_Object* child = Arcadia_Engine_UI_createNodeFromDefinition(thread, backendContext, childReference->definition);
-    Arcadia_Engine_UI_Container_addChild(thread, target, child);
+  return Arcadia_Collection_getSize(thread, (Arcadia_Collection*)children);
+}
+
+void
+Arcadia_Engine_UI_appendDefinitionChildImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* target,
+    Arcadia_Object* child
+  )
+{
+  Arcadia_Engine_UI_Container_addChild(thread, target, child);
+}
+
+Arcadia_ADL_Definition*
+Arcadia_Engine_UI_resolveDefinitionChildImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_List* children,
+    Arcadia_Natural64Value index
+  )
+{
+  if (index > Arcadia_SizeValue_Maximum) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
   }
+  Arcadia_ADL_Reference* reference = (Arcadia_ADL_Reference*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, children, (Arcadia_SizeValue)index, _Arcadia_ADL_Reference_getType(thread));
+  Arcadia_ADL_Reference_resolve(thread, reference);
+  return reference->definition;
 }

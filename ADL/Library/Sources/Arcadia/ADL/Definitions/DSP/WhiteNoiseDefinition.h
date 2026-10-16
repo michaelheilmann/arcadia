@@ -17,28 +17,16 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_DSP_WHITENOISEDEFINITION_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_DSP_WHITENOISEDEFINITION_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
-  #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
+#if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
+  #error("do not include `Arcadia/ADL/Definitions/DSP/WhiteNoiseDefinition.h` directly, include `Arcadia/ADL/Include.h` instead")
 #endif
-#include "Arcadia/ADL/Definition.h"
-#include "Arcadia/ADL/Reference.h"
 
-// A DSP generating a white noise signal.
-//
-// @code
-// {
-//   type  : "DSP.WhiteNoise",
-//   name  : "MyGame.MyDSPs.MyWhiteNoise",
-// }
-// @endcode
-//
-// @code
-// class Arcadia.ADL.WhiteNoiseDefinition extends Arcadia.ADL.Definition {
-//
-//   constructor(definitions : Arcadia.ADL.Definitions, name : Arcadia.String)
-//
-// };
-// @endcode
+#include "Arcadia/Ring1/Include.h"
+#include "Arcadia/ADL/Definition.h"
+
+typedef struct Arcadia_ADL_Definitions Arcadia_ADL_Definitions;
+typedef struct Arcadia_ADL_WhiteNoiseDefinition Arcadia_ADL_WhiteNoiseDefinition;
+
 Arcadia_declareObjectType(u8"Arcadia.ADL.WhiteNoiseDefinition", Arcadia_ADL_WhiteNoiseDefinition,
                           u8"Arcadia.ADL.Definition");
 
@@ -50,6 +38,13 @@ struct Arcadia_ADL_WhiteNoiseDefinition {
   Arcadia_ADL_Definition _parent;
 };
 
+void
+Arcadia_ADL_WhiteNoiseDefinition_link
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_WhiteNoiseDefinition* self
+  );
+
 Arcadia_ADL_WhiteNoiseDefinition*
 Arcadia_ADL_WhiteNoiseDefinition_create
   (
@@ -58,4 +53,4 @@ Arcadia_ADL_WhiteNoiseDefinition_create
     Arcadia_String* name
   );
 
-#endif  // ARCADIA_ADL_DEFINITIONS_DSP_WHITENOISEDEFINITION_H_INCLUDED
+#endif // ARCADIA_ADL_DEFINITIONS_DSP_WHITENOISEDEFINITION_H_INCLUDED

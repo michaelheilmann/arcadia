@@ -16,6 +16,8 @@
 
 #define ARCADIA_MEDIA_PRIVATE (1)
 #include "Arcadia/Media/VertexDescriptor.h"
+#include "Arcadia/Media/VertexElementDescriptor.h"
+#include "Arcadia/Collections/Include.h"
 
 static void
 Arcadia_Media_VertexDescriptor_construct

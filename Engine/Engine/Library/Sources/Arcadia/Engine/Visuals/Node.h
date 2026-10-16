@@ -18,20 +18,21 @@
 #define ARCADIA_ENGINE_VISUALS_NODE_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Visuals/Node.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
-#include "Arcadia/Engine/Node.h"
-#include "Arcadia/Math/Include.h"
-typedef struct Arcadia_Engine_Visuals_EnterPassNode Arcadia_Engine_Visuals_EnterPassNode;
-typedef struct Arcadia_Engine_Visuals_NodeFactory Arcadia_Engine_Visuals_NodeFactory;
-typedef struct Arcadia_Engine_Visuals_BackendContext Arcadia_Engine_Visuals_BackendContext;
 
-// The base of all visuals nodes.
+#include "Arcadia/Ring1/Include.h"
+#include "Arcadia/Engine/Node.h"
+
+typedef struct Arcadia_Engine_Visuals_EnterPassNode Arcadia_Engine_Visuals_EnterPassNode;
+typedef struct Arcadia_Engine_Visuals_Node Arcadia_Engine_Visuals_Node;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.Node", Arcadia_Engine_Visuals_Node,
-                          u8"Arcadia.Engine.Node")
+                          u8"Arcadia.Engine.Node");
 
 struct Arcadia_Engine_Visuals_NodeDispatch {
-  Arcadia_Engine_NodeDispatch parent;
+  Arcadia_Engine_NodeDispatch _parent;
+
   void (*render)(Arcadia_Thread*, Arcadia_Engine_Visuals_Node*, Arcadia_Engine_Visuals_EnterPassNode*);
 };
 
@@ -39,7 +40,6 @@ struct Arcadia_Engine_Visuals_Node {
   Arcadia_Engine_Node _parent;
 };
 
-// Render this node.
 void
 Arcadia_Engine_Visuals_Node_render
   (

@@ -1,0 +1,5 @@
+{
+  type  : "Texture",
+  name  : "ColorSourcesScene.NewGameButtonTexture",
+  pixelBuffer : "ColorSourcesScene.NewGameButtonPixelBuffer",
+}

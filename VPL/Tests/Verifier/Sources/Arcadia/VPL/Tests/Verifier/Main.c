@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/VPL/Include.h"
 
 typedef struct Fixture {
@@ -346,7 +348,7 @@ testGraphs
       case 9: f.right->terminator = NULL; break;
       case 10: ((Arcadia_VPL_IR_ConditionalBranchTerminator*)f.entry->terminator)->condition = (Arcadia_VPL_IR_Value*)f.one; break;
       case 11: f.join->terminator = (Arcadia_VPL_IR_Terminator*)Arcadia_VPL_IR_ReturnTerminator_create(thread, (Arcadia_VPL_IR_Value*)f.yes); break;
-      case 12: append(thread, f.join->instructions, (Arcadia_Object*)Arcadia_VPL_IR_DiscardInstruction_create(thread)); break;
+      case 12: append(thread, f.join->instructions, (Arcadia_Object*)Arcadia_VPL_IR_Instruction_create(thread, 9)); break; // Retired discard opcode stays invalid.
       case 13:
         Arcadia_List_removeAt(thread, f.module->fragment->functions, 0, 1);
         append(thread, f.module->vertex->functions, (Arcadia_Object*)f.function);
@@ -929,6 +931,162 @@ testInterfaceLinks
   }
 }
 
+static void
+testBinaryConformanceTable
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+  Arcadia_VPL_IR_Type* types[] = {
+    (Arcadia_VPL_IR_Type*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_ScalarType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Boolean)),
+    (Arcadia_VPL_IR_Type*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_ScalarType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Integer)),
+    (Arcadia_VPL_IR_Type*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_ScalarType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating)),
+    (Arcadia_VPL_IR_Type*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_VectorType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating, 2)),
+    (Arcadia_VPL_IR_Type*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_VectorType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating, 3)),
+    (Arcadia_VPL_IR_Type*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_VectorType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Integer, 3)),
+    (Arcadia_VPL_IR_Type*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_VectorType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Boolean, 3)),
+    (Arcadia_VPL_IR_Type*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_MatrixType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating, 2, 3)),
+    (Arcadia_VPL_IR_Type*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_MatrixType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating, 3, 4)),
+    (Arcadia_VPL_IR_Type*)root(thread, (Arcadia_Object*)Arcadia_VPL_IR_MatrixType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating, 2, 4))
+  };
+
+  // Masks enumerate accepted operations in the specification's complete operand table.
+  static const struct {
+    int lhs;
+    int rhs;
+    int arithmeticResult;
+    unsigned int allowed;
+  } rows[] = {
+    { 0, 0, 0, (1u << 4) | (1u << 5) },
+    { 1, 1, 1, 0x3ffu },
+    { 2, 2, 2, 0x3ffu },
+    { 1, 2, 2, 0 },
+    { 0, 1, 1, 0 },
+    { 4, 4, 4, 0x0fu },
+    { 5, 5, 5, 0x0fu },
+    { 6, 6, 6, 0 },
+    { 4, 2, 4, (1u << 2) | (1u << 3) },
+    { 2, 4, 4, 1u << 2 },
+    { 5, 1, 5, 0 },
+    { 7, 7, 7, (1u << 0) | (1u << 1) | (1u << 3) },
+    { 7, 8, 9, 1u << 2 },
+    { 7, 4, 3, 1u << 2 },
+    { 7, 3, 3, 0 },
+    { 4, 7, 4, 0 },
+    { 7, 2, 7, (1u << 2) | (1u << 3) },
+    { 2, 7, 7, 1u << 2 }
+  };
+
+  Arcadia_SizeValue typeRoots = Arcadia_ValueStack_getSize(thread);
+  for (Arcadia_SizeValue row = 0; row < sizeof(rows) / sizeof(rows[0]); ++row) {
+    for (Arcadia_Natural8Value op = 0; op < 10; ++op) {
+      Fixture f = fixture(thread);
+      Arcadia_Collection_clear(thread, (Arcadia_Collection*)f.function->blocks);
+      append(thread, f.function->blocks, (Arcadia_Object*)f.entry);
+      Arcadia_Collection_clear(thread, (Arcadia_Collection*)f.entry->instructions);
+      Arcadia_VPL_IR_Type* resultType = types[op >= Arcadia_VPL_IR_BinaryOperator_Equal ? 0 : rows[row].arithmeticResult];
+      f.function->returnType = resultType;
+      Arcadia_VPL_IR_ReferenceValue* lhsParameter = reference(thread, Arcadia_VPL_IR_StorageKind_Parameter, 0, types[rows[row].lhs]);
+      Arcadia_VPL_IR_ReferenceValue* rhsParameter = reference(thread, Arcadia_VPL_IR_StorageKind_Parameter, 1, types[rows[row].rhs]);
+      append(thread, f.function->parameters, (Arcadia_Object*)lhsParameter);
+      append(thread, f.function->parameters, (Arcadia_Object*)rhsParameter);
+      Arcadia_VPL_IR_RegisterValue* lhs = reg(thread, 0, types[rows[row].lhs]);
+      Arcadia_VPL_IR_RegisterValue* rhs = reg(thread, 1, types[rows[row].rhs]);
+      Arcadia_VPL_IR_RegisterValue* result = reg(thread, 2, resultType);
+      declare(thread, f.entry, lhs); declare(thread, f.entry, rhs); declare(thread, f.entry, result);
+      append(thread, f.entry->instructions, (Arcadia_Object*)Arcadia_VPL_IR_LoadInstruction_create(thread, lhs, lhsParameter));
+      append(thread, f.entry->instructions, (Arcadia_Object*)Arcadia_VPL_IR_LoadInstruction_create(thread, rhs, rhsParameter));
+      append(thread, f.entry->instructions, (Arcadia_Object*)Arcadia_VPL_IR_BinaryInstruction_create(thread, result, op, (Arcadia_VPL_IR_Value*)lhs, (Arcadia_VPL_IR_Value*)rhs));
+      f.entry->terminator = (Arcadia_VPL_IR_Terminator*)Arcadia_VPL_IR_ReturnTerminator_create(thread, (Arcadia_VPL_IR_Value*)result);
+      verify(thread, &f, (rows[row].allowed & (1u << op)) != 0);
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - typeRoots);
+    }
+  }
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+}
+
+static int
+runGraphs
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testGraphs) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runLoops
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testLoops) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAggregatesAndTexture
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testAggregatesAndTexture) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runStorageReferences
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testStorageReferences) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNestedArrayReferences
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testNestedArrayReferences) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runReferenceConstructors
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testReferenceConstructors) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runStageEntries
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testStageEntries) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runInterfaceLinks
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testInterfaceLinks) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runBinaryConformanceTable
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testBinaryConformanceTable) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -936,13 +1094,16 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&testGraphs)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testLoops)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testAggregatesAndTexture)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testStorageReferences)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testNestedArrayReferences)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testReferenceConstructors)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testStageEntries)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(&testInterfaceLinks)) return EXIT_FAILURE;
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "Graphs", &runGraphs },
+    { "Loops", &runLoops },
+    { "AggregatesAndTexture", &runAggregatesAndTexture },
+    { "StorageReferences", &runStorageReferences },
+    { "NestedArrayReferences", &runNestedArrayReferences },
+    { "ReferenceConstructors", &runReferenceConstructors },
+    { "StageEntries", &runStageEntries },
+    { "InterfaceLinks", &runInterfaceLinks },
+    { "BinaryConformanceTable", &runBinaryConformanceTable },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }
