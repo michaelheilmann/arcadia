@@ -23,20 +23,31 @@ Arcadia_defineInterfaceType(u8"Arcadia.Engine.UI.Focusable", Arcadia_Engine_UI_F
                          )
 
 void
-Arcadia_Engine_UI_Focusable_focus(Arcadia_Thread* thread, Arcadia_Object* self)
+Arcadia_Engine_UI_Focusable_focus
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self
+  )
 {
   Arcadia_InterfaceCall(Arcadia_Engine_UI_Focusable, focus, self);
 }
 
 void
-Arcadia_Engine_UI_Focusable_blur(Arcadia_Thread* thread, Arcadia_Object* self)
+Arcadia_Engine_UI_Focusable_blur
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self
+  )
 {
   Arcadia_InterfaceCall(Arcadia_Engine_UI_Focusable, blur, self);
 }
 
 Arcadia_BooleanValue
-Arcadia_Engine_UI_Focusable_isFocused(Arcadia_Thread* thread, Arcadia_Object* self)
+Arcadia_Engine_UI_Focusable_isFocused
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self
+  )
 {
   Arcadia_InterfaceCallWithReturn(Arcadia_Engine_UI_Focusable, isFocused, self);
 }
-

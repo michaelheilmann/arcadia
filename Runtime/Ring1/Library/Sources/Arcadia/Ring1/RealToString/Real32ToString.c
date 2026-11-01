@@ -178,7 +178,7 @@ toString32
   if (ieeeExponentBits == ((1u << Arcadia_Real32Value_NumberOfExponentBits) - 1u)) {
     if (ieeeSignificandBits == 0) {
       // exponent = 2^r - 1 and significand = 0 => infinity (where r is the number of exponent bits)
-      Buffer_append(thread, buffer, ieeeSignBits ? positiveInfinityString : negativeInfinityString, ieeeSignBits ? sizeof(positiveInfinityString) - 1 : sizeof(negativeInfinityString) - 1);
+      Buffer_append(thread, buffer, ieeeSignBits ? negativeInfinityString : positiveInfinityString, ieeeSignBits ? sizeof(negativeInfinityString) - 1 : sizeof(positiveInfinityString) - 1);
       return;
     } else {
       // exponent = 2^r - 1 and significand > 0 => not a number (where r is the number of exponent bits)
@@ -188,7 +188,7 @@ toString32
   } else if (ieeeExponentBits == 0x0 && ieeeSignificandBits == 0x0) {
     // exponent = 0 and significand = 0 => signed zero (where r is the number of exponent bits)
     // exoonent if significand > 0 => denormalized (where r is the number of exponent bits)
-    Buffer_append(thread, buffer, ieeeSignBits ? positiveZero : negativeZero, ieeeSignBits ? sizeof(positiveZero) - 1 : sizeof(negativeZero) - 1);
+    Buffer_append(thread, buffer, ieeeSignBits ? negativeZero : positiveZero, ieeeSignBits ? sizeof(negativeZero) - 1 : sizeof(positiveZero) - 1);
     return;
   }
 

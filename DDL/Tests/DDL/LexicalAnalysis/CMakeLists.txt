@@ -31,6 +31,7 @@ if (NOT TARGET ${this})
 
   OnModuleDependency(${this} ${MyProjectName}.DDL PRIVATE)
 
+  OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
   EndProduct(${this})
 
 endif()

@@ -250,8 +250,10 @@ Context_onRunInner
     Arcadia_FilePath* filePath = (Arcadia_FilePath*)Arcadia_Value_getObjectReferenceValue(&elementValue);
 
     onRecursionGuard(thread, self, filePath);
-    DependencyContext_onFile(thread, self->dependenciesContext, dependingFile);
-    DependencyContext_onDependency(thread, self->dependenciesContext, dependingFile, filePath);
+    // All included templates are inputs to the one rendered output. Emitting
+    // intermediate input-to-input rules is not a valid Ninja depfile graph.
+    DependencyContext_onFile(thread, self->dependenciesContext, self->targetFilePath);
+    DependencyContext_onDependency(thread, self->dependenciesContext, self->targetFilePath, filePath);
 
     FileContext* fileContext = FileContext_create(thread, self, self->environment, dependingFile, filePath);
     FileContext_execute(thread, fileContext);

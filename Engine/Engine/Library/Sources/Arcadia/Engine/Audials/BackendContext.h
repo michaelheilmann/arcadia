@@ -18,14 +18,17 @@
 #define ARCADIA_ENGINE_AUDIALS_BACKENDCONTEXT_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Audials/BackendContext.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
 
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/BackendContext.h"
-#include "Arcadia/Media/Include.h"
+
 typedef struct Arcadia_Engine_Audials_AudioStreamProvider Arcadia_Engine_Audials_AudioStreamProvider;
+typedef struct Arcadia_Engine_Audials_BackendContext Arcadia_Engine_Audials_BackendContext;
 typedef struct Arcadia_Engine_Audials_Implementation_SoundSourceResource Arcadia_Engine_Audials_Implementation_SoundSourceResource;
 typedef struct Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource;
+typedef struct Arcadia_Media_SampleBuffer Arcadia_Media_SampleBuffer;
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Audials.BackendContext", Arcadia_Engine_Audials_BackendContext,
                           u8"Arcadia.Engine.BackendContext");
@@ -33,29 +36,11 @@ Arcadia_declareObjectType(u8"Arcadia.Engine.Audials.BackendContext", Arcadia_Eng
 struct Arcadia_Engine_Audials_BackendContextDispatch {
   Arcadia_Engine_BackendContextDispatch _parent;
 
-  Arcadia_Engine_Audials_Implementation_SoundSourceResource*
-  (*createSoundSourceResource)
-    (
-      Arcadia_Thread* thread,
-      Arcadia_Engine_Audials_BackendContext* self,
-      Arcadia_Media_SampleBuffer* sampleBuffer
-    );
+  Arcadia_Engine_Audials_Implementation_SoundSourceResource* (*createSoundSourceResource)(Arcadia_Thread*, Arcadia_Engine_Audials_BackendContext*, Arcadia_Media_SampleBuffer*);
 
-  Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*
-  (*createStreamingSoundSourceResource)
-    (
-      Arcadia_Thread* thread,
-      Arcadia_Engine_Audials_BackendContext* self,
-      Arcadia_Engine_Audials_AudioStreamProvider* provider
-    );
+  Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource* (*createStreamingSoundSourceResource)(Arcadia_Thread*, Arcadia_Engine_Audials_BackendContext*, Arcadia_Engine_Audials_AudioStreamProvider*);
 
-  void
-  (*setMasterVolume)
-    (
-      Arcadia_Thread* thread,
-      Arcadia_Engine_Audials_BackendContext* self,
-      Arcadia_Real64Value volume
-    );
+  void (*setMasterVolume)(Arcadia_Thread*, Arcadia_Engine_Audials_BackendContext*, Arcadia_Real64Value);
 };
 
 struct Arcadia_Engine_Audials_BackendContext {

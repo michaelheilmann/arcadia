@@ -18,6 +18,7 @@
 
 #include "Arcadia/PDLC/Backend/SymbolInfo.h"
 #include "Arcadia/PDLC/Completer.h"
+#include "Arcadia/PDLC/Diagnostics/FileSystemDiagnostic.h"
 
 #include "Arcadia/PDLC/Backend/ClassSymbolWriter.h"
 #include "Arcadia/PDLC/Backend/EnumerationConstantSymbolInfo.h"
@@ -31,6 +32,7 @@
 #include "Arcadia/PDLC/Backend/ModuleSymbolInfo.h"
 #include "Arcadia/PDLC/Backend/PrimitiveTypeSymbolInfo.h"
 #include "Arcadia/PDLC/Backend/ProcedureSymbolInfo.h"
+#include "Arcadia/PDLC/Backend/CallableWriter.h"
 
 #include <assert.h>
 
@@ -61,6 +63,44 @@ visitImpl
     Arcadia_Thread* thread,
     Arcadia_PDLC_Backend_Implementation* self
   );
+
+static void
+writeGeneratedFile
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Context* context,
+    Arcadia_FileSystem* fileSystem,
+    Arcadia_FilePath* path,
+    Arcadia_ByteArrayBuilder* contents
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, path);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, contents);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_FilePath* parent = Arcadia_FilePath_getParent(thread, path);
+    if (parent) {
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, parent);
+      if (!Arcadia_FileSystem_directoryFileExists(thread, fileSystem, parent)) {
+        Arcadia_FileSystem_createDirectoryFiles(thread, fileSystem, parent);
+      }
+    }
+    Arcadia_FileSystem_setFileContents(thread, fileSystem, path, contents);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Languages_Diagnostics_add(thread, context->diagnostics, (Arcadia_Languages_Diagnostic*)
+      Arcadia_PDLC_Diagnostics_FileSystemDiagnostic_create(thread, path,
+        Arcadia_String_createFromCxxString(thread, "cannot write generated file or create its parent directory")));
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_setStatus(thread, status);
+    Arcadia_Thread_jump(thread);
+  }
+}
 
 static void
 onWriteSymbolInfo
@@ -302,7 +342,8 @@ onWriteSymbolInfo
       Arcadia_PDLC_Completer_complete(thread, symbolInfo->symbol->completer, context, symbolInfo->symbol);
     }
 
-    if (((Arcadia_PDLC_ClassSymbol*)symbolInfo->symbol)->isNative) {
+    Arcadia_PDLC_ClassSymbol* classSymbol = (Arcadia_PDLC_ClassSymbol*)symbolInfo->symbol;
+    if (classSymbol->isNative && !classSymbol->isNativeImplementation) {
       return;
     }
 
@@ -312,24 +353,27 @@ onWriteSymbolInfo
     Arcadia_FileSystem* fileSystem = Arcadia_FileSystem_getOrCreate(thread);
     Arcadia_ByteArrayBuilder* byteArrayBuilder = Arcadia_ByteArrayBuilder_create(thread);
 
-    Arcadia_StringBuilder_clear(thread, stringBuilder);
-    Arcadia_PDLC_Backend_SymbolWriter_write(thread, self->classSymbolWriter, context, Arcadia_PDLC_Backend_CXXFileType_C, symbolInfo, stringBuilder);
-    Arcadia_ByteArrayBuilder_clear(thread, byteArrayBuilder);
-    Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteArrayBuilder, Arcadia_StringBuilder_getBytes(thread, stringBuilder), Arcadia_StringBuilder_getNumberOfBytes(thread, stringBuilder));
-    filePath = Arcadia_PDLC_Backend_SymbolInfo_getCxxSourceFileAbsolutePath(thread, symbolInfo);
-    Arcadia_FileSystem_setFileContents(thread, fileSystem, filePath, byteArrayBuilder);
+    if (!classSymbol->isNative) {
+      Arcadia_StringBuilder_clear(thread, stringBuilder);
+      Arcadia_PDLC_Backend_SymbolWriter_write(thread, self->classSymbolWriter, context, Arcadia_PDLC_Backend_CXXFileType_C, symbolInfo, stringBuilder);
+      Arcadia_ByteArrayBuilder_clear(thread, byteArrayBuilder);
+      Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteArrayBuilder, Arcadia_StringBuilder_getBytes(thread, stringBuilder), Arcadia_StringBuilder_getNumberOfBytes(thread, stringBuilder));
+      filePath = Arcadia_PDLC_Backend_SymbolInfo_getCxxSourceFileAbsolutePath(thread, symbolInfo);
+      writeGeneratedFile(thread, context, fileSystem, filePath, byteArrayBuilder);
+    }
 
     Arcadia_StringBuilder_clear(thread, stringBuilder);
     Arcadia_PDLC_Backend_SymbolWriter_write(thread, self->classSymbolWriter, context, Arcadia_PDLC_Backend_CXXFileType_H, symbolInfo, stringBuilder);
     Arcadia_ByteArrayBuilder_clear(thread, byteArrayBuilder);
     Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteArrayBuilder, Arcadia_StringBuilder_getBytes(thread, stringBuilder), Arcadia_StringBuilder_getNumberOfBytes(thread, stringBuilder));
     filePath = Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFileAbsolutePath(thread, symbolInfo);
-    Arcadia_FileSystem_setFileContents(thread, fileSystem, filePath, byteArrayBuilder);
+    writeGeneratedFile(thread, context, fileSystem, filePath, byteArrayBuilder);
   }
   if (symbolInfo->symbol->kind == Arcadia_PDLC_SymbolKind_Enumeration) {
     if (symbolInfo->symbol->completer) {
       Arcadia_PDLC_Completer_complete(thread, symbolInfo->symbol->completer, context, symbolInfo->symbol);
     }
+    if (((Arcadia_PDLC_EnumerationSymbol*)symbolInfo->symbol)->isNative) return;
 
     Arcadia_FilePath* filePath;
 
@@ -342,14 +386,14 @@ onWriteSymbolInfo
     Arcadia_ByteArrayBuilder_clear(thread, byteArrayBuilder);
     Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteArrayBuilder, Arcadia_StringBuilder_getBytes(thread, stringBuilder), Arcadia_StringBuilder_getNumberOfBytes(thread, stringBuilder));
     filePath = Arcadia_PDLC_Backend_SymbolInfo_getCxxSourceFileAbsolutePath(thread, symbolInfo);
-    Arcadia_FileSystem_setFileContents(thread, fileSystem, filePath, byteArrayBuilder);
+    writeGeneratedFile(thread, context, fileSystem, filePath, byteArrayBuilder);
 
     Arcadia_StringBuilder_clear(thread, stringBuilder);
     Arcadia_PDLC_Backend_SymbolWriter_write(thread, self->enumerationSymbolWriter, context, Arcadia_PDLC_Backend_CXXFileType_H, symbolInfo, stringBuilder);
     Arcadia_ByteArrayBuilder_clear(thread, byteArrayBuilder);
     Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteArrayBuilder, Arcadia_StringBuilder_getBytes(thread, stringBuilder), Arcadia_StringBuilder_getNumberOfBytes(thread, stringBuilder));
     filePath = Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFileAbsolutePath(thread, symbolInfo);
-    Arcadia_FileSystem_setFileContents(thread, fileSystem, filePath, byteArrayBuilder);
+    writeGeneratedFile(thread, context, fileSystem, filePath, byteArrayBuilder);
   }
   if (symbolInfo->symbol->kind == Arcadia_PDLC_SymbolKind_Interface) {
     if (symbolInfo->symbol->completer) {
@@ -367,14 +411,14 @@ onWriteSymbolInfo
     Arcadia_ByteArrayBuilder_clear(thread, byteArrayBuilder);
     Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteArrayBuilder, Arcadia_StringBuilder_getBytes(thread, stringBuilder), Arcadia_StringBuilder_getNumberOfBytes(thread, stringBuilder));
     filePath = Arcadia_PDLC_Backend_SymbolInfo_getCxxSourceFileAbsolutePath(thread, symbolInfo);
-    Arcadia_FileSystem_setFileContents(thread, fileSystem, filePath, byteArrayBuilder);
+    writeGeneratedFile(thread, context, fileSystem, filePath, byteArrayBuilder);
 
     Arcadia_StringBuilder_clear(thread, stringBuilder);
     Arcadia_PDLC_Backend_SymbolWriter_write(thread, self->interfaceSymbolWriter, context, Arcadia_PDLC_Backend_CXXFileType_H, symbolInfo, stringBuilder);
     Arcadia_ByteArrayBuilder_clear(thread, byteArrayBuilder);
     Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteArrayBuilder, Arcadia_StringBuilder_getBytes(thread, stringBuilder), Arcadia_StringBuilder_getNumberOfBytes(thread, stringBuilder));
     filePath = Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFileAbsolutePath(thread, symbolInfo);
-    Arcadia_FileSystem_setFileContents(thread, fileSystem, filePath, byteArrayBuilder);
+    writeGeneratedFile(thread, context, fileSystem, filePath, byteArrayBuilder);
   }
   if (symbolInfo->symbol->kind == Arcadia_PDLC_SymbolKind_Procedure) {
     if (symbolInfo->symbol->completer) {
@@ -391,14 +435,14 @@ onWriteSymbolInfo
     Arcadia_ByteArrayBuilder_clear(thread, byteArrayBuilder);
     Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteArrayBuilder, Arcadia_StringBuilder_getBytes(thread, stringBuilder), Arcadia_StringBuilder_getNumberOfBytes(thread, stringBuilder));
     filePath = Arcadia_PDLC_Backend_SymbolInfo_getCxxSourceFileAbsolutePath(thread, symbolInfo);
-    Arcadia_FileSystem_setFileContents(thread, fileSystem, filePath, byteArrayBuilder);
+    writeGeneratedFile(thread, context, fileSystem, filePath, byteArrayBuilder);
 
     Arcadia_StringBuilder_clear(thread, stringBuilder);
     Arcadia_PDLC_Backend_SymbolWriter_write(thread, self->procedureSymbolWriter, context, Arcadia_PDLC_Backend_CXXFileType_H, symbolInfo, stringBuilder);
     Arcadia_ByteArrayBuilder_clear(thread, byteArrayBuilder);
     Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteArrayBuilder, Arcadia_StringBuilder_getBytes(thread, stringBuilder), Arcadia_StringBuilder_getNumberOfBytes(thread, stringBuilder));
     filePath = Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFileAbsolutePath(thread, symbolInfo);
-    Arcadia_FileSystem_setFileContents(thread, fileSystem, filePath, byteArrayBuilder);
+    writeGeneratedFile(thread, context, fileSystem, filePath, byteArrayBuilder);
   }
 }
 
@@ -441,12 +485,14 @@ Arcadia_PDLC_Backend_Implementation_run
   // (1) Clear the collection of backend symbol infos.
   Arcadia_Collection_clear(thread, (Arcadia_Collection*)self->symbolInfos);
   // (2) Enter the backend symbol infos.
+  onVisitScope(thread, self, self->context, self->context->moduleScope);
   onVisitScope(thread, self, self->context, self->context->scope);
-  Arcadia_PDLC_Symbol* objectSymbol = Arcadia_PDLC_Symbols_lookupBuiltin(thread, Arcadia_PDLC_Symbols_getInstance(thread, self->context), u8"Arcadia.Object");
+  // Validate every body before writing any generated file.
+  Arcadia_PDLC_Backend_validateExecutables(thread, self->context);
   Arcadia_List* symbolInfos = Arcadia_Map_getValues(thread, self->symbolInfos);
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)symbolInfos); i < n; ++i) {
     Arcadia_PDLC_Backend_SymbolInfo* symbolInfo = (Arcadia_PDLC_Backend_SymbolInfo*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, symbolInfos, i, _Arcadia_PDLC_Backend_SymbolInfo_getType(thread));
-    if (objectSymbol != symbolInfo->symbol && (symbolInfo->symbol->kind == Arcadia_PDLC_SymbolKind_Class || symbolInfo->symbol->kind == Arcadia_PDLC_SymbolKind_Enumeration || symbolInfo->symbol->kind == Arcadia_PDLC_SymbolKind_Interface)) {
+    if (!Arcadia_PDLC_Backend_SymbolInfo_isBuiltIn(thread, symbolInfo) && (symbolInfo->symbol->kind == Arcadia_PDLC_SymbolKind_Class || symbolInfo->symbol->kind == Arcadia_PDLC_SymbolKind_Enumeration || symbolInfo->symbol->kind == Arcadia_PDLC_SymbolKind_Interface || symbolInfo->symbol->kind == Arcadia_PDLC_SymbolKind_Procedure)) {
       onWriteSymbolInfo(thread, self, symbolInfo, self->context);
     }
   }

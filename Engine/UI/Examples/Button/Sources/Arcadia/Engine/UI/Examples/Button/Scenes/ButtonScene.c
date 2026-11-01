@@ -138,7 +138,7 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Engine.UI.Examples.Button.ButtonScene", Arcadia_Engine_UI_Examples_Button_ButtonScene,
-                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Scene,
+                         u8"Arcadia.Engine.Scene", Arcadia_Engine_Scene,
                          &_typeOperations);
 
 static void

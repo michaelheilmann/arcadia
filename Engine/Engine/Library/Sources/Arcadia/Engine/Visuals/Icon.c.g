@@ -15,33 +15,96 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_ENGINE_PRIVATE (1)
-#include "Arcadia/Engine/Visuals/Icon.h.g.h"
+#include "Arcadia/Ring1/Include.h"
+#include "Arcadia/Engine/Visuals/Icon.h"
+
+static Arcadia_Value
+pdlGet
+  (
+    Arcadia_Thread* t,
+    Arcadia_SizeValue b,
+    Arcadia_SizeValue i
+  )
+{
+  return Arcadia_ValueStack_getValue(t, Arcadia_ValueStack_getSize(t)-b-i-1);
+}
+
+static void
+pdlPut
+  (
+    Arcadia_Thread* t,
+    Arcadia_SizeValue b,
+    Arcadia_SizeValue i,
+    Arcadia_Value v
+  )
+{
+  Arcadia_ValueStack_setValue(t, Arcadia_ValueStack_getSize(t)-b-i-1, &v);
+}
+
+static void
+pdlRequire
+  (
+    Arcadia_Thread* t,
+    Arcadia_BooleanValue b
+  )
+{
+  if (!b) { Arcadia_Thread_setStatus(t, Arcadia_Status_ArgumentTypeInvalid); Arcadia_Thread_jump(t); }
+}
+
+static Arcadia_Value
+pdlBoxObjectReference
+  (
+    Arcadia_ObjectReferenceValue object
+  )
+{
+  return object ? Arcadia_Value_makeObjectReferenceValue(object) : Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void);
+}
 
 static void
 constructImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Icon* self
-  );
+  )
+{
+  Arcadia_EnterConstructor(Arcadia_Engine_Visuals_Icon);
+  if (_numberOfArguments != 0) { Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid); Arcadia_Thread_jump(thread); }
+  Arcadia_ValueStack_pushNatural8Value(thread, 0);
+  Arcadia_superTypeConstructor(thread, _type, self);
+  Arcadia_Object_setType(thread, (Arcadia_Object*)self, _type);
+  Arcadia_LeaveConstructor(Arcadia_Engine_Visuals_Icon);
+}
+
+static void
+visitImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_Icon* self
+  )
+{
+}
 
 static void
 initializeDispatchImpl
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_IconDispatch* self
-  );
+  )
+{
+}
 
-static const Arcadia_ObjectType_Operations _objectTypeOperations = {
-  Arcadia_Type_Operations_Initializer,
-  .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructImpl,
-  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl,
+static const Arcadia_ObjectType_Operations objectOperations = {
+  Arcadia_ObjectType_Operations_Initializer,
+  .construct = (Arcadia_Object_ConstructCallbackFunction*)constructImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)visitImpl,
+  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
+static const Arcadia_Type_Operations typeOperations = {
   Arcadia_Type_Operations_Initializer,
-  .objectTypeOperations = &_objectTypeOperations,
+  .objectTypeOperations = &objectOperations,
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Engine.Visuals.Icon", Arcadia_Engine_Visuals_Icon,
                          u8"Arcadia.Object", Arcadia_Object,
-                         &_typeOperations);
+                         &typeOperations);

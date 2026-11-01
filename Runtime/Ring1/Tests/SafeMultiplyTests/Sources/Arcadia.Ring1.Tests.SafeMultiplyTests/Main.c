@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 
 #include "Arcadia/Ring1/Include.h"
@@ -415,40 +417,94 @@ safeMultiplyInteger8Tests
 
 #undef Define
 
+static int
+runNatural16
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeMultiplyNatural16Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural32
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeMultiplyNatural32Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeMultiplyNatural64Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNatural8
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeMultiplyNatural8Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runInteger16
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeMultiplyInteger16Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runInteger32
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeMultiplyInteger32Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runInteger64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeMultiplyInteger64Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runInteger8
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&safeMultiplyInteger8Tests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-
-  if (!Arcadia_Tests_safeExecute(&safeMultiplyNatural16Tests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&safeMultiplyNatural32Tests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&safeMultiplyNatural64Tests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&safeMultiplyNatural8Tests)) {
-    return EXIT_FAILURE;
-  }
-
-  if (!Arcadia_Tests_safeExecute(&safeMultiplyInteger16Tests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&safeMultiplyInteger32Tests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&safeMultiplyInteger64Tests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&safeMultiplyInteger8Tests)) {
-    return EXIT_FAILURE;
-  }
-
-  return EXIT_SUCCESS;
-
+  static const Arcadia_Testing_Case cases[] = {
+    { "Natural16", &runNatural16 },
+    { "Natural32", &runNatural32 },
+    { "Natural64", &runNatural64 },
+    { "Natural8", &runNatural8 },
+    { "Integer16", &runInteger16 },
+    { "Integer32", &runInteger32 },
+    { "Integer64", &runInteger64 },
+    { "Integer8", &runInteger8 },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

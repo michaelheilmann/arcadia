@@ -14,13 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#define ARCADIA_ADL_MODULE (1)
+#define ARCADIA_ADL_PRIVATE (1)
 #include "Arcadia/ADL/Definitions/Visuals/AmbientColorSource.h"
-
-#include "Arcadia/ADL/Context.h"
-#include "Arcadia/ADL/Reader.module.h"
-#include "Arcadia/ADL/Reference.h"
-#include "Arcadia/ADL/Definitions/Visuals/Include.h"
 
 static const Arcadia_Type_Operations _typeOperations = {
   Arcadia_Type_Operations_Initializer,

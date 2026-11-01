@@ -45,7 +45,7 @@ struct Arcadia_PDLC_AST_ModuleNode {
   Arcadia_FilePath* moduleDirectoryPath;
 
   /// The compilation units (Arcadia.PDLC.AST.CompilationUnit) discovered.
-  /// These comprise any `.mil` file in the `Source` directory and its subdirectories and the `Module.mil` file.
+  /// These comprise any `.pdl` file in the `Source` directory and its subdirectories and the `Module.pdl` file.
   Arcadia_List* compilationUnits;
 };
 

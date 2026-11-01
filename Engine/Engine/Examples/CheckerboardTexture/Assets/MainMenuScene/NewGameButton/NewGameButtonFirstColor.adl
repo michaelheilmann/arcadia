@@ -1,7 +1,0 @@
-{
-  type : "Color",
-  name : "MainMenuScene.NewGameButtonFirstColor",
-  red : 255,
-  green : 128,
-  blue : 128,
-}

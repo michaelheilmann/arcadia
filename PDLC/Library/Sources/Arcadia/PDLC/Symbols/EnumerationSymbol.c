@@ -70,6 +70,7 @@ Arcadia_PDLC_EnumerationSymbol_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_PDLC_EnumerationSymbol);
+  self->isNative = Arcadia_BooleanValue_False;
   if (1 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);

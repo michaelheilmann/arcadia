@@ -1,4 +1,4 @@
-﻿// Arcadia
+// Arcadia
 // Copyright (C) 2024-2026 Michael Heilmann
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef ARCADIA_ENGINE_UI_HITTESTABLE_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_UI_HITTESTABLE_H_INCLUDED)
 #define ARCADIA_ENGINE_UI_HITTESTABLE_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_UI_PRIVATE) || 1 != ARCADIA_ENGINE_UI_PRIVATE

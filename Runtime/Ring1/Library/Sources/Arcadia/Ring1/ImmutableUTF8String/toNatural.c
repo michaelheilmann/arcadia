@@ -34,13 +34,14 @@ _toNatural64Internal
 {
   static const Arcadia_Natural64Value baseTen = 10;
   // The maximum decimal value of an Arcadia_Natural64Value is +18,446,744,073,709,551,615. These are 20 decimal digits.
-  // The minimum decimal value of an Arcadia_Integer64Value is +0. This 1 one decimal digit.
-  // 19 = 20 - 1 is the number of decimal digits which always fit into an Arcadia_Integer64Value.
+  // The minimum decimal value of an Arcadia_Natural64Value is +0 (one digit).
+  // Any 19-digit decimal chunk fits into an Arcadia_Natural64Value.
   static const Arcadia_SizeValue safeDigitsBaseTen = 19;
   next(state);
   if (isPlus(state)) {
     next(state);
   }
+  // Include exponent 19: a full chunk indexes powersOfTen[safeDigitsBaseTen].
   static const Arcadia_Natural64Value powersOfTen[] = {
     Arcadia_Natural64Value_Literal(1),
     Arcadia_Natural64Value_Literal(10),
@@ -67,6 +68,7 @@ _toNatural64Internal
     Arcadia_Natural64Value_Literal(100000000000000000),
 
     Arcadia_Natural64Value_Literal(1000000000000000000),
+    Arcadia_Natural64Value_Literal(10000000000000000000),
   };
   Arcadia_Natural64Value v = 0;
   if (!isDigit(state)) {

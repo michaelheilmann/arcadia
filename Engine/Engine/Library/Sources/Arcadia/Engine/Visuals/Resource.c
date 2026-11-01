@@ -60,7 +60,7 @@ static const Arcadia_Type_Operations _typeOperations = {
   .objectTypeOperations = &_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.Visuals.Resource", Arcadia_Engine_Visuals_Resource,
+Arcadia_defineObjectType(u8"Arcadia.Engine.Visuals.Resource", Arcadia_Engine_Visuals_Resource,
                          u8"Arcadia.Object", Arcadia_Object,
                          &_typeOperations);
 

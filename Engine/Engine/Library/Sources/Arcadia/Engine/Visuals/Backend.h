@@ -18,12 +18,14 @@
 #define ARCADIA_ENGINE_VISUALS_BACKEND_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Visuals/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Visuals/Backend.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
 
-#include "Arcadia/Engine/Include.h"
+#include "Arcadia/Ring1/Include.h"
+#include "Arcadia/Engine/Backend.h"
 
-// A visuals backend.
+typedef struct Arcadia_Engine_Visuals_Backend Arcadia_Engine_Visuals_Backend;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.Backend", Arcadia_Engine_Visuals_Backend,
                           u8"Arcadia.Engine.Backend");
 

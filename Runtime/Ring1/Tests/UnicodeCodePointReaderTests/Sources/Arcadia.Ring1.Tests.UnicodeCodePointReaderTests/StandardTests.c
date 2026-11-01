@@ -22,6 +22,60 @@
 #include <string.h>
 
 static void
+appendEncodedBytes
+  (
+    Arcadia_Thread* thread,
+    void* context,
+    const Arcadia_Natural8Value* bytes,
+    Arcadia_SizeValue numberOfBytes
+  )
+{
+  Arcadia_ByteArrayBuilder_insertBackBytes(thread, (Arcadia_ByteArrayBuilder*)context, bytes, numberOfBytes);
+}
+
+void
+Arcadia_Ring1_Tests_UnicodeCodePointReader_scalarBoundaries
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const Arcadia_Natural8Value bytes[] = {
+    0xf0, 0x90, 0x80, 0x80, // U+10000
+    0xf0, 0x9f, 0x8f, 0xae, // U+1F3EE
+    0xf4, 0x8f, 0xbf, 0xbf, // U+10FFFF
+  };
+  static const Arcadia_Natural32Value codePoints[] = { 0x10000, 0x1f3ee, 0x10ffff };
+  const Result results[] = {
+    { .byteIndex = 0, .codePointLength = 4, .codePoint = 0x10000, .error = false, .hasValue = true },
+    { .byteIndex = 4, .codePointLength = 4, .codePoint = 0x1f3ee, .error = false, .hasValue = true },
+    { .byteIndex = 8, .codePointLength = 4, .codePoint = 0x10ffff, .error = false, .hasValue = true },
+    { .byteIndex = 12, .codePointLength = 0, .codePoint = 0xfffd, .error = false, .hasValue = false },
+  };
+  Arcadia_Ring1_Tests_UnicodeCodePointReaderTests_textFixture(thread, bytes, sizeof(bytes), results, sizeof(results) / sizeof(results[0]));
+  Arcadia_Tests_assertTrue(thread, Arcadia_Unicode_isUTF8(thread, bytes, sizeof(bytes), NULL));
+  Arcadia_ByteArrayBuilder* encoded = Arcadia_ByteArrayBuilder_create(thread);
+  Arcadia_Unicode_encodeCodePointsUTF8(thread, codePoints, sizeof(codePoints) / sizeof(codePoints[0]), encoded, &appendEncodedBytes);
+  Arcadia_Tests_assertEqualBytes(thread, bytes, sizeof(bytes), Arcadia_ByteArrayBuilder_getBytes(thread, encoded), Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, encoded));
+
+  static const struct {
+    Arcadia_Natural8Value bytes[4];
+    Arcadia_SizeValue size;
+  } invalid[] = {
+    { { 0xed, 0xa0, 0x80 }, 3 }, // U+D800 is not a scalar value.
+    { { 0xed, 0xbf, 0xbf }, 3 }, // U+DFFF is not a scalar value.
+    { { 0xf4, 0x90, 0x80, 0x80 }, 4 }, // U+110000 is out of range.
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(invalid) / sizeof(invalid[0]); ++i) {
+    const Result invalidResults[] = {
+      { .codePointLength = invalid[i].size, .codePoint = 0xfffd, .error = true, .hasValue = false },
+      { .codePointLength = 0, .codePoint = 0xfffd, .error = false, .hasValue = false },
+    };
+    Arcadia_Ring1_Tests_UnicodeCodePointReaderTests_textFixture(thread, invalid[i].bytes, invalid[i].size, invalidResults, sizeof(invalidResults) / sizeof(invalidResults[0]));
+    Arcadia_Tests_assertFalse(thread, Arcadia_Unicode_isUTF8(thread, invalid[i].bytes, invalid[i].size, NULL));
+  }
+}
+
+static void
 testFixtureUnchecked
   (
     Arcadia_Thread* thread,

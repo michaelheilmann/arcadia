@@ -14,37 +14,34 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_SCENEMANGER_H_INCLUDED)
-#define ARCADIA_ENGINE_SCENEMANGER_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_SCENEMANAGER_H_INCLUDED)
+#define ARCADIA_ENGINE_SCENEMANAGER_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
+  #error("do not include `Arcadia/Engine/SceneManager.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
-#include "Arcadia/Engine/Engine.h"
-typedef struct Arcadia_Engine_Scene Arcadia_Engine_Scene;
 
-/// The scene manager is referenced by any scene.
-/// A scene is "active" if sceneManager.scene = scene.
-/// A scene can - at any point in time - activate another scene by setting sceneManager.scene to the desired scene.
-Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.SceneManager", Arcadia_Engine_SceneManager,
-                          u8"Arcadia.Object")
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_Engine Arcadia_Engine;
+typedef struct Arcadia_Engine_Scene Arcadia_Engine_Scene;
+typedef struct Arcadia_Engine_SceneManager Arcadia_Engine_SceneManager;
+typedef struct Arcadia_Signal Arcadia_Signal;
+
+Arcadia_declareObjectType(u8"Arcadia.Engine.SceneManager", Arcadia_Engine_SceneManager,
+                          u8"Arcadia.Object");
 
 struct Arcadia_Engine_SceneManagerDispatch {
-  Arcadia_ObjectDispatch parent;
+  Arcadia_ObjectDispatch _parent;
 };
 
 struct Arcadia_Engine_SceneManager {
-  Arcadia_Object parent;
-  // The engine.
+  Arcadia_Object _parent;
   Arcadia_Engine* engine;
-  // The current scene.
   Arcadia_Engine_Scene* scene;
-  // When a scene truly changed.
   Arcadia_Signal* sceneChangedEvent;
 };
 
-/// @return The active scene or null.
-/// @default The default is null.
 Arcadia_Engine_Scene*
 Arcadia_Engine_SceneManager_getScene
   (
@@ -52,7 +49,6 @@ Arcadia_Engine_SceneManager_getScene
     Arcadia_Engine_SceneManager* self
   );
 
-/// @param scene The new active scene if any or null.
 void
 Arcadia_Engine_SceneManager_setScene
   (
@@ -68,4 +64,4 @@ Arcadia_Engine_SceneManager_create
     Arcadia_Engine* engine
   );
 
-#endif // ARCADIA_ENGINE_SCENEMANGER_H_INCLUDED
+#endif // ARCADIA_ENGINE_SCENEMANAGER_H_INCLUDED

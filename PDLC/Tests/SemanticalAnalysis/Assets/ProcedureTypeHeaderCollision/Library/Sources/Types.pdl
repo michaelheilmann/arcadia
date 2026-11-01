@@ -1,0 +1,4 @@
+class "Test/compute.h" Test.Other {
+}
+procedure Test.compute : Arcadia.Void {
+}

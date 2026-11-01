@@ -23,26 +23,44 @@ Arcadia_defineInterfaceType(u8"Arcadia.Engine.UI.Container", Arcadia_Engine_UI_C
                          )
 
 Arcadia_Natural64Value
-Arcadia_Engine_UI_Container_getChildCount(Arcadia_Thread* thread, Arcadia_Object* self)
+Arcadia_Engine_UI_Container_getChildCount
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self
+  )
 {
   Arcadia_InterfaceCallWithReturn(Arcadia_Engine_UI_Container, getChildCount, self);
 }
 
 Arcadia_Object*
-Arcadia_Engine_UI_Container_getChildAt(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Natural64Value index)
+Arcadia_Engine_UI_Container_getChildAt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Natural64Value index
+  )
 {
   Arcadia_InterfaceCallWithReturn(Arcadia_Engine_UI_Container, getChildAt, self, index);
 }
 
 void
-Arcadia_Engine_UI_Container_addChild(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Object* child)
+Arcadia_Engine_UI_Container_addChild
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Object* child
+  )
 {
   Arcadia_InterfaceCall(Arcadia_Engine_UI_Container, addChild, self, child);
 }
 
 void
-Arcadia_Engine_UI_Container_removeChild(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Object* child)
+Arcadia_Engine_UI_Container_removeChild
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Object* child
+  )
 {
   Arcadia_InterfaceCall(Arcadia_Engine_UI_Container, removeChild, self, child);
 }
-

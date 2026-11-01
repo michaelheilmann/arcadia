@@ -22,7 +22,7 @@
 #include "Arcadia/Engine/UI/Include.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Games.Anima.MenuScene", Arcadia_Games_Anima_MenuScene,
-                          u8"Arcadia.Engine.Demo.Scene");
+                          u8"Arcadia.Engine.Scene");
 
 struct Arcadia_Games_Anima_MenuSceneDispatch {
   Arcadia_Engine_SceneDispatch parent;
@@ -41,6 +41,8 @@ struct Arcadia_Games_Anima_MenuScene {
   Arcadia_Engine_Visuals_CameraNode* cameraNode;
   Arcadia_Engine_Visuals_EnterPassNode* enterPassNode;
   Arcadia_Engine_Visuals_ViewportNode* viewportNode;
+  Arcadia_Engine_Audials_StreamingSoundSourceNode* ambienceNode;
+  Arcadia_Real32Value ambienceBaseVolume;
   Arcadia_Engine_UI_CanvasNode* canvasNode;
   Arcadia_Engine_UI_StackPanelNode* startRoot;
   Arcadia_Engine_UI_StackPanelNode* optionsRoot;
@@ -52,31 +54,30 @@ struct Arcadia_Games_Anima_MenuScene {
   Arcadia_Engine_UI_StackPanelNode* brightnessRow;
   Arcadia_Engine_UI_StackPanelNode* masterVolumeRow;
   Arcadia_Engine_UI_StackPanelNode* musicVolumeRow;
+  Arcadia_Engine_UI_StackPanelNode* effectsVolumeRow;
+  Arcadia_Engine_UI_StackPanelNode* uiVolumeRow;
+  Arcadia_Engine_UI_StackPanelNode* voiceVolumeRow;
   Arcadia_Engine_UI_StackPanelNode* mouseSensitivityRow;
   Arcadia_Engine_UI_StackPanelNode* subtitlesRow;
   Arcadia_Engine_UI_StackPanelNode* highContrastRow;
-  Arcadia_Engine_UI_LabelNode* titleLabel;
-  Arcadia_Engine_UI_LabelNode* diagnosticsLabel;
   Arcadia_Engine_UI_ButtonNode* continueButton;
   Arcadia_Engine_UI_ButtonNode* newGameButton;
   Arcadia_Engine_UI_ButtonNode* optionsButton;
   Arcadia_Engine_UI_ButtonNode* exitButton;
-  Arcadia_Engine_UI_LabelNode* optionsTitleLabel;
   Arcadia_Engine_UI_LabelNode* resolutionLabel;
-  Arcadia_Engine_UI_LabelNode* vsyncLabel;
-  Arcadia_Engine_UI_LabelNode* brightnessLabel;
-  Arcadia_Engine_UI_LabelNode* masterVolumeLabel;
   Arcadia_Engine_UI_LabelNode* masterVolumeValueLabel;
-  Arcadia_Engine_UI_LabelNode* musicVolumeLabel;
   Arcadia_Engine_UI_LabelNode* musicVolumeValueLabel;
-  Arcadia_Engine_UI_LabelNode* mouseSensitivityLabel;
-  Arcadia_Engine_UI_LabelNode* subtitlesLabel;
-  Arcadia_Engine_UI_LabelNode* highContrastLabel;
+  Arcadia_Engine_UI_LabelNode* effectsVolumeValueLabel;
+  Arcadia_Engine_UI_LabelNode* uiVolumeValueLabel;
+  Arcadia_Engine_UI_LabelNode* voiceVolumeValueLabel;
   Arcadia_Engine_UI_SegmentedChoiceNode* optionsTabs;
   Arcadia_Engine_UI_ToggleNode* vsyncToggle;
   Arcadia_Engine_UI_SliderNode* brightnessSlider;
   Arcadia_Engine_UI_SliderNode* masterVolumeSlider;
   Arcadia_Engine_UI_SliderNode* musicVolumeSlider;
+  Arcadia_Engine_UI_SliderNode* effectsVolumeSlider;
+  Arcadia_Engine_UI_SliderNode* uiVolumeSlider;
+  Arcadia_Engine_UI_SliderNode* voiceVolumeSlider;
   Arcadia_Engine_UI_SliderNode* mouseSensitivitySlider;
   Arcadia_Engine_UI_ToggleNode* subtitlesToggle;
   Arcadia_Engine_UI_ToggleNode* highContrastToggle;

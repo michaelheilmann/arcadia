@@ -1,4 +1,0 @@
-{
-  type : "DSP.WhiteNoise",
-  name : "MainMenuScene.Internal.Ambience.DSP.WhiteNoise",
-}

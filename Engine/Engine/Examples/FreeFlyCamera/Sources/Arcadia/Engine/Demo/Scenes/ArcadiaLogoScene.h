@@ -21,7 +21,7 @@
 #include "Arcadia/ADL/Include.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.ArcadiaLogoScene", Arcadia_Engine_Demo_ArcadiaLogoScene,
-                          u8"Arcadia.Engine.Demo.Scene");
+                          u8"Arcadia.Engine.Scene");
 
 struct Arcadia_Engine_Demo_ArcadiaLogoSceneDispatch {
   Arcadia_Engine_SceneDispatch parent;

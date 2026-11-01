@@ -17,14 +17,20 @@
 #if !defined(ARCADIA_ENGINE_AUDIALS_BACKEND_H_INCLUDED)
 #define ARCADIA_ENGINE_AUDIALS_BACKEND_H_INCLUDED
 
-#include "Arcadia/Engine/Include.h"
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Audials/Backend.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
 
-// An audials backend.
+#include "Arcadia/Ring1/Include.h"
+#include "Arcadia/Engine/Backend.h"
+
+typedef struct Arcadia_Engine_Audials_Backend Arcadia_Engine_Audials_Backend;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Audials.Backend", Arcadia_Engine_Audials_Backend,
                           u8"Arcadia.Engine.Backend");
 
 struct Arcadia_Engine_Audials_BackendDispatch {
-  Arcadia_Engine_BackendDispatch parent;
+  Arcadia_Engine_BackendDispatch _parent;
 };
 
 struct Arcadia_Engine_Audials_Backend {

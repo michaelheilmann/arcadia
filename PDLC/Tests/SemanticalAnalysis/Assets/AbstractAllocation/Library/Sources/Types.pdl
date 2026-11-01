@@ -1,0 +1,6 @@
+abstract class Test.Event {
+}
+
+procedure invalid : Arcadia.Void {
+  construct $0 Test.Event void
+}

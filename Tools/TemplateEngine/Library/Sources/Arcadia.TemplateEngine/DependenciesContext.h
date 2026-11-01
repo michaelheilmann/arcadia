@@ -31,7 +31,9 @@ struct DependenciesContext {
   Arcadia_Object _parent;
   // The path of the dependencies file.
   Arcadia_FilePath* dependenciesFilePath;
-  // Map from absolute file name strings to a set list of absolute file name strings
+  // Map from absolute output names to sets of absolute input names. For a CMake
+  // DEPFILE, register every transitive template against the rendered output;
+  // input templates must not themselves become output keys with nested rules.
   Arcadia_Map* dependencies;
 };
 
@@ -48,7 +50,7 @@ DependenciesContext_write
     DependenciesContext* self
   );
 
-/* Invoke this if a source file was discovered. This may be invoked multiple times for the same file. */
+// Register an output file; repeated registrations preserve its dependency set.
 void
 DependencyContext_onFile
   (
@@ -57,7 +59,7 @@ DependencyContext_onFile
     Arcadia_FilePath* path
   );
 
-/* Invoke this if a dependency froom a file "from" to a file "to" was discovered. This may be invoked multiple times for the same combination of files. */
+// Register input "to" for output "from"; repeated pairs are deduplicated.
 void
 DependencyContext_onDependency
   (

@@ -24,7 +24,9 @@ BeginProduct(${this} test)
 SetFolder(${this} "Math")
 
 OnSourceFile(${this} Arcadia.Math.Tests.MatrixTests/Main.c)
+OnInlayFile(${this} Arcadia.Math.Tests.MatrixTests/Cases.i)
 
 OnModuleDependency(${this} ${MyProjectName}.Math PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

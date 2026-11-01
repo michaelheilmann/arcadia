@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -45,18 +47,34 @@ listTest1
   Arcadia_Tests_assertTrue(thread, Arcadia_BooleanValue_True == Arcadia_Collection_isEmpty(thread, (Arcadia_Collection*)l));
 }
 
+static int
+runAppendAndClear
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&listTest1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRemoveAt
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Collections_Tests_ListTests_removeAt) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&listTest1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&Arcadia_Collections_Tests_ListTests_removeAt)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "AppendAndClear", &runAppendAndClear },
+    { "RemoveAt", &runRemoveAt },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

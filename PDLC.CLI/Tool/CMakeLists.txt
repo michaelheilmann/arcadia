@@ -36,7 +36,7 @@ if (NOT TARGET ${MyTool})
 
   EndProduct(${MyTool})
 
-  set(COMMAND_LINE "--mil2c --configuration=\\\"${CMAKE_CURRENT_SOURCE_DIR}/../../Modules.mil\\\"")
+  set(COMMAND_LINE "--mil2c --configuration=\\\"${CMAKE_CURRENT_SOURCE_DIR}/../../Modules.pdl\\\"")
   set_target_properties(${MyTool} PROPERTIES VS_DEBUGGER_COMMAND_ARGUMENTS "${COMMAND_LINE}")
 
 endif()

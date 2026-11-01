@@ -1,0 +1,4 @@
+procedure f(variable a : Arcadia.Natural64) : Arcadia.Void {}
+procedure run : Arcadia.Void {
+  call $0 f
+}

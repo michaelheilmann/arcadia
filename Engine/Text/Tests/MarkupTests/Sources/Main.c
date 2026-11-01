@@ -14,12 +14,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 #include <string.h>
 
 #include "Arcadia/Collections/Include.h"
 #include "Arcadia/Engine/Text/Include.h"
 #include "Arcadia/Languages/Include.h"
+#include "RunModels.h"
 
 static Arcadia_List*
 parse
@@ -73,6 +76,7 @@ parseRuns
                              "[align=right x=10 y=20 width=300 height=40 size=16 color=Colors.Yellow fixed=true]{fps}");
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)runs);
   Arcadia_Tests_assertTrue(thread, 2 == Arcadia_Collection_getSize(thread, (Arcadia_Collection*)runs));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
 
   Arcadia_Engine_Text_MarkupTextRun* first = getRun(thread, runs, 0);
   assertStringEquals(thread, first->text, "Hello, World!");
@@ -110,18 +114,36 @@ rejectUnknownAttribute
   parse(thread, "[unknown=value]Text");
 }
 
+static int
+runParseRuns
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&parseRuns) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectUnknownAttribute
+  (
+    void
+  )
+{
+  // This case succeeds only when the existing execution boundary reports failure.
+  return Arcadia_Tests_safeExecute(&rejectUnknownAttribute) ? EXIT_FAILURE : EXIT_SUCCESS;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&parseRuns)) {
-    return EXIT_FAILURE;
-  }
-  if (Arcadia_Tests_safeExecute(&rejectUnknownAttribute)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "ParseRuns", &runParseRuns },
+    { "RejectUnknownAttribute", &runRejectUnknownAttribute },
+    { "RunModels", &Arcadia_Engine_Text_Tests_runModels },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

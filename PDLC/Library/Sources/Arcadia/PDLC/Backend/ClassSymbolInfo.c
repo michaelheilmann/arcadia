@@ -166,13 +166,30 @@ constructImpl
     Arcadia_PDLC_Backend_ModuleSymbolInfo* moduleSymbolInfo =
       (Arcadia_PDLC_Backend_ModuleSymbolInfo*)Arcadia_PDLC_Backend_Implementation_getOrCreateInfo(thread, implementation, moduleSymbol);
 
-    self->cxxHeaderFilePath = Arcadia_PDLC_Backend_Implementation_makeCxxHeaderFilePath(thread, implementation, self->symbol);
-    self->cxxHeaderFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
-    Arcadia_FilePath_append(thread, self->cxxHeaderFileAbsolutePath, self->cxxHeaderFilePath);
+    Arcadia_PDLC_ClassSymbol* classSymbol = (Arcadia_PDLC_ClassSymbol*)self->symbol;
+    Arcadia_String* nativeHeaderPath = classSymbol->ast ? classSymbol->ast->nativeHeaderPath : NULL;
+    self->cxxHeaderFilePath = nativeHeaderPath
+      ? Arcadia_FilePath_parseGeneric(thread, nativeHeaderPath)
+      : Arcadia_PDLC_Backend_Implementation_makeCxxHeaderFilePath(thread, implementation, self->symbol);
+    // Only opaque native imports resolve their mapped header outside the module.
+    if (!classSymbol->isNative || !nativeHeaderPath || classSymbol->isNativeImplementation) {
+      self->cxxHeaderFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
+      Arcadia_FilePath_append(thread, self->cxxHeaderFileAbsolutePath, self->cxxHeaderFilePath);
+    }
 
-    self->cxxSourceFilePath = Arcadia_PDLC_Backend_Implementation_makeCxxSourceFilePath(thread, implementation, self->symbol);
-    self->cxxSourceFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
-    Arcadia_FilePath_append(thread, self->cxxSourceFileAbsolutePath, self->cxxSourceFilePath);
+    if (!classSymbol->isNative) {
+      if (nativeHeaderPath) {
+        Arcadia_StringBuilder* path = Arcadia_StringBuilder_create(thread);
+        Arcadia_ValueStack_pushObjectReferenceValue(thread, path);
+        Arcadia_StringBuilder_insertBack(thread, path, Arcadia_Value_makeRuntimeUTF8StringValue(Arcadia_RuntimeUTF8String_create(thread,
+          Arcadia_String_getBytes(thread, nativeHeaderPath), Arcadia_String_getNumberOfBytes(thread, nativeHeaderPath) - 2)));
+        Arcadia_StringBuilder_insertBackCxxString(thread, path, ".c.g");
+        self->cxxSourceFilePath = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(path)));
+        Arcadia_ValueStack_popValues(thread, 1);
+      } else self->cxxSourceFilePath = Arcadia_PDLC_Backend_Implementation_makeCxxSourceFilePath(thread, implementation, self->symbol);
+      self->cxxSourceFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
+      Arcadia_FilePath_append(thread, self->cxxSourceFileAbsolutePath, self->cxxSourceFilePath);
+    }
   }
 
   Arcadia_LeaveConstructor(Arcadia_PDLC_Backend_ClassSymbolInfo);
@@ -336,7 +353,7 @@ Arcadia_PDLC_Backend_ClassSymbolInfo_getCxxSourceFileAbsolutePathImpl
     Arcadia_Thread* thread,
     Arcadia_PDLC_Backend_ClassSymbolInfo* self
   )
-{ return self->cxxHeaderFileAbsolutePath ? Arcadia_FilePath_clone(thread, self->cxxSourceFileAbsolutePath) : NULL; }
+{ return self->cxxSourceFileAbsolutePath ? Arcadia_FilePath_clone(thread, self->cxxSourceFileAbsolutePath) : NULL; }
 
 Arcadia_PDLC_Backend_ClassSymbolInfo*
 Arcadia_PDLC_Backend_ClassSymbolInfo_create

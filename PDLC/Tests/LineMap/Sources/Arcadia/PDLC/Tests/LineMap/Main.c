@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/PDLC/Include.h"
 
 #include "Arcadia/Logging/Include.h"
@@ -41,24 +43,21 @@ onTest
 void
 main1
   (
-    Arcadia_Process* process,
-    int argc,
-    char** argv
+    Arcadia_Process* process
   )
 {
   Arcadia_Thread* thread = Arcadia_Process_getThread(process);
   Arcadia_Log* log = (Arcadia_Log*)Arcadia_ConsoleLog_create(thread);
   Arcadia_Languages_Diagnostics* diagnostics = Arcadia_Languages_Diagnostics_create(thread, log);
   Arcadia_Languages_InputFileManager* inputFileManager = Arcadia_Languages_InputFileManager_create(thread, diagnostics);
-  onTest(thread, inputFileManager, 63, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Statements.mil")));
-  onTest(thread, inputFileManager, 21, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Variables.mil")));
+  onTest(thread, inputFileManager, 63, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Statements.pdl")));
+  onTest(thread, inputFileManager, 21, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Assets/Variables.pdl")));
 }
 
-int
-main
+static int
+runTests
   (
-    int argc,
-    char** argv
+    void
   )
 {
   Arcadia_Process* process = NULL;
@@ -69,7 +68,7 @@ main
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
-    main1(process, argc, argv);
+    main1(process);
   }
   Arcadia_Thread_popJumpTarget(thread);
   Arcadia_Status status = Arcadia_Thread_getStatus(thread);
@@ -80,4 +79,17 @@ main
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
+}
+
+int
+main
+  (
+    int argc,
+    char** argv
+  )
+{
+  static const Arcadia_Testing_Case cases[] = {
+    { "LineMap", &runTests },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

@@ -1,0 +1,4 @@
+class Test.Invalid {
+  method _Reserved : Arcadia.Void {
+  }
+}

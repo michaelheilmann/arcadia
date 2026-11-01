@@ -17,24 +17,36 @@
 #if !defined(ARCADIA_ENGINE_AUDIALS_RESOURCES_STREAMINGSOUNDSOURCERESOURCE_H_INCLUDED)
 #define ARCADIA_ENGINE_AUDIALS_RESOURCES_STREAMINGSOUNDSOURCERESOURCE_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Audials/Resources/StreamingSoundSourceResource.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Audials/Resource.h"
-#include "Arcadia/Engine/Audials/Providers/AudioStreamProvider.h"
+
+typedef struct Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource;
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Audials.Implementation.StreamingSoundSourceResource", Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource,
                           u8"Arcadia.Engine.Audials.Implementation.Resource");
 
 struct Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResourceDispatch {
-  Arcadia_Engine_Audials_Implementation_ResourceDispatch parent;
+  Arcadia_Engine_Audials_Implementation_ResourceDispatch _parent;
+
   Arcadia_BooleanValue (*isPlaying)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*);
+
   void (*play)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*);
+
   void (*pause)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*);
+
   void (*stop)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*);
+
   void (*setVolume)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*, Arcadia_Real32Value);
+
   void (*update)(Arcadia_Thread*, Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource*);
 };
 
 struct Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource {
-  Arcadia_Engine_Audials_Implementation_Resource parent;
+  Arcadia_Engine_Audials_Implementation_Resource _parent;
 };
 
 Arcadia_BooleanValue
@@ -80,4 +92,4 @@ Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource_update
     Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource* self
   );
 
-#endif
+#endif // ARCADIA_ENGINE_AUDIALS_RESOURCES_STREAMINGSOUNDSOURCERESOURCE_H_INCLUDED

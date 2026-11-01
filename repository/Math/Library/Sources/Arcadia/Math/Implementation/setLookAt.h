@@ -25,7 +25,9 @@
 /// Assign this matrix the value a of a view matrix.
 /// @param source the position vector of the point at which the viewer is located
 /// @param target the position vector of the point at which the viewer is looking at
-/// @param uo the direction vector indicating the upward direction of the viewer
+/// @param up the direction vector indicating the upward direction of the viewer
+/// @error Arcadia_Status_ArgumentValueInvalid The viewing or up direction is zero,
+/// non-finite, or parallel to the other direction. The destination remains unchanged.
 /// @remarks
 /// This function constructs a view matrix <code>V</code>given
 /// - the position the viewer is located at <code>source</code>,
@@ -35,15 +37,15 @@
 /// Let
 /// @code
 /// forward := norm(target - source)
-/// right := forward x norm(up)
+/// right := norm(forward x norm(up))
 /// up' := right x forward
 /// @endcode
 /// Then the view matrix <code>V</code> is given by
 /// @code
 /// V :=
-/// | right.x    | right.y    | right.z    | 0
-/// | up'.x      | up'.y      | up'.z      | 0
-/// | -forward.x | -forward.y | -forward.z | 0
+/// | right.x    | right.y    | right.z    | -dot(right, source)
+/// | up'.x      | up'.y      | up'.z      | -dot(up', source)
+/// | -forward.x | -forward.y | -forward.z | dot(forward, source)
 /// | 0          | 0          | 0          | 1
 /// @endcode
 
@@ -58,7 +60,7 @@ Arcadia_Math_Matrix4x4Real32_setLookAt
     Arcadia_Math_Vector3Real32* up
   );
 
-// https://michaelheilmann.com/Arcadia/Math/#Arcadia_Math_Matrix*x**_setLookAt
+/// @brief Real64 variant with the same coordinate and error contract as Real32.
 void
 Arcadia_Math_Matrix4x4Real64_setLookAt
   (

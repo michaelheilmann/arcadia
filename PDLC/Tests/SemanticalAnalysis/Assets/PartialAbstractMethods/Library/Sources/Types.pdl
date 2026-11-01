@@ -1,0 +1,11 @@
+abstract class MyModule.Base {
+  method abstract read : Arcadia.Natural64
+  method abstract write : Arcadia.Void
+}
+abstract class MyModule.Middle extends MyModule.Base {
+  method read : Arcadia.Natural64 {
+    return 1
+  }
+}
+class MyModule.Concrete extends MyModule.Middle {
+}

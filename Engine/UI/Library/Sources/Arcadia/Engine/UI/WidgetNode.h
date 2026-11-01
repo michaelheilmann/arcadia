@@ -42,6 +42,7 @@ struct Arcadia_Engine_UI_WidgetNode {
   Arcadia_Integer32Value left, bottom;
   Arcadia_Integer32Value width, height;
   Arcadia_Signal* propertyChanged;
+  Arcadia_String* name;
 };
 
 Arcadia_Engine_UI_WidgetNode*
@@ -145,6 +146,29 @@ Arcadia_Engine_UI_WidgetNode_getPropertyChangedSignal
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_WidgetNode* self
+  );
+
+/// @brief Get the name of this widget.
+/// @param thread A pointer to this thread.
+/// @param self A pointer to this widget.
+/// @return The name of this widget, or a null pointer if it has none.
+Arcadia_String*
+Arcadia_Engine_UI_WidgetNode_getName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self
+  );
+
+/// @brief Set the name of this widget.
+/// @param thread A pointer to this thread.
+/// @param self A pointer to this widget.
+/// @param name The name of this widget, or a null pointer to clear it.
+void
+Arcadia_Engine_UI_WidgetNode_setName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_String* name
   );
 
 /// @brief Raise the widget event signal.

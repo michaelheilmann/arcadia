@@ -1,7 +1,0 @@
-{
-  type : "Color",
-  name : "MainMenuScene.FirstColor",
-  red : 255,
-  green : 255,
-  blue : 255,
-}

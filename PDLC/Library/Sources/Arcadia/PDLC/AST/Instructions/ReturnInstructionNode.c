@@ -74,7 +74,8 @@ Arcadia_PDLC_AST_ReturnInstructionNode_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  self->operand = (Arcadia_PDLC_AST_OperandNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_PDLC_AST_OperandNode_getType(thread));
+  self->operand = Arcadia_ValueStack_isVoidValue(thread, 1) ? NULL
+    : (Arcadia_PDLC_AST_OperandNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_PDLC_AST_OperandNode_getType(thread));
   Arcadia_LeaveConstructor(Arcadia_PDLC_AST_ReturnInstructionNode);
 }
 
@@ -92,7 +93,9 @@ Arcadia_PDLC_AST_ReturnInstructionNode_visit
     Arcadia_Thread* thread,
     Arcadia_PDLC_AST_ReturnInstructionNode* self
   )
-{ Arcadia_Object_visit(thread, (Arcadia_Object*)self->operand); }
+{
+  if (self->operand) Arcadia_Object_visit(thread, (Arcadia_Object*)self->operand);
+}
 
 Arcadia_PDLC_AST_ReturnInstructionNode*
 Arcadia_PDLC_AST_ReturnInstructionNode_create

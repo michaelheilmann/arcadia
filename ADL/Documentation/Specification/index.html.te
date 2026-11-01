@@ -20,6 +20,7 @@
       @{include("./Specification/6. User interface definitions.i")}
       @{include("./Specification/7. Enumerations.i")}
       @{include("./Specification/8. Registered type names.i")}
+      @{include("./Specification/9. Graph composition.i")}
     </div>
     <div class="right-column">
       <nav>
@@ -32,6 +33,7 @@
           <li><a href="#user-interface">6 User interface definitions</a></li>
           <li><a href="#enumerations">7 Enumerations</a></li>
           <li><a href="#registered-type-names">8 Registered type names</a></li>
+          <li><a href="#graph-composition">9 Graph composition</a></li>
         </ul>
       </nav>
     </div>

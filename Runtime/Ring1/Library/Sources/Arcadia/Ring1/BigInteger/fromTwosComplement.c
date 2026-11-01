@@ -15,10 +15,9 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_RING1_MODULE (1)
-#include "Arcadia/Ring1/BigInteger/toTwosComplement.h"
+#include "Arcadia/Ring1/BigInteger/fromTwosComplement.h"
 
 #include "Arcadia/Ring1/Include.h"
-#include <assert.h>
 
 void
 Arcadia_BigInteger_fromTwosComplement
@@ -29,66 +28,41 @@ Arcadia_BigInteger_fromTwosComplement
     Arcadia_SizeValue numberOfLimps
   )
 {
-  // Currently assumes and only supports little endian.
-  Arcadia_BigInteger_Limp mostSignificandLimp = limps[numberOfLimps - 1];
-
-  // If the most significand limp is zero, then the number is positive or zero.
-  // We strip of trailing zero limps.
-  if (mostSignificandLimp == 0) {
-    while (numberOfLimps > 1 && limps[numberOfLimps - 1] == 0) {
-      numberOfLimps--;
-    }
-    mostSignificandLimp = limps[numberOfLimps - 1];
-    if (mostSignificandLimp == 0) {
-      // The number is zero.
-      Arcadia_BigInteger_setZero(thread, self);
-    } else {
-      // We can copy the limps.
-      Arcadia_Memory_reallocateUnmanaged(thread, (void**)&self->limps, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps);
-      #if Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_BigEndian
-        Arcadia_Process_copyMemory(Arcadia_Thread_getProcess(thread), self->limps, limps, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps);
-        #if Arcadia_Configuration_BigInteger_LimpSize == 1
-          Arcadia_Process_reverseMemory8(Arcadia_Thread_getProcess(thread), self->limps, numberOfLimps);
-        #elif Arcadia_Configuration_BigInteger_LimpSize == 2
-          Arcadia_Process_reverseMemory16(Arcadia_Thread_getProcess(thread), self->limps, numberOfLimps);
-        #elif Arcadia_Configuration_BigInteger_LimpSize == 4
-          Arcadia_Process_reverseMemory32(Arcadia_Thread_getProcess(thread), self->limps, numberOfLimps);
-        #else
-          #error("unknown/unsupported limp size")
-        #endif
-      #elif Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_LittleEndian
-        Arcadia_Memory_copy(thread, self->limps, limps, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps);
-      #else
-        #error("unknown/unsupported limp order")
-      #endif
-      self->numberOfLimps = numberOfLimps;
-      self->sign = 1;
-    }
-  } else {
-    Arcadia_SizeValue n = numberOfLimps;
-    Arcadia_BigInteger_Limp* p = Arcadia_Memory_allocateUnmanaged(thread, sizeof(Arcadia_BigInteger_Limp) * n);
-    Arcadia_Memory_copy(thread, p, limps, sizeof(Arcadia_BigInteger_Limp) * n);
-    // The value is positive or negative.
-    Arcadia_BooleanValue isNegative = mostSignificandLimp & (1 << (Arcadia_BigInteger_BitsPerLimp - 1));
-    if (isNegative) {
-      Arcadia_SizeValue i = 0;
-      // copy the zero limps
-      while (p[i] == 0) { // This is fine as there must be a at least one non-zero limp.
-        i++;
-      }
-      p[i] = -(Arcadia_Integer32Value)p[i];
-      i++;
-      while (i < n) {
-        p[i] = ~(p[i]);
-      }
-      if (p[n - 1] & (1 << (Arcadia_BigInteger_BitsPerLimp - 1)) == 0) {
-        n++;
-        Arcadia_Memory_reallocateUnmanaged(thread, (void**)&p, sizeof(Arcadia_BigInteger_Limp) * n);
-        p[n - 1] = Arcadia_BigInteger_Limp_Maximum;
-      }
-    }
-    self->sign = isNegative ? -1 : +1;
-    self->limps = p;
-    self->numberOfLimps = n;
+  if (!self || !limps || !numberOfLimps) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
   }
+  if (numberOfLimps > Arcadia_BigInteger_MaximumNumberOfLimps) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_BigInteger_Limp signBit = (Arcadia_BigInteger_Limp)((Arcadia_BigInteger_DoubleLimp)1 << (Arcadia_BigInteger_BitsPerLimp - 1));
+  Arcadia_BooleanValue negative = (limps[numberOfLimps - 1] & signBit) != 0;
+  Arcadia_BigInteger_Limp* magnitude = Arcadia_Memory_allocateUnmanaged(thread, sizeof(Arcadia_BigInteger_Limp) * numberOfLimps);
+  Arcadia_BigInteger_DoubleLimp carry = 1;
+  // Input is little endian, independently of the internal magnitude order.
+  for (Arcadia_SizeValue i = 0; i < numberOfLimps; ++i) {
+    if (negative) {
+      Arcadia_BigInteger_DoubleLimp digit = (Arcadia_BigInteger_DoubleLimp)(Arcadia_BigInteger_Limp)~limps[i] + carry;
+      magnitude[i] = (Arcadia_BigInteger_Limp)digit;
+      carry = digit >> Arcadia_BigInteger_BitsPerLimp;
+    } else {
+      magnitude[i] = limps[i];
+    }
+  }
+  while (numberOfLimps && !magnitude[numberOfLimps - 1]) --numberOfLimps;
+#if Arcadia_Configuration_BigInteger_LimpOrder == Arcadia_Configuration_BigInteger_LimpOrder_BigEndian
+  for (Arcadia_SizeValue i = 0; i < numberOfLimps / 2; ++i) {
+    Arcadia_BigInteger_Limp temporary = magnitude[i];
+    magnitude[i] = magnitude[numberOfLimps - 1 - i];
+    magnitude[numberOfLimps - 1 - i] = temporary;
+  }
+#elif Arcadia_Configuration_BigInteger_LimpOrder != Arcadia_Configuration_BigInteger_LimpOrder_LittleEndian
+  #error("unknown/unsupported limp order")
+#endif
+  // Publish after all reads, including when the input aliases self->limps.
+  if (self->limps) Arcadia_Memory_deallocateUnmanaged(thread, self->limps);
+  self->limps = magnitude;
+  self->numberOfLimps = numberOfLimps;
+  self->sign = numberOfLimps ? (negative ? -1 : +1) : 0;
 }

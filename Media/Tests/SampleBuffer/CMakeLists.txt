@@ -24,7 +24,10 @@ BeginProduct(${this} test)
 SetFolder(${this} "Media")
 
 OnSourceFile(${this} Arcadia.Media.Tests.SampleBuffer/Main.c)
+OnSourceFile(${this} Arcadia.Media.Tests.SampleBuffer/Formats.c)
+OnHeaderFile(${this} Arcadia.Media.Tests.SampleBuffer/Formats.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Media PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

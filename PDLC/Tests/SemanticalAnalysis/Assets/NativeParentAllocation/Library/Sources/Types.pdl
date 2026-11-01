@@ -1,0 +1,7 @@
+native class Test.NativeParent {
+  constructor(variable context : Arcadia.Value)
+}
+procedure invalid(variable context : Arcadia.Value) : Test.NativeParent {
+  construct $0 Test.NativeParent void context
+  return $0
+}

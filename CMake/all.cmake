@@ -28,6 +28,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/detect_instruction_set_architecture.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/detect_operating_system.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tool-file-copy.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/tools-template-engine.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/TestDiscovery.cmake)
+cmake_language(DEFER DIRECTORY "${CMAKE_SOURCE_DIR}" CALL Arcadia_finalizeTestDiscovery)
 
 enable_testing()
 
@@ -100,9 +102,9 @@ macro(CopyProductAssets target folder targetDirectory)
      continue()
    endif()
    list(APPEND copiedAssetFiles ${sourceFile})
-   message(STATUS "(sourceDirectory, sourceFile) := (${sourceDirectory}, ${sourceFile})")
+   #message(STATUS "(sourceDirectory, sourceFile) := (${sourceDirectory}, ${sourceFile})")
    set(targetFile ${sourceFile})
-   message(STATUS "(sourceDirectory, sourceFile, targetDirectory, targetFile) := (${sourceDirectory}, ${sourceFile}, ${targetDirectory}, ${targetFile})")
+   #message(STATUS "(sourceDirectory, sourceFile, targetDirectory, targetFile) := (${sourceDirectory}, ${sourceFile}, ${targetDirectory}, ${targetFile})")
 
    get_filename_component(targetFileDirectory ${targetDirectory}/${targetFile} DIRECTORY)
    #message(STATUS "=> target file directory: ${targetFileDirectory}")
@@ -114,7 +116,10 @@ macro(CopyProductAssets target folder targetDirectory)
                       VERBATIM
                       COMMENT "copy file `${sourceDirectory}/${sourceFile}` to `${targetDirectory}/${targetFile}`")
 
-   list(APPEND targetFiles "${targetFileDirectory}" "${targetDirectory}/${targetFile}")
+    # Depend only on declared file outputs. The copy command creates directories;
+    # listing them here leaves missing, rule-less prerequisites on a cold Ninja
+    # build (and can be masked by directories left from an earlier build).
+    list(APPEND targetFiles "${targetDirectory}/${targetFile}")
 
  endforeach()
 
@@ -145,6 +150,20 @@ endmacro()
 #     List of inlay files. Initially defined but empty
 #   - ${target}.WorkingDirectory
 #     for tests and executables only: the working directory. Defaults to ${CMAKE_CURRENT_BINARY_DIR}.
+#   - ${target}.TestDiscovery / TestArguments / TestEnvironment / TestProperties
+#   - ${target}.TestLabels / TestTimeout
+#     Resource/coverage labels and watchdog seconds; defaults in TestPolicy.cmake.
+#   - ${target}.TestScript / TestDependencies
+#     A test with TestScript runs CMake -P rather than compiling an executable.
+#     TestArguments precede -P; TestDependencies lists required build targets.
+#     For tests only, configure before EndProduct. Discovery defaults to AUTO:
+#     direct Testing consumers use --list; FALSE retains a single suite test.
+#     Arguments/environment are lists; properties are property/value pairs.
+#   - ${target}.TestIsolated / TestFixtureDirectory / TestFixtureDestination
+#     Stage pristine inputs into a unique case/configuration/session directory.
+#     FixtureDestination defaults to "."; an empty fixture directory needs no inputs.
+#   - ${target}.TestParallelSafe
+#     FALSE by default. Opt in only after auditing external resources and outputs.
 #   - ${target}.Libaries
 #     List of libraries. Initially defined but empty
 #   - ${target}.PrivateLibaries
@@ -188,6 +207,19 @@ macro(BeginProduct target type)
   set(${target}.Folder "")
   # Store the product type.
   set(${target}.Type ${type})
+  set(${target}.WorkingDirectory "${CMAKE_CURRENT_BINARY_DIR}")
+  set(${target}.TestDiscovery AUTO)
+  set(${target}.TestArguments "")
+  set(${target}.TestEnvironment "")
+  set(${target}.TestProperties "")
+  set(${target}.TestLabels "")
+  set(${target}.TestTimeout "")
+  set(${target}.TestScript "")
+  set(${target}.TestDependencies "")
+  set(${target}.TestIsolated FALSE)
+  set(${target}.TestFixtureDirectory "")
+  set(${target}.TestFixtureDestination ".")
+  set(${target}.TestParallelSafe FALSE)
 
 endmacro()
 
@@ -208,14 +240,25 @@ function(string_starts_with result haystack needle)
 endfunction()
 
 macro(EndProduct target)
-  if (${${target}.Enabled})
+  if (${${target}.Enabled} AND "${${target}.Type}" STREQUAL "test" AND ${target}.TestScript)
+    if("${${target}.TestDiscovery}" STREQUAL "TRUE" OR ${target}.TestIsolated
+        OR ${target}.Libraries OR ${target}.PrivateLibraries OR ${target}.Install)
+      message(FATAL_ERROR "Script tests own fixture setup, do not link/install, and cannot use case discovery; use TestDependencies for build targets")
+    endif()
+    if(NOT EXISTS "${${target}.TestScript}")
+      message(FATAL_ERROR "Missing test script: ${${target}.TestScript}")
+    endif()
+    add_custom_target(${target} ALL SOURCES "${${target}.TestScript}")
+    if(${target}.TestDependencies)
+      add_dependencies(${target} ${${target}.TestDependencies})
+    endif()
+    Arcadia_registerSuiteTest(${target})
+  elseif (${${target}.Enabled})
     if (${${target}.Type} STREQUAL library)
       add_library(${target})
     elseif (${${target}.Type} STREQUAL executable)
-      set(${target}.WorkingDirectory ${CMAKE_CURRENT_BINARY_DIR})
       add_executable(${target})
     elseif (${${target}.Type} STREQUAL test)
-      set(${target}.WorkingDirectory ${CMAKE_CURRENT_BINARY_DIR})
       add_executable(${target})
     else()
       message(FATAL_ERROR "unknown/unsupported product type")
@@ -368,12 +411,14 @@ macro(EndProduct target)
       target_include_directories(${target} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Sources> $<INSTALL_INTERFACE:${${target}.InstallationDirectories.Includes}>)
       target_include_directories(${target} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/Sources>)
 
-      # Possible alternative is `add_test(NAME ${target} COMMAND ${target} WORKING_DIRECTORY $<TARGET_FILE_DIR:${target}>)`.
-      add_test(NAME ${target} COMMAND ${target} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
       set_property(TARGET ${target} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${${target}.WorkingDirectory})
-
-      # `add_test` must already have been invoked for `set_test_properties` to be successful.
-      set_tests_properties(${target} PROPERTIES WORKING_DIRECTORY ${${target}.WorkingDirectory})
+      if(("${${target}.TestDiscovery}" STREQUAL "AUTO" AND
+          ("${MyProjectName}.Testing" IN_LIST ${target}.Libraries OR "${MyProjectName}.Testing" IN_LIST ${target}.PrivateLibraries))
+          OR "${${target}.TestDiscovery}" STREQUAL "TRUE")
+        Arcadia_registerTestCases(${target})
+      else()
+        Arcadia_registerSuiteTest(${target})
+      endif()
 
     else()
       message(FATAL_ERROR "unknown/unsupported product type")
@@ -453,7 +498,7 @@ macro(OnAssetsDirectory target sourceDirectory targetDirectory)
  # Get the files and the directories.
  file(GLOB_RECURSE files RELATIVE ${sourceDirectory} "${sourceDirectory}/*")
  foreach (_file ${files})
-   message(STATUS "(directory, file) := (${sourceDirectory}, ${_file})")
+   #message(STATUS "(directory, file) := (${sourceDirectory}, ${_file})")
    list(APPEND ${target}.Assets.Directories ${sourceDirectory})
    list(APPEND ${target}.Assets.Files ${_file})
  endforeach()
@@ -555,6 +600,7 @@ endmacro()
 # Define a source file.
 # The path is relative to `${CMAKE_CURRENT_SOURCE_DIR}/Sources`.
 # If the optional argument `GENERATED` is supplied, then the path is relative to `${CMAKE_CURRENT_BINARY_DIR}/Sources`.
+# Committed PDLC `.c.g` sources are C translation units, not build-tree outputs.
 # @remark Can only be used between `BeginProduct` and `EndProduct`.
 # @todo Raise an error if the file does not exist.
 macro(OnSourceFile target file)
@@ -578,6 +624,10 @@ macro(OnSourceFile target file)
 
   list(APPEND ${target}.SourceFiles ${_temporary})
 
+  if ("${file}" MATCHES "\\.c\\.g$")
+    set_source_files_properties("${_temporary}" PROPERTIES LANGUAGE C)
+  endif()
+
   unset(optional_arg)
 endmacro()
 
@@ -592,10 +642,10 @@ macro(OnModuleDependency target module)
   endif()
 
   if (PRIVATE IN_LIST extra_args)
-    message(STATUS "adding ${module} to ${target}.PrivateLibraries")
+    #message(STATUS "adding ${module} to ${target}.PrivateLibraries")
     list(APPEND ${target}.PrivateLibraries ${module})
   else()
-    message(STATUS "adding ${module} to ${target}.Libraries")
+    #message(STATUS "adding ${module} to ${target}.Libraries")
     list(APPEND ${target}.Libraries ${module}) 
   endif()
 

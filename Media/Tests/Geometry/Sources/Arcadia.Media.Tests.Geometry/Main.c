@@ -14,11 +14,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "Arcadia/Media/Include.h"
+#include "VertexBuilder.h"
+#include "VertexEnums.h"
 
 // // `Arcadia.ADL.MeshGenerator` itself is abstract in ADL but has a constructor, hence a base mesh generator can be created here.
 // A base mesh generator is an `Arcadia.ADL.MeshGenerator` which is none of the supported mesh generator types.
@@ -129,6 +133,7 @@ defineCommonDefinitions
     "{\n"
     "  type : \"Color\",\n"
     "  name : \"MyGame.Colors.MyWhite\",\n"
+    "  alpha : 128,\n"
     "  red : 255,\n"
     "  green : 255,\n"
     "  blue : 255,\n"
@@ -556,43 +561,96 @@ test8
               vertices3[0], reference);
 }
 
+static int
+runPlaneMesh
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runBoxMesh
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runSphereMesh
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test3) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runBakedMesh
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test4) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runUnresolvedAmbientColor
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test5) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runUnsupportedGeneratorConstruction
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test6) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runUnsupportedGeneratorRejection
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test7) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runVertexBufferCopies
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test8) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&test1)) {
-    return EXIT_FAILURE;
-  }
-  //
-  if (!Arcadia_Tests_safeExecute(&test2)) {
-    return EXIT_FAILURE;
-  }
-  //
-  if (!Arcadia_Tests_safeExecute(&test3)) {
-    return EXIT_FAILURE;
-  }
-  //
-  if (!Arcadia_Tests_safeExecute(&test4)) {
-    return EXIT_FAILURE;
-  }
-  //
-  if (!Arcadia_Tests_safeExecute(&test5)) {
-    return EXIT_FAILURE;
-  }
-  //
-  if (!Arcadia_Tests_safeExecute(&test6)) {
-    return EXIT_FAILURE;
-  }
-  //
-  if (!Arcadia_Tests_safeExecute(&test7)) {
-    return EXIT_FAILURE;
-  }
-  //
-  if (!Arcadia_Tests_safeExecute(&test8)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "PlaneMesh", &runPlaneMesh },
+    { "BoxMesh", &runBoxMesh },
+    { "SphereMesh", &runSphereMesh },
+    { "BakedMesh", &runBakedMesh },
+    { "UnresolvedAmbientColor", &runUnresolvedAmbientColor },
+    { "UnsupportedGeneratorConstruction", &runUnsupportedGeneratorConstruction },
+    { "UnsupportedGeneratorRejection", &runUnsupportedGeneratorRejection },
+    { "VertexBufferCopies", &runVertexBufferCopies },
+    { "VertexBuilder", &Arcadia_Media_Tests_Geometry_vertexBuilder },
+    { "VertexEnums", &Arcadia_Media_Tests_Geometry_vertexEnums },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

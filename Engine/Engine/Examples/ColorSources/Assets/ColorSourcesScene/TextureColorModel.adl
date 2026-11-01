@@ -1,0 +1,6 @@
+{
+  type : "Model",
+  name : "ColorSourcesScene.TextureColorModel",
+  mesh : "ColorSourcesScene.TextureColorMesh",
+  material : "ColorSourcesScene.TextureColorMaterial",
+}

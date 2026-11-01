@@ -96,7 +96,7 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.MaterialResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource,
-                         u8"Arcadia.Visuals.MaterialResource", Arcadia_Engine_Visuals_MaterialResource,
+                         u8"Arcadia.Engine.Visuals.MaterialResource", Arcadia_Engine_Visuals_MaterialResource,
                          &_typeOperations);
 
 static void
@@ -112,31 +112,15 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource_constructImpl
     Arcadia_Thread_jump(thread);
   }
   {
-    Arcadia_Value t;
-    t = Arcadia_ValueStack_getValue(thread, 7);
-    Arcadia_ValueStack_pushValue(thread, &t);
-    Arcadia_ValueStack_pushNatural8Value(thread, 1);
+    Arcadia_Value arguments[5];
+    for (Arcadia_SizeValue i = 0; i < 5; ++i) arguments[i] = Arcadia_ValueStack_getValue(thread, 7 - i);
+    for (Arcadia_SizeValue i = 0; i < 5; ++i) Arcadia_ValueStack_pushValue(thread, &arguments[i]);
+    Arcadia_ValueStack_pushNatural8Value(thread, 5);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
 
   self->ambientColorTexture = NULL;
   self->program = NULL;
-
-  self->blendEnabled = Arcadia_ValueStack_getBooleanValue(thread, 6);
-  Arcadia_EnumerationValue blendSourceFunction = Arcadia_ValueStack_getEnumerationValue(thread, 5);
-  Arcadia_EnumerationValue blendDestinationFunction = Arcadia_ValueStack_getEnumerationValue(thread, 4);
-  if (blendSourceFunction.type != _Arcadia_Engine_Visuals_BlendFunction_getType(thread)) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-  if (blendDestinationFunction.type != _Arcadia_Engine_Visuals_BlendFunction_getType(thread)) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-  self->blendSourceFunction = (Arcadia_Engine_Visuals_BlendFunction)blendSourceFunction.value;
-  self->blendDestinationFunction = (Arcadia_Engine_Visuals_BlendFunction)blendDestinationFunction.value;
-
-  self->ambientColorSource = Arcadia_ValueStack_getInteger32Value(thread, 3);
 
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
@@ -256,7 +240,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_MaterialResource_create
     Arcadia_BooleanValue blendEnabled,
     Arcadia_Engine_Visuals_BlendFunction blendSourceFunction,
     Arcadia_Engine_Visuals_BlendFunction blendDestinationFunction,
-    Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource ambientColorSource,
+    Arcadia_Engine_Visuals_ColorSource ambientColorSource,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_TextureResource* ambientColorTexture,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource* program
   )

@@ -75,6 +75,7 @@ endif()
 # The runtime.
 add_subdirectory(Runtime/ARMS)
 add_subdirectory(Runtime/Ring1)
+add_subdirectory(Runtime/Testing)
 add_subdirectory(Runtime/Ring2)
 add_subdirectory(Runtime/Collections)
 add_subdirectory(Runtime/FileSystem)

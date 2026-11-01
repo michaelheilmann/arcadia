@@ -17,3 +17,9 @@
 cmake_minimum_required(VERSION 3.29)
 
 add_subdirectory(AudialsStreaming)
+add_subdirectory(CoreEvents)
+add_subdirectory(InputEvents)
+add_subdirectory(WindowCanvasEvents)
+add_subdirectory(Nodes)
+add_subdirectory(Backends)
+add_subdirectory(VisualResources)

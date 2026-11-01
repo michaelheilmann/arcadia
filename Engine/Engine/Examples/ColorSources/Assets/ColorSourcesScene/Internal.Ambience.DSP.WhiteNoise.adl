@@ -1,0 +1,4 @@
+{
+  type : "DSP.WhiteNoise",
+  name : "ColorSourcesScene.Internal.Ambience.DSP.WhiteNoise",
+}

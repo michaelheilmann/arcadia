@@ -17,32 +17,9 @@
 #define ARCADIA_MEDIA_PRIVATE (1)
 #include "Arcadia/Media/SampleFormat.h"
 
-#include "Arcadia/Ring2/Include.h"
-
 static const Arcadia_Type_Operations _typeOperations = {
   Arcadia_Type_Operations_Initializer,
 };
 
 Arcadia_defineEnumerationType(u8"Arcadia.Media.SampleFormat", Arcadia_Media_SampleFormat,
                               &_typeOperations);
-
-Arcadia_SizeValue
-Arcadia_Media_SampleFormat_getNumberOfBytes
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Media_SampleFormat self
-  )
-{
-  switch (self) {
-    case Arcadia_Media_SampleFormat_Natural8:
-    case Arcadia_Media_SampleFormat_Integer8:
-      return 1;
-    case Arcadia_Media_SampleFormat_Natural16:
-    case Arcadia_Media_SampleFormat_Integer16:
-      return 2;
-    default: {
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
-      Arcadia_Thread_jump(thread);
-    } break;
-  };
-}

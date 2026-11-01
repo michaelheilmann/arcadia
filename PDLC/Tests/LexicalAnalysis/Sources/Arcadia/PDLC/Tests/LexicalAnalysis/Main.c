@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/PDLC/Include.h"
 
 #include <string.h>
@@ -166,6 +168,8 @@ testScanner3
     u8"or"
     u8"\n"
     //
+    u8"abstract"
+    u8"\n"
     u8"class"
     u8"\n"
     u8"extends"
@@ -240,6 +244,8 @@ testScanner3
   expectAndNext(thread, scanner, Arcadia_PDLC_WordType_Or, u8"or", sizeof(u8"or") - 1);
   expectAndNext(thread, scanner, Arcadia_PDLC_WordType_LineTerminator, u8"<line terminator>", sizeof(u8"<line terminator>") - 1);
   //
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_Abstract, u8"abstract", sizeof(u8"abstract") - 1);
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_LineTerminator, u8"<line terminator>", sizeof(u8"<line terminator>") - 1);
   expectAndNext(thread, scanner, Arcadia_PDLC_WordType_Class, u8"class", sizeof(u8"class") - 1);
   expectAndNext(thread, scanner, Arcadia_PDLC_WordType_LineTerminator, u8"<line terminator>", sizeof(u8"<line terminator>") - 1);
   expectAndNext(thread, scanner, Arcadia_PDLC_WordType_Extends, u8"extends", sizeof(u8"extends") - 1);
@@ -337,6 +343,51 @@ testScanner1
   expectAndNext(thread, scanner, Arcadia_PDLC_WordType_EndOfInput, u8"<end of input>", sizeof(u8"<end of input>") - 1);
 }
 
+static int
+runEmptyInput
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScanner1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runLiteralsAndPunctuation
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScanner2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runKeywords
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScanner3) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRegisters
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScanner4) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runLineContinuations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScanner5) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -344,20 +395,12 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&testScanner1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&testScanner2)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&testScanner3)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&testScanner4)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&testScanner5)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "EmptyInput", &runEmptyInput },
+    { "LiteralsAndPunctuation", &runLiteralsAndPunctuation },
+    { "Keywords", &runKeywords },
+    { "Registers", &runRegisters },
+    { "LineContinuations", &runLineContinuations },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

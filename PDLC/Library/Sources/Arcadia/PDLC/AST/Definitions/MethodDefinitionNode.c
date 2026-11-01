@@ -66,6 +66,8 @@ Arcadia_PDLC_AST_MethodDefinitionNode_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_PDLC_AST_MethodDefinitionNode);
+  self->isNonvirtual = Arcadia_BooleanValue_False;
+  self->isAbstract = Arcadia_BooleanValue_False;
   if (6 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);

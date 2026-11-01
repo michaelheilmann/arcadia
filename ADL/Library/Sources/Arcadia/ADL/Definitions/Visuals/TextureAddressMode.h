@@ -17,38 +17,27 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_VISUALS_TEXTUREADDRESSMODE_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_VISUALS_TEXTUREADDRESSMODE_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
-  #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
+#if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
+  #error("do not include `Arcadia/ADL/Definitions/Visuals/TextureAddressMode.h` directly, include `Arcadia/ADL/Include.h` instead")
 #endif
-#include "Arcadia/ADL/Definition.h"
 
-// Enumeration of texture address modes for the U and V texture coordinates.
-// The values correspond to the texture address modes of the engine.
-// The value `None` is used as the default value and indicates that no
-// address mode is specified and the engine's default address mode is used.
-//
-// @code
-// enumeration Arcadia.ADL.TextureAddressMode {
-//   None,
-//   ClampToBorder,
-//   ClampToEdge,
-//   MirroredRepeat,
-//   Repeat,
-// };
-// @endcode
-Arcadia_declareEnumerationType(u8"Arcadia.ADL.TextureAddressMode", Arcadia_ADL_TextureAddressMode);
+#include "Arcadia/Ring1/Include.h"
+
+Arcadia_declareEnumerationType("Arcadia.ADL.TextureAddressMode",
+                               Arcadia_ADL_TextureAddressMode);
 
 enum Arcadia_ADL_TextureAddressMode {
-  // No address mode is specified. This is the default value.
+
   Arcadia_ADL_TextureAddressMode_None = 10,
-  // Texture coordinates are clamped to the border.
+
   Arcadia_ADL_TextureAddressMode_ClampToBorder = 0,
-  // Texture coordinates are clamped to the edge.
+
   Arcadia_ADL_TextureAddressMode_ClampToEdge = 1,
-  // Texture coordinates are mirrored and then repeated.
+
   Arcadia_ADL_TextureAddressMode_MirroredRepeat = 2,
-  // Texture coordinates are repeated.
+
   Arcadia_ADL_TextureAddressMode_Repeat = 3,
+
 };
 
-#endif  // ARCADIA_ADL_DEFINITIONS_VISUALS_TEXTUREADDRESSMODE_H_INCLUDED
+#endif // ARCADIA_ADL_DEFINITIONS_VISUALS_TEXTUREADDRESSMODE_H_INCLUDED

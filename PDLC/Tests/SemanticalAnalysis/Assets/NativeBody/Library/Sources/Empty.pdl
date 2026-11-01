@@ -1,0 +1,1 @@
+procedure native "nativeRun" run : Arcadia.Void {}

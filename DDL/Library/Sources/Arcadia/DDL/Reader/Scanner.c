@@ -430,7 +430,7 @@ isHexadecimalDigit
 {
   return ('0' <= self->symbol && self->symbol <= '9')
       || ('a' <= self->symbol && self->symbol <= 'f')
-      || ('A' <= self->symbol && self->symbol <= 'Z');
+      || ('A' <= self->symbol && self->symbol <= 'F');
 }
 
 static Arcadia_BooleanValue
@@ -557,6 +557,9 @@ onNumberLiteral
     do {
       saveAndNext(thread, self);
     } while (isDecimalDigit(thread, self));
+  } else {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_LexicalError);
+    Arcadia_Thread_jump(thread);
   }
   if ('e' == self->symbol || 'E' == self->symbol) {
     type = Arcadia_DDL_WordType_RealLiteral;
@@ -612,21 +615,34 @@ onStringLiteral
       Arcadia_Thread_jump(thread);
     }
     if (lastWasSlash) {
-      // \uxxxx, \b, \f, \n, \r, \t, \0, \v
+      // \u{...}, \b, \f, \n, \r, \t, \0, \v
       switch (self->symbol) {
         case 'u': {
           Arcadia_Natural32Value codePoint = 0;
           next(thread, self);
-          for (Arcadia_SizeValue i = 0; i < 4; ++i) {
-            if (!isHexadecimalDigit(thread, self)) {
+          if ('{' != self->symbol) {
+            Arcadia_Thread_setStatus(thread, Arcadia_Status_LexicalError);
+            Arcadia_Thread_jump(thread);
+          }
+          next(thread, self);
+          Arcadia_SizeValue numberOfDigits = 0;
+          while (isHexadecimalDigit(thread, self)) {
+            if (numberOfDigits == 6) {
               Arcadia_Thread_setStatus(thread, Arcadia_Status_LexicalError);
               Arcadia_Thread_jump(thread);
             }
             codePoint *= 16;
             Arcadia_Natural32Value digitValue = hexadecimalDigitValue(self->symbol);
             codePoint += digitValue;
+            numberOfDigits++;
             next(thread, self);
           }
+          if (!numberOfDigits || '}' != self->symbol || codePoint > 0x10ffff ||
+              (0xd800 <= codePoint && codePoint <= 0xdfff)) {
+            Arcadia_Thread_setStatus(thread, Arcadia_Status_LexicalError);
+            Arcadia_Thread_jump(thread);
+          }
+          next(thread, self);
           write(thread, self, codePoint);
         } break;
         case '"': {

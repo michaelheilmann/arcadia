@@ -50,8 +50,14 @@
       <p>Finite float literals are emitted with a private C numeric locale and nine significant
       digits, preserving binary32 values and signed zero. Minimum integer spelling avoids an
       out-of-range positive signed literal. Arithmetic and comparisons use GLSL 420 operators.
-      Driver rounding, contraction, and subnormal behavior follow the target implementation;
-      cross-driver bit-identical floating arithmetic is not promised.</p>
+      Signed add/subtract/multiply therefore wrap to low 32 bits. Runtime conversion, rounding,
+      zero signs, subnormal flushing, NaN behavior, and contraction follow GLSL 4.20 core rather
+      than an emulated CPU IEEE contract. Cross-driver bit-identical floating arithmetic is not
+      promised, and VPL registers do not imply the GLSL precise qualifier.</p>
+      <p>Texture emits native texture(sampler, coordinates). Vertex implicit base LOD is zero;
+      fragment implicit LOD and addressing/filtering use the driver and external sampler state.
+      Dispatch loops do not provide a portable implicit-derivative reconvergence promise. No
+      uniformity analysis or explicit gradient/LOD emulation is inserted.</p>
 
       <h3 id="glsl-capabilities">12.4 Initial target restrictions</h3>
       <ul>
@@ -72,8 +78,17 @@
       compile/link checks. The target does not silently emit placeholder code for unsupported types.</p>
 
       <h3 id="glsl-engine">12.5 Engine integration and verification</h3>
-      <p>Programs_create publishes the four existing ambient-color variants from one parameterized
-      canonical-text template. Material nodes and backend resource creation pass VerifiedModule.
+      <p>Programs_create selects one complete checked-in canonical description from
+      <code>VPL/Library/Assets/Programs/</code>: mesh-ambient-color.vpl, vertex-ambient-color.vpl,
+      texture-ambient-color.vpl, or texture-vertex-ambient-color.vpl. CMake embeds the exact source
+      bytes into a private BuiltinPrograms.h in the external build tree. Changes to a program,
+      embedding script, or header template regenerate that header and rebuild the library.</p>
+      <p>The runtime selects the embedded bytes, reads/binds/verifies them through Text_read with
+      the source filename as its diagnostic label, and publishes VerifiedModule. No runtime file
+      lookup, working-directory convention, or source-tree availability is required for built-ins.
+      Arbitrary external source files still use the ordinary text-reading interface. The embedded
+      data is a build product; the .vpl files are the editable source of truth.</p>
+      <p>Material nodes and backend resource creation pass VerifiedModule.
       The OpenGL resource compiles one artifact, uploads both code strings with explicit lengths,
       binds the resolved fragment output before linking, and uses artifact reflection for uniform
       blocks and scalar locations. Deterministic block binding points remain available to model
@@ -84,3 +99,9 @@
       dispatch execution with expected pixels. A general fixture compiles/links record/array
       uniforms, integer-containing varyings, calls, storage selectors, and terminating discard.
       Driver tests report skipped status if no suitable core context is available.</p>
+      <p>Numeric/sampling conformance renders a pass color only when native signed wrapping,
+      negative integer division, exact runtime conversion, finite arithmetic, and zero comparison
+      behave as specified. Sampler cases distinguish repeat from clamp addressing and verify
+      fragment implicit mip selection versus vertex base LOD zero using different mip colors.
+      Tests do not assert nonportable NaN payloads, zero-sign arithmetic, subnormal retention,
+      correctly-rounded shader division, or implicit derivatives in divergent flow.</p>

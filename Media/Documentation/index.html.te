@@ -24,6 +24,9 @@
 @{include("SampleFormat.i")}
 @{include("SampleFormat_getNumberOfBytes.i")}
 
+@{include("DSPMix.i")}
+@{include("DSPReproducibility.i")}
+
 @{include("VertexElementDescriptor.i")}
 @{include("VertexElementSemantics.i")}
 @{include("VertexElementSyntactics.i")}

@@ -17,15 +17,20 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_APPLICATIONEVENT_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_APPLICATIONEVENT_H_INCLUDED
 
-#include "Arcadia/Engine/Event.h"
-typedef struct Arcadia_Engine_Visuals_BackendContext Arcadia_Engine_Visuals_BackendContext;
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/ApplicationEvent.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
 
-// The opaque type of an "application" message.
+#include "Arcadia/Ring1/Include.h"
+#include "Arcadia/Engine/Event.h"
+
+typedef struct Arcadia_Engine_Visuals_ApplicationEvent Arcadia_Engine_Visuals_ApplicationEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.ApplicationEvent", Arcadia_Engine_Visuals_ApplicationEvent,
                           u8"Arcadia.Engine.Event");
 
 struct Arcadia_Engine_Visuals_ApplicationEventDispatch {
-  Arcadia_Engine_EventDispatch parent;
+  Arcadia_Engine_EventDispatch _parent;
 };
 
 struct Arcadia_Engine_Visuals_ApplicationEvent {

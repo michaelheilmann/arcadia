@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#define ARCADIA_ADL_MODULE (1)
+#define ARCADIA_ADL_PRIVATE (1)
 #include "Arcadia/ADL/Definitions/DSP/SawtoothWaveReader.module.h"
 
 #include "Arcadia/ADL/Context.h"
@@ -133,6 +133,10 @@ Arcadia_ADL_SawtoothWaveReader_read
   Arcadia_String* type = Arcadia_ADL_Reader_getStringValue(thread, (Arcadia_DDL_MapNode*)input, self->TYPE);
   Arcadia_String* name = Arcadia_ADL_Reader_getStringValue(thread, (Arcadia_DDL_MapNode*)input, self->NAME);
   Arcadia_Integer32Value frequency = Arcadia_ADL_Reader_getInteger32Value(thread, (Arcadia_DDL_MapNode*)input, self->FREQUENCY);
+  if (frequency <= 0) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+    Arcadia_Thread_jump(thread);
+  }
 
   // Assert the definition has the correct type.
   Arcadia_Value t = Arcadia_Value_makeObjectReferenceValue(self->TYPENAME);

@@ -21,6 +21,7 @@
   #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
 #endif
 #include "Arcadia/Engine/Visuals/Node.h"
+#include "Arcadia/Math/Include.h"
 #include "Arcadia/Engine/Visuals/Resources/ConstantBufferResource.h"
 #include "Arcadia/Engine/Visuals/Resources/VertexBufferResource.h"
 #include "Arcadia/Media/Include.h"

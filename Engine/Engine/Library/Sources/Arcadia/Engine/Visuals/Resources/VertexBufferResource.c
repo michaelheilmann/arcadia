@@ -16,6 +16,7 @@
 
 #define ARCADIA_ENGINE_PRIVATE (1)
 #include "Arcadia/Engine/Visuals/Resources/VertexBufferResource.h"
+#include "Arcadia/Media/Include.h"
 
 #include "Arcadia/Engine/Visuals/BackendContext.h"
 #include <assert.h>
@@ -86,8 +87,8 @@ static const Arcadia_Type_Operations _typeOperations = {
   .objectTypeOperations = &_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.Visuals.VertexBufferResource", Arcadia_Engine_Visuals_VertexBufferResource,
-                         u8"Arcadia.Visuals.Resource", Arcadia_Engine_Visuals_Resource,
+Arcadia_defineObjectType(u8"Arcadia.Engine.Visuals.VertexBufferResource", Arcadia_Engine_Visuals_VertexBufferResource,
+                         u8"Arcadia.Engine.Visuals.Resource", Arcadia_Engine_Visuals_Resource,
                          &_typeOperations);
 
 static void

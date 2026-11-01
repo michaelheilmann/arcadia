@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 
 #include "Arcadia/Ring2/Include.h"
@@ -124,18 +126,34 @@ testRemoveCodePointsBack
   Arcadia_Tests_assertTrue(thread, 0 == Arcadia_StringBuilder_compareTo(thread, a, Arcadia_Value_makeObjectReferenceValue(b)));
 }
 
+static int
+runRemoveCodePointsBack
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testRemoveCodePointsBack) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRemoveCodePointsFront
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testRemoveCodePointsFront) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&testRemoveCodePointsBack)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&testRemoveCodePointsFront)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "RemoveCodePointsBack", &runRemoveCodePointsBack },
+    { "RemoveCodePointsFront", &runRemoveCodePointsFront },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

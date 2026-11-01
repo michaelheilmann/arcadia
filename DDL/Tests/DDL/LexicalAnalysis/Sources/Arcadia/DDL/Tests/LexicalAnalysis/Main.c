@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/DDL/Include.h"
 
 #include "Arcadia/Logging/Include.h"
@@ -134,6 +136,111 @@ testScanner2
   expectAndNext(thread, scanner, Arcadia_DDL_WordType_EndOfInput, u8"<end of input>", sizeof(u8"<end of input>") - 1);
 }
 
+static void
+setTextInput
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_Scanner* scanner,
+    const char* text
+  )
+{
+  Arcadia_ByteArray* bytes = Arcadia_ByteArray_createByteArray(thread, Arcadia_RuntimeByteArray_create(thread, text, strlen(text)));
+  Arcadia_UnicodeCodePointReader* input = (Arcadia_UnicodeCodePointReader*)Arcadia_ByteReader_UnicodeCodePointReader_create(thread, (Arcadia_ByteReader*)Arcadia_ByteArray_ByteReader_create(thread, bytes));
+  Arcadia_Languages_Scanner_setInput(thread, (Arcadia_Languages_Scanner*)scanner, input);
+}
+
+static void
+testNumberLiterals
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const struct {
+    const char* text;
+    Arcadia_DDL_WordType type;
+  } valid[] = {
+    { "0", Arcadia_DDL_WordType_IntegerLiteral },
+    { "01", Arcadia_DDL_WordType_IntegerLiteral },
+    { "+1", Arcadia_DDL_WordType_IntegerLiteral },
+    { "-0", Arcadia_DDL_WordType_IntegerLiteral },
+    { ".1", Arcadia_DDL_WordType_RealLiteral },
+    { "+.1", Arcadia_DDL_WordType_RealLiteral },
+    { "-.1", Arcadia_DDL_WordType_RealLiteral },
+    { "1.", Arcadia_DDL_WordType_RealLiteral },
+    { "1e2", Arcadia_DDL_WordType_RealLiteral },
+    { "1E+2", Arcadia_DDL_WordType_RealLiteral },
+    { "1.e-2", Arcadia_DDL_WordType_RealLiteral },
+    { "-1.0e-10", Arcadia_DDL_WordType_RealLiteral },
+  };
+  static const char* invalid[] = {
+    "+", "-", "+e2", "-E2", "++1", "--1", "+-1", "-+1",
+    "+ ", "-\t", "+// comment", ".", "+.", "-.e2", "1e", "1e+", "1E-",
+  };
+  Arcadia_DDL_Scanner* scanner = Arcadia_DDL_Scanner_create(thread, Arcadia_Languages_StringTable_getOrCreate(thread),
+    Arcadia_Languages_Diagnostics_create(thread, (Arcadia_Log*)Arcadia_ConsoleLog_create(thread)));
+  for (Arcadia_SizeValue i = 0; i < sizeof(valid) / sizeof(valid[0]); ++i) {
+    setTextInput(thread, scanner, valid[i].text);
+    Arcadia_Languages_Scanner_step(thread, (Arcadia_Languages_Scanner*)scanner);
+    expectAndNext(thread, scanner, valid[i].type, (const Arcadia_Natural8Value*)valid[i].text, strlen(valid[i].text));
+    Arcadia_Tests_assertTrue(thread, Arcadia_Languages_Scanner_getWordType(thread, (Arcadia_Languages_Scanner*)scanner) == Arcadia_DDL_WordType_EndOfInput);
+  }
+  for (Arcadia_SizeValue i = 0; i < sizeof(invalid) / sizeof(invalid[0]); ++i) {
+    setTextInput(thread, scanner, invalid[i]);
+    Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+    Arcadia_BooleanValue rejected = Arcadia_BooleanValue_False;
+    Arcadia_JumpTarget target;
+    Arcadia_Thread_pushJumpTarget(thread, &target);
+    if (Arcadia_JumpTarget_save(&target)) {
+      Arcadia_Languages_Scanner_step(thread, (Arcadia_Languages_Scanner*)scanner);
+      Arcadia_Thread_popJumpTarget(thread);
+    } else {
+      Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+      Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_LexicalError, status);
+      rejected = Arcadia_BooleanValue_True;
+    }
+    if (!rejected) {
+      Arcadia_logf(Arcadia_LogFlags_Error, "unexpected numeric token for `%s`\n", invalid[i]);
+    }
+    Arcadia_Tests_assertTrue(thread, rejected);
+    Arcadia_Tests_assertEqualSize(thread, stackSize, Arcadia_ValueStack_getSize(thread));
+  }
+  // Token boundaries are unchanged: this is a number followed by a name, not one malformed numeric token.
+  setTextInput(thread, scanner, "1x");
+  Arcadia_Languages_Scanner_step(thread, (Arcadia_Languages_Scanner*)scanner);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_IntegerLiteral, (const Arcadia_Natural8Value*)"1", 1);
+  expectAndNext(thread, scanner, Arcadia_DDL_WordType_Name, (const Arcadia_Natural8Value*)"x", 1);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Languages_Scanner_getWordType(thread, (Arcadia_Languages_Scanner*)scanner) == Arcadia_DDL_WordType_EndOfInput);
+}
+
+static int
+runNumberLiterals
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testNumberLiterals) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runEmptyInput
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScanner1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runLiteralsAndPunctuation
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScanner2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -141,11 +248,10 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&testScanner1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&testScanner2)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "EmptyInput", &runEmptyInput },
+    { "LiteralsAndPunctuation", &runLiteralsAndPunctuation },
+    { "NumberLiterals", &runNumberLiterals },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

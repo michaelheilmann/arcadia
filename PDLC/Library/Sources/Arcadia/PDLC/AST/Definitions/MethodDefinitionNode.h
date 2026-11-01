@@ -39,6 +39,8 @@ struct Arcadia_PDLC_AST_MethodDefinitionNode {
   Arcadia_List* parameters;
   Arcadia_PDLC_AST_IdentifierNode* returnType;
   Arcadia_List* body;
+  Arcadia_BooleanValue isNonvirtual;
+  Arcadia_BooleanValue isAbstract;
 };
 
 Arcadia_PDLC_AST_MethodDefinitionNode*

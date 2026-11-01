@@ -23,7 +23,7 @@
 #include "Arcadia/Starship/Viewer3D.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.MainMenuScene", Arcadia_Engine_Demo_MainMenuScene,
-                          u8"Arcadia.Engine.Demo.Scene");
+                          u8"Arcadia.Engine.Scene");
 
 struct Arcadia_Engine_Demo_MainMenuSceneDispatch {
   Arcadia_Engine_SceneDispatch parent;

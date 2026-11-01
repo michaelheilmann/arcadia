@@ -1,0 +1,5 @@
+class MyModule.Owner {
+  enumeration MyModule.Owner.Kind {
+    Value = 0
+  }
+}

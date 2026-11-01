@@ -97,6 +97,7 @@ Arcadia_PDLC_Context_constructImpl
 
   self->moduleNodes = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   self->scope = NULL;
+  self->moduleScope = NULL;
   self->environments = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
 
   Arcadia_LeaveConstructor(Arcadia_PDLC_Context);
@@ -143,6 +144,9 @@ Arcadia_PDLC_Context_visit
 
   if (self->scope) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->scope);
+  }
+  if (self->moduleScope) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->moduleScope);
   }
 
   if (self->environments) {

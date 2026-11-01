@@ -70,6 +70,8 @@ Arcadia_PDLC_MethodSymbol_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_PDLC_MethodSymbol);
+  self->isNonvirtual = Arcadia_BooleanValue_False;
+  self->isAbstract = Arcadia_BooleanValue_False;
   if (1 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);

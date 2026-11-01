@@ -1,61 +1,89 @@
 # Engine Folder Guide
 
-## Scope
+## Scope And Ownership
 
-- `Engine/Engine` is the core engine abstraction library (`${MyProjectName}.Engine`). It owns generic engine state, event queues, backend/backend-context abstractions, node factories, audials abstractions, visuals abstractions, input events, visuals resources, and visuals node interfaces.
-- `Engine/UI` is the UI layer (`${MyProjectName}.Engine.UI`). It depends on `Engine` and `Math`, and provides UI events, UI nodes, widget nodes, and concrete UI node types such as canvas and panel.
-- `Engine/Application` is the application abstraction (`${MyProjectName}.Application`). It wraps engine startup/shutdown and input/window/application event hooks.
-- `Engine/Audials.Implementation` is the OpenAL-oriented audials backend implementation (`${MyProjectName}.Engine.Audials.Implementation`). It is implementation code, not the core audials API.
-- Visuals implementations are not in this folder. The concrete OpenGL4/GLX/WGL/Windows/Linux visuals code lives under `repository/Visuals.Implementation`.
+- `Engine/Engine` is core `${MyProjectName}.Engine`: engine state/events, backend/context abstractions, node factories, input, audials/visuals interfaces and resources. `Arcadia.Engine.Application` and its configuration/startup helpers belong here, under `Engine/Engine/Library/Sources/Arcadia/Engine/`, not to a separate Application module.
+- `Engine/UI` is `${MyProjectName}.Engine.UI`, depending on Engine and Math. `Engine/Text` is an independent markup library; use its scoped guide for run/parser contracts, not rendering/application assumptions.
+- `Engine/Audials.Implementation` is OpenAL-oriented implementation code. Concrete visuals live under `repository/Visuals.Implementation`, including OpenGL4/GLX/WGL/platform windowing, Direct3D12 and Vulkan code.
+- Use the [current ownership matrix in PDLC's guide](../PDLC/AGENTS.md#implementation-ownership) as the only migration/status inventory. It separates PDL-owned declarations/bodies, native-declaration headers, opaque imports and native helpers, with source revision and owning tests. Do not copy completed-migration narratives into this guide or treat a declaration model as executable adoption.
+- Read the [resource lifecycle/ownership guide](AGENTS/Resource-Lifecycle-and-Ownership.md) before changing resources, factories or backend-context cleanup. Native resource/DSP/storage boundaries do not become porting candidates without specific approval.
 
-## Build Wiring
+## Build Wiring And Includes
 
-- The repository root adds these modules individually with `add_subdirectory(Engine/Text)`, `add_subdirectory(Engine/Engine)`, `add_subdirectory(Engine/UI)`, `add_subdirectory(Engine/Application)`, and `add_subdirectory(Engine/Audials.Implementation)`. There is no `Engine/CMakeLists.txt` aggregator.
-- Library products use the repo macros from `CMake/all.cmake`: `BeginProduct`, `OnSourceFile`, `OnHeaderFile`, `OnConfigurationFile`, `OnModuleDependency`, and `EndProduct`.
-- When adding a source, header, inlay, or generated configuration file, update the nearest `Library/CMakeLists.txt`; files are registered explicitly.
-- `Configure.h` files are generated from checked-in `Configure.h.i` templates via `OnConfigurationFile`. Include the generated `Configure.h` through the module's normal public/private include path, not by hard-coding the binary tree.
-- `Engine/Audials.Implementation` is option-gated by `${MyProjectName}.Engine.Audials.Implementation.OpenAL.Enabled`. Do not assume OpenAL headers or libraries are available unless that option is enabled.
-- `${MyProjectName}.Engine` registers an asset directory via `OnAssetsDirectory` in `Engine/Engine/Library/CMakeLists.txt`; its contents are provided to executables that link the library. See `## Assets`.
+- Root CMake adds `Engine/Text`, `Engine/Engine`, `Engine/UI` and `Engine/Audials.Implementation` individually; there is no `Engine/CMakeLists.txt` aggregator. Examples have their own [common guide](Engine/Examples/AGENTS.md).
+- Use `BeginProduct`, explicit `OnSourceFile`/`OnHeaderFile`, `OnConfigurationFile`, `OnModuleDependency` and `EndProduct`. Register `.pdl` inputs for project visibility as well as actual producers. PDLC input discovery is independent: regeneration does not prove CMake registration.
+- Register committed `.c.g` with ordinary `OnSourceFile`; the common macro recognizes C. Do not mark old native `.c` as headers or add redundant LANGUAGE overrides. Normal production builds compile committed outputs, not automatic production regeneration.
+- Generate `Configure.h` from `Configure.h.i` into the binary Sources tree; include it through target include paths, not a machine-specific absolute path.
+- Engine consumers include `Arcadia/Engine/Include.h`; UI consumers use `Arcadia/Engine/UI/Include.h`; Text consumers use `Arcadia/Engine/Text/Include.h`. Application uses the Engine aggregate. Audials implementation registration uses `Arcadia/Audials/Implementation/Include.h`.
+- Cross-module dependencies, generated or native, use the defining module's aggregate, never a foreign private header/define. Expose public declarations from the correct aggregate rather than depending on an old transitive include (notably Audials SoundSourceNode). Include native dependencies explicitly when generated headers only forward-declare them.
+- Collections' shared native imports belong to `Runtime/Collections`, not Engine. Do not duplicate them or introduce an Engine dependency into Media to obtain Collections. Math resource dependencies likewise come from Math's aggregate; root Modules.pdl includes that defining module.
+- Keep qualified procedure paths/names and aggregate exports: `Arcadia.Engine.Visuals.createVisualsWindowsList` belongs under `Visuals/`, UI `Node.findByName` under `Node/`, and qualified UI population under its declared namespace. Do not restore flat-root copies or invent nested C declarations.
+- OpenAL implementation is gated by `${MyProjectName}.Engine.Audials.Implementation.OpenAL.Enabled`; do not assume its dependencies when disabled. Engine's library asset registration feeds transitive executable staging.
 
 ## Assets
 
-- `${MyProjectName}.Engine` owns the asset directory `Engine/Engine/Assets`, registered in `Engine/Engine/Library/CMakeLists.txt`. It currently provides the shared CSS color definitions under `Assets/Colors/CSS/` (one `.adl` per CSS color keyword, defining `Colors.<CamelCaseName>`).
-- The engine provides these assets to executables it is linked to. `EndProduct` in `CMake/all.cmake` stamps `ARCADIA_ASSETS_DIRECTORIES`/`ARCADIA_ASSETS_FILES` target properties from the `OnAssetsDirectory` input; `CopyProductAssets` uses `Arcadia_collectTargetAssets` to walk the target's link closure (`LINK_LIBRARIES` and `INTERFACE_LINK_LIBRARIES`, including `$<LINK_ONLY:...>` forms, deduplicating visited targets) and copies every collected asset into the executable's binary tree, preserving relative paths.
-- A consumer only needs to link the engine library directly or transitively (e.g. via `${MyProjectName}.Engine.UI`); no per-consumer copy of `Assets/Colors/CSS` is required. Consumers load the assets at runtime with paths relative to the working directory, e.g. `Assets/Colors/CSS/Red.adl`.
-- Adding or removing engine-owned asset files requires no CMake edit (`OnAssetsDirectory` globs the tree at configure time).
+- Engine owns `Engine/Engine/Library/Assets`, including source `Engine/Engine/Library/Assets/Colors/CSS/`; staged runtime path is `Assets/Colors/CSS/`. One `.adl` per CSS keyword defines `Colors.<CamelCaseName>` (e.g. Red.adl / Colors.Red).
+- `EndProduct` publishes `ARCADIA_ASSETS_DIRECTORIES`/`ARCADIA_ASSETS_FILES`; `Arcadia_collectTargetAssets` follows the link closure (including LINK_ONLY dependencies), deduplicates targets and feeds `CopyProductAssets`. A consumer may receive Engine assets transitively through UI; do not copy the source CSS tree into every example.
+- Runtime asset paths are working-directory relative. New/removed asset files need no per-file registration, but refresh the configure-time `OnAssetsDirectory` glob before rebuilding.
 
-## Include Boundaries
+## Runtime And Compatibility Contracts
 
-- Public consumers of the core engine should include `Arcadia/Engine/Include.h`, not individual core headers. Many core headers intentionally reject direct inclusion unless `ARCADIA_ENGINE_PRIVATE` is set by the aggregate include.
-- Public consumers of UI should include `Arcadia/Engine/UI/Include.h`.
-- Public consumers of Application should include `Arcadia/Application/Include.h`.
-- Public consumers of Audials implementation registration should include `Arcadia/Audials/Implementation/Include.h`.
-- Keep aggregate include files in sync when adding public types.
+Follow root source-style/GC/error rules: thread first, status/jump handling, precise roots and exception-safe cleanup. Backend type registries store derived **type objects**, not instances. Backends represent available systems; contexts are heavyweight active resources and must not be created implicitly as incidental getters.
 
-## Runtime Patterns
+### Engine, scenes and Application
 
-- Follow the shared C/C++ source code style guide in `AGENTS/CxxSourceCodeStyle.md`, including object/type patterns, `Arcadia_Thread*` calling conventions, error handling, and GC/rooting rules.
-- Backend objects represent available systems; backend contexts are heavyweight active resources such as audio or video contexts. Avoid creating contexts implicitly unless nearby code already does so.
-- Engine registration APIs store backend and node-factory type objects in `Arcadia_Set` instances. Register derived type objects, not instances.
+- Preserve Engine's nine managed fields, FIFO event behavior, abstract/unbound update slot and absence of a public factory. Its class and module may both be named Arcadia.Engine; do not add aliases to work around compiler lookup. EngineSingleton's cache stays weak with destruction/reset hooks; never turn it into a strong root. Native collection providers retain their ownership.
+- Scene has three managed references, no public factory and six intentional bound no-op update/event defaults, not abstract slots. Preserve required non-null Engine/SceneManager validation in createSceneQuitRequestSignal, despite PDL's nullable reference representation; Signal keeps native storage/provider ownership.
+- SceneManager keeps three managed references and nonvirtual getScene/setScene. Compare literal scene pointers, not overridable equality/identity. Publish the new scene before emitting; identical pointers emit nothing, reentrant changes persist, and notification failure does not roll back state. Root nullable old/new payloads through callbacks. SceneManagerRuntime keeps required Engine validation/Signal creation and exception-safe Signal argument framing distinct from SceneRuntime's boundary.
+- Signal callbacks leave caller-owned argument frames untouched; do not apply ordinary ForeignProcedure stack consumption/return conventions to Signal_emit.
+- Application keeps quitRequested plus four managed references, fresh window-list/singleton initialization, five unbound slots in original order and no public factory. Quit and configuration-directory accessors are nonvirtual; event wrappers add no slots. Required directory validation rejects null/empty with ArgumentValueInvalid, without mutation or new path normalization/content policy. DDL.Node remains a defining-module opaque dependency.
 
-## MIL Files
+### Events, nodes and backend interfaces
 
-- Several event and enum-like declarations have `.mil` inputs beside C and header files. Generated-looking `.c`/`.h` files coexist with these inputs.
-- Follow the generated-source guidance in `AGENTS/CxxSourceCodeStyle.md` before editing generated-looking output.
+- Keep constructor arity/tag validation and inherited field/slot order, especially before reading/forwarding superclass arguments. Preserve timestamp boundaries, distinct horizontal/vertical payloads, axis independence and the streaming-resource arity regression. Nullable window events and nullable WidgetEvent source must remain supported; retain event-only managed-payload lifetime.
+- Preserve native KeyboardKey descriptor/macros/toString and KeyboardKey.i pipeline. C runtime enum callbacks may accept supported legacy Integer32 and exact typed enum values; PDL allocation/super forwarding must still reject a different enum with the same numeric payload.
+- Core Node has no context storage or no-op context setter defaults. Its context setters, Audials/Visuals Node render slots and inherited UI Node context setters remain abstract/unbound. WidgetNode/EnterPassNode are not permission to generate concrete implementations.
+- NodeFactory scaffolding retains zero-argument factories and original slots (Audials three, Visuals nine). Native Runtime creation algorithms, concrete children, DSP algorithms, context locks and resource ownership remain separate. Preserve nullable contexts/results, real-child/definition errors and generated receiver/argument rooting.
+- Core/audials/visuals backend abstract slots stay unbound. Audials BackendContext's setMasterVolume default is a no-op (including out-of-range/NaN/infinite values); creation methods and inherited update remain abstract. DisplayDevice keeps getCurrentDisplayMode/getAvailableDisplayModes/getBounds/getName/getId slot order and direct typed outputs.
+- AudioStreamProvider preserves one read slot, Natural32 sampleRate and a nonvirtual getter. Media.DSP.Buffer is a managed opaque import, not transported sample pointers; scalar output references remain typed C forwarding. Audials resource runtime/C names retain `.Implementation` and the native Resource parent constructor ABI. Native DSPStreamProvider accesses inherited sampleRate through its declaring base.
 
-## Documentation
+### UI traversal and interfaces
 
-- `Engine/Engine/Documentation` and `Engine/UI/Documentation` are wired through CMake. Keep documentation changes near the module they describe.
-- Roadmap/specification prose can be stale; prefer executable build files and source code when resolving contradictions.
+- Interface calls retain the stackless Arcadia_InterfaceCall contract, NotImplemented for missing interfaces/slots and caller-owned receiver/managed-argument roots. Do not add hidden argument frames. Preserve capability signatures, erased Container child pointers, full-width Natural64 counts/indices and by-value Arcadia.Value tags (including Natural16). Null native interface receivers are not a supported contract.
+- UI findByName is root-first, depth-first, first-match in current Container child order, with Natural64 indices. Native helpers retain bytewise name matching, erased Container calls and strict pointer-presence testing. Use nodeHasValue rather than generic equality with void: equality may be overridden. Do not add cycle detection, name normalization or new token policy. Preserve ArgumentTypeInvalid for missing required root/name, callback failure cleanup, otherwise-unrooted traversal inputs and result-only lifetime.
+- UI population captures the native ADL child list/count once, then reads each **current** element and resolve/create/adds immediately in order. Keep aliases, list-growth/replacement behavior and partial additions after error. Do not snapshot/pre-resolve, roll back, deduplicate repeated references or bypass any of the native widget factory dispatches. Root captured/detached lists, source, target and child through callbacks; release temporary roots on both paths. This is setup traversal, not a sample/pixel hot-loop port.
+- StackPanel alignment keeps Start/Center/End/Stretch = 0/1/2/3, mapped Nodes paths and runtime/C identity. Preserve all main/cross pairs, per-child override/clear semantics and invalid-enum rejection without mutation; widgets/layout/storage remain distinct from enum ownership.
+
+### Resource and declaration boundaries
+
+- Preserve the [resource lifecycle protocol](AGENTS/Resource-Lifecycle-and-Ownership.md): borrowed Resource.context is not a strong visitor edge; load/unload reversibility, irreversible unlink, explicit ref/unref counts, context registry retention and concrete GPU retirement are separate from GC reachability. Generated abstract resource bases do not authorize migrating native Resource/EnterPass/Model/VertexBuffer execution or concrete backend ownership.
+- Root unfinished receivers and initialized derived fields across collecting callbacks while the superclass visitor is active. EnterPass requires receiver, both matrices and clear color; Model requires receiver/localToWorldMatrix. Keep original constructor argument positions when pushing roots; restore frames on success/failure. Publish dependency fields only after Resource_ref succeeds, and roll back only acquired edges, including aliases. ResourceLifecycle accounting alone is not constructor-GC proof; ModelConstruction and VisualsBackendContext have separate collecting probes.
+- Material scalar base keeps context plus blend-enabled/source/destination/ColorSource, four scalar fields and no extra slots/factory. Native OpenGL texture/program acquisition and rollback are not transferred by that scalar contract. ColorSource remains Mesh/Vertex/Texture = 0/1/2; ADL's independent AmbientColorSource includes TextureVertex, translated by native MaterialNode's program flag/backend mapping. Do not restore the retired MaterialResource-specific enum.
+- Thin abstract resources keep native-parent initialization and original slots; ProgramResource adds no storage/slots or public factory. Preserve direct typed readonly byte/Math arguments, Size-width offsets, scalar outputs and U/V independence; never box raw external addresses in Arcadia.Value.
+- Resource models describe fields/records/nonvirtual/ref/output/readonly semantics and constants, not explicit `_parent` or C function-pointer layout. Keep compiler ResourceModels field/signature inventories synchronized with intentional model changes; a header preview is not executable ownership verification.
+- Media descriptor/private-factory/List/overflow and pixel/sample storage contracts live in the [Media guide](../Media/AGENTS.md); text-run required-string/default/enum contracts live in the [Text guide](Text/AGENTS.md). Read those before touching dependent declarations.
 
 ## Verification
 
-- There are currently no tests under `Engine`. For code changes, build the affected target from an out-of-source configured build tree.
-- On Windows, use the existing Visual Studio preset flow when available: `cmake --preset x64`, then a relevant build preset such as `cmake --build --preset x64-debug`.
-- If OpenAL implementation code changes, verify with `${MyProjectName}.Engine.Audials.Implementation.OpenAL.Enabled` enabled in a build that has OpenAL dependencies available.
-- Run `ctest` from the build directory after broader behavior changes, using `-C Debug` or the selected configuration for multi-config generators.
+- Use named cases in existing production-linked suites from the ownership matrix; keep safeExecute/process boundaries and native consumer probes, not permanent per-class comparison triples or aliases that execute the full suite twice. The Engine-independent Testing runner handles discovery/selection; production libraries never depend on it. Read `AGENTS/Testing.md`.
+- `--list` is the current selector inventory; `--case NAME` selects one component, no arguments runs the suite, unknown/malformed selectors fail. UI remains a separate target. Preserve UI EventBases component boundaries and Text RejectUnknownAttribute's inverted expected-failure boundary.
+- Keep test helpers file-local and probe C types suite-unique: object-type macros emit global getters. Preserve deep-stack (>255 slots), managed lifetime/release, type/arity, nullable payload, native override and callback-failure regressions; builds do not establish device/GPU/interactive behavior.
+- Example: build Arcadia.Engine.Tests.Backends, then `ctest --test-dir <external-build-dir> -C Debug -R '^Arcadia.Engine.Tests.Backends.AudialsBackendContext$' --output-on-failure`. Windows VS 2022 presets remain supported (`cmake --preset x64`, `cmake --build --preset x64-debug`); use root external-tree/dependency instructions and its runnable workstation example.
+- Build affected native consumers and run appropriate broader CTest (`-C Debug` for multi-config) after behavior changes. If OpenAL implementation changes, verify in an enabled build with its dependencies present. Report actual configuration/results and unrun platforms/devices.
+- An intermittent Nodes failure remains unexplained: later passes do not prove a fix or identify a compiler/GC cause. Capture exact case/output/revision/environment/dump on a new failure; no speculative refactor or indefinite stress runs.
+
+### PDLC Implementation Migration Workflow
+
+1. Audit the actual native constructor, fields, dispatch initialization, callbacks, GC/ownership, and failure behavior against the PDL model. Preserve original declaration documentation in PDL before replacing headers. Empty ordinary PDL bodies are implementations, not abstract declarations: native unbound base slots such as Node's setters require `method abstract`.
+2. Preserve a native reference under the owning test's source directory. Verify its contents against the corrected native implementation (Git hashes can establish an unchanged snapshot). If the audit exposes a native bug, reproduce it with the test and record the correction; generated/native agreement alone cannot prove a shared bug absent.
+3. Run the same meaningful assertions in Native and Generated variants before switching. Native compiles the test-owned reference directly; Generated supplies the actual `.c.g` candidate. Link Engine's real consumers/types where practical. Cover constructor arity and every value tag, boundary values, superclass chains, dispatch, GC/lifetime, and failure stack cleanup relevant to that class. Use distinct axis values and both Boolean states to detect argument swaps and the canvas offset regressions.
+4. Only after the pair passes, register the production `.c.g` with plain `OnSourceFile`; the shared macro recognizes it as C. Remove the old production `.c`, retaining its reference only in tests. Do not disguise it as `HEADER_FILE_ONLY`, repeat local language overrides at these registrations, or publish copied headers.
+5. Run a Production variant with no replacement implementation source: it must resolve the class from the actual Engine library. Rebuild affected native/derived consumers (typically UI, visuals implementation, and Anima). Inspect generated project compile entries when source ownership is in doubt; an IDE listing is not proof that a file is compiled.
+6. Regenerate through the normal CLI again and verify byte-identical output. Record which tests/builds ran and their scope; an application build does not establish an interactive smoke run. Complete only the verified class/family migration, not the broader source-adoption task.
+7. After the migration gates pass, retire temporary Native/Generated targets, snapshots and provider wrappers. Retain the Production assertions as an ordinary named case in the appropriate linked-library suite, with its own safeExecute boundary. Preserve all safety/GC checks. Keep compiler fresh-generation/ABI/module-boundary tests separate; do not accumulate permanent triples or a permanent executable per migrated class.
+
+During an active migration, Native/Generated variants supply the class's public symbols in the test executable, so the corresponding object is not extracted from the static Engine archive. Keep temporary providers in separate translation units; Production intentionally has no provider. Once retired, the unsuffixed regression test must continue resolving the real library implementation.
 
 ## Licensing
 
-- New C, header, and CMake files in this folder should use the repository's AGPL-3.0-or-later header style described in `AGENTS/CxxSourceCodeStyle.md`.
-- New `.mil` files should use the same AGPL-3.0-or-later header style as existing `.mil` files in this folder.
+- New C, header, CMake and PDL files retain AGPL-3.0-or-later notices and root source-style conventions.

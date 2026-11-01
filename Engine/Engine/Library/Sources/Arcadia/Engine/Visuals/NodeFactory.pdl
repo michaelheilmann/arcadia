@@ -1,0 +1,30 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// The implementation of a node factory for visuals nodes. Keep these nine
+// bound defaults in their original order; native nodes own their lifetimes.
+class Arcadia.Engine.Visuals.NodeFactory extends Arcadia.Engine.NodeFactory {
+  constructor() {}
+  method native "Arcadia_Engine_Visuals_NodeFactory_createCameraNodeNative" createCameraNode(variable backendContext : Arcadia.Engine.Visuals.BackendContext) : Arcadia.Engine.Visuals.CameraNode
+  method native "Arcadia_Engine_Visuals_NodeFactory_createFrameBufferNodeNative" createFrameBufferNode(variable backendContext : Arcadia.Engine.Visuals.BackendContext) : Arcadia.Engine.Visuals.FrameBufferNode
+  method native "Arcadia_Engine_Visuals_NodeFactory_createEnterPassNodeNative" createEnterPassNode(variable backendContext : Arcadia.Engine.Visuals.BackendContext) : Arcadia.Engine.Visuals.EnterPassNode
+  method native "Arcadia_Engine_Visuals_NodeFactory_createMaterialNodeNative" createMaterialNode(variable backendContext : Arcadia.Engine.Visuals.BackendContext, variable source : Arcadia.ADL.MaterialDefinition) : Arcadia.Engine.Visuals.MaterialNode
+  method native "Arcadia_Engine_Visuals_NodeFactory_createMeshNodeNative" createMeshNode(variable backendContext : Arcadia.Engine.Visuals.BackendContext, variable geometry : Arcadia.Media.Geometry) : Arcadia.Engine.Visuals.MeshNode
+  method native "Arcadia_Engine_Visuals_NodeFactory_createModelNodeNative" createModelNode(variable backendContext : Arcadia.Engine.Visuals.BackendContext, variable source : Arcadia.ADL.ModelDefinition) : Arcadia.Engine.Visuals.ModelNode
+  method native "Arcadia_Engine_Visuals_NodeFactory_createPixelBufferNodeNative" createPixelBufferNode(variable backendContext : Arcadia.Engine.Visuals.BackendContext, variable source : Arcadia.ADL.PixelBufferDefinition) : Arcadia.Engine.Visuals.PixelBufferNode
+  method native "Arcadia_Engine_Visuals_NodeFactory_createTextureNodeNative" createTextureNode(variable backendContext : Arcadia.Engine.Visuals.BackendContext, variable source : Arcadia.ADL.TextureDefinition) : Arcadia.Engine.Visuals.TextureNode
+  method native "Arcadia_Engine_Visuals_NodeFactory_createViewportNodeNative" createViewportNode(variable backendContext : Arcadia.Engine.Visuals.BackendContext) : Arcadia.Engine.Visuals.ViewportNode
+}

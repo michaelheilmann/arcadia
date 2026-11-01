@@ -1,0 +1,3 @@
+native class MyModule.C {
+  method native "nativeGet" get(variable value : output readonly reference Arcadia.Integer32) : Arcadia.Void
+}

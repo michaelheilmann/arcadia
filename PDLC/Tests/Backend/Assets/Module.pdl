@@ -1,0 +1,618 @@
+module Test
+
+abstract class Test.AbstractBase {
+  method abstract read : Arcadia.Natural64
+  method abstract touch : Arcadia.Void
+  method optional : Arcadia.Natural64 {
+    return 5
+  }
+}
+
+abstract class Test.AbstractMiddle extends Test.AbstractBase {
+}
+
+class Test.AbstractConcrete extends Test.AbstractMiddle {
+  method touch : Arcadia.Void {
+    call $0 collect
+  }
+  method read : Arcadia.Natural64 {
+    call $0 collect
+    return 73
+  }
+}
+
+class Test.AbstractInherited extends Test.AbstractConcrete {
+}
+
+abstract class Test.AbstractAgain extends Test.AbstractConcrete {
+  method abstract read : Arcadia.Natural64
+}
+
+class Test.AbstractFinal extends Test.AbstractAgain {
+  method read : Arcadia.Natural64 {
+    return 91
+  }
+}
+
+abstract class Test.AbstractNativeBase {
+  method abstract read : Arcadia.Natural64
+  method abstract accept(variable value : Test.Base, variable optional : Test.Optional) : Arcadia.Void
+}
+
+class Test.AbstractNativeConcrete extends Test.AbstractNativeBase {
+  method native "nativeAbstractRead" read : Arcadia.Natural64
+  method accept(variable value : Test.Base, variable optional : Test.Optional) : Arcadia.Void {}
+}
+
+procedure abstractMethodRun : Arcadia.Natural64 {
+  construct $0 Test.AbstractFinal void
+  call $1 collect
+  invoke $2 read $0
+  return $2
+}
+
+native implementation "NativeGenerated/Type.h" class Test.NativeDeclared extends Arcadia.Object {
+  variable value : Arcadia.Natural64
+  variable kind : Test.NativeDeclared.Kind
+  method native "Test_NativeDeclared_read" read : Arcadia.Natural64
+}
+
+native "NativeGenerated/Type.h" enumeration Test.NativeDeclared.Kind {
+  Zero = 0
+  One = 7
+}
+
+procedure nativeHeaderRun(variable value : Test.NativeDeclared) : Arcadia.Natural64 {
+  invoke $0 read value
+  return $0
+}
+
+procedure native "nativeReadOnlyValue" readOnlyValue(variable value : readonly Test.Base) : Arcadia.Natural64
+
+class Test.Nonvirtual {
+  method nonvirtual direct : Arcadia.Natural64 {
+    return 29
+  }
+}
+
+native "NativeResources/External.h" enumeration Test.External.Kind {
+  Maximum = 2147483647
+  First = 0
+  Second = 7
+}
+
+native "NativeResources/External.h" enumeration Test.External.UnsignedKind {
+  First = 0
+}
+
+class Test.NativeEnumBox {
+  variable choice : Test.External.Kind
+  constructor(variable choice : Test.External.Kind) {
+    storeField self choice choice
+  }
+  method getChoice : Test.External.Kind {
+    loadField $0 self choice
+    return $0
+  }
+  method setChoice(variable choice : Test.External.Kind) : Arcadia.Void {
+    storeField self choice choice
+  }
+  method native "nativeEnumEcho" echo(variable choice : Test.External.Kind) : Test.External.Kind
+  method unsignedFromAny(variable value : Arcadia.Value) : Test.External.UnsignedKind {
+    return value
+  }
+}
+
+class Test.NativeEnumChild extends Test.NativeEnumBox {
+  constructor(variable choice : Arcadia.Value) {
+    construct $0 Test.NativeEnumBox self choice
+  }
+}
+
+procedure nativeEnumFromAny(variable value : Arcadia.Value) : Test.External.Kind {
+  return value
+}
+
+procedure nativeEnumConstruct(variable value : Arcadia.Value) : Test.NativeEnumBox {
+  construct $0 Test.NativeEnumBox void value
+  return $0
+}
+
+procedure nativeUnsignedEnumIdentity(variable value : Test.External.UnsignedKind) : Test.External.UnsignedKind {
+  return value
+}
+
+class Test.NativeEnumHolder {
+  variable choice : Test.External.Kind
+}
+
+// Intentionally not linked into the C test executable. Its same-named field
+// must not introduce a dependency from Test.Sized's self field accesses.
+class Test.UnlinkedSized {
+  variable length : Arcadia.Integer32
+}
+
+class Test.Sized {
+  variable length : Arcadia.Size
+  constructor(variable length : Arcadia.Size) {
+    storeField self length length
+  }
+  method getLength : Arcadia.Size {
+    loadField $0 self length
+    return $0
+  }
+  method setLength(variable length : Arcadia.Size) : Arcadia.Void {
+    storeField self length length
+  }
+  method native "nativeSizeEcho" echo(variable value : Arcadia.Size) : Arcadia.Size
+}
+
+procedure sizeIdentity(variable value : Arcadia.Size) : Arcadia.Size {
+  call $0 collect
+  return value
+}
+
+procedure sizeFromAny(variable value : Arcadia.Value) : Arcadia.Size {
+  call $0 sizeIdentity value
+  return $0
+}
+
+native "NativeResources/External.h" class Test.External extends Arcadia.Object {
+  method native "Test_External_getExternalValue" getExternalValue : Arcadia.Natural64
+}
+
+class Test.ExternalDerived extends Test.External {
+}
+
+procedure externalIdentity(variable value : Test.External) : Test.External {
+  call $0 collect
+  return value
+}
+
+procedure externalRun(variable value : Test.External) : Arcadia.Natural64 {
+  call $0 externalIdentity value
+  invoke $1 getExternalValue $0
+  return $1
+}
+
+interface Test.Optional {
+}
+
+class Test.OptionalContext {
+  variable context : Test.Base
+  variable optional : Test.Optional
+  constructor(variable context : Test.Base, variable optional : Test.Optional) {
+    storeField self context context
+    storeField self optional optional
+    call $0 collect
+  }
+  method setContext(variable context : Test.Base) : Arcadia.Void {
+    call $0 collect
+    storeField self context context
+  }
+  method getContext : Test.Base {
+    call $0 collect
+    loadField $1 self context
+    return $1
+  }
+  method setOptional(variable value : Test.Optional) : Arcadia.Void {
+    call $0 collect
+    storeField self optional value
+  }
+  method getOptional : Test.Optional {
+    call $0 collect
+    loadField $1 self optional
+    return $1
+  }
+  method storeAny(variable value : Arcadia.Value) : Arcadia.Void {
+    storeField self context value
+  }
+  method returnAny(variable value : Arcadia.Value) : Test.Base {
+    return value
+  }
+  method native "nativeNullableContext" nativeContext(variable value : Test.Base) : Test.Base
+  method native "nativeNullableOptional" nativeOptional(variable value : Test.Optional) : Test.Optional
+}
+
+class Test.DerivedContext extends Test.OptionalContext {
+  constructor(variable context : Test.Base, variable optional : Test.Optional) {
+    construct $0 Test.OptionalContext self context optional
+  }
+  method setContext(variable context : Test.Base) : Arcadia.Void {
+    call $0 collect
+    storeField self context context
+  }
+  method getContext : Test.Base {
+    call $0 collect
+    loadField $1 self context
+    return $1
+  }
+}
+
+procedure nullableIdentity(variable value : Test.Base) : Test.Base {
+  call $0 collect
+  return value
+}
+
+procedure nullableOptional(variable value : Test.Optional) : Test.Optional {
+  call $0 collect
+  return value
+}
+
+procedure nullableCall(variable value : Arcadia.Value) : Test.Base {
+  call $0 nullableIdentity value
+  return $0
+}
+
+procedure nullableRun : Arcadia.Value {
+  construct $0 Test.DerivedContext void void void
+  invoke $1 setContext $0 void
+  invoke $2 getContext $0
+  call $3 nullableIdentity $2
+  invoke $4 nativeContext $0 $3
+  invoke $5 getOptional $0
+  call $6 nullableOptional $5
+  invoke $7 nativeOptional $0 $6
+  return $4
+}
+
+procedure nullableNullReceiver : Arcadia.Void {
+  invoke $0 getContext void
+}
+
+procedure nullableNullField : Arcadia.Void {
+  loadField $0 void context
+}
+
+procedure identity(variable value : Arcadia.Value) : Arcadia.Value {
+  call $0 collect
+  return value
+}
+
+procedure native "nativeIdentity" nativeIdentity(variable value : Arcadia.Value) : Arcadia.Value
+
+procedure native "nativeIdentity" Test.Namespaced.nativeIdentity(variable value : Arcadia.Value) : Arcadia.Value
+
+procedure Test.Namespaced.roundTrip(variable value : Arcadia.Value) : Arcadia.Value {
+  call $0 Test.Namespaced.nativeIdentity value
+  invoke $1 Test.Namespaced.nativeIdentity $0
+  return $1
+}
+
+procedure relay(variable value : Arcadia.Value) : Arcadia.Value {
+  call $0 nativeIdentity value
+  call $1 identity $0
+  return $1
+}
+
+procedure makeBase(variable n : Arcadia.Natural64) : Test.Base {
+  construct $0 Test.Base void n
+  return $0
+}
+
+procedure voidArgument(variable value : Arcadia.Void) : Arcadia.Void {
+}
+
+procedure renamed(variable thread : Arcadia.Natural64, variable switch : Arcadia.Natural64) : Arcadia.Natural64 {
+  add $0 thread switch
+  return $0
+}
+
+class Test.ValueBox {
+  variable value : Arcadia.Value
+  method native "nativeName" getName : Arcadia.String
+  method echoName(variable value : Arcadia.String) : Arcadia.String {
+    call $0 collect
+    return value
+  }
+  method readName : Arcadia.String {
+    invoke $0 getName self
+    invoke $1 echoName self $0
+    return $1
+  }
+  constructor(variable value : Arcadia.Value) {
+    storeField self value value
+  }
+  method readValue : Arcadia.Value {
+    call $0 collect
+    loadField $1 self value
+    return $1
+  }
+  method replaceValue(variable value : Arcadia.Value) : Arcadia.Void {
+    call $0 collect
+    storeField self value value
+  }
+  method take(variable child : Test.Base, variable color : Test.Color) : Test.Base {
+    call $0 collect
+    return child
+  }
+}
+
+class Test.DerivedBox extends Test.ValueBox {
+  constructor(variable value : Arcadia.Value) {
+    construct $0 Test.ValueBox self value
+  }
+  method take(variable child : Test.Base, variable color : Test.Color) : Test.Base {
+    call $0 collect
+    return child
+  }
+  method replaceValue(variable value : Arcadia.Value) : Arcadia.Void {
+    call $0 collect
+    storeField self value value
+  }
+}
+
+abstract class Test.Event {
+  variable timestamp : Arcadia.Natural64
+  constructor(variable timestamp : Arcadia.Natural64) {
+    storeField self timestamp timestamp
+  }
+}
+
+class Test.ConcreteEvent extends Test.Event {
+  constructor(variable timestamp : Arcadia.Natural64) {
+    construct $0 Test.Event self timestamp
+  }
+}
+
+procedure abstractRun(variable timestamp : Arcadia.Natural64) : Arcadia.Natural64 {
+  construct $0 Test.ConcreteEvent void timestamp
+  call $9 collect
+  loadField $1 $0 timestamp
+  return $1
+}
+
+class Test.FieldNames {
+  variable switch : Arcadia.Natural64
+  variable switch_pdl : Arcadia.Natural64
+  variable _parent : Test.Base
+  variable _parent_pdl : Arcadia.Natural64
+  variable _parent_pdl_pdl : Arcadia.Natural64
+  constructor(variable n : Arcadia.Natural64) {
+    storeField self switch n
+    add $0 n 1
+    storeField self switch_pdl $0
+    add $1 n 2
+    storeField self _parent_pdl $1
+    add $2 n 3
+    storeField self _parent_pdl_pdl $2
+    construct $3 Test.Base void n
+    storeField self _parent $3
+  }
+  method readAll : Arcadia.Natural64 {
+    call $9 collect
+    loadField $0 self switch
+    loadField $1 self switch_pdl
+    add $0 $0 $1
+    loadField $2 self _parent_pdl
+    add $0 $0 $2
+    loadField $3 self _parent_pdl_pdl
+    add $0 $0 $3
+    loadField $4 self _parent
+    invoke $5 get $4
+    add $0 $0 $5
+    return $0
+  }
+}
+
+abstract class Test.EmptyEvent {
+}
+
+class Test.MethodNames extends Test.EmptyEvent {
+  method switch : Arcadia.Natural64 {
+    return 5
+  }
+  method switch_pdl : Arcadia.Natural64 {
+    return 6
+  }
+  method _parent : Arcadia.Natural64 {
+    return 7
+  }
+  method _parent_pdl : Arcadia.Natural64 {
+    return 8
+  }
+}
+
+procedure escapedRun(variable n : Arcadia.Natural64) : Arcadia.Natural64 {
+  construct $0 Test.FieldNames void n
+  invoke $1 readAll $0
+  construct $2 Test.MethodNames void
+  invoke $3 switch $2
+  add $1 $1 $3
+  invoke $4 switch_pdl $2
+  add $1 $1 $4
+  invoke $5 _parent $2
+  add $1 $1 $5
+  invoke $6 _parent_pdl $2
+  add $1 $1 $6
+  return $1
+}
+
+enumeration "Test/Palette/Color.h" Test.Color {
+  Red = 1
+  Blue = 2
+}
+
+enumeration Test.OtherColor {
+  Red = 1
+  Blue = 2
+}
+
+procedure bareReturn(variable early : Arcadia.Boolean) : Arcadia.Void {
+  jumpIfTrue early done
+  call $0 collect
+done:
+  return
+}
+
+procedure enumConstantRun : Test.Color {
+  set $0 Test.Color.Red
+  call $1 collect
+  isEqualTo $2 $0 Test.OtherColor.Red
+  jumpIfTrue $2 wrongIdentity
+  isEqualTo $2 $0 Test.Color.Red
+  jumpIfFalse $2 wrongIdentity
+  isNotEqualTo $2 $0 Test.Color.Blue
+  jumpIfFalse $2 wrongIdentity
+  isEqualTo $2 $0 1
+  jumpIfTrue $2 wrongIdentity
+  construct $3 Test.Colored void Test.Color.Blue
+  invoke $4 getColor $3
+  return $4
+wrongIdentity:
+  raise
+}
+
+procedure nativeEnumConstant(variable maximum : Arcadia.Boolean) : Test.External.Kind {
+  set $0 Test.External.UnsignedKind.First
+  call $1 collect
+  isEqualTo $2 $0 Test.External.UnsignedKind.First
+  jumpIfFalse $2 wrongNativeConstant
+  jumpIfTrue maximum maximumValue
+  return Test.External.Kind.Second
+maximumValue:
+  return Test.External.Kind.Maximum
+wrongNativeConstant:
+  raise
+}
+
+procedure wrongEnumConstant : Test.Color {
+  return Test.OtherColor.Red
+}
+
+class Test.Colored {
+  variable color : Test.Color
+  constructor(variable color : Test.Color) {
+    storeField self color color
+  }
+  method getColor : Test.Color {
+    loadField $0 self color
+    return $0
+  }
+}
+
+procedure colorRun(variable color : Test.Color) : Test.Color {
+  construct $0 Test.Colored void color
+  invoke $1 getColor $0
+  return $1
+}
+
+class Test.ColoredChild extends Test.Colored {
+  constructor(variable value : Arcadia.Value) {
+    construct $0 Test.Colored self value
+  }
+}
+
+procedure strictEnumConstruct(variable value : Arcadia.Value) : Test.Colored {
+  construct $0 Test.Colored void value
+  return $0
+}
+
+class Test.Base {
+  variable value : Arcadia.Natural64
+  constructor(variable n : Arcadia.Natural64) {
+    storeField self value n
+  }
+  method get : Arcadia.Natural64 {
+    call $9 collect
+    loadField $0 self value
+    return $0
+  }
+}
+
+class Test.Derived extends Test.Base {
+  constructor(variable n : Arcadia.Natural64) {
+    construct $0 Test.Base self n
+  }
+  method get : Arcadia.Natural64 {
+    call $9 collect
+    loadField $0 self value
+    add $0 $0 100
+    return $0
+  }
+}
+
+class Test.Native {
+  variable value : Arcadia.Natural64
+  constructor native "nativeConstruct" (variable n : Arcadia.Natural64)
+  method native "nativeGet" get : Arcadia.Natural64
+}
+
+class Test.Holder {
+  variable child : Test.Base
+  constructor(variable n : Arcadia.Natural64) {
+    construct $0 Test.Base void n
+    storeField self child $0
+  }
+  method get : Arcadia.Natural64 {
+    call $9 collect
+    loadField $0 self child
+    invoke $1 get $0
+    return $1
+  }
+}
+
+procedure native "nativeTwice" twice(variable n : Arcadia.Natural64) : Arcadia.Natural64
+procedure native "nativeCollect" collect : Arcadia.Void
+
+procedure compute(variable n : Arcadia.Natural64) : Arcadia.Natural64 {
+  construct $0 Test.Derived void n
+  invoke $1 get $0
+  invoke $2 twice $1
+  return $2
+}
+
+procedure factorial(variable n : Arcadia.Natural64) : Arcadia.Natural64 {
+  isLowerThanOrEqualTo $0 n 1
+  jumpIfTrue $0 done
+  subtract $1 n 1
+  invoke $2 factorial $1
+  multiply $3 n $2
+  return $3
+done:
+  return 1
+}
+
+procedure fail(variable n : Arcadia.Natural64) : Arcadia.Natural64 {
+  divide $0 n 0
+  return $0
+}
+
+procedure exercise(variable n : Arcadia.Natural64) : Arcadia.Natural64 {
+  variable total
+  set total 0
+loop:
+  isEqualTo $0 n 0
+  jumpIfTrue $0 done
+  add total total n
+  subtract $1 n 1
+  storeArgument $2 n $1
+  jump loop
+done:
+  loadArgument $3 n
+  add total total $3
+  construct $4 Test.Native void total
+  invoke $5 get $4
+  return $5
+}
+
+procedure zero : Arcadia.Natural64 {
+  return 42
+}
+
+procedure emptyCall : Arcadia.Natural64 {
+  call $0 zero
+  return $0
+}
+
+procedure builtin(variable n : Arcadia.Natural64) : Arcadia.Natural64 {
+  construct $0 Test.Base void n
+  invoke $1 registryPing $0
+  return $1
+}
+
+procedure holderRun(variable n : Arcadia.Natural64) : Arcadia.Natural64 {
+  construct $0 Test.Holder void n
+  invoke $1 get $0
+  return $1
+}

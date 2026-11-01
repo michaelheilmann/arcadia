@@ -1,0 +1,28 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Native factory products retain their existing layouts, context locking,
+// resource ownership, constructors, visitors and executable implementations.
+native "Arcadia/Engine/Audials/Nodes/SoundSourceNode.h" class Arcadia.Engine.Audials.SoundSourceNode extends Arcadia.Engine.Audials.Node {}
+native "Arcadia/Engine/Audials/Nodes/StreamingSoundSourceNode.h" class Arcadia.Engine.Audials.StreamingSoundSourceNode extends Arcadia.Engine.Audials.Node {}
+native "Arcadia/Engine/Visuals/Nodes/CameraNode.h" class Arcadia.Engine.Visuals.CameraNode extends Arcadia.Engine.Visuals.Node {}
+native "Arcadia/Engine/Visuals/Nodes/FrameBufferNode.h" class Arcadia.Engine.Visuals.FrameBufferNode extends Arcadia.Engine.Visuals.Node {}
+native "Arcadia/Engine/Visuals/Nodes/MaterialNode.h" class Arcadia.Engine.Visuals.MaterialNode extends Arcadia.Engine.Visuals.Node {}
+native "Arcadia/Engine/Visuals/Nodes/MeshNode.h" class Arcadia.Engine.Visuals.MeshNode extends Arcadia.Engine.Visuals.Node {}
+native "Arcadia/Engine/Visuals/Nodes/ModelNode.h" class Arcadia.Engine.Visuals.ModelNode extends Arcadia.Engine.Visuals.Node {}
+native "Arcadia/Engine/Visuals/Nodes/PixelBufferNode.h" class Arcadia.Engine.Visuals.PixelBufferNode extends Arcadia.Engine.Visuals.Node {}
+native "Arcadia/Engine/Visuals/Nodes/TextureNode.h" class Arcadia.Engine.Visuals.TextureNode extends Arcadia.Engine.Visuals.Node {}
+native "Arcadia/Engine/Visuals/Nodes/ViewportNode.h" class Arcadia.Engine.Visuals.ViewportNode extends Arcadia.Engine.Visuals.Node {}

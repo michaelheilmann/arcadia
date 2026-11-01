@@ -468,9 +468,6 @@ Arcadia_DDL_Parser_runImpl
   }
   Arcadia_DDL_Parser_next(thread, self);
   Arcadia_DDL_Node* valueNode = Arcadia_DDL_Parser_onValue(thread, self);
-  if (Arcadia_DDL_WordType_Comma == Arcadia_DDL_Parser_getWordType(thread, self)) {
-    Arcadia_DDL_Parser_next(thread, self);
-  }
   if (Arcadia_DDL_WordType_EndOfInput != Arcadia_DDL_Parser_getWordType(thread, self)) {
     Arcadia_StringBuilder* message = Arcadia_StringBuilder_create(thread);
     Arcadia_StringBuilder_insertBackCxxString(thread, message, u8"expected end of input\n");

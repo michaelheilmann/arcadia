@@ -164,7 +164,7 @@ step1
   }
 }
 
-// (2.1) For each module node, parse its `Module.mil` file in a compilation unit node.
+// (2.1) For each module node, parse its `Module.pdl` file in a compilation unit node.
 //       Add that compilation unit node to the list of compilation unit nodes of that module node.
 static void
 step2
@@ -178,7 +178,7 @@ step2
     Arcadia_PDLC_AST_ModuleNode* moduleNode= (Arcadia_PDLC_AST_ModuleNode*)Arcadia_List_getObjectReferenceValueAt(thread, self->context->moduleNodes, i);
     Arcadia_FilePath* moduleDirectoryPath = moduleNode->moduleDirectoryPath;
     Arcadia_FilePath* moduleFilePath = Arcadia_FilePath_clone(thread, moduleDirectoryPath);
-    Arcadia_FilePath_append(thread, moduleFilePath, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Module.mil")));
+    Arcadia_FilePath_append(thread, moduleFilePath, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Module.pdl")));
     Arcadia_FileSystem* fileSystem = Arcadia_FileSystem_getOrCreate(thread);
     if (!Arcadia_FileSystem_regularFileExists(thread, fileSystem, moduleFilePath)) {
       if (Arcadia_FileSystem_directoryFileExists(thread, fileSystem, moduleFilePath)) {
@@ -236,7 +236,7 @@ step2
   }
 }
 
-/// Recursively search `Library/Sources` for `*.mil` files.
+/// Recursively search `Library/Sources` for `*.pdl` files.
 /// @param moduleNode The module node.
 /// @param list The list to add the files to.
 static inline void
@@ -256,6 +256,15 @@ enumerateFiles
   // Compute the absolute path to `Library/Sources`.
   Arcadia_FilePath* sourceDirectoryPath = Arcadia_FilePath_clone(thread, moduleNode->moduleDirectoryPath);
   Arcadia_FilePath_append(thread, sourceDirectoryPath, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Library/Sources")));
+  if (!Arcadia_FileSystem_directoryFileExists(thread, fileSystem, sourceDirectoryPath)) {
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, sourceDirectoryPath);
+    Arcadia_Languages_Diagnostics_add(thread, self->context->diagnostics, (Arcadia_Languages_Diagnostic*)
+      Arcadia_PDLC_Diagnostics_FileSystemDiagnostic_create(thread, sourceDirectoryPath,
+        Arcadia_String_createFromCxxString(thread, "source directory does not exist or is not a directory")));
+    Arcadia_ValueStack_popValues(thread, 1);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationFailed);
+    Arcadia_Thread_jump(thread);
+  }
   // Compute the `..` and `.` paths.
   Arcadia_FilePath* dot = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8".")),
                   * dotdot = Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8".."));
@@ -292,8 +301,8 @@ enumerateFiles
 }
 
 // (3) For each module node:
-// (3.1) search its `Library/Sources` directory and its child directories `*.mil` files.
-// (3.2) For each discovered `*.mil` file, parse that file into a compilation unit node.
+// (3.1) search its `Library/Sources` directory and its child directories `*.pdl` files.
+// (3.2) For each discovered `*.pdl` file, parse that file into a compilation unit node.
 // (3.3) Add that compilation unit node to the list of compilation unit nodes of that module node.
 static void
 step3
@@ -303,7 +312,7 @@ step3
   )
 {
   Arcadia_PDLC_Parser* parser = Arcadia_PDLC_Parser_getInstance(thread, self->context);
-  Arcadia_Value milExtension = Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8".mil"));
+  Arcadia_Value pdlExtension = Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8".pdl"));
   Arcadia_List* files = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->context->moduleNodes); i < n; ++i) {
     Arcadia_Collection_clear(thread, (Arcadia_Collection*)files);
@@ -317,7 +326,7 @@ step3
     for (Arcadia_SizeValue j = 0, m = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)files); j < m; ++j) {
       Arcadia_FilePath* filePath = (Arcadia_FilePath*)Arcadia_List_getObjectReferenceValueAt(thread, files, j);
       Arcadia_String* extension = Arcadia_FilePath_getExtension(thread, filePath);
-      if (extension && Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)extension, &milExtension)) {
+      if (extension && Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)extension, &pdlExtension)) {
       #if defined(Arcadia_PDLC_Configuration_ListCompilationUnits) && 1 == Arcadia_PDLC_Configuration_ListCompilationUnits
         Arcadia_Log_information(thread, self->log, Arcadia_String_createFromCxxString(thread, u8" - `"));
         Arcadia_Log_information(thread, self->log, Arcadia_FilePath_toGeneric(thread, filePath));

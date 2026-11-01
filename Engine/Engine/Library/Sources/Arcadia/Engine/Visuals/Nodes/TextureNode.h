@@ -26,6 +26,7 @@
 #include "Arcadia/Engine/Visuals/Nodes/PixelBufferNode.h"
 #include "Arcadia/Engine/Visuals/TextureAddressMode.h"
 #include "Arcadia/Engine/Visuals/TextureFilter.h"
+typedef struct Arcadia_Engine_Visuals_TextureResource Arcadia_Engine_Visuals_TextureResource;
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.TextureNode", Arcadia_Engine_Visuals_TextureNode,
                           u8"Arcadia.Engine.Visuals.Node")

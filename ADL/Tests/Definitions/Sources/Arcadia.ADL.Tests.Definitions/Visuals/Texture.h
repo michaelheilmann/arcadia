@@ -20,6 +20,12 @@
 #include "Arcadia/Ring2/Include.h"
 
 void
+Arcadia_ADL_Tests_Visuals_TextureEnums
+  (
+    Arcadia_Thread* thread
+  );
+
+void
 Arcadia_ADL_Tests_Visuals_TextureDefinitionTest1
   (
     Arcadia_Thread* thread

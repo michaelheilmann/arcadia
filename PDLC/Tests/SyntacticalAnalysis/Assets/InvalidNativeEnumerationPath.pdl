@@ -1,0 +1,3 @@
+native "../External.h" enumeration MyModule.Kind {
+  Value = 0
+}

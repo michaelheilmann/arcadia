@@ -16,6 +16,7 @@
 
 #define ARCADIA_PDLC_PRIVATE (1)
 #include "Arcadia/PDLC/Symbols/VariableSymbol.h"
+#include "Arcadia/PDLC/AST/Definitions/FieldDefinitionNode.h"
 
 static void
 Arcadia_PDLC_VariableSymbol_constructImpl
@@ -85,6 +86,13 @@ Arcadia_PDLC_VariableSymbol_constructImpl
   //
   self->ast = NULL;
   self->type = NULL;
+  self->isReference = Arcadia_BooleanValue_False;
+  self->isReadOnly = Arcadia_BooleanValue_False;
+  self->isOutput = Arcadia_BooleanValue_False;
+  self->ownership = Arcadia_PDLC_Ownership_Managed;
+  self->recordFields = NULL;
+  self->isConstant = Arcadia_BooleanValue_False;
+  self->constantValue = 0;
   //
   Arcadia_LeaveConstructor(Arcadia_PDLC_VariableSymbol);
 }
@@ -112,6 +120,7 @@ Arcadia_PDLC_VariableSymbol_visitImpl
     Arcadia_PDLC_VariableSymbol* self
   )
 {
+  if (self->recordFields) Arcadia_Object_visit(thread, (Arcadia_Object*)self->recordFields);
   if (self->ast) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->ast);
   }

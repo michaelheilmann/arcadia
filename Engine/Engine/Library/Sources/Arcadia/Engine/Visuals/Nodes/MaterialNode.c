@@ -198,19 +198,19 @@ Arcadia_Engine_Visuals_MaterialNode_renderImpl
       Arcadia_Engine_Visuals_TextureResource* textureResource =
         ((Arcadia_Engine_Visuals_TextureNode*)((Arcadia_Engine_Visuals_MaterialNode*)self)->ambientColorTexture)->textureResource;
 
-      Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource ambientColorSource = Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource_Mesh;
+      Arcadia_Engine_Visuals_ColorSource ambientColorSource = Arcadia_Engine_Visuals_ColorSource_Mesh;
       switch (((Arcadia_Engine_Visuals_MaterialNode*)self)->source->ambientColorSource) {
         case Arcadia_ADL_AmbientColorSource_Mesh: {
-          ambientColorSource = Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource_Mesh;
+          ambientColorSource = Arcadia_Engine_Visuals_ColorSource_Mesh;
         } break;
         case Arcadia_ADL_AmbientColorSource_Vertex: {
-          ambientColorSource = Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource_Vertex;
+          ambientColorSource = Arcadia_Engine_Visuals_ColorSource_Vertex;
         } break;
         case Arcadia_ADL_AmbientColorSource_Texture: {
-          ambientColorSource = Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource_Texture;
+          ambientColorSource = Arcadia_Engine_Visuals_ColorSource_Texture;
         } break;
         case Arcadia_ADL_AmbientColorSource_TextureVertex: {
-          ambientColorSource = Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource_Texture;
+          ambientColorSource = Arcadia_Engine_Visuals_ColorSource_Texture;
         } break;
         default: {
           Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);

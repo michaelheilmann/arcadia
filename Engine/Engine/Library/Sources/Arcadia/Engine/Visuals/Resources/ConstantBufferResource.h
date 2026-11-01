@@ -17,18 +17,30 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_RESOURCES_CONSTANTBUFFERRESOURCE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_RESOURCES_CONSTANTBUFFERRESOURCE_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/Resources/ConstantBufferResource.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Visuals/Resource.h"
 
-Arcadia_declareObjectType(u8"Arcadia.Visuals.ConstantBufferResource", Arcadia_Engine_Visuals_ConstantBufferResource,
-                          u8"Arcadia.Visuals.Resource");
+typedef struct Arcadia_Engine_Visuals_ConstantBufferResource Arcadia_Engine_Visuals_ConstantBufferResource;
+typedef struct Arcadia_Math_Color4Real32 Arcadia_Math_Color4Real32;
+typedef struct Arcadia_Math_Matrix4Real32 Arcadia_Math_Matrix4Real32;
+
+Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.ConstantBufferResource", Arcadia_Engine_Visuals_ConstantBufferResource,
+                          u8"Arcadia.Engine.Visuals.Resource");
 
 struct Arcadia_Engine_Visuals_ConstantBufferResourceDispatch {
   Arcadia_Engine_Visuals_ResourceDispatch _parent;
 
   void (*setData)(Arcadia_Thread*, Arcadia_Engine_Visuals_ConstantBufferResource*, const void*, Arcadia_SizeValue);
+
   void (*clear)(Arcadia_Thread*, Arcadia_Engine_Visuals_ConstantBufferResource*);
-  void (*writeColor4Real32)(Arcadia_Thread*, Arcadia_Engine_Visuals_ConstantBufferResource*, Arcadia_Math_Color4Real32 const* source);
-  void (*writeMatrix4x4Real32)(Arcadia_Thread*, Arcadia_Engine_Visuals_ConstantBufferResource*, Arcadia_BooleanValue transpose, Arcadia_Math_Matrix4Real32 const* source);
+
+  void (*writeColor4Real32)(Arcadia_Thread*, Arcadia_Engine_Visuals_ConstantBufferResource*, const Arcadia_Math_Color4Real32*);
+
+  void (*writeMatrix4x4Real32)(Arcadia_Thread*, Arcadia_Engine_Visuals_ConstantBufferResource*, Arcadia_BooleanValue, const Arcadia_Math_Matrix4Real32*);
 };
 
 struct Arcadia_Engine_Visuals_ConstantBufferResource {
@@ -56,7 +68,7 @@ Arcadia_Engine_Visuals_ConstantBufferResource_writeColor4Real32
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_ConstantBufferResource* self,
-    Arcadia_Math_Color4Real32 const* source
+    const Arcadia_Math_Color4Real32* color
   );
 
 void
@@ -65,7 +77,7 @@ Arcadia_Engine_Visuals_ConstantBufferResource_writeMatrix4x4Real32
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_ConstantBufferResource* self,
     Arcadia_BooleanValue transpose,
-    Arcadia_Math_Matrix4Real32 const* source
+    const Arcadia_Math_Matrix4Real32* matrix
   );
 
 #endif // ARCADIA_ENGINE_VISUALS_RESOURCES_CONSTANTBUFFERRESOURCE_H_INCLUDED

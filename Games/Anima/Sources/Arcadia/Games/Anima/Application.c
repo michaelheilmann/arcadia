@@ -15,6 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/Games/Anima/Application.h"
+#include "Arcadia/Games/Anima/MenuScene.h"
 
 #include "Arcadia/Audials/Implementation/Include.h"
 #include "Arcadia/Visuals/Implementation/Include.h"
@@ -132,6 +133,17 @@ shutdownImpl
     Arcadia_Thread_popJumpTarget(thread);
   } else {
     Arcadia_Thread_popJumpTarget(thread);
+  }
+  Arcadia_Engine_Scene* currentScene = Arcadia_Engine_SceneManager_getScene
+    (
+      thread,
+      self->sceneManager
+    );
+  if (currentScene && Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)currentScene, _Arcadia_Games_Anima_MenuScene_getType(thread))) {
+    Arcadia_Games_Anima_MenuScene* menuScene = (Arcadia_Games_Anima_MenuScene*)currentScene;
+    if (menuScene->ambienceNode && menuScene->ambienceNode->resource) {
+      Arcadia_Engine_Audials_StreamingSoundSourceNode_stop(thread, menuScene->ambienceNode);
+    }
   }
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread,
        (Arcadia_Collection*)((Arcadia_Engine_Application*)self)->windows); i < n; ++i) {

@@ -305,6 +305,8 @@ onClassDefinitionNode
   ((Arcadia_PDLC_Symbol*)symbol)->enclosing = (Arcadia_PDLC_Symbol*)moduleSymbol;
   symbol->ast = classDefinitionNode;
   symbol->isNative = classDefinitionNode->isNative;
+  symbol->isNativeImplementation = classDefinitionNode->isNativeImplementation;
+  symbol->isAbstract = classDefinitionNode->isAbstract;
   Arcadia_PDLC_Environment* environment = Arcadia_PDLC_Environment_create(thread, (Arcadia_PDLC_Symbol*)symbol, compilationUnitNode);
   Arcadia_Map_set(thread, self->context->environments, Arcadia_Value_makeObjectReferenceValue(symbol),
                                                        Arcadia_Value_makeObjectReferenceValue(environment), NULL, NULL);
@@ -376,8 +378,8 @@ onModuleDefinitionNodeImpl
   Arcadia_PDLC_AST_ModuleNode* moduleNode = compilationUnitNode->moduleNode;
   assert(NULL != moduleNode);
   if (!isModuleFile || self->lastSymbol) {
-    // LANGUAGE DEFINITION: Assert not more than one module definition exists in Module.mil. A module
-    // definition outside Module.mil also violates this rule because Module.mil is the only module
+    // LANGUAGE DEFINITION: Assert not more than one module definition exists in Module.pdl. A module
+    // definition outside Module.pdl also violates this rule because Module.pdl is the only module
     // definition file.
     Arcadia_Languages_Diagnostics_add
       (
@@ -396,12 +398,13 @@ onModuleDefinitionNodeImpl
   }
   Arcadia_PDLC_ModuleSymbol* moduleSymbol = Arcadia_PDLC_ModuleSymbol_create(thread, moduleSymbolName);
   moduleNode->moduleSymbol = moduleSymbol;
+  moduleSymbol->scope = Arcadia_Languages_Scope_create(thread, self->context->scope);
   moduleSymbol->moduleDefinitionNode = moduleDefinitionNode;
   Arcadia_PDLC_Environment* environment = Arcadia_PDLC_Environment_create(thread, (Arcadia_PDLC_Symbol*)moduleSymbol, compilationUnitNode);
   Arcadia_Map_set(thread, self->context->environments, Arcadia_Value_makeObjectReferenceValue(moduleSymbol),
                                                        Arcadia_Value_makeObjectReferenceValue(environment), NULL, NULL);
-  // LANGUAGE DEFINITION: Assert no two definitions of the same name exist in the root scope.
-  if (Arcadia_Languages_Scope_contains(thread, self->context->scope, moduleSymbolName, Arcadia_BooleanValue_False)) {
+  // Module names are unique independently of type/procedure names.
+  if (Arcadia_Languages_Scope_contains(thread, self->context->moduleScope, moduleSymbolName, Arcadia_BooleanValue_False)) {
     Arcadia_Languages_Diagnostics_add
       (
         thread,
@@ -411,13 +414,14 @@ onModuleDefinitionNodeImpl
           (
             thread,
             Arcadia_Languages_DiagnosticType_Error,
-            Arcadia_Languages_InputFile_create(thread, Arcadia_FilePath_toNative(thread, moduleNode->moduleDirectoryPath, Arcadia_BooleanValue_False), moduleNode->moduleDirectoryPath),
+            Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, self->context->inputFileManager,
+              Arcadia_FilePath_toNative(thread, compilationUnitNode->filePath, Arcadia_BooleanValue_False), compilationUnitNode->filePath),
             Arcadia_SizeValue_Literal(0),
             moduleSymbolName
           )
       );
   } else {
-    Arcadia_Languages_Scope_enter(thread, self->context->scope, moduleSymbolName, (Arcadia_Object*)moduleSymbol);
+    Arcadia_Languages_Scope_enter(thread, self->context->moduleScope, moduleSymbolName, (Arcadia_Object*)moduleSymbol);
   }
   self->lastSymbol = moduleSymbol;
 }
@@ -441,6 +445,7 @@ onEnumerationDefinitionNode
   Arcadia_PDLC_EnumerationSymbol* symbol = Arcadia_PDLC_EnumerationSymbol_create(thread, symbolName);
   ((Arcadia_PDLC_Symbol*)symbol)->enclosing = (Arcadia_PDLC_Symbol*)moduleSymbol;
   symbol->ast = enumerationDefinitionNode;
+  symbol->isNative = enumerationDefinitionNode->isNative;
   Arcadia_PDLC_Environment* environment = Arcadia_PDLC_Environment_create(thread, (Arcadia_PDLC_Symbol*)symbol, compilationUnitNode);
   Arcadia_Map_set(thread, self->context->environments, Arcadia_Value_makeObjectReferenceValue(symbol),
                                                        Arcadia_Value_makeObjectReferenceValue(environment), NULL, NULL);
@@ -524,7 +529,7 @@ onModuleNode
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)moduleNode->compilationUnits); i < n; ++i) {
     Arcadia_PDLC_AST_CompilationUnitNode* compilationUnitNode = (Arcadia_PDLC_AST_CompilationUnitNode*)Arcadia_List_getObjectReferenceValueAt(thread, moduleNode->compilationUnits, i);
     Arcadia_FilePath* moduleFilePath = Arcadia_FilePath_clone(thread, moduleNode->moduleDirectoryPath);
-    Arcadia_FilePath_append(thread, moduleFilePath, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Module.mil")));
+    Arcadia_FilePath_append(thread, moduleFilePath, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Module.pdl")));
     onCompilationUnitNode(thread, self, compilationUnitNode, Arcadia_FilePath_isEqualTo(thread, compilationUnitNode->filePath, moduleFilePath));
   }
 }
@@ -539,17 +544,20 @@ Arcadia_PDLC_EnterPhase_run
   Arcadia_PDLC_Context* context = self->context;
   if (!context->scope) {
     context->scope = Arcadia_Languages_Scope_create(thread, NULL);
-    Arcadia_PDLC_Symbols* symbols = Arcadia_PDLC_Symbols_getInstance(thread, context);
-
-    // Register the built-in types. The registry is the single source of truth for which types are
-    // built-in, so registering them cannot drift out of sync with `Symbols_isBuiltIn`.
-    Arcadia_List* builtIns = Arcadia_PDLC_Symbols_getBuiltIns(thread, symbols);
-    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)builtIns); i < n; ++i) {
-      Arcadia_PDLC_Symbol* builtIn = (Arcadia_PDLC_Symbol*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, builtIns, i, _Arcadia_PDLC_Symbol_getType(thread));
-      Arcadia_Languages_Scope_enter(thread, context->scope, builtIn->name, (Arcadia_Object*)builtIn);
-    }
   } else {
     Arcadia_Languages_Scope_clear(thread, context->scope);
+  }
+  if (!context->moduleScope) {
+    context->moduleScope = Arcadia_Languages_Scope_create(thread, NULL);
+  } else {
+    Arcadia_Languages_Scope_clear(thread, context->moduleScope);
+  }
+  // Re-register built-ins after every reset, including repeated phase runs.
+  Arcadia_PDLC_Symbols* symbols = Arcadia_PDLC_Symbols_getInstance(thread, context);
+  Arcadia_List* builtIns = Arcadia_PDLC_Symbols_getBuiltIns(thread, symbols);
+  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)builtIns); i < n; ++i) {
+    Arcadia_PDLC_Symbol* builtIn = (Arcadia_PDLC_Symbol*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, builtIns, i, _Arcadia_PDLC_Symbol_getType(thread));
+    Arcadia_Languages_Scope_enter(thread, context->scope, builtIn->name, (Arcadia_Object*)builtIn);
   }
   // (1)
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->context->moduleNodes); i < n; ++i) {
@@ -557,9 +565,9 @@ Arcadia_PDLC_EnterPhase_run
     Arcadia_PDLC_AST_ModuleNode* moduleNode = (Arcadia_PDLC_AST_ModuleNode*)Arcadia_List_getObjectReferenceValueAt(thread, self->context->moduleNodes, i);
     onModuleNode(thread, self, moduleNode);
     if (!self->lastSymbol) {
-      // LANGUAGE DEFINITION: Assert exactly one module definition exists in Module.mil.
+      // LANGUAGE DEFINITION: Assert exactly one module definition exists in Module.pdl.
       Arcadia_FilePath* moduleFilePath = Arcadia_FilePath_clone(thread, moduleNode->moduleDirectoryPath);
-      Arcadia_FilePath_append(thread, moduleFilePath, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Module.mil")));
+      Arcadia_FilePath_append(thread, moduleFilePath, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, u8"Module.pdl")));
       Arcadia_Languages_Diagnostics_add
         (
           thread,

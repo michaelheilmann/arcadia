@@ -818,6 +818,7 @@ Arcadia_Engine_UI_SegmentedChoiceNode_createFromDefinition
       (Arcadia_Engine_UI_LabelNode*)Arcadia_List_getObjectReferenceValueAt(thread, node->labelNodes, i), node->pixelSize);
   }
   updateVertices(thread, node, node->lastCanvasWidth, node->lastCanvasHeight);
+  Arcadia_Engine_UI_WidgetNode_setName(thread, (Arcadia_Engine_UI_WidgetNode*)node, ((Arcadia_ADL_Definition*)source)->name);
   Arcadia_ValueStack_popValues(thread, 2);
   return node;
 }

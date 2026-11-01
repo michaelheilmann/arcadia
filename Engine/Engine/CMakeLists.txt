@@ -22,7 +22,7 @@ add_subdirectory(Tests)
 
 add_subdirectory(Examples/SpaceshipAmbience)
 add_subdirectory(Examples/SpaceshipAmbienceStreaming)
-add_subdirectory(Examples/CheckerboardTexture)
+add_subdirectory(Examples/ColorSources)
 add_subdirectory(Examples/FontTexture)
 add_subdirectory(Examples/FreeFlyCamera)
 add_subdirectory(Examples/TextRendering)

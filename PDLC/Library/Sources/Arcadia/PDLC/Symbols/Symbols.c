@@ -70,12 +70,13 @@ Arcadia_defineObjectType(u8"Arcadia.PDLC.Symbols", Arcadia_PDLC_Symbols,
 // The fully qualified type name is the only intrinsic property a built-in type needs:
 // `Arcadia_PDLC_Backend_Implementation_computeCxxName` derives the C++ name from it, and a
 // built-in type has no module, hence no generated source or header file of its own. `isClass`
-// distinguishes `Arcadia.Object`, the one built-in that is a class type rather than a primitive
-// type.
+// distinguishes runtime class types such as `Arcadia.Object` and `Arcadia.String` from primitive
+// types.
 //
-// Adding a built-in type means adding a row here and nothing else: the constructor builds the
+// Adding a built-in type to the registry means adding a row here: the constructor builds the
 // registry from this table, the enter phase registers what the registry holds, and
 // `Arcadia_PDLC_Symbols_isBuiltIn` asks the registry. None of those can drift apart.
+// New scalar representations also need matching boxing/conversion support in the C backend.
 static const struct {
   const char* name;
   Arcadia_BooleanValue isClass;
@@ -92,7 +93,10 @@ static const struct {
   { u8"Arcadia.Object",    Arcadia_BooleanValue_True  },
   { u8"Arcadia.Real32",    Arcadia_BooleanValue_False },
   { u8"Arcadia.Real64",    Arcadia_BooleanValue_False },
+  { u8"Arcadia.Size",      Arcadia_BooleanValue_False },
+  { u8"Arcadia.String",    Arcadia_BooleanValue_True  },
   { u8"Arcadia.Void",      Arcadia_BooleanValue_False },
+  { u8"Arcadia.Value",     Arcadia_BooleanValue_False },
 };
 
 #define BuiltInTypesSize (sizeof(BuiltInTypes) / sizeof(BuiltInTypes[0]))
@@ -117,6 +121,7 @@ constructImpl
   self->context = (Arcadia_PDLC_Context*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_PDLC_Context_getType(thread));
 
   self->builtIns = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
+  self->nativeTargets = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
   for (Arcadia_SizeValue i = 0; i < BuiltInTypesSize; ++i) {
     Arcadia_String* typeName = Arcadia_String_createFromCxxString(thread, BuiltInTypes[i].name);
     Arcadia_PDLC_Symbol* typeSymbol = BuiltInTypes[i].isClass
@@ -165,6 +170,9 @@ visitImpl
 
   if (self->builtIns) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->builtIns);
+  }
+  if (self->nativeTargets) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->nativeTargets);
   }
 }
 
@@ -274,4 +282,47 @@ Arcadia_PDLC_Symbols_isBuiltIn
   return (Arcadia_PDLC_Symbol*)Arcadia_Value_getObjectReferenceValue(&value) == symbol
     ? Arcadia_BooleanValue_True
     : Arcadia_BooleanValue_False;
+}
+
+Arcadia_String*
+Arcadia_PDLC_Symbols_getNativeTarget
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Symbols* self,
+    Arcadia_PDLC_Symbol* symbol
+  )
+{
+  Arcadia_Value v = Arcadia_Map_get(thread, self->nativeTargets, Arcadia_Value_makeObjectReferenceValue(symbol));
+  if (!Arcadia_Value_isVoidValue(&v)) return (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&v);
+  switch (symbol->kind) {
+    case Arcadia_PDLC_SymbolKind_Procedure: {
+      Arcadia_PDLC_AST_ProcedureDefinitionNode* ast = ((Arcadia_PDLC_ProcedureSymbol*)symbol)->ast;
+      return ast ? ast->nativeName : NULL;
+    }
+    case Arcadia_PDLC_SymbolKind_Method: {
+      Arcadia_PDLC_AST_MethodDefinitionNode* ast = ((Arcadia_PDLC_MethodSymbol*)symbol)->ast;
+      return ast ? ast->nativeName : NULL;
+    }
+    case Arcadia_PDLC_SymbolKind_Constructor: {
+      Arcadia_PDLC_AST_ConstructorDefinitionNode* ast = ((Arcadia_PDLC_ConstructorSymbol*)symbol)->ast;
+      return ast ? ast->nativeName : NULL;
+    }
+    default: return NULL;
+  }
+}
+
+void
+Arcadia_PDLC_Symbols_setNativeTarget
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_Symbols* self,
+    Arcadia_PDLC_Symbol* symbol,
+    Arcadia_String* target
+  )
+{
+  if (!symbol || !target || (symbol->kind != Arcadia_PDLC_SymbolKind_Procedure && symbol->kind != Arcadia_PDLC_SymbolKind_Method && symbol->kind != Arcadia_PDLC_SymbolKind_Constructor)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Map_set(thread, self->nativeTargets, Arcadia_Value_makeObjectReferenceValue(symbol), Arcadia_Value_makeObjectReferenceValue(target), NULL, NULL);
 }

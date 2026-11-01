@@ -1,0 +1,9 @@
+{
+  type : "PixelBuffer",
+  name : "ColorSourcesScene.NewGameButtonPixelBuffer",
+  width: 256,
+  height: 256,
+  operations : [
+    "ColorSourcesScene.NewGameButtonFillOperation",
+  ],
+}

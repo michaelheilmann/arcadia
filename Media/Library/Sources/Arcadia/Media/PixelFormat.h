@@ -18,49 +18,34 @@
 #define ARCADIA_MEDIA_PIXELFORMAT_H_INCLUDED
 
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
-  #error("do not include directly, include `Arcadia/Media/Include.h` instead")
+  #error("do not include `Arcadia/Media/PixelFormat.h` directly, include `Arcadia/Media/Include.h` instead")
 #endif
-#include "Arcadia/Ring2/Include.h"
 
-// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelFormat
-Arcadia_declareEnumerationType(u8"Arcadia.Media.PixelFormat", Arcadia_Media_PixelFormat);
+#include "Arcadia/Ring1/Include.h"
+
+Arcadia_declareEnumerationType("Arcadia.Media.PixelFormat",
+                               Arcadia_Media_PixelFormat);
 
 enum Arcadia_Media_PixelFormat {
 
-  Arcadia_Media_PixelFormat_AlphaBlueGreenRedNatural8,
+  Arcadia_Media_PixelFormat_AlphaBlueGreenRedNatural8 = 0,
 
-  Arcadia_Media_PixelFormat_AlphaGrayNatural8,
+  Arcadia_Media_PixelFormat_AlphaGrayNatural8 = 1,
 
-  Arcadia_Media_PixelFormat_AlphaRedGreenBlueNatural8,
+  Arcadia_Media_PixelFormat_AlphaRedGreenBlueNatural8 = 2,
 
-  Arcadia_Media_PixelFormat_BlueGreenRedNatural8,
+  Arcadia_Media_PixelFormat_BlueGreenRedNatural8 = 3,
 
-  Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8,
+  Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8 = 4,
 
-  Arcadia_Media_PixelFormat_GrayNatural8,
+  Arcadia_Media_PixelFormat_GrayNatural8 = 5,
 
-  Arcadia_Media_PixelFormat_GrayAlphaNatural8,
+  Arcadia_Media_PixelFormat_GrayAlphaNatural8 = 6,
 
-  Arcadia_Media_PixelFormat_RedGreenBlueNatural8,
+  Arcadia_Media_PixelFormat_RedGreenBlueNatural8 = 7,
 
-  Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8,
+  Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8 = 8,
 
 };
-
-// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelFormat_getNumberOfBytes
-Arcadia_SizeValue
-Arcadia_Media_PixelFormat_getNumberOfBytes
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Media_PixelFormat self
-  );
-
-// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelFormat_getNumberComponents
-Arcadia_SizeValue
-Arcadia_Media_PixelFormat_getNumberOfComponents
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Media_PixelFormat self
-  );
 
 #endif // ARCADIA_MEDIA_PIXELFORMAT_H_INCLUDED

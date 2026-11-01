@@ -320,6 +320,8 @@ onCompleteMethod
   // Enter the method symbol into the class symbol.
   Arcadia_PDLC_MethodSymbol* methodSymbol = Arcadia_PDLC_MethodSymbol_create(thread, node->name);
   methodSymbol->ast = node;
+  methodSymbol->isNonvirtual = node->isNonvirtual;
+  methodSymbol->isAbstract = node->isAbstract;
   ((Arcadia_PDLC_Symbol*)methodSymbol)->enclosing = (Arcadia_PDLC_Symbol*)classSymbol;
   Arcadia_List_insertBack(thread, ((Arcadia_PDLC_ClassSymbol*)classSymbol)->members, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)methodSymbol));
   if (Arcadia_Languages_Scope_contains(thread, classSymbol->scope, ((Arcadia_PDLC_Symbol*)methodSymbol)->name, Arcadia_BooleanValue_False)) {

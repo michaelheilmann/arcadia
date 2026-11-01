@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#define ARCADIA_ADL_MODULE (1)
+#define ARCADIA_ADL_PRIVATE (1)
 #include "Arcadia/ADL/Definitions/Visuals/MaterialDefinition.h"
 
 #include "Arcadia/Logging/Include.h"
@@ -95,7 +95,11 @@ Arcadia_ADL_MaterialDefinition_visitImpl
     Arcadia_Thread* thread,
     Arcadia_ADL_MaterialDefinition* self
   )
-{/*Intentionally empty.*/}
+{
+  if (self->ambientColorTexture) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->ambientColorTexture);
+  }
+}
 
 static void
 Arcadia_ADL_MaterialDefinition_constructImpl

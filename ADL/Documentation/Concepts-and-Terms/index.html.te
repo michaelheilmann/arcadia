@@ -96,6 +96,14 @@
 
       <h2>The definition graph</h2>
       <p>
+      A definition graph is distinct from the opt-in
+      <a href="@{siteAddress}/Arcadia/ADL/Specification/#graph-composition">graph-composition
+      front end</a>. That front end expands named templates and parameterized
+      instances into ordinary definitions before linking; it is not a runtime
+      interpreter or an additional mixer. Its supported local types and validation
+      limits are specified separately.
+      </p>
+      <p>
       Definitions and their references form a directed acyclic graph. Typical edges
       of this graph are:
       </p>

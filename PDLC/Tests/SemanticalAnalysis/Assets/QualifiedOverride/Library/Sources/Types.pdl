@@ -1,0 +1,6 @@
+class MyModule.Base {
+  method native "readConst" read(variable value : readonly Arcadia.Object) : Arcadia.Natural64
+}
+class MyModule.Derived extends MyModule.Base {
+  method native "readMutable" read(variable value : Arcadia.Object) : Arcadia.Natural64
+}

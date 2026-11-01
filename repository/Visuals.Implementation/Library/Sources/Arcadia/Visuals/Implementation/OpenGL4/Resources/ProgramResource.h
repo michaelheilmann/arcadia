@@ -23,7 +23,7 @@
 typedef struct Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext;
 
 Arcadia_declareObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.ProgramResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResource,
-                          u8"Arcadia.Visuals.ProgramResource");
+                          u8"Arcadia.Engine.Visuals.ProgramResource");
 
 struct Arcadia_Engine_Visuals_Implementation_OpenGL4_ProgramResourceDispatch {
   Arcadia_Engine_Visuals_ProgramResourceDispatch _parent;

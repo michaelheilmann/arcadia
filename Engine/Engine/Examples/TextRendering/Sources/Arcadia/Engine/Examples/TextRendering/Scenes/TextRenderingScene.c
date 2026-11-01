@@ -253,7 +253,7 @@ static const Arcadia_Type_Operations _Arcadia_Engine_Demo_TextRenderingScene_typ
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Engine.Demo.TextRenderingScene", Arcadia_Engine_Demo_TextRenderingScene,
-                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Scene,
+                         u8"Arcadia.Engine.Scene", Arcadia_Engine_Scene,
                          &_Arcadia_Engine_Demo_TextRenderingScene_typeOperations);
 
 static void

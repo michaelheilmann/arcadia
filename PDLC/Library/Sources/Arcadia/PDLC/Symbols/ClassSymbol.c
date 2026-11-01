@@ -70,6 +70,7 @@ Arcadia_PDLC_ClassSymbol_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_PDLC_ClassSymbol);
+  self->isNativeImplementation = Arcadia_BooleanValue_False;
   if (1 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
@@ -85,6 +86,7 @@ Arcadia_PDLC_ClassSymbol_constructImpl
   //
   self->ast = NULL;
   self->isNative = Arcadia_BooleanValue_False;
+  self->isAbstract = Arcadia_BooleanValue_False;
   self->members = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   self->scope = NULL;
   self->parentClassSymbol = NULL;

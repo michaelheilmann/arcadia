@@ -1,0 +1,32 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Opaque defining-module declarations only: ADL owns its existing native
+// headers, storage, constructors, reference linking and managed visitors.
+native "Arcadia/ADL/Definitions.h" class Arcadia.ADL.Definitions extends Arcadia.Object {}
+native "Arcadia/ADL/Definition.h" class Arcadia.ADL.Definition extends Arcadia.Object {
+  constructor(variable definitions : Arcadia.ADL.Definitions, variable name : Arcadia.String)
+  method native "Arcadia_ADL_Definition_link" link() : Arcadia.Void
+}
+native "Arcadia/ADL/Include.h" class Arcadia.ADL.PixelBufferOperations.FillOperationDefinition extends Arcadia.ADL.Definition {}
+native "Arcadia/ADL/Include.h" class Arcadia.ADL.PixelBufferOperations.CheckerboardFillOperationDefinition extends Arcadia.ADL.Definition {}
+native "Arcadia/ADL/Include.h" class Arcadia.ADL.SampleBufferDefinition extends Arcadia.ADL.Definition {}
+native "Arcadia/ADL/Include.h" class Arcadia.ADL.SoundSourceNodeDefinition extends Arcadia.ADL.Definition {}
+native "Arcadia/ADL/Include.h" class Arcadia.ADL.StreamingSoundSourceNodeDefinition extends Arcadia.ADL.Definition {}
+native "Arcadia/ADL/Include.h" class Arcadia.ADL.MaterialDefinition extends Arcadia.ADL.Definition {}
+native "Arcadia/ADL/Include.h" class Arcadia.ADL.ModelDefinition extends Arcadia.ADL.Definition {}
+native "Arcadia/ADL/Include.h" class Arcadia.ADL.PixelBufferDefinition extends Arcadia.ADL.Definition {}
+native "Arcadia/ADL/Include.h" class Arcadia.ADL.TextureDefinition extends Arcadia.ADL.Definition {}

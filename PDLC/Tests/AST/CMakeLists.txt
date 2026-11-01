@@ -29,10 +29,13 @@ if (NOT TARGET ${this})
                               ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/PDLC/Tests/AST/Configure.h.i)
 
   OnSourceFile(${this} Arcadia/PDLC/Tests/AST/Main.c)
+  OnSourceFile(${this} Arcadia/PDLC/Tests/AST/Bases.c)
+  OnHeaderFile(${this} Arcadia/PDLC/Tests/AST/Bases.h)
 
   OnModuleDependency(${this} ${MyProjectName}.PDLC PRIVATE)
   OnModuleDependency(${this} ${MyProjectName}.Collections PRIVATE)
 
+  OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
   EndProduct(${this})
 
 endif()

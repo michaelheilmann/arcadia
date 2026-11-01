@@ -18,22 +18,35 @@
 #define ARCADIA_MEDIA_PIXELBUFFEROPERATIONS_FILL_H_INCLUDED
 
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
-  #error("do not include directly, include `Arcadia/Media/Include.h` instead")
+  #error("do not include `Arcadia/Media/PixelBufferOperations/Fill.h` directly, include `Arcadia/Media/Include.h` instead")
 #endif
-#include "Arcadia/ADL/Include.h"
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Media/PixelBufferOperation.h"
 
+typedef struct Arcadia_ADL_PixelBufferOperations_FillOperationDefinition Arcadia_ADL_PixelBufferOperations_FillOperationDefinition;
+typedef struct Arcadia_Media_PixelBuffer Arcadia_Media_PixelBuffer;
+typedef struct Arcadia_Media_PixelBufferOperations_Fill Arcadia_Media_PixelBufferOperations_Fill;
+
 Arcadia_declareObjectType(u8"Arcadia.Media.PixelBufferOperations.Fill", Arcadia_Media_PixelBufferOperations_Fill,
-                          u8"Arcadia.Media.PixelOperation");
+                          u8"Arcadia.Media.PixelBufferOperation");
 
 struct Arcadia_Media_PixelBufferOperations_FillDispatch {
-  Arcadia_Media_PixelBufferOperationDispatch parent;
+  Arcadia_Media_PixelBufferOperationDispatch _parent;
 };
 
 struct Arcadia_Media_PixelBufferOperations_Fill {
-  Arcadia_Media_PixelBufferOperation parent;
+  Arcadia_Media_PixelBufferOperation _parent;
   Arcadia_ADL_PixelBufferOperations_FillOperationDefinition* definition;
 };
+
+void
+Arcadia_Media_PixelBufferOperations_Fill_apply
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_PixelBufferOperations_Fill* self,
+    Arcadia_Media_PixelBuffer* target
+  );
 
 Arcadia_Media_PixelBufferOperations_Fill*
 Arcadia_Media_PixelBufferOperations_Fill_create

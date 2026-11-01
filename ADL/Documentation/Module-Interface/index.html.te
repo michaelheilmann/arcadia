@@ -5,6 +5,7 @@
 @{include("./Module-Interface/Definition.i")}
 @{include("./Module-Interface/Definitions.i")}
 @{include("./Module-Interface/Reference.i")}
+@{include("./Module-Interface/Graphs.i")}
 @{include("./Module-Interface/Color.i")}
 @{include("./Module-Interface/Mesh.i")}
 @{include("./Module-Interface/Model.i")}
@@ -18,6 +19,9 @@
 @{include("./Module-Interface/FillOperation.i")}
 @{include("./Module-Interface/CheckerboardFillOperation.i")}
 @{include("./Module-Interface/SampleBuffer.i")}
+@{include("./Module-Interface/DSPStreamProvider.i")}
+@{include("./Module-Interface/SoundSourceNode.i")}
+@{include("./Module-Interface/StreamingSoundSourceNode.i")}
 @{include("./Module-Interface/DSP.i")}
 @{include("./Module-Interface/Button.i")}
 @{include("./Module-Interface/Enumerations.i")}

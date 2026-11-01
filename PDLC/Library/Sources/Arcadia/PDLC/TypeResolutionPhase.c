@@ -434,9 +434,42 @@ Arcadia_PDLC_TypeResolutionPhase_resolveParameter
   )
 {
   // The type of a parameter is specified by its abstract syntax tree node.
-  if (!variableSymbol->ast || !variableSymbol->ast->type) {
+  if (!variableSymbol->ast) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
+  }
+  Arcadia_PDLC_AST_FieldDefinitionNode* ast = variableSymbol->ast;
+  variableSymbol->isReference = ast->isReference;
+  variableSymbol->isReadOnly = ast->isReadOnly;
+  variableSymbol->isOutput = ast->isOutput;
+  variableSymbol->ownership = ast->ownership;
+  variableSymbol->isConstant = ast->initializer != NULL;
+  if (ast->recordFields) {
+    variableSymbol->recordFields = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+    for (Arcadia_SizeValue i = 0; i < Arcadia_Collection_getSize(thread, (Arcadia_Collection*)ast->recordFields); ++i) {
+      Arcadia_PDLC_AST_FieldDefinitionNode* childAst = Arcadia_List_getObjectReferenceValueAt(thread, ast->recordFields, i);
+      Arcadia_PDLC_VariableSymbol* child = Arcadia_PDLC_VariableSymbol_create(thread, childAst->name);
+      ((Arcadia_PDLC_Symbol*)child)->enclosing = ((Arcadia_PDLC_Symbol*)variableSymbol)->enclosing;
+      child->ast = childAst;
+      Arcadia_List_insertBackObjectReferenceValue(thread, variableSymbol->recordFields, child);
+      for (Arcadia_SizeValue j = 0; j < i; ++j) {
+        Arcadia_PDLC_VariableSymbol* previous = Arcadia_List_getObjectReferenceValueAt(thread, variableSymbol->recordFields, j);
+        if (Arcadia_String_isEqualTo_pn(thread, ((Arcadia_PDLC_Symbol*)child)->name,
+              Arcadia_String_getBytes(thread, ((Arcadia_PDLC_Symbol*)previous)->name),
+              Arcadia_String_getNumberOfBytes(thread, ((Arcadia_PDLC_Symbol*)previous)->name))) {
+          Arcadia_PDLC_Environment* e = getEnclosingEnvironment(thread, self->context, (Arcadia_PDLC_Symbol*)variableSymbol);
+          Arcadia_Languages_Diagnostics_add(thread, self->context->diagnostics, (Arcadia_Languages_Diagnostic*)
+            Arcadia_PDLC_Diagnostics_SymbolIsAlreadyDefinedDiagnostic_create(thread, Arcadia_Languages_DiagnosticType_Error,
+              Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, self->context->inputFileManager,
+                Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
+              ((Arcadia_PDLC_AST_DefinitionNode*)childAst)->startOffset, childAst->name));
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+          Arcadia_Thread_jump(thread);
+        }
+      }
+      Arcadia_PDLC_TypeResolutionPhase_resolveParameter(thread, self, child);
+    }
+    return;
   }
   variableSymbol->type = resolveType
     (
@@ -445,6 +478,24 @@ Arcadia_PDLC_TypeResolutionPhase_resolveParameter
       (Arcadia_PDLC_Symbol*)variableSymbol,
       variableSymbol->ast->type
     );
+  if (ast->initializer) {
+    Arcadia_JumpTarget jump;
+    Arcadia_Thread_pushJumpTarget(thread, &jump);
+    if (Arcadia_JumpTarget_save(&jump)) {
+      variableSymbol->constantValue = Arcadia_String_toInteger32(thread, ast->initializer->value);
+      Arcadia_Thread_popJumpTarget(thread);
+    } else {
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_PDLC_Environment* e = getEnclosingEnvironment(thread, self->context, (Arcadia_PDLC_Symbol*)variableSymbol);
+      Arcadia_Languages_Diagnostics_add(thread, self->context->diagnostics, (Arcadia_Languages_Diagnostic*)
+        Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic_createForSymbol(thread, Arcadia_Languages_DiagnosticType_Error,
+          Arcadia_Languages_InputFileManager_createPhysicalInputFile(thread, self->context->inputFileManager,
+            Arcadia_FilePath_toNative(thread, e->compilationUnitNode->filePath, Arcadia_BooleanValue_False), e->compilationUnitNode->filePath),
+          ((Arcadia_PDLC_AST_DefinitionNode*)ast)->startOffset, (Arcadia_PDLC_Symbol*)variableSymbol, ast->initializer->value));
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+  }
 }
 
 void

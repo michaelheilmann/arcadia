@@ -23,9 +23,12 @@ BeginProduct(${this} test)
 SetFolder(${this} "Engine/Text")
 
 OnSourceFile(${this} Main.c)
+OnSourceFile(${this} RunModels.c)
+OnHeaderFile(${this} RunModels.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Engine.Text PRIVATE)
 OnModuleDependency(${this} ${MyProjectName}.Collections PRIVATE)
 OnModuleDependency(${this} ${MyProjectName}.Languages PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

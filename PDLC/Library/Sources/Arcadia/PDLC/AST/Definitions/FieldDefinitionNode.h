@@ -18,7 +18,14 @@
 #define ARCADIA_PDLC_AST_VARIABLEDEFINITIONNODE_H_INCLUDED
 
 #include "Arcadia/PDLC/AST/DefinitionNode.h"
+#include "Arcadia/Collections/Include.h"
 typedef struct Arcadia_PDLC_AST_IdentifierNode Arcadia_PDLC_AST_IdentifierNode;
+typedef struct Arcadia_PDLC_AST_IntegerLiteralNode Arcadia_PDLC_AST_IntegerLiteralNode;
+
+#define Arcadia_PDLC_Ownership_Managed (0)
+#define Arcadia_PDLC_Ownership_Borrowed (1)
+#define Arcadia_PDLC_Ownership_Owned (2)
+#define Arcadia_PDLC_Ownership_Retained (3)
 
 /// The definition of a parameter variable, local variable, or member variable.
 Arcadia_declareObjectType(u8"Arcadia.PDLC.AST.FieldDefinitionNode", Arcadia_PDLC_AST_FieldDefinitionNode,
@@ -32,6 +39,12 @@ struct Arcadia_PDLC_AST_FieldDefinitionNode {
   Arcadia_PDLC_AST_DefinitionNode _parent;
   Arcadia_String* name;
   Arcadia_PDLC_AST_IdentifierNode* type;
+  Arcadia_BooleanValue isReference;
+  Arcadia_BooleanValue isReadOnly;
+  Arcadia_BooleanValue isOutput;
+  Arcadia_Natural8Value ownership;
+  Arcadia_List* recordFields;
+  Arcadia_PDLC_AST_IntegerLiteralNode* initializer;
 };
 
 Arcadia_PDLC_AST_FieldDefinitionNode*

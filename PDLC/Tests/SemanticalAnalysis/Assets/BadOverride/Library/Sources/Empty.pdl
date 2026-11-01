@@ -1,0 +1,6 @@
+class Test.Base {
+  method get : Arcadia.Natural64
+}
+class Test.Derived extends Test.Base {
+  method get : Arcadia.Boolean
+}

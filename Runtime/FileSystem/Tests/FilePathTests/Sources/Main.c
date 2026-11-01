@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/Ring2/Include.h"
 
 #include <stdlib.h>
@@ -68,18 +70,34 @@ regressionTest1
   Arcadia_Tests_assertTrue(thread, Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)u, &t));
 }
 
+static int
+runNormalization
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&normalizationTests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runParentTraversal
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&regressionTest1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&normalizationTests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&regressionTest1)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "Normalization", &runNormalization },
+    { "ParentTraversal", &runParentTraversal },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

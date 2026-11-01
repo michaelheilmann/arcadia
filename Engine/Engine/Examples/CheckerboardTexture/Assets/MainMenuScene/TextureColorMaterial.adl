@@ -1,7 +1,0 @@
-{
-  type : "Material",
-  name : "MainMenuScene.TextureColorMaterial",
-  materialType : "Blinn-Phong",
-  ambientColorSource : "Texture",
-  ambientColorTexture : "MainMenuScene.Texture",
-}

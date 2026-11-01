@@ -160,4 +160,21 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_multiply
     Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* other
   );
 
+/// @@brief Assign the transpose of other to self. Both may denote the same object.
+void
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_transpose
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* self,
+    Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* other
+  );
+
+/// @@brief Return the determinant without modifying this matrix.
+@{scalarType}
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_getDeterminant
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* self
+  );
+
 #endif // ARCADIA_MATH_IMPLEMENTATION_MATRIX@{dimensionality}@{scalarSuffixUppercase}_H_INCLUDED

@@ -1,0 +1,9 @@
+native "NativeResources/External.h" enumeration MyModule.External.Kind {
+  First = 0
+  Second = 7
+}
+
+native
+enumeration MyModule.Unmapped {
+  Value = 0
+}

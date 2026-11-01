@@ -340,7 +340,7 @@ _Arcadia_EndCreate0
     return self;
   } else {
     Arcadia_Thread_popJumpTarget(thread);
-    if (oldValueStackSize < Arcadia_ValueStack_getSize(thread)) {
+    if (oldValueStackSize > Arcadia_ValueStack_getSize(thread)) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_StackCorruption);
       Arcadia_Thread_jump(thread);
     } else {
@@ -561,7 +561,7 @@ Arcadia_Object_clone
   assert(NULL != objectDispatch->clone);
 
   Arcadia_Value temporary = Arcadia_Value_makeObjectReferenceValue(self);
-  Arcadia_Natural8Value n = Arcadia_ValueStack_getSize(thread);
+  Arcadia_SizeValue n = Arcadia_ValueStack_getSize(thread);
   Arcadia_ValueStack_pushValue(thread, &temporary);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
 
@@ -596,7 +596,7 @@ Arcadia_Object_isEqualTo
   assert(NULL != objectDispatch->isEqualTo);
 
   Arcadia_Value temporary = Arcadia_Value_makeObjectReferenceValue(self);
-  Arcadia_Natural8Value n = Arcadia_ValueStack_getSize(thread);
+  Arcadia_SizeValue n = Arcadia_ValueStack_getSize(thread);
   Arcadia_ValueStack_pushValue(thread, &temporary);
   Arcadia_ValueStack_pushValue(thread, other);
   Arcadia_ValueStack_pushNatural8Value(thread, 2);
@@ -627,7 +627,7 @@ Arcadia_Object_getHash
   assert(((Arcadia_ObjectDispatch*)objectDispatch)->type == type);
 
   Arcadia_Value temporary = Arcadia_Value_makeObjectReferenceValue(self);
-  Arcadia_Natural8Value n = Arcadia_ValueStack_getSize(thread);
+  Arcadia_SizeValue n = Arcadia_ValueStack_getSize(thread);
   Arcadia_ValueStack_pushValue(thread, &temporary);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
 
@@ -658,7 +658,7 @@ Arcadia_Object_isIdenticalTo
   assert(((Arcadia_ObjectDispatch*)objectDispatch)->type == type);
 
   Arcadia_Value temporary = Arcadia_Value_makeObjectReferenceValue(self);
-  Arcadia_Natural8Value n = Arcadia_ValueStack_getSize(thread);
+  Arcadia_SizeValue n = Arcadia_ValueStack_getSize(thread);
   Arcadia_ValueStack_pushValue(thread, &temporary);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
 
@@ -688,7 +688,7 @@ Arcadia_Object_toString
   assert(((Arcadia_ObjectDispatch*)objectDispatch)->type == type);
 
   Arcadia_Value temporary = Arcadia_Value_makeObjectReferenceValue(self);
-  Arcadia_Natural8Value n = Arcadia_ValueStack_getSize(thread);
+  Arcadia_SizeValue n = Arcadia_ValueStack_getSize(thread);
   Arcadia_ValueStack_pushValue(thread, &temporary);
   Arcadia_ValueStack_pushNatural8Value(thread, 1);
 

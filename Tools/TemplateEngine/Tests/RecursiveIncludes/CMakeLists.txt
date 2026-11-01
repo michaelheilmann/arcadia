@@ -32,10 +32,13 @@ OnSourceFile(${this} Arcadia.TemplateEngine.Tests.RecursiveIncludes/Main.c)
 # Module dependencies.
 OnModuleDependency(${this} ${MyProjectName}.TemplateEngine PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
+set(${this}.WorkingDirectory "${CMAKE_CURRENT_BINARY_DIR}")
+set(${this}.TestIsolated TRUE)
+set(${this}.TestParallelSafe TRUE)
+set(${this}.TestFixtureDirectory "${CMAKE_CURRENT_SOURCE_DIR}/Assets")
 EndProduct(${this})
 # Copy assets.
 add_custom_command(TARGET ${this} POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${${this}.WorkingDirectory})
-# Adjust working directory.
-set(${this}.WorkingDirectory $<TARGET_FILE_DIR:${this}>)
-
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets" "${${this}.WorkingDirectory}"
+                   VERBATIM)

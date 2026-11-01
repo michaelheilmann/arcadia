@@ -21,6 +21,8 @@
   #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
 #endif
 #include "Arcadia/Engine/Visuals/Node.h"
+#include "Arcadia/Math/Include.h"
+typedef struct Arcadia_Engine_Visuals_EnterPassResource Arcadia_Engine_Visuals_EnterPassResource;
 typedef struct Arcadia_Engine_Visuals_CameraNode Arcadia_Engine_Visuals_CameraNode;
 typedef struct Arcadia_Engine_Visuals_ViewportNode Arcadia_Engine_Visuals_ViewportNode;
 typedef struct Arcadia_Engine_Visuals_FrameBufferNode Arcadia_Engine_Visuals_FrameBufferNode;

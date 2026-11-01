@@ -1,0 +1,42 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// A color definition, for example:
+// { type: "Color", name: "MyGame.Colors.Red", red: 255, green: 0, blue: 0 }
+// RGBA channels are public Natural8 fields, with straight/unassociated components.
+// Alpha is optional in assets and defaults to 255; explicit alpha: 0 stays zero.
+// The five-argument factory remains RGB-compatible and initializes alpha to 255.
+// Consumers may intentionally ignore alpha; it does not enable blending.
+// The old header's illustrative getters were not exported C functions.
+class "Arcadia/ADL/Definitions/Visuals/ColorDefinition.h" Arcadia.ADL.ColorDefinition extends Arcadia.ADL.Definition {
+  variable red : Arcadia.Natural8
+  variable green : Arcadia.Natural8
+  variable blue : Arcadia.Natural8
+  variable alpha : Arcadia.Natural8
+  constructor(variable definitions : Arcadia.ADL.Definitions, variable name : Arcadia.String, variable red : Arcadia.Natural8, variable green : Arcadia.Natural8, variable blue : Arcadia.Natural8) {
+    construct $0 Arcadia.ADL.Definition self definitions name
+    storeField self red red
+    storeField self green green
+    storeField self blue blue
+    call $0 Arcadia.ADL.ColorDefinition.defaultAlpha
+    storeField self alpha $0
+  }
+  method link() : Arcadia.Void {}
+}
+
+// A typed Natural8 constant boundary: ordinary integer literals are Natural64.
+// PDL still owns storage and constructor initialization, not the native helper.
+procedure native "Arcadia_ADL_ColorDefinition_defaultAlphaImpl" Arcadia.ADL.ColorDefinition.defaultAlpha : Arcadia.Natural8

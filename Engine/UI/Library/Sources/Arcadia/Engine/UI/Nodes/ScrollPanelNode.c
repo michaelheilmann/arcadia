@@ -952,6 +952,7 @@ Arcadia_Engine_UI_ScrollPanelNode_createFromDefinition
   Arcadia_Engine_UI_ScrollPanelNode* node = Arcadia_Engine_UI_ScrollPanelNode_create(thread, source->left, source->bottom,
                                                                                      source->width, source->height);
   Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, node, source->contentWidth, source->contentHeight);
+  Arcadia_Engine_UI_WidgetNode_setName(thread, (Arcadia_Engine_UI_WidgetNode*)node, ((Arcadia_ADL_Definition*)source)->name);
   Arcadia_Engine_UI_populateContainerFromDefinition(thread, backendContext, (Arcadia_Object*)node, (Arcadia_Object*)source);
   return node;
 }

@@ -23,8 +23,12 @@ Arcadia_defineInterfaceType(u8"Arcadia.Engine.UI.Renderable", Arcadia_Engine_UI_
                          )
 
 void
-Arcadia_Engine_UI_Renderable_render(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Engine_Visuals_EnterPassNode* enterPassNode)
+Arcadia_Engine_UI_Renderable_render
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Engine_Visuals_EnterPassNode* enterPassNode
+  )
 {
   Arcadia_InterfaceCall(Arcadia_Engine_UI_Renderable, render, self, enterPassNode);
 }
-

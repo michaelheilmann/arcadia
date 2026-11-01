@@ -1,0 +1,27 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+/// Backend-neutral pull interface for incrementally generated mono audio.
+abstract class "Arcadia/Engine/Audials/Providers/AudioStreamProvider.h" Arcadia.Engine.Audials.AudioStreamProvider extends Arcadia.Object {
+  variable sampleRate : Arcadia.Natural32
+  /// Render the next mono frames into the caller-sized DSP target. False
+  /// indicates end-of-stream; report the number of frames written separately.
+  method abstract read(variable target : Arcadia.Media.DSP.Buffer, variable numberOfFramesWritten : output reference Arcadia.Size) : Arcadia.Boolean
+  method nonvirtual getSampleRate : Arcadia.Natural32 {
+    loadField $0 self sampleRate
+    return $0
+  }
+}

@@ -233,10 +233,18 @@ Arcadia_ARMS_TypeNameModule_shutdown
   (
   )
 {
-  free(g_table->buckets);
-  g_table->buckets = NULL;
-  free(g_table);
-  g_table = NULL;
+  if (g_table) {
+    for (size_t i = 0; i < g_table->capacity; ++i) {
+      while (g_table->buckets[i]) {
+        Node* node = g_table->buckets[i];
+        g_table->buckets[i] = node->next;
+        free(node);
+      }
+    }
+    free(g_table->buckets);
+    free(g_table);
+    g_table = NULL;
+  }
   return Arcadia_ARMS_Status_Success;
 }
 

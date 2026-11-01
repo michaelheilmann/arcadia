@@ -284,12 +284,12 @@ resolveType
   } else if (word(thread, kind, "vector")) {
     shape(thread, c, declaration, "type", 5, 5);
     Arcadia_SizeValue n = sizeNumber(thread, c, item(thread, c, declaration, 4));
-    if (n < 2 || n > 4) error(thread, c, declaration, "syntax error: vector size must be 2 through 4\n");
+    if (n < 2 || n > 4) Arcadia_VPL_Text_fail(thread, c, declaration->offset, Arcadia_Status_SemanticalError, "binding error: vector size must be 2 through 4\n");
     type = (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_VectorType_create(thread, elementKind(thread, c, item(thread, c, declaration, 3)), (Arcadia_Natural8Value)n);
   } else if (word(thread, kind, "matrix")) {
     shape(thread, c, declaration, "type", 5, 5);
     Arcadia_SizeValue rows = sizeNumber(thread, c, item(thread, c, declaration, 3)), columns = sizeNumber(thread, c, item(thread, c, declaration, 4));
-    if (rows < 2 || rows > 4 || columns < 2 || columns > 4) error(thread, c, declaration, "syntax error: matrix dimensions must be 2 through 4\n");
+    if (rows < 2 || rows > 4 || columns < 2 || columns > 4) Arcadia_VPL_Text_fail(thread, c, declaration->offset, Arcadia_Status_SemanticalError, "binding error: matrix dimensions must be 2 through 4\n");
     type = (Arcadia_VPL_IR_Type*)Arcadia_VPL_IR_MatrixType_create(thread, Arcadia_VPL_IR_ScalarElementKind_Floating, (Arcadia_Natural8Value)rows, (Arcadia_Natural8Value)columns);
   } else if (word(thread, kind, "array")) {
     shape(thread, c, declaration, "type", 5, 5);
@@ -321,6 +321,37 @@ resolveType
   declaration->binding = located(thread, c, (Arcadia_Object*)type, declaration);
   declaration->state = 2;
   return type;
+}
+
+static Arcadia_SizeValue
+validateTypeDepth
+  (
+    Arcadia_Thread* thread,
+    Arcadia_VPL_Text_Context* c,
+    Arcadia_VPL_IR_Type* type,
+    Arcadia_VPL_Text_Node* declaration,
+    Arcadia_SizeValue depth
+  )
+{
+  if (depth > 128) Arcadia_VPL_Text_fail(thread, c, declaration->offset, Arcadia_Status_SemanticalError, "binding error: type dependency depth exceeds 128\n");
+  Arcadia_Value key = Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)type);
+  Arcadia_Value cached = Arcadia_Map_get(thread, c->typeDepths, key);
+  if (Arcadia_Value_isSizeValue(&cached)) {
+    Arcadia_SizeValue height = Arcadia_Value_getSizeValue(&cached);
+    if (height > 128 - depth) Arcadia_VPL_Text_fail(thread, c, declaration->offset, Arcadia_Status_SemanticalError, "binding error: type dependency depth exceeds 128\n");
+    return height;
+  }
+  Arcadia_SizeValue height = 0;
+  if (type->kind == Arcadia_VPL_IR_TypeKind_Array) height = 1 + validateTypeDepth(thread, c, ((Arcadia_VPL_IR_ArrayType*)type)->element, declaration, depth + 1);
+  if (type->kind == Arcadia_VPL_IR_TypeKind_Record) {
+    Arcadia_List* fields = ((Arcadia_VPL_IR_RecordType*)type)->fields;
+    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)fields); i < n; ++i) {
+      Arcadia_SizeValue child = 1 + validateTypeDepth(thread, c, ((Arcadia_VPL_IR_Field*)Arcadia_List_getObjectReferenceValueAt(thread, fields, i))->type, declaration, depth + 1);
+      if (child > height) height = child;
+    }
+  }
+  Arcadia_Map_set(thread, c->typeDepths, key, Arcadia_Value_makeSizeValue(height), NULL, NULL);
+  return height;
 }
 
 static Arcadia_VPL_IR_RegisterValue*
@@ -432,7 +463,7 @@ reference
     Arcadia_VPL_IR_ReferenceValue* base = reference(thread, c, item(thread, c, node, 1));
     if (word(thread, head, "member_ref")) {
       Arcadia_String* name = string(thread, c, item(thread, c, node, 2));
-      if (base->type->kind != Arcadia_VPL_IR_TypeKind_Record) error(thread, c, node, "syntax error: member_ref base must have record type\n");
+      if (base->type->kind != Arcadia_VPL_IR_TypeKind_Record) Arcadia_VPL_Text_fail(thread, c, node->offset, Arcadia_Status_SemanticalError, "binding error: member_ref base must have record type\n");
       Arcadia_List* fields = ((Arcadia_VPL_IR_RecordType*)base->type)->fields;
       Arcadia_VPL_IR_Type* type = NULL;
       for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)fields); i < n; ++i) {
@@ -442,7 +473,7 @@ reference
       if (!type) Arcadia_VPL_Text_fail(thread, c, node->offset, Arcadia_Status_SemanticalError, "binding error: unknown record field\n");
       result = (Arcadia_VPL_IR_ReferenceValue*)Arcadia_VPL_IR_MemberReferenceValue_create(thread, base, name, type);
     } else {
-      if (base->type->kind != Arcadia_VPL_IR_TypeKind_Array) error(thread, c, node, "syntax error: index_ref base must have array type\n");
+      if (base->type->kind != Arcadia_VPL_IR_TypeKind_Array) Arcadia_VPL_Text_fail(thread, c, node->offset, Arcadia_Status_SemanticalError, "binding error: index_ref base must have array type\n");
       result = (Arcadia_VPL_IR_ReferenceValue*)Arcadia_VPL_IR_IndexReferenceValue_create(thread, base, operand(thread, c, item(thread, c, node, 2)), ((Arcadia_VPL_IR_ArrayType*)base->type)->element);
     }
   } else {
@@ -507,7 +538,7 @@ readInstruction
   } else if (word(thread, head, "call") || word(thread, head, "texture")) {
     Arcadia_BooleanValue texture = word(thread, head, "texture");
     shape(thread, c, node, texture ? "texture" : "call", texture ? 4 : 3, texture ? 4 : (Arcadia_SizeValue)-1);
-    Arcadia_VPL_IR_RegisterValue* result = word(thread, item(thread, c, node, 1), "void") ? NULL : registerValue(thread, c, item(thread, c, node, 1));
+    Arcadia_VPL_IR_RegisterValue* result = !texture && word(thread, item(thread, c, node, 1), "void") ? NULL : registerValue(thread, c, item(thread, c, node, 1));
     Arcadia_VPL_IR_Function* callee = texture ? NULL : (Arcadia_VPL_IR_Function*)lookup(thread, c, c->functions, item(thread, c, node, 2))->binding;
     Arcadia_List* arguments = list(thread, c);
     for (Arcadia_SizeValue i = texture ? 2 : 3; i < n; ++i) Arcadia_List_insertBackObjectReferenceValue(thread, arguments, (Arcadia_Object*)operand(thread, c, item(thread, c, node, i)));
@@ -679,7 +710,12 @@ readModule
     define(thread, c, c->types, item(thread, c, declaration, 1), declaration);
   }
   // Resolve unused declarations too: malformed or cyclic types are not silently ignored.
-  for (Arcadia_SizeValue i = 1, n = count(thread, types); i < n; ++i) resolveType(thread, c, item(thread, c, item(thread, c, types, i), 1), 0);
+  for (Arcadia_SizeValue i = 1, n = count(thread, types); i < n; ++i) {
+    Arcadia_VPL_Text_Node* declaration = item(thread, c, types, i);
+    Arcadia_VPL_IR_Type* type = resolveType(thread, c, item(thread, c, declaration, 1), 0);
+    // Check the completed graph even when dependencies were cached in an earlier declaration.
+    validateTypeDepth(thread, c, type, declaration, 0);
+  }
   Arcadia_VPL_Text_Node* uniforms = item(thread, c, node, 3);
   shape(thread, c, uniforms, "uniforms", 1, (Arcadia_SizeValue)-1);
   Arcadia_List* uniformObjects = list(thread, c);
@@ -695,7 +731,7 @@ readModule
     Arcadia_VPL_IR_Uniform* uniform;
     if (array) uniform = (Arcadia_VPL_IR_Uniform*)Arcadia_VPL_IR_ArrayUniform_create(thread, name, type, sizeNumber(thread, c, item(thread, c, declaration, 4)));
     else if (record) {
-      if (type->kind != Arcadia_VPL_IR_TypeKind_Record) error(thread, c, declaration, "syntax error: record uniform requires a record type\n");
+      if (type->kind != Arcadia_VPL_IR_TypeKind_Record) Arcadia_VPL_Text_fail(thread, c, declaration->offset, Arcadia_Status_SemanticalError, "binding error: record uniform requires a record type\n");
       uniform = (Arcadia_VPL_IR_Uniform*)Arcadia_VPL_IR_RecordUniform_create(thread, name, (Arcadia_VPL_IR_RecordType*)type);
     } else uniform = (Arcadia_VPL_IR_Uniform*)Arcadia_VPL_IR_ScalarUniform_create(thread, name, type);
     declaration->binding = located(thread, c, (Arcadia_Object*)uniform, declaration);
@@ -729,8 +765,9 @@ Arcadia_VPL_Text_read
     context->sourceName = sourceName;
     context->source = Arcadia_RuntimeByteArray_create(thread, bytes, size);
     Arcadia_VPL_Text_Node* form = Arcadia_VPL_Text_readForm(thread, context, 0);
+    context->moduleOffset = form->offset;
     Arcadia_VPL_Text_trivia(thread, context);
-    if (context->position != size) error(thread, context, form, "syntax error: trailing input after module\n");
+    if (context->position != size) Arcadia_VPL_Text_fail(thread, context, context->position, Arcadia_Status_SyntacticalError, "syntax error: trailing input after module\n");
     Arcadia_VPL_IR_Module* module = readModule(thread, context, form);
     Arcadia_VPL_IR_Verifier* verifier = (Arcadia_VPL_IR_Verifier*)Arcadia_VPL_Text_own(thread, context, (Arcadia_Object*)Arcadia_VPL_IR_Verifier_create(thread, diagnostics));
     Arcadia_VPL_IR_Verifier_run(thread, verifier, module);
@@ -745,7 +782,7 @@ Arcadia_VPL_Text_read
         Arcadia_VPL_Diagnostics_VerificationDiagnostic* diagnostic = (Arcadia_VPL_Diagnostics_VerificationDiagnostic*)object;
         if (!diagnostic->line) {
           Arcadia_Value offset = diagnostic->subject ? Arcadia_Map_get(thread, context->locations, Arcadia_Value_makeObjectReferenceValue(diagnostic->subject)) : Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void);
-          Arcadia_VPL_Text_locate(thread, context, diagnostic, Arcadia_Value_isSizeValue(&offset) ? Arcadia_Value_getSizeValue(&offset) : 0);
+          Arcadia_VPL_Text_locate(thread, context, diagnostic, Arcadia_Value_isSizeValue(&offset) ? Arcadia_Value_getSizeValue(&offset) : context->moduleOffset);
         }
       }
     }

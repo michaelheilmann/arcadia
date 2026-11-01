@@ -82,7 +82,7 @@ static const Arcadia_Type_Operations _Arcadia_Engine_Demo_ArcadiaLogoScene_typeO
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Engine.Demo.ArcadiaLogoScene", Arcadia_Engine_Demo_ArcadiaLogoScene,
-                         u8"Arcadia.Engine.Demo.Scene", Arcadia_Engine_Scene,
+                         u8"Arcadia.Engine.Scene", Arcadia_Engine_Scene,
                          &_Arcadia_Engine_Demo_ArcadiaLogoScene_typeOperations);
 
 static void

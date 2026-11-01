@@ -17,10 +17,19 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_INCLUDE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_INCLUDE_H_INCLUDED
 
+// Legacy C aliases remain available through the public aggregate while resource
+// declarations are generated from their backend-independent PDL models.
+typedef struct Arcadia_Engine_Visuals_BackendContext Arcadia_Engine_Visuals_Implementation_BackendContext;
+typedef struct Arcadia_Engine_Visuals_VertexProgramResource Arcadia_Engine_Visuals_VertexProgramResource;
+typedef struct Arcadia_Engine_Visuals_FragmentProgramResource Arcadia_Engine_Visuals_FragmentProgramResource;
+
 #include "Arcadia/Engine/Visuals/Backend.h"
 #include "Arcadia/Engine/Visuals/BackendContext.h"
+#include "Arcadia/Engine/Visuals/createVisualsWindowsList.h"
 
 #include "Arcadia/Engine/Visuals/BlendFunction.h"
+
+#include "Arcadia/Engine/Visuals/ColorSource.h"
 
 #include "Arcadia/Engine/Visuals/Configuration.h"
 

@@ -731,6 +731,7 @@ Arcadia_Engine_UI_ToggleNode_createFromDefinition
 {
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)source);
   Arcadia_Engine_UI_ToggleNode* node = Arcadia_Engine_UI_ToggleNode_create(thread, backendContext, source->left, source->bottom, source->width, source->height, source->checked);
+  Arcadia_Engine_UI_WidgetNode_setName(thread, (Arcadia_Engine_UI_WidgetNode*)node, ((Arcadia_ADL_Definition*)source)->name);
   Arcadia_ValueStack_popValues(thread, 1);
   return node;
 }

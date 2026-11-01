@@ -18,17 +18,22 @@
 #define ARCADIA_ENGINE_TEXT_TEXTALIGNMENT_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_TEXT_PRIVATE) || 1 != ARCADIA_ENGINE_TEXT_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Text/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Text/TextAlignment.h` directly, include `Arcadia/Engine/Text/Include.h` instead")
 #endif
 
 #include "Arcadia/Ring1/Include.h"
 
-Arcadia_declareEnumerationType(u8"Arcadia.Engine.Text.TextAlignment", Arcadia_Engine_Text_TextAlignment);
+Arcadia_declareEnumerationType("Arcadia.Engine.Text.TextAlignment",
+                               Arcadia_Engine_Text_TextAlignment);
 
-typedef enum Arcadia_Engine_Text_TextAlignment {
-  Arcadia_Engine_Text_TextAlignment_Left,
-  Arcadia_Engine_Text_TextAlignment_Center,
-  Arcadia_Engine_Text_TextAlignment_Right,
-} Arcadia_Engine_Text_TextAlignment;
+enum Arcadia_Engine_Text_TextAlignment {
+
+  Arcadia_Engine_Text_TextAlignment_Left = 0,
+
+  Arcadia_Engine_Text_TextAlignment_Center = 1,
+
+  Arcadia_Engine_Text_TextAlignment_Right = 2,
+
+};
 
 #endif // ARCADIA_ENGINE_TEXT_TEXTALIGNMENT_H_INCLUDED

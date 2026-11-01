@@ -1,0 +1,7 @@
+{
+  type : "Material",
+  name : "ColorSourcesScene.MeshColorMaterial",
+  materialType : "Blinn-Phong",
+  ambientColorSource : "Mesh",
+  ambientColorTexture : "ColorSourcesScene.Texture",
+}

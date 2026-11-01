@@ -32,7 +32,6 @@
 #include "Arcadia/VPL/IR/ConstantValue.h"
 #include "Arcadia/VPL/IR/ConstructInstruction.h"
 #include "Arcadia/VPL/IR/DeclareLocalInstruction.h"
-#include "Arcadia/VPL/IR/DiscardInstruction.h"
 #include "Arcadia/VPL/IR/DiscardTerminator.h"
 #include "Arcadia/VPL/IR/Field.h"
 #include "Arcadia/VPL/IR/Function.h"

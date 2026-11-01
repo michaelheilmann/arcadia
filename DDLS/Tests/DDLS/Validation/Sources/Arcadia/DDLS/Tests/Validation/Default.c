@@ -84,7 +84,7 @@ const char* DDLS =
   "      },\n"
   "    ],\n"
   "  },\n"
-  "},\n"
+  "}\n"
   ;
 
 void
@@ -99,7 +99,7 @@ Arcadia_DDLS_Tests_Validation_test1
     "  red : 255,\n"
     "  green : 0,\n"
     "  blue : 0,\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_DDLS_SchemaNode* ddlsNode = readDDLS(thread, DDLS);
   Arcadia_DDL_Node* node = readDDL(thread, DDL);
@@ -119,7 +119,7 @@ Arcadia_DDLS_Tests_Validation_testRejectTypeNotDefined
     "  red : 255,\n"
     "  green : 0,\n"
     "  blue : 0,\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
@@ -154,7 +154,7 @@ Arcadia_DDLS_Tests_Validation_testRejectRedNotDefined
     "  type : \"Color\",\n"
     "  green : 0,\n"
     "  blue : 0,\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
@@ -189,7 +189,7 @@ Arcadia_DDLS_Tests_Validation_testRejectGreenNotDefined
     "  type : \"Color\",\n"
     "  red : 255,\n"
     "  blue : 0,\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
@@ -224,7 +224,7 @@ Arcadia_DDLS_Tests_Validation_testRejectBlueNotDefined
     "  type : \"Color\",\n"
     "  red : 255,\n"
     "  green : 0,\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
@@ -261,7 +261,7 @@ Arcadia_DDLS_Tests_Validation_testRejectTypeDefinedTwice
     "  blue : 0,\n"
     "  green : 0,\n"
     "  type : \"Color\",\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
@@ -298,7 +298,7 @@ Arcadia_DDLS_Tests_Validation_testRejectRedDefinedTwice
     "  blue : 0,\n"
     "  green : 0,\n"
     "  red : 255,\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
@@ -335,7 +335,7 @@ Arcadia_DDLS_Tests_Validation_testRejectGreenDefinedTwice
     "  blue : 0,\n"
     "  green : 0,\n"
     "  green : 0,\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
@@ -372,7 +372,7 @@ Arcadia_DDLS_Tests_Validation_testRejectBlueDefinedTwice
     "  blue : 0,\n"
     "  green : 0,\n"
     "  blue : 0,\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);

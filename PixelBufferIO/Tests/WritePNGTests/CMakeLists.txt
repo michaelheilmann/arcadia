@@ -27,4 +27,7 @@ OnSourceFile(${this} Arcadia.PixelBufferIO.Tests.WritePNGTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.PixelBufferIO PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
+set(${this}.TestIsolated TRUE)
+set(${this}.TestParallelSafe TRUE)
 EndProduct(${this})

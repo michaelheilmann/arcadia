@@ -55,4 +55,10 @@ Arcadia_Ring1_Tests_UnicodeCodePointReader_test3
     Arcadia_Thread* thread
   );
 
+void
+Arcadia_Ring1_Tests_UnicodeCodePointReader_scalarBoundaries
+  (
+    Arcadia_Thread* thread
+  );
+
 #endif // ARCADIA_RING1_TESTS_UNICODECODEPOINTREADERTESTS_STANDARDTESTS_H_INCLUDED

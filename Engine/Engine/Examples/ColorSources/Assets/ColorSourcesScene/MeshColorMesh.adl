@@ -1,0 +1,30 @@
+{
+  type : "Mesh",
+  name : "ColorSourcesScene.MeshColorMesh",
+  ambientColor : "ColorSourcesScene.MeshColor",
+  // Right quad: centered at (1.2, 0). Its material selects the uniform mesh color.
+  vertexPositions : [
+    0.7, -0.5, 0.0,
+    1.7, -0.5, 0.0,
+    0.7,  0.5, 0.0,
+    1.7, -0.5, 0.0,
+    1.7,  0.5, 0.0,
+    0.7,  0.5, 0.0,
+  ],
+  vertexAmbientColors : [
+    1, 0, 0, 1,
+    0, 1, 0, 1,
+    0, 0, 1, 1,
+    0, 1, 0, 1,
+    1, 1, 1, 1,
+    0, 0, 1, 1,
+  ],
+  vertexAmbientColorTextureCoordinates : [
+    0, 0,
+    1, 0,
+    0, 1,
+    1, 0,
+    1, 1,
+    0, 1,
+  ],
+}

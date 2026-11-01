@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
+#include "Arcadia.Ring1.Tests.StringToReal/Tests.h"
+
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
@@ -21,97 +25,84 @@
 
 #include "Arcadia/Ring1/Include.h"
 
-// integers from -2^53 to +2^53 can be exactly represented.
-static void
-testFixtureInteger64ToStringToReal64
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Integer64Value value
-  )
-{
-  char buffer[19 + 2];
-  snprintf(buffer, 19 + 1, "%"PRId64, value);
-  Arcadia_Real64Value v = Arcadia_toReal64(thread, buffer, strlen(buffer));
-  Arcadia_Tests_assertTrue(thread, value == v);
-}
-
-// integers from -2^53 to +2^53 can be exactly represented.
-static void
-safeRangeTests
+// 1e1 and 1E10 are converted to 10.
+void
+regressionTest1
   (
     Arcadia_Thread* thread
   )
 {
-  Arcadia_Integer64Value minimum = -9007199254740992;
-  Arcadia_Integer64Value maximum = +9007199254740992;
+  Arcadia_Real64Value target;
 
-  testFixtureInteger64ToStringToReal64(thread, minimum);
-  testFixtureInteger64ToStringToReal64(thread, maximum);
-  testFixtureInteger64ToStringToReal64(thread, Arcadia_Integer64Value_Literal(0));
+  target = Arcadia_String_toReal64(thread, Arcadia_String_create_pn(thread, Arcadia_RuntimeByteArray_create(thread, u8"1e1", strlen(u8"1e1"))));
+  Arcadia_Tests_assertTrue(thread, 10.0 == target);
+  target = Arcadia_String_toReal64(thread, Arcadia_String_create_pn(thread, Arcadia_RuntimeByteArray_create(thread, u8"1E1", strlen(u8"1E1"))));
+  Arcadia_Tests_assertTrue(thread, 10.0 == target);
 }
 
-// Parses a strig into a real64 value using Arcadia.Ring1 functionality.
-// Parses the same string into a real64 using sscanf.
-// If both operations are successful and the results are equal, the test terminates with success. Otherwise it terminates with failure.
-static void
-testFixtureStringToReal64
+// 1e0, 1E0 yielded and incorrect value.
+void
+regressionTest2
   (
-    Arcadia_Thread* thread,
-    const char* p
+    Arcadia_Thread* thread  
   )
-{
-  Arcadia_Real64Value expected;
-  if (1 != sscanf(p, "%lg", &expected)) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
-    Arcadia_Thread_jump(thread);
-  }
-  Arcadia_Real64Value received = Arcadia_toReal64(thread, p, strlen(p));
-  Arcadia_Tests_assertTrue(thread, expected == received);
+{ 
+  Arcadia_Real64Value target; 
+  target = Arcadia_String_toReal64(thread, Arcadia_String_create_pn(thread, Arcadia_RuntimeByteArray_create(thread, u8"1e0", strlen(u8"1e0"))));
+  Arcadia_Tests_assertTrue(thread, 1.0 == target);
+  target = Arcadia_String_toReal64(thread, Arcadia_String_create_pn(thread, Arcadia_RuntimeByteArray_create(thread, u8"1E0", strlen(u8"1E0"))));
+  Arcadia_Tests_assertTrue(thread, 1.0 == target);
 }
 
-static void
-test
+
+static int
+runSafeRange
   (
-    Arcadia_Thread* thread
+    void
   )
 {
-#define On(Text) \
-  testFixtureStringToReal64(thread, Text); \
+  return Arcadia_Tests_safeExecute(&safeRangeTests) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
 
-  On(u8"0");
-  On(u8"00");
-  On(u8"0.5e-20");
-  On(u8"1"); // works with gay if clinger & lemire disabled
-  On(u8"+1e+309"); // works with gay if clinger & lemire disabled, infinity
-  On(u8"-1e+309"); // works with gay if clinger & lemire disabled, infinity
-  On(u8"-1.0"); // works with gay if clinger & lemire disabled, -1.0
-  On(u8"0e-325"); // works with gay if clinger & lemire disabled
-  On(u8"1e-309"); // slow path
-  On(u8"9007199254740992"); // works with gay if clinger & lemire disabled
-  On(u8"1.e1000"); // works with gay if clinger & lemire disabled, infinity
-  On(u8"5.4e-309");
-  On(u8"5.4702222260027245111818947e-309");
-  On(u8"2.2250738585072013e-308"); // fast path
-  On(u8"1.00000000000000188558920870223463870174566020691753515394643550663070558368373221972569761144603605635692374830246134201063722058e-309"); // slow path
+static int
+runConversion
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&test) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
 
-  // Typical values from data files.
-  On(u8"0.5"); On(u8"-0.5"); On(u8"+0.5");
+static int
+runExponentOne
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&regressionTest1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
 
-#undef On
+static int
+runExponentZero
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&regressionTest2) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&safeRangeTests)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&test)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "SafeRange", &runSafeRange },
+    { "Conversion", &runConversion },
+    { "ExponentOne", &runExponentOne },
+    { "ExponentZero", &runExponentZero },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

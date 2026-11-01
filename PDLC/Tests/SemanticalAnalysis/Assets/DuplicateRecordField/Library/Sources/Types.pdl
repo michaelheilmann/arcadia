@@ -1,0 +1,6 @@
+native class MyModule.C {
+  variable dimensions : record {
+    variable width : Arcadia.Real32
+    variable width : Arcadia.Real32
+  }
+}

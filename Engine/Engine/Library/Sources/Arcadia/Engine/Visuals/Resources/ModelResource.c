@@ -16,8 +16,10 @@
 
 #define ARCADIA_ENGINE_PRIVATE (1)
 #include "Arcadia/Engine/Visuals/Resources/ModelResource.h"
+#include "Arcadia/Math/Include.h"
 
 #include "Arcadia/Engine/Visuals/Resources/ConstantBufferResource.h"
+#include "Arcadia/Engine/Visuals/Resources/MaterialResource.h"
 #include "Arcadia/Engine/Visuals/Resources/VertexBufferResource.h"
 #include "Arcadia/Engine/Visuals/BackendContext.h"
 #include <assert.h>
@@ -92,8 +94,8 @@ static const Arcadia_Type_Operations _typeOperations = {
   .objectTypeOperations = &_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.Visuals.ModelResource", Arcadia_Engine_Visuals_ModelResource,
-                         u8"Arcadia.Visuals.Resource", Arcadia_Engine_Visuals_Resource,
+Arcadia_defineObjectType(u8"Arcadia.Engine.Visuals.ModelResource", Arcadia_Engine_Visuals_ModelResource,
+                         u8"Arcadia.Engine.Visuals.Resource", Arcadia_Engine_Visuals_Resource,
                          &_typeOperations);
 
 static void
@@ -130,28 +132,38 @@ Arcadia_Engine_Visuals_ModelResource_constructImpl
     Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 4, _Arcadia_Engine_Visuals_BackendContext_getType(thread));
 
 
+  // Resource's active visitor cannot see the matrix until LeaveConstructor.
+  // The original argument frame retains the borrowed context/dependencies;
+  // snapshot their values before adding temporary receiver/matrix roots.
+  Arcadia_Value meshConstantBufferArgument = Arcadia_ValueStack_getValue(thread, 3);
+  Arcadia_Value meshVertexBufferArgument = Arcadia_ValueStack_getValue(thread, 2);
+  Arcadia_Value materialArgument = Arcadia_ValueStack_getValue(thread, 1);
+  Arcadia_SizeValue rootBase = Arcadia_ValueStack_getSize(thread);
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self->localToWorldMatrix);
     Arcadia_Object* o;
 
     o = (Arcadia_Object*)Arcadia_Engine_Visuals_BackendContext_createConstantBufferResource(thread, (Arcadia_Engine_Visuals_BackendContext*)backendContext);
     Arcadia_Engine_Visuals_Resource_ref(thread, (Arcadia_Engine_Visuals_Resource*)o);
     self->constantBuffer = (Arcadia_Engine_Visuals_ConstantBufferResource*)o;
 
-    o = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_Engine_Visuals_ConstantBufferResource_getType(thread));
+    o = Arcadia_Value_getObjectReferenceValueChecked(thread, meshConstantBufferArgument, _Arcadia_Engine_Visuals_ConstantBufferResource_getType(thread));
     Arcadia_Engine_Visuals_Resource_ref(thread, (Arcadia_Engine_Visuals_Resource*)o);
     self->meshConstantBuffer = (Arcadia_Engine_Visuals_ConstantBufferResource*)o;
 
-    o = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_Visuals_VertexBufferResource_getType(thread));
+    o = Arcadia_Value_getObjectReferenceValueChecked(thread, meshVertexBufferArgument, _Arcadia_Engine_Visuals_VertexBufferResource_getType(thread));
     Arcadia_Engine_Visuals_Resource_ref(thread, (Arcadia_Engine_Visuals_Resource*)o);
     self->meshVertexBuffer = (Arcadia_Engine_Visuals_VertexBufferResource*)o;
 
-    o = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_Visuals_MaterialResource_getType(thread));
+    o = Arcadia_Value_getObjectReferenceValueChecked(thread, materialArgument, _Arcadia_Engine_Visuals_MaterialResource_getType(thread));
     Arcadia_Engine_Visuals_Resource_ref(thread, (Arcadia_Engine_Visuals_Resource*)o);
     self->material = (Arcadia_Engine_Visuals_MaterialResource*)o;
 
     Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
   } else {
     Arcadia_Thread_popJumpTarget(thread);
     if (self->material) {
@@ -170,6 +182,7 @@ Arcadia_Engine_Visuals_ModelResource_constructImpl
       Arcadia_Engine_Visuals_Resource_unref(thread, (Arcadia_Engine_Visuals_Resource*)self->constantBuffer);
       self->constantBuffer = NULL;
     }
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
     Arcadia_Thread_jump(thread);
   }
   //

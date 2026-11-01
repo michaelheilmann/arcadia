@@ -165,6 +165,10 @@ enum Arcadia_PDLC_WordType {
   Arcadia_PDLC_WordType_SingleLineComment,
   /// A multi line comment.
   Arcadia_PDLC_WordType_MultiLineComment,
+  // "call": explicit procedure invocation, including an empty argument list.
+  Arcadia_PDLC_WordType_Call,
+  // "abstract"
+  Arcadia_PDLC_WordType_Abstract,
 
 };
 

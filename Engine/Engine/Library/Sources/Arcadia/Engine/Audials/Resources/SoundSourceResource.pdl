@@ -1,0 +1,30 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+/// Backend-neutral playback interface. Concrete backends supply every slot.
+abstract class "Arcadia/Engine/Audials/Resources/SoundSourceResource.h" Arcadia.Engine.Audials.Implementation.SoundSourceResource extends Arcadia.Engine.Audials.Implementation.Resource {
+  constructor(variable context : Arcadia.Engine.Audials.BackendContext) {
+    construct $0 Arcadia.Engine.Audials.Implementation.Resource self context
+  }
+  method abstract isPlaying : Arcadia.Boolean
+  method abstract pause : Arcadia.Void
+  method abstract play : Arcadia.Void
+  method abstract stop : Arcadia.Void
+  method abstract setIsLooping(variable isLooping : Arcadia.Boolean) : Arcadia.Void
+  method abstract getIsLooping : Arcadia.Boolean
+  method abstract setVolume(variable volume : Arcadia.Real32) : Arcadia.Void
+  method abstract getVolume : Arcadia.Real32
+}

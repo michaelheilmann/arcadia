@@ -239,7 +239,7 @@ Arcadia_VPL_Text_readForm
     Arcadia_SizeValue start = c->position;
     while (c->position < n) {
       ch = b[c->position];
-      if (ch == '(' || ch == ')' || ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '/' || ch == '\\') break;
+      if (ch == '(' || ch == ')' || ch == '\'' || ch == '"' || ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '/' || ch == '\\') break;
       ++c->position;
     }
     Arcadia_SizeValue count = c->position - start;

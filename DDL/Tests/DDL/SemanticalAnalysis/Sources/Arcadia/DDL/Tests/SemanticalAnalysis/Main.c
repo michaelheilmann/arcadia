@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/DDL/Include.h"
 
 #include "Arcadia/Logging/Include.h"
@@ -85,6 +87,22 @@ test1
   Arcadia_DataDefinitionLanguage_SemanticalAnalysis* semanticalAnalysis = Arcadia_DataDefinitionLanguage_SemanticalAnalysis_create(thread);
   onTest(thread, semanticalAnalysis, syntacticalAnalyser, u8"{ prename : \"Michael\", surname: \"Heilmann\" }", Arcadia_BooleanValue_False, Arcadia_Status_Success);
   onTest(thread, semanticalAnalysis, syntacticalAnalyser, u8"{ prename : \"Michael\", surname: \"Heilmann\", prename : \"Martin\" }", Arcadia_BooleanValue_True, Arcadia_Status_SemanticalError);
+  onTest(thread, semanticalAnalysis, syntacticalAnalyser, "{x:void, x:1}", Arcadia_BooleanValue_True, Arcadia_Status_SemanticalError);
+  onTest(thread, semanticalAnalysis, syntacticalAnalyser, "[{x:1, x:2}]", Arcadia_BooleanValue_True, Arcadia_Status_SemanticalError);
+  onTest(thread, semanticalAnalysis, syntacticalAnalyser, "{outer:{x:1, x:2}}", Arcadia_BooleanValue_True, Arcadia_Status_SemanticalError);
+  onTest(thread, semanticalAnalysis, syntacticalAnalyser, "{x:1, X:2, inner:{x:3}}", Arcadia_BooleanValue_False, Arcadia_Status_Success);
+}
+
+static int
+runTests
+  (
+    void
+  )
+{
+  if (!Arcadia_Tests_safeExecute(&test1)) {
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
 }
 
 int
@@ -94,8 +112,8 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&test1)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "SemanticalAnalysis", &runTests },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

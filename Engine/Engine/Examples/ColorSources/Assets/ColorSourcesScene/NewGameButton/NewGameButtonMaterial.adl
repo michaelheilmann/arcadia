@@ -1,0 +1,7 @@
+{
+  type : "Material",
+  name : "ColorSourcesScene.NewGameButtonMaterial",
+  materialType : "Blinn-Phong",
+  ambientColorSource : "Texture",
+  ambientColorTexture : "ColorSourcesScene.NewGameButtonTexture",
+}

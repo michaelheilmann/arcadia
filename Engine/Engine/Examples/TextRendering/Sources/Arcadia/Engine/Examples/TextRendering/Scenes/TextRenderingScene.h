@@ -25,7 +25,7 @@
 #include "Arcadia/FontIO/AtlasGlyphInformation.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Demo.TextRenderingScene", Arcadia_Engine_Demo_TextRenderingScene,
-                          u8"Arcadia.Engine.Demo.Scene");
+                          u8"Arcadia.Engine.Scene");
 
 struct Arcadia_Engine_Demo_TextRenderingSceneDispatch {
   Arcadia_Engine_SceneDispatch parent;

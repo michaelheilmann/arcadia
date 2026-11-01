@@ -22,6 +22,7 @@
 #endif
 #include "Arcadia/Engine/Visuals/Nodes/MeshNode.h"
 #include "Arcadia/Engine/Visuals/Nodes/MaterialNode.h"
+typedef struct Arcadia_Engine_Visuals_ModelResource Arcadia_Engine_Visuals_ModelResource;
 
 // A "model node" consists of a
 // - a mesh

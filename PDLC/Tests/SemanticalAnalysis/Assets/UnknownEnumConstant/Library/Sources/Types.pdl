@@ -1,0 +1,6 @@
+enumeration Test.Kind {
+  Present = 0
+}
+procedure Test.read : Test.Kind {
+  return Test.Kind.Missing
+}

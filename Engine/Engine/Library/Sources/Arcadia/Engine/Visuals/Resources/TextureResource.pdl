@@ -1,0 +1,44 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Native definition: Arcadia/Engine/Visuals/Resources/TextureResource.h.
+// State is inherited from native Resource; concrete backends implement these operations.
+/// A texture resource maintains an internal pixel buffer (Arcadia.Media.PixelBuffer).
+/// On creation it is 256 x 256, uses RGBA format, and is opaque black.
+/// setPixelBuffer copies the data, so the source buffer is no longer required
+/// after the call. setWidth and setHeight resize the internal pixel buffer.
+abstract class "Arcadia/Engine/Visuals/Resources/TextureResource.h" Arcadia.Engine.Visuals.TextureResource extends Arcadia.Engine.Visuals.Resource {
+  constructor(variable context : Arcadia.Engine.Visuals.BackendContext) {
+    construct $0 Arcadia.Engine.Visuals.Resource self context
+  }
+  method abstract getAddressModeU : Arcadia.Engine.Visuals.TextureAddressMode
+  method abstract getAddressModeV : Arcadia.Engine.Visuals.TextureAddressMode
+  method abstract getHeight : Arcadia.Integer32
+  method abstract getMagnificationFilter : Arcadia.Engine.Visuals.TextureFilter
+  method abstract getMinificationFilter : Arcadia.Engine.Visuals.TextureFilter
+  method abstract getWidth : Arcadia.Integer32
+  method abstract setAddressModeU(variable addressMode : Arcadia.Engine.Visuals.TextureAddressMode) : Arcadia.Void
+  method abstract setAddressModeV(variable addressMode : Arcadia.Engine.Visuals.TextureAddressMode) : Arcadia.Void
+  /// Adjust the height of the internal pixel buffer.
+  method abstract setHeight(variable height : Arcadia.Integer32) : Arcadia.Void
+  method abstract setMagnificationFilter(variable magnificationFilter : Arcadia.Engine.Visuals.TextureFilter) : Arcadia.Void
+  method abstract setMinificationFilter(variable minificationFilter : Arcadia.Engine.Visuals.TextureFilter) : Arcadia.Void
+  /// Adjust the width of the internal pixel buffer.
+  method abstract setWidth(variable width : Arcadia.Integer32) : Arcadia.Void
+  /// Copy the pixel data into the texture's internal buffer. The source pixel
+  /// buffer is no longer required after the call.
+  method abstract setPixelBuffer(variable pixelBuffer : Arcadia.Media.PixelBuffer) : Arcadia.Void
+}

@@ -1,0 +1,2 @@
+native implementation "MyModule/Include.h" class MyModule.A {
+}

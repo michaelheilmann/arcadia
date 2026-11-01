@@ -1,0 +1,2 @@
+native implementation "Owned.pdl" class MyModule.Generated {
+}

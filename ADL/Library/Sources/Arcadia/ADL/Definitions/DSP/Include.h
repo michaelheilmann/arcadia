@@ -17,7 +17,7 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_DSP_INCLUDE_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_DSP_INCLUDE_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
+#if !defined(ARCADIA_ADL_PRIVATE)
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
 #include "Arcadia/ADL/Definition.h"
@@ -26,5 +26,6 @@
 #include "Arcadia/ADL/Definitions/DSP/SawtoothWaveDefinition.h"
 #include "Arcadia/ADL/Definitions/DSP/SineWaveDefinition.h"
 #include "Arcadia/ADL/Definitions/DSP/WhiteNoiseDefinition.h"
+#include "Arcadia/ADL/Definitions/DSP/OperatorDefinition.h"
 
 #endif  // ARCADIA_ADL_DEFINITIONS_DSP_INCLUDE_H_INCLUDED

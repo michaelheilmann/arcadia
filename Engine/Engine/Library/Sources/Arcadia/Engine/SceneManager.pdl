@@ -1,0 +1,58 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+/// Every scene references its manager. A scene is active when manager.scene
+/// points to it, and a scene may activate another scene at any time.
+class Arcadia.Engine.SceneManager extends Arcadia.Object {
+  /// The engine (required at construction).
+  variable engine : Arcadia.Engine
+  /// Current scene, initially void.
+  variable scene : Arcadia.Engine.Scene
+  /// Emitted only when the scene pointer truly changes.
+  variable sceneChangedEvent : Arcadia.Signal
+
+  constructor(variable engine : Arcadia.Engine) {
+    call $0 Arcadia.Engine.createSceneManagerSignal engine
+    storeField self engine engine
+    storeField self scene void
+    storeField self sceneChangedEvent $0
+  }
+
+  /// Return the active scene, or void if none is active.
+  method nonvirtual getScene : Arcadia.Engine.Scene {
+    loadField $0 self scene
+    return $0
+  }
+
+  /// Activate a scene, or void to deactivate. Compare pointer identity, not
+  /// overridable equality. Publish the new state before notifying observers.
+  /// Reentrant changes are retained; notification errors do not roll back.
+  method nonvirtual setScene(variable scene : Arcadia.Engine.Scene) : Arcadia.Void {
+    loadField $0 self scene
+    call $1 Arcadia.Engine.scenesAreIdentical $0 scene
+    jumpIfTrue $1 done
+    storeField self scene scene
+    loadField $2 self sceneChangedEvent
+    call $3 Arcadia.Engine.emitSceneChanged $2 self $0 scene
+  done:
+  }
+}
+
+// Native runtime boundaries: required-reference validation/Signal creation,
+// strict pointer identity, and Signal's caller-owned argument-frame protocol.
+procedure native "Arcadia_Engine_createSceneManagerSignalImpl" Arcadia.Engine.createSceneManagerSignal(variable engine : Arcadia.Engine) : Arcadia.Signal
+procedure native "Arcadia_Engine_scenesAreIdenticalImpl" Arcadia.Engine.scenesAreIdentical(variable left : Arcadia.Engine.Scene, variable right : Arcadia.Engine.Scene) : Arcadia.Boolean
+procedure native "Arcadia_Engine_emitSceneChangedImpl" Arcadia.Engine.emitSceneChanged(variable signal : Arcadia.Signal, variable sender : Arcadia.Engine.SceneManager, variable oldScene : Arcadia.Engine.Scene, variable newScene : Arcadia.Engine.Scene) : Arcadia.Void

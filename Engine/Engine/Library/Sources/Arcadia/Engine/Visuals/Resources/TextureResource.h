@@ -17,37 +17,44 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_RESOURCES_TEXTURERESOURCE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_RESOURCES_TEXTURERESOURCE_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/Resources/TextureResource.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Visuals/Resource.h"
 #include "Arcadia/Engine/Visuals/TextureAddressMode.h"
 #include "Arcadia/Engine/Visuals/TextureFilter.h"
-#include "Arcadia/Media/Include.h"
 
-// the texture resource maintains an insernal pixel buffer buffer (Arcadia_Media_PixelBuffer).
-// When the texture resource is created, its size 256 x 256, its format is RGBA, its default color is opaque black.
-// setPixelBuffer copies the data, that is, the source pixel buffer is not required anymore.
-// setWidth and setHeight adjust the width and the height of the internal pixel buffer.
-Arcadia_declareObjectType(u8"Arcadia.Visuals.TextureResource", Arcadia_Engine_Visuals_TextureResource,
-                          u8"Arcadia.Visuals.Resource");
+typedef struct Arcadia_Engine_Visuals_TextureResource Arcadia_Engine_Visuals_TextureResource;
+typedef struct Arcadia_Media_PixelBuffer Arcadia_Media_PixelBuffer;
+
+Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.TextureResource", Arcadia_Engine_Visuals_TextureResource,
+                          u8"Arcadia.Engine.Visuals.Resource");
 
 struct Arcadia_Engine_Visuals_TextureResourceDispatch {
   Arcadia_Engine_Visuals_ResourceDispatch _parent;
 
-  Arcadia_Engine_Visuals_TextureAddressMode(*getAddressModeU)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
-  Arcadia_Engine_Visuals_TextureAddressMode(*getAddressModeV)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
+  Arcadia_Engine_Visuals_TextureAddressMode (*getAddressModeU)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
 
-  Arcadia_Integer32Value(*getHeight)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
+  Arcadia_Engine_Visuals_TextureAddressMode (*getAddressModeV)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
 
-  Arcadia_Engine_Visuals_TextureFilter(*getMagnificationFilter)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
-  Arcadia_Engine_Visuals_TextureFilter(*getMinificationFilter)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
+  Arcadia_Integer32Value (*getHeight)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
 
-  Arcadia_Integer32Value(*getWidth)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
+  Arcadia_Engine_Visuals_TextureFilter (*getMagnificationFilter)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
+
+  Arcadia_Engine_Visuals_TextureFilter (*getMinificationFilter)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
+
+  Arcadia_Integer32Value (*getWidth)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*);
 
   void (*setAddressModeU)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*, Arcadia_Engine_Visuals_TextureAddressMode);
+
   void (*setAddressModeV)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*, Arcadia_Engine_Visuals_TextureAddressMode);
 
   void (*setHeight)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*, Arcadia_Integer32Value);
 
   void (*setMagnificationFilter)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*, Arcadia_Engine_Visuals_TextureFilter);
+
   void (*setMinificationFilter)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*, Arcadia_Engine_Visuals_TextureFilter);
 
   void (*setWidth)(Arcadia_Thread*, Arcadia_Engine_Visuals_TextureResource*, Arcadia_Integer32Value);

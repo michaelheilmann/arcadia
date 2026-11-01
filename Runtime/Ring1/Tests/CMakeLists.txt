@@ -25,6 +25,7 @@ add_subdirectory(MinimumTests)
 add_subdirectory(RealTypesTests)
 
 add_subdirectory(IntegerToStringTests)
+add_subdirectory(LiteralTests)
 add_subdirectory(NaturalToStringTests)
 add_subdirectory(RealToStringTests)
 
@@ -36,6 +37,7 @@ add_subdirectory(StringToRealTests)
 add_subdirectory(NextPowerOfTwoTests)
 
 add_subdirectory(ObjectTypeTests)
+add_subdirectory(ProcessTests)
 add_subdirectory(InterfaceTypeTests)
 add_subdirectory(WeakReferenceTests)
 

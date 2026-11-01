@@ -62,7 +62,7 @@ Arcadia_DDLS_Tests_Reader_testAccept1
     "      },\n"
     "    ],\n"
     "  },\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_DDLS_DefaultReader* ddlsReader =
     Arcadia_DDLS_DefaultReader_create
@@ -132,7 +132,7 @@ Arcadia_DDLS_Tests_Reader_testAccept2
     "      },\n"
     "    ],\n"
     "  },\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_DDLS_DefaultReader* ddlsReader =
     Arcadia_DDLS_DefaultReader_create
@@ -170,7 +170,7 @@ Arcadia_DDLS_Tests_Reader_testReject1
     "    entries : [\n"
     "    ],\n"
     "  },\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_DDLS_DefaultReader* ddlsReader =
     Arcadia_DDLS_DefaultReader_create
@@ -218,7 +218,7 @@ Arcadia_DDLS_Tests_Reader_testReject2
     "  {\n"
     "    kind : \"Map\",\n"
     "  },\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_DDLS_DefaultReader* ddlsReader =
     Arcadia_DDLS_DefaultReader_create
@@ -267,7 +267,7 @@ Arcadia_DDLS_Tests_Reader_testReject3
     "    kind : \"Map\",\n"
     "    entries : \"x\",\n"
     "  },\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_DDLS_DefaultReader* ddlsReader =
     Arcadia_DDLS_DefaultReader_create
@@ -318,7 +318,7 @@ Arcadia_DDLS_Tests_Reader_testReject4
     "    entries : {\n"
     "    },\n"
     "  },\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_DDLS_DefaultReader* ddlsReader =
     Arcadia_DDLS_DefaultReader_create
@@ -382,7 +382,7 @@ Arcadia_DDLS_Tests_Reader_testReject5
     "      },\n"
     "    ],\n"
     "  },\n"
-    "},\n"
+    "}\n"
     ;
   Arcadia_DDLS_DefaultReader* ddlsReader =
     Arcadia_DDLS_DefaultReader_create

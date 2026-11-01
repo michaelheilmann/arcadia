@@ -1,0 +1,4 @@
+native "Owned.h" class MyModule.Opaque {
+}
+native implementation "Owned.h" class MyModule.Generated {
+}

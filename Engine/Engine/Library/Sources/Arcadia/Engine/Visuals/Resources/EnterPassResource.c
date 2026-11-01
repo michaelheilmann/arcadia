@@ -16,6 +16,7 @@
 
 #define ARCADIA_ENGINE_PRIVATE (1)
 #include "Arcadia/Engine/Visuals/Resources/EnterPassResource.h"
+#include "Arcadia/Math/Include.h"
 
 #include "Arcadia/Engine/Visuals/BackendContext.h"
 #include <assert.h>
@@ -129,8 +130,8 @@ static const Arcadia_Type_Operations _typeOperations = {
   .objectTypeOperations = &_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.Visuals.EnterPassResource", Arcadia_Engine_Visuals_EnterPassResource,
-                         u8"Arcadia.Visuals.Resource", Arcadia_Engine_Visuals_Resource,
+Arcadia_defineObjectType(u8"Arcadia.Engine.Visuals.EnterPassResource", Arcadia_Engine_Visuals_EnterPassResource,
+                         u8"Arcadia.Engine.Visuals.Resource", Arcadia_Engine_Visuals_Resource,
                          &_typeOperations);
 
 static void
@@ -178,9 +179,26 @@ Arcadia_Engine_Visuals_EnterPassResource_constructImpl
   self->clearDepth = 1.f;
 
   Arcadia_Engine_Visuals_BackendContext* backendContext = (Arcadia_Engine_Visuals_BackendContext*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_Visuals_BackendContext_getType(thread));
-  self->viewerConstantBuffer = (Arcadia_Engine_Visuals_ConstantBufferResource*)Arcadia_Engine_Visuals_BackendContext_createConstantBufferResource(thread, backendContext);
-
-  Arcadia_Engine_Visuals_Resource_ref(thread, (Arcadia_Engine_Visuals_Resource*)self->viewerConstantBuffer);
+  // Until LeaveConstructor publishes this type, GC only sees Resource's visitor.
+  // Keep the receiver and initialized derived fields alive through the callback.
+  Arcadia_SizeValue rootBase = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self->viewToProjectionMatrix);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self->worldToViewMatrix);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self->clearColor);
+    Arcadia_Engine_Visuals_ConstantBufferResource* buffer = Arcadia_Engine_Visuals_BackendContext_createConstantBufferResource(thread, backendContext);
+    Arcadia_Engine_Visuals_Resource_ref(thread, (Arcadia_Engine_Visuals_Resource*)buffer);
+    self->viewerConstantBuffer = buffer;
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
+    Arcadia_Thread_jump(thread);
+  }
   Arcadia_LeaveConstructor(Arcadia_Engine_Visuals_EnterPassResource);
 }
 

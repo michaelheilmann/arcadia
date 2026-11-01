@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/FileSystem/Include.h"
 #include "Arcadia/Ring2/Include.h"
 
@@ -63,6 +65,18 @@ fileContentsTests
   Arcadia_FileSystem_deleteRegularFile(thread, fileSystem, filePath);
 }
 
+static int
+runTests
+  (
+    void
+  )
+{
+  if (!Arcadia_Tests_safeExecute(&fileContentsTests)) {
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+}
+
 int
 main
   (
@@ -70,8 +84,8 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&fileContentsTests)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "FileContentsTests", &runTests },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

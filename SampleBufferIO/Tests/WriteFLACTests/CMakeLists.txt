@@ -27,4 +27,5 @@ OnSourceFile(${this} Arcadia.SampleBufferIO.Tests.WriteFLACTests/Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.SampleBufferIO PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

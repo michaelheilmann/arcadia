@@ -18,27 +18,25 @@
 #define ARCADIA_MEDIA_VERTEXDESCRIPTOR_H_INCLUDED
 
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
-  #error("do not include directly, include `Arcadia/Media/Include.h` instead")
+  #error("do not include `Arcadia/Media/VertexDescriptor.h` directly, include `Arcadia/Media/Include.h` instead")
 #endif
-#include "Arcadia/Media/VertexElementDescriptor.h"
-#include "Arcadia/Collections/Include.h"
 
-/// @brief Immutable descriptor of a vertex.
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_ImmutableList Arcadia_ImmutableList;
+typedef struct Arcadia_Media_VertexDescriptor Arcadia_Media_VertexDescriptor;
+
 Arcadia_declareObjectType(u8"Arcadia.Media.VertexDescriptor", Arcadia_Media_VertexDescriptor,
-                          Arcadia_Object);
+                          u8"Arcadia.Object");
 
 struct Arcadia_Media_VertexDescriptorDispatch {
-  Arcadia_ObjectDispatch parent;
+  Arcadia_ObjectDispatch _parent;
 };
 
 struct Arcadia_Media_VertexDescriptor {
-  Arcadia_Object parent;
-  /// The stride, that is, the distance, in Bytes, from the start of one vertex to the start of the next vertex.
-  /// @todo Store padding, which is the number of Bytes between vertices, instead of the stride.
+  Arcadia_Object _parent;
   Arcadia_SizeValue stride;
-  /// The list of vertex element descriptors.
   Arcadia_ImmutableList* vertexElementDescriptors;
-  /// The size, in Bytes, of the vertex.
   Arcadia_Natural32Value vertexSize;
 };
 
@@ -49,10 +47,6 @@ Arcadia_Media_VertexDescriptor_getVertexSize
     Arcadia_Media_VertexDescriptor* self
   );
 
-/// @brief Get the stride of this vertex descriptor.
-/// @param thread A pointer to this thread.
-/// @param self A pointer to this vertex descriptor.
-/// @return The stride, that is, the distance, in Bytes, from the start of one vertex to the start of the next vertex.
 Arcadia_SizeValue
 Arcadia_Media_VertexDescriptor_getStride
   (
@@ -60,10 +54,6 @@ Arcadia_Media_VertexDescriptor_getStride
     Arcadia_Media_VertexDescriptor* self
   );
 
-/// @brief Get the vertex element descriptors of this vertex descriptor.
-/// @param thread A pointer to this thread.
-/// @param self A pointer to this vertex descriptor.
-/// @return A pointer to the list of vertex element descriptors.
 Arcadia_ImmutableList*
 Arcadia_Media_VertexDescriptor_getVertexElementDescriptors
   (

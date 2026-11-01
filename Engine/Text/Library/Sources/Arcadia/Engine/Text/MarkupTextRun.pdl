@@ -1,0 +1,60 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+/// Parsed text-run descriptor, independent of renderers and applications.
+/// Dynamic tokens are stored by name; their meaning belongs to consumers.
+class Arcadia.Engine.Text.MarkupTextRun extends Arcadia.Object {
+  variable text : Arcadia.String
+  variable glyphSource : Arcadia.String
+  /// Void for an ordinary run, or a managed token name such as "fps".
+  variable dynamicToken : Arcadia.String
+  variable pixelSize : Arcadia.Natural32
+  variable colorName : Arcadia.String
+  variable alignment : Arcadia.Engine.Text.TextAlignment
+  variable hasRectangle : Arcadia.Boolean
+  variable rectangleLeft : Arcadia.Integer32
+  variable rectangleBottom : Arcadia.Integer32
+  variable rectangleWidth : Arcadia.Integer32
+  variable rectangleHeight : Arcadia.Integer32
+  variable lineBreakBefore : Arcadia.Boolean
+  variable fixedPlacement : Arcadia.Boolean
+
+  constructor(
+    variable text : Arcadia.String,
+    variable glyphSource : Arcadia.String,
+    variable dynamicToken : Arcadia.String,
+    variable pixelSize : Arcadia.Natural32,
+    variable colorName : Arcadia.String,
+    variable alignment : Arcadia.Engine.Text.TextAlignment,
+    variable fixedPlacement : Arcadia.Boolean
+  ) {
+    // Preserve the three required strings; empty strings are valid, and only
+    // dynamicToken is nullable. No size/alignment/content policy is added.
+    call $0 Arcadia.Engine.Text.requireRunStrings text glyphSource colorName
+    storeField self text text
+    storeField self glyphSource glyphSource
+    storeField self dynamicToken dynamicToken
+    storeField self pixelSize pixelSize
+    storeField self colorName colorName
+    storeField self alignment alignment
+    storeField self hasRectangle false
+    // The four Integer32 rectangle fields retain their zero defaults.
+    storeField self lineBreakBefore false
+    storeField self fixedPlacement fixedPlacement
+  }
+}
+
+procedure native "Arcadia_Engine_Text_requireRunStringsImpl" Arcadia.Engine.Text.requireRunStrings(variable text : Arcadia.String, variable glyphSource : Arcadia.String, variable colorName : Arcadia.String) : Arcadia.Void

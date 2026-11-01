@@ -17,11 +17,17 @@
 #if !defined(ARCADIA_ENGINE_INPUT_KEYBOARDKEYEVENT_H_INCLUDED)
 #define ARCADIA_ENGINE_INPUT_KEYBOARDKEYEVENT_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Input/KeyboardKeyEvent.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Event.h"
 #include "Arcadia/Engine/Input/KeyboardKey.h"
 #include "Arcadia/Engine/Input/KeyboardKeyAction.h"
 
-// https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Input_KeyboardKeyEvent
+typedef struct Arcadia_Engine_Input_KeyboardKeyEvent Arcadia_Engine_Input_KeyboardKeyEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Input.KeyboardKeyEvent", Arcadia_Engine_Input_KeyboardKeyEvent,
                           u8"Arcadia.Engine.Event");
 
@@ -35,21 +41,6 @@ struct Arcadia_Engine_Input_KeyboardKeyEvent {
   Arcadia_Engine_Input_KeyboardKeyAction action;
 };
 
-/// @brief Create a keyboard key event.
-/// @param key The keyboard key.
-/// @param action The action of the keyboard key.
-/// #Arcadia_Visuals_KeyboardKeyAction_Pressed if the keyboard key was pressed,
-/// #Arcadia_Visuals_KeyboardKeyAction_Released if the keyboard key was released.
-/// @return The keyboard key event.
-Arcadia_Engine_Input_KeyboardKeyEvent*
-Arcadia_Engine_Input_KeyboardKeyEvent_create
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Natural64Value timestamp,
-    Arcadia_Engine_Input_KeyboardKeyAction action,
-    Arcadia_Engine_Input_KeyboardKey key
-  );
-
 Arcadia_Engine_Input_KeyboardKeyAction
 Arcadia_Engine_Input_KeyboardKeyEvent_getAction
   (
@@ -62,6 +53,15 @@ Arcadia_Engine_Input_KeyboardKeyEvent_getKey
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_Input_KeyboardKeyEvent* self
+  );
+
+Arcadia_Engine_Input_KeyboardKeyEvent*
+Arcadia_Engine_Input_KeyboardKeyEvent_create
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Natural64Value timestamp,
+    Arcadia_Engine_Input_KeyboardKeyAction action,
+    Arcadia_Engine_Input_KeyboardKey key
   );
 
 #endif // ARCADIA_ENGINE_INPUT_KEYBOARDKEYEVENT_H_INCLUDED

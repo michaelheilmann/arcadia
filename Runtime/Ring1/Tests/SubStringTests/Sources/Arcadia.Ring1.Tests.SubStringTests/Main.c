@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 
 #include "Arcadia/Ring1/Include.h"
@@ -21,43 +23,104 @@
 #include "Arcadia.Ring1.Tests.SubStringTests/findLastOccurrenceTests.h"
 #include "Arcadia.Ring1.Tests.SubStringTests/SubStringTests.h"
 
+static int
+runFindFirstAbsent
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&findFirstOccurrenceTests1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runFindFirstSingle
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&findFirstOccurrenceTests2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runFindFirstRepeated
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&findFirstOccurrenceTests3) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runFindLastAbsent
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&findLastOccurrenceTests1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runFindLastSingle
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&findLastOccurrenceTests2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runFindLastRepeated
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&findLastOccurrenceTests3) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runSubstringRanges
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&subStringTests1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runSubstringSlices
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&subStringTests2) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runSubstringInvalidRanges
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&subStringTests3) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  //
-  if (!Arcadia_Tests_safeExecute(&findFirstOccurrenceTests1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&findFirstOccurrenceTests2)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&findFirstOccurrenceTests3)) {
-    return EXIT_FAILURE;
-  }
-  //
-  if (!Arcadia_Tests_safeExecute(&findLastOccurrenceTests1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&findLastOccurrenceTests2)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&findLastOccurrenceTests3)) {
-    return EXIT_FAILURE;
-  }
-  //
-  if (!Arcadia_Tests_safeExecute(&subStringTests1)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&subStringTests2)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&subStringTests3)) {
-    return EXIT_FAILURE;
-  }
-  //
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "FindFirstAbsent", &runFindFirstAbsent },
+    { "FindFirstSingle", &runFindFirstSingle },
+    { "FindFirstRepeated", &runFindFirstRepeated },
+    { "FindLastAbsent", &runFindLastAbsent },
+    { "FindLastSingle", &runFindLastSingle },
+    { "FindLastRepeated", &runFindLastRepeated },
+    { "SubstringRanges", &runSubstringRanges },
+    { "SubstringSlices", &runSubstringSlices },
+    { "SubstringInvalidRanges", &runSubstringInvalidRanges },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -106,18 +108,34 @@ immutableMapManyEntriesTest
   Arcadia_Tests_assertTrue(thread, Arcadia_SizeValue_Literal(0) == Arcadia_Collection_getSize(thread, (Arcadia_Collection*)immutableEmpty));
 }
 
+static int
+runImmutability
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&immutableMapTest) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runManyEntries
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&immutableMapManyEntriesTest) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
     int argc,
-    char **argv
+    char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&immutableMapTest)) {
-    return EXIT_FAILURE;
-  }
-  if (!Arcadia_Tests_safeExecute(&immutableMapManyEntriesTest)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "Immutability", &runImmutability },
+    { "ManyEntries", &runManyEntries },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

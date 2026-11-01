@@ -14,13 +14,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_VISUALS_EVENTS_WINDOWCLOSEDEVENT_H_INCLUDED)
-#define ARCADIA_VISUALS_EVENTS_WINDOWCLOSEDEVENT_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_VISUALS_WINDOWCLOSEDEVENT_H_INCLUDED)
+#define ARCADIA_ENGINE_VISUALS_WINDOWCLOSEDEVENT_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/WindowClosedEvent.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Event.h"
-typedef struct Arcadia_Engine_Visuals_Window Arcadia_Engine_Visuals_Window;
 
-// https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Visuals_WindowClosedEvent
+typedef struct Arcadia_Engine_Visuals_Window Arcadia_Engine_Visuals_Window;
+typedef struct Arcadia_Engine_Visuals_WindowClosedEvent Arcadia_Engine_Visuals_WindowClosedEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.WindowClosedEvent", Arcadia_Engine_Visuals_WindowClosedEvent,
                           u8"Arcadia.Engine.Event");
 
@@ -41,4 +47,4 @@ Arcadia_Engine_Visuals_WindowClosedEvent_create
     Arcadia_Engine_Visuals_Window* window
   );
 
-#endif // ARCADIA_VISUALS_EVENTS_WINDOWCLOSEDEVENT_H_INCLUDED
+#endif // ARCADIA_ENGINE_VISUALS_WINDOWCLOSEDEVENT_H_INCLUDED

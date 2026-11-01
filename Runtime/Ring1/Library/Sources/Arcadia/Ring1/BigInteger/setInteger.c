@@ -78,15 +78,13 @@ Arcadia_BigInteger_setInteger64
   if (!other) {
     Arcadia_BigInteger_setZero(thread, self);
   } else {
+    // Convert before negation: the magnitude of INT64_MIN only fits unsigned.
+    Arcadia_Natural64Value magnitude = (Arcadia_Natural64Value)other;
     if (other < 0) {
-      other = -other; // INT64_MIN remains INT64_MIN
-      self->sign = -1;
-    } else {
-      self->sign = +1;
+      magnitude = Arcadia_Natural64Value_Literal(0) - magnitude;
     }
-    // We simply split the two's complement representation into limps.
-    Arcadia_BigInteger_Limp hi = (other & 0xffffffff0000ffff) >> 32;
-    Arcadia_BigInteger_Limp lo = (other & 0x00000000ffffffff) >> 0;
+    Arcadia_BigInteger_Limp hi = (Arcadia_BigInteger_Limp)(magnitude >> 32);
+    Arcadia_BigInteger_Limp lo = (Arcadia_BigInteger_Limp)magnitude;
     if (hi) {
       Arcadia_Memory_reallocateUnmanaged(thread, (void**)&self->limps, sizeof(Arcadia_BigInteger_Limp) * 2);
       self->limps[1] = hi;
@@ -97,6 +95,7 @@ Arcadia_BigInteger_setInteger64
       self->limps[0] = lo;
       self->numberOfLimps = 1;
     }
+    self->sign = other < 0 ? -1 : +1;
   }
 }
 

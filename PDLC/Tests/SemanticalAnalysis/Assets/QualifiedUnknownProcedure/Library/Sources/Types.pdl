@@ -1,0 +1,3 @@
+procedure caller : Arcadia.Void {
+  call $0 Test.Missing.f
+}

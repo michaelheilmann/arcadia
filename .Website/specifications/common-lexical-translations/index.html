@@ -208,8 +208,9 @@ word alternatives, and ambiguity-resolution rules. This specification supplies t
 blocks, not a universal word production.</p>
 
 
-<p>The rules layed out here are described in terms of the concepts and notations of the <em>Context-Free Grammars</em>
-specification (see <a href="https://michaelheilmann.com/specifications/context-free-grammars">https://michaelheilmann.com/specifications/context-free-grammars</a> for more information).</p>
+<p>The rules laid out here use the concepts and notation in the
+<a href="https://michaelheilmann.com/specifications/mathematical-definitions-notations-and-proofs/index.html#context-free-grammars">Context-Free Grammars</a>
+section of <em>Mathematical Definitions, Notations and Proofs</em>.</p>
 
 <p>A grammar incorporating these rules must have the set of all Unicode code points as its input alphabet.
 Furthermore, the grammar must ensure that ambiguities are resolved.</p>
@@ -229,7 +230,7 @@ language selects and combines these productions with its own additions to define
 grammar, word alternatives, and start symbol.</p>
 
 <h3 id="productions-whitespace">2.1 whitespace</h3>
-<p>The word <code>whitespace</code> is defined by</p>
+<p>The word <code>Lexical.Whitespace</code> is defined by</p>
 
 <div class="box">
 <div class="body">
@@ -237,6 +238,8 @@ grammar, word alternatives, and start symbol.</p>
 /* #9 is also known as "CHARACTER TABULATION" */<br>
 Lexical.Whitespace : #9<br>
 /* #20 is also known as "SPACE" */<br>
+Lexical.Whitespace : #20<br>
+/* Legacy misspelled label for the space alternative, retained for compatibility. */<br>
 Lexial.Whitespace : #20
 </code></p>
 </div>
@@ -259,23 +262,23 @@ Lexical.EndOfLine : #d {#a}
 <h3 id="productions-comment">2.3 comment</h3>
 <p>
 The language using the Common Lexical Specification may use both single-line comments and multi-line comments.
-A <code>Lexical.Comment</code> is either a <code>single_line_comment</code> or a <code>Lexical.MultiLineComment</code>.
+A <code>Lexical.Comment</code> is either a <code>Lexical.SingleLineComment</code> or a <code>Lexical.MultiLineComment</code>.
 <code>Lexical.MultiLineComment</code> is defined by
 </p>
 
 <div class="box">
 <div class="body">
-<p><code>
+<pre><code>
 Lexical.Comment : Lexical.SingleLineComment
 Lexical.Comment : Lexical.MultiLineComment
-</code></p>
+</code></pre>
 </div>
 </div>
 
 <p>
 A <code>Lexical.SingleLineComment</code> starts with two solidi.
 It extends to the end of the line.
-<code>Lexical.SingleLinecomment</code> is defined by</p>
+<code>Lexical.SingleLineComment</code> is defined by</p>
 
 <div class="box">
 <div class="body">
@@ -357,7 +360,7 @@ Lexical.Colon : #3a
 </div>
 
 <h3 id="productions-square-brackets">2.7 square brackets</h3>
-<p>The words <code>Lexical.LeftSquareBracket</code> and <code>Lexica.RightSquareBracket</code>, respectively, are defined by</p>
+<p>The words <code>Lexical.LeftSquareBracket</code> and <code>Lexical.RightSquareBracket</code>, respectively, are defined by</p>
 
 <div class="box">
 <p><code>
@@ -385,11 +388,13 @@ Lexical.Comma : #2c
 <div class="body">
 <p><code>
 Lexical.Name : {Lexical.Underscore} Lexical.Alphabetic {Lexical.NameSuffixCharacter}<br>
+Lexical.Underscore : #5f<br>
+Lexical.Alphabetic : /* one ASCII letter from #41 to #5a or #61 to #7a */<br>
 <br>
 /* #41 is also known as "LATIN CAPITAL LETTER A" */<br>
 /* #5a is also known as "LATIN CAPITAL LETTER Z" */<br>
 /* #61 is also known as "LATIN SMALL LETTER A" */<br>
-/* #7a is also known as "LATIN SMALLER LETTER Z" */<br>
+/* #7a is also known as "LATIN SMALL LETTER Z" */<br>
 Lexical.NameSuffixCharacter : /* The unicode characters from #41 to #5a and from #61 to #7a. */<br>
 <br>
 /* #30 is also known as "DIGIT ZERO" */<br>
@@ -409,6 +414,7 @@ Lexical.NameSuffixCharacter : #5f<br>
 <p><code>
 Lexical.Number : Lexical.IntegerNumber<br>
 Lexical.Number : Lexical.RealNumber<br>
+Lexical.Digit : Lexical.DecimalDigit<br>
 Lexical.IntegerNumber : [Lexical.Sign] Lexical.Digit {Lexical.Digit}<br>
 Lexical.RealNumber : [Lexical.Sign] Lexical.Period Lexical.Digit {Lexical.Digit} [Lexical.Exponent]<br>
 Lexical.RealNumber : [Lexical.Sign] Lexical.Digit {Lexical.Digit} [Lexical.Period {Lexical.Digit}] [Lexical.Exponent]<br>
@@ -427,65 +433,71 @@ Lexical.ExponentPrefix : #45<br>
 
 <h3 id="productions-string-literal">2.11 string literal</h3>
 <p>The word <code>Lexical.String</code> is defined by</p>
+<p>These reusable productions offer both quote styles. A consuming language may restrict the delimiters or explicitly refine the escape set;
+DDL selects double-quoted strings only, while other languages specify their own profiles.</p>
 
 <div class="box">
-<p><code>
-Lexical.String : Lexical.SingleQuotedString<br>
-Lexical.String : Lexical.DoubleQuotedString<br>
-<br>
-Lexical.DoubleQuotedString : Lexical.DoubleQuote {Lexical.DoubleQuotedStringCharacter} Lexical.DoubleQuote<br>
-Lexical.DoubleQuotedStringCharacter : /* any character except for Lexical.Newline and Lexical.DoubleQuote and characters in [0,1F]*/<br>
-Lexical.DoubleQuotedStringCharacter : Lexical.EscapeSequence<br>
-Lexical.DoubleQuotedStringCharacter : #5c Lexical.DoubleQuote<br>
-/* #22 is also known as "QUOTATION MARK" */<br>
-Lexical.DoubleQuote : #22<br>
-<br>
-Lexical.SingleQuotedString : Lexical.SingleQuote {Lexical.SingleQuotedStringCharacter} Lexical.SingleQuote<br>
-Lexical.SingleQuotedStringCharacter : /* any character except for Lexical.Newline and Lexical.SingleQuote and characters in [0,1F]*/<br>
-Lexical.SingleQuotedStringCharacter : Lexical.EscapeSequence<br>
-Lexical.SingleQuotedStringCharacter : #5c Lexical.SingleQuote <br>
-/* #27 is also known as "APOSTROPHE" */<br>
-Lexical.SingleQuote : #27<br>
-<br>
+<pre><code>Lexical.String : Lexical.SingleQuotedString
+Lexical.String : Lexical.DoubleQuotedString
 
-/* #5c is also known as "REVERSE SOLIDUS", #75 is also known as 'LATIN SMALL LETTER U*/<br>
-Lexical.EscapeSequence : #5c 'u' Lexical.HexadecimalDigit Lexical.HexadecimalDigit Lexical.HexadecimalDigit Lexical.HexadecimalDigit<br>
-/* #5c is also known as "REVERSE SOLIDUS" */<br>
-Lexical.EscapeSequence : #5c #5c<br>
-/* #64 is also known as "LATIN SMALL LETTER B" */<br>
-Lexical.EscapeSequence : #5c #64<br>
-/* #66 is also known as "LATIN SMALL LETTER F" */<br>
-Lexical.EscapeSequence : #5c #66<br>
-/* #6e is also known as "LATIN SMALL LETTER N" */<br>
-Lexical.EscapeSequence : #5c #6e<br>
-/* #72 is also known as "LATIN SMALL LETTER R" */<br>
-Lexical.EscapeSequence : #5c #72<br>
-/* #74 is also known as "LATIN SMALL LETTER T" */<br>
-Lexical.EscapeSequence : #5c #75
+Lexical.DoubleQuotedString : Lexical.DoubleQuote {Lexical.DoubleQuotedStringCharacter} Lexical.DoubleQuote
+Lexical.DoubleQuotedStringCharacter : /* any Unicode scalar value except #22, #5c and [#00,#1f] */
+Lexical.DoubleQuotedStringCharacter : Lexical.EscapeSequence
+Lexical.DoubleQuotedStringCharacter : #5c Lexical.DoubleQuote
+/* #22 is QUOTATION MARK. */
+Lexical.DoubleQuote : #22
 
-</code></p>
+Lexical.SingleQuotedString : Lexical.SingleQuote {Lexical.SingleQuotedStringCharacter} Lexical.SingleQuote
+Lexical.SingleQuotedStringCharacter : /* any Unicode scalar value except #27, #5c and [#00,#1f] */
+Lexical.SingleQuotedStringCharacter : Lexical.EscapeSequence
+Lexical.SingleQuotedStringCharacter : #5c Lexical.SingleQuote
+/* #27 is APOSTROPHE. */
+Lexical.SingleQuote : #27
+
+/* #5c is REVERSE SOLIDUS; #75 is LATIN SMALL LETTER U. */
+Lexical.EscapeSequence : #5c 'u' #7b Lexical.HexadecimalDigit [Lexical.HexadecimalDigit] [Lexical.HexadecimalDigit] [Lexical.HexadecimalDigit] [Lexical.HexadecimalDigit] [Lexical.HexadecimalDigit] #7d
+Lexical.EscapeSequence : #5c #5c /* reverse solidus */
+Lexical.EscapeSequence : #5c #62 /* b */
+Lexical.EscapeSequence : #5c #66 /* f */
+Lexical.EscapeSequence : #5c #6e /* n */
+Lexical.EscapeSequence : #5c #72 /* r */
+Lexical.EscapeSequence : #5c #74 /* t */
+Lexical.EscapeSequence : #5c #76 /* v */
+Lexical.EscapeSequence : #5c #30 /* 0 */</code></pre>
 </div>
 
-<p>In the lexical translation, several transformations are performed upon the word:</p>
+<p>The reverse solidus must introduce a listed escape; it is not an ordinary unescaped string character.
+Raw U+0000 through U+001F, including line endings, are forbidden inside strings. The opposite quote character may appear literally:
+for example, <code>"It's ready"</code> needs no escape for its apostrophe.</p>
+<p>Lexical translation removes the delimiters and decodes the contents as follows:</p>
 
-  </ul>
+<ul>
   <li><code>Lexical.DoubleQuote {Lexical.DoubleQuotedStringCharacter} Lexical.DoubleQuote</code> has the leading double quote and the trailing double quote removed.</li>
   <li><code>Lexical.SingleQuote {Lexical.SingleQuotedStringCharacter} Lexical.SingleQuote</code> has the leading single quote and the trailing single quote removed.</li>
-  <li><code>#5c #5c</code> (double "REVERSE SOLIDUS") are replaced by <code>#5c</code> ("REVERSE SOLIDUS")</li>
-  <li><code>#5c #64</code> ("REVERSE SOLIDUS" followed by "LATIN SMALL LETTER B") are replaced by <code>#7</code> ("BELL")</li>
-  <li><code>#5c #66</code> ("REVERSE SOLIDUS" followed by "LATIN SMALL LETTER F") are replaced by <code>#c</code> ("FORM FEED")</li>
-  <li><code>#5c #6e</code> ("REVERSE SOLIDUS" followed by "LATIN SMALL LETTER N") are replaced by <code>#a</code> ("LINE FEED")</li>
-  <li><code>#5c #72</code> ("REVERSE SOLIDUS" followed by "LATIN SMALL LETTER R") are replaced by <code>#d</code> ("CARRIAGE RETURN")</li>
-  <li><code>#5c #72</code> ("REVERSE SOLIDUS" followed by "LATIN SMALL LETTER T") are replaced by <code>#9</code> ("TAB")</li>
-  <li><code>#5c 'u' Lexical.HexadecimalDigit Lexical.HexadecimalDigit Lexical.HexadecimalDigit Lexical.HexadecimalDigit</code> is replaced
-  by the corresponding Unicode code point. That Unicode code point is computed as follows: Let \(a\), \(b\), \(c\), and \(d\)  denote the
-  first, second, third, and fourth hexadecimal digit from left to right following <code>'u'</code>. Then the Unicode code point is given by
+  <li><code>\"</code> (<code>#5c #22</code>) in a double-quoted string denotes U+0022 (quotation mark).</li>
+  <li><code>\'</code> (<code>#5c #27</code>) in a single-quoted string denotes U+0027 (apostrophe). This production does not enable single-quoted DDL strings.</li>
+  <li><code>\\</code> (<code>#5c #5c</code>) denotes U+005C (reverse solidus).</li>
+  <li><code>\b</code> (<code>#5c #62</code>) denotes U+0008 (backspace), not U+0007 (bell).</li>
+  <li><code>\f</code> (<code>#5c #66</code>) denotes U+000C (form feed).</li>
+  <li><code>\n</code> (<code>#5c #6e</code>) denotes U+000A (line feed).</li>
+  <li><code>\r</code> (<code>#5c #72</code>) denotes U+000D (carriage return).</li>
+  <li><code>\t</code> (<code>#5c #74</code>) denotes U+0009 (character tabulation).</li>
+  <li><code>\v</code> (<code>#5c #76</code>) denotes U+000B (line tabulation / vertical tab).</li>
+  <li><code>\0</code> (<code>#5c #30</code>) denotes U+0000 (NUL). It is part of the decoded text, not a string terminator.</li>
+  <li><code>\u{...}</code> contains one to six hexadecimal digits between <code>{</code> (#7b) and <code>}</code> (#7d),
+  and is replaced by the corresponding Unicode scalar value. Let \(d_1,\ldots,d_n\) be the digit values in source order,
+  with \(1 \leq n \leq 6\). The code point is
   \[
-  c := (a \cdot 16^3) + (b*16^2) + (c*16^1) + (d*16^0)
+  c := \sum_{i=1}^{n} d_i \cdot 16^{n-i}.
   \]
-  If \(c\) is outside of the set of Unicode code points, then the lexical translation shall fail.
+  Lexical translation shall fail if braces are missing, the digit count is outside this range, a digit is not hexadecimal,
+  \(c &gt; \texttt{10FFFF}_{16}\), or \(\texttt{D800}_{16} \leq c \leq \texttt{DFFF}_{16}\).
+  Leading zeros count toward the six-digit limit. Spaces, signs and underscores are not allowed inside the braces.
+  The unbraced <code>\uXXXX</code> form is not supported. For example, <code>\u{41}</code> denotes A and <code>\u{1F3EE}</code> denotes U+1F3EE.
   </li>
 </ul>
+<p>For example, the DDL string <code>"A\tB\n"</code> decodes to A, U+0009, B, U+000A;
+<code>"\0"</code> has one decoded scalar value, U+0000. Unknown escapes such as <code>\q</code> or <code>\d</code> fail lexical translation.</p>
 
 
 
@@ -496,6 +508,8 @@ Lexical.EscapeSequence : #5c #75
 <p><code>
 Lexical.Boolean : Lexical.True<br>
 Lexical.Boolean : Lexical.False<br>
+Lexical.True : true<br>
+Lexical.False : false<br>
 true : #74 #72 #75 #65<br>
 false : #66 #61 #6c #73 #65
 </code></p>
@@ -510,7 +524,7 @@ It takes priority over the <code>Lexical.Name</code>.</p>
 <div class="box">
 <div class="body">
 <p><code>
-Lexical.Void : #76 #6f # #69 #64
+Lexical.Void : #76 #6f #69 #64
 </code></p>
 </div>
 </div>
@@ -535,7 +549,7 @@ Lexical.DecimalDigit : /* A single Unicode character from the code point range +
 <div class="box">
 <div class="body">
 <p><code>
-Lexical.HexadecimalDigit : /* A single Unicode character from the code point range +U0030 to +U0039,  +U0061 to +U007A,  U+0041 to U+005A*/
+Lexical.HexadecimalDigit : /* A single Unicode character from U+0030 to U+0039, U+0061 to U+0066, or U+0041 to U+0046. */
 </code></p>
 </div>
 </div>
@@ -549,7 +563,7 @@ Lexical.HexadecimalDigit : /* A single Unicode character from the code point ran
 <div class="box">
 <p><code>
 /* #2e is also known as "FULL STOP" */<br>
-Lexical.Period : 2e
+Lexical.Period : #2e
 </code></p>
 </div>
 
@@ -608,7 +622,7 @@ Lexical.LineContinuation : #5c Lexical.EndOfLine
     <div class="center-column"></div>
     <div class="right-column">
       <div>Website maintained by Michael Heilmann.</div>
-      <div>Last modified on 16 October 2026.</div>
+      <div>Last modified on 1 November 2026.</div>
     </div>
   </footer>
 </body>

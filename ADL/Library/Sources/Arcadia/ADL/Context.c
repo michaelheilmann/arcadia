@@ -14,18 +14,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#define ARCADIA_ADL_MODULE (1)
+#define ARCADIA_ADL_PRIVATE (1)
 #include "Arcadia/ADL/Context.h"
 
 #include "Arcadia/ADL/Definitions.h"
 #include "Arcadia/ADL/Reader.h"
 
 #include "Arcadia/ADL/Definitions/Audials/SampleBufferReader.module.h"
+#include "Arcadia/ADL/Definitions/Audials/SoundSourceNodeReader.module.h"
+#include "Arcadia/ADL/Definitions/Audials/DSPStreamProviderReader.module.h"
 
 #include "Arcadia/ADL/Definitions/DSP/ConstantReader.module.h"
 #include "Arcadia/ADL/Definitions/DSP/SawtoothWaveReader.module.h"
 #include "Arcadia/ADL/Definitions/DSP/SineWaveReader.module.h"
 #include "Arcadia/ADL/Definitions/DSP/WhiteNoiseReader.module.h"
+#include "Arcadia/ADL/Definitions/DSP/OperatorReader.module.h"
 
 #include "Arcadia/ADL/Definitions/Visuals/BoxMeshGeneratorReader.module.h"
 #include "Arcadia/ADL/Definitions/Visuals/CheckerboardFillOperationReader.module.h"
@@ -137,6 +140,15 @@ Arcadia_ADL_Context_constructImpl
     Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_SampleBufferReader_create(thread);
     Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
   }
+  {
+    Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_SoundSourceNodeReader_create(thread);
+    Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+    Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8"StreamingSoundSourceNode")), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+  }
+  {
+    Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_DSPStreamProviderReader_create(thread);
+    Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+  }
   //
   {
     Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_ConstantReader_create(thread);
@@ -153,6 +165,12 @@ Arcadia_ADL_Context_constructImpl
   {
     Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_WhiteNoiseReader_create(thread);
     Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+  }
+  {
+    Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_DSPOperatorReader_create(thread);
+    Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_ADL_Reader_getTypeName(thread, reader)), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+    Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8"DSP.LowPass")), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
+    Arcadia_Map_set(thread, self->readers, Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8"DSP.Mix")), Arcadia_Value_makeObjectReferenceValue(reader), NULL, NULL);
   }
   //
   {

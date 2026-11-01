@@ -31,6 +31,7 @@ if (NOT TARGET ${this})
 
   OnModuleDependency(${this} ${MyProjectName}.VPL PRIVATE)
 
+  OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
   EndProduct(${this})
 
   target_include_directories(${this} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_BINARY_DIR}/Sources)

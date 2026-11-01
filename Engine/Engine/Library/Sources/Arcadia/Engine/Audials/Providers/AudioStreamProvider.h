@@ -17,32 +17,29 @@
 #if !defined(ARCADIA_ENGINE_AUDIALS_PROVIDERS_AUDIOSTREAMPROVIDER_H_INCLUDED)
 #define ARCADIA_ENGINE_AUDIALS_PROVIDERS_AUDIOSTREAMPROVIDER_H_INCLUDED
 
-#include "Arcadia/Engine/Audials/Node.h"
-#include "Arcadia/Media/Include.h"
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Audials/Providers/AudioStreamProvider.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
 
-/// Backend-neutral pull interface for incrementally generated mono audio.
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_Engine_Audials_AudioStreamProvider Arcadia_Engine_Audials_AudioStreamProvider;
+typedef struct Arcadia_Media_DSP_Buffer Arcadia_Media_DSP_Buffer;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Audials.AudioStreamProvider", Arcadia_Engine_Audials_AudioStreamProvider,
                           u8"Arcadia.Object");
 
 struct Arcadia_Engine_Audials_AudioStreamProviderDispatch {
-  Arcadia_ObjectDispatch parent;
+  Arcadia_ObjectDispatch _parent;
+
   Arcadia_BooleanValue (*read)(Arcadia_Thread*, Arcadia_Engine_Audials_AudioStreamProvider*, Arcadia_Media_DSP_Buffer*, Arcadia_SizeValue*);
 };
 
 struct Arcadia_Engine_Audials_AudioStreamProvider {
-  Arcadia_Object parent;
+  Arcadia_Object _parent;
   Arcadia_Natural32Value sampleRate;
 };
 
-Arcadia_Natural32Value
-Arcadia_Engine_Audials_AudioStreamProvider_getSampleRate
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Engine_Audials_AudioStreamProvider* self
-  );
-
-/// Render the next frames into target. Returns false after end-of-stream; target
-/// must be sized to the number of frames requested by the caller.
 Arcadia_BooleanValue
 Arcadia_Engine_Audials_AudioStreamProvider_read
   (
@@ -52,4 +49,11 @@ Arcadia_Engine_Audials_AudioStreamProvider_read
     Arcadia_SizeValue* numberOfFramesWritten
   );
 
-#endif
+Arcadia_Natural32Value
+Arcadia_Engine_Audials_AudioStreamProvider_getSampleRate
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Audials_AudioStreamProvider* self
+  );
+
+#endif // ARCADIA_ENGINE_AUDIALS_PROVIDERS_AUDIOSTREAMPROVIDER_H_INCLUDED

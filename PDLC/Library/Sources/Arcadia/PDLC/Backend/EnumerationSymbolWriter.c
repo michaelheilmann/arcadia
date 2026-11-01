@@ -238,8 +238,9 @@ onWriteSourceFile
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_PRIVATE (1)");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "#include \"");
-  Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_Implementation_nameToPathString(thread, implementation, symbolInfo->symbol->name));
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, ".h\"");
+  Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_Implementation_pathToCxxPath(thread, implementation,
+    Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFilePath(thread, symbolInfo)));
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\"");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
 
@@ -265,16 +266,33 @@ onWriteHeaderFile
   Arcadia_StringBuilder_clear(thread, stringBuilder);
   Arcadia_PDLC_Backend_SymbolInfo* moduleSymbolInfo = Arcadia_PDLC_Backend_SymbolInfo_getModule(thread, symbolInfo);
   Arcadia_FilePath* includePath = NULL;
-  // #ifndef
+  Arcadia_String* guard = Arcadia_PDLC_Backend_SymbolInfo_getCxxNameUpperCase(thread, symbolInfo);
+  if (((Arcadia_PDLC_EnumerationSymbol*)symbolInfo->symbol)->ast && ((Arcadia_PDLC_EnumerationSymbol*)symbolInfo->symbol)->ast->nativeHeaderPath) {
+    Arcadia_String* headerPath = ((Arcadia_PDLC_EnumerationSymbol*)symbolInfo->symbol)->ast->nativeHeaderPath;
+    Arcadia_SizeValue length = Arcadia_String_getNumberOfBytes(thread, headerPath);
+    const unsigned char* bytes = Arcadia_String_getBytes(thread, headerPath);
+    Arcadia_StringBuilder* builder = Arcadia_StringBuilder_create(thread);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, builder);
+    for (Arcadia_SizeValue i = 0; i < length - 2; ++i) {
+      unsigned char ch = bytes[i];
+      if (ch >= 'a' && ch <= 'z') ch -= 'a' - 'A';
+      if (!((ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9'))) ch = '_';
+      Arcadia_StringBuilder_insertBackCodePoint(thread, builder, ch);
+    }
+    guard = Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(builder));
+    Arcadia_ValueStack_popValues(thread, 1);
+  }
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, guard);
+  // #if !defined(...)
   // #define
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, COPYRIGHT);
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "#ifndef ");
-  Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_SymbolInfo_getCxxNameUpperCase(thread, symbolInfo));
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_H_INCLUDED");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "#if !defined(");
+  Arcadia_StringBuilder_insertBackString(thread, stringBuilder, guard);
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_H_INCLUDED)");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "#define ");
-  Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_SymbolInfo_getCxxNameUpperCase(thread, symbolInfo));
+  Arcadia_StringBuilder_insertBackString(thread, stringBuilder, guard);
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_H_INCLUDED");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
@@ -307,9 +325,10 @@ onWriteHeaderFile
 
   // #endif
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "#endif // ");
-  Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_PDLC_Backend_SymbolInfo_getCxxNameUpperCase(thread, symbolInfo));
+  Arcadia_StringBuilder_insertBackString(thread, stringBuilder, guard);
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "_H_INCLUDED");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");
+  Arcadia_ValueStack_popValues(thread, 1);
 }
 
 static void

@@ -1,0 +1,56 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Native definition: Arcadia/Engine/Visuals/Resource.h.
+// The C implementation owns the unmanaged backend-context reference and the
+// nonvirtual ref/unref entry points. Keep its layout and dispatch authoritative.
+/// A resource is owned by a backend context, which holds a strong reference to
+/// its resources. The backend context also retains a GC lock on its resources;
+/// they can be garbage-collected only after the context drops that lock.
+native implementation "Arcadia/Engine/Visuals/Resource.h" class Arcadia.Engine.Visuals.Resource extends Arcadia.Object {
+  /// The reference count of this resource.
+  variable referenceCount : Arcadia.Integer32
+  /// Unmanaged, non-owning reference to the backend context, or the null
+  /// reference (PDL void). The context manages resource lifetime and GC locks.
+  variable context : borrowed Arcadia.Engine.Visuals.BackendContext
+
+  // Signature only: generated descendants call the existing native runtime
+  // constructor. Resource's executable implementation remains native.
+  constructor(variable context : Arcadia.Engine.Visuals.BackendContext)
+
+  method native "Arcadia_Engine_Visuals_Resource_load" load : Arcadia.Void
+
+  /// Unload the backend representation of this resource.
+  /// Unloading is a reversible action.
+  method native "Arcadia_Engine_Visuals_Resource_unload" unload : Arcadia.Void
+
+  /// Unlink this resource. Unlinking is irreversible, and the resource must be
+  /// unloaded first. It removes the reference to the backend context and the
+  /// references this resource holds to other resources.
+  /// A referencing resource usually increments the reference count of each
+  /// referenced resource; unlinking the referencing resource reverses that
+  /// increment.
+  method native "Arcadia_Engine_Visuals_Resource_unlink" unlink : Arcadia.Void
+
+  /// Visit this resource during rendering:
+  /// a) ensure its backend representation is created or updated;
+  /// b) update the rendering-context resource.
+  method native "Arcadia_Engine_Visuals_Resource_render" render(variable enterPassResource : Arcadia.Engine.Visuals.EnterPassResource) : Arcadia.Void
+
+  // These C targets are nonvirtual; native calls bind directly to their wrappers.
+  method nonvirtual native "Arcadia_Engine_Visuals_Resource_ref" ref : Arcadia.Void
+  method nonvirtual native "Arcadia_Engine_Visuals_Resource_unref" unref : Arcadia.Void
+}

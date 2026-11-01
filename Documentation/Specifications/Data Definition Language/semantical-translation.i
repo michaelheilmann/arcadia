@@ -1,5 +1,5 @@
-<h2 id="semantical-translation">5 Semantical Translation</h2>
-<p>The semantical translation a sentence provided by the syntactical translation into a typed value. The <em>Data Definition Language</em> knows six basic types
+<h2 id="semantical-translation">Semantical translation</h2>
+<p>Semantical translation maps a sentence to a typed value. The <em>Data Definition Language</em> has six basic types:
    \(\textit{List}\) and \(\textit{Map}\), which are the so called aggregate types, and \(\textit{Boolean}\), \(\textit{Number}\), \(\textit{String}\),      and
    \(\textit{Void}\), which are the so called scalar types.</p>
 
@@ -16,23 +16,31 @@
 
 <p>
 The translation of a sentence into values is described by syntax-directed translations
-(see Aho, Seti, Ullman: Compilers, Principles, Techniques, and Tools; 1st; pp. 305 for more information).
+(see <a href="#references">Aho, Sethi and Ullman</a> for background).
 </p>
 
-<p>At the end of a translation, the input syntactic form \(x\) has a variable \(x.\text{value}\) which is either
-a value of type \textit{Value}. Furthermore, for each syntactic form, we define two attributes: \(\text{value}\)
-is the computed value of the syntactic form. \(\textit{codePoints}\) is the sequence of code points associated
-with the syntactic form.</p>
+<p>At the end of translation, a value form \(x\) has an attribute \(x.\text{value}\) of type \(\textit{Value}\).
+In each table, numbered occurrences associate a grammar production with its semantic action.
+The operator \(:=\) assigns an attribute; \(\circ\) concatenates lists, \([a]\) is a singleton list and \([]\) is an empty list.
+The attribute \(\textit{codePoints}\) means the word's associated text: the original numeric spelling for Number,
+the name spelling for Name, but the decoded contents (without quotes) for String. It does not always mean the raw source lexeme.</p>
+<p>The current reader builds DDL nodes. Boolean and Void nodes store keyword spellings, Number nodes store numeric text,
+and String nodes store decoded UTF-8 text. The rules below describe the denoted values, not a promise that every node is
+converted to a native numeric or Boolean runtime type. Semantic analysis is an explicit operation;
+<code>DefaultReader_run</code> parses but does not itself invoke duplicate-name checking.</p>
 
-<h3>4.1 Scalar Types</h3>
-<p>This section defines \(\sigma\) for the translation of scalar types.
+<h3 id="semantical-translation-scalar-types">Scalar types</h3>
+<p>The scalar rules translate a single word into its denoted value.</p>
 
-<h4>4.1.1 Boolean Type</h4>
-<p>The type \(\textit{Boolean}\) type has two values \(\textit{true}\) and \(\textit{false}\) which are expressed in the language by the
-   words \(\texttt{DDL.Lexical.true}\) and \(\texttt{DDL.Lexical.false}\), respectively (as defined in the syntactical grammar).</p>
+<h4 id="type-boolean">Boolean type</h4>
+<p>The type \(\textit{Boolean}\) has two values, \(\textit{true}\) and \(\textit{false}\), expressed by
+<code>true</code> and <code>false</code> (\(\text{Lexical.True}\) and \(\text{Lexical.False}\)).
+The older names <code>DDL.Lexical.true</code> and <code>DDL.Lexical.false</code> refer to these same keywords.</p>
 
 <p>The semantical translation is defined as follows:</p>
 <table class="syntax-directed-translation">
+  <caption>Boolean translation</caption>
+  <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>\(\text{DDL.Syntactical.Boolean}@@1 : \text{Lexical.Boolean}@@2\)</td>
     <td>\(\{ 1.\text{value} := 2.\text{value} \}\)</td>
@@ -47,14 +55,18 @@ with the syntactic form.</p>
   </tr>
 </table>
 
-<h4>4.1.2 Number Type</h4>
+<h4 id="type-number">Number type</h4>
 <p>
-The type \(\textit{Number}\) represent sequences of Unicode code points that adhere to the constraints defined by \(\textit{DDL.Syntactical.Number}\).
-These Unicode code point sequences represent arbitrary precision integer and arbitrary precision floating point numbers.</p>
+The type \(\textit{Number}\) retains a sequence of code points satisfying \(\text{DDL.Syntactical.Number}\).
+Its representation is textual: for example, <code>01</code> and <code>+1</code> remain distinct spellings.
+Decimal notation allows an optional sign, an optional decimal point (with digits on at least one side), and an optional exponent
+introduced by <code>e</code> or <code>E</code> with an optional sign and at least one digit.</p>
 
 <p>The semantical translation is defined as follows:</p>
 
 <table class="syntax-directed-translation">
+  <caption>Number translation</caption>
+  <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
     <my-formula-box class="align-left">\[\begin{array}{ll}
@@ -69,16 +81,28 @@ These Unicode code point sequences represent arbitrary precision integer and arb
   </tr>
 </table>
 
-<p><b>Important:</b> Implementations may want to use typical data types like \(\texttt{int}\) or \(\texttt{float}\). The <em>Data Definition Language</em> does not        impose
-restrictions on the value ranges represented by these number literals. Consequently, the numeric value represented by value of type \(\textit{Number}\) might not be reprentable
-by typical data types like \(\texttt{int}\) or \(\texttt{float}\).</p>
+<p><b>Representation and precision:</b> Reading a Number does not perform arithmetic or convert it to <code>int</code> or <code>float</code>.
+The grammar does not impose a fixed machine-number range, but storage is bounded by implementation resources.
+Conversions performed by consumers have their own range, precision and error behavior; this specification does not promise arbitrary-precision numeric operations.</p>
 
-<h4>4.1.3 String Type</h4>
+<h4 id="type-string">String type</h4>
 <p>
-The \(\textit{String}\) type represents sequences of Unicode code points that have the properties defined by \(\text{DDL.Syntactical.String}\).</p>
+The \(\textit{String}\) type represents decoded text, not its quoted source spelling.
+For example, <code>"\u{41}"</code> denotes the same text as <code>"A"</code>.
+DDL strings are delimited only by double quotes; single-quoted strings and character literals are not supported.
+The reader decodes <code>\"</code>, <code>\\</code>, <code>\b</code>, <code>\f</code>,
+<code>\n</code>, <code>\r</code>, <code>\t</code>, <code>\v</code>, <code>\0</code> and braced <code>\u{...}</code> escapes.
+Each Unicode escape requires one to six digits from <code>0-9</code>, <code>a-f</code> or <code>A-F</code> inside braces.
+The decoded value must be at most U+10FFFF and outside U+D800 through U+DFFF (the surrogate range).
+Malformed escapes and non-scalar values cause a lexical error; <code>\uXXXX</code> is no longer accepted.
+Supplementary scalar values are supported directly as UTF-8 or through braced escapes, with identical decoded text.
+Unescaped code points U+0000 through U+001F are rejected. Embedded NUL is part of the text, not a terminator.
+No Unicode normalization is performed. Surrogate-pair escapes are not supported: use the scalar value itself, for example <code>\u{1F3EE}</code>.</p>
 
 <p>The semantical translation is defined as follows:</p>
 <table class="syntax-directed-translation">
+  <caption>String translation</caption>
+  <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
     <my-formula-box class="align-left">\[\begin{array}{ll}
@@ -93,13 +117,15 @@ The \(\textit{String}\) type represents sequences of Unicode code points that ha
   </tr>
 </table>
 
-<h4>4.1.4 Void Type</h4>
+<h4 id="type-void">Void type</h4>
 <p>
-The type <my-sem>sem:Void</my-sem> type has a single values \(\textit{void\} which is expressed in the language by the word \(\textit{void\} (as defined in the syntactical grammar).
+The type \(\textit{Void}\) has a single value, \(\textit{void}\), expressed by the keyword <code>void</code>.
 </p>
 
 <p>The semantical translation is defined as follows:</p>
 <table class="syntax-directed-translation">
+  <caption>Void translation</caption>
+  <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
     <my-formula-box class="align-left">\[\begin{array}{ll}
@@ -108,20 +134,23 @@ The type <my-sem>sem:Void</my-sem> type has a single values \(\textit{void\} whi
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-    \{ 1.\text{value} = \textit{void} \}
+    \{ 1.\text{value} := \textit{void} \}
     \end{array}\]</my-formula-box>
     </td>
   </tr>
 </table>
 
-<h3>4.2 List Type</h3>
+<h3 id="semantical-translation-list-type">List type</h3>
 <p>
-The type \(\textit{List}\) represents list of elements. Each element is a DDL node of type \(\textit{Value}\).
-A DDL node of type \(\textit{List}\) is expressed in the language by the sentence \(\text{DDL.Syntactical.List}\) (as defined in the syntactical grammar).
+The type \(\textit{List}\) represents an ordered list of values of type \(\textit{Value}\).
+A list is expressed by \(\text{DDL.Syntactical.List}\). The rules prepend each element to the translated remainder;
+empty bodies and trailing commas contribute an empty list.
 </p>
 
 <p>The semantical translation is defined as follows:</p>
 <table class="syntax-directed-translation">
+  <caption>List translation</caption>
+  <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
 
   <tr>
     <td>
@@ -133,7 +162,7 @@ A DDL node of type \(\textit{List}\) is expressed in the language by the sentenc
     </td>
     <td>
     <my-formula-box class="align-left">\[\begin{array}{ll}
-      1.\text{value} = 2.\text{value}
+      1.\text{value} := 2.\text{value}
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -188,7 +217,7 @@ A DDL node of type \(\textit{List}\) is expressed in the language by the sentenc
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = \left[ 2.\text{value} \right] \circ 3.\text{value}
+      1.\text{value} := \left[ 2.\text{value} \right] \circ 3.\text{value}
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -201,7 +230,7 @@ A DDL node of type \(\textit{List}\) is expressed in the language by the sentenc
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = []
+      1.\text{value} := []
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -214,7 +243,7 @@ A DDL node of type \(\textit{List}\) is expressed in the language by the sentenc
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = []
+      1.\text{value} := []
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -223,20 +252,23 @@ A DDL node of type \(\textit{List}\) is expressed in the language by the sentenc
 
 <p><b>Example</b></p>
 <div class="box">
-<p><code>
-// A list with three numbers 1, 2, and 3.<br>
+<pre tabindex="0" aria-label="List example"><code>// A list with three numbers 1, 2, and 3.
 [ 1, 2, 3 ]
-</code></p>
+</code></pre>
 </div>
 
-<h3>4.3 Map Type</h3>
+<h3 id="semantical-translation-map-type">Map type</h3>
 <p>
-The type \(\textit{Map}\) represents a list of entries. Each entry is a pair. The first element of a pair is a value of type \(\textit{Name}\), the second element is a value of type \(\textit{Value}\).
+The type \(\textit{Map}\) represents an ordered list of entries. Each entry is a pair: a name spelling (\(\textit{Name}\), not a seventh value type)
+and a value of type \(\textit{Value}\). Name comparison is case-sensitive. Names must be unique within each map;
+duplicate names cause a semantic error, including in nested maps. The same name may occur in different maps.
 A value of type \(\textit{Map}\) is expressed in the language by the sentence \(\text{DDL.Syntactical.Map}\) (as defined in the syntactical grammar).
 </p>
 
 <p>The semantical translation is defined as follows:</p>
 <table class="syntax-directed-translation">
+  <caption>Map translation (subject to unique names)</caption>
+  <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
 
   <tr>
     <td>
@@ -248,7 +280,7 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = 2.\text{value}
+      1.\text{value} := 2.\text{value}
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -290,7 +322,7 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = \left[ 2.\text{value} \right] \circ 3.\text{value}
+      1.\text{value} := \left[ 2.\text{value} \right] \circ 3.\text{value}
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -303,7 +335,7 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = []
+      1.\text{value} := []
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -316,7 +348,7 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = []
+      1.\text{value} := []
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -324,7 +356,7 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
   <tr>
     <td>
     <my-formula-box class="align-left">\[\begin{array}{ll}
-      \text{DDL.Syntactical.MapBodyElement}@@1 = \text{Lexical.Name}@@2;\text{Lexical.Colon};\text{DDL.Syntactical.Value}@@3
+      \text{DDL.Syntactical.MapBodyElement}@@1 : \text{Lexical.Name}@@2\;\text{Lexical.Colon}\;\text{DDL.Syntactical.Value}@@3
     \end{array}\]</my-formula-box>
     </td>
     <td>
@@ -336,9 +368,9 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
 
 </table>
 
-<h3>4.4 Value Type</h3>
+<h3 id="semantical-translation-value-type">Value type</h3>
 <p>
-The type \(\textit{Value}\) type is the union type of the types
+The type \(\textit{Value}\) is the union of the types
 \(\textit{Boolean}\),
 \(\textit{List}\),
 \(\textit{Map}\),
@@ -349,6 +381,8 @@ The type \(\textit{Value}\) type is the union type of the types
 
 <p>The semantical translation is defined as follows:</p>
 <table class="syntax-directed-translation">
+  <caption>Value translation</caption>
+  <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
     <my-formula-box class="align-left">\[\begin{array}{ll}
@@ -357,7 +391,7 @@ The type \(\textit{Value}\) type is the union type of the types
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = 2.\text{value}
+      1.\text{value} := 2.\text{value}
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -369,7 +403,7 @@ The type \(\textit{Value}\) type is the union type of the types
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = 2.\text{value}
+      1.\text{value} := 2.\text{value}
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -381,7 +415,7 @@ The type \(\textit{Value}\) type is the union type of the types
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = 2.\text{value}
+      1.\text{value} := 2.\text{value}
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -393,7 +427,7 @@ The type \(\textit{Value}\) type is the union type of the types
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = 2.\text{value}
+      1.\text{value} := 2.\text{value}
     \end{array}\]</my-formula-box>
     </td>
   </tr>
@@ -405,10 +439,11 @@ The type \(\textit{Value}\) type is the union type of the types
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = 2.\text{value}
+      1.\text{value} := 2.\text{value}
     \end{array}\]</my-formula-box>
     </td>
   </tr>
+  <tr>
     <td>
     <my-formula-box class="align-left">\[\begin{array}{ll}
       \text{DDL.Syntactical.Value}@@1 : \text{DDL.Syntactical.Void}@@2
@@ -416,7 +451,7 @@ The type \(\textit{Value}\) type is the union type of the types
     </td>
     <td>
     <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = 2.\text{value}
+      1.\text{value} := 2.\text{value}
     \end{array}\]</my-formula-box>
     </td>
   </tr>

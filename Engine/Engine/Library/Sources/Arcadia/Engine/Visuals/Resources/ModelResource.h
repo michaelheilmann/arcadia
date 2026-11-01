@@ -17,44 +17,39 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_RESOURCES_MODELRESOURCE_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_RESOURCES_MODELRESOURCE_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/Resources/ModelResource.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Visuals/Resource.h"
+
 typedef struct Arcadia_Engine_Visuals_ConstantBufferResource Arcadia_Engine_Visuals_ConstantBufferResource;
 typedef struct Arcadia_Engine_Visuals_MaterialResource Arcadia_Engine_Visuals_MaterialResource;
+typedef struct Arcadia_Engine_Visuals_ModelResource Arcadia_Engine_Visuals_ModelResource;
 typedef struct Arcadia_Engine_Visuals_VertexBufferResource Arcadia_Engine_Visuals_VertexBufferResource;
+typedef struct Arcadia_Math_Matrix4Real32 Arcadia_Math_Matrix4Real32;
 
-#define Arcadia_Engine_Visuals_ModelResource_LocalToWorldMatrixDirty (1)
-
-Arcadia_declareObjectType(u8"Arcadia.Visuals.Resources.ModelResource", Arcadia_Engine_Visuals_ModelResource,
-                          u8"Arcadia.Visuals.Resource");
+Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.ModelResource", Arcadia_Engine_Visuals_ModelResource,
+                          u8"Arcadia.Engine.Visuals.Resource");
 
 struct Arcadia_Engine_Visuals_ModelResourceDispatch {
   Arcadia_Engine_Visuals_ResourceDispatch _parent;
+
   void (*setLocalToWorldMatrix)(Arcadia_Thread*, Arcadia_Engine_Visuals_ModelResource*, Arcadia_Math_Matrix4Real32*);
 };
 
 struct Arcadia_Engine_Visuals_ModelResource {
   Arcadia_Engine_Visuals_Resource _parent;
-  // The dirty flags.
   Arcadia_Natural8Value dirty;
-  // The local to world matrix of the model.
-  // The default value is the identity matrix.
   Arcadia_Math_Matrix4Real32* localToWorldMatrix;
-
-  /// Constant buffer with model-specific information.
-  /// This is currently only the model to world matrix.
   Arcadia_Engine_Visuals_ConstantBufferResource* constantBuffer;
-
-  /// Constant buffer with mesh-specific information.
-  /// This is currently only the mesh color.
   Arcadia_Engine_Visuals_ConstantBufferResource* meshConstantBuffer;
-
-  /// The vertices of the mesh.
   Arcadia_Engine_Visuals_VertexBufferResource* meshVertexBuffer;
-
-  /// The material of the model.
   Arcadia_Engine_Visuals_MaterialResource* material;
-
 };
+
+#define Arcadia_Engine_Visuals_ModelResource_LocalToWorldMatrixDirty INT32_C(1)
 
 void
 Arcadia_Engine_Visuals_ModelResource_setLocalToWorldMatrix

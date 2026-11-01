@@ -1,0 +1,30 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Texture address modes for the U and V texture coordinates. Values correspond
+// to the engine's address modes. None selects the engine's default address mode.
+enumeration "Arcadia/ADL/Definitions/Visuals/TextureAddressMode.h" Arcadia.ADL.TextureAddressMode {
+  // No address mode is specified. This is the default value.
+  None = 10
+  // Texture coordinates are clamped to the border.
+  ClampToBorder = 0
+  // Texture coordinates are clamped to the edge.
+  ClampToEdge = 1
+  // Texture coordinates are mirrored and then repeated.
+  MirroredRepeat = 2
+  // Texture coordinates are repeated.
+  Repeat = 3
+}

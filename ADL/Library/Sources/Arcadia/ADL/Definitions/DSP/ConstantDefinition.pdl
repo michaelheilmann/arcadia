@@ -1,0 +1,27 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// An asset definition for a DSP generating a constant signal:
+// { type: "DSP.Constant", name: "MyGame.MyDSPs.MyConstant", value: 0.5 }
+// Preserve exact Real32 storage; no normalization/clamping is introduced.
+class "Arcadia/ADL/Definitions/DSP/ConstantDefinition.h" Arcadia.ADL.ConstantDefinition extends Arcadia.ADL.Definition {
+  variable value : Arcadia.Real32
+  constructor(variable definitions : Arcadia.ADL.Definitions, variable name : Arcadia.String, variable value : Arcadia.Real32) {
+    construct $0 Arcadia.ADL.Definition self definitions name
+    storeField self value value
+  }
+  method link() : Arcadia.Void {}
+}

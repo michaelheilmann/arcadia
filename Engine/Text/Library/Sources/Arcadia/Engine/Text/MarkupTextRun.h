@@ -18,21 +18,23 @@
 #define ARCADIA_ENGINE_TEXT_MARKUPTEXTRUN_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_TEXT_PRIVATE) || 1 != ARCADIA_ENGINE_TEXT_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Text/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Text/MarkupTextRun.h` directly, include `Arcadia/Engine/Text/Include.h` instead")
 #endif
 
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Text/TextAlignment.h"
-#include "Arcadia/Ring2/Include.h"
+
+typedef struct Arcadia_Engine_Text_MarkupTextRun Arcadia_Engine_Text_MarkupTextRun;
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.Text.MarkupTextRun", Arcadia_Engine_Text_MarkupTextRun,
                           u8"Arcadia.Object");
 
 struct Arcadia_Engine_Text_MarkupTextRunDispatch {
-  Arcadia_ObjectDispatch parent;
+  Arcadia_ObjectDispatch _parent;
 };
 
 struct Arcadia_Engine_Text_MarkupTextRun {
-  Arcadia_Object parent;
+  Arcadia_Object _parent;
   Arcadia_String* text;
   Arcadia_String* glyphSource;
   Arcadia_String* dynamicToken;

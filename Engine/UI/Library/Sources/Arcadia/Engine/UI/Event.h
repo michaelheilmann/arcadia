@@ -18,11 +18,13 @@
 #define ARCADIA_ENGINE_UI_EVENT_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_UI_PRIVATE) || 1 != ARCADIA_ENGINE_UI_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/UI/Include.h` instead")
+  #error("do not include `Arcadia/Engine/UI/Event.h` directly, include `Arcadia/Engine/UI/Include.h` instead")
 #endif
-#include "Arcadia/Ring2/Include.h"
 
-// https://michaelheilmann.com/Arcadia/Engine/UI/#Arcadia_Engine_UI_Event
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_Engine_UI_Event Arcadia_Engine_UI_Event;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.UI.Event", Arcadia_Engine_UI_Event,
                           u8"Arcadia.Object");
 

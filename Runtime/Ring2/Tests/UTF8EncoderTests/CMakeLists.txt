@@ -27,4 +27,5 @@ OnSourceFile(${this} Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.Ring2 PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

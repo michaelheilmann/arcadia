@@ -1,71 +1,180 @@
 # PDLC Folder Guide
 
-## Scope
+## Scope And Protected Implementation
 
-- `PDLC` contains the current compiler library target `${MyProjectName}.PDLC` for Arcadia PDL, the Arcadia Program Definition Language.
-- The library owns Arcadia PDL scanning, parsing, AST nodes, symbols, compiler phases, diagnostics, compilation task orchestration, and C backend writers.
-- Command-line behavior lives in `PDLC.CLI`; keep reusable compiler behavior in this library rather than in the CLI.
+- PDLC is the compiler library (`${MyProjectName}.PDLC`): scanning/parsing, AST, symbols, diagnostics, compiler phases and code writers. CLI flags/configuration belong to `PDLC.CLI`; do not move language semantics into the CLI or reintroduce MILC naming.
+- PDLC must remain hand-written C: no production PDL port, generated headers/bodies, self-hosting or compiler/CLI production regeneration entries. Follow the [root native-C invariant](../AGENTS.md#start-here) for the full protected set, test/import exceptions and explicit-approval requirement. PDL fixtures/generated-code tests remain essential compiler coverage, not production regeneration modules.
+- OperandNode/StatementNode and the interrupted VariableOperandNode/RegisterOperandNode self-generation were removed. Keep their hand-written implementations/headers and independent compiler regressions; do not restore production models or generated bodies.
+- Use the [current implementation ownership matrix](#implementation-ownership) below as the only Engine/Media/ADL/Text migration-status inventory. Component safety contracts live in their scoped guides, not repeated completed-migration histories here. A matrix/model/header preview is not authorization to migrate another implementation.
 
-## Language Specification
+## Source And Build Rules
 
-- The Arcadia PDL specification is `Documentation/Specifications/Program Definition Language/index.html.te`.
-- Arcadia PDL intentionally does not imply a particular abstraction level, storage duration, or implementation strategy; it simply defines a program.
-- Treat `Scanner.c`, `Parser.c`, AST node types, semantic phases, backend behavior, tests, and checked-in `.mil` inputs as the primary executable evidence for current behavior.
-- When changing accepted Arcadia PDL syntax, lexical words, instruction forms, primitive semantics, or observable diagnostics, update the PDL specification in the same change when practical.
-- If implementation and specification disagree, prefer the implementation for fixing immediate behavior, but either update the specification or leave an explicit follow-up note in the change summary.
+- Root CMake adds Library and Tests; `Library/CMakeLists.txt` registers sources/headers explicitly with repository product macros. Public consumers must not inherit implementation-private defines. Register committed `.c.g` normally with OnSourceFile; do not add redundant LANGUAGE overrides, publish copied headers or classify retired production `.c` as headers. Configuration headers come from Configure.h.i through target include paths.
+- Language source of truth is Scanner.c, Keywords.c, WordType.h, Parser.c, AST nodes, semantic phases, writers, compiled tests and checked-in PDL inputs. Specification: `Documentation/Specifications/Program Definition Language/index.html.te`. Update accepted syntax/instructions/primitive semantics/observable diagnostics there when changing them, or record an explicit discrepancy follow-up.
+- PDL defines a program, not a prescribed abstraction level/storage duration/implementation strategy. Keep structural declarations backend-independent: inheritance supplies the base portion; the C backend synthesizes `_parent` and dispatch structs. Never patch missing language features with quoted C declarations or explicit function-pointer layout in PDL. Native header/target annotations are interoperability metadata; ABI comparisons belong in tests.
+- Preserve AGPL-3.0-or-later writer header strings. Follow root C/C++ formatting, thread-first/status-jump/precise-root conventions; new owned AST/symbol/diagnostic references require visitor edges.
 
-## Build Wiring
+## Symbols, Types And Resolution
 
-- The root module file adds `Library` and `Tests`; the library target is declared in `Library/CMakeLists.txt` with the repository `BeginProduct` macros.
-- Source and header files are registered explicitly with `OnSourceFile` and `OnHeaderFile`; update `Library/CMakeLists.txt` when adding, moving, or deleting compiler source files.
-- Generated configuration headers come from `Configure.h.i` via `OnConfigurationFile`; include the generated `Configure.h` through normal target include paths.
+- Context.scope holds top-level types/procedures; moduleScope contains only modules and is never a lexical parent. Module/type names may coincide. EnterPhase checks duplicate domains independently, restores built-ins on repeat runs and gives each module declaration scope over Context.scope. Discovery visits both domains; ownership, not name-prefix guessing, selects dependencies. Do not introduce C-name aliases to avoid correct lookup.
+- Variable metadata includes isReference/isReadOnly/isOutput, ownership, value-record members and optional integer initializers. AST/resolved type is null only for a structural record with its own field list; these are fields, not lexically nested type declarations. Visit both AST/resolved record lists. TypeResolutionPhase_resolveParameter is shared by parameters/class/record fields: resolve qualified referents, copy qualifiers, reject duplicate record fields and range-check Integer32 constants with diagnostics.
+- Type names are fully qualified with no relative resolution, e.g. Arcadia.Natural64. Member names are unqualified; qualified procedure declarations/calls resolve their exact declared names. Missing types fail in type resolution with SymbolIsNotDefinedDiagnostic, not later backend lookup. Check unqualified/misspelled inputs before assuming a compiler regression.
+- Member lookup uses the declared unqualified name in the declaring type's scope. TypeResolutionPhase completes only symbols with a non-null completer; C-supplied native member signatures need no AST-name completer. Nonvirtual methods have direct wrappers/no slot; reject overriding or hiding inherited nonvirtual members. Override checks include reference/readonly/output modes as well as referent types.
+- Abstractness is not inherited. Abstract methods require abstract owners and no body/native target/nonvirtual clause. Concrete non-native classes must satisfy inherited/re-abstracted obligations; native providers supply their own implementations. Missing ordinary bodies retain empty-body behavior. Abstract constructors remain available to native subclasses and immediate-super initialization but no public create factory; a PDL construction of an abstract class is valid only as first-statement immediate-super construction on self.
+- An untyped positive integer literal is Natural64, not Integer32/Natural8. Do not store it into a differently tagged scalar field to imitate a typed default; preserve typed zero defaults or an appropriate native boundary.
 
-## Compiler Structure
+## Native Declarations, Output Paths And Target Names
 
-- `Scanner.c`, `Keywords.c`, and `WordType.h` define the lexical word stream and reserved words.
-- `Parser.c` defines the accepted syntax and builds `AST/*` nodes.
-- `EnterPhase`, `MemberEnterPhase`, and `TypeResolutionPhase` build and complete symbols; keep symbol invariants local to the relevant phase where possible.
-- `Backend*` code writes generated C and headers. Preserve generated-file header strings when changing licensing or public generated output.
-- Diagnostics are ordinary compiler output. Prefer adding precise diagnostics over raising generic status values when the caller can recover and report useful source information.
+- Opaque `native "Path/To/Header.h" class Qualified.Type ...` imports externally owned declarations without writing a header/body. nativeHeaderPath is visited metadata, distinct from callable targets; it does not change runtime/C type identity. Without a mapping use the qualified-name-derived include path. Keep opaque complete native headers intact rather than overwriting them from incomplete placeholders.
+- `class "Path/To/Header.h" Qualified.Type ...` (optionally abstract) owns a mapped header and adjacent `.c.g`; it does not imply native ownership. Generated enums accept the same mapping and own ordinary `.h/.c`. Interface outputs likewise use `.h/.c`. Source includes/guards follow mapped paths; ClassSymbolInfo centralizes class path selection. Class/procedure headers are generated directly as `.h`: no copying/publishing/install step.
+- Mappings must be nonempty relative forward-slash paths without empty/dot/dot-dot segments, include delimiters or control characters. Generated mappings require `.h`. Validate generated/opaque/aggregate/duplicate output collisions **before writes**. Safe input paths still need C include search roots; opaque headers need not exist beneath the PDL module input tree and have no generated-output path.
+- `native implementation "Path/To/Header.h" class ...` means PDL owns the real declaration header, native C owns execution; isNativeImplementation implies isNative. There is no generated `.c.g` or factory. A test-only `_PDLModel` fragment is a verification artifact, not runtime registration or real CLI header publication. Mapped native enums may share that header as top-level declarations, not lexical nested types. Guard duplicate owners, aggregate replacement, non-.h paths and loss of opaque declarations sharing a header.
+- Top-level native enums may map a header, retaining native ownership with no output path; unannotated native enums keep their prefix mapping. They require the provider's conventional `_CType_getType(thread)` descriptor. C enum ABI values transported in Integer32 must round-trip: preserve generated assertions, signed/unsigned range checks and exact typed descriptor/payload boxing. Do not regenerate native enum providers/macros or synthesize lexical nesting merely because names share a type prefix.
+- Callable `native "targetIdentifier"` clauses are optional/source-derived on procedure/method/constructor AST nodes. NULL nativeName means no clause, not non-native. Symbols have no duplicate nativeName field: resolve both source annotations and built-in registry bindings through Symbols_getNativeTarget; use Symbols_setNativeTarget for built-ins that have no AST. Keep provenance separate from native status; do not branch writers on AST presence.
+- Native target names are verbatim C identifiers, never passed through computeCxxName's dot-to-underscore mapping. A native owner's method may bind its conventional C wrapper without changing native dispatch/nonvirtual semantics. Generated-owner public entry and private `_impl` adapter collisions remain errors.
+- Qualified procedure M.N.p owns M/N/p.h and .c.g, with C name M_N_p (not module-prefixed twice). Legacy short procedures keep flat paths/current-module C prefixes. Qualified calls resolve global exact declarations across modules; unqualified targets use current-module lookup. Protect aggregate/type/procedure header collisions. Generate missing namespace directories, but still require module Library/Sources inputs; input/output path failures must yield path-specific FileSystemDiagnostic and preserve status.
 
-## Native Definitions And Native Names
+## Typed C Backend And Runtime ABI
 
-- `native` is an optional clause of a procedure, constructor, or method definition: `procedure native "print" print (...)`, `procedure native "nativePrint" MyNativeProcedure (...)`. It takes a string literal naming the native target.
-- `nativeName` on `ProcedureDefinitionNode`, `MethodDefinitionNode`, and `ConstructorDefinitionNode` is **optional and source-derived**: it is populated only when the compilation unit carries the clause, and is `NULL` otherwise. `NULL` means "no clause was written", **not** "this member is not native".
-- No symbol has a `nativeName` field of its own. Native-ness is reachable only through `symbol->ast->nativeName`, and a member supplied by a built-in type has no AST node at all. A check written as `ast && ast->nativeName` therefore classifies built-in native members as ordinary members, and they receive the generated stub body instead of a call.
-- Treat "is this member native?" and "what is its native target?" as two separate facts. A native member has two provenances: annotation-derived from PDL source, and registry-derived from a built-in type. Resolve both at one point and expose the result through a single accessor; do not let a backend writer branch on AST presence or on provenance.
-- A native target name is a **verbatim C identifier**. Never pass it through `Arcadia_PDLC_Backend_Implementation_computeCxxName`, which replaces `.` with `_` to derive an implementation name from a fully qualified PDL name.
-- `TypeResolutionPhase` completes a symbol only when `symbol->completer` is non-null, so a native member whose types are supplied from C rather than from AST type names, and which has no completer, is skipped safely and needs no phase changes.
-- `Backend/ProcedureSymbolWriter` inserts only the copyright and returns for a native procedure: it emits no declaration, no definition, and no call site. Non-native procedures receive a body that sets `Arcadia_Status_NotImplemented` and jumps. Native emission is therefore unimplemented.
-- Member lookup is by **declared, unqualified name** in the scope of the class type that declares the member. Only type names are fully qualified.
+- CallableWriter shares executable procedure/method/constructor bodies; class/procedure writers delegate and validate all bodies before file writes. Built-ins (including Object and String) are recognized through SymbolInfo_isBuiltIn/registry, not a special case for just one type; do not emit their files.
+- Public entry points/dispatch slots use typed C arguments/results: thread first, declaring-class receiver for methods, none for procedures, Arcadia.Value only for general values. Constructors are private void initializers with value-stack callbacks; concrete factories use typed constructor parameters. Preserve superclass arity/tag ordering and typed direct public headers; see specification section 6 and root source style.
+- Public native-target declarations use multiline typedParameters/header-context names. Compact positional native signatures are only for body-local extern declarations; dispatch pointer members keep their single-line exception. Generated Arcadia_defineObjectType calls use u8 type-name literals and three aligned lines for type, parent and operations.
+- Explicit first-statement super construction may call a native parent's real runtime constructor by its declared signature, then publish the generated derived type. It does not synthesize a native allocator; retain NativeParentAllocation's rejection of direct native allocation. Do not confuse bound empty methods with abstract/unbound slots: abstract slots stay NULL, their wrappers raise OperationInvalid and unwind. Preserve inherited exact function types via forwarding thunks for derived receivers, not incompatible casts.
+- Internal registers/mutable parameters use value-stack slots independent of the typed ABI. Root receivers, object/interface and general-value arguments **before** any collecting operation, including enum/type metadata resolution; visit managed/general-value fields and restore entry depth on errors. Nullable references box NULL as void, never a null object-reference value; unbox void as NULL, validate non-null referents and reject void field/method receivers. Allocation's void receiver has its separate specified meaning.
+- Class method wrappers validate required managed arguments before native dispatch too, not only in generated bodies: a raw native override has no generated checks. Establish roots before descriptor lookup. Keep nullable arguments and direct external/output forwarding. Interface wrappers remain stackless, using caller-owned roots and NotImplemented for absent interfaces/slots; do not add class-style argument frames to them.
+- Runtime constructors may normalize supported legacy Integer32 enum arguments to declared enum identity. This C interoperability does not relax PDL allocation/super-call exact-type checks. Preserve foreign-enum rejection even when numbers match, payload boundaries and native ABI round-trip checks; emit enum helpers/assertions only where transported.
+- Arcadia.Size maps to Arcadia_SizeValue/size_t with a **Size** value tag, not Natural64 even on x64. Preserve full-width boxing/conversion/native-call behavior and wrong-tag rejection.
+- Abstract C wrappers may forward readonly bytes and scalar outputs directly without boxing/tracing external storage. Readonly object arguments still need roots. Executable external-reference/record transport and ownership-qualified non-native storage remain diagnosed until supported: no raw pointers in Arcadia.Value, pointer-as-integer substitute or invented strong-reference semantics. The approved direction is native managed buffer wrappers (ByteArray/ImmutableByteArray); further language/runtime work needs a concrete bounded design/authorization.
+- Declaration-only scalar/untyped references map to typed/void pointers, readonly objects to const views, records to embedded anonymous structs and constants to prefixed macros. These header abilities do not prove executable ownership/transport. Opaque imports do not transfer implementation ownership.
 
-## Type Names
+### Dependency Collection
 
-- Type names are always fully qualified and there is no relative resolution, so a `.mil` source must spell `Arcadia.Natural64` and not `Natural64`. A member or procedure *name* is never qualified.
-- Type resolution is performed by the type resolution phase and reports `SymbolIsNotDefinedDiagnostic` for an unresolved type name; it is not deferred to the backend.
-- Because resolution is enforced, a latent unqualified type name in a `.mil` input becomes a hard error. When a new error appears while regenerating `.mil` inputs, check for a mistyped or unqualified type name before assuming a compiler regression.
+- Shared native Collections declarations belong to their defining module, not Engine; include Arcadia/Collections/Include.h without generating collection implementations. ADL's native Definition constructor/link metadata describes its real native boundary, not regenerated definitions/name storage/visitor. Keep ADL's private switch/EXPORT convention and independent enum contracts in its scoped guide; its configuration objects do not authorize Media DSP migrations.
+- Cross-module dependencies use the defining module's master Include.h, never foreign private headers/defines; select by actual symbol ownership. Same-module mapped headers and built-in runtime aggregates remain valid. Master headers scope private switches and export required declarations.
+- CallableWriter and InterfaceSymbolWriter both collect dependencies (including enum signatures/extended interfaces). Deduplicate **after** resolving include paths, as multiple types may share an aggregate; sort by C name and emit only required includes, with runtime then own header before other dependencies. Embedded parents/enums need complete definitions; class pointer referents may be forward-declared unless supplied already.
+- Source body emission records dependencies through cname, including conversions/type descriptors/construction/dispatch/native calls, then emits the collected preamble. Native adapters/forward declarations and conversion helpers are demand-collected, not compilation-wide. Keep direct Boolean helper collection for branches.
+- entries() spans the compilation for lookup/dynamic field or method branches; include pruning must not drop dependencies of any emitted branch. Declared-self field access resolves in its own class hierarchy without unrelated same-name fields/reverse module edges; dynamic receivers keep the full candidate search. Fields cannot shadow inherited ones; retain UnlinkedSized/declared-self regression coverage.
 
 ## Instruction Operands
 
-- An instruction does not use a comma. The operands of an instruction are adjacent, as the grammar in `Documentation/Specifications/Program Definition Language/4. Syntactical Translation.i` shows; `binaryInstruction : binaryOperator operand operand operand` is the model.
-- `invokeInstruction : 'invoke' operand name operand operand*` and `constructInstruction : 'construct' operand name operand operand*` do not parenthesize the argument list. `InvokeInstructionNode` stores the 1st operand as its `target`, exactly like `ConstructInstructionNode`; a new consumer must expect that field.
-- Commas are still used by declarations: parameter lists, `variable` declarations, and interface name lists.
-- `invoke` and `construct` require at least one argument. The parenthesized form they replaced had a spelling for the empty argument list; the unparenthesized form does not, so `onInvokeInstruction` and `onConstructInstruction` parse a mandatory first operand and then call `onOperands`.
-- `next` skips a line continuation word, so an instruction may span several lines when every line but the last ends with a reverse solidus. Only the line terminator of the last line terminates the statement. A reverse solidus that is not followed by a line terminator is a lexical error.
-- Do not reintroduce a comma or parentheses into instruction operands in the specification, the parser, or the checked-in `.mil` inputs; the three forms are kept in sync deliberately.
+- Instructions have adjacent operands, **no commas or parentheses**: `binaryInstruction : binaryOperator operand operand operand`; `invokeInstruction : 'invoke' operand identifier operand operand*`; `constructInstruction : 'construct' operand identifier operand operand*`. Invoke/construct require a first argument. Their AST stores the first destination as target; new consumers must use that actual field. Commas still separate declarations/parameter/interface lists.
+- `callInstruction : 'call' operand identifier operand*` is procedure-only invocation and permits zero arguments, stored as InvokeInstructionNode with procedureOnly set. Unqualified invoke first tries a current-module procedure, otherwise its first argument is method receiver; qualified invoke resolves exact procedure names. Call/invoke both use target for the result.
+- Named operands may reference qualified enum constants. Parser.onExpression builds visited qualified names with rooted identifier/list snapshots; writer resolves constants after local/parameter lookup and records the defining module's include dependency. Constants are readonly, not implicit locals/targets; missing members remain diagnostics. Do not invent raw-number aliases or enum arithmetic/order support.
+- Equality/inequality keeps any existing scalar callback. Only a missing enum callback falls back to exact descriptor/payload comparison, with right-tag validation before generic equality; do not change object dispatch or equate foreign enum descriptors.
+- next skips line continuation words; every continued instruction line except the last needs a reverse solidus followed by a line terminator. Any other reverse solidus use is lexical error. Keep parser, specification and inputs synchronized; do not restore old parenthesized instruction spelling.
+- ReturnInstructionNode's optional bare-return operand is passed as void and normalized to NULL, skipped by its visitor. Parser/backend distinguish bare void from valued returns; do not require an operand in its constructor. Preserve AST and compiled branching/deep-stack bare-return coverage.
 
-## Runtime And GC
+## Header Compatibility And Migration Gates
 
-- PDLC code follows the shared runtime conventions in `AGENTS/CxxSourceCodeStyle.md`: `Arcadia_Thread*` first, status/raise/jump error handling, and precise GC rooting.
-- If a new AST, symbol, diagnostic, or compiler object owns references, update its `visit` callback.
+- Before overwriting old outputs, compare each .h.g with its native .h (or compare direct generated .h to its previous Git/native version). Review fields/base/order, slots/signatures, factories, all other declarations, includes/guards and original documentation; generated-source compilation alone is not compatibility evidence.
+- Compile real native implementations/consumers against replacement headers. A model preview is not actual CLI output: verify class/native/native-implementation ownership, run normal regeneration, then verify a second byte-identical run. For executable switches follow the [Engine seven-step workflow](../Engine/AGENTS.md#pdlc-implementation-migration-workflow), including temporary paired providers and separate production linkage; retire comparisons only after gates pass, retaining named safeExecute regressions. No permanent per-class executables/triples.
+- Check native/derived consumers, mapped paths, aggregate boundaries, legacy tag/arity, GC/rooting, nullable and callback-error semantics, not just formatting. Inspect obsolete .g snapshots when a declaration becomes native; remove only confirmed obsolete artifacts after checking user edits/consumers. Keep declaration visibility, private factories and runtime protocols unchanged unless specifically approved.
+- PDL comments remain the documentation source of truth even when not emitted. Port original header docs into the PDL source before regeneration. Parser.next currently skips comments; comment emission would need separate parser/AST/writer work, not a prerequisite or excuse to erase docs.
+- Preserve Ring1/Ring2 include-boundary, old guard/base-member spelling and header-surface follow-ups by checking real consumers. Do not assume a cosmetic-looking change is equivalent.
 
-## Tests
+## Tests And Diagnostics
 
-- PDLC tests live under `Tests/AST`, `Tests/LexicalAnalysis`, `Tests/SyntacticalAnalysis`, `Tests/SemanticalAnalysis`, `Tests/LineMap`, and `Tests/Diagnostics`.
-- `Tests/SemanticalAnalysis` drives a `CompilationTask` over an `Assets/<CaseName>/` module tree. Its `compile` helper succeeds only when the task ran to completion without raising and produced no error diagnostic, so a case is negative when the compilation task raises or reports an error diagnostic. The helper always emits all collected diagnostics, so a negative case prints its expected diagnostics to stdout.
-- Add or update `.mil` assets for parser or scanner behavior changes.
-- Use focused CTest names when available; on Windows run tests from an out-of-source configured build directory with `ctest -C Debug -R <test-name>`.
+- Read `AGENTS/Testing.md`. Retain named cases in existing owning suites, safeExecute/process boundaries, native probes and compiled fresh-generation fixtures. Engine runtime suite ownership is in the matrix/Engine guide, not a second compiler-side migration inventory. Source/binary checks are not device/GUI proof.
+- Native AST/Bases coverage does not authorize self-generation. Preserve OperandNode's Size offset vs instruction factory's zero statement-offset policy, all arities/tags/deep-stack cleanup and native-descendant/GC checks.
+- Test areas: AST, LexicalAnalysis, SyntacticalAnalysis, SemanticalAnalysis, LineMap, Diagnostics, Backend, ResourceModels, CrossModules. Use --list for actual selectors, --case NAME for one or no arguments for the maintained original callback order, continuing after ordinary case failures. No retired whole-suite aliases/duplicate workloads. Keep expected-error helpers and fixture loops inside original safeExecute boundaries.
+- Do not split LineMap's shared process/jump/diagnostic/input-file lifecycle or SyntacticalAnalysis's shared error-recovery/status sequence merely for dispatch. Parallelism requires pristine per-case/configuration/session fixtures; SemanticalAnalysis's opt-in does not authorize concurrent runs of other serial suites.
+- Backend/CrossModules generate into fresh disposable, configuration-specific staging; use GeneratedSources.cmake for concrete LANGUAGE C paths because source properties do not expand $<CONFIG>. ResourceModels keeps immutable inputs apart from its writable stage. Do not run generators against checkout inputs or concurrent builds in one tree/configuration. Use CTest for semantic fixture isolation or provide a fresh private copy for direct invocations.
+- CrossModules must compile actual separate A/B libraries and reject bypasses of A's aggregate/private guards. Preserve foreign inheritance/object/enum/interface transport, qualified procedure paths, module/type-name identity with repeated EnterPhase/built-ins, and duplicate modules/types/module-only-as-type negatives. No test-only foreign private defines to hide missing dependency collection.
+- Keep VerifyProcedurePaths.cmake's qualified-path/absence-of-flat-output checks and class/procedure custom-command output lists. Retain generated Backend tests for typed ABI, native registry bindings without AST, GC/error cleanup, abstract-parent/factory behavior, Size and enum identity. ResourceModels inventories must match intentional fields/record members/signatures/qualifiers/constants and absent retired material enum; failed generator assertions can leave stale Contracts.c.g. Inherited layout belongs to the backend, never explicit PDL base fields.
+- SemanticalAnalysis positive compile requires no error status/diagnostic plus built-in output invariants; negative compile requires its reviewed exact diagnostic contract, not !ok/hasErrors. Tests/Support asserts status, exactly one Error, exact runtime diagnostic class, reason/message, file and byte position; CompilationFailedException matters for ValueRaised. NO_POSITION/absent-file expectations require absence, not wildcards; path suffixes start at component boundaries. No numeric diagnostic-code API exists: CallableDiagnostic needs exact reason text. Never repair expectations by copying unreviewed current output.
+- Capture actual status/jump/raised value before clearing status; root observations/contexts/paths. Assertion reports must render metadata without loading source/line maps, so a mismatch does not become a secondary I/O failure. Preserve checker mismatch/jump/deep-stack regressions and visible collected diagnostics.
+- Negative inputs must reach their intended phase: valid source units for semantic tests, real input directories, both duplicate modules in one context, correct Module.pdl location rather than directory-only diagnostics. Parser negatives must jump with SyntacticalError, clear stale status and restore caller frames. Add/update PDL fixtures for lexical/parser changes; do not accept unrelated parse/filesystem failures as intended semantics.
+- On Windows use external build trees and `ctest --test-dir <external-build-dir> -C Debug -R <test-name>`. CLI quoting/regeneration recipes remain in root and PDLC.CLI guides. Record actual builds/tests/configuration/unrun gates; do not reload completed histories by default or claim unexplained intermittent failures fixed by later passes.
+
+## Implementation Ownership
+
+**Source snapshot V:** `890843c5a26aff5892b1e921505d1649b32344f8` (`develop`, 2026-10-31). Every row below is verified at **V** against its module's `Library/CMakeLists.txt` and PDL declarations/production files. This is a source inventory, **not a new build, runtime, ABI-equivalence or regeneration result**. The documentation extraction is uncommitted and changes no declaration/output ownership. Refresh the snapshot when changing ownership; do not infer ownership from a `.pdl` file or `.c` suffix alone.
+
+This is the shared status inventory for the migration/scaffolding families discussed by Engine/PDLC guides, not an exhaustive list of every binding/enum, a migration archive or authorization. Behavioral rules belong to the [Engine guide](../Engine/AGENTS.md), [resource lifecycle guide](../Engine/AGENTS/Resource-Lifecycle-and-Ownership.md), [Media guide](../Media/AGENTS.md), [ADL guide](../ADL/AGENTS.md), [Text guide](../Engine/Text/AGENTS.md) and compiler sections above. For old verification evidence retrieve a specific task/commit, not a whole history dump.
+
+### Reading the matrix
+
+- Prefixes below are repository-relative source roots. Comma-separated stems denote a family: append each stem to the prefix. Unless stated otherwise, a PDL-owned class has `<stem>.pdl` input and committed `<stem>.h` / `<stem>.c.g` production outputs; interfaces/enums have `.h` / ordinary `.c` outputs. Qualified procedure outputs are listed separately when their paths differ.
+- **Generated** means PDL owns the declaration/body, not that a normal production build regenerates it. **Native declaration** means `native implementation`: PDL owns the header, hand-written C owns execution. **Opaque** means a PDL import owns neither native header nor body.
+- Test names identify source owners/cases, not a claim those tests ran for this documentation extraction. Core test prefix is `Arcadia.Engine.Tests`; UI uses `Arcadia.Engine.UI.Tests.EventBases`; ADL uses `Arcadia.ADL.Tests.Definitions`; Media uses `Arcadia.Media.Tests`; Text uses `Arcadia.Engine.Text.Tests.MarkupTests`. Compiler `ResourceModels` is additional declaration/output-ownership coverage, not a substitute for runtime tests.
+- Gate **W**: any further implementation switch needs the [seven-step Engine workflow](../Engine/AGENTS.md#pdlc-implementation-migration-workflow) and a named approved candidate. **R**: borrowed resource context/refcounts, partial construction and concrete backend retirement need separate executable-ownership approval; do not switch native bodies. **D**: VertexDescriptor private-factory / legacy mutable-List transport design blocks executable adoption. **P**: [root protected-native policy](../AGENTS.md#start-here). **S**: storage/algorithms or broad reference-bearing migrations require separate scope/authorization. `—` means no further switch is proposed, not permission for one.
+
+### Core Engine
+
+Prefix **E** = `Engine/Engine/Library/Sources/Arcadia/Engine/`.
+
+| Class/family (relative to E) | PDL input / production body owner | Owning regression source/case | At | Further gate |
+|---|---|---|---|---|
+| `Event` | Generated class | `CoreEvents.Event` | V | — |
+| `Engine` | `Engine.pdl` → `Engine.c.g`; qualified `getOrCreate`, `createTypeSet`, `createEventQueue` outputs; native `EngineSingleton.c` retains weak-cache/allocation boundary | `Nodes.Engine` | V | W for native boundary |
+| `Application` | Generated class + `requireConfigurationDirectoryName` procedure; native `ApplicationRuntime.c` validation | `Nodes.Application` | V | W |
+| `Scene` | Generated class + `createSceneQuitRequestSignal` procedure; native `SceneRuntime.c`; Signal opaque | `Nodes.Scene` | V | S for Signal |
+| `SceneManager` | Generated class + `createSceneManagerSignal`, `scenesAreIdentical`, `emitSceneChanged` procedures; native `SceneManagerRuntime.c` boundaries | `Nodes.SceneManager` | V | W |
+| `Node`, `NodeFactory` | Generated classes; `FactoryNativeNodes.pdl` opaque products; derived audials/visuals factories retain native creation helpers below | `Nodes.Node`, `Nodes.NodeFactory` / `FactoryFamilies.c` | V | S for products |
+| `Backend`, `BackendContext`, `Audials/Backend`, `Visuals/Backend` | Generated classes | `Backends.BackendBases` | V | — |
+| `Audials/BackendContext`, `Visuals/BackendContext` | Generated classes; latter's `createVisualsWindowsList` binding output stays under `Visuals/` | `Backends.AudialsBackendContext`, `Backends.VisualsBackendContext` | V | R for concrete resources |
+| `Audials/Node`, `Visuals/Node` | Generated classes | `Nodes.RenderNodes` | V | — |
+| `Audials/NodeFactory`, `Visuals/NodeFactory` | Generated scaffolding; respective native `NodeFactoryRuntime.c` algorithms | `Nodes.NodeFactory` / `FactoryFamilies.c` | V | S |
+| `Visuals/CanvasEvent`, `Visuals/Icon` | Generated classes | `CoreEvents.CanvasEvent`, `VisualResources.Icon` | V | — |
+| `Visuals/CanvasActivationStateChangedEvent`, `Visuals/CanvasDPIChangedEvent`, `Visuals/CanvasSizeChangedEvent` | Generated classes | `WindowCanvasEvents.CanvasPayloadEvents` | V | — |
+| `Input/MouseButtonEvent`, `Input/MousePointerEvent`, `Input/KeyboardKeyEvent` | Generated classes; `Input/KeyboardKey.pdl` is native enum import, not generated KeyboardKey provider | `InputEvents.MouseEvents`, `InputEvents.KeyboardEvent` | V | P for native runtime dependencies |
+| `Visuals/ApplicationEvent`, `Visuals/ApplicationQuitRequestedEvent`, `Visuals/WindowClosedEvent`, `Visuals/WindowPositionChangedEvent`, `Visuals/WindowSizeChangedEvent` | Generated classes | `WindowCanvasEvents.ApplicationWindowEvents` | V | — |
+| `Visuals/DisplayMode`, `Visuals/DisplayDevice` | Generated classes | `Backends.BackendBases`, `Backends.DisplayDevice` | V | — |
+| `Visuals/ColorSource` | Generated enum `.h/.c` | `VisualResources.ColorSource`, `Backends`, compiler ResourceModels | V | — |
+| `Visuals/Window`, `Visuals/Nodes/EnterPassNode` | Opaque PDL imports; native `.h/.c` | `Nodes.RenderNodes`, native consumers | V | S |
+
+### Resource boundaries
+
+Same E prefix. Concrete OpenGL4 bodies under `repository/Visuals.Implementation` and OpenAL bodies under `Engine/Audials.Implementation` are native; generated abstract bases do not transfer backend handle/refcount ownership.
+
+| Class/family | PDL input / production body owner | Owning regression source/case | At | Further gate |
+|---|---|---|---|---|
+| `Visuals/Resources/ConstantBufferResource`, `FrameBufferResource`, `TextureResource`, `ProgramResource` (all under `Visuals/Resources/`) | Generated mapped classes `.h/.c.g` | `VisualResources.ThinResources` | V | R for native parent/backend |
+| `Visuals/Resources/MaterialResource` | Generated scalar base `.h/.c.g`; concrete texture/program ownership remains native | `VisualResources.MaterialResource`, compiler ResourceModels | V | R |
+| `Visuals/Resource`, `Visuals/Resources/EnterPassResource`, `ModelResource`, `VertexBufferResource` (last three under `Visuals/Resources/`) | Native declaration `.pdl` → `.h`; native same-stem `.c` | `Backends.VisualsBackendContext`, `VisualResources.ResourceLifecycle`, `VisualResources.ModelConstruction`, compiler ResourceModels | V | R |
+| `Audials/Resource` | Opaque native class import with constructor-boundary metadata; native `.h/.c`, neither regenerated | `Backends`, native OpenAL consumers | V | R |
+| `Audials/Resources/SoundSourceResource`, `StreamingSoundSourceResource` (both under `Audials/Resources/`) | Generated mapped classes; retain `.Implementation` runtime/C namespace | `Backends.SoundSourceResource`, `Backends.StreamingSoundSourceResource` | V | R for native parent/backend |
+| `Audials/Providers/AudioStreamProvider` | Generated mapped class; Media DSP.Buffer opaque import | `Backends.AudioStreamProvider` | V | S for buffer |
+| `Audials/Providers/DSPStreamProvider` | No generated body; native `.c/.h` | `AudialsStreaming`, including `GraphDualTone` | V | S |
+
+### UI and Text
+
+Prefix **U** = `Engine/UI/Library/Sources/Arcadia/Engine/UI/`; **T** = `Engine/Text/Library/Sources/Arcadia/Engine/Text/`.
+
+| Class/family | PDL input / production body owner | Owning regression source/case | At | Further gate |
+|---|---|---|---|---|
+| U `Event`, `WidgetEvent`, `Events/WidgetPositionChangedEvent`, `Events/WidgetSizeChangedEvent` | Generated classes; positional leaves use mapped paths | UI `EventHierarchy` | V | — |
+| U `Node` and `Node.findByName` | `Node.pdl` → `Node.h/.c.g`, `Node/findByName.h/.c.g` and qualified helper procedures; native `NodeSearchRuntime.c` boundaries | UI `Node` | V | S for widgets |
+| U `Activatable`, `HitTestable`, `Focusable`, `Scrollable`, `Renderable`, `KeyboardInput`, `PointerInput`, `Container`, `ValueControl` | Generated interfaces, ordinary `.h/.c` (not `.c.g`) | UI `Interfaces` | V | — |
+| U `populateContainerFromDefinition` | `DefinitionFactory.pdl` → qualified `.h/.c.g` traversal/helpers; native `DefinitionFactory.c` dispatch/collection boundaries | UI `Populate` | V | S for factories/widgets |
+| U `Nodes/StackPanelNodeAlignment` | Generated mapped enum `.h/.c` | UI `Alignment` | V | — |
+| U `WidgetNode`, concrete `Nodes/*Node` | `NativeNodes.pdl` imports WidgetNode; native widget `.h/.c`, no generated widget implementations | UI `Interfaces`, `Node`, `Populate`, native consumers | V | S |
+| T `MarkupTextRun`, `TextAlignment` | Generated class `.h/.c.g` / enum `.h/.c`; MarkupTextRun.pdl also binds `requireRunStrings`; native `MarkupTextRunRuntime.c` | Text `RunModels`, parser cases | V | — |
+| T `MarkupWordType`, scanner/parser/TextLayout | Native bodies, not implementation migrations | Text parser/markup tests | V | S |
+
+### ADL, Media and shared native imports
+
+Prefix **A** = `ADL/Library/Sources/Arcadia/ADL/`; **M** = `Media/Library/Sources/Arcadia/Media/`.
+
+| Class/family | PDL input / production body owner | Owning regression source/case | At | Further gate |
+|---|---|---|---|---|
+| A `Definitions/Visuals/ColorDefinition`; `Definitions/DSP/{WhiteNoise,Constant,SineWave,SawtoothWave}Definition` | Generated classes; ColorDefinition.pdl also binds `ColorDefinition/defaultAlpha`; native `ColorDefinitionRuntime.c` returns typed constant | ADL `ClassModels.c` / per-class cases | V | — |
+| A `Definitions/Visuals/{TextureFilter,TextureAddressMode,MaterialType,AmbientColorSource,BlendFunction}` | Generated enums `.h/.c` | ADL `VisualsTextureEnums`, `VisualsMaterialEnums` | V | — |
+| A `Definition`, `Definitions`, readers/Context/Reference, reference-bearing definitions/graphs | `NativeTypes.pdl` contains opaque boundary imports; native `.h/.c`, not regenerated implementations | ADL Definitions suite / graph cases | V | S |
+| M `PixelFormat`, `SampleFormat` and qualified size/count queries | Generated enums `.h/.c` and procedure `.h/.c.g`; native `PixelFormatRuntime.c`, `SampleFormatRuntime.c` checked conversion/error boundaries | Media PixelBuffer `FormatMetadata`, `FormatQueries`, `FormatConsumers`; SampleBuffer `Formats` | V | S for storage |
+| M `PixelBufferOperation`, `PixelBufferOperations/Fill`, `CheckerboardFill` (both under `PixelBufferOperations/`) | Generated classes `.h/.c.g`; `requireDefinition` binding; native `PixelBufferOperations/FillRuntime.c` algorithms | Media PixelBuffer `Operations`, `Fills` | V | S |
+| M `VertexDescriptorBuilder` | Generated class + qualified helper procedures from same PDL; native `VertexDescriptorBuilderRuntime.c` | Media Geometry `VertexBuilder` | V | D for descriptor |
+| M `VertexDescriptor` | Native declaration `.pdl` → `.h`; native `.c` and private factory | Media Geometry `VertexBuilder`, compiler ResourceModels | V | D |
+| M `VertexElementSemantics`, `VertexElementSyntactics` | Generated enums `.h/.c`; native VertexElementDescriptor remains separate | Media Geometry `VertexEnums`, `VertexBuilder` | V | S for descriptor |
+| M `Geometry`, `PixelBuffer`, `SampleBuffer`, `DSP/Buffer` | Opaque `.pdl` imports; native storage/algorithms `.h/.c`; other Media DSP remains native | Media Geometry/PixelBuffer/SampleBuffer/DSP suites | V | S |
+| Collections native API imports | `Runtime/Collections/Library/Sources/Arcadia/Collections/NativeTypes.pdl` opaque-only; no generated production collection headers/bodies | compiler ResourceModels, native collection tests | V | P |
+| Math `Color4Real32`, `Matrix4Real32` imports | `repository/Math/Library/Sources/Arcadia/Math/{Color4Real32,Matrix4Real32}.pdl` opaque; existing native/template providers remain owners | compiler ResourceModels, native Math consumers/tests | V | S |
+| PDLC/PDLC.CLI, ARMS/Ring1/Collections/FileSystem | No production PDL implementation ownership; compiler AST self-generation is not permitted | Respective native suites; compiler fixture generators are tests only | V | P |
+
+### Updating this inventory
+
+Check both declaration kind and CMake-compiled producer, plus the owning test source. A native declaration may generate a header without owning execution; a generated-looking ordinary enum/interface `.c` may be PDL-owned. Native helper boundaries are not new migration candidates by default. Keep unique GC, ABI, required-reference, operation-order and resource protocols in scoped guides when shortening historical prose. Preserve the Engine Native/Generated/Production gates and source-of-truth comments in PDL. Do not append old test transcripts or duplicate this ownership inventory in other guides.
 
 ## Licensing
 
-- New C, header, and CMake files should use the repository AGPL-3.0-or-later header style described in `AGENTS/CxxSourceCodeStyle.md`.
+- Preserve repository AGPL-3.0-or-later notices in new C/header/CMake files and generated-file writer strings.

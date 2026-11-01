@@ -40,6 +40,13 @@ struct Arcadia_PDLC_VariableSymbol {
   Arcadia_PDLC_AST_FieldDefinitionNode* ast;
   /// The type of this field.
   Arcadia_PDLC_Symbol* type;
+  Arcadia_BooleanValue isReference;
+  Arcadia_BooleanValue isReadOnly;
+  Arcadia_BooleanValue isOutput;
+  Arcadia_Natural8Value ownership;
+  Arcadia_List* recordFields;
+  Arcadia_BooleanValue isConstant;
+  Arcadia_Integer32Value constantValue;
 };
 
 Arcadia_PDLC_VariableSymbol*

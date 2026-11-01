@@ -65,6 +65,16 @@ Arcadia_ValueStack_getValue
     Arcadia_SizeValue index
   );
 
+/// Replace a value at a top-relative index without changing the stack size.
+/// @error Arcadia_Status_ArgumentValueInvalid @a index is outside the stack or @a value is null
+void
+Arcadia_ValueStack_setValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_SizeValue index,
+    Arcadia_Value const* value
+  );
+
 /// @error Arcadia_Status_ArgumentValueInvalid @a value is a null pointer
 /// @error Arcadia_Status_AllocationFailed an allocation failed
 void

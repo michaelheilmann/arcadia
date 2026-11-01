@@ -122,6 +122,7 @@ Arcadia_Engine_UI_WidgetNode_constructImpl
   self->width = 0;
   self->height = 0;
   self->propertyChanged = Arcadia_Signal_create(thread);
+  self->name = NULL;
   Arcadia_LeaveConstructor(Arcadia_Engine_UI_WidgetNode);
 }
 
@@ -134,6 +135,9 @@ Arcadia_Engine_UI_WidgetNode_visitImpl
 {
   if (self->propertyChanged) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->propertyChanged);
+  }
+  if (self->name) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->name);
   }
 }
 
@@ -353,3 +357,20 @@ Arcadia_Engine_UI_WidgetNode_getPropertyChangedSignal
     Arcadia_Engine_UI_WidgetNode* self
   )
 { return self->propertyChanged; }
+
+Arcadia_String*
+Arcadia_Engine_UI_WidgetNode_getName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self
+  )
+{ return self->name; }
+
+void
+Arcadia_Engine_UI_WidgetNode_setName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_String* name
+  )
+{ self->name = name; }

@@ -2,12 +2,14 @@
 
   <style>
   @{include("./../specification.css.i")}
+  @{include("./ddl.css.i")}
   </style>
 
   <link rel='canonical' href='@{siteAddress}/specifications/data-definition-language/index.html'>
   <title>Data Definition Language</title>
 </head>
-<body class="my-content-page-1">
+<body class="my-content-page-1 ddl-spec">
+  <a class="ddl-skip" href="#introduction">Skip to specification</a>
   <header>
   @{include("./../../Commons/mathjax-definitions.i")}
   <div>
@@ -18,39 +20,82 @@
     <div class="left-column"></div>
     <div class="center-column">
 
+    <p class="ddl-label">Language specification</p>
     <h1>Data Definition Language</h1>
+    <p class="ddl-lead">Write structured data using six composable value types.</p>
 
-    <h2 id="introduction">1 Introduction</h2>
-    <p>This document is the specification of the <em>Data Definition Language</em>.
-    Programs of this language are sequences of Unicode code points and describe structured data for the purpose of for exchanging that data between entities (humans and machines alike).
-    The programs describes data in terms of typed value and this specificiation describes two aspects; language provides scalar types (boolean type, number type, string type,   and void
-    type) as well as aggregate types (map values and list values). This specification describes the translation from Unicode code points to typed values.</p>
+    <h2 id="introduction">Overview</h2>
+    <p>The Arcadia Data Definition Language (DDL) describes structured data for exchange between humans and machines.
+    A document is a sequence of Unicode code points describing one value: a Boolean, Number, String, Void, List or Map.
+    Lists and maps can contain other values, including nested collections.</p>
+    <p>Start with the complete example and type reference below. The three translation sections then define the formal rules.
+    <a href="@{siteAddress}/specifications/data-definition-language-schema/index.html">Data Definition Language Schema (DDLS)</a>
+    describes constraints on DDL data; it is separate from the DDL grammar. This page does not claim that proposed DDLS versions are implemented.</p>
+    <p class="box">DDL selects specific rules from the shared lexical specification.
+    The <a href="#conformance">conformance notes</a> summarize these selections, verified reader boundaries and migration guidance.</p>
 
-    <h2 id="translation">2 Translation</h2>
-    <p>A program of the DDL language is translated into values. This translation happens in three phases: The <em>lexical translation</em> translates Unicode     code
-    points to words. The <em>syntactical translation</em> filters the resulting sequence of words and then translates these words into a sentence. The  <em>semantical
-    translation</em> translates sentences into values t.</p>
+    @{include("./reader-guide.i")}
+
+    <h2 id="translation">Translation pipeline</h2>
+    <ol>
+      <li><a href="#lexical-translation">Lexical translation</a>: Unicode code points become words (tokens).</li>
+      <li><a href="#syntactical-translation">Syntactical translation</a>: whitespace, newlines and comments are discarded;
+      the remaining words form one sentence.</li>
+      <li><a href="#semantical-translation">Semantical translation</a>: the sentence denotes a typed value;
+      duplicate names in a map are rejected.</li>
+    </ol>
 
     @{include("./lexical-translation.i")}
     @{include("./syntactical-translation.i")}
     @{include("./semantical-translation.i")}
+    @{include("./conformance.i")}
+
+    <h2 id="references">References</h2>
+    <ul>
+      <li><a href="@{siteAddress}/specifications/common-lexical-translations/index.html">Common Lexical Translations</a>: shared word productions (see DDL-specific conformance notes).</li>
+      <li><a href="@{siteAddress}/specifications/mathematical-definitions-notations-and-proofs/index.html">Mathematical Definitions, Notations and Proofs</a>: grammar and list notation.</li>
+      <li><a href="@{siteAddress}/specifications/data-definition-language-schema/index.html">DDLS specification</a>: schema constraints.</li>
+      <li>Aho, Sethi and Ullman, <cite>Compilers: Principles, Techniques, and Tools</cite>, first edition, p. 305: syntax-directed translation.</li>
+    </ul>
 
   </div>
   <div class="right-column">
-   <nav>
+    <nav aria-label="On this page">
       <ul style="list-style: none">
-        <li><a href="#introduction">1 Introduction</a></li>
-        <li><a href="#translation">2 Translation</a></li>
-        <li><a href="#lexical-translation">2 Lexical Translation</a></li>
-        <li><a href="#syntactical-translation">3 Syntactical Translation</a></li>
-        <li><a href="#semantical-translation">4 Semantical Translation</a>
+        <li><a href="#introduction">Overview</a></li>
+        <li><a href="#first-document">Your first DDL document</a></li>
+        <li><a href="#type-reference">Six-type quick reference</a></li>
+        <li><a href="#translation">Translation pipeline</a></li>
+        <li><a href="#lexical-translation">Lexical translation</a></li>
+        <li><a href="#syntactical-translation">Syntactical translation</a>
           <ul>
-            <li><a href="#semantical-translation-scalar-types">4.1 Scalar Types</a></li>
-            <li><a href="#semantical-translation-list-type">4.2 List Type</a></li>
-            <li><a href="#semantical-translation-map-type">4.3 Map Type</a></li>
-            <li><a href="#semantical-translation-value-type">4.4 Value Type</a></li>
+            <li><a href="#syntax-value">Value</a></li>
+            <li><a href="#syntax-string">String</a></li>
+            <li><a href="#syntax-number">Number</a></li>
+            <li><a href="#syntax-boolean">Boolean</a></li>
+            <li><a href="#syntax-void">Void</a></li>
+            <li><a href="#syntax-map">Map</a></li>
+            <li><a href="#syntax-list">List</a></li>
           </ul>
-          </li>
+        </li>
+        <li><a href="#semantical-translation">Semantical translation</a>
+          <ul>
+            <li><a href="#semantical-translation-scalar-types">Scalar types</a>
+              <ul>
+                <li><a href="#type-boolean">Boolean</a></li>
+                <li><a href="#type-number">Number</a></li>
+                <li><a href="#type-string">String</a></li>
+                <li><a href="#type-void">Void</a></li>
+              </ul>
+            </li>
+            <li><a href="#semantical-translation-list-type">List type</a></li>
+            <li><a href="#semantical-translation-map-type">Map type</a></li>
+            <li><a href="#semantical-translation-value-type">Value type</a></li>
+          </ul>
+           </li>
+        <li><a href="#errors">Errors</a></li>
+        <li><a href="#conformance">Conformance and reader edges</a></li>
+        <li><a href="#references">References</a></li>
       </ul>
     </nav>
   </div>

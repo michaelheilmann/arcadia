@@ -18,7 +18,7 @@
 #include "Arcadia/Ring1/Objects/ByteReader.UnicodeCodePointReader.h"
 
 #include "Arcadia/Ring1/Include.h"
-#include <memory.h>
+#include <string.h>
 
 static void
 Arcadia_ByteReader_UnicodeCodePointReader_constructImpl
@@ -271,8 +271,9 @@ next
 
   if (self->codePointByteLength == 1 && self->codePoint <= 0x7f) {
   } else if (self->codePointByteLength == 2 && 0x80 <= self->codePoint && self->codePoint <= 0x7ff) {
-  } else if (self->codePointByteLength == 3 && 0x800 <= self->codePoint && self->codePoint <= 0xffff) {
-  } else if (self->codePointByteLength == 4 && 0x10000 <= self->codePoint && self->codePoint > 0x10ffff) {
+  } else if (self->codePointByteLength == 3 && 0x800 <= self->codePoint && self->codePoint <= 0xffff &&
+             !(0xd800 <= self->codePoint && self->codePoint <= 0xdfff)) {
+  } else if (self->codePointByteLength == 4 && 0x10000 <= self->codePoint && self->codePoint <= 0x10ffff) {
   } else {
     self->flags = FlagsError; // Overlong encoding error.
     self->codePoint = 0xfffd;

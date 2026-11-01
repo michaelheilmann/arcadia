@@ -14,8 +14,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Arcadia/Media/Include.h"
 
@@ -637,17 +640,295 @@ test
   testLowPass(thread);
 }
 
-int
-main
+static int
+runTests
   (
-    int argc,
-    char **argv
+    void
   )
 {
-  (void)argc;
-  (void)argv;
   if (!Arcadia_Tests_safeExecute(&test)) {
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
+}
+
+static void
+testWaveFrequencyDomain
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural64Value(thread, i);
+  const Arcadia_Real32Value frequencies[] = { 0.f, -1.f };
+  for (unsigned sawtooth = 0; sawtooth < 2; ++sawtooth) {
+    for (unsigned i = 0; i < 2; ++i) {
+      Arcadia_JumpTarget jump;
+      Arcadia_Thread_pushJumpTarget(thread, &jump);
+      if (Arcadia_JumpTarget_save(&jump)) {
+        if (sawtooth) Arcadia_Media_DSP_SawtoothWave_create(thread, frequencies[i]);
+        else Arcadia_Media_DSP_SineWave_create(thread, frequencies[i]);
+        Arcadia_Thread_popJumpTarget(thread);
+        Arcadia_Tests_assertTrue(thread, false);
+      } else {
+        Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+        Arcadia_Thread_popJumpTarget(thread);
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+        Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_ArgumentValueInvalid, status);
+      }
+      Arcadia_Tests_assertEqualSize(thread, base + 300, Arcadia_ValueStack_getSize(thread));
+      Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+    }
+  }
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_Tests_assertEqualNatural64(thread, i, Arcadia_ValueStack_getNatural64Value(thread, 299 - i));
+  Arcadia_ValueStack_popValues(thread, 300);
+  Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
+}
+
+static int
+runWaveFrequencyDomain
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testWaveFrequencyDomain) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static void
+checkMixSum
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Real32Value level,
+    Arcadia_SizeValue numberOfSources,
+    Arcadia_SizeValue numberOfInputs,
+    Arcadia_BooleanValue duplicate,
+    Arcadia_Real32Value expected
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_Media_DSP_Mix* mix = Arcadia_Media_DSP_Mix_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)mix);
+  Arcadia_Media_DSP* sources[2] = { NULL, NULL };
+  for (Arcadia_SizeValue i = 0; i < numberOfSources; ++i) {
+    Arcadia_Media_DSP_SawtoothWave* wave = Arcadia_Media_DSP_SawtoothWave_create(thread, 1.f);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)wave);
+    // A zero-scale affine signal is constant even when a duplicate input is
+    // rendered again. Do not assume Mix caches a stateful node's first render.
+    sources[i] = (Arcadia_Media_DSP*)Arcadia_Media_DSP_Affine_create(thread, (Arcadia_Media_DSP*)wave, 0.f, level);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sources[i]);
+  }
+  for (Arcadia_SizeValue i = 0; i < numberOfInputs; ++i) {
+    Arcadia_Media_DSP_Mix_addInput(thread, mix, sources[duplicate ? 0 : i]);
+  }
+  Arcadia_Tests_assertEqualSize(thread, numberOfInputs, Arcadia_Media_DSP_getNumberOfInputPins(thread, (Arcadia_Media_DSP*)mix));
+  for (Arcadia_SizeValue i = 0; i < numberOfInputs; ++i) {
+    Arcadia_Tests_assertTrue(thread, Arcadia_List_getObjectReferenceValueAt(thread, mix->inputs, i) == (Arcadia_Object*)sources[duplicate ? 0 : i]);
+  }
+  Arcadia_Media_DSP_Buffer* buffer = Arcadia_Media_DSP_Buffer_create(thread, 8, 17);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)buffer);
+  for (unsigned repeat = 0; repeat < 2; ++repeat) {
+    Arcadia_Real32Value* samples = Arcadia_Media_DSP_Buffer_getSamples(thread, buffer);
+    for (Arcadia_SizeValue i = 0; i < 17; ++i) samples[i] = 123.f;
+    Arcadia_Media_DSP_render(thread, (Arcadia_Media_DSP*)mix, buffer);
+    for (Arcadia_SizeValue i = 0; i < 17; ++i) {
+      // Dyadic levels and at most two unity additions are exactly representable
+      // in Real32. 1e-6 allows a few low-order ulps, far below clipping/gain errors.
+      Arcadia_Tests_assertTrue(thread, fabsf(samples[i] - expected) <= 0.000001f);
+      if (expected > 1.f) Arcadia_Tests_assertTrue(thread, samples[i] > 1.f);
+      if (expected < -1.f) Arcadia_Tests_assertTrue(thread, samples[i] < -1.f);
+    }
+  }
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+  Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
+}
+
+static void
+testMixSummation
+  (
+    Arcadia_Thread* thread
+  )
+{
+  checkMixSum(thread, 0.f, 0, 0, false, 0.f);       // Empty native mixer: silence.
+  checkMixSum(thread, 0.75f, 1, 1, false, 0.75f);   // Unity-gain pass-through.
+  checkMixSum(thread, 0.75f, 2, 2, false, 1.5f);    // Distinct identical inputs.
+  checkMixSum(thread, 0.75f, 1, 2, true, 1.5f);     // Same input counted twice.
+  checkMixSum(thread, -0.75f, 1, 2, true, -1.5f);   // No lower-bound clamping either.
+}
+
+static int
+runMixSummation
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testMixSummation) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+// Returns one rooted graph. Kinds 0..3 select individual streaming sources;
+// kind 4 is a tree of distinct sources, each evaluated once per output block.
+static Arcadia_Media_DSP_Graph*
+createRepeatableGraph
+  (
+    Arcadia_Thread* thread,
+    unsigned kind,
+    Arcadia_Natural32Value seed
+  )
+{
+  Arcadia_Media_DSP_Graph* graph = Arcadia_Media_DSP_Graph_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)graph);
+  Arcadia_Media_DSP* output;
+  if (kind < 4) {
+    switch (kind) {
+      case 0: output = (Arcadia_Media_DSP*)Arcadia_Media_DSP_SineWave_create(thread, 440.f); break;
+      case 1: output = (Arcadia_Media_DSP*)Arcadia_Media_DSP_SawtoothWave_create(thread, 440.f); break;
+      case 2: output = (Arcadia_Media_DSP*)Arcadia_Media_DSP_WhiteNoise_create(thread, 11u, 0.4f); break;
+      default: output = (Arcadia_Media_DSP*)Arcadia_Media_DSP_BrownNoise_create(thread, 22u, 0.65f); break;
+    }
+    Arcadia_Media_DSP_Graph_addNode(thread, graph, output);
+  } else {
+    Arcadia_Media_DSP* white = (Arcadia_Media_DSP*)Arcadia_Media_DSP_WhiteNoise_create(thread, 11u, 0.4f);
+    Arcadia_Media_DSP_Graph_addNode(thread, graph, white);
+    Arcadia_Media_DSP* brown = (Arcadia_Media_DSP*)Arcadia_Media_DSP_BrownNoise_create(thread, 22u, 0.65f);
+    Arcadia_Media_DSP_Graph_addNode(thread, graph, brown);
+    Arcadia_Media_DSP* sine = (Arcadia_Media_DSP*)Arcadia_Media_DSP_SineWave_create(thread, 440.f);
+    Arcadia_Media_DSP_Graph_addNode(thread, graph, sine);
+    Arcadia_Media_DSP* saw = (Arcadia_Media_DSP*)Arcadia_Media_DSP_SawtoothWave_create(thread, 220.f);
+    Arcadia_Media_DSP_Graph_addNode(thread, graph, saw);
+    Arcadia_Media_DSP* gain = (Arcadia_Media_DSP*)Arcadia_Media_DSP_Gain_create(thread, white, 0.5f);
+    Arcadia_Media_DSP_Graph_addNode(thread, graph, gain);
+    Arcadia_Media_DSP* affine = (Arcadia_Media_DSP*)Arcadia_Media_DSP_Affine_create(thread, sine, 0.25f, 0.5f);
+    Arcadia_Media_DSP_Graph_addNode(thread, graph, affine);
+    Arcadia_Media_DSP* lowPass = (Arcadia_Media_DSP*)Arcadia_Media_DSP_LowPass_create(thread, brown, 850.f);
+    Arcadia_Media_DSP_Graph_addNode(thread, graph, lowPass);
+    Arcadia_Media_DSP* multiply = (Arcadia_Media_DSP*)Arcadia_Media_DSP_Multiply_create(thread, affine, saw);
+    Arcadia_Media_DSP_Graph_addNode(thread, graph, multiply);
+    Arcadia_Media_DSP_Mix* mix = Arcadia_Media_DSP_Mix_create(thread);
+    Arcadia_Media_DSP_Graph_addNode(thread, graph, (Arcadia_Media_DSP*)mix);
+    Arcadia_Media_DSP_Mix_addInput(thread, mix, gain);
+    Arcadia_Media_DSP_Mix_addInput(thread, mix, lowPass);
+    Arcadia_Media_DSP_Mix_addInput(thread, mix, multiply);
+    Arcadia_Tests_assertTrue(thread, Arcadia_List_getObjectReferenceValueAt(thread, mix->inputs, 0) == (Arcadia_Object*)gain);
+    Arcadia_Tests_assertTrue(thread, Arcadia_List_getObjectReferenceValueAt(thread, mix->inputs, 1) == (Arcadia_Object*)lowPass);
+    Arcadia_Tests_assertTrue(thread, Arcadia_List_getObjectReferenceValueAt(thread, mix->inputs, 2) == (Arcadia_Object*)multiply);
+    output = (Arcadia_Media_DSP*)mix;
+  }
+  Arcadia_Media_DSP_Graph_setOutput(thread, graph, output);
+  Arcadia_Media_DSP_Graph_reseed(thread, graph, seed);
+  return graph;
+}
+
+static void
+renderPartition
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_DSP_Graph* graph,
+    Arcadia_Real32Value* samples,
+    Arcadia_SizeValue const* lengths,
+    Arcadia_SizeValue count
+  )
+{
+  Arcadia_SizeValue offset = 0;
+  for (Arcadia_SizeValue i = 0; i < count; ++i) {
+    Arcadia_Media_DSP_Buffer* buffer = Arcadia_Media_DSP_Buffer_create(thread, 48000, lengths[i]);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)buffer);
+    Arcadia_Media_DSP_render(thread, (Arcadia_Media_DSP*)graph, buffer);
+    if (lengths[i]) memcpy(samples + offset, Arcadia_Media_DSP_Buffer_getSamples(thread, buffer), lengths[i] * sizeof(*samples));
+    offset += lengths[i];
+    Arcadia_ValueStack_popValues(thread, 1);
+  }
+  Arcadia_Tests_assertEqualSize(thread, 257, offset);
+}
+
+static void
+testReproducibility
+  (
+    Arcadia_Thread* thread
+  )
+{
+  const Arcadia_SizeValue one[] = { 257 }, chunks[] = { 0, 1, 7, 0, 31, 64, 3, 151 };
+  for (unsigned kind = 0; kind < 5; ++kind) {
+    Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+    Arcadia_Media_DSP_Graph* a = createRepeatableGraph(thread, kind, 200u);
+    Arcadia_Media_DSP_Graph* b = createRepeatableGraph(thread, kind, 200u);
+    Arcadia_Media_DSP_Graph* c = createRepeatableGraph(thread, kind, 200u);
+    Arcadia_Real32Value whole[257], fresh[257], partitioned[257], reset[257], seeded[257];
+    renderPartition(thread, a, whole, one, 1);
+    renderPartition(thread, b, fresh, one, 1);
+    renderPartition(thread, c, partitioned, chunks, sizeof(chunks) / sizeof(chunks[0]));
+    Arcadia_Tests_assertEqualBytes(thread, whole, sizeof(whole), fresh, sizeof(fresh));
+    Arcadia_Tests_assertEqualBytes(thread, whole, sizeof(whole), partitioned, sizeof(partitioned));
+    Arcadia_Media_DSP_Graph_reset(thread, a);
+    renderPartition(thread, a, reset, one, 1);
+    Arcadia_Tests_assertEqualBytes(thread, whole, sizeof(whole), reset, sizeof(reset));
+    Arcadia_Media_DSP_Graph_reseed(thread, a, 201u);
+    renderPartition(thread, a, seeded, one, 1);
+    Arcadia_Media_DSP_Graph* d = createRepeatableGraph(thread, kind, 201u);
+    renderPartition(thread, d, fresh, one, 1);
+    Arcadia_Tests_assertEqualBytes(thread, seeded, sizeof(seeded), fresh, sizeof(fresh));
+    Arcadia_Media_DSP_Graph_reset(thread, a);
+    renderPartition(thread, a, reset, chunks, sizeof(chunks) / sizeof(chunks[0]));
+    Arcadia_Tests_assertEqualBytes(thread, seeded, sizeof(seeded), reset, sizeof(reset));
+    if (kind >= 2) {
+      Arcadia_Tests_assertTrue(thread, memcmp(whole, seeded, sizeof(whole)) != 0);
+    } else {
+      Arcadia_Tests_assertEqualBytes(thread, whole, sizeof(whole), seeded, sizeof(seeded));
+    }
+    // Separate finite-source numerical references. Short 257-frame horizons
+    // bound phase/recurrence drift; these are not universal DSP epsilons.
+    Arcadia_Natural32Value randomState = 0;
+    if (kind == 2) randomState = ((Arcadia_Media_DSP_WhiteNoise*)b->output)->initialSeed;
+    if (kind == 3) randomState = ((Arcadia_Media_DSP_BrownNoise*)b->output)->initialSeed;
+    double brownState = 0.0;
+    for (Arcadia_SizeValue i = 0; i < 257; ++i) {
+      Arcadia_Tests_assertTrue(thread, isfinite(whole[i]));
+      if (kind < 2) {
+        double phase = (double)i * 440.0 / 48000.0;
+        double expected = kind == 0 ? sin(2.0 * 3.14159265358979323846 * phase) : phase - floor(phase) - 0.5;
+        Arcadia_Tests_assertTrue(thread, fabs((double)whole[i] - expected) <= (kind == 0 ? 0.0001 : 0.00001));
+      } else if (kind < 4) {
+        randomState ^= randomState << 13;
+        randomState ^= randomState >> 17;
+        randomState ^= randomState << 5;
+        double normalized = (double)(randomState & 0x00ffffffu) / 8388607.5 - 1.0;
+        if (kind == 2) {
+          double expected = normalized * (double)((Arcadia_Media_DSP_WhiteNoise*)b->output)->amplitude;
+          // No recursive state: bound only the Real32 normalize/scale rounding.
+          Arcadia_Tests_assertTrue(thread, fabs((double)whole[i] - expected) <= 0.0000001);
+        } else {
+          brownState = brownState * 0.995 + normalized * 0.02;
+          if (brownState < -1.0) brownState = -1.0;
+          if (brownState > 1.0) brownState = 1.0;
+          double expected = brownState * (double)((Arcadia_Media_DSP_BrownNoise*)b->output)->amplitude;
+          // 257 steps of a contractive .995 recurrence accumulate more rounding.
+          Arcadia_Tests_assertTrue(thread, fabs((double)whole[i] - expected) <= 0.000002);
+        }
+      }
+    }
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+  }
+}
+
+static int
+runReproducibility
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testReproducibility) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int
+main
+  (
+    int argc,
+    char** argv
+  )
+{
+  static const Arcadia_Testing_Case cases[] = {
+    { "DSP", &runTests },
+    { "WaveFrequencyDomain", &runWaveFrequencyDomain },
+    { "MixSummation", &runMixSummation },
+    { "Reproducibility", &runReproducibility },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

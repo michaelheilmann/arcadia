@@ -18,34 +18,26 @@
 #define ARCADIA_MEDIA_SAMPLEFORMAT_H_INCLUDED
 
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
-  #error("do not include directly, include `Arcadia/Media/Include.h` instead")
+  #error("do not include `Arcadia/Media/SampleFormat.h` directly, include `Arcadia/Media/Include.h` instead")
 #endif
-#include "Arcadia/Ring2/Include.h"
 
-// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleFormat
-Arcadia_declareEnumerationType(u8"Arcadia.Media.SampleFormat", Arcadia_Media_SampleFormat);
+#include "Arcadia/Ring1/Include.h"
+
+Arcadia_declareEnumerationType("Arcadia.Media.SampleFormat",
+                               Arcadia_Media_SampleFormat);
 
 enum Arcadia_Media_SampleFormat {
 
-  Arcadia_Media_SampleFormat_Integer16,
+  Arcadia_Media_SampleFormat_Integer16 = 0,
 
-  Arcadia_Media_SampleFormat_Integer8,
+  Arcadia_Media_SampleFormat_Integer8 = 1,
 
-  Arcadia_Media_SampleFormat_Natural16,
+  Arcadia_Media_SampleFormat_Natural16 = 2,
 
-  Arcadia_Media_SampleFormat_Natural8,
+  Arcadia_Media_SampleFormat_Natural8 = 3,
 
-  // TODO: Add to documentation.
-  Arcadia_Media_SampleFormat_Real32,
+  Arcadia_Media_SampleFormat_Real32 = 4,
 
 };
-
-// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleFormat_getNumberOfBytes
-Arcadia_SizeValue
-Arcadia_Media_SampleFormat_getNumberOfBytes
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Media_SampleFormat self
-  );
 
 #endif // ARCADIA_MEDIA_SAMPLEFORMAT_H_INCLUDED

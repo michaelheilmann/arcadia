@@ -1,0 +1,7 @@
+{
+  type : "Material",
+  name : "ColorSourcesScene.TextureColorMaterial",
+  materialType : "Blinn-Phong",
+  ambientColorSource : "Texture",
+  ambientColorTexture : "ColorSourcesScene.Texture",
+}

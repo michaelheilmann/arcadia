@@ -17,7 +17,7 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_DSP_SINEWAVEREADER_MODULE_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_DSP_SINEWAVEREADER_MODULE_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
+#if !defined(ARCADIA_ADL_PRIVATE)
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
 #if defined(ARCADIA_ADL_EXPORT)

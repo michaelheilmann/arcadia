@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/VPL/Include.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -179,15 +181,20 @@ render
     Arcadia_Thread* thread,
     GLuint program,
     Arcadia_VPL_Backends_GLSL_ProgramArtifact* artifact,
-    int variant,
-    int quartered
+    const unsigned char expected[4],
+    int textureCase
   )
 {
-  static const float vertices[] = {
+  float vertices[] = {
     -1, -1, 0, .5f, .25f, 1, 1, .5f, .5f,
      3, -1, 0, .5f, .25f, 1, 1, .5f, .5f,
     -1,  3, 0, .5f, .25f, 1, 1, .5f, .5f
   };
+  if (textureCase >= 3) {
+    vertices[7] = 0; vertices[8] = 0;
+    vertices[16] = 16; vertices[17] = 0;
+    vertices[25] = 0; vertices[26] = 16;
+  }
   float viewer[32] = { 0 }, model[16] = { 0 }, mesh[] = { .25f, .5f, .75f, 1 };
   for (int i = 0; i < 4; ++i) { viewer[5 * i] = 1; viewer[16 + 5 * i] = 1; model[5 * i] = 1; }
   GLuint buffers[4], vao, framebuffer, textures[2];
@@ -202,7 +209,8 @@ render
   for (int i = 0; i < 3; ++i) p_glEnableVertexAttribArray(i);
   const void* constants[] = { viewer, model, mesh };
   const ptrdiff_t sizes[] = { sizeof(viewer), sizeof(model), sizeof(mesh) };
-  for (int i = 0; i < 3; ++i) {
+  Arcadia_SizeValue uniformCount = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)artifact->uniforms);
+  for (int i = 0; i < 3 && uniformCount >= 4; ++i) {
     p_glBindBuffer(GL_UNIFORM_BUFFER, buffers[i + 1]);
     p_glBufferData(GL_UNIFORM_BUFFER, sizes[i], constants[i], GL_STATIC_DRAW);
     p_glBindBufferBase(GL_UNIFORM_BUFFER, i, buffers[i + 1]);
@@ -218,13 +226,26 @@ render
   p_glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   const unsigned char pixel[] = { 128, 64, 192, 255 };
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  const unsigned char pattern[] = { 255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 255, 255 };
+  const unsigned char red[] = { 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255 };
+  const unsigned char green[] = { 0, 255, 0, 255 };
+  if (!textureCase) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+  else glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureCase >= 3 ? red : pattern);
+  if (textureCase >= 3) {
+    glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, green);
+    glTexParameteri(GL_TEXTURE_2D, 0x813d /* GL_TEXTURE_MAX_LEVEL */, 1);
+  }
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureCase >= 3 ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureCase == 2 ? 0x812f /* GL_CLAMP_TO_EDGE */ : GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureCase == 2 ? 0x812f : GL_REPEAT);
   p_glUseProgram(program);
-  Arcadia_VPL_Backends_GLSL_Binding* sampler = (Arcadia_VPL_Backends_GLSL_Binding*)Arcadia_List_getObjectReferenceValueAt(thread, artifact->uniforms, 3);
-  GLint location = p_glGetUniformLocation(program, (const char*)Arcadia_String_getBytes(thread, sampler->glName));
-  if (location >= 0) p_glUniform1i(location, 0);
+  for (Arcadia_SizeValue i = 0; i < uniformCount; ++i) {
+    Arcadia_VPL_Backends_GLSL_Binding* binding = (Arcadia_VPL_Backends_GLSL_Binding*)Arcadia_List_getObjectReferenceValueAt(thread, artifact->uniforms, i);
+    if (binding->type->kind != Arcadia_VPL_IR_TypeKind_Sampler) continue;
+    GLint location = p_glGetUniformLocation(program, (const char*)Arcadia_String_getBytes(thread, binding->glName));
+    if (location >= 0) p_glUniform1i(location, 0);
+  }
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   p_glGenFramebuffers(1, &framebuffer);
@@ -240,11 +261,10 @@ render
   glDrawArrays(GL_TRIANGLES, 0, 3);
   unsigned char actual[4];
   glReadPixels(4, 4, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, actual);
-  const unsigned char expected[][4] = { { 64, 128, 191, 255 }, { 128, 64, 255, 255 }, { 128, 64, 192, 255 }, { 64, 16, 192, 255 } };
   for (int i = 0; i < 4; ++i) {
-    int target = quartered ? (expected[variant][i] + 2) / 4 : expected[variant][i];
+    int target = expected[i];
     int delta = (int)actual[i] - target;
-    if (delta < -2 || delta > 2) fprintf(stderr, "variant %d loop=%d channel %d actual=%u expected=%d\n", variant, quartered, i, actual[i], target);
+    if (delta < -2 || delta > 2) fprintf(stderr, "textureCase=%d channel %d actual=%u expected=%d\n", textureCase, i, actual[i], target);
     Arcadia_Tests_assertTrue(thread, delta >= -2 && delta <= 2);
   }
   Arcadia_Tests_assertTrue(thread, glGetError() == GL_NO_ERROR);
@@ -337,7 +357,10 @@ testPrograms
     Arcadia_Tests_assertTrue(thread, p_glGetFragDataLocation(program, (const char*)Arcadia_String_getBytes(thread, artifact->fragmentColorOutput)) == artifact->fragmentColorLocation);
     Arcadia_VPL_Backends_GLSL_Binding* position = (Arcadia_VPL_Backends_GLSL_Binding*)Arcadia_List_getObjectReferenceValueAt(thread, artifact->vertexInterface, 0);
     Arcadia_Tests_assertTrue(thread, p_glGetAttribLocation(program, (const char*)Arcadia_String_getBytes(thread, position->glName)) == 0);
-    render(thread, program, artifact, variant, test >= 4);
+    const unsigned char reference[][4] = { { 64, 128, 191, 255 }, { 128, 64, 255, 255 }, { 128, 64, 192, 255 }, { 64, 16, 192, 255 } };
+    unsigned char expected[4];
+    for (int i = 0; i < 4; ++i) expected[i] = test >= 4 ? (reference[variant][i] + 2) / 4 : reference[variant][i];
+    render(thread, program, artifact, expected, 0);
     p_glDeleteProgram(program); p_glDeleteShader(vertex); p_glDeleteShader(fragment);
     Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
   }
@@ -404,6 +427,174 @@ testAggregateControlFlow
   Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
 }
 
+static void
+renderSource
+  (
+    Arcadia_Thread* thread,
+    const void* bytes,
+    Arcadia_SizeValue size,
+    const unsigned char expected[4],
+    int textureCase
+  )
+{
+  Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+  Arcadia_VPL_Context* context = (Arcadia_VPL_Context*)root(thread, (Arcadia_Object*)Arcadia_VPL_Context_create(thread));
+  Arcadia_Languages_Diagnostics* diagnostics = Arcadia_VPL_Context_getDiagnostics(thread, context);
+  Arcadia_VPL_IR_Module* module = (Arcadia_VPL_IR_Module*)root(thread, (Arcadia_Object*)Arcadia_VPL_Text_read(thread, bytes, size, diagnostics, NULL));
+  Arcadia_VPL_VerifiedModule* snapshot = (Arcadia_VPL_VerifiedModule*)root(thread, (Arcadia_Object*)Arcadia_VPL_VerifiedModule_create(thread, module, diagnostics));
+  Arcadia_VPL_Backends_GLSL_ProgramArtifact* artifact = (Arcadia_VPL_Backends_GLSL_ProgramArtifact*)root(thread, (Arcadia_Object*)Arcadia_VPL_Backends_GLSL_compile(thread, snapshot, diagnostics, 420));
+  GLuint vertex = shader(thread, GL_VERTEX_SHADER, artifact->vertexCode);
+  GLuint fragment = shader(thread, GL_FRAGMENT_SHADER, artifact->fragmentCode);
+  GLuint program = p_glCreateProgram();
+  p_glAttachShader(program, vertex); p_glAttachShader(program, fragment); p_glLinkProgram(program);
+  GLint success = 0;
+  p_glGetProgramiv(program, GL_LINK_STATUS, &success);
+  if (!success) { char log[8192]; p_glGetProgramInfoLog(program, sizeof(log), NULL, log); fprintf(stderr, "Conformance link failed: %s\n", log); }
+  Arcadia_Tests_assertTrue(thread, success);
+  render(thread, program, artifact, expected, textureCase);
+  p_glDeleteProgram(program); p_glDeleteShader(vertex); p_glDeleteShader(fragment);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+}
+
+static void
+testNativeNumerics
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const char source[] =
+    "(module 1 (types (type Z void) (type I int) (type B bool) (type F float)"
+    " (type V3 vector float 3) (type V4 vector float 4)) (uniforms)"
+    " (vertex main (interface (in attr \"attribute\" V3 0 none) (out pos \"position\" V4 -1 position))"
+    " (functions (function main \"vertex\" Z (parameters) (registers (register r0 V3) (register r1 V4))"
+    " (block entry (load r0 (stage attr)) (construct r1 r0 (float 1)) (store (stage pos) r1) (return)))))"
+    " (fragment main (interface (out col \"color\" V4 0 fragment_color))"
+    " (functions (function main \"fragment\" Z (parameters)"
+    " (registers (register r0 V4) (register r1 I) (register r2 B) (register r3 F))"
+    " (block entry (copy r1 (int 2147483647)) (add r1 r1 (int 1))"
+    " (equal r2 r1 (int -2147483648)) (branch_if r2 subtraction fail))"
+    " (block subtraction (subtract r1 r1 (int 1)) (equal r2 r1 (int 2147483647))"
+    " (branch_if r2 multiplication fail))"
+    " (block multiplication (copy r1 (int 1073741824)) (multiply r1 r1 (int 4))"
+    " (equal r2 r1 (int 0)) (branch_if r2 division fail))"
+    " (block division (divide r1 (int -7) (int 2)) (equal r2 r1 (int -3))"
+    " (branch_if r2 conversion fail))"
+    " (block conversion (copy r1 (int -5)) (construct r3 r1) (equal r2 r3 (float -5))"
+    " (branch_if r2 zeros fail))"
+    " (block zeros (equal r2 (float -0.0) (float 0.0)) (branch_if r2 finite fail))"
+    " (block finite (add r3 (float 0.5) (float 0.25)) (equal r2 r3 (float 0.75))"
+    " (branch_if r2 pass fail))"
+    " (block pass (construct r0 (float 0) (float 1) (float 0) (float 1)) (branch done))"
+    " (block fail (construct r0 (float 1) (float 0) (float 0) (float 1)) (branch done))"
+    " (block done (store (stage col) r0) (return))))))";
+  const unsigned char expected[] = { 0, 255, 0, 255 };
+  renderSource(thread, source, sizeof(source) - 1, expected, 0);
+}
+
+static void
+testSamplingContract
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const char prefix[] =
+    "(module 1 (types (type Z void) (type V3 vector float 3) (type V4 vector float 4)"
+    " (type V2 vector float 2) (type S sampler2D)) (uniforms (scalar tex \"texture\" S))"
+    " (vertex main (interface (in attr \"attribute\" V3 0 none) (in uv \"attribute_uv\" V2 2 none)"
+    " (out pos \"position\" V4 -1 position) (out vary \"vary\" V2 0 texcoord) (out sampled \"sampled\" V4 1 color))"
+    " (functions (function main \"vertex\" Z (parameters)"
+    " (registers (register r0 V3) (register r1 V4) (register r2 S) (register r3 V2) (register r4 V4))"
+    " (block entry (load r0 (stage attr)) (construct r1 r0 (float 1)) (store (stage pos) r1)"
+    " (load r3 (stage uv)) (store (stage vary) r3) (load r2 (uniform tex))"
+    " (texture r4 r2 r3) (store (stage sampled) r4) (return)))))"
+    " (fragment main (interface (in uv \"vary\" V2 0 texcoord) (in sampled \"sampled\" V4 1 color)"
+    " (out col \"color\" V4 0 fragment_color)) (functions (function main \"fragment\" Z"
+    " (parameters) (registers (register r0 V4) (register r1 V2) (register r2 S)) (block entry";
+  const char* operations[] = {
+    " (construct r1 (float 1.25) (float .25)) (load r2 (uniform tex)) (texture r0 r2 r1)",
+    " (construct r1 (float 1.25) (float .25)) (load r2 (uniform tex)) (texture r0 r2 r1)",
+    " (load r1 (stage uv)) (load r2 (uniform tex)) (texture r0 r2 r1)",
+    " (load r0 (stage sampled))"
+  };
+  const unsigned char expected[][4] = { { 255, 0, 0, 255 }, { 0, 255, 0, 255 }, { 0, 255, 0, 255 }, { 255, 0, 0, 255 } };
+  for (int i = 0; i < 4; ++i) {
+    Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+    Arcadia_StringBuilder* source = (Arcadia_StringBuilder*)root(thread, (Arcadia_Object*)Arcadia_StringBuilder_create(thread));
+    const char* parts[] = { prefix, operations[i], " (store (stage col) r0) (return))))))" };
+    for (int j = 0; j < 3; ++j) {
+      Arcadia_String* text = (Arcadia_String*)root(thread, (Arcadia_Object*)Arcadia_String_createFromCxxString(thread, parts[j]));
+      Arcadia_StringBuilder_insertBack(thread, source, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)text));
+    }
+    renderSource(thread, Arcadia_StringBuilder_getBytes(thread, source), Arcadia_StringBuilder_getNumberOfBytes(thread, source), expected[i], i + 1);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+  }
+}
+
+static void
+testHandwrittenExamples
+  (
+    Arcadia_Thread* thread
+  )
+{
+  const char* files[] = { VPL_TEXT_SPEC_DIRECTORY "/control-flow.vpl", VPL_TEXT_SPEC_DIRECTORY "/aggregate-storage.vpl" };
+  const unsigned char expected[] = { 0, 255, 0, 255 };
+  for (int i = 0; i < 2; ++i) {
+    char bytes[8192];
+    FILE* file = fopen(files[i], "rb");
+    Arcadia_Tests_assertTrue(thread, file != NULL);
+    size_t n = fread(bytes, 1, sizeof(bytes), file);
+    int failed = ferror(file), extra = fgetc(file);
+    fclose(file);
+    Arcadia_Tests_assertTrue(thread, !failed && extra == EOF);
+    renderSource(thread, bytes, n, expected, 0);
+  }
+}
+
+static int
+runPrograms
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testPrograms) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAggregateControlFlow
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testAggregateControlFlow) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNativeNumerics
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testNativeNumerics) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runSamplingContract
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testSamplingContract) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runHandwrittenExamples
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testHandwrittenExamples) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -411,9 +602,18 @@ main
     char** argv
   )
 {
+  static const Arcadia_Testing_Case cases[] = {
+    { "Programs", &runPrograms },
+    { "AggregateControlFlow", &runAggregateControlFlow },
+    { "NativeNumerics", &runNativeNumerics },
+    { "SamplingContract", &runSamplingContract },
+    { "HandwrittenExamples", &runHandwrittenExamples },
+  };
+  if (argc == 2 && !strcmp(argv[1], "--list")) {
+    return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
+  }
   if (!setup()) { cleanup(); puts("No OpenGL 4.2 core context available"); return 77; }
-  int result = Arcadia_Tests_safeExecute(&testPrograms) ? EXIT_SUCCESS : EXIT_FAILURE;
-  if (result == EXIT_SUCCESS && !Arcadia_Tests_safeExecute(&testAggregateControlFlow)) result = EXIT_FAILURE;
+  int result = Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
   cleanup();
   return result;
 }

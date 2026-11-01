@@ -1,0 +1,7 @@
+native "Native.h" enumeration MyModule.E {
+  One = 1
+}
+
+procedure identity(variable value : MyModule.E) : MyModule.E {
+  return value
+}

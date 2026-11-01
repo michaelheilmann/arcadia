@@ -83,7 +83,7 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.ModelResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_ModelResource,
-                         u8"Arcadia.Visuals.ModelResource", Arcadia_Engine_Visuals_ModelResource,
+                         u8"Arcadia.Engine.Visuals.ModelResource", Arcadia_Engine_Visuals_ModelResource,
                          &_typeOperations);
 
 static void
@@ -218,7 +218,7 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_ModelResource_renderImpl
   gl->glBindVertexArray(meshVertexBuffer->vertexArrayID);
 
   //
-  if (material->ambientColorSource == Arcadia_Engine_Visuals_MaterialResource_AmbientColorSource_Texture) {
+  if (((Arcadia_Engine_Visuals_MaterialResource*)material)->ambientColorSource == Arcadia_Engine_Visuals_ColorSource_Texture) {
     while (gl->glGetError()) { }
     assert(0 != material->ambientColorTexture->id);
     gl->glActiveTexture(GL_TEXTURE0);
@@ -247,12 +247,12 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_ModelResource_renderImpl
     return;
   }
   //
-  if (Arcadia_BooleanValue_True == material->blendEnabled) {
+  if (Arcadia_BooleanValue_True == ((Arcadia_Engine_Visuals_MaterialResource*)material)->blendEnabled) {
     gl->glEnable(GL_BLEND);
-    gl->glBlendFunc(toGLBlendFactor(material->blendSourceFunction), toGLBlendFactor(material->blendDestinationFunction));
+    gl->glBlendFunc(toGLBlendFactor(((Arcadia_Engine_Visuals_MaterialResource*)material)->blendSourceFunction), toGLBlendFactor(((Arcadia_Engine_Visuals_MaterialResource*)material)->blendDestinationFunction));
   }
   gl->glDrawArrays(GL_TRIANGLES, 0, Arcadia_Engine_Visuals_VertexBufferResource_getNumberOfVertices(thread, (Arcadia_Engine_Visuals_VertexBufferResource*)((Arcadia_Engine_Visuals_ModelResource*)self)->meshVertexBuffer));
-  if (Arcadia_BooleanValue_True == material->blendEnabled) {
+  if (Arcadia_BooleanValue_True == ((Arcadia_Engine_Visuals_MaterialResource*)material)->blendEnabled) {
     gl->glDisable(GL_BLEND);
   }
 }

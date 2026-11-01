@@ -1,0 +1,50 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleFormat
+enumeration Arcadia.Media.SampleFormat {
+  Integer16 = 0
+  Integer8 = 1
+  Natural16 = 2
+  Natural8 = 3
+  // Declared for compatibility, but intentionally not supported by the query.
+  Real32 = 4
+}
+
+// https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_SampleFormat_getNumberOfBytes
+procedure Arcadia.Media.SampleFormat.getNumberOfBytes(variable self : Arcadia.Media.SampleFormat) : Arcadia.Size {
+  isEqualTo $0 self Arcadia.Media.SampleFormat.Natural8
+  jumpIfTrue $0 oneByte
+  isEqualTo $0 self Arcadia.Media.SampleFormat.Integer8
+  jumpIfTrue $0 oneByte
+  isEqualTo $0 self Arcadia.Media.SampleFormat.Natural16
+  jumpIfTrue $0 twoBytes
+  isEqualTo $0 self Arcadia.Media.SampleFormat.Integer16
+  jumpIfTrue $0 twoBytes
+  set $1 0
+  jump finish
+oneByte:
+  set $1 1
+  jump finish
+twoBytes:
+  set $1 2
+finish:
+  call $2 Arcadia.Media.SampleFormat.checkedByteCount $1
+  return $2
+}
+
+// Size-valued result and the original ArgumentValueInvalid error boundary.
+procedure native "Arcadia_Media_SampleFormat_checkedByteCountImpl" Arcadia.Media.SampleFormat.checkedByteCount(variable bytes : Arcadia.Natural64) : Arcadia.Size

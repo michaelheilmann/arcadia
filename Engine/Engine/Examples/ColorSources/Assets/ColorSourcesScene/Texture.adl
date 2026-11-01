@@ -1,0 +1,5 @@
+{
+  type  : "Texture",
+  name  : "ColorSourcesScene.Texture",
+  pixelBuffer : "ColorSourcesScene.PixelBuffer",
+}

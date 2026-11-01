@@ -18,21 +18,25 @@
 #define ARCADIA_MEDIA_PIXELBUFFEROPERATION_H_INCLUDED
 
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
-  #error("do not include directly, include `Arcadia/Media/Include.h` instead")
+  #error("do not include `Arcadia/Media/PixelBufferOperation.h` directly, include `Arcadia/Media/Include.h` instead")
 #endif
-#include "Arcadia/Media/PixelBuffer.h"
+
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_Media_PixelBuffer Arcadia_Media_PixelBuffer;
+typedef struct Arcadia_Media_PixelBufferOperation Arcadia_Media_PixelBufferOperation;
 
 Arcadia_declareObjectType(u8"Arcadia.Media.PixelBufferOperation", Arcadia_Media_PixelBufferOperation,
                           u8"Arcadia.Object");
 
 struct Arcadia_Media_PixelBufferOperationDispatch {
-  Arcadia_ObjectDispatch parent;
+  Arcadia_ObjectDispatch _parent;
 
   void (*apply)(Arcadia_Thread*, Arcadia_Media_PixelBufferOperation*, Arcadia_Media_PixelBuffer*);
 };
 
 struct Arcadia_Media_PixelBufferOperation {
-  Arcadia_Object parent;
+  Arcadia_Object _parent;
 };
 
 void

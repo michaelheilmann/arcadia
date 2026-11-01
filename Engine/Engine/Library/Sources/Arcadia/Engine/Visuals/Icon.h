@@ -18,18 +18,15 @@
 #define ARCADIA_ENGINE_VISUALS_ICON_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
-  #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
+  #error("do not include `Arcadia/Engine/Visuals/Icon.h` directly, include `Arcadia/Engine/Include.h` instead")
 #endif
-#include "Arcadia/Ring2/Include.h"
 
-/// @brief Base of native icons. Used with native windows.
-/// @code
-/// class Arcadia.Engine.Visuals.Icon {
-///   constructor()
-/// }
-/// @endcode
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_Engine_Visuals_Icon Arcadia_Engine_Visuals_Icon;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.Icon", Arcadia_Engine_Visuals_Icon,
-                          u8"Arcadia.Object")
+                          u8"Arcadia.Object");
 
 struct Arcadia_Engine_Visuals_IconDispatch {
   Arcadia_ObjectDispatch _parent;

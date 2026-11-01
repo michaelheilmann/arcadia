@@ -1,0 +1,52 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+/// The base of all UI nodes. Inherited context setters remain unbound.
+abstract class Arcadia.Engine.UI.Node extends Arcadia.Engine.Node {
+  constructor() {}
+}
+
+/// Find the first widget in the subtree rooted at root whose name equals name.
+/// Search the root first, then descend depth-first in Container child order.
+/// Return void if no widget matches. Container-only objects are also traversed.
+procedure Arcadia.Engine.UI.Node.findByName(variable root : Arcadia.Object, variable name : Arcadia.String) : Arcadia.Object {
+  call $0 Arcadia.Engine.UI.nodeNameMatches root name
+  jumpIfTrue $0 foundRoot
+  call $1 Arcadia.Engine.UI.nodeChildCount root
+  set $2 0
+nextChild:
+  isEqualTo $3 $2 $1
+  jumpIfTrue $3 notFound
+  call $4 Arcadia.Engine.UI.nodeChildAt root $2
+  call $5 Arcadia.Engine.UI.Node.findByName $4 name
+  call $6 Arcadia.Engine.UI.nodeHasValue $5
+  jumpIfTrue $6 foundChild
+  add $2 $2 1
+  jump nextChild
+foundRoot:
+  return root
+foundChild:
+  return $5
+notFound:
+  return void
+}
+
+// Native boundaries retain bytewise widget-name comparison and erased Container
+// operations. Testing a result for presence must not invoke object equality.
+procedure native "Arcadia_Engine_UI_nodeNameMatchesImpl" Arcadia.Engine.UI.nodeNameMatches(variable root : Arcadia.Object, variable name : Arcadia.String) : Arcadia.Boolean
+procedure native "Arcadia_Engine_UI_nodeChildCountImpl" Arcadia.Engine.UI.nodeChildCount(variable root : Arcadia.Object) : Arcadia.Natural64
+procedure native "Arcadia_Engine_UI_nodeChildAtImpl" Arcadia.Engine.UI.nodeChildAt(variable root : Arcadia.Object, variable index : Arcadia.Natural64) : Arcadia.Object
+procedure native "Arcadia_Engine_UI_nodeHasValueImpl" Arcadia.Engine.UI.nodeHasValue(variable node : Arcadia.Object) : Arcadia.Boolean

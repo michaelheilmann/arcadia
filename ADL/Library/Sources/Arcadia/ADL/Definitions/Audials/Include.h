@@ -17,11 +17,14 @@
 #if !defined(ARCADIA_ADL_DEFINITIONS_AUDIALS_INCLUDE_H_INCLUDED)
 #define ARCADIA_ADL_DEFINITIONS_AUDIALS_INCLUDE_H_INCLUDED
 
-#if !defined(ARCADIA_ADL_MODULE)
+#if !defined(ARCADIA_ADL_PRIVATE)
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
 #include "Arcadia/ADL/Definition.h"
 
 #include "Arcadia/ADL/Definitions/Audials/SampleBufferDefinition.h"
+#include "Arcadia/ADL/Definitions/Audials/SoundSourceNodeDefinition.h"
+#include "Arcadia/ADL/Definitions/Audials/DSPStreamProviderDefinition.h"
+#include "Arcadia/ADL/Definitions/Audials/StreamingSoundSourceNodeDefinition.h"
 
 #endif  // ARCADIA_ADL_DEFINITIONS_AUDIALS_INCLUDE_H_INCLUDED

@@ -298,6 +298,7 @@ Arcadia_PDLC_Scanner_constructImpl
   }
   //
   On(u8"class", Class);
+  On(u8"abstract", Abstract);
   On(u8"constructor", Constructor);
   On(u8"enumeration", Enumeration);
   On(u8"entry", Entry)
@@ -308,6 +309,7 @@ Arcadia_PDLC_Scanner_constructImpl
   On(u8"module", Module);
   On(u8"procedure", Procedure);
   On(u8"invoke", Invoke);
+  On(u8"call", Call);
   On(u8"construct", Construct);
   //
   On(u8"native", Native);

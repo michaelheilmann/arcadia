@@ -29,4 +29,5 @@ OnHeaderFile(${this} Arcadia.Ring2.Tests.UTF8/readWrite.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Ring2)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

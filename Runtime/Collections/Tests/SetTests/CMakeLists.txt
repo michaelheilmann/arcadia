@@ -27,4 +27,5 @@ OnSourceFile(${this} Main.c)
 
 OnModuleDependency(${this} ${MyProjectName}.Collections)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
 EndProduct(${this})

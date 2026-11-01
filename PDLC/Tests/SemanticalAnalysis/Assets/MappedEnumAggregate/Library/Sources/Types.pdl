@@ -1,0 +1,3 @@
+enumeration "Test/Include.h" Test.Invalid {
+  Zero = 0
+}

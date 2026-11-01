@@ -5,6 +5,11 @@
       table is complete as of this draft and is the authoritative inventory of asset
       types; the sections that specify the types give the entry lists.
       </p>
+      <p>
+      <a href="#graph-composition">Graph composition</a> uses separate front-end
+      forms, including <code>GraphDefinition</code> and <code>GraphInstance</code>.
+      They are processed by the graph batch entry point, not registered as asset readers.
+      </p>
       <table>
         <thead><tr><th>Type name</th><th>Section</th></tr></thead>
         <tbody>
@@ -24,6 +29,9 @@
           <tr><td><code>"DSP.SineWave"</code></td><td>5 Audials definitions</td></tr>
           <tr><td><code>"DSP.SawtoothWave"</code></td><td>5 Audials definitions</td></tr>
           <tr><td><code>"DSP.WhiteNoise"</code></td><td>5 Audials definitions</td></tr>
+          <tr><td><code>"DSP.Gain"</code></td><td>5 Audials definitions</td></tr>
+          <tr><td><code>"DSP.LowPass"</code></td><td>5 Audials definitions</td></tr>
+          <tr><td><code>"DSP.Mix"</code></td><td>5 Audials definitions</td></tr>
           <tr><td><code>"UI.Button"</code></td><td>6 User interface definitions</td></tr>
           <tr><td><code>"UI.Label"</code></td><td>6 User interface definitions</td></tr>
           <tr><td><code>"UI.StackPanel"</code></td><td>6 User interface definitions</td></tr>
@@ -33,7 +41,7 @@
         </tbody>
       </table>
       <p>
-      Twenty-two type names are registered. The base type <code>MeshGenerator</code>
+      The three operator type names share one reader. The base type <code>MeshGenerator</code>
       is not among them, so no asset may use it as its <code>type</code> entry; it
       occurs only in the requirement on the <code>mesh</code> entry of a
       <code>"Model"</code> definition in section 4. The definition types

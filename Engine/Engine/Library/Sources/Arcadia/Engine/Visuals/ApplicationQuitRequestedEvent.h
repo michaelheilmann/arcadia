@@ -17,14 +17,20 @@
 #if !defined(ARCADIA_ENGINE_VISUALS_APPLICATIONQUITREQUESTEDEVENT_H_INCLUDED)
 #define ARCADIA_ENGINE_VISUALS_APPLICATIONQUITREQUESTEDEVENT_H_INCLUDED
 
+#if !defined(ARCADIA_ENGINE_PRIVATE) || 1 != ARCADIA_ENGINE_PRIVATE
+  #error("do not include `Arcadia/Engine/Visuals/ApplicationQuitRequestedEvent.h` directly, include `Arcadia/Engine/Include.h` instead")
+#endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Engine/Visuals/ApplicationEvent.h"
 
-// The opaque type of an "application" message.
+typedef struct Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent;
+
 Arcadia_declareObjectType(u8"Arcadia.Engine.Visuals.ApplicationQuitRequestedEvent", Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent,
                           u8"Arcadia.Engine.Visuals.ApplicationEvent");
 
 struct Arcadia_Engine_Visuals_ApplicationQuitRequestedEventDispatch {
-  Arcadia_Engine_Visuals_ApplicationEventDispatch parent;
+  Arcadia_Engine_Visuals_ApplicationEventDispatch _parent;
 };
 
 struct Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent {

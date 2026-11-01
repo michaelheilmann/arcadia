@@ -514,6 +514,7 @@ Arcadia_Engine_UI_ButtonNode_constructImpl
 
   self->source = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_ADL_UI_ButtonDefinition_getType(thread));
   Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)self->source);
+  ((Arcadia_Engine_UI_WidgetNode*)self)->name = ((Arcadia_ADL_Definition*)self->source)->name;
   ((Arcadia_Engine_UI_WidgetNode*)self)->left = self->source->left;
   ((Arcadia_Engine_UI_WidgetNode*)self)->bottom = self->source->bottom;
   ((Arcadia_Engine_UI_WidgetNode*)self)->width = (Arcadia_Integer32Value)self->source->width;

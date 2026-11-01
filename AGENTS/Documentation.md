@@ -30,6 +30,7 @@
 - Keep included fragments beside the document they support unless they are intentionally shared, but make their include paths valid for the template engine working directory used by CMake.
 - Put generated documentation outputs under `.Website`; do not edit generated output as primary source.
 - Rely on the template engine dependency file support for included fragments. If an included file is not tracked after a build, inspect the template include path rather than adding generated files manually.
+- Each template depfile must describe the generated page as depending on every transitively included template. Input-to-input rules are not separate generated outputs and Ninja rejects them with "inputs may not also have inputs". Keep the real CLI/CMake Depfile regression's cold build, depfile reload, escaped-path and deepest-include incremental checks; rendering correct text alone does not validate dependency metadata.
 
 ## Generated Website Policy
 

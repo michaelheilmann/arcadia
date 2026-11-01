@@ -1,0 +1,7 @@
+{
+  type : "Color",
+  name : "ColorSourcesScene.NewGameButtonSecondColor",
+  red : 128,
+  green : 255,
+  blue : 128,
+}

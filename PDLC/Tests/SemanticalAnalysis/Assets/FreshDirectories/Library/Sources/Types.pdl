@@ -1,0 +1,2 @@
+class MyModule.Nested.Fresh extends Arcadia.Object {
+}

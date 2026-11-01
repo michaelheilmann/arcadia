@@ -15,6 +15,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.29)
+include("${CMAKE_CURRENT_LIST_DIR}/GeneratedSources.cmake")
+add_subdirectory(Support)
 
 add_subdirectory(LineMap)
 add_subdirectory(Diagnostics)
@@ -22,3 +24,6 @@ add_subdirectory(LexicalAnalysis)
 add_subdirectory(SyntacticalAnalysis)
 add_subdirectory(SemanticalAnalysis)
 add_subdirectory(AST)
+add_subdirectory(Backend)
+add_subdirectory(ResourceModels)
+add_subdirectory(CrossModules)

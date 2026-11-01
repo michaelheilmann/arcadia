@@ -25,4 +25,40 @@ Arcadia_ADL_Tests_DSP_SineWaveDefinitionTest1
     Arcadia_Thread* thread
   );
 
+int
+Arcadia_ADL_Tests_SinePositiveFrequency
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_SineNonpositiveFrequency
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_SawtoothPositiveFrequency
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_SawtoothNonpositiveFrequency
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_GraphsSinePositiveFrequency
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_GraphsSineNonpositiveFrequency
+  (
+    void
+  );
+
 #endif // ARCADIA_ADL_TESTS_DSP_SINEWAVEDEFINITIONTESTS_H_INCLUDED

@@ -1,0 +1,45 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Native definition: Arcadia/Engine/Visuals/Resources/FrameBufferResource.h.
+// Size queries write to caller-provided output references.
+/// A frame-buffer resource must be created and activated before a scene can
+/// be rendered. The default render target writes to the default frame buffer;
+/// a texture render target creates a frame buffer and writes to that buffer.
+abstract class "Arcadia/Engine/Visuals/Resources/FrameBufferResource.h" Arcadia.Engine.Visuals.FrameBufferResource extends Arcadia.Engine.Visuals.Resource {
+  constructor(variable context : Arcadia.Engine.Visuals.BackendContext) {
+    construct $0 Arcadia.Engine.Visuals.Resource self context
+  }
+  method abstract activate : Arcadia.Void
+  method abstract deactivate : Arcadia.Void
+  method abstract setSize(variable width : Arcadia.Integer32, variable height : Arcadia.Integer32) : Arcadia.Void
+  method abstract getSize(variable width : output reference Arcadia.Integer32, variable height : output reference Arcadia.Integer32) : Arcadia.Void
+
+  /// @brief Capture the pixels currently rendered to this frame-buffer resource.
+  /// The operation uses the current thread and this frame-buffer resource as
+  /// its implicit receiver.
+  /// @return A new pixel buffer in
+  /// Arcadia.Media.PixelFormat.RedGreenBlueAlphaNatural8 format, sized by
+  /// getSize, with one row per frame-buffer row. The first row is the topmost
+  /// frame-buffer row.
+  /// @pre The backend-side representation must have been created: the resource
+  /// must have been loaded and rendered into.
+  /// @warning The returned pixel buffer is a fresh object, not owned by this
+  /// frame-buffer resource. The caller must keep it reachable while it is used.
+  /// @remarks This frame-buffer resource does not need to be the activated one.
+  /// The previously activated frame-buffer resource, if any, remains activated.
+  method abstract capturePixels : Arcadia.Media.PixelBuffer
+}

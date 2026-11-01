@@ -1,0 +1,3 @@
+native "Test/First.h" enumeration "Test/Second.h" Test.Invalid {
+  Zero = 0
+}

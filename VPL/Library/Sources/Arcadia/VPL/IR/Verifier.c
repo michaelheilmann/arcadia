@@ -540,6 +540,7 @@ binaryTypes
     return;
   }
   if (!numeric(lhs) || !numeric(rhs)) fail(thread, self, (Arcadia_Object*)instruction, "verification error: arithmetic requires numeric operands\n");
+  // Native GLSL-style signed add/subtract/multiply wrap. Only invalid division is rejected here.
   if (op == Arcadia_VPL_IR_BinaryOperator_Divide && scalar(lhs, Arcadia_VPL_IR_ScalarElementKind_Integer) && scalar(rhs, Arcadia_VPL_IR_ScalarElementKind_Integer) && instruction->rhs->kind == Arcadia_VPL_IR_ValueKind_Constant) {
     Arcadia_Integer32Value divisor = Arcadia_Value_getInteger32Value(&((Arcadia_VPL_IR_ConstantValue*)instruction->rhs)->literal);
     if (!divisor) fail(thread, self, (Arcadia_Object*)instruction, "verification error: constant integer division by zero\n");

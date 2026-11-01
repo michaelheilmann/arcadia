@@ -80,7 +80,12 @@ The definition of a digital signal processing (DSP) generating a sine wave signa
 <my-remarks>
 <p>
 The type name of the definition, used as the <code>type</code> entry of an ADL
-asset, is <code>"DSP.SineWave"</code>.
+asset, is <code>"DSP.SineWave"</code>. Its asset reader requires a strictly positive
+Integer32 frequency in hertz (<code>1..INT32_MAX</code>) and raises
+<code>Arcadia_Status_SemanticalError</code> for nonpositive values before constructing
+the definition, including graph-expanded definitions. Zero does not mean silence.
+This source validation does not restrict the signed Integer32 storage or the
+constructor/factory below, which still accepts the full signed representation.
 </p>
 </my-remarks>
 
@@ -149,7 +154,12 @@ The definition of a digital signal processing (DSP) generating a sawtooth wave s
 <my-remarks>
 <p>
 The type name of the definition, used as the <code>type</code> entry of an ADL
-asset, is <code>"DSP.SawtoothWave"</code>.
+asset, is <code>"DSP.SawtoothWave"</code>. Its asset reader requires a strictly positive
+Integer32 frequency in hertz (<code>1..INT32_MAX</code>) and raises
+<code>Arcadia_Status_SemanticalError</code> for nonpositive values before constructing
+the definition. Zero does not mean silence. This source validation does not
+restrict the signed Integer32 storage or the constructor/factory below, which
+still accepts the full signed representation.
 </p>
 </my-remarks>
 

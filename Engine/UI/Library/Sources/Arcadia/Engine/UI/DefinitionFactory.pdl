@@ -1,0 +1,41 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Resolve and instantiate each child reference, then append it immediately.
+// Capture the count once, retaining order, duplicates, and partial progress on
+// failure. Do not snapshot the list or resolve all children before adding them.
+procedure Arcadia.Engine.UI.populateContainerFromDefinition(variable backendContext : Arcadia.Engine.Visuals.BackendContext, variable target : Arcadia.Object, variable source : Arcadia.Object) : Arcadia.Void {
+  call $0 Arcadia.Engine.UI.containerDefinitionChildren source
+  call $1 Arcadia.Engine.UI.definitionChildCount $0
+  set $2 0
+nextChild:
+  isEqualTo $3 $2 $1
+  jumpIfTrue $3 done
+  call $4 Arcadia.Engine.UI.resolveDefinitionChild $0 $2
+  call $5 Arcadia.Engine.UI.instantiateDefinitionChild backendContext $4
+  call $6 Arcadia.Engine.UI.appendDefinitionChild target $5
+  add $2 $2 1
+  jump nextChild
+done:
+  return
+}
+
+// Native ADL reference and widget-construction boundaries remain native.
+procedure native "Arcadia_ADL_UI_ContainerDefinition_getChildReferences" Arcadia.Engine.UI.containerDefinitionChildren(variable source : Arcadia.Object) : Arcadia.List
+procedure native "Arcadia_Engine_UI_definitionChildCountImpl" Arcadia.Engine.UI.definitionChildCount(variable children : Arcadia.List) : Arcadia.Natural64
+procedure native "Arcadia_Engine_UI_resolveDefinitionChildImpl" Arcadia.Engine.UI.resolveDefinitionChild(variable children : Arcadia.List, variable index : Arcadia.Natural64) : Arcadia.ADL.Definition
+procedure native "Arcadia_Engine_UI_createNodeFromDefinition" Arcadia.Engine.UI.instantiateDefinitionChild(variable backendContext : Arcadia.Engine.Visuals.BackendContext, variable source : Arcadia.ADL.Definition) : Arcadia.Object
+procedure native "Arcadia_Engine_UI_appendDefinitionChildImpl" Arcadia.Engine.UI.appendDefinitionChild(variable target : Arcadia.Object, variable child : Arcadia.Object) : Arcadia.Void

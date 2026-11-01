@@ -1,0 +1,40 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+/// https://michaelheilmann.com/Arcadia/Engine/#Arcadia_Engine_Input_KeyboardKeyEvent
+class Arcadia.Engine.Input.KeyboardKeyEvent extends Arcadia.Engine.Event {
+  variable key : Arcadia.Engine.Input.KeyboardKey
+  variable action : Arcadia.Engine.Input.KeyboardKeyAction
+
+  /// Create a keyboard key event with its timestamp, action and native key.
+  /// The action is Pressed or Released; KeyboardKey retains its native values,
+  /// aliases and descriptions from KeyboardKey.i.
+  constructor(variable timestamp : Arcadia.Natural64, variable action : Arcadia.Engine.Input.KeyboardKeyAction, variable key : Arcadia.Engine.Input.KeyboardKey) {
+    construct $0 Arcadia.Engine.Event self timestamp
+    storeField self action action
+    storeField self key key
+  }
+
+  method nonvirtual getAction : Arcadia.Engine.Input.KeyboardKeyAction {
+    loadField $0 self action
+    return $0
+  }
+
+  method nonvirtual getKey : Arcadia.Engine.Input.KeyboardKey {
+    loadField $0 self key
+    return $0
+  }
+}

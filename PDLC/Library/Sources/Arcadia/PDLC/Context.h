@@ -44,8 +44,10 @@ struct Arcadia_PDLC_Context {
   Arcadia_FilePath* workingDirectoryPath;
   /// @brief The list of module nodes (objects of Arcadia.PDLC.AST.ModuleNode or derived type).
   Arcadia_List* moduleNodes;
-  /// @brief The root scope.
+  /// @brief The root declaration scope (types and procedures, never modules).
   Arcadia_Languages_Scope* scope;
+  /// @brief Independent module-name lookup; it is not a lexical parent scope.
+  Arcadia_Languages_Scope* moduleScope;
   /// @brief A map from symbols to their environments.
   Arcadia_Map* environments;
   Arcadia_Map* instances;

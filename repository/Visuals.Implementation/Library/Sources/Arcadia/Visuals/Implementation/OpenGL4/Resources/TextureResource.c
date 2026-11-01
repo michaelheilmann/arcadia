@@ -194,7 +194,7 @@ static const Arcadia_Type_Operations _typeOperations = {
 };
 
 Arcadia_defineObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.TextureResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_TextureResource,
-                         u8"Arcadia.Visuals.TextureResource", Arcadia_Engine_Visuals_TextureResource,
+                         u8"Arcadia.Engine.Visuals.TextureResource", Arcadia_Engine_Visuals_TextureResource,
                          &_typeOperations);
 
 static void

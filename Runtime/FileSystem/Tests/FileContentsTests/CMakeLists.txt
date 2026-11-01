@@ -27,4 +27,7 @@ OnSourceFile(${this} Main.c)
 OnModuleDependency(${this} ${MyProjectName}.FileSystem PRIVATE)
 OnModuleDependency(${this} ${MyProjectName}.Ring2 PRIVATE)
 
+OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
+set(${this}.TestIsolated TRUE)
+set(${this}.TestParallelSafe TRUE)
 EndProduct(${this})

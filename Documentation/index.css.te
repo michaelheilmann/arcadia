@@ -167,10 +167,22 @@ body.my-error-page-1 ul li, body.my-content-page-1 ol li {
 
 
 body.my-error-page-1, body.my-content-page-1 {
-  & p, & ul, & ol {
-    & :not(:last-child)  {
+  /* Space prose boxes, never their inline or MathJax descendants. */
+  & main > .center-column {
+    & :is(p, ul, ol):where(:not(:last-child)):not(nav *) {
       margin-bottom: 1rem;
     }
+    & :is(ul, ol) > li + li:not(nav *) {
+      margin-top: 0.25rem;
+    }
+    & li > :is(ul, ol):not(nav *) {
+      margin-top: 0.25rem;
+      margin-bottom: 0;
+    }
+  }
+  /* Retain the existing contents-list rhythm without styling link descendants. */
+  & nav :is(ul, ol) > li:not(:last-child) {
+    margin-bottom: 1rem;
   }
 }
 

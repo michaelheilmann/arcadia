@@ -63,6 +63,7 @@ Arcadia_PDLC_AST_StatementNode_constructImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
+  self->startOffset = 0;
   Arcadia_LeaveConstructor(Arcadia_PDLC_AST_StatementNode);
 }
 

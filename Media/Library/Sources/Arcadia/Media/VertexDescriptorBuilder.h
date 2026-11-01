@@ -18,41 +18,40 @@
 #define ARCADIA_MEDIA_VERTEXDESCRIPTORBUILDER_H_INCLUDED
 
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
-  #error("do not include directly, include `Arcadia/Media/Include.h` instead")
+  #error("do not include `Arcadia/Media/VertexDescriptorBuilder.h` directly, include `Arcadia/Media/Include.h` instead")
 #endif
-#include "Arcadia/Media/VertexElementDescriptor.h"
-#include "Arcadia/Media/VertexDescriptor.h"
-#include "Arcadia/Collections/Include.h"
+
+#include "Arcadia/Ring1/Include.h"
+
+typedef struct Arcadia_List Arcadia_List;
+typedef struct Arcadia_Media_VertexDescriptor Arcadia_Media_VertexDescriptor;
+typedef struct Arcadia_Media_VertexDescriptorBuilder Arcadia_Media_VertexDescriptorBuilder;
 
 Arcadia_declareObjectType(u8"Arcadia.Media.VertexDescriptorBuilder", Arcadia_Media_VertexDescriptorBuilder,
-                          Arcadia_Object);
+                          u8"Arcadia.Object");
 
 struct Arcadia_Media_VertexDescriptorBuilderDispatch {
-  Arcadia_ObjectDispatch parent;
+  Arcadia_ObjectDispatch _parent;
 };
 
 struct Arcadia_Media_VertexDescriptorBuilder {
-  Arcadia_Object parent;
-  /// The flags.
+  Arcadia_Object _parent;
   Arcadia_Natural8Value flags;
-  /// The stride, that is, the distance, in Bytes, from the start of one vertex to the start of the next vertex.
-  /// The stride is computed from the vertex element descriptors.
   Arcadia_SizeValue stride;
-  /// The list of vertex element descriptors.
   Arcadia_List* vertexElementDescriptors;
 };
-
-Arcadia_Media_VertexDescriptorBuilder*
-Arcadia_Media_VertexDescriptorBuilder_create
-  (
-    Arcadia_Thread* thread
-  );
 
 Arcadia_Media_VertexDescriptor*
 Arcadia_Media_VertexDescriptorBuilder_build
   (
     Arcadia_Thread* thread,
     Arcadia_Media_VertexDescriptorBuilder* self
+  );
+
+Arcadia_Media_VertexDescriptorBuilder*
+Arcadia_Media_VertexDescriptorBuilder_create
+  (
+    Arcadia_Thread* thread
   );
 
 #endif // ARCADIA_MEDIA_VERTEXDESCRIPTORBUILDER_H_INCLUDED

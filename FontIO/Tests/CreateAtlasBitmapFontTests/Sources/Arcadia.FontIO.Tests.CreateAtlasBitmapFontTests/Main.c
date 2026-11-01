@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -127,16 +129,13 @@ test1
   }
 }
 
-int
-main
+static int
+runTests
   (
-    int argc,
-    char **argv
+    void
   )
 {
-  if (argc > 1 && argv[1]) {
-    g_fontFilePath = argv[1];
-  } else {
+  if (!g_fontFilePath) {
     // Fall back to well-known system fonts.
     static char const* g_fallbacks[] = {
       "C:/Windows/Fonts/arial.ttf",
@@ -150,12 +149,31 @@ main
       }
     }
   }
-  if (!g_fontFilePath) {
-    fprintf(stderr, "warning: no font file found, test skipped\n");
-    return EXIT_SUCCESS;
+  if (!g_fontFilePath || !fileExists(g_fontFilePath)) {
+    fprintf(stderr, "skip: font file unavailable: %s\n", g_fontFilePath ? g_fontFilePath : "no system fallback found");
+    return Arcadia_Testing_Skip;
   }
   if (!Arcadia_Tests_safeExecute(&test1)) {
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
+}
+
+int
+main
+  (
+    int argc,
+    char** argv
+  )
+{
+  static const Arcadia_Testing_Case cases[] = {
+    { "CreateAtlasBitmapFontTests", &runTests },
+  };
+  // Retain the optional leading font path before the runner's arguments.
+  if (argc > 1 && argv[1] && strncmp(argv[1], "--", 2)) {
+    g_fontFilePath = argv[1];
+    for (int i = 1; i < argc; ++i) argv[i] = argv[i + 1];
+    --argc;
+  }
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

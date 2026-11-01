@@ -81,7 +81,7 @@ constructImpl
   }
   self->dsp = (Arcadia_Media_DSP*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_Media_DSP_getType(thread));
   self->sampleRate = Arcadia_ValueStack_getNatural32Value(thread, 2);
-  self->parent.sampleRate = self->sampleRate;
+  ((Arcadia_Engine_Audials_AudioStreamProvider*)self)->sampleRate = self->sampleRate;
   self->framesRemaining = Arcadia_ValueStack_getSizeValue(thread, 1);
   self->isInfinite = Arcadia_BooleanValue_False;
   if (!self->sampleRate) {

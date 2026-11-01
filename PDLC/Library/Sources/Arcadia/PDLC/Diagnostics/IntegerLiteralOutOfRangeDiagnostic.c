@@ -93,7 +93,7 @@ constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 3);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  self->symbol = (Arcadia_PDLC_EnumerationConstantSymbol*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_PDLC_EnumerationConstantSymbol_getType(thread));
+  self->symbol = (Arcadia_PDLC_Symbol*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_PDLC_Symbol_getType(thread));
   self->value = (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_String_getType(thread));
   Arcadia_LeaveConstructor(Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic);
 }
@@ -141,10 +141,32 @@ getMessageImpl
   Arcadia_StringBuilder* stringBuilder = Arcadia_StringBuilder_create(thread);
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"error: value `");
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, self->value);
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"` of initializer of enumeration constant `");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, self->symbol->kind == Arcadia_PDLC_SymbolKind_EnumerationConstant
+    ? u8"` of initializer of enumeration constant `" : u8"` of initializer of constant `");
   Arcadia_StringBuilder_insertBackString(thread, stringBuilder, ((Arcadia_PDLC_Symbol*)self->symbol)->name);
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"` is out of range\n");
   return Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(stringBuilder));
+}
+
+Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic*
+Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic_createForSymbol
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Languages_DiagnosticType type,
+    Arcadia_Languages_InputFile* file,
+    Arcadia_SizeValue offset,
+    Arcadia_PDLC_Symbol* symbol,
+    Arcadia_String* value
+  )
+{
+  _Arcadia_BeginCreate(Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic);
+  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_Languages_DiagnosticType_getType(thread), type));
+  if (file) Arcadia_ValueStack_pushObjectReferenceValue(thread, file); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+  Arcadia_ValueStack_pushSizeValue(thread, offset);
+  if (symbol) Arcadia_ValueStack_pushObjectReferenceValue(thread, symbol); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+  if (value) Arcadia_ValueStack_pushObjectReferenceValue(thread, value); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+  Arcadia_ValueStack_pushNatural8Value(thread, 5);
+  _Arcadia_EndCreate(Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic);
 }
 
 Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic*
@@ -158,12 +180,5 @@ Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic_create
     Arcadia_String* value
   )
 {
-  _Arcadia_BeginCreate(Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic);
-  Arcadia_ValueStack_pushEnumerationValue(thread, Arcadia_EnumerationValue_make(_Arcadia_Languages_DiagnosticType_getType(thread), type));
-  if (file) Arcadia_ValueStack_pushObjectReferenceValue(thread, file); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
-  Arcadia_ValueStack_pushSizeValue(thread, offset);
-  if (symbol) Arcadia_ValueStack_pushObjectReferenceValue(thread, symbol); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
-  if (value) Arcadia_ValueStack_pushObjectReferenceValue(thread, value); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
-  Arcadia_ValueStack_pushNatural8Value(thread, 5);
-  _Arcadia_EndCreate(Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic);
+  return Arcadia_PDLC_Diagnostics_IntegerLiteralOutOfRangeDiagnostic_createForSymbol(thread, type, file, offset, (Arcadia_PDLC_Symbol*)symbol, value);
 }

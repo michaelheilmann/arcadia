@@ -221,8 +221,9 @@ _Arcadia_UTF8ArrayIterator_next
   }
   if (nextCodePointLength == 1 && nextCodePoint <= 0x7f) {
   } else if (nextCodePointLength == 2 && 0x80 <= nextCodePoint && nextCodePoint <= 0x7ff) {
-  } else if (nextCodePointLength == 3 && 0x800 <= nextCodePoint && nextCodePoint <= 0xffff) {
-  } else if (nextCodePointLength == 4 && 0x10000 <= nextCodePoint && nextCodePoint > 0x10ffff) {
+  } else if (nextCodePointLength == 3 && 0x800 <= nextCodePoint && nextCodePoint <= 0xffff &&
+             !(0xd800 <= nextCodePoint && nextCodePoint <= 0xdfff)) {
+  } else if (nextCodePointLength == 4 && 0x10000 <= nextCodePoint && nextCodePoint <= 0x10ffff) {
   } else {
     nextCodePoint = CodePoint_Error;
     nextCodePointLength = 0;

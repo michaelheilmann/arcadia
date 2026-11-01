@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include "Arcadia/Testing/Include.h"
+
 #include "Arcadia/DDL/Include.h"
 
 #include <string.h>
@@ -51,8 +53,7 @@ doWrite
 {
   Arcadia_ByteArrayBuilder* targetByteBuffer = Arcadia_ByteArrayBuilder_create(thread);
   Arcadia_DataDefinitionLanguage_Unparser_run(thread, unparser, node, targetByteBuffer);
-  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, targetByteBuffer) == n);
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Memory_compare(thread, Arcadia_ByteArrayBuilder_getBytes(thread, targetByteBuffer), p, n));
+  Arcadia_Tests_assertEqualBytes(thread, p, n, Arcadia_ByteArrayBuilder_getBytes(thread, targetByteBuffer), Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, targetByteBuffer));
 }
 
 static inline void
@@ -66,14 +67,29 @@ onTest
     const char* output
   )
 {
+  Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
     Arcadia_DDL_Node* node = doRead(thread, semanticalAnalysis, parser, input, strlen(input));
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)node);
     doWrite(thread, unparser, node, output, strlen(output));
+    Arcadia_DDL_Node* restored = doRead(thread, semanticalAnalysis, parser, output, strlen(output));
+    Arcadia_Tests_assertTrue(thread, restored->type == node->type);
+    if (node->type == Arcadia_DDL_NodeType_String) {
+      Arcadia_String* expected = ((Arcadia_DDL_StringNode*)node)->value;
+      Arcadia_String* actual = ((Arcadia_DDL_StringNode*)restored)->value;
+      Arcadia_Tests_assertEqualBytes(thread, Arcadia_String_getBytes(thread, expected), Arcadia_String_getNumberOfBytes(thread, expected),
+        Arcadia_String_getBytes(thread, actual), Arcadia_String_getNumberOfBytes(thread, actual));
+    }
+    Arcadia_Tests_assertEqualSize(thread, stackSize + 1, Arcadia_ValueStack_getSize(thread));
+    Arcadia_ValueStack_popValues(thread, 1);
     Arcadia_Thread_popJumpTarget(thread);
   } else {
     Arcadia_Thread_popJumpTarget(thread);
+    if (Arcadia_ValueStack_getSize(thread) > stackSize) {
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+    }
     Arcadia_Thread_jump(thread);
   }
 }
@@ -93,8 +109,30 @@ test1
                  u8"{ prename : \"Michael\", surname: \"Heilmann\",\n}\n",
                  u8"{\n  prename : \"Michael\",\n  surname : \"Heilmann\",\n}\n");
   onTest(thread, semanticalAnalysis, parser, unparser,
-    u8"{\n  value : {\n  },\n}\n",
-    u8"{\n  value : {\n  },\n}\n");
+     u8"{\n  value : {\n  },\n}\n",
+     u8"{\n  value : {\n  },\n}\n");
+  onTest(thread, semanticalAnalysis, parser, unparser,
+    "\"\\u{1F3EE}\"", "\"\xf0\x9f\x8f\xae\"\n");
+  onTest(thread, semanticalAnalysis, parser, unparser,
+    "\"\xf0\x9f\x8f\xae\"", "\"\xf0\x9f\x8f\xae\"\n");
+  onTest(thread, semanticalAnalysis, parser, unparser,
+    "\"\\u{0}\\u{1}\\u{1F}\\n\"", "\"\\u{0000}\\u{0001}\\u{001F}\\u{000A}\"\n");
+  onTest(thread, semanticalAnalysis, parser, unparser,
+    "\"It's ready\"", "\"It's ready\"\n");
+  onTest(thread, semanticalAnalysis, parser, unparser,
+    "\"He said \\\"hello\\\"\"", "\"He said \\\"hello\\\"\"\n");
+}
+
+static int
+runTests
+  (
+    void
+  )
+{
+  if (!Arcadia_Tests_safeExecute(&test1)) {
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
 }
 
 int
@@ -104,8 +142,8 @@ main
     char** argv
   )
 {
-  if (!Arcadia_Tests_safeExecute(&test1)) {
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  static const Arcadia_Testing_Case cases[] = {
+    { "Writer", &runTests },
+  };
+  return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

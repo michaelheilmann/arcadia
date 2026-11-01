@@ -1,0 +1,11 @@
+abstract class MyModule.Base {
+  method abstract read(variable value : Arcadia.Natural64) : Arcadia.Natural64
+  method ordinary : Arcadia.Void {
+  }
+}
+abstract class MyModule.Derived extends MyModule.Base {
+  method abstract read(variable value : Arcadia.Natural64) : Arcadia.Natural64
+}
+interface MyModule.Operation {
+  method abstract run : Arcadia.Void
+}

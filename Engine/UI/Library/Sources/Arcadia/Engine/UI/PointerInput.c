@@ -23,14 +23,23 @@ Arcadia_defineInterfaceType(u8"Arcadia.Engine.UI.PointerInput", Arcadia_Engine_U
                          )
 
 Arcadia_BooleanValue
-Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Engine_Input_MousePointerEvent* event)
+Arcadia_Engine_UI_PointerInput_handleMousePointerEvent
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Engine_Input_MousePointerEvent* event
+  )
 {
   Arcadia_InterfaceCallWithReturn(Arcadia_Engine_UI_PointerInput, handleMousePointerEvent, self, event);
 }
 
 Arcadia_BooleanValue
-Arcadia_Engine_UI_PointerInput_handleMouseButtonEvent(Arcadia_Thread* thread, Arcadia_Object* self, Arcadia_Engine_Input_MouseButtonEvent* event)
+Arcadia_Engine_UI_PointerInput_handleMouseButtonEvent
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self,
+    Arcadia_Engine_Input_MouseButtonEvent* event
+  )
 {
   Arcadia_InterfaceCallWithReturn(Arcadia_Engine_UI_PointerInput, handleMouseButtonEvent, self, event);
 }
-

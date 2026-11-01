@@ -269,8 +269,8 @@ Arcadia_DataDefinitionLanguage_Unparser_writeStringValue
     Arcadia_Natural32Value codePoint = Arcadia_UnicodeCodePointReader_getValue(thread, reader);
     // Escape all control characters [0,1f].
     if (codePoint <= 0x1f) {
-      static const Arcadia_Natural32Value codePoints[] = { '\\', 'u', '0', '0' };
-      Arcadia_Unicode_Encoder_encodeCodePoints(thread, self->encoder, codePoints, 4, targetBuffer);
+      static const Arcadia_Natural32Value codePoints[] = { '\\', 'u', '{', '0', '0' };
+      Arcadia_Unicode_Encoder_encodeCodePoints(thread, self->encoder, codePoints, 5, targetBuffer);
       Arcadia_Natural32Value x = codePoint % 16;
       codePoint /= 16;
       Arcadia_Natural32Value y = codePoint % 16;
@@ -295,6 +295,8 @@ Arcadia_DataDefinitionLanguage_Unparser_writeStringValue
       };
       Arcadia_Unicode_Encoder_encodeCodePoints(thread, self->encoder, &hexDigit[y], 1, targetBuffer);
       Arcadia_Unicode_Encoder_encodeCodePoints(thread, self->encoder, &hexDigit[x], 1, targetBuffer);
+      const Arcadia_Natural32Value closingBrace = '}';
+      Arcadia_Unicode_Encoder_encodeCodePoints(thread, self->encoder, &closingBrace, 1, targetBuffer);
     } else {
       switch (codePoint) {
         case '"': {
