@@ -96,6 +96,7 @@ add_subdirectory(PDLC.CLI)
 # Template Engine.
 add_subdirectory(Tools/TemplateEngine)
 add_subdirectory(Tools/PixelBufferGenerator)
+add_subdirectory(Tools/Sanitizer)
 
 # Documentation.
 add_subdirectory(Documentation)

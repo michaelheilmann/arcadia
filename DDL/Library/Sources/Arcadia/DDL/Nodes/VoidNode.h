@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_DDL_TREE_VOIDNODE_H_INCLUDED)
-#define ARCADIA_DDL_TREE_VOIDNODE_H_INCLUDED
+#if !defined(ARCADIA_DDL_NODES_VOIDNODE_H_INCLUDED)
+#define ARCADIA_DDL_NODES_VOIDNODE_H_INCLUDED
 
 #if !defined(ARCADIA_DDL_NODES_PRIVATE) || 1 != ARCADIA_DDL_NODES_PRIVATE
   #error("do not include directly, include `Arcadia/DDL/Nodes/Include.h` instead")
@@ -50,4 +50,4 @@ Arcadia_DDL_VoidNode_createString
     Arcadia_String* stringValue
   );
 
-#endif // ARCADIA_DDL_TREE_VOIDNODE_H_INCLUDED
+#endif // ARCADIA_DDL_NODES_VOIDNODE_H_INCLUDED

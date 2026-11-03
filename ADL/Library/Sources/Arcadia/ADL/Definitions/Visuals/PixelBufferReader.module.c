@@ -63,7 +63,7 @@ static const char* SCHEMA =
 "        name : \"operations\",\n"
 "        type : {\n"
 "          kind : \"List\",\n"
-"          entry : {\n"
+"          elements : {\n"
 "            kind :  \"String\",\n"
 "          },\n"
 "        },\n"

@@ -25,11 +25,11 @@ set(Arcadia_ByteOrder_LittleEndian 2)
 
 function(Arcadia_DetectByteOrder result)
   if (CMAKE_C_BYTE_ORDER STREQUAL "BIG_ENDIAN")
-    set(${result} ${Arcadia_ByteOrder_BigEndian} PARENT_SCOPE) 
+    set(${result} ${Arcadia_ByteOrder_BigEndian} PARENT_SCOPE)
   elseif (CMAKE_C_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
-    set(${result} ${Arcadia_ByteOrder_LittleEndian} PARENT_SCOPE)   
+    set(${result} ${Arcadia_ByteOrder_LittleEndian} PARENT_SCOPE)
   else()
-    set(${result} ${Arcadia_ByteOrder_Unknown} PARENT_SCOPE) 
+    set(${result} ${Arcadia_ByteOrder_Unknown} PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -47,15 +47,15 @@ macro(DetectByteOrder target)
   set(${target}_ByteOrder_Unknown ${Arcadia_ByteOrder_Unknown})
   set(${target}_ByteOrder_BigEndian ${Arcadia_ByteOrder_BigEndian})
   set(${target}_ByteOrder_LittleEndian ${Arcadia_ByteOrder_LittleEndian})
-  
+
   # Initialize if not yet initialized.
   if (NOT DEFINED ${target}_ByteOrder)
     Arcadia_DetectByteOrder(${target}_ByteOrder)
   endif()
-  
+
   set(VERBOSE TRUE)
-  
-  if (VERBOSE) 
+
+  if (VERBOSE)
     if (${target}_ByteOrder STREQUAL ${target}_ByteOrder_Unknown)
       message( STATUS " - ${target} Byte order: unknown")
     elseif (${target}_ByteOrder STREQUAL ${target}_ByteOrder_BigEndian)
@@ -63,7 +63,7 @@ macro(DetectByteOrder target)
     elseif (${target}_ByteOrder STREQUAL ${target}_ByteOrder_LittleEndian)
       message( STATUS " - ${target} Byte order: little endian")
     else()
-      message(FATAL_ERROR "<internal error>") 
+      message(FATAL_ERROR "<internal error>")
     endif()
   endif()
 

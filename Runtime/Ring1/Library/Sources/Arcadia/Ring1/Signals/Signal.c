@@ -24,8 +24,6 @@
 #include "Arcadia/Ring1/Signals/Slot.h"
 #include "Arcadia/Ring1/Signals/Internal.h"
 
-#include "Arcadia/Ring1/Signals/Slot.h"
-
 static void
 Arcadia_Signal_destruct
   (
@@ -77,12 +75,10 @@ Arcadia_Signal_destruct
     Arcadia_Signal* self
   )
 {
-  Nodes* nodes = (Nodes*)self->pimpl;
-  for (size_t i = 0, n = nodes->size; i < n; ++i) {
-    Arcadia_Slot* slot = nodes->elements[i];
-    Arcadia_Slot_disconnect(thread, slot);
+  if (self->pimpl) {
+    free(self->pimpl);
+    self->pimpl = NULL;
   }
-  free(nodes);
 }
 
 static void
@@ -162,9 +158,8 @@ Arcadia_Signal_connect
   )
 {
   Nodes* nodes = (Nodes*)self->pimpl;
-  // The allocated array size is n * 8, n > 0.
-  // If the used size is n * 8 then we grow the allocated array to (n+1)*8.
-  if (nodes->size != 0 || nodes->size % 8 == 0) {
+  // The allocated array size is n * 8, n > 0. If the used size is n * 8 then we grow the allocated array to (n+1)*8.
+  if (nodes->size != 0 && nodes->size % 8 == 0) {
     if (nodes->size == MaximumNumberOfSlots) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
       Arcadia_Thread_jump(thread);
@@ -192,7 +187,14 @@ Arcadia_Signal_connect
 // @endcode
 // @todo
 // Guard against numeric overflows.
-static Arcadia_SizeValue pushArguments(Arcadia_Thread* thread, Arcadia_Object* sender, Arcadia_Object* receiver) {
+static Arcadia_SizeValue
+pushArguments
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* sender,
+    Arcadia_Object* receiver
+  )
+{
   // (1) Get the number of arguments.
   // The first pass-through argument resides at numberOfArguments
   Arcadia_SizeValue numberOfArguments = Arcadia_ValueStack_getNatural8Value(thread, 0);
@@ -226,19 +228,21 @@ Arcadia_Signal_emit
     Arcadia_Thread_jump(thread);
   }
   nodes->reentrancyCount++;
+  // A slot connected during this emission is invoked only on a later emission.
+  Arcadia_SizeValue numberOfSlots = nodes->size;
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
-    for (Arcadia_SizeValue i = 0, n = nodes->size; i < n; ++i) {
-      Arcadia_Slot* slot = nodes->elements[i];
+    for (Arcadia_SizeValue i = 0; i < numberOfSlots; ++i) {
+      // A callback may connect a slot, causing realloc() to move the array.
+      Arcadia_Slot* slot = ((Nodes*)self->pimpl)->elements[i];
       if (!slot) {
         continue;
       }
       Arcadia_Value receiverValue = Arcadia_WeakReference_getValue(thread, slot->receiver);
       if (Arcadia_Value_isVoidValue(&receiverValue)) {
-        slot->procedure = NULL;
-        slot->receiver = NULL;
-        slot->signal = NULL;
+        Arcadia_Slot_disconnect(thread, slot);
+        continue;
       } else {
         if (!Arcadia_Value_isObjectReferenceValue(&receiverValue)) {
           Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
@@ -260,10 +264,10 @@ Arcadia_Signal_emit
       }
     }
     Arcadia_Thread_popJumpTarget(thread);
-    nodes->reentrancyCount--;
+    ((Nodes*)self->pimpl)->reentrancyCount--;
   } else {
     Arcadia_Thread_popJumpTarget(thread);
-    nodes->reentrancyCount--;
+    ((Nodes*)self->pimpl)->reentrancyCount--;
     Arcadia_Thread_jump(thread);
   }
 }

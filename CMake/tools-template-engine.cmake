@@ -44,23 +44,23 @@ macro(BeginTemplateEngine target folder)
   if(NOT ${ARGC} EQUAL 2)
     message(FATAL_ERROR "BeginTemplateEngine: invalid number of arguments")
   endif()
-  
+
   # Initialize the stack if it is not initialized.
   if (NOT g_templateEngineTargets)
     set(g_templateEngineTargets "")
   endif()
-  
+
   # Push the file copy target on the stack of file copy targets.
   list(APPEND g_templateEngineTargets ${target})
-  
+
   # File copy support.
   BeginFileCopy(${target})
-  
+
   # Triples source, target, and environment files.
   set(${target}.templateEngine.sources "")
   set(${target}.templateEngine.targets "")
   set(${target}.templateEngine.environments "")
-      
+
   # Store the target folder.
   set(${target}.folder ${folder})
 
@@ -71,12 +71,12 @@ macro(EndTemplateEngine)
   if(NOT ${ARGC} EQUAL 0)
     message(FATAL_ERROR "EndTemplatEngine: invalid number of arguments")
   endif()
-  
+
   list(GET g_templateEngineTargets -1 target)
-  
+
   list(LENGTH ${target}.templateEngine.sources l)
   math(EXPR l "${l} - 1")
-  
+
   add_custom_target(${target} ALL)
 
   # Add this page target to the aggregate target, if one was designated for this directory subtree.
@@ -87,28 +87,28 @@ macro(EndTemplateEngine)
       add_dependencies(${g_templateEngineAggregateTarget} ${target})
     endif()
   endif()
-  
+
   if (l GREATER -1)
     foreach (i RANGE ${l})
       list(GET ${target}.templateEngine.sources ${i} sourceFile)
       list(GET ${target}.templateEngine.targets ${i} targetFile)
       list(GET ${target}.templateEngine.environments ${i} environmentFile)
-      
+
       cmake_path(IS_ABSOLUTE sourceFile isAbsolute)
       if (NOT isAbsolute)
         message(FATAL_ERROR "source file path is not absolute")
       endif()
-      
+
       cmake_path(IS_ABSOLUTE targetFile isAbsolute)
       if (NOT isAbsolute)
         message(FATAL_ERROR "target file path is not absolute")
       endif()
-    
+
       cmake_path(IS_ABSOLUTE environmentFile isAbsolute)
       if (NOT isAbsolute)
         message(FATAL_ERROR "environment file path is not absolute")
       endif()
-      
+
       # Compute the path of the dependencies file from the source file.
       set(dependenciesFile "${sourceFile}")
       cmake_path(RELATIVE_PATH dependenciesFile BASE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} OUTPUT_VARIABLE dependenciesFile)
@@ -122,7 +122,7 @@ macro(EndTemplateEngine)
       message(STATUS "dependencies file = ${dependenciesFile}")
 
       #message(STATUS " - ${target} copy file `${sourceFile}` to `${targetFile}")
-      
+
       # Add custom command and custom target.
       add_custom_command(OUTPUT ${targetFile}
                          COMMAND $<TARGET_FILE:${MyProjectName}.TemplateEngine.CLI> --source="${sourceFile}" --target="${targetFile}" --environment="${environmentFile}" --dependencies="${dependenciesFile}"
@@ -135,7 +135,7 @@ macro(EndTemplateEngine)
       string(RANDOM LENGTH 64 randomLength)
       string(UUID generatedTarget NAMESPACE "15340915-a7be-4950-9d26-b789c0eaf106" NAME ${randomLength} TYPE SHA1)
       set(generatedTarget template-engine-${generatedTarget})
-      
+
       add_custom_target(${generatedTarget} DEPENDS ${targetFile})
       # Add the custom target to the enclosing target.
       add_dependencies(${target} ${generatedTarget})
@@ -148,7 +148,7 @@ macro(EndTemplateEngine)
   endif()
 
   EndFileCopy()
-  
+
   list(POP_BACK g_templateEngineTargets)
 
 endmacro()
@@ -160,8 +160,8 @@ macro(OnTemplateEngine sourceFile targetFile environmentFile)
   endif()
 
   list(GET g_templateEngineTargets -1 target)
-  
-  
+
+
   list(APPEND ${target}.templateEngine.sources ${sourceFile})
   list(APPEND ${target}.templateEngine.targets ${targetFile})
   list(APPEND ${target}.templateEngine.environments ${environmentFile})

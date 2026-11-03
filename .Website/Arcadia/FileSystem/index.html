@@ -17,7 +17,15 @@
 
   <script>
   MathJax = {
+    // Text labels inherit prose fonts; mathematical glyphs keep their math font.
+    output: {
+      mtextInheritFont: true
+    },
     startup: {
+      pageReady() {
+        // Inherited-text measurements must use loaded fonts, not fallback metrics.
+        return document.fonts.ready.then(() => MathJax.startup.defaultPageReady());
+      },
       ready() {
         MathJax.startup.defaultReady();
         const {Token} = MathJax._.input.tex.Token;
@@ -35,7 +43,7 @@
 
   <!-- Cascading Style Sheets. -->
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
-  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=7'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=8'>
 
 
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/cxx-doc.css?v=5'>
@@ -79,6 +87,7 @@
     <li>Deletion of regular files, directory files, and files of any type</li>
     <li>Existence checks for regular files and directory files, and determination of the file type</li>
     <li>Directory iteration, enumerating the contents of a folder</li>
+    <li>Symbolic-link inspection on Linux and reparse-point inspection on Windows, for traversal tools</li>
     <li>Last write time retrieval</li>
     <li>Configuration, save, and working directory retrieval</li>
     <li>Executable path retrieval</li>
@@ -892,6 +901,18 @@ The enumeration elements can be combined.
 <h1 id="Arcadia_FileSystem">Arcadia_FileSystem</h1>
 <p><code>Arcadia_FileSystem</code> extends <code>Arcadia_Object</code>.</p>
 <p><code>Arcadia_FileSystem</code> provides access to the file system.</p>
+<p>
+For safe directory traversal, use <a href="#Arcadia_FileSystem_isSymbolicLink"><code>Arcadia_FileSystem_isSymbolicLink</code></a>
+to inspect an entry before opening it or descending into it. This tests the final path component
+without following it, but does not eliminate races between inspection and subsequent access.
+On Windows, this operation identifies any reparse point, including junctions, rather than only symbolic links.
+</p>
+<p>
+For safe directory traversal, use <a href="#Arcadia_FileSystem_isSymbolicLink"><code>Arcadia_FileSystem_isSymbolicLink</code></a>
+to inspect an entry before opening it or descending into it. This tests the final path component
+without following it, but does not eliminate races between inspection and subsequent access.
+On Windows, this operation identifies any reparse point, including junctions, rather than only symbolic links.
+</p>
 </section>
 
 <section class="cxx entity method">
@@ -1355,6 +1376,138 @@ The enumeration elements can be combined.
 
 <section class="cxx entity method">
 
+  <h1 id="Arcadia_FileSystem_getFileType">Arcadia_FileSystem_getFileType</h1>
+
+  <my-signature><code>
+  Arcadia_FileType<br>
+  Arcadia_FileSystem_getFileType<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the type of an existing file-system entry.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>The current thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_FileSystem* self</code></div>
+      <div>The file-system instance.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_FilePath* path</code></div>
+      <div>The path of the file-system entry to inspect.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    An <a href="#Arcadia_FileType"><code>Arcadia_FileType</code></a> value indicating
+    a regular file, directory, or unknown file type.
+    </p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>
+    This query does not distinguish symbolic links or reparse points as a separate
+    <code>Arcadia_FileType</code> value. On Linux the default implementation uses
+    <code>stat</code>, which follows symbolic links; Windows uses
+    <code>GetFileAttributes</code>, whose attributes may differ for reparse points.
+    Do not rely on this operation to decide whether recursive traversal should
+    follow an entry. Use <a href="#Arcadia_FileSystem_isSymbolicLink"><code>Arcadia_FileSystem_isSymbolicLink</code></a>
+    first when such a distinction matters.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div><code>Arcadia_Status_NotFound</code> or <code>Arcadia_Status_EnvironmentFailed</code></div>
+      <div>The entry cannot be found or examined; the exact status depends on the
+      operating system and underlying failure.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_getFileType">Arcadia_FileSystem_getFileType</h1>
+
+  <my-signature><code>
+  Arcadia_FileType<br>
+  Arcadia_FileSystem_getFileType<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Get the type of an existing file-system entry.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>The current thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_FileSystem* self</code></div>
+      <div>The file-system instance.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_FilePath* path</code></div>
+      <div>The path of the file-system entry to inspect.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    An <a href="#Arcadia_FileType"><code>Arcadia_FileType</code></a> value indicating
+    a regular file, directory, or unknown file type.
+    </p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>
+    This query does not distinguish symbolic links or reparse points as a separate
+    <code>Arcadia_FileType</code> value. On Linux the default implementation uses
+    <code>stat</code>, which follows symbolic links; Windows uses
+    <code>GetFileAttributes</code>, whose attributes may differ for reparse points.
+    Do not rely on this operation to decide whether recursive traversal should
+    follow an entry. Use <a href="#Arcadia_FileSystem_isSymbolicLink"><code>Arcadia_FileSystem_isSymbolicLink</code></a>
+    first when such a distinction matters.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div><code>Arcadia_Status_NotFound</code> or <code>Arcadia_Status_EnvironmentFailed</code></div>
+      <div>The entry cannot be found or examined; the exact status depends on the
+      operating system and underlying failure.</div>
+    </div>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
   <h1 id="Arcadia_FileSystem_getOrCreate">Arcadia_FileSystem_getOrCreate</h1>
 
   <my-signature><code>
@@ -1487,6 +1640,158 @@ The enumeration elements can be combined.
     <div>
       <div>Arcadia_Status_ArgumentValueInvalid</div>
       <div><code>self</code> is a null pointer.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_isSymbolicLink">Arcadia_FileSystem_isSymbolicLink</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_FileSystem_isSymbolicLink<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Determine whether a file-system entry is a symbolic link or, on Windows, a reparse point.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>The current thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_FileSystem* self</code></div>
+      <div>The file-system instance.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_FilePath* path</code></div>
+      <div>The path of an existing file-system entry to inspect.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if the final path component is a symbolic link
+    on Linux, or has the <code>FILE_ATTRIBUTE_REPARSE_POINT</code> attribute on Windows.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>
+    On Linux, the default implementation uses <code>lstat</code> and does not follow
+    a symbolic link at the final path component, including a dangling symbolic link.
+    On Windows, the default implementation uses <code>GetFileAttributesA</code> and
+    returns true for any reparse point, including directory junctions; this is a
+    broader category than symbolic links.
+    </p>
+    <p>
+    Unlike an existence query, this operation requires the path entry to exist and
+    be accessible. A missing or inaccessible entry causes an error, not a false result.
+    Other path components may themselves be links; the operation is not a general
+    path-confinement or race-prevention mechanism. A caller using it during recursive
+    traversal must still account for changes between the check and later file access.
+    </p>
+    <p>
+    See also <a href="#Arcadia_FileSystem_getFileType"><code>Arcadia_FileSystem_getFileType</code></a>.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div><code>Arcadia_Status_OperationFailed</code></div>
+      <div>The operating system could not obtain the entry's metadata, for example
+      because the path does not exist or the operation is denied.</div>
+    </div>
+  </section>
+
+</section>
+
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_FileSystem_isSymbolicLink">Arcadia_FileSystem_isSymbolicLink</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_FileSystem_isSymbolicLink<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>
+  Determine whether a file-system entry is a symbolic link or, on Windows, a reparse point.
+  </my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>The current thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_FileSystem* self</code></div>
+      <div>The file-system instance.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_FilePath* path</code></div>
+      <div>The path of an existing file-system entry to inspect.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>
+    <code>Arcadia_BooleanValue_True</code> if the final path component is a symbolic link
+    on Linux, or has the <code>FILE_ATTRIBUTE_REPARSE_POINT</code> attribute on Windows.
+    <code>Arcadia_BooleanValue_False</code> otherwise.
+    </p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>
+    On Linux, the default implementation uses <code>lstat</code> and does not follow
+    a symbolic link at the final path component, including a dangling symbolic link.
+    On Windows, the default implementation uses <code>GetFileAttributesA</code> and
+    returns true for any reparse point, including directory junctions; this is a
+    broader category than symbolic links.
+    </p>
+    <p>
+    Unlike an existence query, this operation requires the path entry to exist and
+    be accessible. A missing or inaccessible entry causes an error, not a false result.
+    Other path components may themselves be links; the operation is not a general
+    path-confinement or race-prevention mechanism. A caller using it during recursive
+    traversal must still account for changes between the check and later file access.
+    </p>
+    <p>
+    See also <a href="#Arcadia_FileSystem_getFileType"><code>Arcadia_FileSystem_getFileType</code></a>.
+    </p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div><code>Arcadia_Status_OperationFailed</code></div>
+      <div>The operating system could not obtain the entry's metadata, for example
+      because the path does not exist or the operation is denied.</div>
     </div>
   </section>
 
@@ -1712,7 +2017,11 @@ The enumeration elements cannot be combined.
 
 <li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_getOrCreate">Arcadia_FileSystem_getOrCreate</a></li>
 <li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_getFileContents">Arcadia_FileSystem_getFileContents</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_getFileType">Arcadia_FileSystem_getFileType</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_getFileType">Arcadia_FileSystem_getFileType</a></li>
 
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_isSymbolicLink">Arcadia_FileSystem_isSymbolicLink</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_isSymbolicLink">Arcadia_FileSystem_isSymbolicLink</a></li>
 <li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_regularFileExists">Arcadia_FileSystem_regularFileExists</a></li>
 
 <li><a href="https://michaelheilmann.com/Arcadia/FileSystem/#Arcadia_FileSystem_setFileContents">Arcadia_FileSystem_setFileContents</a></li>
@@ -1734,7 +2043,7 @@ The enumeration elements cannot be combined.
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 1 November 2026.</div>
+    <div>Last modified on 3 November 2026.</div>
     </div>
   </div>
   <div class="center-column">

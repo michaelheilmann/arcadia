@@ -1,4 +1,4 @@
-# Specification Editorial Conventions
+# Specification Editorial And Visual Conventions
 
 ## Scope And Ownership
 
@@ -10,7 +10,7 @@
 - E01 (#22) owns the initial editorial guidance. The visual-consistency work
   (#21, initially V01) extends this same file; do not create competing policy.
   CSS declarations, design tokens and rendering implementation belong in stylesheets,
-  not here. This editorial task does not authorize visual changes.
+  not here. Editorial work alone does not authorize visual changes.
 - A justified per-language exception is permitted: record its scope and rationale
   beside the affected material or in the task handoff. Obtain maintainer agreement
   for exceptions that affect a language contract or a shared convention.
@@ -89,3 +89,55 @@
   exact checks and unresolved choices. Keep audit evidence separate from normative
   guidance and out of the source tree; record it in the owning ticket. See the
   [E01 audit and maintainer decisions](https://github.com/michaelheilmann/arcadia-alm/issues/22#issuecomment-6554287955).
+
+## Visual Conventions
+
+- These expectations cover every specification in this tree. #21's initial visual
+  implementation covers Common Lexical, DDL and DDLS; changes to shared styles must
+  also be regression-checked against MDNP, PDL and VPL, not silently redesign them.
+- Retain the Arcadia site header/footer, theme and navigation framework. Extend
+  `specification.css.i` with specification-scoped components rather than a competing
+  shell or unscoped element rules. `Documentation/index.css.te` owns the global shell;
+  DDL's `ddl.css.i` is an existing reference, not an automatically approved standard.
+- Define shared roles for readable content width, heading hierarchy, prose/list
+  rhythm, surface/border treatment, code/formula panels, tables, notes and navigation.
+  Keep their actual tokens/declarations in the owning stylesheet, not duplicated
+  here. Document any essential local exception and its owner in the task ticket.
+- Use a legible, consistent type hierarchy and the established site font families
+  and theme colors. Keep links distinguishable without relying on color alone;
+  verify text/UI contrast and visible keyboard focus. Dark example panels do not
+  imply that a complete dark theme exists or has been tested.
+- At narrow widths, reflow the content/sidebar without document-level horizontal
+  overflow. Keep contents navigation discoverable near the reading entry point,
+  with meaningful landmarks, a skip link and coherent keyboard/source order.
+  Preserve the document's heading hierarchy, status labels and compatibility IDs.
+- Distinguish prose, source examples, grammar, formulas and normative/error notes
+  through reusable components. Preserve complete technical content; do not shorten
+  productions, hide columns or alter notation to fit a viewport. Prefer semantic
+  `pre/code` for source text, coordinating markup conversions with editorial owners.
+- Preserve MathJax's mathematical meaning and legitimate internal layout. Do not
+  apply generic paragraph/list descendant spacing or blanket font/margin overrides
+  to its internals. Diagnose rendering defects separately from typography preference.
+- When math text inherits prose fonts, wait for font readiness before typesetting.
+  Test delayed font loads and painted-text separation; warm screenshots and stable
+  container bounds alone do not rule out overlapping glyphs.
+- Keep wide code/formulas/tables scrollable inside their own containers with visible
+  affordances and keyboard access. Preserve semantic table structure, captions and
+  appropriate row/column headers; do not detach a grid from its content to fake fit.
+- Generate with the actual website target. Check representative prose, nested lists,
+  TOCs, code, inline/display math, tables, notes, focus and links at desktop, tablet
+  and mobile widths. Record actual browser/theme, console/MathJax, overflow, anchor,
+  structural and relevant WCAG A/AA accessibility results and limitations separately
+  from subjective visual approval. Automated checks are not accessibility certification.
+- **Two maintainer screenshot checkpoints are mandatory:** first show a representative
+  before/after prototype and obtain direction approval before propagating subjective
+  styling; after implementation show comparable annotated before/after captures and
+  request explicit visual acceptance. Use actual browser rendering at 1440, 768 and
+  390px where relevant, with matched OS/browser, zoom and device scale. Explain the
+  change, rationale, alternatives and tradeoffs; ask concrete questions about type,
+  math, spacing, hierarchy, readability and navigation. Revise and repeat as requested.
+- Record review decisions and evidence links in the owning ticket, not audit files
+  in the source tree. **No response is not approval.** If approval is missing, report
+  **"Awaiting maintainer visual feedback"**; do not close the visual work or claim
+  final acceptance. Prior approval of a different task/prototype is not blanket
+  approval for a new design. Keep objective correctness/accessibility gates regardless.

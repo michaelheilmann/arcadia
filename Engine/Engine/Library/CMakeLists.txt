@@ -159,7 +159,7 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Engine/Visuals/DepthCompareFunction.c)
   OnHeaderFile(${this} Arcadia/Engine/Visuals/DepthCompareFunction.h)
   OnSourceFile(${this} Arcadia/Engine/Visuals/DepthCompareFunction.pdl)
-  
+
   OnSourceFile(${this} Arcadia/Engine/Visuals/ColorSource.c)
   OnHeaderFile(${this} Arcadia/Engine/Visuals/ColorSource.h)
   OnSourceFile(${this} Arcadia/Engine/Visuals/ColorSource.pdl)

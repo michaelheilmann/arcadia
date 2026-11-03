@@ -17,7 +17,15 @@
 
   <script>
   MathJax = {
+    // Text labels inherit prose fonts; mathematical glyphs keep their math font.
+    output: {
+      mtextInheritFont: true
+    },
     startup: {
+      pageReady() {
+        // Inherited-text measurements must use loaded fonts, not fallback metrics.
+        return document.fonts.ready.then(() => MathJax.startup.defaultPageReady());
+      },
       ready() {
         MathJax.startup.defaultReady();
         const {Token} = MathJax._.input.tex.Token;
@@ -35,7 +43,7 @@
 
   <!-- Cascading Style Sheets. -->
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
-  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=7'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=8'>
 
 
   <link rel='canonical' href='https://michaelheilmann.com/Arcadia/TemplateEngine/'>
@@ -62,7 +70,7 @@
   }
   </style>
 </head>
-<body class="my-content-page-1">
+<body class="my-content-page-1 my-tool-documentation">
   <header>
     <div>
     <a href="https://michaelheilmann.com/">Home</a>
@@ -70,158 +78,293 @@
   </header>
 
 <main>
-<div class="left-column"></div>
-<div class="center-column">
-  <h1>Michael Heilmann's Arcadia Template Engine</h1>
-  <p>
-  This is the documentation for Michael Heilmann's Arcadia Template Engine.
-  The Template Engine is a template engine primarily used to generate websites.
-  </p>
+  <div class="left-column"></div>
+  <div class="center-column">
+    <h1>Arcadia Template Engine</h1>
+    <p>The Arcadia Template Engine evaluates UTF-8 templates into text files.
+    It is used to generate the Arcadia documentation website and other
+    build-time artifacts. This reference describes the current implementation.</p>
 
-  <h2>Invoking the Template Engine from the command line</h2>
-  <p>
-  The Template Engine can be invoked by the following command (assuming the executable <code>Arcadia.TemplateEngine</code> is in your path).
-  </p>
-  <p><code>
-  Arcadia.TemplateEngine <my-mv>arguments</my-mv>
-  </code></p>
+    <nav aria-label="Template Engine documentation">
+      <ul>
+        <li><a href="#Introduction">Introduction</a></li>
+        <li><a href="#ConceptsAndTerms">Concepts and Terms</a></li>
+        <li><a href="#Specification">Specification</a></li>
+        <li><a href="#ModuleInterface">Module Interface</a></li>
+      </ul>
+    </nav>
 
-  <p><code><my-mv>arguments</my-mv></code></p>
+<section id="Introduction">
+  <h2>Introduction</h2>
+  <p>Build the Arcadia Template Engine from the repository root using CMake.
+  The command-line executable is the target <code>Arcadia.TemplateEngine.CLI</code>:</p>
+  <pre><code>cmake -S . -B build
+cmake --build build --target Arcadia.TemplateEngine.CLI</code></pre>
+  <p>The executable's location depends on the generator and configuration.
+  The examples below assume it is on <code>PATH</code>. For multi-configuration
+  generators, pass <code>--config Debug</code> or the selected configuration.</p>
+
+  <h3>First template</h3>
+  <p>Create a UTF-8 file named <code>hello.te</code> containing:</p>
+  <pre><code>&lt;h1&gt;Hello, @{project}!&lt;/h1&gt;</code></pre>
+  <p>Create an environment file named <code>example.env</code>, using the
+  Arcadia Data Definition Language (DDL) map syntax:</p>
+  <pre><code>{
+  project : "Arcadia",
+}</code></pre>
+  <p>Invoke the CLI with source, target, dependency output, and environment
+  paths. The following is a POSIX-shell example: enclosing each argument
+  in single quotes passes its inner double quotes through to Arcadia's
+  command-line parser. Adapt argument quoting for other shells.</p>
+  <pre><code>Arcadia.TemplateEngine.CLI '--source="hello.te"' '--target="hello.html"' '--dependencies="hello.d"' '--environment="example.env"'</code></pre>
+  <p>The file <code>hello.html</code> then contains:</p>
+  <pre><code>&lt;h1&gt;Hello, Arcadia!&lt;/h1&gt;</code></pre>
+  <p><code>hello.d</code> records the template inputs for incremental builds.
+  The destination directory must exist; an existing regular target file is
+  overwritten. All paths in this example are relative to the process's
+  working directory. To render a template without user-defined variables,
+  omit <code>--environment</code>.</p>
+
+  <h3>Run the tests and build the documentation</h3>
+  <pre><code>ctest --test-dir build -R TemplateEngine --output-on-failure
+cmake --build build --target Arcadia.TemplateEngine.BuildDocs</code></pre>
+  <p>When building with a multi-configuration generator, use the matching
+  CTest configuration (for example <code>ctest -C Debug</code>). Generated
+  documentation is written to <code>.Website/Arcadia/TemplateEngine/index.html</code>.
+  The page sources in <code>Tools/TemplateEngine/Documentation</code> are
+  authoritative; do not edit generated HTML as the primary source.</p>
+</section>
+
+<section id="ConceptsAndTerms">
+  <h2>Concepts and Terms</h2>
+  <dl>
+    <dt>Template</dt>
+    <dd>A UTF-8 text file containing ordinary text and embedded directives.
+    Ordinary text is copied to the output in order.</dd>
+    <dt>Directive</dt>
+    <dd>A construct beginning with <code>@</code> in template source.
+    In template <em>source</em>, <code>@{name}</code> loads a variable and
+    <code>@{procedure("argument")}</code> invokes a procedure.</dd>
+    <dt>Environment</dt>
+    <dd>A collection of named values. An optional DDL map file supplies
+    string-valued variables; built-in procedures come from the default
+    environment. User-defined names can shadow built-in names.</dd>
+    <dt>Include</dt>
+    <dd>A directive that inserts the evaluated content of another template.
+    Paths are interpreted relative to the Template Engine process working
+    directory, not relative to the including template.</dd>
+    <dt>Target</dt>
+    <dd>The text file receiving the rendered output of an invocation.</dd>
+    <dt>Dependency file</dt>
+    <dd>The build dependency description identifying the target and all
+    directly and transitively read template files. It enables incremental
+    rebuilds and must not be confused with rendered output.</dd>
+  </dl>
+  <p>The CLI processes one top-level source template per invocation. Included
+  templates share the invocation's environment and contribute to the same
+  output file. See <a href="#TemplateLanguage">Template Language</a> for
+  the supported constructs and <a href="#ModuleInterface">Module Interface</a>
+  for the command-line and build integration.</p>
+</section>
+
+<section id="Specification">
+  <h2>Specification</h2>
+  <p>This section describes the behavior implemented by the current scanner,
+  parser, evaluator, and CLI. Constructs identified as future work are not
+  part of the current language.</p>
+
+  <h3 id="TemplateLanguage">Template Language</h3>
+  <p>A template is a sequence of ordinary UTF-8 text and directives. Ordinary
+  text passes to the output unchanged. The current directives are:</p>
   <table>
-    <tr><td><code>--source=<my-mv>source file</my-mv></code></td>          <td><my-mv>source file</my-mv> is the path to the source file (relative to the working directory)</td></tr>
-    <tr><td><code>--target=<my-mv>target file</my-mv></code></td>          <td><my-mv>target file</my-mv> is the path to the target file (relative to the working directory)</td></tr>
-    <tr><td><code>--environment=<my-mv>environment file</my-mv></code></td><td><my-mv>environment file</my-mv> is the path to the environment file (relative to the working directory).</td></tr>
+    <thead><tr><th>Source spelling</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>@@</code></td><td>Emit one literal <code>@</code> character.</td></tr>
+      <tr><td><code>@{name}</code></td><td>Load the named environment variable and emit its string value.</td></tr>
+      <tr><td><code>@{procedure()}</code></td><td>Invoke a no-argument procedure and emit its result.</td></tr>
+      <tr><td><code>@{procedure("text")}</code></td><td>Invoke a procedure with one string-literal argument and emit its result.</td></tr>
+    </tbody>
   </table>
+  <p>In the invocation form, the parser accepts zero or more string-literal
+  arguments separated by commas. A name without parentheses denotes a
+  variable load; a name followed by parentheses denotes an invocation.
+  Numeric arguments and user-authored procedure definitions are not currently
+  supported by the parser. Whitespace and quoting must follow the accepted
+  scanner grammar.</p>
+  <p>An undefined variable, an attempt to invoke a non-procedure, a syntax
+  error, or an invalid procedure argument causes evaluation to fail. Template
+  content is evaluated from left to right; a failure prevents successful
+  completion of the invocation.</p>
 
-  <p>
-  The <my-mv>source file</my-mv> is an UTF-8 encoded text file which is an input to this template engine invocation.
-  The contents of this file are evaluated by the template engine and the evaluation result is written to the <my-mv>target file</my-mv>.
-  </p>
+  <h3>Environment and name resolution</h3>
+  <p>An optional environment file is parsed as an
+  <a href="https://michaelheilmann.com/specifications/data-definition-language">Arcadia DDL</a>
+  value of type <em>Map</em>. Every entry value must be a DDL string.
+  An absent environment file yields no user variables; built-in procedures
+  remain available. Names in the supplied environment shadow names in its
+  enclosing default environment, including built-in procedures.</p>
+  <pre><code>{
+  title : "Arcadia",
+  description : "Template example",
+}</code></pre>
+  <p>Use <code>@{title}</code> to insert the value of <code>title</code>.
+  Invoking that string as <code>@{title()}</code> is an error.</p>
 
-  <p>
-  The <my-mv>target file</my-mv> is an UTF-8 encoded text file which is an output of this template engine invocation.
-  If the file exists and is a regular file, its contents are overwritten.
-  If the file exists and is not a regular file or the path to the file does not exist, then this template engine invocation fails.
-  </p>
-
-  <p>
-  The <my-mv>environment file</my-mv> is an <a href="https://michaelheilmann.com/specifications/data-definition-language">Data Definition Language</a> file
-  which must consist of a single value of type <em>Map</em>. The values of the map element values of this map value must be of type <em>String</em>.
-  These map values represent variables which can be used in the template directives (see <a href="https://michaelheilmann.com/Arcadia/TemplateEngine/#TemplateLanguage">Template Language</a> of this template engine invocation.
-  Note: Definitions in this environment file shadow definitions of default variables and default procedures.
-  </p>
-
-  <h2>The Template Language</h2>
-  <p>
-  A <em>program</em> of the <em>Template Language</em> consists of <em>texts</em> in which <em>directives</em> are embedded into.
-  <em>text</em> is a sequence of UTF8 symbols excluding the <em>ampersand</em> symbol. An <em>directive</em> begins with an ampersand.
-  The extend (in UTF8 symbols) of an <em>directive</em> is determined by the directive itself. <em>text</em> is written directly to
-  the output. <em>directives</em> are not written to the output. Instead, they are <em>evaluated</em> and the evaluation result
-  is written to the output. There are two major categories of directives, the <em>ampersand directive</em> and the <em>expression directives</em>.
-  </p>
-
-  <p><b>Remark for this version</b>:
-  In future version of the Template Language, there will be directives (e.g., loop operators) working on <em>text</em>.
-  Consequently, the statement that <em>text</em> is written directly to the output will be revised.
-  </p>
-
-  <p><b>Remark for this version</b>:
-  There will be a new category of directovies in future versions of the Template Language called <em>statement directives</em>.
-  They will allow for defining new variables and (bounded) loops over text and directives.
-  Consequently, the statement that there are two major categories of directives will be revised.
-  </p>
-
-  <h3>Ampersand Directive</h3>
-  <p>The <em>ampersand directive</em> is of the form <code>@@</code> and is used output a single ampersand.</p>
-
-  <h3>Expression Directive</h3>
-  <p>Expression directives start with an ampersand <code>@</code> followed by curly bracket <code>{</code> followed
-  by a name. Optionally, the name is followed by an argument list which is opened by a left parenthesis <code>(</code>
-  and closed by a right parenthesis <code>)</code>. The parentheses enclosed zero or more literals separated by commas
-  <code>,</code>. Expressions without an argument list are <em>variable load</em> expression, expressions with an argument
-  list are <em>invocation expressions</em>.
-  </p>
-
-  <p>
-  <em>Variable load</em> expression search first the environment defined by the environment file and then the default environment for definitions of the name.
-  If it discovers are a variable definition, it will emit the value of the variable to the output.
-  The processing stops with an error if a definition for a procedure was found or no definition was found at all.
-  </p>
-
-  <p>
-  <em>Invocation expression</em> search first the environment defined by the environment file and then the default environment for definitions of the name.
-  If it discovers a procedure definition, it will invoke that procedure with the specified arguments and write the return value of the procedure to the output.
-  The processing stops with an error if a definition for a variable procedure was found or no definition was found at all.
-  </p>
-
-  <p><b>Remark for this version</b>:
-  Currently, it is not possible to specify procedures.
-  Consequently, all procedures available are defined in the default environment.
-  However, if a variable is defined in the environment file with a name used by a procedure in the default environment,
-  then an invocation expression of that name will discover the variable and not the procedure causing the processing to stop with an error.
-  </p>
-
-  The following <em>invocation expression directives</em> are known:
-  </p>
+  <h3>Built-in procedures</h3>
+  <p>All date/time procedures below take no arguments and use <strong>UTC</strong>.
+  Values are evaluated when the procedure runs, not frozen when processing
+  starts.</p>
   <table class="invocation-directives">
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-    <tr>
-      <td>
-      include
-      </td>
-      <td>
-      Defined in the default environment.
-      Expects a string as its single argument which denotes the path to a file relative to the working directory.
-      The file contents are processed by and the result is written to the output.
-      Recursive includes (direct or indirect) are an error.
-      </td>
-    </tr>
-    <tr>
-      <td>
-      <code>dayOfMonth</code>
-      </td>
-      <td>
-      Defined in the default environment.
-      Expects zero arguments.
-      Outputs the day of the month of "now", that is, an integer in the interval [1,31] without leading zeroes.
-      </td>
-    </tr>
-    <tr>
-      <td>
-      <code>month</code>
-      </td>
-      <td>
-      Defined in the default environment.
-      Expects zero arguments.
-      Outputs the month of the year of "now", that is, an integer in the interval [1,12] without leading zeroes.
-      </td>
-    </tr>
-      <td>
-      <code>monthName</code>
-      </td>
-      <td>
-      Defined in the default environment.
-      Expects zero arguments.
-      Outputs the English name of the month of the year of "now" (e.g., "January" or "October" without the quotes).
-      </td>
-    </tr>
-    <tr>
-      <td>
-      <code>year</code>
-      </td>
-      <td>
-      Defined in the default environ,ent.
-      Expects zero arguments.
-      Outputs the year of "now" (e.g., 2025).
-      </td>
-    </tr>
+    <thead><tr><th>Procedure</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td><code>include("path")</code></td><td>Evaluate and insert a file; one string argument, resolved relative to the process working directory.</td></tr>
+      <tr><td><code>dayOfWeek()</code></td><td>Weekday number, Monday = 1 through Sunday = 7 (UTC).</td></tr>
+      <tr><td><code>dayOfWeekName()</code></td><td>English weekday name (UTC).</td></tr>
+      <tr><td><code>dayOfMonth()</code></td><td>Day number, 1 through 31 (UTC).</td></tr>
+      <tr><td><code>month()</code></td><td>Month number, 1 through 12 (UTC).</td></tr>
+      <tr><td><code>monthName()</code></td><td>English month name (UTC).</td></tr>
+      <tr><td><code>year()</code></td><td>Four-digit year in the current Gregorian calendar (UTC).</td></tr>
+    </tbody>
   </table>
+  <p><code>include</code> is handled by the evaluator rather than registered as
+  an ordinary environment procedure. Recursive includes, including indirect
+  cycles, fail rather than producing infinite output. Example:</p>
+  <pre><code>&lt;main&gt;
+  @{include("section.i")}
+&lt;/main&gt;</code></pre>
 
-</div>
-<div class="right-column"></div>
+  <h3>Output, dependencies, and failure behavior</h3>
+  <p>The required dependency file describes the generated target as dependent
+  on the source file and every transitively included file. It is designed for
+  CMake dependency tracking (including Ninja depfiles); included templates
+  are inputs, not additional generated targets. A change to a nested include
+  therefore requires regeneration of the final output.</p>
+  <p>On a successful invocation the CLI writes the rendered target file and
+  the dependency file. The target is overwritten if it already exists as a
+  regular file. The CLI requires parent directories to exist and does not
+  guarantee atomic replacement of the output. Read, parse, evaluate, and
+  write failures cause an unsuccessful invocation; no rollback of output
+  files is promised.</p>
+  <p>The CLI returns <code>EXIT_SUCCESS</code> on success and
+  <code>EXIT_FAILURE</code> on failure. No stable numeric exit-code taxonomy
+  or machine-readable diagnostics format is currently exposed. The present
+  <code>--help</code> implementation prints usage but also returns failure.
+  Do not interpret a nonzero status from <code>--help</code> as a render error.</p>
+
+  <h3>Not currently supported</h3>
+  <p>Loop directives, user-defined statements, general expressions, and
+  user-defined procedures are possible future language extensions, not
+  available features of this implementation.</p>
+</section>
+
+<section id="ModuleInterface">
+  <h2>Module Interface</h2>
+  <h3>Command-line interface</h3>
+  <pre><code>Arcadia.TemplateEngine.CLI [options]</code></pre>
+  <table>
+    <thead><tr><th>Option</th><th>Contract</th></tr></thead>
+    <tbody>
+      <tr><td><code>--source="path"</code></td><td>Required: UTF-8 input template.</td></tr>
+      <tr><td><code>--target="path"</code></td><td>Required: rendered output file.</td></tr>
+      <tr><td><code>--dependencies="path"</code></td><td>Required: output dependency file.</td></tr>
+      <tr><td><code>--environment="path"</code></td><td>Optional: DDL map supplying string variables.</td></tr>
+      <tr><td><code>--help</code></td><td>Print CLI usage; currently exits with failure.</td></tr>
+    </tbody>
+  </table>
+  <p>The command-line parser expects double-quoted path values; ensure those
+  quotes reach the application when invoking it from a shell. CMake's
+  <code>OnTemplateEngine</code> integration handles argument construction.
+  The CLI also recognizes <code>--log</code>, but its value is not currently
+  used by the render path. It is not a supported logging interface.</p>
+
+  <h3>Library entry points</h3>
+  <p>The implementation is provided by the <code>Arcadia.TemplateEngine</code>
+  library. These current C entry points are declared under
+  <code>Tools/TemplateEngine/Library/Sources/Arcadia.TemplateEngine</code>:</p>
+  <pre><code>Context*
+Context_create
+  (
+    Arcadia_Thread* thread
+  );
+
+void
+Context_onRun
+  (
+    Arcadia_Thread* thread,
+    Context* self
+  );
+
+Environment*
+Environment_create
+  (
+    Arcadia_Thread* thread,
+    Environment* enclosing
+  );
+
+Environment*
+Environment_loadString
+  (
+    Arcadia_Thread* thread,
+    Arcadia_String* source
+  );
+
+Arcadia_Value
+Environment_get
+  (
+    Arcadia_Thread* thread,
+    Environment* self,
+    Arcadia_Value key,
+    Arcadia_BooleanValue recursive
+  );
+
+void
+Environment_set
+  (
+    Arcadia_Thread* thread,
+    Environment* self,
+    Arcadia_Value key,
+    Arcadia_Value value
+  );</code></pre>
+  <p><code>Context</code> stores source, target, and dependency paths and the
+  evaluation environment. <code>Context_onRun</code> renders the configured
+  source and writes the dependency description; the CLI writes the final
+  target bytes. <code>Environment_loadString</code> parses a DDL map into
+  variables. These are implementation-level C interfaces: callers must
+  supply the normal Arcadia process/thread environment and error-handling
+  discipline. This page does not promise a stable independent C ABI.</p>
+
+  <h3>CMake integration</h3>
+  <p>The preferred build-system interface is implemented by
+  <code>CMake/tools-template-engine.cmake</code>:</p>
+  <pre><code>BeginTemplateEngine(${MyProjectName}.Example.BuildDocs "Example")
+  OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/index.html.te"
+                   "${REPOSITORY_SOURCE_DIR}/.Website/Example/index.html"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
+EndTemplateEngine()</code></pre>
+  <p><code>OnTemplateEngine</code> takes a source template, an output path,
+  and an environment-file path. These arguments must be absolute in this
+  CMake integration. Each generated page gets a dependency file containing
+  its transitive template includes; the template and environment sources
+  trigger rebuilds through the custom command.</p>
+
+  <h3>Build and test targets</h3>
+  <table>
+    <thead><tr><th>Target</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>Arcadia.TemplateEngine</code></td><td>Native C template engine library.</td></tr>
+      <tr><td><code>Arcadia.TemplateEngine.CLI</code></td><td>Command-line renderer.</td></tr>
+      <tr><td><code>Arcadia.TemplateEngine.BuildDocs</code></td><td>Generate this documentation page.</td></tr>
+    </tbody>
+  </table>
+  <p>The tests under <code>Tools/TemplateEngine/Tests</code> cover literal
+  at-signs, built-in procedures, recursive includes, rendering, and nested
+  dependency-file behavior. When editing template parsing or dependency
+  generation, run the corresponding CTest cases as well as regenerating
+  the website.</p>
+</section>
+
+  </div>
+  <div class="right-column"></div>
 </main>
 
   <footer>
@@ -230,7 +373,7 @@
     </div>
     <div class="right-column">
       <div>Website maintained by Michael Heilmann.</div>
-      <div>Last modified on 1 November 2026.</div>
+      <div>Last modified on 3 November 2026.</div>
     </div>
   </footer>
   </body>

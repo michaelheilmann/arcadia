@@ -84,7 +84,7 @@ Arcadia_Slot_visit
   )
 {
   if (self->signal) {
-    Arcadia_Object_visit(thread, (Arcadia_Object*)self->receiver);
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->signal);
   }
   if (self->receiver) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->receiver);
@@ -147,7 +147,8 @@ Arcadia_Slot_disconnect
     Arcadia_Slot* self
   )
 {
-  self->signal = NULL;
-  self->receiver = NULL;
+  Arcadia_Value voidValue = Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void);
+  Arcadia_WeakReference_setValue(thread, self->signal, voidValue);
+  Arcadia_WeakReference_setValue(thread, self->receiver, voidValue);
   self->procedure = NULL;
 }

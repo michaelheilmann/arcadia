@@ -1,4 +1,24 @@
 # AppVeyor configuration for AppVeyor project "Arcadia".
+#
+# Optional CI crash diagnostics:
+#   ARCADIA_CI_CRASH_DIAGNOSTICS=off  (default): original build/test behavior.
+#   ARCADIA_CI_CRASH_DIAGNOSTICS=mini: Release PDBs + WER minidumps.
+#   ARCADIA_CI_CRASH_DIAGNOSTICS=full: Release PDBs + WER full memory dumps.
+#
+# Override the setting in AppVeyor Project Settings -> Environment.
+# Diagnostic dump artifacts are NOT uploaded by default: crash dumps can
+# contain secrets and private process memory. To upload them, FIRST ensure
+# the job's artifact storage/access is appropriately restricted, THEN set
+# BOTH ARCADIA_CI_CRASH_UPLOAD=yes and
+# ARCADIA_CI_PRIVATE_ARTIFACTS_CONFIRMED=yes in the project environment.
+# Neither variable changes AppVeyor access controls; the operator must verify
+# actual privacy before enabling uploads. This matters especially for public
+# AppVeyor projects. Do not enable full dump upload to public artifacts.
+#
+# Diagnostic mode applies to the Arcadia.Engine.UI.Tests.EventBases.exe test
+# executable only, avoiding system-wide crash reporting. The target CTest
+# command and its exit code are unchanged: crash failures still fail the job.
+
 clone_depth: 1
 
 # Build worker image (VM template).
@@ -15,156 +35,303 @@ skip_tags: true
 
 # Build platform "x64" and "Win32".
 platform:
-    - x64
-    - Win32
+  - x64
+  - Win32
 
 # Build configurations "Release", "Debug", "MinSizeRel", and "RelWithDebInfo".
 configuration:
-    - Release
-    - Debug
-    - MinSizeRel
-    - RelWithDebInfo
+  - Release
+  - Debug
+  - MinSizeRel
+  - RelWithDebInfo
 
 environment:
-    CLONE_DIRECTORY: C:\Source
-    BUILD_DIRECTORY: C:\Build
-    PACKAGE_DIRECTORY: C:\Package
+  CLONE_DIRECTORY: C:\Source
+  BUILD_DIRECTORY: C:\Build
+  PACKAGE_DIRECTORY: C:\Package
+  ARCADIA_CI_CRASH_DIAGNOSTICS: 'off'
 
 # The clone directory.
 clone_folder: '%CLONE_DIRECTORY%'
 
 install:
-    # Enable long paths.
-    - ps: |
-        Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1
-        Start-Sleep -s 10
-        Restart-Computer -Force
-        Start-Sleep -s 10
-    # Create the build directory.
-    - ps: |
-        New-Item -Path "${env:BUILD_DIRECTORY}" -ItemType Directory
-        New-Item -Path "${env:PACKAGE_DIRECTORY}" -ItemType Directory
-    - ps: |
-        $cmakeVersion = [version]((cmake --version | Select-Object -First 1) -replace '^cmake version\s+', '')
-        if ($cmakeVersion -lt [version]'4.1.0') {
-          Write-Host "found CMake $cmakeVersion. CMake 4.1.0 or newer is required. Installing CMake 4.1.3."
-          set CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v4.1.3/cmake-4.1.3-windows-x86_64.zip"
-          appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
-          7z x cmake.zip -oC:\projects\deps > nul
-          move C:\projects\deps\cmake-* C:\projects\deps\cmake # Move to a version-agnostic directory
-          set PATH=C:\projects\deps\cmake\bin;%PATH%
-        } else {
-          Write-Host "found CMake $cmakeVersion."
-        }
+  - ps: |
+      # Enable long paths without restarting Windows.
+      New-ItemProperty `
+        -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' `
+        -Name 'LongPathsEnabled' `
+        -Value 1 `
+        -PropertyType DWORD `
+        -Force | Out-Null
+
+      Write-Host "Windows long paths enabled."
+  - ps: |
+      # Create the build directory.
+      New-Item -Path "${env:BUILD_DIRECTORY}" -ItemType Directory
+      # Create the package directory.
+      New-Item -Path "${env:PACKAGE_DIRECTORY}" -ItemType Directory
+  - ps: |
+      $cmakeVersion = [version]((cmake --version | Select-Object -First 1) -replace '^cmake version\s+', '')
+      if ($cmakeVersion -lt [version]'4.1.0') {
+        Write-Host "found CMake $cmakeVersion. CMake 4.1.0 or newer is required. Installing CMake 4.1.3."
+        set CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v4.1.3/cmake-4.1.3-windows-x86_64.zip"
+        appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
+        7z x cmake.zip -oC:\projects\deps > nul
+        move C:\projects\deps\cmake-* C:\projects\deps\cmake # Move to a version-agnostic directory
+        set PATH=C:\projects\deps\cmake\bin;%PATH%
+      } else {
+        Write-Host "found CMake $cmakeVersion."
+      }
 
 # Generate solution and project files.
 before_build:
-    # Create configuration.
-    - ps: |
-        # The name of the CMake generator, for example "Visual Studio 17 2022".
-        ${env:CMAKE_GENERATOR_NAME}="Visual Studio 17 2022" ;
+  # Create configuration and validate the opt-in mode before configuring CMake.
+  - ps: |
+      $env:CMAKE_GENERATOR_NAME = "Visual Studio 17 2022"
+      $env:RELEASE_NAME = "arcadia-windows-$($env:APPVEYOR_REPO_BRANCH)-v$(($env:APPVEYOR_BUILD_VERSION).ToLower())"
 
-        # The name of the release, for example "arcadia-windows-debug-10.1.9".
-        ${env:RELEASE_NAME}="arcadia-windows-$(${env:APPVEYOR_REPO_BRANCH})-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())"
+      $env:ARCHIVE_FILENAME = "arcadia-$($env:APPVEYOR_REPO_BRANCH)-windows"
+      $env:CMAKE_ARCHITECTURE_NAME = $env:PLATFORM
+      if ($env:PLATFORM -eq 'Win32') {
+        $env:ARCHIVE_FILENAME = "$($env:ARCHIVE_FILENAME)-x86"
+      } elseif ($env:PLATFORM -eq 'x64') {
+        $env:ARCHIVE_FILENAME = "$($env:ARCHIVE_FILENAME)-x64"
+      } else {
+        throw "unsupported platform $($env:PLATFORM)"
+      }
+      $env:ARCHIVE_FILENAME = "$($env:ARCHIVE_FILENAME)-$(($env:CONFIGURATION).ToLower())-v$(($env:APPVEYOR_BUILD_VERSION).ToLower()).zip"
 
-        # The name of the zip file, for example "arcadia-debug-windows-x86-debug-10.1.9.zip".
-        ${env:ARCHIVE_FILENAME}="arcadia-${env:APPVEYOR_REPO_BRANCH}";
-        ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}-windows"
+      $mode = ("$env:ARCADIA_CI_CRASH_DIAGNOSTICS").Trim().ToLowerInvariant()
+      if ($mode -eq '') { $mode = 'off' }
+      if ($mode -notin @('off', 'mini', 'full')) {
+        throw "Unsupported ARCADIA_CI_CRASH_DIAGNOSTICS='$mode'; use off, mini, or full."
+      }
+      Write-Host "Crash diagnostics:     $mode"
 
-        # The name of the CMake architecture, for example "Win32" or "x64".
-        ${env:CMAKE_ARCHITECTURE_NAME}=${env:PLATFORM}
+  # Emit the configuration.
+  - ps: |
+      Write-Host "Clone Directory:        ${env:CLONE_DIRECTORY}"
+      Write-Host "Build Directory:        ${env:BUILD_DIRECTORY}"
+      Write-Host "Release Name:           ${env:RELEASE_NAME}"
+      Write-Host "AppVeyor Platform:      ${env:PLATFORM}"
+      Write-Host "AppVeyor Configuration: ${env:CONFIGURATION}"
+      Write-Host "Zip File Name:          ${env:ARCHIVE_FILENAME}"
+      Write-Host "CMake Generator:        ${env:CMAKE_GENERATOR_NAME}"
+      Write-Host "CMake Architecture:     ${env:CMAKE_ARCHITECTURE_NAME}"
 
-        if (${env:PLATFORM} -eq 'Win32') {
-          ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}-x86"
-        } elseif(${env:PLATFORM} -eq 'x64') {
-          ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}-x64"
-        } else {
-          throw "unsupported platform ${env:PLATFORM}";
-        }
+  # Generate build files. In opt-in modes CMake injects symbol settings via a
+  # temporary project() hook: existing Release flags are NOT replaced.
+  - ps: |
+      $mode = ("$env:ARCADIA_CI_CRASH_DIAGNOSTICS").Trim().ToLowerInvariant()
+      if ($mode -eq '') { $mode = 'off' }
+      if ($mode -notin @('off', 'mini', 'full')) {
+        throw "Unsupported crash diagnostics mode: $mode"
+      }
 
-        ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}-$(${env:CONFIGURATION}.ToLower())-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())";
-        ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}.zip";
-    # Emit the configuration.
-    - ps: |
-        Write-Host "Clone Directory:        ${env:CLONE_DIRECTORY}";
-        Write-Host "Build Directory:        ${env:BUILD_DIRECTORY}";
-        Write-Host "Release Name:           ${env:RELEASE_NAME}";
-        Write-Host "AppVeyor Platform:      ${env:PLATFORM}";
-        Write-Host "AppVeyor Configuration: ${env:CONFIGURATION}";
-        Write-Host "Zip File Name:          ${env:ARCHIVE_FILENAME}";
-        Write-Host "CMake Generator:        ${env:CMAKE_GENERATOR_NAME}"
-        Write-Host "CMake Architecture:     ${env:CMAKE_ARCHITECTURE_NAME}"
-    # Generate build files.
-    - ps: |
-        # Generate the build files.
-        cmake -S "${env:CLONE_DIRECTORY}" -B "${env:BUILD_DIRECTORY}" -G ${env:CMAKE_GENERATOR_NAME} -A ${env:CMAKE_ARCHITECTURE_NAME} -D"Arcadia.Engine.Audials.Implementation.OpenAL.Enabled"=TRUE -D"Arcadia.Engine.Visuals.Implementation.OpenGL4.Enabled"=TRUE
-        if ($LASTEXITCODE) { exit $LASTEXITCODE }
-        # Install dependencies.
-        if (!(Test-Path "${env:BUILD_DIRECTORY}/.Dependencies")) {
-          cmake --build "${env:BUILD_DIRECTORY}" --target "Arcadia.InstallDependencies"
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-        }
+      $cmakeArgs = @(
+        '-S', $env:CLONE_DIRECTORY,
+        '-B', $env:BUILD_DIRECTORY,
+        '-G', 'Visual Studio 17 2022',
+        '-A', $env:PLATFORM,
+        '-DArcadia.Engine.Audials.Implementation.OpenAL.Enabled=TRUE',
+        '-DArcadia.Engine.Visuals.Implementation.OpenGL4.Enabled=TRUE'
+      )
+
+      if ($mode -ne 'off') {
+        $hook = Join-Path $env:BUILD_DIRECTORY 'arcadia-ci-symbols.cmake'
+        $hookLines = @(
+          '# Applied after project(Arcadia), before subdirectories.',
+          'if(MSVC)',
+          '  add_compile_options("$<$<CONFIG:Release>:/Z7>")',
+          '  add_link_options("$<$<CONFIG:Release>:/DEBUG:FULL>"',
+          '                   "$<$<CONFIG:Release>:/INCREMENTAL:NO>"',
+          '                   "$<$<CONFIG:Release>:/OPT:REF>"',
+          '                   "$<$<CONFIG:Release>:/OPT:ICF>")',
+          'endif()'
+        )
+        $hookLines | Set-Content -LiteralPath $hook -Encoding Ascii
+        $hookCmake = $hook.Replace('\', '/')
+        $cmakeArgs += "-DCMAKE_PROJECT_Arcadia_INCLUDE:FILEPATH=$hookCmake"
+        Write-Host "Release PDB generation enabled via: $hook"
+      }
+
+      & cmake @cmakeArgs
+      if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      # Install dependencies (existing behavior).
+      if (!(Test-Path "${env:BUILD_DIRECTORY}/.Dependencies")) {
+        cmake --build "${env:BUILD_DIRECTORY}" --target "Arcadia.InstallDependencies"
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      }
 
 build:
-    parallel: true # enable MSBuild parallel builds
-    project: $(BUILD_DIRECTORY)\Arcadia.sln # path to Visual Studio solution or project
+  parallel: true # enable MSBuild parallel builds
+  project: $(BUILD_DIRECTORY)\Arcadia.sln # path to Visual Studio solution or project
 
 after_build:
-    - ps: New-Item ${env:BUILD_DIRECTORY}\.keepme -type file
-    - ps: 7z a ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\.keepme
-    - ps: 7z a ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\Tools\TemplateEngine\Tool\${env:CONFIGURATION}\Arcadia.TemplateEngine.CLI.exe
-    - ps: 7z rn ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} Arcadia.TemplateEngine.CLI.exe TemplateEngine\Binaries\Arcadia.TemplateEngine.CLI.exe
-    - ps: Push-AppveyorArtifact ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} -FileName ${env:ARCHIVE_FILENAME} -DeploymentName ${env:ARCHIVE_FILENAME}
+  - ps: New-Item ${env:BUILD_DIRECTORY}\.keepme -type file
+  - ps: 7z a ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\.keepme
+  - ps: 7z a ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\Tools\TemplateEngine\Tool\${env:CONFIGURATION}\Arcadia.TemplateEngine.CLI.exe
+  - ps: 7z rn ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} Arcadia.TemplateEngine.CLI.exe TemplateEngine\Binaries\Arcadia.TemplateEngine.CLI.exe
+  - ps: Push-AppveyorArtifact ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} -FileName ${env:ARCHIVE_FILENAME} -DeploymentName ${env:ARCHIVE_FILENAME}
+
+# Configure WER after the build and before CTest, ONLY when explicitly enabled.
+before_test:
+  - ps: |
+      $mode = ("$env:ARCADIA_CI_CRASH_DIAGNOSTICS").Trim().ToLowerInvariant()
+      if ($mode -eq '') { $mode = 'off' }
+      if ($mode -notin @('off', 'mini', 'full')) {
+        throw "Unsupported crash diagnostics mode: $mode"
+      }
+      if ($mode -eq 'off') {
+        Write-Host 'WER crash diagnostics disabled.'
+      } else {
+        $dumpDir = Join-Path $env:BUILD_DIRECTORY 'CrashDiagnostics\Dumps'
+        New-Item -ItemType Directory -Force -Path $dumpDir | Out-Null
+        $dumpType = if ($mode -eq 'full') { 2 } else { 1 }
+        $subKey = 'SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\Arcadia.Engine.UI.Tests.EventBases.exe'
+
+        foreach ($view in @([Microsoft.Win32.RegistryView]::Registry64,
+                            [Microsoft.Win32.RegistryView]::Registry32)) {
+          $root = [Microsoft.Win32.RegistryKey]::OpenBaseKey(
+            [Microsoft.Win32.RegistryHive]::LocalMachine, $view)
+          try {
+            $key = $root.CreateSubKey($subKey)
+            if ($null -eq $key) { throw "Cannot create WER registry key ($view)" }
+            try {
+              $key.SetValue('DumpFolder', $dumpDir, [Microsoft.Win32.RegistryValueKind]::ExpandString)
+              $key.SetValue('DumpType', $dumpType, [Microsoft.Win32.RegistryValueKind]::DWord)
+              $key.SetValue('DumpCount', 3, [Microsoft.Win32.RegistryValueKind]::DWord)
+            } finally {
+              $key.Close()
+            }
+          } finally {
+            $root.Close()
+          }
+        }
+        Write-Host "WER: mode=$mode, exe=Arcadia.Engine.UI.Tests.EventBases.exe, dumpDir=$dumpDir"
+      }
 
 test_script:
-    - ps: |
-        $report = Join-Path $env:BUILD_DIRECTORY "test-results-$($env:APPVEYOR_JOB_ID).xml"
+  - ps: |
+      $report = Join-Path $env:BUILD_DIRECTORY "test-results-$($env:APPVEYOR_JOB_ID).xml"
 
-        ctest --test-dir "$env:BUILD_DIRECTORY" -C "$env:CONFIGURATION" --output-on-failure --output-junit "$report"
+      ctest --test-dir "$env:BUILD_DIRECTORY" -C "$env:CONFIGURATION" --output-on-failure --output-junit "$report"
 
-        $testExitCode = $LASTEXITCODE
-        Write-Host "CTest exit code: $testExitCode"
+      $testExitCode = $LASTEXITCODE
+      Write-Host "CTest exit code: $testExitCode"
 
-        if ($testExitCode -ne 0) {
-          throw "CTest failed with exit code $testExitCode"
-        }
+      if ($testExitCode -ne 0) {
+        throw "CTest failed with exit code $testExitCode"
+      }
 
-        Write-Host "CTest completed successfully."
+      Write-Host "CTest completed successfully."
+
 on_finish:
-    #Do not print the full log file. Use `Get-Content $log -Tail 100` or something.
-    #- ps: |
-    #    $log = Join-Path $env:BUILD_DIRECTORY "Testing/Temporary/LastTest.log"
-    #    if (Test-Path $log) { Get-Content $log }
-    - ps: |
-        $report = Join-Path $env:BUILD_DIRECTORY "test-results-$($env:APPVEYOR_JOB_ID).xml"
-        if (Test-Path $report) {
-          $webClient = New-Object 'System.Net.WebClient'
-          try {
-            $webClient.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", $report) | Out-Null
-            Write-Host "JUnit report uploaded successfully."
-          } catch {
-            Write-Warning "JUnit upload failed: $($_.Exception.Message)"
-          } finally {
-            $webClient.Dispose()
-          }
-        } else { Write-Warning "CTest report not produced: $report" }
+  # Keep the existing JUnit upload, even if tests failed.
+  - ps: |
+      $report = Join-Path $env:BUILD_DIRECTORY "test-results-$($env:APPVEYOR_JOB_ID).xml"
+      if (Test-Path $report) {
+        $webClient = New-Object 'System.Net.WebClient'
+        try {
+          $webClient.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", $report) | Out-Null
+          Write-Host "JUnit report uploaded successfully."
+        } catch {
+          Write-Warning "JUnit upload failed: $($_.Exception.Message)"
+        } finally {
+          $webClient.Dispose()
+        }
+      } else { Write-Warning "CTest report not produced: $report" }
 
-# If one matrix entry fails, all entries fails (https://www.appveyor.com/docs/build-configuration#failing-strategy).
+  # Preserve crash evidence in an artifact only after an explicit, confirmed
+  # private/restricted-storage decision. on_finish also runs for failed jobs.
+  - ps: |
+      $mode = ("$env:ARCADIA_CI_CRASH_DIAGNOSTICS").Trim().ToLowerInvariant()
+      if ($mode -in @('mini', 'full')) {
+        $dumpDir = Join-Path $env:BUILD_DIRECTORY 'CrashDiagnostics\Dumps'
+        $dumps = @(Get-ChildItem -LiteralPath $dumpDir -Filter '*.dmp' -File -ErrorAction SilentlyContinue)
+        if ($dumps.Count -eq 0) {
+          Write-Host "Crash diagnostics mode=${mode}: no WER dump was produced."
+        } else {
+          Write-Host "Crash diagnostics: found $($dumps.Count) dump(s)."
+          $allow = ("$env:ARCADIA_CI_CRASH_UPLOAD").Trim().ToLowerInvariant() -eq 'yes'
+          $privateConfirmed = ("$env:ARCADIA_CI_PRIVATE_ARTIFACTS_CONFIRMED").Trim().ToLowerInvariant() -eq 'yes'
+          if (-not ($allow -and $privateConfirmed)) {
+            Write-Warning 'Crash dump upload blocked. Dumps contain memory. Verify restricted artifact access, then set ARCADIA_CI_CRASH_UPLOAD=yes and ARCADIA_CI_PRIVATE_ARTIFACTS_CONFIRMED=yes.'
+          } else {
+            try {
+              $stage = Join-Path $env:BUILD_DIRECTORY 'CrashDiagnostics\Bundle'
+              New-Item -ItemType Directory -Force -Path $stage | Out-Null
+              $stageDumps = Join-Path $stage 'Dumps'
+              New-Item -ItemType Directory -Force -Path $stageDumps | Out-Null
+              foreach ($d in $dumps) {
+                Copy-Item -LiteralPath $d.FullName -Destination $stageDumps -Force
+              }
+
+              $binaryDir = Join-Path $env:BUILD_DIRECTORY "Engine\UI\Tests\EventBases\$($env:CONFIGURATION)"
+              foreach ($filename in @('Arcadia.Engine.UI.Tests.EventBases.exe',
+                                      'Arcadia.Engine.UI.Tests.EventBases.pdb')) {
+                $path = Join-Path $binaryDir $filename
+                if (Test-Path -LiteralPath $path) {
+                  Copy-Item -LiteralPath $path -Destination $stage -Force
+                } else {
+                  Write-Warning "Missing crash diagnostic file: $path"
+                }
+              }
+
+              $testLog = Join-Path $env:BUILD_DIRECTORY 'Testing\Temporary\LastTest.log'
+              if (Test-Path -LiteralPath $testLog) {
+                Copy-Item -LiteralPath $testLog -Destination $stage -Force
+              }
+              $junit = Join-Path $env:BUILD_DIRECTORY "test-results-$($env:APPVEYOR_JOB_ID).xml"
+              if (Test-Path -LiteralPath $junit) {
+                Copy-Item -LiteralPath $junit -Destination $stage -Force
+              }
+              @(
+                "Job: $env:APPVEYOR_JOB_ID"
+                "Commit: $env:APPVEYOR_REPO_COMMIT"
+                "Branch: $env:APPVEYOR_REPO_BRANCH"
+                "Platform: $env:PLATFORM"
+                "Configuration: $env:CONFIGURATION"
+                "WER mode: $mode"
+                "Toolchain: $(($env:VSINSTALLDIR))"
+                "CMake: $(& cmake --version | Select-Object -First 1)"
+                'CTest case: Arcadia.Engine.UI.Tests.EventBases.Interfaces'
+              ) | Set-Content -LiteralPath (Join-Path $stage 'diagnostics.txt') -Encoding UTF8
+
+              $archive = Join-Path $env:PACKAGE_DIRECTORY "crash-$($env:APPVEYOR_JOB_ID).7z"
+              Push-Location $stage
+              try {
+                & 7z a -t7z -mx=1 $archive '.\*' -r
+                if ($LASTEXITCODE -ne 0) { throw "7z failed with exit code $LASTEXITCODE" }
+              } finally {
+                Pop-Location
+              }
+              Push-AppveyorArtifact $archive -FileName (Split-Path $archive -Leaf)
+              Write-Host "Uploaded restricted crash diagnostics artifact: $archive"
+            } catch {
+              Write-Warning "Crash diagnostic packaging/upload failed: $($_.Exception.Message)"
+            }
+          }
+        }
+      }
+
+# If one matrix entry fails, all entries fail.
 matrix:
-    fast_finish: true
+  fast_finish: true
 
 #artifacts:
-#    - name: $(ARCHIVE_FILENAME)
-#      path: $(PACKAGE_DIRECTORY)\$(ARCHIVE_FILENAME)
+#  - name: $(ARCHIVE_FILENAME)
+#    path: $(PACKAGE_DIRECTORY)\$(ARCHIVE_FILENAME)
 
 deploy:
-    release: $(RELEASE_NAME)
-    tag: $(RELEASE_NAME)
-    description: "Michael Heilmann's Arcadia $(APPVEYOR_REPO_BRANCH) branch v$(APPVEYOR_BUILD_VERSION)"
-    provider: GitHub
-    auth_token:
-        secure: iTg7jon0UCvoGT5y2flVxD+NxPVU7uUV5dGZYhUuaUmMZHW1Fa35A34q4ab1AH+26aSnKZMPggvjms206GEmcEF/ZkZbXhi9fniN2fHXjmwKe6zJhWBwBl+/7B+qwLPl # encrypted token from GitHub
-    artifact: $(ARCHIVE_FILENAME) # name (not path) of the artifact
-    draft: true
-    prerelease: false
-    force_update: true
+  release: $(RELEASE_NAME)
+  tag: $(RELEASE_NAME)
+  description: "Michael Heilmann's Arcadia $(APPVEYOR_REPO_BRANCH) branch v$(APPVEYOR_BUILD_VERSION)"
+  provider: GitHub
+  auth_token:
+    secure: iTg7jon0UCvoGT5y2flVxD+NxPVU7uUV5dGZYhUuaUmMZHW1Fa35A34q4ab1AH+26aSnKZMPggvjms206GEmcEF/ZkZbXhi9fniN2fHXjmwKe6zJhWBwBl+/7B+qwLPl
+  artifact: $(ARCHIVE_FILENAME)
+  draft: true
+  prerelease: false
+  force_update: true

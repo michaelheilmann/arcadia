@@ -16,6 +16,7 @@
     <li>Deletion of regular files, directory files, and files of any type</li>
     <li>Existence checks for regular files and directory files, and determination of the file type</li>
     <li>Directory iteration, enumerating the contents of a folder</li>
+    <li>Symbolic-link inspection on Linux and reparse-point inspection on Windows, for traversal tools</li>
     <li>Last write time retrieval</li>
     <li>Configuration, save, and working directory retrieval</li>
     <li>Executable path retrieval</li>

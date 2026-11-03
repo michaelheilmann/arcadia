@@ -490,3 +490,6 @@ body.my-index-page-1 ul.news-latest {
 }
 
 @{include("./theme-1-colors.css.i")}
+
+/* Shared code and example styles for Arcadia tool documentation pages. */
+@{include("./tool-documentation-css.i")}

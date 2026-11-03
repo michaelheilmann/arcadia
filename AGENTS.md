@@ -8,7 +8,8 @@
 - Trust executable files over prose when they disagree: `CMakeLists.txt`, `CMakePresets.json`, `CMake/all.cmake`, and `appveyor-*.yml`.
 - This file is the main agent-instruction file in the repo; also read topic-specific instructions under `AGENTS/` when they apply.
 - Invariant: `PDLC`, `PDLC.CLI`, `Runtime/ARMS`, `Runtime/Ring1`, `Runtime/Collections`, and `Runtime/FileSystem` production implementations remain hand-written C for now. Do not port these components to PDL or generate their production headers/bodies with PDLC. Do not include the compiler/CLI themselves as production regeneration modules. Opaque PDL imports of existing native APIs (such as Collections' native type declarations), PDL test fixtures, and generated-code tests remain allowed; these must not transfer implementation ownership to PDLC. Broad requests to "keep porting" do not override this restriction; changing it requires explicit maintainer approval. Existing self-generation artifacts are not an exception or permission to continue that work.
-- For C/C++ source code style, read `AGENTS/CxxSourceCodeStyle.md`.
+- For C/C++ source code style, read `AGENTS/CxxSourceCodeStyle.md` and `AGENTS/CodingStandards.md`.
+- For cross-language formatting, read `AGENTS/Formatting.md`.
 - For repository-wide file extension conventions, read `AGENTS/FileNamingConventions.md`.
 - For test creation, assertions, discovery, fixture isolation and verification, read `AGENTS/Testing.md`; ADL and Media ownership/compatibility notes live in their respective `AGENTS.md` files.
 - AI agents must not create commits or push to remotes; for the full rules, read `AGENTS/VersionControl.md`.
@@ -45,7 +46,7 @@
 
 ## Source Code Style
 
-- For C/C++ source code style, including line endings, header guards, includes, function formatting, object-system patterns, GC/rooting, error handling, generated sources, and licensing, read `AGENTS/CxxSourceCodeStyle.md`.
+- For C/C++ source code style, including line endings, header guards, includes, function formatting, object-system patterns, GC/rooting, error handling, generated sources, and licensing, read `AGENTS/CxxSourceCodeStyle.md` and `AGENTS/CodingStandards.md`. For PDL, ADL, DDL, CMake, VPL, Markdown and check tooling, read `AGENTS/Formatting.md`.
 
 ## Repository Shape
 

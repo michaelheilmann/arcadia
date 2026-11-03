@@ -6,6 +6,26 @@
 <p>
 <code>Arcadia_Object</code> types are allocated on the <em>heap</em> and can are referenced by <code>Arcadia_Object*</code> pointers.
 </p>
+<h2 id="Arcadia_Object_lifetime">Object Lifetime and Method Invocation</h2>
+<p>
+An ordinary method may be invoked on an <code>Arcadia_Object</code> or derived object only if the object
+is fully constructed and has not entered finalization.
+</p>
+<p>
+At the point of invocation, the receiver must be a GC root or transitively reachable from a GC root.
+It must remain reachable throughout the invocation, including during garbage collections triggered
+by nested calls. A C pointer, including <code>self</code>, does not by itself constitute a GC root.
+</p>
+<p>
+The caller is responsible for satisfying these preconditions. An ordinary method is not required to
+root its receiver automatically. Temporary roots can be established through the Arcadia value stack
+or <code>Arcadia_Object_lock</code>; an owning object can retain references through its visit callback.
+</p>
+<p>
+Constructors and finalizers are lifecycle operations rather than ordinary method invocations.
+A finalizer must not assume that another unreachable managed object remains valid: the garbage
+collector does not guarantee finalization order.
+</p>
 </section>
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->

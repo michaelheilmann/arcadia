@@ -308,7 +308,7 @@ Arcadia_DDLS_SymbolReader_constructImpl
   Define(NAME, u8"name");
   Define(TYPE, u8"type");
   Define(ELEMENT, u8"element");
-  Define(ENTRY, u8"entry");
+  Define(ELEMENTS, u8"elements");
   Define(ENTRIES, u8"entries");
   Define(KIND, u8"kind");
   Define(OPTIONAL, u8"optional");
@@ -361,7 +361,7 @@ Arcadia_DDLS_SymbolReader_visitImpl
   Define(NAME, u8"name");
   Define(TYPE, u8"type");
   Define(ELEMENT, u8"element");
-  Define(ENTRY, u8"entry");
+  Define(ELEMENTS, u8"elements");
   Define(ENTRIES, u8"entries");
   Define(KIND, u8"kind");
   Define(OPTIONAL, u8"optional");
@@ -473,6 +473,11 @@ readChoiceSymbol
   }
 
   Arcadia_DDL_ListNode* listNode = (Arcadia_DDL_ListNode*)Arcadia_Value_getObjectReferenceValue(&v);
+  if (0 == Arcadia_Collection_getSize(thread, (Arcadia_Collection*)listNode->elements)) {
+    Arcadia_logf(Arcadia_LogFlags_Error, u8"`choices` must not be empty\n");
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+    Arcadia_Thread_jump(thread);
+  }
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)listNode->elements); i < n; ++i) {
     Arcadia_DDL_MapNode* listElementNode = (Arcadia_DDL_MapNode*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, (Arcadia_List*)listNode->elements, i, _Arcadia_DDL_MapNode_getType(thread));
     Arcadia_List_insertBackObjectReferenceValue(thread, choiceSymbol->choices, (Arcadia_Object*)readSymbol0(thread, self, listElementNode));
@@ -492,14 +497,14 @@ readListSymbol
   Arcadia_DDLS_ListSymbol* listSymbol = Arcadia_DDLS_ListSymbol_create(thread);
   // (1) Remove the `kind` element.
   Arcadia_Map_remove(thread, self->scope->symbols, self->KIND, NULL, NULL);
-  // (2) Read `entry` element.
-  Arcadia_Value v = Arcadia_Map_get(thread, self->scope->symbols, self->ENTRY);
+  // (2) Read `elements` element.
+  Arcadia_Value v = Arcadia_Map_get(thread, self->scope->symbols, self->ELEMENTS);
   if (!Arcadia_Value_isInstanceOf(thread, &v, _Arcadia_DDL_MapNode_getType(thread))) {
-    Arcadia_logf(Arcadia_LogFlags_Error, u8"`entry` not specified\n");
+    Arcadia_logf(Arcadia_LogFlags_Error, u8"`elements` not specified\n");
     Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_Map_remove(thread, self->scope->symbols, self->ENTRY, NULL, NULL);
+  Arcadia_Map_remove(thread, self->scope->symbols, self->ELEMENTS, NULL, NULL);
   if (Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->scope->symbols) > 0) {
     Arcadia_logf(Arcadia_LogFlags_Error, u8"unsupported entries\n");
     Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);

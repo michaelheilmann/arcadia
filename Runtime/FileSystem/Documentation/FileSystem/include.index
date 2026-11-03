@@ -16,7 +16,11 @@
 
 <li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_getOrCreate">Arcadia_FileSystem_getOrCreate</a></li>
 <li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_getFileContents">Arcadia_FileSystem_getFileContents</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_getFileType">Arcadia_FileSystem_getFileType</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_getFileType">Arcadia_FileSystem_getFileType</a></li>
 
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_isSymbolicLink">Arcadia_FileSystem_isSymbolicLink</a></li>
+<li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_isSymbolicLink">Arcadia_FileSystem_isSymbolicLink</a></li>
 <li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_regularFileExists">Arcadia_FileSystem_regularFileExists</a></li>
 
 <li><a href="@{siteAddress}/Arcadia/FileSystem/#Arcadia_FileSystem_setFileContents">Arcadia_FileSystem_setFileContents</a></li>

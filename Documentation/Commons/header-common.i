@@ -17,7 +17,15 @@
 
   <script>
   MathJax = {
+    // Text labels inherit prose fonts; mathematical glyphs keep their math font.
+    output: {
+      mtextInheritFont: true
+    },
     startup: {
+      pageReady() {
+        // Inherited-text measurements must use loaded fonts, not fallback metrics.
+        return document.fonts.ready.then(() => MathJax.startup.defaultPageReady());
+      },
       ready() {
         MathJax.startup.defaultReady();
         const {Token} = MathJax._.input.tex.Token;
@@ -35,4 +43,4 @@
 
   <!-- Cascading Style Sheets. -->
   <link rel='stylesheet' href='@{siteAddress}/assets/reset.css?v=5'>
-  <link rel='stylesheet' href='@{siteAddress}/assets/index.css?v=7'>
+  <link rel='stylesheet' href='@{siteAddress}/assets/index.css?v=8'>

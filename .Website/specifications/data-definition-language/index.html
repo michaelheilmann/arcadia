@@ -17,7 +17,15 @@
 
   <script>
   MathJax = {
+    // Text labels inherit prose fonts; mathematical glyphs keep their math font.
+    output: {
+      mtextInheritFont: true
+    },
     startup: {
+      pageReady() {
+        // Inherited-text measurements must use loaded fonts, not fallback metrics.
+        return document.fonts.ready.then(() => MathJax.startup.defaultPageReady());
+      },
       ready() {
         MathJax.startup.defaultReady();
         const {Token} = MathJax._.input.tex.Token;
@@ -35,192 +43,168 @@
 
   <!-- Cascading Style Sheets. -->
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
-  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=7'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=8'>
 
 
   <style>
-  /* the left-hand side of a grammar rule */
-my-lhs {
-  display: block;
+  /* Legacy consumers are identified by their existing canonical metadata until
+ * their page-owned migration opts into body.specification. :where keeps the
+ * compatibility rules' specificity unchanged and excludes non-spec pages. */
+:where(html:has(> head > link[rel="canonical"][href*="/specifications/"])) {
+  & my-lhs { display: block; }
+  & my-rhs { display: block; margin-left: 1rem; }
+
+  & div.box {
+    --base-color: rgb(219, 212, 205);
+    --background-color: color-mix(in srgb, var(--base-color) 20%, white 100%);
+    --border-color: color-mix(in srgb, var(--base-color) 100%, white 20%);
+    padding: 8px;
+    margin: 1rem 0;
+    border: 1.75px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--background-color);
+  }
+  & div.box.todo {
+    --todo-base-color: rgb(234, 136, 145);
+    --todo-background-color: color-mix(in srgb, var(--todo-base-color) 20%, white 100%);
+    --todo-border-color: color-mix(in srgb, var(--todo-base-color) 100%, white 20%);
+    border-color: var(--todo-border-color);
+    background-color: var(--todo-background-color);
+  }
+  & div.abstract { font-style: italic; }
+
+  & my-formula-box.align-left > mjx-container { text-align: left!important; }
+  & my-formula-box.align-right > mjx-container { text-align: right!important; }
+
+  & table.syntax-directed-translation {
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+  }
+  & table.syntax-directed-translation,
+  & :where(table.syntax-directed-translation) tr,
+  & :where(table.syntax-directed-translation) td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  & table.syntax-directed-translation td {
+    padding: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  & table.syntax-directed-translation td:nth-child(2) {
+    width: 50%;
+    text-align: right;
+  }
 }
 
-/* the right-hand side of a grammar rule */
-my-rhs {
-  display: block;
-  margin-left: 1rem;
+/* Approved specification-family components. Page migrations own the opt-in marker
+ * and semantic markup; unrelated shared-style consumers keep the legacy shell. */
+body.my-content-page-1.specification {
+  --specification-width: 78rem;
+  --specification-navigation-width: 17rem;
+  --specification-surface: #f5f7f8;
+  --specification-border: #ccd4da;
+  --specification-divider: #d8e1e2;
+  --specification-focus: #875100;
+
+  min-width: 0;
+  width: 100%;
+  height: auto;
+  line-height: 1.65;
+
+  & main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--specification-navigation-width);
+    gap: 3rem;
+    max-width: var(--specification-width);
+    margin-inline: auto;
+    padding: 2rem;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  & main > .left-column { display: none; }
+  & main > .center-column { grid-column: 1; grid-row: 1; min-width: 0; width: auto; }
+  & main > .right-column { grid-column: 2; grid-row: 1; min-width: 0; width: auto; }
+
+  & h1 { font-size: clamp(2rem, 3.5vw, 2.75rem); line-height: 1.2; margin: 0 0 1.5rem; }
+  & h2 { font-size: 1.6rem; line-height: 1.3; margin: 2.5rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--specification-divider); }
+  & h3 { font-size: 1.25rem; line-height: 1.4; margin: 2rem 0 0.75rem; }
+  & h4 { font-size: 1.125rem; line-height: 1.4; }
+  & main p { overflow-wrap: anywhere; }
+  & a { text-decoration: underline; text-underline-offset: 0.15em; }
+
+  & .box {
+    padding: 1rem;
+    margin: 1rem 0;
+    background: var(--specification-surface);
+    border: 1px solid var(--specification-border);
+    border-radius: 4px;
+    min-width: 0;
+  }
+  & .box.todo { border-style: dashed; }
+  & .box:has(> .body > pre), & .box:has(> pre) { padding: 0; overflow: hidden; }
+  & pre {
+    max-width: 100%;
+    box-sizing: border-box;
+    background: var(--specification-surface);
+    padding: 1rem;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+  & .box pre { margin: 0; }
+  /* Keep native mathematical layout and fonts; constrain only display boxes. */
+  & mjx-container[display="true"] { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+  & my-formula-box { display: block; min-width: 0; }
+
+  /* Scroll the enclosing region, never detach a table's rows/cells from its grid. */
+  & .specification-scroll { max-width: 100%; overflow-x: auto; margin: 1rem 0; }
+  & table { border-collapse: collapse; margin: 1rem 0; width: 100%; }
+  & .specification-scroll > table { margin: 0; }
+  & table.syntax-directed-translation { width: 100%; margin: 0; }
+  & th, & td { border: 1px solid var(--specification-border); padding: 0.75rem; text-align: left; vertical-align: top; }
+  & th { background: var(--specification-surface); }
+  & caption { font-weight: bold; text-align: left; margin-bottom: 0.5rem; }
+  & .specification-scroll-hint { display: block; font-size: 0.875rem; font-weight: normal; color: #465a65; }
+  & table.syntax-directed-translation td:nth-child(2) { width: auto; text-align: left; }
+
+  & main > .right-column nav { padding: 0; }
+  & .specification-contents { border: 1px solid var(--specification-border); border-radius: 4px; padding: 1rem; background: var(--specification-surface); }
+  & .specification-contents summary { cursor: pointer; font-weight: bold; }
+  & .specification-contents nav ul { list-style: none; margin: 1rem 0 0; padding: 0; }
+  & .specification-contents nav ul > li { margin: 0 0 0.5rem; }
+  & .specification-contents nav ul ul { padding-left: 1rem; }
+  & nav a { text-decoration: none; }
+  & nav a:hover { text-decoration: underline; }
+  & :focus-visible { outline: 3px solid var(--specification-focus); outline-offset: 3px; }
+  & .specification-skip { position: absolute; top: -5rem; left: 1rem; padding: 0.5rem; background: var(--white); }
+  & .specification-skip:focus { top: 0.5rem; }
+  & footer { flex-wrap: wrap; }
 }
 
-/* A box used to surround out of text contents e.g., theorems, lemmas, examples, etc. */
-div.box {
-  --base-color: rgb(219, 212, 205);
-  --background-color: color-mix(in srgb, var(--base-color) 20%, white 100%);
-  --border-color: color-mix(in srgb, var(--base-color) 100%, white 20%);
-
-  padding-bottom: 8px;
-  padding-top: 8px;
-  padding-left: 8px;
-  padding-right: 8px;
-
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-
-  border-width: 1.75px;
-  border-style: solid;
-  border-radius: 4px;
-
-  border-color: var(--border-color);
-  background-color: var(--background-color);
+@media (max-width: 70rem) {
+  body.my-content-page-1.specification {
+    & main { display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem; }
+    & main > .right-column, & main > .center-column { width: 100%; }
+  }
 }
 
-div.box.todo {
-  --todo-base-color: rgb(234, 136, 145);
-  --todo-background-color: color-mix(in srgb, var(--todo-base-color) 20%, white 100%);
-  --todo-border-color: color-mix(in srgb, var(--todo-base-color) 100%, white 20%);
-
-  padding-bottom: 8px;
-  padding-top: 8px;
-  padding-left: 8px;
-  padding-right: 8px;
-
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-
-  border-width: 1.75px;
-  border-style: solid;
-  border-radius: 4px;
-
-  border-color: var(--todo-border-color);
-  background-color: var(--todo-background-color);
-}
-
-div.box > div.header
-{/*Intentionally empty.*/}
-
-div.box > div.body
-{/*Intentionally empty.*/}
-
-div.box code {
-  /*background-color: rgb(215, 210, 203);*/
-}
-
-my-formula-box.align-left > mjx-container {
-  text-align: left!important;
-}
-my-formula-box.align-right > mjx-container {
-  text-align: right!important;
-}
-
-table.syntax-directed-translation {
-  width: 80%;
-  margin-left: 10%;
-  margin-right: 10%;
-}
-table.syntax-directed-translation, tr, td {
-  border: 1px solid black;
-  border-collapse: collapse;
-}
-table.syntax-directed-translation td {
-  padding: 16px;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-table.syntax-directed-translation td:nth-child(2)  {
-  width: 50%;
-  text-align: right;
-}
-
-div.abstract {
-  font-style: italic;
-}
-
-my-formula-box.align-left > mjx-container {
-  text-align: left!important;
-}
-
-my-sem, my-syn, my-lex {
-  font-family: my-code-font, monospace;
-}
-my-syn::after {
-  content: "<sub>syn/sub>"
-}
-my-sem {
-  font-style: italic;
-  font-family: my-default-font;
-}
-my-sem::after {
-  content: "<sub>sem</sub>"
-}
-
-my-sem, my-syn, my-lex {
-  font-family: my-code-font, monospace;
-}
-my-syn::after {
-  content: "<sub>syn/sub>"
-}
-my-sem {
-  font-style: italic;
-  font-family: my-default-font;
-}
-my-sem::before {
-  content: "sem:"
-}
-
-  /* DDL-local additions to the common specification page family. */
-body.my-content-page-1.ddl-spec { min-width: 0; width: 100%; height: auto; }
-.ddl-spec { line-height: 1.65; }
-body.my-content-page-1.ddl-spec main p { margin-bottom: 1rem; }
-body.my-content-page-1.ddl-spec main > .center-column { padding: 1.5rem; box-sizing: border-box; }
-.ddl-spec h2 { border-top: 1px solid #d8e1e2; padding-top: 1rem; }
-.ddl-spec a { text-decoration: underline; text-underline-offset: 0.15em; }
+  /* Only DDL's reader-guide accents and diagnosed formal-layout exceptions remain.
+ * Layout, light code panels, navigation, tables and focus use specification.css.i. */
 .ddl-spec .ddl-lead { font-size: 1.2rem; color: #465a65; }
 .ddl-spec .ddl-label { color: #235f6b; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; }
-.ddl-spec .center-column { min-width: 0; }
-body.my-content-page-1.ddl-spec main { min-width: 0; }
-.ddl-spec h1, .ddl-spec h2, .ddl-spec h3, .ddl-spec h4, .ddl-spec p { overflow-wrap: anywhere; }
-.ddl-spec pre {
-  background: #18242e;
-  color: #f1f7fa;
-  border-left: 0.25rem solid #235f6b;
-  padding: 1rem;
-  overflow-x: auto;
-  line-height: 1.6;
-}
-html.my-theme-1 .ddl-spec pre { background: #18242e; }
-html.my-theme-1 .ddl-spec pre code { color: #f1f7fa; }
-.ddl-spec table { border-collapse: collapse; margin: 1rem 0; width: 100%; }
-.ddl-spec th, .ddl-spec td {
-  border: 1px solid #777;
-  padding: 0.6rem;
-  text-align: left;
-  vertical-align: top;
-}
-.ddl-spec th { background: #edf3f3; color: #192634; }
-.ddl-spec caption { font-weight: bold; text-align: left; margin-bottom: 0.5rem; }
-.ddl-spec .ddl-table { overflow-x: auto; }
-.ddl-spec .syntax-directed-translation { display: block; overflow-x: auto; width: 100%; margin: 1rem 0; }
-.ddl-spec .syntax-directed-translation td:nth-child(2) { text-align: left; }
-.ddl-spec mjx-container[display="true"] { max-width: 100%; overflow-x: auto; overflow-y: hidden; padding-bottom: 0.5rem; }
-.ddl-spec :focus-visible { outline: 3px solid #875100; outline-offset: 3px; }
-.ddl-spec .ddl-skip { position: absolute; left: 0.5rem; top: -5rem; padding: 0.5rem; background: white; }
-.ddl-spec .ddl-skip:focus { top: 0.5rem; }
-.ddl-spec nav ul { padding-left: 1rem; }
-@media (max-width: 70rem) {
-  body.my-content-page-1.ddl-spec main { display: flex; flex-direction: column; }
-  body.my-content-page-1.ddl-spec main > .left-column { display: none; }
-  body.my-content-page-1.ddl-spec main > .center-column,
-  body.my-content-page-1.ddl-spec main > .right-column { box-sizing: border-box; width: 100%; min-width: 0; margin: 0; padding: 1rem; }
-  body.my-content-page-1.ddl-spec main > .right-column { position: static; }
-  body.my-content-page-1.ddl-spec footer { flex-wrap: wrap; }
-  .ddl-spec .syntax-directed-translation { display: block; overflow-x: auto; }
-}
+/* Match display semantic actions to inline actions; do not alter math fonts. */
+.ddl-spec table.syntax-directed-translation my-formula-box > mjx-container { text-align: left!important; }
+/* Preserve the accepted DDL display-formula glyph clearance during migration. */
+.ddl-spec mjx-container[display="true"] { padding-bottom: 0.5rem; }
 
   </style>
 
   <link rel='canonical' href='https://michaelheilmann.com/specifications/data-definition-language/index.html'>
   <title>Data Definition Language</title>
 </head>
-<body class="my-content-page-1 ddl-spec">
-  <a class="ddl-skip" href="#introduction">Skip to specification</a>
+<body class="my-content-page-1 specification ddl-spec">
+  <a class="specification-skip" href="#introduction">Skip to specification</a>
   <header>
   <div style="display:none">
 \[
@@ -237,13 +221,57 @@ html.my-theme-1 .ddl-spec pre code { color: #f1f7fa; }
   </header>
   <main>
     <div class="left-column"></div>
+    <div class="right-column">
+      <details class="specification-contents" open>
+        <summary>On this page</summary>
+        <nav aria-label="On this page">
+          <ul>
+  <li><a href="#introduction">Overview</a></li>
+  <li><a href="#first-document">Your first DDL document</a></li>
+  <li><a href="#type-reference">Six-type quick reference</a></li>
+  <li><a href="#translation">Translation pipeline</a></li>
+  <li><a href="#lexical-translation">Lexical translation</a></li>
+  <li><a href="#syntactical-translation">Syntactical translation</a>
+    <ul>
+      <li><a href="#syntax-value">Value</a></li>
+      <li><a href="#syntax-string">String</a></li>
+      <li><a href="#syntax-number">Number</a></li>
+      <li><a href="#syntax-boolean">Boolean</a></li>
+      <li><a href="#syntax-void">Void</a></li>
+      <li><a href="#syntax-map">Map</a></li>
+      <li><a href="#syntax-list">List</a></li>
+    </ul>
+  </li>
+  <li><a href="#semantical-translation">Semantical translation</a>
+    <ul>
+      <li><a href="#semantical-translation-scalar-types">Scalar types</a>
+        <ul>
+          <li><a href="#type-boolean">Boolean</a></li>
+          <li><a href="#type-number">Number</a></li>
+          <li><a href="#type-string">String</a></li>
+          <li><a href="#type-void">Void</a></li>
+        </ul>
+      </li>
+      <li><a href="#semantical-translation-list-type">List type</a></li>
+      <li><a href="#semantical-translation-map-type">Map type</a></li>
+      <li><a href="#semantical-translation-value-type">Value type</a></li>
+    </ul>
+  </li>
+  <li><a href="#errors">Errors</a></li>
+  <li><a href="#conformance">Conformance and reader edges</a></li>
+  <li><a href="#references">References</a></li>
+</ul>
+
+        </nav>
+      </details>
+    </div>
     <div class="center-column">
 
     <p class="ddl-label">Language specification</p>
     <h1>Data Definition Language</h1>
     <p class="ddl-lead">Write structured data using six composable value types.</p>
 
-    <h2 id="introduction">Overview</h2>
+    <h2 id="introduction" tabindex="-1">Overview</h2>
     <p>The Arcadia Data Definition Language (DDL) describes structured data for exchange between humans and machines.
     A document is a sequence of Unicode code points describing one value: a Boolean, Number, String, Void, List or Map.
     Lists and maps can contain other values, including nested collections.</p>
@@ -271,9 +299,9 @@ Map names are not quoted strings, and the keywords <code>true</code>, <code>fals
 <h2 id="type-reference">Six-type quick reference</h2>
 <p>Examples below are covered by <code>DocumentationContract</code> and the existing semantic fixtures.
 Each invalid example is a complete input, not just a value of a different type.</p>
-<div class="ddl-table" role="region" aria-label="DDL value types" tabindex="0">
+<div class="ddl-table specification-scroll" role="region" aria-label="DDL value types" tabindex="0">
 <table>
-  <caption>Values, examples and exact formal rules</caption>
+  <caption>Values, examples and exact formal rules<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Type and meaning</th><th scope="col">Valid example / edges</th><th scope="col">Invalid example / reason</th><th scope="col">Rules</th></tr></thead>
   <tbody>
     <tr><th scope="row">Boolean: truth value</th><td><code>true</code>, <code>false</code>; lowercase keywords</td><td><code>True</code>: a name is not a value</td><td><a href="#syntax-boolean">Syntax</a>, <a href="#type-boolean">semantics</a></td></tr>
@@ -497,8 +525,9 @@ converted to a native numeric or Boolean runtime type. Semantic analysis is an e
 The older names <code>DDL.Lexical.true</code> and <code>DDL.Lexical.false</code> refer to these same keywords.</p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="type-boolean">
 <table class="syntax-directed-translation">
-  <caption>Boolean translation</caption>
+  <caption>Boolean translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>\(\text{DDL.Syntactical.Boolean}@1 : \text{Lexical.Boolean}@2\)</td>
@@ -513,6 +542,7 @@ The older names <code>DDL.Lexical.true</code> and <code>DDL.Lexical.false</code>
     <td>\(\{ 1.\text{value} := \textit{false} \}\)</td>
   </tr>
 </table>
+</div>
 
 <h4 id="type-number">Number type</h4>
 <p>
@@ -523,8 +553,9 @@ introduced by <code>e</code> or <code>E</code> with an optional sign and at leas
 
 <p>The semantical translation is defined as follows:</p>
 
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="type-number">
 <table class="syntax-directed-translation">
-  <caption>Number translation</caption>
+  <caption>Number translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
@@ -539,6 +570,7 @@ introduced by <code>e</code> or <code>E</code> with an optional sign and at leas
     </td>
   </tr>
 </table>
+</div>
 
 <p><b>Representation and precision:</b> Reading a Number does not perform arithmetic or convert it to <code>int</code> or <code>float</code>.
 The grammar does not impose a fixed machine-number range, but storage is bounded by implementation resources.
@@ -559,8 +591,9 @@ Unescaped code points U+0000 through U+001F are rejected. Embedded NUL is part o
 No Unicode normalization is performed. Surrogate-pair escapes are not supported: use the scalar value itself, for example <code>\u{1F3EE}</code>.</p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="type-string">
 <table class="syntax-directed-translation">
-  <caption>String translation</caption>
+  <caption>String translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
@@ -575,6 +608,7 @@ No Unicode normalization is performed. Surrogate-pair escapes are not supported:
     </td>
   </tr>
 </table>
+</div>
 
 <h4 id="type-void">Void type</h4>
 <p>
@@ -582,8 +616,9 @@ The type \(\textit{Void}\) has a single value, \(\textit{void}\), expressed by t
 </p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="type-void">
 <table class="syntax-directed-translation">
-  <caption>Void translation</caption>
+  <caption>Void translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
@@ -598,6 +633,7 @@ The type \(\textit{Void}\) has a single value, \(\textit{void}\), expressed by t
     </td>
   </tr>
 </table>
+</div>
 
 <h3 id="semantical-translation-list-type">List type</h3>
 <p>
@@ -607,8 +643,9 @@ empty bodies and trailing commas contribute an empty list.
 </p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="semantical-translation-list-type">
 <table class="syntax-directed-translation">
-  <caption>List translation</caption>
+  <caption>List translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
 
   <tr>
@@ -708,6 +745,7 @@ empty bodies and trailing commas contribute an empty list.
   </tr>
 
 </table>
+</div>
 
 <p><b>Example</b></p>
 <div class="box">
@@ -725,8 +763,9 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
 </p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="semantical-translation-map-type">
 <table class="syntax-directed-translation">
-  <caption>Map translation (subject to unique names)</caption>
+  <caption>Map translation (subject to unique names)<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
 
   <tr>
@@ -826,6 +865,7 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
   </tr>
 
 </table>
+</div>
 
 <h3 id="semantical-translation-value-type">Value type</h3>
 <p>
@@ -839,8 +879,9 @@ The type \(\textit{Value}\) is the union of the types
 </p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="semantical-translation-value-type">
 <table class="syntax-directed-translation">
-  <caption>Value translation</caption>
+  <caption>Value translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
@@ -915,6 +956,7 @@ The type \(\textit{Value}\) is the union of the types
     </td>
   </tr>
 </table>
+</div>
 
     <h2 id="errors">Errors</h2>
 <p>Failure categories describe where translation stops; they do not prescribe diagnostic wording.</p>
@@ -973,53 +1015,26 @@ The maintained cases are discoverable through the test executable's <code>--list
     </ul>
 
   </div>
-  <div class="right-column">
-    <nav aria-label="On this page">
-      <ul style="list-style: none">
-        <li><a href="#introduction">Overview</a></li>
-        <li><a href="#first-document">Your first DDL document</a></li>
-        <li><a href="#type-reference">Six-type quick reference</a></li>
-        <li><a href="#translation">Translation pipeline</a></li>
-        <li><a href="#lexical-translation">Lexical translation</a></li>
-        <li><a href="#syntactical-translation">Syntactical translation</a>
-          <ul>
-            <li><a href="#syntax-value">Value</a></li>
-            <li><a href="#syntax-string">String</a></li>
-            <li><a href="#syntax-number">Number</a></li>
-            <li><a href="#syntax-boolean">Boolean</a></li>
-            <li><a href="#syntax-void">Void</a></li>
-            <li><a href="#syntax-map">Map</a></li>
-            <li><a href="#syntax-list">List</a></li>
-          </ul>
-        </li>
-        <li><a href="#semantical-translation">Semantical translation</a>
-          <ul>
-            <li><a href="#semantical-translation-scalar-types">Scalar types</a>
-              <ul>
-                <li><a href="#type-boolean">Boolean</a></li>
-                <li><a href="#type-number">Number</a></li>
-                <li><a href="#type-string">String</a></li>
-                <li><a href="#type-void">Void</a></li>
-              </ul>
-            </li>
-            <li><a href="#semantical-translation-list-type">List type</a></li>
-            <li><a href="#semantical-translation-map-type">Map type</a></li>
-            <li><a href="#semantical-translation-value-type">Value type</a></li>
-          </ul>
-           </li>
-        <li><a href="#errors">Errors</a></li>
-        <li><a href="#conformance">Conformance and reader edges</a></li>
-        <li><a href="#references">References</a></li>
-      </ul>
-    </nav>
-  </div>
   </main>
+  <!-- Progressive enhancement: without JavaScript, native contents stay expanded. -->
+<script>
+(() => {
+  const compact = window.matchMedia('(max-width: 70rem)');
+  const contents = document.querySelectorAll('details.specification-contents');
+  const update = () => {
+    for (const element of contents) element.open = !compact.matches;
+  };
+  update();
+  compact.addEventListener('change', update);
+})();
+</script>
+
   <footer>
     <div class="left-column"></div>
     <div class="center-column"></div>
     <div class="right-column">
       <div>Website maintained by Michael Heilmann.</div>
-      <div>Last modified on 1 November 2026.</div>
+      <div>Last modified on 3 November 2026.</div>
     </div>
   </footer>
 </body>

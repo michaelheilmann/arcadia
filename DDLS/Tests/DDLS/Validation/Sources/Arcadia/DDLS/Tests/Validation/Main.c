@@ -20,6 +20,7 @@
 
 #include "Arcadia/DDL/Include.h"
 #include "Arcadia/DDLS/Tests/Validation/Default.h"
+#include <stdio.h>
 #include <string.h>
 
 static Arcadia_DDLS_SchemaNode*
@@ -48,6 +49,44 @@ readDDL
   Arcadia_UnicodeCodePointReader* y = (Arcadia_UnicodeCodePointReader*)Arcadia_ByteReader_UnicodeCodePointReader_create(thread, (Arcadia_ByteReader*)Arcadia_ByteArray_ByteReader_create(thread, x));
   Arcadia_DDL_Node* target = Arcadia_DDL_DefaultReader_run(thread, reader, y);
   return target;
+}
+
+// Any accepts every DDL value kind.
+static void
+Arcadia_DDLS_Tests_Validation_anyAccept1
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const char* DDLS =
+    "{\n"
+    "  kind : \"Schema\",\n"
+    "  name : \"MySchema\",\n"
+    "  definition : { kind : \"Any\" },\n"
+    "}\n"
+    ;
+  static const char* DDL[] = {
+    "true",
+    "false",
+    "void",
+    "0",
+    "1",
+    "-1",
+    "0.1",
+    "-0.1",
+    "\"w\"",
+    "[]",
+    "[1, true, \"w\"]",
+    "{}",
+    "{ a : 1, b : \"w\" }",
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(DDL) / sizeof(DDL[0]); ++i) {
+    Arcadia_DDLS_SchemaNode* ddlsNode = readDDLS(thread, DDLS);
+    Arcadia_DDL_Node* node = readDDL(thread, DDL[i]);
+    Arcadia_DDLS_ValidationContext* validationContext = Arcadia_DDLS_ValidationContext_create(thread);
+    Arcadia_DDLS_ValidationContext_addSchema(thread, validationContext, ddlsNode);
+    Arcadia_DDLS_ValidationContext_run(thread, validationContext, Arcadia_String_createFromCxxString(thread, u8"MySchema"), node);
+  }
 }
 
 // input are strings, the single choice is string => accept
@@ -84,6 +123,127 @@ Arcadia_DDLS_Tests_Validation_choiceAccept1
     Arcadia_DDLS_ValidationContext_addSchema(thread, validationContext, ddlsNode);
     Arcadia_DDLS_ValidationContext_run(thread, validationContext, Arcadia_String_createFromCxxString(thread, u8"MySchema"), node);
   }
+}
+
+// A mismatch is not a schema error: the next alternative may accept.
+static Arcadia_DDLS_SchemaNode*
+readChoiceSchema
+  (
+    Arcadia_Thread* thread,
+    const char* definition
+  )
+{
+  char source[1024];
+  int length = snprintf(source, sizeof(source), "{ kind : \"Schema\", name : \"MySchema\", definition : %s }", definition);
+  if (length < 0 || (size_t)length >= sizeof(source)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  return readDDLS(thread, source);
+}
+
+static void
+Arcadia_DDLS_Tests_Validation_choiceLaterAlternative
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const struct {
+    const char* definition;
+    const char* value;
+  } cases[] = {
+    { "{ kind : \"Choice\", choices : [{ kind : \"Number\" }, { kind : \"String\" }] }", "\"text\"" },
+    { "{ kind : \"Choice\", choices : [{ kind : \"String\" }, { kind : \"Any\" }] }", "42" },
+    { "{ kind : \"Choice\", choices : ["
+      "{ kind : \"Map\", entries : [{ kind : \"MapEntry\", name : \"required\", type : { kind : \"String\" } }] },"
+      "{ kind : \"Any\" }] }", "{}" },
+    { "{ kind : \"Choice\", choices : ["
+      "{ kind : \"List\", elements : { kind : \"String\" } },"
+      "{ kind : \"List\", elements : { kind : \"Any\" } }] }", "[1]" },
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    Arcadia_DDLS_SchemaNode* schema = readChoiceSchema(thread, cases[i].definition);
+    Arcadia_DDL_Node* value = readDDL(thread, cases[i].value);
+    Arcadia_DDLS_ValidationContext* context = Arcadia_DDLS_ValidationContext_create(thread);
+    Arcadia_DDLS_ValidationContext_addSchema(thread, context, schema);
+    Arcadia_DDLS_ValidationContext_run(thread, context, Arcadia_String_createFromCxxString(thread, u8"MySchema"), value);
+  }
+}
+
+static void
+Arcadia_DDLS_Tests_Validation_choiceFailure
+  (
+    Arcadia_Thread* thread,
+    const char* definition
+  )
+{
+  Arcadia_DDLS_SchemaNode* schema = readChoiceSchema(thread, definition);
+  Arcadia_DDL_Node* value = readDDL(thread, "42");
+  Arcadia_DDLS_ValidationContext* context = Arcadia_DDLS_ValidationContext_create(thread);
+  Arcadia_DDLS_ValidationContext_addSchema(thread, context, schema);
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_DDLS_ValidationContext_run(thread, context, Arcadia_String_createFromCxxString(thread, u8"MySchema"), value);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    if (status != Arcadia_Status_SemanticalError) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+      Arcadia_Thread_jump(thread);
+    }
+  }
+}
+
+static void
+Arcadia_DDLS_Tests_Validation_choiceAllMismatch
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_DDLS_Tests_Validation_choiceFailure(thread,
+    "{ kind : \"Choice\", choices : [{ kind : \"String\" }, { kind : \"Boolean\" }] }");
+}
+
+static void
+Arcadia_DDLS_Tests_Validation_choiceStructuralError
+  (
+    Arcadia_Thread* thread
+  )
+{
+  // A missing reference must not be treated as a mismatch allowing Any to succeed.
+  Arcadia_DDLS_Tests_Validation_choiceFailure(thread,
+    "{ kind : \"Choice\", choices : ["
+    "{ kind : \"SchemaReference\", name : \"Missing\" }, { kind : \"Any\" }] }");
+}
+
+static void
+Arcadia_DDLS_Tests_Validation_choiceUnusedStructuralError
+  (
+    Arcadia_Thread* thread
+  )
+{
+  // Any matches first, but a later alternative still contains an invalid reference.
+  Arcadia_DDLS_Tests_Validation_choiceFailure(thread,
+    "{ kind : \"Choice\", choices : ["
+    "{ kind : \"Any\" }, { kind : \"SchemaReference\", name : \"Missing\" }] }");
+}
+
+static void
+Arcadia_DDLS_Tests_Validation_choiceUnusedNestedStructuralError
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_DDLS_Tests_Validation_choiceFailure(thread,
+    "{ kind : \"Choice\", choices : ["
+    "{ kind : \"Any\" }, { kind : \"Map\", entries : ["
+    "{ kind : \"MapEntry\", name : \"items\", type : "
+    "{ kind : \"List\", elements : { kind : \"SchemaReference\", name : \"Missing\" } } }] }] }");
 }
 
 // input is true, false, void, some numbers, the single choice is string => reject
@@ -341,6 +501,15 @@ runRejectBlueDefinedTwice
 }
 
 static int
+runAcceptAny
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_anyAccept1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
 runAcceptChoice
   (
     void
@@ -356,6 +525,51 @@ runRejectChoice
   )
 {
   return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_choiceReject1) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runChoiceLaterAlternative
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_choiceLaterAlternative) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runChoiceAllMismatch
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_choiceAllMismatch) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runChoiceStructuralError
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_choiceStructuralError) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runChoiceUnusedStructuralError
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_choiceUnusedStructuralError) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runChoiceUnusedNestedStructuralError
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_choiceUnusedNestedStructuralError) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static int
@@ -393,8 +607,14 @@ main
     { "RejectRedDefinedTwice", &runRejectRedDefinedTwice },
     { "RejectGreenDefinedTwice", &runRejectGreenDefinedTwice },
     { "RejectBlueDefinedTwice", &runRejectBlueDefinedTwice },
+    { "AcceptAny", &runAcceptAny },
     { "AcceptChoice", &runAcceptChoice },
     { "RejectChoice", &runRejectChoice },
+    { "ChoiceLaterAlternative", &runChoiceLaterAlternative },
+    { "ChoiceAllMismatch", &runChoiceAllMismatch },
+    { "ChoiceStructuralError", &runChoiceStructuralError },
+    { "ChoiceUnusedStructuralError", &runChoiceUnusedStructuralError },
+    { "ChoiceUnusedNestedStructuralError", &runChoiceUnusedNestedStructuralError },
     { "AcceptOptional", &runAcceptOptional },
     { "RejectOptional", &runRejectOptional },
   };

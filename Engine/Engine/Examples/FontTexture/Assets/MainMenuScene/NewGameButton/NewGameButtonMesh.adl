@@ -32,6 +32,6 @@
     //
     1, 0, // right, bottom
     1, 1, // right, top
-    0, 1, // left, top 
+    0, 1, // left, top
   ],
 }

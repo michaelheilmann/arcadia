@@ -101,8 +101,8 @@ macro(DetectCompilerASM target)
   endif()
 
   set(VERBOSE TRUE)
-  
-  if (VERBOSE) 
+
+  if (VERBOSE)
     if (${target}_Compiler_ASM STREQUAL ${target}_Compiler_ASM_Unknown)
       message( STATUS " - ${target} ASM compiler: unknown")
     elseif (${target}_Compiler_ASM STREQUAL ${target}_Compiler_ASM_MASM)
@@ -110,7 +110,7 @@ macro(DetectCompilerASM target)
     elseif (${target}_Compiler_ASM STREQUAL ${target}_Compiler_ASM_NASM)
       message( STATUS " - ${target} ASM compiler: NASM")
     else()
-      message(FATAL_ERROR "<internal error>") 
+      message(FATAL_ERROR "<internal error>")
     endif()
   endif()
 
@@ -144,10 +144,10 @@ macro(DetectCompilerC target)
   if (NOT DEFINED ${target}_Compiler_C)
     Arcadia_DetectCompilerC(${target}_Compiler_C)
   endif()
-  
+
   set(VERBOSE TRUE)
-  
-  if (VERBOSE) 
+
+  if (VERBOSE)
     if (${target}_Compiler_C STREQUAL ${target}_Compiler_C_Unknown)
       message( STATUS " - ${target} C compiler: unknown")
     elseif (${target}_Compiler_C STREQUAL ${target}_Compiler_C_Clang)
@@ -157,7 +157,7 @@ macro(DetectCompilerC target)
     elseif (${target}_Compiler_C STREQUAL ${target}_Compiler_C_MSVC)
       message( STATUS " - ${target} C compiler: MSVC")
     else()
-      message(FATAL_ERROR "<internal error>") 
+      message(FATAL_ERROR "<internal error>")
     endif()
   endif()
 

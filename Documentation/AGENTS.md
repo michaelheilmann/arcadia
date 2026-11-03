@@ -53,7 +53,7 @@ This folder contains the source for Arcadia's generated static website and proje
 - `Specifications/MDNP` documents mathematical definitions, notations, context-free grammars, lists, and computer arithmetic.
 - `Specifications/Data Definition Language` documents lexical, syntactical, and semantical properties of the
   *Arcadia Data Definition Language*, or *Arcadia DDL* for short.
-- `Specifications/Data Definition Language Schema` documents lexical, syntactical, and semantical properties of the 
+- `Specifications/Data Definition Language Schema` documents lexical, syntactical, and semantical properties of the
   *Arcadia Data Definition Schema Language*, or *Arcadia DDLS* for short.
 - `Specifications/Program Definition Language` documents the *Arcadia Program Definition Language*, or *Arcadia PDL*,
    directly in `Specifications/Program Definition Language/index.html.te`, including the grammar accepted by the current

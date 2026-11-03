@@ -22,7 +22,6 @@
 #include "Arcadia/Ring1/ThreadExtensions.h"
 #include "Arcadia/Ring1/Object.h"
 #include "Arcadia/Ring1/Process.h"
-#include "Arcadia/Ring1/Thread.h"
 
 static void
 Arcadia_WeakReference_destruct
@@ -90,9 +89,10 @@ Arcadia_WeakReference_destruct
       Arcadia_ARMS_removeNotifyDestroy(self->value.atomValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback);
     } break;
     case Arcadia_ValueTag_BigInteger: {
+      Arcadia_ARMS_removeNotifyDestroy(self->value.bigIntegerValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback);
     } break;
-    case Arcadia_ValueTag_Boolean:
-    case Arcadia_ValueTag_ForeignProcedure: {
+    case Arcadia_ValueTag_ObjectReference: {
+      Arcadia_Object_removeNotifyDestroyCallback(thread, self->value.objectReferenceValue, self, (void (*)(void*, Arcadia_Object*)) & callback);
     } break;
     case Arcadia_ValueTag_RuntimeByteArray: {
       Arcadia_ARMS_removeNotifyDestroy(self->value.runtimeByteArrayValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback);
@@ -100,6 +100,8 @@ Arcadia_WeakReference_destruct
     case Arcadia_ValueTag_RuntimeUTF8String: {
       Arcadia_ARMS_removeNotifyDestroy(self->value.runtimeUTF8StringValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback);
     } break;
+    case Arcadia_ValueTag_Boolean:
+    case Arcadia_ValueTag_ForeignProcedure:
     case Arcadia_ValueTag_Integer16:
     case Arcadia_ValueTag_Integer32:
     case Arcadia_ValueTag_Integer64:
@@ -107,11 +109,7 @@ Arcadia_WeakReference_destruct
     case Arcadia_ValueTag_Natural16:
     case Arcadia_ValueTag_Natural32:
     case Arcadia_ValueTag_Natural64:
-    case Arcadia_ValueTag_Natural8: {
-    } break;
-    case Arcadia_ValueTag_ObjectReference: {
-      Arcadia_Object_removeNotifyDestroyCallback(thread, self->value.objectReferenceValue, self, (void (*)(void*, Arcadia_Object*))&callback);
-    } break;
+    case Arcadia_ValueTag_Natural8:
     case Arcadia_ValueTag_Real32:
     case Arcadia_ValueTag_Real64:
     case Arcadia_ValueTag_Size:
@@ -131,7 +129,7 @@ Arcadia_WeakReference_visit
     Arcadia_Thread* thread,
     Arcadia_WeakReference* self
   )
-{ }
+{/*Intentionally empty.*/}
 
 static void
 Arcadia_WeakReference_constructImpl
@@ -157,9 +155,13 @@ Arcadia_WeakReference_constructImpl
         }
       } break;
       case Arcadia_ValueTag_BigInteger: {
+        if (Arcadia_ARMS_addNotifyDestroy(self->value.bigIntegerValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback)) {
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
+          Arcadia_Thread_jump(thread);
+        }
       } break;
-      case Arcadia_ValueTag_Boolean:
-      case Arcadia_ValueTag_ForeignProcedure: {
+      case Arcadia_ValueTag_ObjectReference: {
+        Arcadia_Object_addNotifyDestroyCallback(thread, self->value.objectReferenceValue, self, (void (*)(void*, Arcadia_Object*)) & callback);
       } break;
       case Arcadia_ValueTag_RuntimeByteArray: {
         if (Arcadia_ARMS_addNotifyDestroy(self->value.runtimeByteArrayValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback)) {
@@ -173,6 +175,8 @@ Arcadia_WeakReference_constructImpl
           Arcadia_Thread_jump(thread);
         }
       } break;
+      case Arcadia_ValueTag_Boolean:
+      case Arcadia_ValueTag_ForeignProcedure:
       case Arcadia_ValueTag_Integer16:
       case Arcadia_ValueTag_Integer32:
       case Arcadia_ValueTag_Integer64:
@@ -180,11 +184,7 @@ Arcadia_WeakReference_constructImpl
       case Arcadia_ValueTag_Natural16:
       case Arcadia_ValueTag_Natural32:
       case Arcadia_ValueTag_Natural64:
-      case Arcadia_ValueTag_Natural8: {
-      } break;
-      case Arcadia_ValueTag_ObjectReference: {
-        Arcadia_Object_addNotifyDestroyCallback(thread, self->value.objectReferenceValue, self, (void (*)(void*, Arcadia_Object*)) &callback);
-      } break;
+      case Arcadia_ValueTag_Natural8:
       case Arcadia_ValueTag_Real32:
       case Arcadia_ValueTag_Real64:
       case Arcadia_ValueTag_Size:
@@ -231,3 +231,119 @@ Arcadia_WeakReference_getValue
     Arcadia_WeakReference* self
   )
 { return self->value; }
+
+void
+Arcadia_WeakReference_setValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_WeakReference* self,
+    Arcadia_Value value
+  )
+{
+  switch (Arcadia_Value_getTag(&value)) {
+    case Arcadia_ValueTag_Atom: {
+      if (value.tag == self->value.tag && value.atomValue == self->value.atomValue) {
+        return;
+      }
+      if (Arcadia_ARMS_addNotifyDestroy(value.atomValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
+        Arcadia_Thread_jump(thread);
+      }
+    } break;
+    case Arcadia_ValueTag_BigInteger: {
+      if (value.tag == self->value.tag && value.bigIntegerValue == self->value.bigIntegerValue) {
+        return;
+      }
+      if (Arcadia_ARMS_addNotifyDestroy(value.bigIntegerValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
+        Arcadia_Thread_jump(thread);
+      }
+    } break;
+    case Arcadia_ValueTag_ObjectReference: {
+      if (value.tag == self->value.tag && value.objectReferenceValue == self->value.objectReferenceValue) {
+        return;
+      }
+      Arcadia_Object_addNotifyDestroyCallback(thread, value.objectReferenceValue, self, (void (*)(void*, Arcadia_Object*)) & callback);
+    } break;
+    case Arcadia_ValueTag_RuntimeByteArray: {
+      if (value.tag == self->value.tag && value.runtimeByteArrayValue == self->value.runtimeByteArrayValue) {
+        return;
+      }
+      if (Arcadia_ARMS_addNotifyDestroy(value.runtimeByteArrayValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
+        Arcadia_Thread_jump(thread);
+      }
+    } break;
+    case Arcadia_ValueTag_RuntimeUTF8String: {
+      if (value.tag == self->value.tag && value.runtimeUTF8StringValue == self->value.runtimeUTF8StringValue) {
+        return;
+      }
+      if (Arcadia_ARMS_addNotifyDestroy(value.runtimeUTF8StringValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
+        Arcadia_Thread_jump(thread);
+      }
+    } break;
+    case Arcadia_ValueTag_Boolean:
+    case Arcadia_ValueTag_ForeignProcedure:
+    case Arcadia_ValueTag_Integer16:
+    case Arcadia_ValueTag_Integer32:
+    case Arcadia_ValueTag_Integer64:
+    case Arcadia_ValueTag_Integer8:
+    case Arcadia_ValueTag_Natural16:
+    case Arcadia_ValueTag_Natural32:
+    case Arcadia_ValueTag_Natural64:
+    case Arcadia_ValueTag_Natural8:
+    case Arcadia_ValueTag_Real32:
+    case Arcadia_ValueTag_Real64:
+    case Arcadia_ValueTag_Size:
+    case Arcadia_ValueTag_Type:
+    case Arcadia_ValueTag_Void: {
+    } break;
+    default: {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+      Arcadia_Thread_jump(thread);
+    } break;
+  };
+
+  /*This may not fail as all preconditions are ensured.*/
+  switch (Arcadia_Value_getTag(&self->value)) {
+    case Arcadia_ValueTag_Atom: {
+      Arcadia_ARMS_removeNotifyDestroy(self->value.atomValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback);
+    } break;
+    case Arcadia_ValueTag_BigInteger: {
+      Arcadia_ARMS_removeNotifyDestroy(self->value.bigIntegerValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback);
+    } break;
+    case Arcadia_ValueTag_ObjectReference: {
+      Arcadia_Object_removeNotifyDestroyCallback(thread, self->value.objectReferenceValue, self, (void (*)(void*, Arcadia_Object*)) & callback);
+    } break;
+    case Arcadia_ValueTag_RuntimeByteArray: {
+      Arcadia_ARMS_removeNotifyDestroy(self->value.runtimeByteArrayValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback);
+    } break;
+    case Arcadia_ValueTag_RuntimeUTF8String: {
+      Arcadia_ARMS_removeNotifyDestroy(self->value.runtimeUTF8StringValue, self, NULL, (Arcadia_ARMS_NotifyDestroyCallback*)&callback);
+    } break;
+    case Arcadia_ValueTag_Boolean:
+    case Arcadia_ValueTag_ForeignProcedure:
+    case Arcadia_ValueTag_Integer16:
+    case Arcadia_ValueTag_Integer32:
+    case Arcadia_ValueTag_Integer64:
+    case Arcadia_ValueTag_Integer8:
+    case Arcadia_ValueTag_Natural16:
+    case Arcadia_ValueTag_Natural32:
+    case Arcadia_ValueTag_Natural64:
+    case Arcadia_ValueTag_Natural8:
+    case Arcadia_ValueTag_Real32:
+    case Arcadia_ValueTag_Real64:
+    case Arcadia_ValueTag_Size:
+    case Arcadia_ValueTag_Type:
+    case Arcadia_ValueTag_Void: {
+    } break;
+    default: {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+      Arcadia_Thread_jump(thread);
+    } break;
+  };
+
+  /*We can safely swap now.*/
+  self->value = value;
+}

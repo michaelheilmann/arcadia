@@ -44,10 +44,10 @@ regressionTest1
 void
 regressionTest2
   (
-    Arcadia_Thread* thread  
+    Arcadia_Thread* thread
   )
-{ 
-  Arcadia_Real64Value target; 
+{
+  Arcadia_Real64Value target;
   target = Arcadia_String_toReal64(thread, Arcadia_String_create_pn(thread, Arcadia_RuntimeByteArray_create(thread, u8"1e0", strlen(u8"1e0"))));
   Arcadia_Tests_assertTrue(thread, 1.0 == target);
   target = Arcadia_String_toReal64(thread, Arcadia_String_create_pn(thread, Arcadia_RuntimeByteArray_create(thread, u8"1E0", strlen(u8"1E0"))));

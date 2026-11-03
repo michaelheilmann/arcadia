@@ -83,6 +83,10 @@ Arcadia_DDLS_ValidationContext_constructImpl
     Arcadia_Thread_jump(thread);
   }
   //
+  self->cycleStack = NULL;
+  self->cycleKeys = NULL;
+  self->visitingSchemata = NULL;
+  self->checkedSchemata = NULL;
   self->temporary1 = Arcadia_StringBuilder_create(thread);
   self->stringTable = Arcadia_Languages_StringTable_getOrCreate(thread);
   self->diagnostics = Arcadia_DDLS_Diagnostics_create(thread, self->stringTable);
@@ -120,42 +124,132 @@ Arcadia_DDLS_ValidationContext_visitImpl
   if (self->schemata) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->schemata);
   }
+  if (self->cycleStack) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->cycleStack);
+  }
+  if (self->cycleKeys) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->cycleKeys);
+  }
+  if (self->visitingSchemata) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->visitingSchemata);
+  }
+  if (self->checkedSchemata) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->checkedSchemata);
+  }
 }
 
+// Check all definitions reachable from the starting schema before matching the DDL value.
+// A schema node on the stack marks the end of a reference's definition.
+// Only references on the current path are cycles; shared acyclic references are valid.
 static void
+checkSchemaIntegrity
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDLS_ValidationContext* self,
+    Arcadia_DDLS_Node* definition
+  )
+{
+  self->cycleStack = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  self->visitingSchemata = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
+  self->checkedSchemata = (Arcadia_Map*)Arcadia_HashMap_create(thread, Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void));
+  Arcadia_List_insertBackObjectReferenceValue(thread, self->cycleStack, (Arcadia_Object*)definition);
+  while (Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->cycleStack)) {
+    Arcadia_SizeValue last = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->cycleStack) - 1;
+    Arcadia_DDLS_Node* current = (Arcadia_DDLS_Node*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, self->cycleStack, last, _Arcadia_DDLS_Node_getType(thread));
+    Arcadia_List_removeBack(thread, self->cycleStack, 1);
+    if (Arcadia_DDLS_isSchema(thread, current)) {
+      Arcadia_Value name = Arcadia_Value_makeObjectReferenceValue(((Arcadia_DDLS_SchemaNode*)current)->name);
+      Arcadia_Map_remove(thread, self->visitingSchemata, name, NULL, NULL);
+      Arcadia_Map_set(thread, self->checkedSchemata, name, name, NULL, NULL);
+    } else if (Arcadia_DDLS_isSchemaReference(thread, current)) {
+      Arcadia_String* name = ((Arcadia_DDLS_SchemaReferenceNode*)current)->name;
+      Arcadia_Value key = Arcadia_Value_makeObjectReferenceValue(name);
+      Arcadia_Value visiting = Arcadia_Map_get(thread, self->visitingSchemata, key);
+      if (!Arcadia_Value_isVoidValue(&visiting)) {
+        Arcadia_DDLS_Diagnostics_cyclicSchemaReferenceError(thread, self->diagnostics, name);
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      Arcadia_Value checked = Arcadia_Map_get(thread, self->checkedSchemata, key);
+      if (!Arcadia_Value_isVoidValue(&checked)) {
+        continue;
+      }
+      Arcadia_Value schema = Arcadia_Map_get(thread, self->schemata, key);
+      if (Arcadia_Value_isVoidValue(&schema)) {
+        Arcadia_DDLS_Diagnostics_unresolvedSchemaReferenceError(thread, self->diagnostics, name);
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      Arcadia_DDLS_SchemaNode* schemaNode = (Arcadia_DDLS_SchemaNode*)Arcadia_Value_getObjectReferenceValue(&schema);
+      Arcadia_Map_set(thread, self->visitingSchemata, key, key, NULL, NULL);
+      Arcadia_List_insertBackObjectReferenceValue(thread, self->cycleStack, (Arcadia_Object*)schemaNode);
+      Arcadia_List_insertBackObjectReferenceValue(thread, self->cycleStack, (Arcadia_Object*)schemaNode->definition);
+    } else if (Arcadia_DDLS_isList(thread, current)) {
+      Arcadia_List_insertBackObjectReferenceValue(thread, self->cycleStack, (Arcadia_Object*)((Arcadia_DDLS_ListNode*)current)->element);
+    } else if (Arcadia_DDLS_isChoice(thread, current)) {
+      Arcadia_List* choices = ((Arcadia_DDLS_ChoiceNode*)current)->choices;
+      Arcadia_SizeValue n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)choices);
+      if (!n) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      for (Arcadia_SizeValue i = 0; i < n; ++i) {
+        Arcadia_List_insertBack(thread, self->cycleStack, Arcadia_List_getAt(thread, choices, i));
+      }
+    } else if (Arcadia_DDLS_isMap(thread, current)) {
+      Arcadia_Map* entries = ((Arcadia_DDLS_MapNode*)current)->entries;
+      self->cycleKeys = Arcadia_Map_getKeys(thread, entries);
+      for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->cycleKeys); i < n; ++i) {
+        Arcadia_List_insertBack(thread, self->cycleStack, Arcadia_Map_get(thread, entries, Arcadia_List_getAt(thread, self->cycleKeys, i)));
+      }
+      self->cycleKeys = NULL;
+    } else if (!Arcadia_DDLS_isAny(thread, current) && !Arcadia_DDLS_isBoolean(thread, current) &&
+               !Arcadia_DDLS_isNumber(thread, current) && !Arcadia_DDLS_isString(thread, current) &&
+               !Arcadia_DDLS_isVoid(thread, current)) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+  }
+}
+
+static Arcadia_BooleanValue
 onValidateList
   (
     Arcadia_Thread* thread,
     Arcadia_DDLS_ValidationContext* self,
     Arcadia_DDLS_Node* ddlsNode,
-    Arcadia_DDL_Node* node
+    Arcadia_DDL_Node* node,
+    Arcadia_BooleanValue reportMismatch
   );
 
-static void
+static Arcadia_BooleanValue
 onValidateMap
   (
     Arcadia_Thread* thread,
     Arcadia_DDLS_ValidationContext* self,
     Arcadia_DDLS_Node* ddlsNode,
-    Arcadia_DDL_Node* node
+    Arcadia_DDL_Node* node,
+    Arcadia_BooleanValue reportMismatch
   );
 
-static void
+static Arcadia_BooleanValue
 onValidate
   (
     Arcadia_Thread* thread,
     Arcadia_DDLS_ValidationContext* self,
     Arcadia_DDLS_Node* ddlsNode,
-    Arcadia_DDL_Node* node
+    Arcadia_DDL_Node* node,
+    Arcadia_BooleanValue reportMismatch
   );
 
-static void
+static Arcadia_BooleanValue
 onValidateList
   (
     Arcadia_Thread* thread,
     Arcadia_DDLS_ValidationContext* self,
     Arcadia_DDLS_Node* ddlsNode,
-    Arcadia_DDL_Node* node
+    Arcadia_DDL_Node* node,
+    Arcadia_BooleanValue reportMismatch
   )
 {
   Arcadia_DDLS_ListNode* ddlsListNode = (Arcadia_DDLS_ListNode*)ddlsNode;
@@ -163,17 +257,21 @@ onValidateList
   Arcadia_DDL_ListNode* listNode = (Arcadia_DDL_ListNode*)node;
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)listNode->elements); i < n; ++i) {
     Arcadia_DDL_Node* node = (Arcadia_DDL_Node*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, listNode->elements, i, _Arcadia_DDL_Node_getType(thread));
-    onValidate(thread, self, ddlsListElementNode, node);
+    if (!onValidate(thread, self, ddlsListElementNode, node, reportMismatch)) {
+      return Arcadia_BooleanValue_False;
+    }
   }
+  return Arcadia_BooleanValue_True;
 }
 
-static void
+static Arcadia_BooleanValue
 onValidateMap
   (
     Arcadia_Thread* thread,
     Arcadia_DDLS_ValidationContext* self,
     Arcadia_DDLS_Node* ddlsNode,
-    Arcadia_DDL_Node* node
+    Arcadia_DDL_Node* node,
+    Arcadia_BooleanValue reportMismatch
   )
 {
   /// @todo The implementation shall be non-recursive (same for onValidateList) for example using a stack on which
@@ -196,11 +294,16 @@ onValidateMap
     }
     Arcadia_Value temporary = Arcadia_Map_get(thread, ddlsMapNode->entries, newKey);
     if (!Arcadia_Value_isObjectReferenceValue(&temporary)) {
-      Arcadia_DDLS_Diagnostics_mapEntryExistsError(thread, self->diagnostics, (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&newKey));
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
-      Arcadia_Thread_jump(thread);
+      if (reportMismatch) {
+        Arcadia_DDLS_Diagnostics_mapEntryExistsError(thread, self->diagnostics, (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&newKey));
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      return Arcadia_BooleanValue_False;
     }
-    onValidate(thread, self, (Arcadia_DDLS_Node*)Arcadia_Value_getObjectReferenceValueChecked(thread, temporary, _Arcadia_DDLS_Node_getType(thread)), node->value);
+    if (!onValidate(thread, self, (Arcadia_DDLS_Node*)Arcadia_Value_getObjectReferenceValueChecked(thread, temporary, _Arcadia_DDLS_Node_getType(thread)), node->value, reportMismatch)) {
+      return Arcadia_BooleanValue_False;
+    }
   }
   // (3) Ensure no entry required by the type are missing.
   Arcadia_List* requiredEntries = Arcadia_Map_getKeys(thread, ddlsMapNode->entries);
@@ -214,20 +317,25 @@ onValidateMap
       if (!Arcadia_Value_isVoidValue(&optional)) {
         continue;
       }
-      Arcadia_DDLS_Diagnostics_mapEntryNotExistsError(thread, self->diagnostics, (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&key));
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
-      Arcadia_Thread_jump(thread);
+      if (reportMismatch) {
+        Arcadia_DDLS_Diagnostics_mapEntryNotExistsError(thread, self->diagnostics, (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&key));
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      return Arcadia_BooleanValue_False;
     }
   }
+  return Arcadia_BooleanValue_True;
 }
 
-static void
+static Arcadia_BooleanValue
 onValidate
   (
     Arcadia_Thread* thread,
     Arcadia_DDLS_ValidationContext* self,
     Arcadia_DDLS_Node* ddlsNode,
-    Arcadia_DDL_Node* node
+    Arcadia_DDL_Node* node,
+    Arcadia_BooleanValue reportMismatch
   )
 {
   while (Arcadia_DDLS_isSchemaReference(thread, ddlsNode)) {
@@ -242,13 +350,12 @@ onValidate
 
   }
   if (Arcadia_DDLS_isAny(thread, ddlsNode)) {
-    return;
+    return Arcadia_BooleanValue_True;
   }
   if (Arcadia_DDLS_isChoice(thread, ddlsNode)) {
     Arcadia_SizeValue n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)((Arcadia_DDLS_ChoiceNode*)ddlsNode)->choices);
     if (n == 0) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
-      Arcadia_Thread_popJumpTarget(thread);
       Arcadia_Thread_jump(thread);
     }
     for (Arcadia_SizeValue i = 0; i < n; ++i) {
@@ -261,35 +368,43 @@ onValidate
           i,
           _Arcadia_DDLS_Node_getType(thread)
         );
-      Arcadia_JumpTarget jumpTarget;
-      Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
-      if (Arcadia_JumpTarget_save(&jumpTarget)) {
-        onValidate(thread, self, (Arcadia_DDLS_Node*)ddlsChildNode, node); // TODO: Do not use recursion.
-        Arcadia_Thread_popJumpTarget(thread);
-        break;
-      } else {
-        Arcadia_Thread_popJumpTarget(thread);
-        Arcadia_Thread_jump(thread);
+      // Only an ordinary mismatch can try the next alternative. Errors still jump.
+      if (onValidate(thread, self, ddlsChildNode, node, Arcadia_BooleanValue_False)) {
+        return Arcadia_BooleanValue_True;
       }
     }
-    return; // Accept.
+    if (reportMismatch) {
+      Arcadia_DDLS_Diagnostics_noChoiceMatchesError(thread, self->diagnostics);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    return Arcadia_BooleanValue_False;
   }
   if (Arcadia_DDLS_isBoolean(thread, ddlsNode) && Arcadia_DDL_Node_isBoolean(thread, node)) {
-    return; // Accept.
+    return Arcadia_BooleanValue_True;
   } else if (Arcadia_DDLS_isList(thread, ddlsNode) && Arcadia_DDL_Node_isList(thread, node)) {
-    onValidateList(thread, self, ddlsNode, node);
+    return onValidateList(thread, self, ddlsNode, node, reportMismatch);
   } else if (Arcadia_DDLS_isMap(thread, ddlsNode) && Arcadia_DDL_Node_isMap(thread, node)) {
-    onValidateMap(thread, self, ddlsNode, node);
+    return onValidateMap(thread, self, ddlsNode, node, reportMismatch);
   } else if (Arcadia_DDLS_isNumber(thread, ddlsNode) && Arcadia_DDL_Node_isNumber(thread, node)) {
-    return;
+    return Arcadia_BooleanValue_True;
   } else if (Arcadia_DDLS_isString(thread, ddlsNode) && Arcadia_DDL_Node_isString(thread, node)) {
-    return;
+    return Arcadia_BooleanValue_True;
   } else if (Arcadia_DDLS_isVoid(thread, ddlsNode) && Arcadia_DDL_Node_isVoid(thread, node)) {
-    return;
+    return Arcadia_BooleanValue_True;
   } else {
-    Arcadia_DDLS_Diagnostics_unexpectedTypeError(thread, self->diagnostics, ddlsNode, node);
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
-    Arcadia_Thread_jump(thread);
+    if (!Arcadia_DDLS_isBoolean(thread, ddlsNode) && !Arcadia_DDLS_isList(thread, ddlsNode) &&
+        !Arcadia_DDLS_isMap(thread, ddlsNode) && !Arcadia_DDLS_isNumber(thread, ddlsNode) &&
+        !Arcadia_DDLS_isString(thread, ddlsNode) && !Arcadia_DDLS_isVoid(thread, ddlsNode)) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    if (reportMismatch) {
+      Arcadia_DDLS_Diagnostics_unexpectedTypeError(thread, self->diagnostics, ddlsNode, node);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    return Arcadia_BooleanValue_False;
   }
 }
 
@@ -309,7 +424,24 @@ Arcadia_DDLS_ValidationContext_runImpl
     Arcadia_Thread_jump(thread);
   }
   Arcadia_DDLS_SchemaNode* ddlsNode = (Arcadia_DDLS_SchemaNode*)Arcadia_Value_getObjectReferenceValue(&v);
-  onValidate(thread, self, ((Arcadia_DDLS_SchemaNode*)ddlsNode)->definition, node);
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    checkSchemaIntegrity(thread, self, ddlsNode->definition);
+    Arcadia_Thread_popJumpTarget(thread);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    self->cycleStack = NULL;
+    self->cycleKeys = NULL;
+    self->visitingSchemata = NULL;
+    self->checkedSchemata = NULL;
+    Arcadia_Thread_jump(thread);
+  }
+  self->cycleStack = NULL;
+  self->cycleKeys = NULL;
+  self->visitingSchemata = NULL;
+  self->checkedSchemata = NULL;
+  onValidate(thread, self, ddlsNode->definition, node, Arcadia_BooleanValue_True);
 }
 
 Arcadia_DDLS_ValidationContext*

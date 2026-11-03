@@ -30,7 +30,7 @@
 #define NUMBER_FIELD(name) \
   "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\" } },"
 #define LIST_FIELD(name) \
-  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"List\", entry : { kind : \"String\" } } },"
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"List\", elements : { kind : \"String\" } } },"
 #define OPTIONAL_NUMBER_FIELD(name) \
   "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\" }, optional : \"true\" },"
 #define OPTIONAL_STRING_FIELD(name) \

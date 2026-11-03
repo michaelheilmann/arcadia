@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html class='my-theme-1' lang='en'>
+<head>
+
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+  <link rel='icon' type='image/svg+xml' href='https://michaelheilmann.com/assets/favicon/512x512.svg'>
+  <link rel="icon" type="image/png" sizes="64x64" href="https://michaelheilmann.com/assets/favicon/64x64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://michaelheilmann.com/assets/favicon/32x32.png">
+
+  <!-- Crap specific to Safari. SVG must be single color with transparent background. -->
+  <link rel='mask-icon' href='https://michaelheilmann.com/assets/favicon/safari-mask-icon-512x512.svg' color = '#000000'>
+
+  <!-- Crap specific to iOS. PNG must be 180 x 180 pixels. color attribute is obsolete. -->
+  <link rel='apple-touch-icon' href='https://michaelheilmann.com/assets/favicon/apple-touch-icon-180x180.png'>
+
+  <script>
+  MathJax = {
+    // Text labels inherit prose fonts; mathematical glyphs keep their math font.
+    output: {
+      mtextInheritFont: true
+    },
+    startup: {
+      pageReady() {
+        // Inherited-text measurements must use loaded fonts, not fallback metrics.
+        return document.fonts.ready.then(() => MathJax.startup.defaultPageReady());
+      },
+      ready() {
+        MathJax.startup.defaultReady();
+        const {Token} = MathJax._.input.tex.Token;
+        const {MapHandler} = MathJax._.input.tex.MapHandler;
+        const delimiter = MapHandler.getMap('delimiter');
+        delimiter.add('\\llbracket', new Token('\\llbracket', '\u27E6'));
+        delimiter.add('\\rrbracket', new Token('\\rrbracket', '\u27E7'));
+      }
+    }
+  }
+  </script>
+
+  <!-- @todo Do not use external CDNs. Do use self-hosting. -->
+  <script defer id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+
+  <!-- Cascading Style Sheets. -->
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=8'>
+
+  <link rel="canonical" href="https://michaelheilmann.com/Arcadia/Sanitizer/">
+  <title>Michael Heilmann's Arcadia Sanitizer</title>
+  <meta name="description" content="Reference documentation for the Arcadia Sanitizer, a native source-whitespace checker and fixer.">
+</head>
+<body class="my-content-page-1 my-tool-documentation">
+  <header>
+    <div>
+      <a href="https://michaelheilmann.com/">Home</a> &gt;
+      <a href="https://michaelheilmann.com/Arcadia/">Arcadia</a> &gt; Sanitizer
+    </div>
+  </header>
+
+<main>
+  <div class="left-column"></div>
+  <div class="center-column">
+    <h1>Arcadia Sanitizer</h1>
+    <p>The Arcadia Sanitizer is a native C tool and library for checking and
+    normalizing source-file whitespace on Windows and Linux. It uses Arcadia's
+    own FileSystem, FilePath, DirectoryIterator, FileHandle, and byte-buffer APIs.</p>
+    <nav aria-label="Sanitizer documentation">
+      <ul>
+        <li><a href="#Introduction">Introduction</a></li>
+        <li><a href="#ConceptsAndTerms">Concepts and Terms</a></li>
+        <li><a href="#Specification">Specification</a></li>
+        <li><a href="#ModuleInterface">Module Interface</a></li>
+      </ul>
+    </nav>
+<section id="Introduction">
+  <h2>Introduction</h2>
+  <p>Use <code>--check</code> before committing to detect whitespace differences
+  without modifying files. Use <code>--fix</code> to apply the supported
+  normalization. Both modes accept a file or a directory; the path defaults
+  to the current working directory.</p>
+
+  <h3>Build</h3>
+  <p>Configure and build Arcadia with the usual CMake workflow, then build
+  the sanitizer executable and its regression tests:</p>
+  <pre><code>cmake -S . -B build
+cmake --build build --target Arcadia.Sanitizer.Tool
+cmake --build build --target Arcadia.Sanitizer.Tests
+ctest --test-dir build -R Sanitizer --output-on-failure</code></pre>
+  <p>The executable location depends on the selected CMake generator and
+  configuration. For Visual Studio or other multi-configuration generators,
+  select the appropriate build/test configuration (for example, with
+  <code>--config Debug</code> and <code>ctest -C Debug</code>).</p>
+
+  <h3>Examples</h3>
+  <pre><code>Arcadia.Sanitizer.Tool --check .
+Arcadia.Sanitizer.Tool --check Runtime/FileSystem
+Arcadia.Sanitizer.Tool --fix Runtime/FileSystem
+Arcadia.Sanitizer.Tool --check CMakeLists.txt</code></pre>
+  <p>Run the executable by its actual filesystem path, or place its directory
+  on <code>PATH</code>. The examples assume it is available on <code>PATH</code>.
+  After a fix, inspect the changes using <code>git diff</code> and
+  <code>git diff --check</code>. Do not use <code>--fix</code> on files that
+  cannot be restored if an interruption occurs.</p>
+
+  <h3>Typical workflow</h3>
+  <ol>
+    <li>Run <code>--check</code> for the module being changed.</li>
+    <li>If differences are expected, run <code>--fix</code> on that module.</li>
+    <li>Review the changed files and run <code>--check</code> again.</li>
+    <li>Run the native sanitizer CTest regression suite.</li>
+  </ol>
+</section>
+
+<section id="ConceptsAndTerms">
+  <h2>Concepts and Terms</h2>
+  <dl>
+    <dt>Check mode</dt>
+    <dd>Read-only traversal which reports differing whitespace and exits with
+    status 1 when at least one inspected text file is nonconforming.</dd>
+    <dt>Fix mode</dt>
+    <dd>Traversal which writes normalized bytes back to each affected text
+    file. Files whose content is already conforming are not rewritten.</dd>
+    <dt>Root</dt>
+    <dd>The explicitly supplied file or directory; if omitted, the working
+    directory. Root directories are traversed recursively.</dd>
+    <dt>Eligible source file</dt>
+    <dd>A regular file with an allowed extension discovered during directory
+    traversal. An explicitly provided regular file is eligible regardless of
+    its filename extension.</dd>
+    <dt>Normalized bytes</dt>
+    <dd>The original byte sequence after converting CRLF and lone CR line
+    endings to LF and removing spaces/tabs at the ends of lines.</dd>
+    <dt>Binary input</dt>
+    <dd>Any inspected file containing a NUL byte. Such files are reported and
+    skipped without modification.</dd>
+  </dl>
+  <p>The scanner operates on bytes rather than decoding text. It does not
+  infer a character encoding or interpret language syntax. See the
+  <a href="#Specification">Specification</a> for its exact boundaries.</p>
+</section>
+
+<section id="Specification">
+  <h2>Specification</h2>
+  <h3>Command line and exit statuses</h3>
+  <pre><code>Arcadia.Sanitizer.Tool (--check|--fix) [file-or-directory]</code></pre>
+  <p>Exactly one mode is required. The optional path is interpreted as a
+  native filesystem path and defaults to <code>.</code>. Invalid arguments,
+  a missing or inaccessible root, and filesystem/runtime errors produce
+  exit status 2. The following exit statuses are part of the CLI contract:</p>
+  <table>
+    <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>0</code></td><td>Check found no whitespace differences, or fix completed successfully.</td></tr>
+      <tr><td><code>1</code></td><td>Check found at least one whitespace difference.</td></tr>
+      <tr><td><code>2</code></td><td>Argument, filesystem, or runtime error.</td></tr>
+    </tbody>
+  </table>
+  <p>Skipped binary and linked files are not counted as formatting violations;
+  a check can therefore return zero even when such files were skipped.</p>
+
+  <h3>Normalization</h3>
+  <p>The transform is byte-oriented and performs these operations:</p>
+  <ol>
+    <li>Replace each CRLF pair with one LF byte.</li>
+    <li>Replace each remaining CR byte with one LF byte.</li>
+    <li>Remove each run of ASCII space or tab bytes immediately before a line
+    ending or at the end of the file.</li>
+  </ol>
+  <p>All other bytes are copied unchanged. In particular, interior spaces,
+  byte order marks, encoded non-ASCII bytes, and the presence or absence of
+  a final line ending are preserved. The transform is idempotent. It does not
+  add a final LF, decode encodings, reorder text, or format C, PDL, or ADL
+  syntax.</p>
+
+  <h3>File selection</h3>
+  <p>Directory traversal processes regular files with these case-sensitive
+  suffixes:</p>
+  <p><code>.txt</code>, <code>.c</code>, <code>.h</code>, <code>.i</code>,
+  <code>.tl</code>, <code>.te</code>, <code>.pdl</code>,
+  <code>.adl</code>, <code>.ddl</code>, <code>.md</code>,
+  <code>.cmake</code>, <code>.c.g</code>, <code>.h.g</code>.</p>
+  <p>Directory scans exclude child directories named <code>.</code>,
+  <code>..</code>, <code>.git</code>, <code>.vs</code>,
+  <code>.venv</code>, <code>.Dependencies</code>, <code>build</code>,
+  <code>.build</code>, <code>CMakeFiles</code>,
+  <code>node_modules</code>, and <code>__pycache__</code>. These
+  exclusions apply to encountered child directories, not to a root directory
+  explicitly selected by the caller. Hidden files are not otherwise ignored.
+  This is not a Git tracked-file-only scan.</p>
+
+  <h3>Symbolic links and special files</h3>
+  <p>The sanitizer skips discovered symbolic links and never follows them
+  when descending directories. The filesystem test also treats Windows
+  reparse points, including junctions, as links. Explicitly selecting a
+  symbolic-link or reparse-point root is rejected with status 2. Special
+  file types not recognized as regular files or directories are not
+  processed. See <a href="https://michaelheilmann.com/Arcadia/FileSystem/">Arcadia
+  FileSystem</a> for the underlying API.</p>
+
+  <h3>Reporting and writes</h3>
+  <p>A changed file produces one report for its first affected line, for
+  example:</p>
+  <pre><code>Runtime/FileSystem/Example.c:17: whitespace differs</code></pre>
+  <p>In fix mode the suffix is <code>fixed whitespace</code> instead. Binary
+  inputs are reported as <code>skipped binary: path</code>; nested links
+  as <code>skipped link: path</code>. File-level reporting is not a report
+  of every offending line, nor a JSON or machine-readable diagnostics format.
+  Directory enumeration order is filesystem-dependent.</p>
+  <p>Fix mode writes affected files in place using
+  <code>Arcadia_FileSystem_setFileContents</code>. This is not an atomic
+  replacement and does not guarantee preservation of modification times
+  for changed files. Interrupted writes can leave partial output. Use
+  version control or backups, and review the diff before committing.</p>
+
+  <h3>Non-goals and future checks</h3>
+  <p>This release checks whitespace only. It does not check header guards,
+  C prototypes, C function layouts, PDL/ADL/DDL grammar, documentation
+  structure, or generated-code ownership. Future validators should expose
+  distinct named checks, deterministic diagnostic locations, independent
+  regression tests, and a documented severity/exit-status policy rather
+  than silently changing the meaning of this whitespace pass.</p>
+</section>
+
+<section id="ModuleInterface">
+  <h2>Module Interface</h2>
+  <p>The native public library interface is defined in
+  <code>Tools/Sanitizer/Library/Sources/Arcadia/Sanitizer/Sanitizer.h</code>.
+  It depends on Arcadia FileSystem and Ring2. The executable is implemented
+  separately in <code>Tools/Sanitizer/Tool</code>.</p>
+
+  <h3>Arcadia_Sanitizer_normalize</h3>
+  <pre><code>Arcadia_BooleanValue
+Arcadia_Sanitizer_normalize
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArrayBuilder* input,
+    Arcadia_ByteArrayBuilder* output,
+    Arcadia_SizeValue* firstAffectedLine
+  );</code></pre>
+  <p>Normalizes the input byte sequence into a distinct output builder.
+  Returns true if any byte would change; otherwise returns false.
+  <code>firstAffectedLine</code> receives the 1-based first affected line
+  number or zero when unchanged. The input and output builders must be
+  different objects. The caller owns the supplied builders and output
+  parameter.</p>
+
+  <h3>Arcadia_Sanitizer_Statistics</h3>
+  <pre><code>typedef struct Arcadia_Sanitizer_Statistics {
+  Arcadia_SizeValue inspected;
+  Arcadia_SizeValue changed;
+  Arcadia_SizeValue skippedBinary;
+  Arcadia_SizeValue skippedLinks;
+} Arcadia_Sanitizer_Statistics;</code></pre>
+  <p><code>inspected</code> counts regular files read for normalization,
+  including binary files. <code>changed</code> counts files whose
+  normalized bytes differ, including files fixed in fix mode.
+  <code>skippedBinary</code> and <code>skippedLinks</code> count
+  ignored binary inputs and links respectively. Initialize this structure
+  to zero before a scan.</p>
+
+  <h3>Arcadia_Sanitizer_scan</h3>
+  <pre><code>void
+Arcadia_Sanitizer_scan
+  (
+    Arcadia_Thread* thread,
+    Arcadia_FileSystem* fileSystem,
+    Arcadia_FilePath* path,
+    Arcadia_FileHandle* output,
+    Arcadia_BooleanValue fix,
+    Arcadia_Sanitizer_Statistics* statistics
+  );</code></pre>
+  <p>Scans a file or directory recursively, writes diagnostics to the
+  supplied open file handle, and updates the provided statistics. When
+  <code>fix</code> is false, no files are rewritten. When true, only
+  files with differing normalized bytes are rewritten. This library
+  function does not return a CLI exit status; the command-line wrapper
+  maps the statistics and failures to statuses 0, 1, and 2.</p>
+  <p>The library uses Arcadia's normal thread error/status and jump-target
+  conventions. Its caller must establish the required Arcadia process and
+  thread environment, and manage errors according to those conventions.</p>
+
+  <h3>Build targets and tests</h3>
+  <table>
+    <thead><tr><th>Target</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>Arcadia.Sanitizer</code></td><td>Reusable native C library.</td></tr>
+      <tr><td><code>Arcadia.Sanitizer.Tool</code></td><td>Command-line executable.</td></tr>
+      <tr><td><code>Arcadia.Sanitizer.Tests</code></td><td>Native regression suite, registered with CTest.</td></tr>
+      <tr><td><code>Arcadia.Sanitizer.BuildDocs</code></td><td>Generate this documentation with the Arcadia Template Engine.</td></tr>
+    </tbody>
+  </table>
+  <p>The documentation source resides in <code>Tools/Sanitizer/Documentation</code>.
+  The generated site is <code>.Website/Arcadia/Sanitizer/index.html</code>.
+  Treat generated files as output, not as the primary editing surface.</p>
+</section>
+
+  </div>
+  <div class="right-column"></div>
+</main>
+
+  <footer>
+    <div class="left-column"></div>
+    <div class="center-column"></div>
+    <div class="right-column">
+      <div>Website maintained by Michael Heilmann.</div>
+      <div>Last modified on 3 November 2026.</div>
+    </div>
+  </footer>
+</body>
+</html>
+

@@ -221,6 +221,15 @@ Arcadia_FileSystem_getFileType
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_FileSystem, getFileType, self, path); }
 
+Arcadia_BooleanValue
+Arcadia_FileSystem_isSymbolicLink
+  (
+    Arcadia_Thread* thread,
+    Arcadia_FileSystem* self,
+    Arcadia_FilePath* path
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_FileSystem, isSymbolicLink, self, path); }
+
 Arcadia_Natural64Value
 Arcadia_FileSystem_getLastWriteTime
   (

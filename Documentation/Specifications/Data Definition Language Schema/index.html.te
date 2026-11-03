@@ -6,7 +6,8 @@
   <link rel='canonical' href='@{siteAddress}/specifications/data-definition-language-schema/index.html'>
   <title>Data Definition Language Schema (draft, v0.2)</title>
 </head>
-<body class="my-content-page-1">
+<body class="my-content-page-1 specification">
+  <a class="specification-skip" href="#introduction">Skip to specification</a>
   <header>
   @{include("./../../Commons/mathjax-definitions.i")}
   <div>
@@ -15,21 +16,41 @@
   </header>
   <main>
     <div class="left-column"></div>
+    <div class="right-column">
+      <details class="specification-contents" open>
+        <summary>On this page</summary>
+        <nav aria-label="Specification contents">
+          <ul>
+            <li><a href="#introduction">1 Introduction</a></li>
+            <li><a href="#notations">2 Notation</a></li>
+            <li><a href="#semantics">3 Semantics</a></li>
+            <li><a href="#any-type">3.1 Any type</a></li>
+            <li><a href="#boolean-type">3.2 Boolean type</a></li>
+            <li><a href="#choice-type">3.3 Choice type</a></li>
+            <li><a href="#list-type">3.4 List type</a></li>
+            <li><a href="#map-type">3.5 Map type</a></li>
+            <li><a href="#number-type">3.6 Number type</a></li>
+            <li><a href="#schema-type">3.7 Schema type</a></li>
+            <li><a href="#ddls-schema-reference-type">3.8 Schema reference type</a></li>
+            <li><a href="#string-type">3.9 String type</a></li>
+            <li><a href="#void-type">3.10 Void type</a></li>
+            <li><a href="#validation">4 Validation</a></li>
+            <li><a href="#validation-ddl-value">4.1 DDL value validation</a></li>
+            <li><a href="#validation-value">4.2 DDLS value validation</a></li>
+            <li><a href="#validation-list">4.3 DDL list value validation</a></li>
+            <li><a href="#validation-map">4.4 DDL map value validation</a></li>
+            <li><a href="#schema-reference-resolution">4.5 Schema reference resolution</a></li>
+            <li><a href="#acceptance-and-rejection">4.6 Acceptance and rejection</a></li>
+          </ul>
+        </nav>
+      </details>
+    </div>
     <div class="center-column">
     <h1>Data Definition Language Schema (draft, v0.2)</h1>
     @{include("./contents.i")}
   </div>
-  <div class="right-column">
-   <nav>
-      <ul style="list-style: none">
-        <li><a href="#introduction">1 Introduction</a></li>
-        <li><a href="#notation">2 Notation</a></li>
-        <li><a href="#semantics">3 Semantics</a></li>
-        <li><a href="#validation">4 Validation</a></li>
-      </ul>
-    </nav>
-  </div>
   </main>
+  @{include("./../navigation.i")}
   <footer>
     <div class="left-column"></div>
     <div class="center-column"></div>

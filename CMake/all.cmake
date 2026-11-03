@@ -176,24 +176,24 @@ macro(BeginProduct target type)
   set(${target}.SourceFiles "")
   set(${target}.HeaderFiles "")
   set(${target}.InlayFiles "")
-  
+
   set(${target}.ConfigurationTemplateFiles "")
   set(${target}.ConfigurationFiles "")
-  
+
   set(${target}.Assets.Files "")
   set(${target}.Assets.Directories "")
   set(${target}.Assets.TargetDirectory ${CMAKE_CURRENT_BINARY_DIR}/Assets)
-  
+
   set(${target}.AssemblerFiles "")
-  
+
   set(${target}.Libraries "")
   set(${target}.PrivateLibraries "")
-  
+
   set(${target}.IncludeDirectories "")
-  
+
   set(${target}.TemplateEngine.TemplateFiles)
   set(${target}.TemplateEngine.EnvironmentFiles)
-  
+
   set(${target}.Enabled TRUE)
   DetectCompilerC(${target})
   DetectCompilerASM(${target})
@@ -468,7 +468,7 @@ macro(EndProduct target)
     endif()
 
   endif()
-  
+
   # Set the folder.
   if (${target}.Folder)
     #message(FATAL_ERROR "${target}.Folder := ${${target}.Folder}")
@@ -646,7 +646,7 @@ macro(OnModuleDependency target module)
     list(APPEND ${target}.PrivateLibraries ${module})
   else()
     #message(STATUS "adding ${module} to ${target}.Libraries")
-    list(APPEND ${target}.Libraries ${module}) 
+    list(APPEND ${target}.Libraries ${module})
   endif()
 
   unset(optional_arg)

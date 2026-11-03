@@ -5,10 +5,11 @@ This document records the source code style conventions for Arcadia C and C++ fi
 ## File Encoding And Line Endings
 
 - Use plain ASCII unless the file already requires non-ASCII text or a task explicitly needs it.
-- Use LF line endings (`\n`) for C, C++, header, CMake, template, `.pdl`, `.pdl`, and documentation source files covered by `sanitize.ps1`.
+- Use LF line endings (`\n`) for maintained source files, including C, C++, headers, CMake, templates, PDL, ADL, DDL, VPL, and documentation; see `AGENTS/Formatting.md`.
 - Do not convert unrelated files from CRLF to LF as part of an unrelated change.
 - Strip trailing spaces and tabs.
-- Use `sanitize.ps1` from the repository root when broad whitespace cleanup is appropriate; do not use PowerShell `Get-Content | Set-Content` pipelines because they silently write CRLF.
+- Use `sanitize.ps1` from the repository root when broad whitespace cleanup is appropriate; its `-Check` mode never modifies files. `Tools/CodeStyle/check.py` offers cross-platform read-only and focused `--fix` modes. Do not use PowerShell `Get-Content | Set-Content` pipelines because they silently write CRLF.
+- For the Arcadia string and diagnostic requirements, also read `AGENTS/CodingStandards.md`.
 
 ## Header Guards
 
@@ -69,7 +70,7 @@ This document records the source code style conventions for Arcadia C and C++ fi
 - Put the closing parenthesis on its own line indented by two spaces.
 - For definitions, put the opening body brace on the next line at column 0.
 - Apply the same layout to declarations and definitions.
-- An empty parameter list still uses the same parenthesis layout.
+- An empty parameter list still uses the same parenthesis layout, with `void` as its parameter in C17; `()` is not a zero-parameter prototype.
 - A single parameter still gets its own line.
 - Separate adjacent function declarations and function definitions with an empty line.
 - Separate function declarations and function definitions from inclusion guards and include directives with one empty line.
@@ -140,10 +141,12 @@ Arcadia_ADL_UI_LabelDefinition_constructImpl
 ## GC And Rooting Style
 
 - Plain C locals holding `Arcadia_Object*` pointers are not GC roots.
+- Before invoking an ordinary method, ensure its receiver is fully constructed, has not entered finalization, and is directly rooted or transitively reachable from a GC root throughout the call, including nested collections. The caller is responsible for this guarantee; a `self` pointer is not a root. See `Runtime/Ring1/Documentation/3.documentation.8.objects/Object/include.content`.
 - Store long-lived object references in owning objects and visit them from the owner callback.
 - Use the Arcadia value stack or `Arcadia_Object_lock` for temporary roots only when an operation can trigger collection before another owner records the reference.
 - Every manual lock must be exception-safe if code between lock and unlock can jump.
 - Prefer ownership with correct `visit` callbacks over manual locks.
+- Finalizers must not assume other unreachable managed objects are still alive; garbage collection does not guarantee finalization order.
 - Native object allocation does not itself root the receiver. Before `Arcadia_LeaveConstructor` publishes a derived runtime type, GC uses the currently installed superclass type and cannot discover fields through the derived visitor. If a constructor calls code that can collect, temporarily root the receiver and any initialized managed fields not reachable through that active visitor; rooting the receiver alone is insufficient. Keep constructor argument offsets intact, and restore temporary roots on both success and a runtime jump before leaving or rethrowing. Do not publish an unfinished derived type merely to enable its visitor/destructor.
 
 ## Error Handling

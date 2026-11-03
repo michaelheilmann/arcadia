@@ -63,6 +63,78 @@ testAcceptChoice1
   ddlsNode = NULL;
 }
 
+static void
+testAcceptListElements
+  (
+    Arcadia_Thread* thread
+  )
+{
+  const char* ddls =
+    "{ kind : \"Schema\", name : \"Numbers\", definition : "
+    "{ kind : \"List\", elements : { kind : \"Number\" } } }";
+  Arcadia_DDLS_DefaultReader* reader = Arcadia_DDLS_DefaultReader_create(thread);
+  Arcadia_DDLS_DefaultReader_run(thread, reader,
+    Arcadia_ByteArray_createByteArray(thread, Arcadia_RuntimeByteArray_create(thread, ddls, strlen(ddls))));
+}
+
+static void
+testRejectListEntry
+  (
+    Arcadia_Thread* thread
+  )
+{
+  const char* ddls =
+    "{ kind : \"Schema\", name : \"Numbers\", definition : "
+    "{ kind : \"List\", entry : { kind : \"Number\" } } }";
+  Arcadia_DDLS_DefaultReader* reader = Arcadia_DDLS_DefaultReader_create(thread);
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_DDLS_DefaultReader_run(thread, reader,
+      Arcadia_ByteArray_createByteArray(thread, Arcadia_RuntimeByteArray_create(thread, ddls, strlen(ddls))));
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    if (status != Arcadia_Status_SemanticalError) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+      Arcadia_Thread_jump(thread);
+    }
+  }
+}
+
+static void
+testRejectEmptyChoice
+  (
+    Arcadia_Thread* thread
+  )
+{
+  const char* ddls =
+    "{ kind : \"Schema\", name : \"EmptyChoice\", definition : "
+    "{ kind : \"Choice\", choices : [] } }";
+  Arcadia_DDLS_DefaultReader* reader = Arcadia_DDLS_DefaultReader_create(thread);
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_DDLS_DefaultReader_run(thread, reader,
+      Arcadia_ByteArray_createByteArray(thread, Arcadia_RuntimeByteArray_create(thread, ddls, strlen(ddls))));
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    if (status != Arcadia_Status_SemanticalError) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+      Arcadia_Thread_jump(thread);
+    }
+  }
+}
+
 static int
 runAcceptMap
   (
@@ -135,6 +207,33 @@ runAcceptChoice
   return Arcadia_Tests_safeExecute(&testAcceptChoice1) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static int
+runAcceptListElements
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testAcceptListElements) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectListEntry
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testRejectListEntry) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectEmptyChoice
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testRejectEmptyChoice) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -151,6 +250,9 @@ main
     { "RejectDuplicateKind", &runRejectDuplicateKind },
     { "RejectDuplicateEntryName", &runRejectDuplicateEntryName },
     { "AcceptChoice", &runAcceptChoice },
+    { "AcceptListElements", &runAcceptListElements },
+    { "RejectListEntry", &runRejectListEntry },
+    { "RejectEmptyChoice", &runRejectEmptyChoice },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

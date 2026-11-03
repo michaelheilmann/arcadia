@@ -17,7 +17,15 @@
 
   <script>
   MathJax = {
+    // Text labels inherit prose fonts; mathematical glyphs keep their math font.
+    output: {
+      mtextInheritFont: true
+    },
     startup: {
+      pageReady() {
+        // Inherited-text measurements must use loaded fonts, not fallback metrics.
+        return document.fonts.ready.then(() => MathJax.startup.defaultPageReady());
+      },
       ready() {
         MathJax.startup.defaultReady();
         const {Token} = MathJax._.input.tex.Token;
@@ -35,7 +43,7 @@
 
   <!-- Cascading Style Sheets. -->
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
-  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=7'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=8'>
 
 
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/cxx-doc.css?v=5'>
@@ -1105,6 +1113,26 @@ refer to <a href="https://github.com/michaelheilmann/arcadia/tree/main/README.md
 </p>
 <p>
 <code>Arcadia_Object</code> types are allocated on the <em>heap</em> and can are referenced by <code>Arcadia_Object*</code> pointers.
+</p>
+<h2 id="Arcadia_Object_lifetime">Object Lifetime and Method Invocation</h2>
+<p>
+An ordinary method may be invoked on an <code>Arcadia_Object</code> or derived object only if the object
+is fully constructed and has not entered finalization.
+</p>
+<p>
+At the point of invocation, the receiver must be a GC root or transitively reachable from a GC root.
+It must remain reachable throughout the invocation, including during garbage collections triggered
+by nested calls. A C pointer, including <code>self</code>, does not by itself constitute a GC root.
+</p>
+<p>
+The caller is responsible for satisfying these preconditions. An ordinary method is not required to
+root its receiver automatically. Temporary roots can be established through the Arcadia value stack
+or <code>Arcadia_Object_lock</code>; an owning object can retain references through its visit callback.
+</p>
+<p>
+Constructors and finalizers are lifecycle operations rather than ordinary method invocations.
+A finalizer must not assume that another unreachable managed object remains valid: the garbage
+collector does not guarantee finalization order.
 </p>
 </section>
 
@@ -6021,7 +6049,7 @@ refer to <a href="https://github.com/michaelheilmann/arcadia/tree/main/README.md
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 1 November 2026.</div>
+    <div>Last modified on 3 November 2026.</div>
     </div>
   </div>
   <div class="center-column">

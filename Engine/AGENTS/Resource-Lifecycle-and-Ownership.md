@@ -1,7 +1,7 @@
 # Arcadia Engine: Resource Lifecycle and Ownership
 
-**Status:** Implementation guidance based on the current source code (26 October 2026)  
-**Scope:** `Arcadia_Engine_Visuals_Resource` and `Arcadia_Engine_Audials_Implementation_Resource`, their derived classes, and their backend contexts.  
+**Status:** Implementation guidance based on the current source code (26 October 2026)
+**Scope:** `Arcadia_Engine_Visuals_Resource` and `Arcadia_Engine_Audials_Implementation_Resource`, their derived classes, and their backend contexts.
 **Recommended repository location:** `Engine/Resource-Lifecycle-and-Ownership.md`
 
 ## 1. Purpose

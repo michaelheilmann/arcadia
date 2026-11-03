@@ -60,6 +60,13 @@ Arcadia_DDLS_Diagnostics_unexpectedTypeError
   );
 
 void
+Arcadia_DDLS_Diagnostics_noChoiceMatchesError
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDLS_Diagnostics* self
+  );
+
+void
 Arcadia_DDLS_Diagnostics_mapEntryAlreadyDefined
   (
     Arcadia_Thread* thread,
@@ -85,6 +92,14 @@ Arcadia_DDLS_Diagnostics_mapEntryNotExistsError
 
 void
 Arcadia_DDLS_Diagnostics_unresolvedSchemaReferenceError
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDLS_Diagnostics* self,
+    Arcadia_String* name
+  );
+
+void
+Arcadia_DDLS_Diagnostics_cyclicSchemaReferenceError
   (
     Arcadia_Thread* thread,
     Arcadia_DDLS_Diagnostics* self,

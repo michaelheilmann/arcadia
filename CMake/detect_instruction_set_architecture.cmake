@@ -28,7 +28,7 @@ set(Arcadia_InstructionSetArchitecture_X64 2)
 #
 # DETAIL
 # Detect the instruction set architecture.
-# The variable named by ${result} in the parent scope is assigned one of ${Arcadia_InstructionSetArchitecture_X86}, ${Arcadia_InstructionSetArchitecture_X64}, or ${Arcadia_InstructionSetArchitecture_Unknown}. 
+# The variable named by ${result} in the parent scope is assigned one of ${Arcadia_InstructionSetArchitecture_X86}, ${Arcadia_InstructionSetArchitecture_X64}, or ${Arcadia_InstructionSetArchitecture_Unknown}.
 #
 # PARAM result The name of the variable to assign in the parent scope the instruction set architecture to.
 function(Arcadia_DetectInstructionSetArchitecture result)

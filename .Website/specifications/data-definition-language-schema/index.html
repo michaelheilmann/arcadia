@@ -17,7 +17,15 @@
 
   <script>
   MathJax = {
+    // Text labels inherit prose fonts; mathematical glyphs keep their math font.
+    output: {
+      mtextInheritFont: true
+    },
     startup: {
+      pageReady() {
+        // Inherited-text measurements must use loaded fonts, not fallback metrics.
+        return document.fonts.ready.then(() => MathJax.startup.defaultPageReady());
+      },
       ready() {
         MathJax.startup.defaultReady();
         const {Token} = MathJax._.input.tex.Token;
@@ -35,133 +43,149 @@
 
   <!-- Cascading Style Sheets. -->
   <link rel='stylesheet' href='https://michaelheilmann.com/assets/reset.css?v=5'>
-  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=7'>
+  <link rel='stylesheet' href='https://michaelheilmann.com/assets/index.css?v=8'>
 
   <style>
-  /* the left-hand side of a grammar rule */
-my-lhs {
-  display: block;
+  /* Legacy consumers are identified by their existing canonical metadata until
+ * their page-owned migration opts into body.specification. :where keeps the
+ * compatibility rules' specificity unchanged and excludes non-spec pages. */
+:where(html:has(> head > link[rel="canonical"][href*="/specifications/"])) {
+  & my-lhs { display: block; }
+  & my-rhs { display: block; margin-left: 1rem; }
+
+  & div.box {
+    --base-color: rgb(219, 212, 205);
+    --background-color: color-mix(in srgb, var(--base-color) 20%, white 100%);
+    --border-color: color-mix(in srgb, var(--base-color) 100%, white 20%);
+    padding: 8px;
+    margin: 1rem 0;
+    border: 1.75px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--background-color);
+  }
+  & div.box.todo {
+    --todo-base-color: rgb(234, 136, 145);
+    --todo-background-color: color-mix(in srgb, var(--todo-base-color) 20%, white 100%);
+    --todo-border-color: color-mix(in srgb, var(--todo-base-color) 100%, white 20%);
+    border-color: var(--todo-border-color);
+    background-color: var(--todo-background-color);
+  }
+  & div.abstract { font-style: italic; }
+
+  & my-formula-box.align-left > mjx-container { text-align: left!important; }
+  & my-formula-box.align-right > mjx-container { text-align: right!important; }
+
+  & table.syntax-directed-translation {
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+  }
+  & table.syntax-directed-translation,
+  & :where(table.syntax-directed-translation) tr,
+  & :where(table.syntax-directed-translation) td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  & table.syntax-directed-translation td {
+    padding: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  & table.syntax-directed-translation td:nth-child(2) {
+    width: 50%;
+    text-align: right;
+  }
 }
 
-/* the right-hand side of a grammar rule */
-my-rhs {
-  display: block;
-  margin-left: 1rem;
+/* Approved specification-family components. Page migrations own the opt-in marker
+ * and semantic markup; unrelated shared-style consumers keep the legacy shell. */
+body.my-content-page-1.specification {
+  --specification-width: 78rem;
+  --specification-navigation-width: 17rem;
+  --specification-surface: #f5f7f8;
+  --specification-border: #ccd4da;
+  --specification-divider: #d8e1e2;
+  --specification-focus: #875100;
+
+  min-width: 0;
+  width: 100%;
+  height: auto;
+  line-height: 1.65;
+
+  & main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--specification-navigation-width);
+    gap: 3rem;
+    max-width: var(--specification-width);
+    margin-inline: auto;
+    padding: 2rem;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  & main > .left-column { display: none; }
+  & main > .center-column { grid-column: 1; grid-row: 1; min-width: 0; width: auto; }
+  & main > .right-column { grid-column: 2; grid-row: 1; min-width: 0; width: auto; }
+
+  & h1 { font-size: clamp(2rem, 3.5vw, 2.75rem); line-height: 1.2; margin: 0 0 1.5rem; }
+  & h2 { font-size: 1.6rem; line-height: 1.3; margin: 2.5rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--specification-divider); }
+  & h3 { font-size: 1.25rem; line-height: 1.4; margin: 2rem 0 0.75rem; }
+  & h4 { font-size: 1.125rem; line-height: 1.4; }
+  & main p { overflow-wrap: anywhere; }
+  & a { text-decoration: underline; text-underline-offset: 0.15em; }
+
+  & .box {
+    padding: 1rem;
+    margin: 1rem 0;
+    background: var(--specification-surface);
+    border: 1px solid var(--specification-border);
+    border-radius: 4px;
+    min-width: 0;
+  }
+  & .box.todo { border-style: dashed; }
+  & .box:has(> .body > pre), & .box:has(> pre) { padding: 0; overflow: hidden; }
+  & pre {
+    max-width: 100%;
+    box-sizing: border-box;
+    background: var(--specification-surface);
+    padding: 1rem;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+  & .box pre { margin: 0; }
+  /* Keep native mathematical layout and fonts; constrain only display boxes. */
+  & mjx-container[display="true"] { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+  & my-formula-box { display: block; min-width: 0; }
+
+  /* Scroll the enclosing region, never detach a table's rows/cells from its grid. */
+  & .specification-scroll { max-width: 100%; overflow-x: auto; margin: 1rem 0; }
+  & table { border-collapse: collapse; margin: 1rem 0; width: 100%; }
+  & .specification-scroll > table { margin: 0; }
+  & table.syntax-directed-translation { width: 100%; margin: 0; }
+  & th, & td { border: 1px solid var(--specification-border); padding: 0.75rem; text-align: left; vertical-align: top; }
+  & th { background: var(--specification-surface); }
+  & caption { font-weight: bold; text-align: left; margin-bottom: 0.5rem; }
+  & .specification-scroll-hint { display: block; font-size: 0.875rem; font-weight: normal; color: #465a65; }
+  & table.syntax-directed-translation td:nth-child(2) { width: auto; text-align: left; }
+
+  & main > .right-column nav { padding: 0; }
+  & .specification-contents { border: 1px solid var(--specification-border); border-radius: 4px; padding: 1rem; background: var(--specification-surface); }
+  & .specification-contents summary { cursor: pointer; font-weight: bold; }
+  & .specification-contents nav ul { list-style: none; margin: 1rem 0 0; padding: 0; }
+  & .specification-contents nav ul > li { margin: 0 0 0.5rem; }
+  & .specification-contents nav ul ul { padding-left: 1rem; }
+  & nav a { text-decoration: none; }
+  & nav a:hover { text-decoration: underline; }
+  & :focus-visible { outline: 3px solid var(--specification-focus); outline-offset: 3px; }
+  & .specification-skip { position: absolute; top: -5rem; left: 1rem; padding: 0.5rem; background: var(--white); }
+  & .specification-skip:focus { top: 0.5rem; }
+  & footer { flex-wrap: wrap; }
 }
 
-/* A box used to surround out of text contents e.g., theorems, lemmas, examples, etc. */
-div.box {
-  --base-color: rgb(219, 212, 205);
-  --background-color: color-mix(in srgb, var(--base-color) 20%, white 100%);
-  --border-color: color-mix(in srgb, var(--base-color) 100%, white 20%);
-
-  padding-bottom: 8px;
-  padding-top: 8px;
-  padding-left: 8px;
-  padding-right: 8px;
-
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-
-  border-width: 1.75px;
-  border-style: solid;
-  border-radius: 4px;
-
-  border-color: var(--border-color);
-  background-color: var(--background-color);
-}
-
-div.box.todo {
-  --todo-base-color: rgb(234, 136, 145);
-  --todo-background-color: color-mix(in srgb, var(--todo-base-color) 20%, white 100%);
-  --todo-border-color: color-mix(in srgb, var(--todo-base-color) 100%, white 20%);
-
-  padding-bottom: 8px;
-  padding-top: 8px;
-  padding-left: 8px;
-  padding-right: 8px;
-
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-
-  border-width: 1.75px;
-  border-style: solid;
-  border-radius: 4px;
-
-  border-color: var(--todo-border-color);
-  background-color: var(--todo-background-color);
-}
-
-div.box > div.header
-{/*Intentionally empty.*/}
-
-div.box > div.body
-{/*Intentionally empty.*/}
-
-div.box code {
-  /*background-color: rgb(215, 210, 203);*/
-}
-
-my-formula-box.align-left > mjx-container {
-  text-align: left!important;
-}
-my-formula-box.align-right > mjx-container {
-  text-align: right!important;
-}
-
-table.syntax-directed-translation {
-  width: 80%;
-  margin-left: 10%;
-  margin-right: 10%;
-}
-table.syntax-directed-translation, tr, td {
-  border: 1px solid black;
-  border-collapse: collapse;
-}
-table.syntax-directed-translation td {
-  padding: 16px;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-table.syntax-directed-translation td:nth-child(2)  {
-  width: 50%;
-  text-align: right;
-}
-
-div.abstract {
-  font-style: italic;
-}
-
-my-formula-box.align-left > mjx-container {
-  text-align: left!important;
-}
-
-my-sem, my-syn, my-lex {
-  font-family: my-code-font, monospace;
-}
-my-syn::after {
-  content: "<sub>syn/sub>"
-}
-my-sem {
-  font-style: italic;
-  font-family: my-default-font;
-}
-my-sem::after {
-  content: "<sub>sem</sub>"
-}
-
-my-sem, my-syn, my-lex {
-  font-family: my-code-font, monospace;
-}
-my-syn::after {
-  content: "<sub>syn/sub>"
-}
-my-sem {
-  font-style: italic;
-  font-family: my-default-font;
-}
-my-sem::before {
-  content: "sem:"
+@media (max-width: 70rem) {
+  body.my-content-page-1.specification {
+    & main { display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem; }
+    & main > .right-column, & main > .center-column { width: 100%; }
+  }
 }
 
   </style>
@@ -169,7 +193,8 @@ my-sem::before {
   <link rel='canonical' href='https://michaelheilmann.com/specifications/data-definition-language-schema/index.html'>
   <title>Data Definition Language Schema (draft, v0.2)</title>
 </head>
-<body class="my-content-page-1">
+<body class="my-content-page-1 specification">
+  <a class="specification-skip" href="#introduction">Skip to specification</a>
   <header>
   <div style="display:none">
 \[
@@ -186,702 +211,292 @@ my-sem::before {
   </header>
   <main>
     <div class="left-column"></div>
+    <div class="right-column">
+      <details class="specification-contents" open>
+        <summary>On this page</summary>
+        <nav aria-label="Specification contents">
+          <ul>
+            <li><a href="#introduction">1 Introduction</a></li>
+            <li><a href="#notations">2 Notation</a></li>
+            <li><a href="#semantics">3 Semantics</a></li>
+            <li><a href="#any-type">3.1 Any type</a></li>
+            <li><a href="#boolean-type">3.2 Boolean type</a></li>
+            <li><a href="#choice-type">3.3 Choice type</a></li>
+            <li><a href="#list-type">3.4 List type</a></li>
+            <li><a href="#map-type">3.5 Map type</a></li>
+            <li><a href="#number-type">3.6 Number type</a></li>
+            <li><a href="#schema-type">3.7 Schema type</a></li>
+            <li><a href="#ddls-schema-reference-type">3.8 Schema reference type</a></li>
+            <li><a href="#string-type">3.9 String type</a></li>
+            <li><a href="#void-type">3.10 Void type</a></li>
+            <li><a href="#validation">4 Validation</a></li>
+            <li><a href="#validation-ddl-value">4.1 DDL value validation</a></li>
+            <li><a href="#validation-value">4.2 DDLS value validation</a></li>
+            <li><a href="#validation-list">4.3 DDL list value validation</a></li>
+            <li><a href="#validation-map">4.4 DDL map value validation</a></li>
+            <li><a href="#schema-reference-resolution">4.5 Schema reference resolution</a></li>
+            <li><a href="#acceptance-and-rejection">4.6 Acceptance and rejection</a></li>
+          </ul>
+        </nav>
+      </details>
+    </div>
     <div class="center-column">
     <h1>Data Definition Language Schema (draft, v0.2)</h1>
-    <h2 id="introduction">1 Introduction</h2>
-
-\(
-\def\ddl#1{{#1_{\textit{DDL}}}}
-\def\ddls#1{{#1_{\textit{DDLS}}}}
-
-\def\NumberLit#1{{\texttt{#1}}}
-\def\StringLit#1{{\texttt{#1}}}
-
-\def\true{{\text{true}}}
-\def\false{{\text{false}}}
-
-\def\CyclicDefinitionError{{\ddls{\textit{CyclicDefinitionError}}}}
-\def\SchemaAlreadySpecifiedError{{\ddls{\textit{SchemaAlreadySpecifiedError}}}}
-\def\SchemaNotFoundError{{\ddls{\textit{SchemaNotFoundError}}}}
-\def\InvalidDefinitionError{{\ddls{\textit{InvalidDefinitionError}}}}
-\def\ValidationError{{\ddls{\textit{ValidationError}}}}
-\)
+    <h2 id="introduction" tabindex="-1">1 Introduction</h2>
 
 <p>
-This document is the specification of the <em>Data Definition Language Schema</em>, or <em>DDLS</em> for short.
-DDLS is a declarative language for defining the structure and constraints for data described by a <a href="https://michaelheilmann.com/specifications/data-definition-language">DDL</a>  programs.
+This draft specifies the Data Definition Language Schema (DDLS), a declarative way to describe constraints on
+values written in the <a href="https://michaelheilmann.com/specifications/data-definition-language/index.html">Data Definition Language (DDL)</a>.
+It is intended for readers of DDL who need to describe or validate structured data.
 </p>
 
 <p>
-<em>DDLS</em> programs and <em>DDL</em> programs are inputs to <em>DDLS validators</em>.
-<em>DDLS validators</em> are tools which validate an input DDL program against an input DDLS Schema program.
-These tools can be standalone or integrated into libraries and executables.
+A DDLS schema is itself written as a DDL value. A DDLS reader interprets that value as a schema;
+a validator then checks a separate DDL value against a named schema.
+Read the <a href="https://michaelheilmann.com/specifications/data-definition-language/index.html#semantical-translation">DDL semantical translation</a>
+first for the DDL value model. This page describes DDLS values and validation, not a replacement for the DDL lexical or syntactical rules.
 </p>
 
-<h2 id="notations">Notations</h2>
+<p>For orientation, the reader accepts a top-level DDL map with <code>kind: "Schema"</code>, a schema <code>name</code>,
+and a <code>definition</code> map. The <a href="#schema-type">schema translation</a> and the other
+<a href="#semantics">type descriptions</a> explain how DDLS values are read; the
+<a href="#validation">validation section</a> describes acceptance.</p>
 
-<p>This specification uses the semantical form of the DDL as defined in <em>Data Definition Language</em>
-   specification (see <a href="https://michaelheilmann.com/specifications/data-definition-language/#semantical-specification">
-   Data Definition Language</a> for more information).</p>
+<span id="notation" aria-hidden="true"></span>
+<h2 id="notations">2 Notation</h2>
 
-<p>Given a DDL value \(x\), we denote the type of that value by \(\textit{type}(x)\).</p>
+<p>This specification describes DDL values as defined by the
+<a href="https://michaelheilmann.com/specifications/data-definition-language/index.html#semantical-translation">DDL semantical translation</a>.
+Names such as <code>kind</code> and <code>name</code> denote entries in a DDL map;
+quoted words such as <code>"Map"</code> denote DDL string values. A DDLS value is the
+interpretation of a DDL schema description, not the DDL value being validated.</p>
 
-<p>
-The following DDLS types exist:
-
-The \(\ddls{\textit{Any}}\) type,
-the scalar types
-\(\ddls{\textit{Boolean}}\),
-\(\ddls{\textit{Number}}\),
-\(\ddls{\textit{String}}\), and
-\(\ddls{\textit{Void}}\),
-the aggregate types
-\(\ddls{\textit{List}}\), and
-\(\ddls{\textit{Map}}\),
-the choice type
-\(\ddls{\textit{Choice}}\),
-as well as the schema reference type
-\(\ddls{\textit{SchemaReference}}\).
-</p>
-
-The \(\textit{Value}_{\textit{DDLS}}\) type is defined as the union of the above types
-\[\begin{aligned}
-\textit{Value}_{\textit{DDLS}} =&\;\ddls{\textit{Any}}\\
-                            \cup&\;\ddls{\textit{Boolean}}\\
-                            \cup&\;\ddls{\textit{Choice}}\\
-                            \cup&\;\ddls{\textit{List}}\\
-                            \cup&\;\ddls{\textit{Map}}\\
-                            \cup&\;\ddls{\textit{Number}}\\
-
-                            \cup&\;\ddls{\textit{SchemaReference}}\\
-                            \cup&\;\ddls{\textit{Void}}\\
-\end{aligned}\]
-
-<p>
-Furthermore, there exist a schema type \(\ddls{\textit{Schema}}\) and a map entry type \(\ddls{\textit{MapEntry}}\).
-</p>
-
-
-<p>Given a DDLS value \(x\), we denote the type of that value by \(\textit{type}(x)\).</p>
+<p>DDLS definitions have these kinds: <code>Any</code>, <code>Boolean</code>, <code>Choice</code>,
+<code>List</code>, <code>Map</code>, <code>Number</code>, <code>SchemaReference</code>,
+<code>String</code>, and <code>Void</code>. The scalar kinds are
+<code>Boolean</code>, <code>Number</code>, <code>String</code>, and <code>Void</code>;
+<code>List</code> and <code>Map</code> are aggregate kinds.
+A <code>Schema</code> names a definition; a <code>MapEntry</code> describes one entry
+within a map definition. Neither is itself a definition kind.</p>
 
 <h2 id="semantics">3 Semantics</h2>
 
-<p>
-The translation of a DDL value into DDLS values is described by syntax-directed translations
-(see Aho, Seti, Ullman: Compilers, Principles, Techniques, and Tools; 1st; pp. 305 for more information).
-At the end of a translation, the input DDL value \(x\) has a variable \(x.\text{value}\) which is either
-a value of type \(\ddls{\textit{Value}}\), if the translation was successful, or an value of type
-\(\ddls{\textit{Error}}\), if the translation failed.</p>
+<p>The following sections describe how a DDL map is interpreted as a DDLS schema
+or definition. If a required field is missing, has the wrong kind, or a nested
+definition cannot be read, translation fails. The draft names these error categories;
+they describe language outcomes, not a promise that the current C API returns a
+structured error value.</p>
 
-<p>
-The translation from DDL value into DDLS value can fail as not every DDL program is a DDLS program.
-To indicate failures, values of type \(\ddls{\textit{Error}}\) are used. The following values,
-called errors, of that type are defined:</p>
-
-<ul>
-  <li>\(\CyclicDefinitionError\)</li>
-  <li>\(\SchemaAlreadySpecifiedError\)</li>
-  <li>\(\SchemaNotFoundError\)</li>
-  <li>\(\InvalidDefinitionError\)</li>
-  <li>\(\ValidationError\)</li>
-</ul>
-
-<p>
-We denote the set of lists by \(\mathbb{L}\).
-The empty list is denoted by \(\left[\right]\).
-We denote the concatenation of two lists \(a\) and \(b\) by \(a \circ b\).
-The set of Unicode code point sequences is denoted by \(\mathbb{U}\).
-</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="semantics">
+<table class="syntax-directed-translation">
+  <caption>DDLS error categories<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
+  <thead><tr><th scope="col">Error</th><th scope="col">Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>InvalidDefinitionError</code></td><td>A schema description cannot be interpreted as a valid definition.</td></tr>
+    <tr><td><code>SchemaNotFoundError</code></td><td>A referenced or starting schema is unavailable.</td></tr>
+    <tr><td><code>SchemaAlreadySpecifiedError</code></td><td>A schema name is specified more than once.</td></tr>
+    <tr><td><code>CyclicDefinitionError</code></td><td>A schema-reference cycle is reachable from the starting schema.</td></tr>
+    <tr><td><code>ValidationError</code></td><td>A DDL value fails to satisfy a usable schema.</td></tr>
+  </tbody>
+</table>
+</div>
 
 <h3 id="any-type">3.1 Any type</h3>
-<p>The values of type \(\ddls{\textit{Any}}\) are represented by \(\textit{Map}\) values.
-   The map contains a single map entry of name \(\texttt{kind}\) with the value \(\texttt{Any}\) of type
-   \(\textit{String}\).</p>
+<p>A DDL map with the single entry <code>kind: "Any"</code> describes the DDLS
+<code>Any</code> definition. It accepts any DDL value during validation.</p>
 
-<p>The translation function is hence given by</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \left[ \left( \texttt{kind},\texttt{Any} \right) \right]@1
-      \;\wedge\;\texttt{kind} \in \ddl{\textit{Name}}
-      \;\wedge\;\texttt{Any} \in \ddl{\textit{String}}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = \ddls{\textit{any}}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-</table>
-<p>where \(\ddls{\textit{any}}\) is the single value of type \(\ddls{\textit{Any}}\).</p>
-
-<h3 id="boolean-type">3.2 Boolean types</h3>
-<p>The values of type \(\ddls{\textit{Boolean}}\) are represented by a \(\textit{Map}\) values.
-   The map contains a single map entry of name \(\texttt{kind}\) with the value \(\texttt{Boolean}\) of type
-   \(\textit{String}\).</p>
-
-<p>The translation function is hence given by</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \left[\left( \texttt{kind}, \texttt{Boolean} \right) \right]@1
-      \;\wedge\;\texttt{kind} \in \ddl{\textit{Name}}
-      \;\wedge\;\texttt{Any} \in \ddl{\textit{String}}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = \ddls{\textit{boolean}}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-</table>
-<p>where \(\ddls{\textit{boolean}}\) is the single value of type \(\ddls{\textit{Boolean}}\).</p>
+<h3 id="boolean-type">3.2 Boolean type</h3>
+<p>A DDL map with the single entry <code>kind: "Boolean"</code> describes the DDLS
+<code>Boolean</code> definition. It accepts DDL boolean values.</p>
 
 <h3 id="choice-type">3.3 Choice type</h3>
-<p>The values of type \(\ddls{\textit{Choice}}\) are represented by \(\textit{Map}\) values.
-   The map contains two entries.</p>
-
-   The map contains a single map entry of name \(\texttt{kind}\) with the value \(\texttt{Choice}\) of type
-   \(\textit{String}\).</p>
-
-<p>The translation function is hence given by</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      &\left[ \left( \texttt{kind},\texttt{Choice} \right), \left(\texttt{choices}, w@2\right)\right]@1\\
-      &\;\wedge\;\texttt{kind} \in \ddl{\textit{Name}} \;\wedge\;\texttt{Choice} \in \ddl{\textit{String}}\\
-      &\;\wedge\;\texttt{choices} \in \ddl{\textit{Name}} \;\wedge w \in \ddl{\textit{List}}\\
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = \left(\textit{ChoiceTag},\text{toChoices}(2)\right)
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-</table>
-<p>where \(\ddls{\textit{any}}\) is the single value of type \(\ddls{\textit{Any}}\).</p>
-
-<h4>Auxiliary definition: toChoices</h4>
-<p>\(\text{toMapEntries} : \ddl{\textit{List}} \rightarrow \mathbb{L} \cup \ddls{\textit{Error}}\) is defined as</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \text{ if }w = [x@1] \circ v@2 \wedge w \in \textit{List}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      \begin{cases}
-        \left[1.\text{value}\right] \circ \text{toChoices}\left(2\right)
-          &\text{if } 1.\text{value} \not\in \ddls{\textit{Error}} \wedge \text{toChoices}\left(2\right) \not\in \ddls{\textit{Error}}\text{,}\\
-        \ddls{\textit{Error.InvalidDefinition}}
-          &\text{otherwise.}
-      \end{cases}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \text{if }w = \left[\right] \wedge w \in \textit{List}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      []
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \text{Otherwise}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      \textit{Error.InvalidDefinition}_{\textit{DDLS}}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-
-</table>
+<p>A DDL map with <code>kind: "Choice"</code> and a <code>choices</code> entry
+describes a DDLS choice definition. The <code>choices</code> value must be a
+non-empty DDL list. Read each list element, in order, as a DDLS definition;
+the resulting list is the choice's alternatives.</p>
+<p>If the list is empty, or if an element cannot be read as a DDLS definition,
+report <code>InvalidDefinitionError</code> during schema translation.</p>
 
 <h3 id="list-type">3.4 List type</h3>
-<p>Values of type \(\ddls{\textit{List}}\) are represented by a \(\textit{Map}\) values.
-   The map contains two entries.</p>
-
-<p>The translation function is hence given by</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      &\left[ \left(\texttt{kind},\texttt{List}\right), \left(\texttt{elements}, w@2 \right) \right]@1\\
-      &\wedge\;\texttt{kind},\texttt{elements} \in \ddl{\textit{Name}}\\
-      &\wedge\;\texttt{List} \in \ddl{\textit{String}}\\
-      &\wedge\;w \in \ddl{\textit{Map}}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} =
-      \begin{cases}
-      \left(\textit{ListTag}, 2.\text{value}\right) & \text{if }2.\text{value} \in \ddls{\textit{Value}}\text{,}\\
-      \InvalidDefinitionError                       & \text{otherwise.}
-      \end{cases}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-</table>
+<p>A DDL map with <code>kind: "List"</code> and an <code>elements</code> entry
+describes a DDLS list definition. The <code>elements</code> value must be a DDL
+map describing a DDLS definition; it specifies the type of every element in the
+DDL list being validated. If that nested description cannot be read as a DDLS
+definition, report <code>InvalidDefinitionError</code>.</p>
 
 <h3 id="map-type">3.5 Map type</h3>
-<p>A value of type \(\ddls{\textit{Map}}\) are represented by a \(\ddl{\textit{Map}}\) value.
-   The map contains two entries.</p>
+<p>A DDL map with <code>kind: "Map"</code> and an <code>entries</code> entry
+describes a DDLS map definition. The <code>entries</code> value must be a DDL
+list of map-entry descriptions. Read each list element as a
+<code>MapEntry</code>, retaining its order. If an element is not a valid
+<code>MapEntry</code>, report <code>InvalidDefinitionError</code>. Two entries
+with the same <code>name</code> do not form a valid map definition.</p>
 
-<p>The translation function is hence given by</p>
+<h4>Map entry</h4>
+<p>Each map-entry description is a DDL map containing
+<code>kind: "MapEntry"</code>, a string <code>name</code>, and a
+<code>type</code> map that describes a DDLS definition. The entry may also
+contain <code>optional</code>. This field is a DDL <em>string</em>, not a DDL
+boolean: only <code>"true"</code> and <code>"false"</code> are allowed. If
+absent, it defaults to false. Entry fields are matched by name, regardless
+of their order in the DDL map.</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="map-type">
 <table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \left[ \left(\texttt{kind},\texttt{Map}\right), \left(\texttt{entries}, w@2 \right) \right]@1
-      \;\wedge\;\texttt{kind},\texttt{entries} \in \ddl{\textit{Name}}
-      \;\wedge\;\texttt{Map} \in \ddl{\textit{String}}
-      \;\wedge\;w \in \ddl{\textit{List}}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} =
-      \left(
-      \textit{MapTag},
-      \text{toMapEntries}(2)
-      \right)
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
+  <caption>Map entry translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
+  <thead><tr><th scope="col">Optional field</th><th scope="col">Result</th></tr></thead>
+  <tbody>
+    <tr><td>Absent or <code>"false"</code></td><td>A required entry with the given <code>name</code> and <code>type</code>.</td></tr>
+    <tr><td><code>"true"</code></td><td>An optional entry with the given <code>name</code> and <code>type</code>.</td></tr>
+    <tr><td>Any other value</td><td>The entry description is invalid.</td></tr>
+  </tbody>
 </table>
+</div>
+<p>The <code>type</code> map must itself be a valid DDLS definition. An
+invalid nested definition makes the map-entry description invalid.</p>
 
-<h4>Auxiliary definition: toMapEntries</h4>
-<p>\(\text{toMapEntries} : \ddl{\textit{List}} \rightarrow \mathbb{L} \cup \ddls{\textit{Error}}\) is defined as</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \text{ if }w = [x@1] \circ v@2 \wedge w \in \textit{List}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      \begin{cases}
-        \left[1.\text{value}\right] \circ \text{toMapEntries}\left(2\right)
-          &\text{if } 1.\text{value} \in \ddls{\textit{MapEntry}} \wedge \text{toMapEntries}\left(2\right) \not\in \ddls{\textit{Error}}\text{,}\\
-        \ddls{\textit{Error.InvalidDefinition}}
-          &\text{otherwise.}
-      \end{cases}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
+<h3 id="number-type">3.6 Number type</h3>
+<p>A DDL map with the single entry <code>kind: "Number"</code> describes the DDLS
+<code>Number</code> definition. It accepts DDL number values.</p>
 
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \text{if }w = \left[\right] \wedge w \in \textit{List}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      []
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
+<h3 id="schema-type">3.7 Schema type</h3>
+<p>A DDL map with <code>kind: "Schema"</code>, a string <code>name</code>, and
+a <code>definition</code> map describes a named DDLS schema. The definition map
+must describe one of the DDLS definition kinds in this section. If the name or
+definition cannot be read, or the definition does not describe a DDLS value,
+report <code>InvalidDefinitionError</code> during schema translation. A malformed
+schema description is not a validation failure of a DDL value.</p>
 
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \text{Otherwise}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      \textit{Error.InvalidDefinition}_{\textit{DDLS}}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-
-</table>
-
-<p>A value of type \(\ddls{\textit{MapEntry}}\) are represented by a \(\textit{Map}\) value.
-   The map contains three entries.</p>
-
-<p>The translation function for a \(\ddls{\textit{MapEntry}}\) is hence given by</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-     &\left[\left(\texttt{kind},\texttt{MapEntry}\right),
-           \left(\texttt{name}, a@2\right),
-           \left(\texttt{type}, b@3\right)\right]@1\\
-     &\wedge\;\texttt{kind},\texttt{name},\texttt{type} \in \ddl{\textit{Name}}\\
-     &\wedge\;\texttt{MapEntry} \in \ddl{\textit{String}}\\
-     &\wedge\;a \in \ddl{\textit{Name}}\\
-     &\wedge\;b \in \ddl{\textit{Map}}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-    1.\text{value} =
-      \begin{cases}
-      \left(\textit{MapEntryTag}, 2.\text{value}, 3.\text{value}\right) &\text{if }2.\text{value},3.\text{value}\not\in\ddls{\textit{Error}}\text{,}\\
-      \ddls{\textit{Error}} &\text{otherwise.}
-      \end{cases}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-</table>
-
-<h3 id="number-type">3.6 Number types</h3>
-<p>The values of type \(\ddls{\textit{Number}}\) are represented by a \(\textit{Map}\) values.
-   The map contains a single map entry of name \(\texttt{kind}\) with the value \(\texttt{Number}\) of type
-   \(\textit{String}\).</p>
-
-<p>The translation function is hence given by</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \left[\left( \texttt{kind}, \texttt{Number} \right) \right]@1
-      \;\wedge\;\texttt{kind} \in \ddl{\textit{Name}}
-      \;\wedge\;\texttt{Any} \in \ddl{\textit{String}}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = \textit{number}_{\textit{DDLS}}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-</table>
-<p>where \(\ddls{\textit{number}}\) is the single value of type \(\ddls{\textit{Number}}\).</p>
-
-<h3 id="schema-type">3.8 Schema type</h3>
-<p>A value of type \(\ddls{\textit{Schema}}\) are represented by a \(\textit{Map}\) value.
-   The map contains three entries.</p>
-
-<p>The translation function is hence given by</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      &\left[ \left(\texttt{kind},\texttt{Schema}\right), \left(\texttt{name}, a@2 \right), \left(\texttt{definition}, b@3 \right)  \right]@1\\
-      &\wedge\;\texttt{kind} \in \ddl{\textit{Name}}\\
-      &\wedge\;\texttt{Schema} \in \ddl{\textit{String}}\\
-      &\wedge\;a \in \ddl{\textit{String}}\\
-      &\wedge\;b \in \ddl{\textit{Map}}\\
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} =
-      \begin{cases}
-      \ValidationError & \text{if } 2.\text{value} \in \ddls{\textit{Error}} \vee 3.\text{value} \in\ddls{\textit{Error}} \vee 3.\text{value} \not\in\ddls{\textit{Value}}\text{,}\\
-      \left(\text{SchemaTag}, 2.\text{value}, 3.\text{value}\right) & \text{otherwise.}
-      \end{cases}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-</table>
-
-<h3 id="ddls-schema-reference-type">3.7 Schema Reference type</h3>
-<p>A value of type \(\ddls{\textit{SchemaReference}}\) are represented by a \(\textit{Map}\) value.
-   The map contains two entries.</p>
-
-<p>The translation function is hence given by</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      &\left[ \left(\texttt{kind},\texttt{SchemaReference}\right), \left(\texttt{name}, w@2 \right) \right]@1\\
-      &\wedge\;\texttt{kind} \in \ddl{\textit{Name}}\\
-      &\wedge\;\texttt{SchemaReference} \in \ddl{\textit{String}}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = \left(\text{SchemaReferenceTag}, 2.\text{value}\right)
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-</table>
+<h3 id="ddls-schema-reference-type">3.8 Schema reference type</h3>
+<p>A DDL map with <code>kind: "SchemaReference"</code> and a string
+<code>name</code> describes a DDLS schema reference. The name identifies the
+schema to use when this definition is validated; the reference is not itself
+the referenced schema's definition.</p>
 
 <h3 id="string-type">3.9 String type</h3>
-<p>The values of type \(\ddls{\textit{String}}\) are represented by a \(\textit{Map}\) values.
-   The map contains a single map entry of name \(\texttt{kind}\) with the value \(\texttt{String}\) of type
-   \(\textit{String}\).</p>
-
-<p>The translation function is hence given by</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \left[\left( \texttt{kind}, \texttt{String} \right) \right]@1
-      \;\wedge\;\texttt{kind} \in \ddl{\textit{Name}}
-      \;\wedge\;\texttt{String} \in \ddl{\textit{String}}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = \textit{string}_{\textit{DDLS}}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-</table>
-<p>where \(\ddls{\textit{string}}\) is the single value of type \(\ddls{\textit{String}}\).</p>
+<p>A DDL map with the single entry <code>kind: "String"</code> describes the DDLS
+<code>String</code> definition. It accepts DDL string values.</p>
 
 <h3 id="void-type">3.10 Void type</h3>
-<p>The values of type \(\ddls{\textit{Void}}\) are represented by a \(\textit{Map}\) values.
-   The map contains a single map entry of name \(\texttt{kind}\) with the value \(\texttt{Void}\) of type
-   \(\textit{String}\).</p>
+<p>A DDL map with the single entry <code>kind: "Void"</code> describes the DDLS
+<code>Void</code> definition. It accepts DDL void values.</p>
 
-<p>The translation function is hence given by</p>
-<table class="syntax-directed-translation">
-  <tr>
-    <td>
-    <my-formula-box class="align-left">\[\begin{array}{ll}
-      \left[\left( \texttt{kind}, \texttt{Void} \right) \right]@1
-      \;\wedge\;\texttt{kind} \in \ddl{\textit{Name}}
-      \;\wedge\;\texttt{Void} \in \ddl{\textit{String}}
-    \end{array}\]</my-formula-box>
-    </td>
-    <td>
-    <my-formula-box class="align-right">\[\begin{array}{ll}
-      1.\text{value} = \textit{void}_{\textit{DDLS}}
-    \end{array}\]</my-formula-box>
-    </td>
-  </tr>
-</table>
-<p>where \(\ddls{\textit{void}}\) is the single value of type \(\ddls{\textit{Void}}\).</p>
-
-
-\(
-\def\ValidationContext{{\ddls{\textit{Context}}}}
-\)
 
 <h2 id="validation">4 Validation</h2>
-<p>
-Given a value \(x \in \ddls{\textit{Schema}}\),
-we denote the 2nd element of the tuple, the name of the schema, by \(x.\text{name}\).
+<p>A validation context contains named schemas. Each schema has a <code>name</code>
+and a <code>definition</code>. Validation begins with one schema name and a DDL
+value to check. The <code>elements</code> field in a <code>List</code> definition
+describes each DDL list element; a <code>Map</code> definition has an
+<code>entries</code> list of named <code>MapEntry</code> definitions.
+Each map entry has a <code>type</code> and an <code>optional</code> flag.</p>
 
-We denote the 3rd element of the tuple, the definition, by \(x.\text{definition}\).
+<h3 id="validation-ddl-value">4.1 DDL value validation</h3>
+<p>Validation has one successful outcome or an error. A successful outcome means
+that the DDL value satisfies the starting schema. An error means either that the
+value does not satisfy the schema or that the schema cannot be used. The
+<a href="#semantics">error categories</a> distinguish these cases.</p>
+<p>Find the starting schema by name in the validation context. If none exists,
+report <code>SchemaNotFoundError</code>. If the context contains two schemas with
+the same name, report <code>SchemaAlreadySpecifiedError</code>. Otherwise validate
+the DDL value against that schema's definition as described below.</p>
+<p><strong>Example (accepted):</strong> Read this DDL value as a DDLS schema and
+register it under the name <code>MySchema</code>:</p>
+<pre><code>{ kind: "Schema", name: "MySchema", definition: { kind: "Any" } }</code></pre>
+<p>With <code>MySchema</code> selected, each of the following separate DDL values
+is accepted by <code>Any</code>:</p>
+<pre><code>true
+[1, true, "w"]</code></pre>
+<p><strong>Example (invalid schema):</strong> Replacing the definition with
+<code>{ kind: "Choice", choices: [] }</code> makes the schema description invalid
+during reading; it is not a rejected DDL value. This is an
+<code>InvalidDefinitionError</code> in the draft's language-level categories.</p>
 
-Given a value \(x \in \ddls{\textit{SchemaReference}}\),
-we denote the 2nd element of the tuple, the name of the schema, by \(x.\text{name}\).
+<h3 id="validation-value">4.2 DDLS value validation</h3>
+<p>Check the DDLS definition against the DDL value as follows. When a check
+fails, report a <code>ValidationError</code> unless a more specific schema error
+applies.</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="validation-value">
+<table class="syntax-directed-translation">
+  <caption>Validation by definition kind<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
+  <thead><tr><th scope="col">DDLS definition</th><th scope="col">When the DDL value satisfies it</th></tr></thead>
+  <tbody>
+    <tr><td><code>Any</code></td><td>Any DDL value satisfies it.</td></tr>
+    <tr><td><code>Boolean</code>, <code>Number</code>, <code>String</code>, <code>Void</code></td><td>The DDL value has the corresponding kind.</td></tr>
+    <tr><td><code>List</code></td><td>It is a DDL list and its elements satisfy the <a href="#validation-list">list rule</a>.</td></tr>
+    <tr><td><code>Map</code></td><td>It is a DDL map and its entries satisfy the <a href="#validation-map">map rule</a>.</td></tr>
+    <tr><td><code>Choice</code></td><td>At least one alternative satisfies the DDL value.</td></tr>
+    <tr><td><code>SchemaReference</code></td><td>The referenced schema's definition satisfies the DDL value; see <a href="#schema-reference-resolution">schema reference resolution</a>.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>For a <code>Choice</code>, alternatives are considered in their listed order.
+An ordinary mismatch allows the next alternative to be tried; the first
+matching alternative accepts the value. If none matches, report a
+<code>ValidationError</code>. A structural schema error is not an alternative
+mismatch and stops validation, even if the erroneous alternative would not be
+tried after an earlier match. An empty <code>choices</code> list is rejected
+during <a href="#choice-type">schema translation</a>, before validation.</p>
 
-Given a value \(x \in \ddls{\textit{List}}\),
-we denote the 2nd element of the tuple, the element, by \(x.\text{element}\),
+<h3 id="validation-list">4.3 DDL list value validation</h3>
+<p>A <code>List</code> definition applies only to a DDL list. Each list element
+must satisfy the definition in <code>elements</code>. Check the elements in order
+and stop at the first failure; an empty DDL list satisfies this rule.</p>
 
-Given a value \(x \in \ddls{\textit{Map}}\),
-we denote the 2nd element of the tuple, the entries, by \(x.\text{entries}\),
-
-Given a value \(x \in \ddls{\textit{MapEntry}}\),
-we denote the 2nd element of the tuple, the name, by \(x.\text{name}\) and
-the 3d element, the value, by \(x.\text{value}\).
-<p>
-
-<p>A validation context \(c \in \ValidationContext\) is a list of \(\ddls{\textit{Schema}}\) values.</p>
-
-<h3>4.1 DDL value validation</h3>
-<p>The DDL value validation function
-\[
-\text{validate} : \ValidationContext \times \mathbb{U} \times \ddl{\textit{Value}} \rightarrow \mathbb{B}
-\]
-maps from a validation context \(c\), the name of a starting schema \(s\), and a DDL value \(v\) to boolean values:
-It evaluates to \(\text{true}\) if the DDL value was accepted by the validation context with the given starting schema name.
-Otherwise it returns \(\text{false}\).
-</p>
-
-<p>The function is defined as follows:</p>
-
+<h3 id="validation-map">4.4 DDL map value validation</h3>
+<p>A <code>Map</code> definition applies only to a DDL map. Its
+<code>entries</code> list must not describe the same name twice; a duplicate
+name makes the schema definition invalid. The DDL map must not contain duplicate
+names either.</p>
 <ul>
-  <li>Return a \(\textit{false}\) if there is no \(a \in c\) with \(a.\text{name} = \text{s}\).</li>
-  <li>Return a \(\textit{false}\) if there two schemas \(a, b \in c\) such that \(a \neq b\) but \(a.\text{name} = b.\text{name}\).</li>
-  <li>Otherwise let \(a \in c\) with \(a.\text{name} = s\).</li>
-  <li>Evaluate to \(\text{validate}'(c, a, v)\)</li>
+  <li>Every DDL map entry must have a matching name in the schema's <code>entries</code> list. Unknown entries fail validation.</li>
+  <li>Every schema entry whose <code>optional</code> flag is false must be present in the DDL map. An optional entry may be absent.</li>
+  <li>Every present entry, including an optional one, must satisfy its <code>type</code> definition. Stop at the first failure.</li>
 </ul>
+<p>The <code>optional</code> flag defaults to false; see the
+<a href="#map-type">MapEntry translation</a> for its DDL representation.</p>
 
-<h3>4.2 DDL value validation'</h3>
-<p>The DDL value validation' function
-\[
-\text{validate}' : \ValidationContext \times \ddls{\textit{Value}} \times \ddl{\textit{Value}} \rightarrow \mathbb{B}
-\]
-maps from a validation context \(c\), a DDLS value \(a\), and a DDL value \(v\) to boolean values:
-It evaluates to \(\text{true}\) if the DDL value was accepted by the validation context/DDLS value.
-Otherwise it returns \(\text{false}\).
-</p>
+<h3 id="schema-reference-resolution">4.5 Schema reference resolution</h3>
+<p>A <code>SchemaReference</code> names a schema in the validation context.
+Register the intended schemas before validating a value; this permits forward
+references between their definitions. Then check every definition reachable
+from the starting schema, including all choice alternatives, list element
+definitions, and both required and optional map entry types. Unrelated schemas
+that cannot be reached from the starting schema are not part of this check.
+If any referenced schema name is unavailable, report
+<code>SchemaNotFoundError</code>. If a schema-reference cycle is reachable,
+report <code>CyclicDefinitionError</code>. Shared references reached along
+different acyclic paths are not cycles. When these checks succeed, validate
+each reference against its named schema's <code>definition</code>.</p>
 
-<p>The function is defined as follows:</p>
+<h3 id="acceptance-and-rejection">4.6 Acceptance and rejection</h3>
+<p>A DDL value is accepted if validation succeeds. A
+<code>ValidationError</code> rejects the value. An unavailable, duplicate, invalid,
+or cyclic schema is an error in the validation context or schema description;
+it does not produce an acceptance verdict.</p>
+<p><strong>Implementation note:</strong> These errors are language-level categories,
+not C API return types. The current validator signals failures with a
+semantic-error status and diagnostics rather than returning DDLS error values.</p>
 
-<ul>
-  <li>
-    If \(a \in \ddls{\textit{SchemaReference}}\) let \(a = \text{resolve}(c, a)\).
-    if \(a = \false\) return \(\false\).
-  </li>
-
-  <li>If \(v\) is a DDL boolean value:
-      <ul>
-        <li>Return \(\false\) if \(a\) is not a value of type \(\ddls{\textit{Boolean}}\).</li>
-        <li>Otherwise return \(\true\).</li>
-      </ul>
-  </li>
-  <li>If \(v\) is a DDL list value:
-      <ul>
-        <li>Return \(\false\) if \(a\) is not a value of type \(\ddls{\textit{List}}\).</li>
-        <li>Otherwise return \(\text{listValidation}(c, a, v)\).</li>
-      </ul>
-  </li>
-  <li>If \(v\) is a DDL map value:
-      <ul>
-        <li>Return \(\false\) if \(a\) is not a value of type \(\ddls{\textit{Map}}\).</li>
-        <li>Otherwise return \(\text{mapValidation}(c, a, v)\).</li>
-      </ul>
-  </li>
-  <li>If \(v\) is a DDL number value:
-      <ul>
-        <li>Return \(\false\) if \(a\) is not a value of type \(\ddls{\textit{Number}}\).</li>
-        <li>Otherwise return \(\true\).</li>
-      </ul>
-  </li>
-  <li>If \(v\) is a DDL string value:
-      <ul>
-        <li>Return \(\false\) if \(a\) is not a value of type \(\ddls{\textit{String}}\).</li>
-        <li>Otherwise return \(\true\).</li>
-      </ul>
-  </li>
-  <li>If \(v\) is a DDL void value:
-      <ul>
-        <li>Return \(\false\) if \(a\) is not a value of type \(\ddls{\textit{Void}}\).</li>
-        <li>Otherwise return \(\true\).</li>
-      </ul>
-  </li>
-</ul>
-
-<h3>4.3 DDL list value validation</h3>
-<p>The DDL list value validation function
-\[
-\text{validateList} : \ValidationContext \times \ddls{\textit{Value}} \times \ddl{\textit{List}} \rightarrow \mathbb{B}
-\]
-maps from a validation context \(c\), a DDLS value \(a\), and a DDL list value \(v\) to boolean values:
-It evaluates to \(\true\) if the DDL list value was accepted by the validation context/DDLS value.
-Otherwise it returns \(\false\).</p>
-
-<p>The function is defined as follows:</p>
-
-<ul>
-  <li>If \(a \not\in\ddls{\textit{List}}\), return \(\false\).</li>
-  <li>
-  \(\textit{validate}'\left(c, a.\text{element}, w\right)\) is evaluated for each \(w \in v.\textit{elements}\).
-  </li>
-  <li>
-  If there is an evaluation \(\false = \textit{validate}\left(c, a.\text{element}.\text{name}, w\right)\) then return \(\false\).
-  Otherwise return \(\true\).
-  </li>
-</ul>
-
-<h3>4.4 DDL map value validation</h3>
-<p>The DDL map value validation function
-\[
-\text{validateMap} : \ValidationContext \times \ddls{\textit{Value}} \times \ddl{\textit{Map}} \rightarrow \mathbb{B}
-\]
-maps from a validation context \(c\), a DDLS value \(s\), and a DDL map value \(v\) to boolean values:
-It evaluates to \(\true\) if the DDL map value was accepted by the validation context/DDLS value.
-Otherwise it returns \(\false\).</p>
-
-<p>The function is defined as follows:</p>
-
-<ul>
-  <li>If \(a \not\in \ddls{\textit{Map}}\), return \(\text{false}\).</li>
-  <li>
-  <!-- This should be checked during translation. -->
-  Return a \(\false\) if there exist \(b', b'' \in a.\textit{entries}\) such that \(b' \neq b''\) and \(b'.\text{name} = b''.\text{name}\).
-  That is, the DDLS map value must not have two map entries with the same name.
-  </li>
-  <li>
-  <!-- Also define the "entries" alias for DDL values. -->
-  Return a \(\false\) if there exist \(u', u'' \in v\) such that \(u' \neq u''\) and \(u'_0 = u''_0\).
-  That is, the DDL map value must not have two map entries with the same name.
-  </li>
-  <li>
-  <!-- Also define the "name" alias for DDL values. -->
-  Return \(\false\) if there exists \(u' \in v\) such that no \(b' \in a.\textit{entries}\) with \(u'_0 = b'.\text{name}\).
-  That is, if a map entry with a certain name was specified in \(v\) then it must be present in \(a\).
-  </li>
-  <li>
-  Return \(\false\) if there exists \(b' \in a.\text{entries}\) such that no \(u' \in v\) with \(u'_0 = b'.\text{name}\).
-  That is, if a map entry with a certain name is present in \(a\) then it must be specified in \(v\).
-  </li>
-
-  <li>
-  For each \(b' \in a.\textit{entries}\) and for each \(u' \in v\)
-  \(\textit{validate}'\left(x, b'_1, u'_1\right)\) is invoked if \(u'_0 = b'.\text{name}\).
-  If there is an invocation \(\false = \textit{validate}'\left(c, b'_1, u'_1\right)\) return \(\false\).
-  Otherwise return \(\true\).
-  </li>
-</ul>
-
-<h3>4.4 Schema reference resolution</h3>
-
-<p>The DDL value validation function
-\[
-\text{resolve} : \ValidationContext \times \ddls{\textit{SchemaReference}} \rightarrow \ddls{\textit{Schema}} \cup \mathbb{B}
-\]
-maps from a validation context \(c\) and a DDLS schema reference \(s\) to a DDLS schema or to \(\false\):
-</p>
-
-<p>The function is defined as follows:</p>
-
-<ul>
-  <li>Let \(v = \emptyset\).</li>
-  <li>While \(s\) is a \(\ddls{\textit{SchemaReference}}\) type:
-    <ul>
-      <li>Find \(s' \in c, s' \in \ddls{\textit{Schema}}\) such that \(s'.\text{name} = s.\text{name}\).
-          Return a \(\textit{false}\) if no such \(s'\) was found.</li>
-      <li>Return a \(\textit{false}\) if \(s' \in v\).</li>
-      <li>Let \(s = s'\) and \(v = v \cup \{ s' \}\).</li>
-    </ul>
-  </li>
-  <li>Return \(s\).</li>
-</ul>
-
-<h3>4.4 Acceptance and Rejection</h3>
-<p>\(\textit{validate}(S, s, x)\) always terminates. \(x\) was accepted by \(S\) with \(s\) if the result is \(\ddls{\textit{success}}\).
-Otherwise - if the result is in \(\ddls{\textit{Error}}\) then \(x\) was rejected by \(S\) with \(s\).</p>
-
-  </div>
-  <div class="right-column">
-   <nav>
-      <ul style="list-style: none">
-        <li><a href="#introduction">1 Introduction</a></li>
-        <li><a href="#notation">2 Notation</a></li>
-        <li><a href="#semantics">3 Semantics</a></li>
-        <li><a href="#validation">4 Validation</a></li>
-      </ul>
-    </nav>
   </div>
   </main>
+  <!-- Progressive enhancement: without JavaScript, native contents stay expanded. -->
+<script>
+(() => {
+  const compact = window.matchMedia('(max-width: 70rem)');
+  const contents = document.querySelectorAll('details.specification-contents');
+  const update = () => {
+    for (const element of contents) element.open = !compact.matches;
+  };
+  update();
+  compact.addEventListener('change', update);
+})();
+</script>
+
   <footer>
     <div class="left-column"></div>
     <div class="center-column"></div>
     <div class="right-column">
       <div>Website maintained by Michael Heilmann.</div>
-      <div>Last modified on 1 November 2026.</div>
+      <div>Last modified on 3 November 2026.</div>
     </div>
   </footer>
 </body>

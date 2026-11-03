@@ -92,6 +92,7 @@ static Arcadia_ARMS_SlabMemoryManager* g_slabMemoryManager = NULL;
 Arcadia_ARMS_Status
 Arcadia_ARMS_startup
   (
+    void
   )
 {
   if (g_referenceCount == Arcadia_ARMS_ReferenceCounter_Maximum) {
@@ -169,6 +170,7 @@ Arcadia_ARMS_startup
 Arcadia_ARMS_Status
 Arcadia_ARMS_shutdown
   (
+    void
   )
 {
   if (Arcadia_ARMS_ReferenceCounter_Minimum == g_referenceCount) {
@@ -474,11 +476,13 @@ Arcadia_ARMS_backwardBarrier
 Arcadia_ARMS_MemoryManager*
 Arcadia_ARMS_getDefaultMemoryManager
   (
+    void
   )
 { return (Arcadia_ARMS_MemoryManager*)g_defaultMemoryManager; }
 
 Arcadia_ARMS_MemoryManager*
 Arcadia_ARMS_getSlabMemoryManager
   (
+    void
   )
 { return (Arcadia_ARMS_MemoryManager*)g_slabMemoryManager; }

@@ -52,6 +52,7 @@
           <a href='@{siteAddress}/Arcadia/Math'>Arcadia Math</a>
           <a href='@{siteAddress}/Arcadia/ADL'>Arcadia ADL</a>
           <a href='@{siteAddress}/Arcadia/TemplateEngine'>Arcadia Template Engine</a>
+          <a href='@{siteAddress}/Arcadia/Sanitizer'>Arcadia Sanitizer</a>
 
           <a href='@{siteAddress}/specifications/mathematical-definitions-notations-and-proofs'>Mathematical Definitions, Notations, and Proofs</a>
           <a href='@{siteAddress}/specifications/common-lexical-translations'>Common Lexical Translations</a>

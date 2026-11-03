@@ -24,7 +24,7 @@
   }
   </style>
 </head>
-<body class="my-content-page-1">
+<body class="my-content-page-1 my-tool-documentation">
   <header>
     <div>
     <a href="@{siteAddress}/">Home</a>

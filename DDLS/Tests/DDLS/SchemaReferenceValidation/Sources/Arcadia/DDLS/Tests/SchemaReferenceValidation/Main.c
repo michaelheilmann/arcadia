@@ -113,6 +113,104 @@ static const char* DDLS_COLOR =
   ;
 
 static void
+expectCyclicSchemaReference
+  (
+    Arcadia_Thread* thread,
+    const char* firstSchema,
+    const char* secondSchema
+  )
+{
+  Arcadia_DDL_Node* node = readDDL(thread, "void");
+  Arcadia_DDLS_ValidationContext* context = Arcadia_DDLS_ValidationContext_create(thread);
+  Arcadia_DDLS_ValidationContext_addSchema(thread, context, readDDLS(thread, firstSchema));
+  if (secondSchema) {
+    Arcadia_DDLS_ValidationContext_addSchema(thread, context, readDDLS(thread, secondSchema));
+  }
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_DDLS_ValidationContext_run(thread, context, Arcadia_String_createFromCxxString(thread, u8"A"), node);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    if (status != Arcadia_Status_SemanticalError) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+      Arcadia_Thread_jump(thread);
+    }
+  }
+}
+
+static void
+testRejectSelfCycle
+  (
+    Arcadia_Thread* thread
+  )
+{
+  expectCyclicSchemaReference(thread,
+    "{ kind : \"Schema\", name : \"A\", definition : { kind : \"SchemaReference\", name : \"A\" } }", NULL);
+}
+
+static void
+testRejectMutualCycle
+  (
+    Arcadia_Thread* thread
+  )
+{
+  expectCyclicSchemaReference(thread,
+    "{ kind : \"Schema\", name : \"A\", definition : { kind : \"SchemaReference\", name : \"B\" } }",
+    "{ kind : \"Schema\", name : \"B\", definition : { kind : \"SchemaReference\", name : \"A\" } }");
+}
+
+static void
+testRejectChoiceCycle
+  (
+    Arcadia_Thread* thread
+  )
+{
+  expectCyclicSchemaReference(thread,
+    "{ kind : \"Schema\", name : \"A\", definition : { kind : \"Choice\", choices : ["
+    "{ kind : \"SchemaReference\", name : \"A\" }] } }", NULL);
+}
+
+static void
+testRejectNestedCycle
+  (
+    Arcadia_Thread* thread
+  )
+{
+  expectCyclicSchemaReference(thread,
+    "{ kind : \"Schema\", name : \"A\", definition : { kind : \"Map\", entries : ["
+    "{ kind : \"MapEntry\", name : \"children\", type : { kind : \"List\", "
+    "elements : { kind : \"SchemaReference\", name : \"A\" } } }] } }", NULL);
+}
+
+// B and C both refer to D; revisiting D on another path is not a cycle.
+static void
+testAcceptSharedAcyclicReference
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_DDL_Node* value = readDDL(thread, "42");
+  Arcadia_DDLS_ValidationContext* context = Arcadia_DDLS_ValidationContext_create(thread);
+  Arcadia_DDLS_ValidationContext_addSchema(thread, context, readDDLS(thread,
+    "{ kind : \"Schema\", name : \"A\", definition : { kind : \"Choice\", choices : ["
+    "{ kind : \"SchemaReference\", name : \"B\" },"
+    "{ kind : \"SchemaReference\", name : \"C\" }] } }"));
+  Arcadia_DDLS_ValidationContext_addSchema(thread, context, readDDLS(thread,
+    "{ kind : \"Schema\", name : \"B\", definition : { kind : \"SchemaReference\", name : \"D\" } }"));
+  Arcadia_DDLS_ValidationContext_addSchema(thread, context, readDDLS(thread,
+    "{ kind : \"Schema\", name : \"C\", definition : { kind : \"SchemaReference\", name : \"D\" } }"));
+  Arcadia_DDLS_ValidationContext_addSchema(thread, context, readDDLS(thread,
+    "{ kind : \"Schema\", name : \"D\", definition : { kind : \"Number\" } }"));
+  Arcadia_DDLS_ValidationContext_run(thread, context, Arcadia_String_createFromCxxString(thread, u8"A"), value);
+}
+
+static void
 test1
   (
     Arcadia_Thread* thread
@@ -507,6 +605,51 @@ runRejectBlueDefinedTwice
   return Arcadia_Tests_safeExecute(&testRejectBlueDefinedTwice) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static int
+runRejectSelfCycle
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testRejectSelfCycle) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectMutualCycle
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testRejectMutualCycle) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectChoiceCycle
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testRejectChoiceCycle) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runRejectNestedCycle
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testRejectNestedCycle) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runAcceptSharedAcyclicReference
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testAcceptSharedAcyclicReference) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -524,6 +667,11 @@ main
     { "RejectRedDefinedTwice", &runRejectRedDefinedTwice },
     { "RejectGreenDefinedTwice", &runRejectGreenDefinedTwice },
     { "RejectBlueDefinedTwice", &runRejectBlueDefinedTwice },
+    { "RejectSelfCycle", &runRejectSelfCycle },
+    { "RejectMutualCycle", &runRejectMutualCycle },
+    { "RejectChoiceCycle", &runRejectChoiceCycle },
+    { "RejectNestedCycle", &runRejectNestedCycle },
+    { "AcceptSharedAcyclicReference", &runAcceptSharedAcyclicReference },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

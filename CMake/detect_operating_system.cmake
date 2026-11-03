@@ -93,9 +93,9 @@ macro(DetectOperatingSystem target)
   if (NOT DEFINED ${target}_OperatingSystem)
     Arcadia_DetectOperatingSystem(${target}_OperatingSystem)
   endif()
-  
+
   set(VERBOSE TRUE)
-  
+
   if (VERBOSE)
     if (${target}_OperatingSystem STREQUAL ${target}_OperatingSystem_Unknown)
       message(STATUS " - ${target} operating system: unknown")
@@ -118,7 +118,7 @@ macro(DetectOperatingSystem target)
     elseif (${target}_OperatingSystem STREQUAL ${target}_OperatingSystem_Unix)
       message(STATUS " - ${target} operating system: Unix")
     else()
-      message(FATAL_ERROR "<internal error>") 
+      message(FATAL_ERROR "<internal error>")
     endif()
   endif()
 endmacro()

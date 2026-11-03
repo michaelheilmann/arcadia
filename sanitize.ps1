@@ -13,22 +13,20 @@
 # FITNESS FOR ANY PARTICULAR PURPOSE.
 
 # This script
-# - removes trailing spaces and tabs from the following file types
-#   - *.txt (this includes every CMakeLists.txt)
-#   - *.c
-#   - *.h
-#   - *.i
-#   - *.tl
-#   - *.pdl
+# - removes trailing spaces and tabs from maintained source and documentation
+#   files (including CMakeLists.txt, C, headers, inlays, generated C, templates,
+#   PDL, ADL, DDL, VPL, CMake, Markdown and configuration sources).
 # - and normalizes the line endings of those files to the Linux line ending
 #   convention, that is '\n' (LF), never '\r\n' (CRLF).
 #
 # Files that already conform are not written, hence their modification time is
 # left alone. The byte order mark, if any, and all bytes that are not line
 # endings or trailing spaces and tabs are left alone as well.
+# Use -Check for read-only validation with a nonzero exit code on deviations.
+param([switch]$Check)
 function removeWhitespaceAtEndOfLinesAndNormalizeLineEndings {
-  $forbiddenFolders=@(".git",".vs");
-  $allowedExtensions=@(".txt", ".c", ".h", ".i",  ".tl", ".te", ".pdl", ".pdl");
+  $forbiddenFolders=@(".git",".vs",".Website",".Dependencies","CMakeFiles",".venv","node_modules");
+  $allowedExtensions=@(".txt", ".c", ".h", ".g", ".i", ".tl", ".te", ".pdl", ".adl", ".ddl", ".vpl", ".cmake", ".md", ".json", ".jsonc", ".yml", ".yaml", ".css", ".html", ".xml", ".py", ".ps1", ".sh");
 
   # ISO-8859-1 maps every byte value 0-255 onto the code point with the same
   # value and back. Round-tripping file content through it is therefore
@@ -67,14 +65,19 @@ function removeWhitespaceAtEndOfLinesAndNormalizeLineEndings {
       # trailing spaces and tabs, either in front of a line ending or at the end of the file.
       $content = [System.Text.RegularExpressions.Regex]::Replace($content, "[ \t]+(?=\n|\z)", "");
       if ($content -ne $originalContent) {
-        Write-Host "changed " $x.FullName;
-        [System.IO.File]::WriteAllBytes($x.FullName, $bytePreservingEncoding.GetBytes($content));
+        if ($Check) {
+          Write-Host "nonconforming " $x.FullName;
+        } else {
+          Write-Host "changed " $x.FullName;
+          [System.IO.File]::WriteAllBytes($x.FullName, $bytePreservingEncoding.GetBytes($content));
+        }
         $changedFileCount += 1;
       }
     }
   }
 
-  Write-Host ("processed " + $processedFileCount + " files, changed " + $changedFileCount + " files");
+  Write-Host ("processed " + $processedFileCount + " files, nonconforming or changed " + $changedFileCount + " files");
+  if ($Check -and $changedFileCount -gt 0) { exit 1 }
 }
 
 removeWhitespaceAtEndOfLinesAndNormalizeLineEndings

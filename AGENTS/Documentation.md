@@ -32,6 +32,14 @@
 - Rely on the template engine dependency file support for included fragments. If an included file is not tracked after a build, inspect the template include path rather than adding generated files manually.
 - Each template depfile must describe the generated page as depending on every transitively included template. Input-to-input rules are not separate generated outputs and Ninja rejects them with "inputs may not also have inputs". Keep the real CLI/CMake Depfile regression's cold build, depfile reload, escaped-path and deepest-include incremental checks; rendering correct text alone does not validate dependency metadata.
 
+## Tool Documentation Code Presentation
+
+- Tool documentation pages use the `my-tool-documentation` class on the `<body>` element. Shared styling lives in `Documentation/tool-documentation-css.i` and is included by `Documentation/index.css.te`.
+- Use `<code>` for inline commands, identifiers, filenames, arguments, and literal snippets embedded in prose. The shared stylesheet gives these fragments a subtle background.
+- Use `<pre><code>...</code></pre>` for standalone commands, source examples, and multiline code. Do not use `<p><code>...</code></p>` to represent a standalone command: paragraphs do not preserve the intended block layout or spacing.
+- Code blocks have consistent spacing above and below, a distinct background, and horizontal scrolling for long lines. Avoid tool-specific inline CSS or additional nested backgrounds that defeat this consistency.
+- Rebuild the affected tool documentation and the shared website CSS (via `Arcadia.Website.Generate`) when checking the rendered page. Source fragments are authoritative; the `.Website` output is generated.
+
 ## Generated Website Policy
 
 - Treat `.Website` as the generated website output directory.

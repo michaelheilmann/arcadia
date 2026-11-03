@@ -11,11 +11,9 @@
   <p>
   The Template Engine can be invoked by the following command (assuming the executable <code>Arcadia.TemplateEngine</code> is in your path).
   </p>
-  <p><code>
-  Arcadia.TemplateEngine <my-mv>arguments</my-mv>
-  </code></p>
+  <pre><code>Arcadia.TemplateEngine <my-mv>arguments</my-mv></code></pre>
 
-  <p><code><my-mv>arguments</my-mv></code></p>
+  <p>The <code><my-mv>arguments</my-mv></code> are:</p>
   <table>
     <tr><td><code>--source=<my-mv>source file</my-mv></code></td>          <td><my-mv>source file</my-mv> is the path to the source file (relative to the working directory)</td></tr>
     <tr><td><code>--target=<my-mv>target file</my-mv></code></td>          <td><my-mv>target file</my-mv> is the path to the target file (relative to the working directory)</td></tr>

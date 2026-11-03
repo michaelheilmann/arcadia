@@ -48,11 +48,13 @@ typedef void (Arcadia_ARMS_FinalizeCallbackFunction)(void* context, void* object
 Arcadia_ARMS_Status
 Arcadia_ARMS_startup
   (
+    void
   );
 
 Arcadia_ARMS_Status
 Arcadia_ARMS_shutdown
   (
+    void
   );
 
 Arcadia_ARMS_Status
@@ -141,11 +143,13 @@ Arcadia_ARMS_unlock
 Arcadia_ARMS_MemoryManager*
 Arcadia_ARMS_getDefaultMemoryManager
   (
+    void
   );
 
 Arcadia_ARMS_MemoryManager*
 Arcadia_ARMS_getSlabMemoryManager
   (
+    void
   );
 
 #endif // ARCADIA_ARMS_ARMS_H_INCLUDED

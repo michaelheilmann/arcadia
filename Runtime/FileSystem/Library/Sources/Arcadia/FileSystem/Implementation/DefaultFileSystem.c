@@ -190,6 +190,14 @@ Arcadia_DefaultFileSystem_getFileTypeImpl
     Arcadia_FilePath* path
   );
 
+static Arcadia_BooleanValue
+Arcadia_DefaultFileSystem_isSymbolicLinkImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DefaultFileSystem* self,
+    Arcadia_FilePath* path
+  );
+
 static Arcadia_Natural64Value
 Arcadia_DefaultFileSystem_getLastWriteTimeImpl
   (
@@ -321,6 +329,7 @@ Arcadia_DefaultFileSystem_initializeDispatchImpl
   ((Arcadia_FileSystemDispatch*)self)->getExecutable = (Arcadia_FilePath * (*)(Arcadia_Thread*, Arcadia_FileSystem*)) & Arcadia_DefaultFileSystem_getExecutableImpl;
   ((Arcadia_FileSystemDispatch*)self)->getFileContents = (Arcadia_ByteArrayBuilder * (*)(Arcadia_Thread*, Arcadia_FileSystem*, Arcadia_FilePath*)) & Arcadia_DefaultFileSystem_getFileContentsImpl;
   ((Arcadia_FileSystemDispatch*)self)->getFileType = (Arcadia_FileType(*)(Arcadia_Thread*, Arcadia_FileSystem*, Arcadia_FilePath*)) & Arcadia_DefaultFileSystem_getFileTypeImpl;
+  ((Arcadia_FileSystemDispatch*)self)->isSymbolicLink = (Arcadia_BooleanValue(*)(Arcadia_Thread*, Arcadia_FileSystem*, Arcadia_FilePath*)) & Arcadia_DefaultFileSystem_isSymbolicLinkImpl;
   ((Arcadia_FileSystemDispatch*)self)->getLastWriteTime = (Arcadia_Natural64Value(*)(Arcadia_Thread*, Arcadia_FileSystem*, Arcadia_FilePath*)) & Arcadia_DefaultFileSystem_getLastWriteTimeImpl;
   ((Arcadia_FileSystemDispatch*)self)->getSaveDirectory = (Arcadia_FilePath * (*)(Arcadia_Thread*, Arcadia_FileSystem*)) & Arcadia_DefaultFileSystem_getSaveFolderImpl;
   ((Arcadia_FileSystemDispatch*)self)->getWorkingDirectory = (Arcadia_FilePath * (*)(Arcadia_Thread*, Arcadia_FileSystem*)) & Arcadia_DefaultFileSystem_getWorkingDirectoryImpl;
@@ -626,6 +635,35 @@ Arcadia_DefaultFileSystem_getFileTypeImpl
     Arcadia_FilePath* path
   )
 { return Arcadia_DefaultFileSystem_getFileTypeHelper(thread, self, path); }
+
+static Arcadia_BooleanValue
+Arcadia_DefaultFileSystem_isSymbolicLinkImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DefaultFileSystem* self,
+    Arcadia_FilePath* path
+  )
+{
+  Arcadia_String* native = Arcadia_FilePath_toNative(thread, path, Arcadia_BooleanValue_True);
+#if Arcadia_Configuration_OperatingSystem == Arcadia_Configuration_OperatingSystem_Windows
+  DWORD attributes = GetFileAttributesA((char const*)Arcadia_String_getBytes(thread, native));
+  if (INVALID_FILE_ATTRIBUTES == attributes) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  return (attributes & FILE_ATTRIBUTE_REPARSE_POINT) ? Arcadia_BooleanValue_True : Arcadia_BooleanValue_False;
+#elif Arcadia_Configuration_OperatingSystem == Arcadia_Configuration_OperatingSystem_Linux || \
+      Arcadia_Configuration_OperatingSystem == Arcadia_Configuration_OperatingSystem_Cygwin
+  struct stat status;
+  if (lstat((char const*)Arcadia_String_getBytes(thread, native), &status)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  return S_ISLNK(status.st_mode) ? Arcadia_BooleanValue_True : Arcadia_BooleanValue_False;
+#else
+  #error("environment not (yet) supported")
+#endif
+}
 
 static Arcadia_Natural64Value
 Arcadia_DefaultFileSystem_getLastWriteTimeImpl

@@ -8,8 +8,8 @@
   <link rel='canonical' href='@{siteAddress}/specifications/data-definition-language/index.html'>
   <title>Data Definition Language</title>
 </head>
-<body class="my-content-page-1 ddl-spec">
-  <a class="ddl-skip" href="#introduction">Skip to specification</a>
+<body class="my-content-page-1 specification ddl-spec">
+  <a class="specification-skip" href="#introduction">Skip to specification</a>
   <header>
   @{include("./../../Commons/mathjax-definitions.i")}
   <div>
@@ -18,13 +18,21 @@
   </header>
   <main>
     <div class="left-column"></div>
+    <div class="right-column">
+      <details class="specification-contents" open>
+        <summary>On this page</summary>
+        <nav aria-label="On this page">
+          @{include("./contents-navigation.i")}
+        </nav>
+      </details>
+    </div>
     <div class="center-column">
 
     <p class="ddl-label">Language specification</p>
     <h1>Data Definition Language</h1>
     <p class="ddl-lead">Write structured data using six composable value types.</p>
 
-    <h2 id="introduction">Overview</h2>
+    <h2 id="introduction" tabindex="-1">Overview</h2>
     <p>The Arcadia Data Definition Language (DDL) describes structured data for exchange between humans and machines.
     A document is a sequence of Unicode code points describing one value: a Boolean, Number, String, Void, List or Map.
     Lists and maps can contain other values, including nested collections.</p>
@@ -59,47 +67,8 @@
     </ul>
 
   </div>
-  <div class="right-column">
-    <nav aria-label="On this page">
-      <ul style="list-style: none">
-        <li><a href="#introduction">Overview</a></li>
-        <li><a href="#first-document">Your first DDL document</a></li>
-        <li><a href="#type-reference">Six-type quick reference</a></li>
-        <li><a href="#translation">Translation pipeline</a></li>
-        <li><a href="#lexical-translation">Lexical translation</a></li>
-        <li><a href="#syntactical-translation">Syntactical translation</a>
-          <ul>
-            <li><a href="#syntax-value">Value</a></li>
-            <li><a href="#syntax-string">String</a></li>
-            <li><a href="#syntax-number">Number</a></li>
-            <li><a href="#syntax-boolean">Boolean</a></li>
-            <li><a href="#syntax-void">Void</a></li>
-            <li><a href="#syntax-map">Map</a></li>
-            <li><a href="#syntax-list">List</a></li>
-          </ul>
-        </li>
-        <li><a href="#semantical-translation">Semantical translation</a>
-          <ul>
-            <li><a href="#semantical-translation-scalar-types">Scalar types</a>
-              <ul>
-                <li><a href="#type-boolean">Boolean</a></li>
-                <li><a href="#type-number">Number</a></li>
-                <li><a href="#type-string">String</a></li>
-                <li><a href="#type-void">Void</a></li>
-              </ul>
-            </li>
-            <li><a href="#semantical-translation-list-type">List type</a></li>
-            <li><a href="#semantical-translation-map-type">Map type</a></li>
-            <li><a href="#semantical-translation-value-type">Value type</a></li>
-          </ul>
-           </li>
-        <li><a href="#errors">Errors</a></li>
-        <li><a href="#conformance">Conformance and reader edges</a></li>
-        <li><a href="#references">References</a></li>
-      </ul>
-    </nav>
-  </div>
   </main>
+  @{include("./../navigation.i")}
   <footer>
     <div class="left-column"></div>
     <div class="center-column"></div>

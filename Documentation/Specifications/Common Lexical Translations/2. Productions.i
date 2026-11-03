@@ -3,46 +3,46 @@
 language selects and combines these productions with its own additions to define its lexical
 grammar, word alternatives, and start symbol.</p>
 
-<h3 id="productions-whitespace">2.1 whitespace</h3>
+<h3 id="productions-whitespace">2.1 Whitespace</h3>
 <p>The word <code>Lexical.Whitespace</code> is defined by</p>
 
 <div class="box">
 <div class="body">
-<p><code>
-/* #9 is also known as "CHARACTER TABULATION" */<br>
-Lexical.Whitespace : #9<br>
-/* #20 is also known as "SPACE" */<br>
-Lexical.Whitespace : #20<br>
-/* Legacy misspelled label for the space alternative, retained for compatibility. */<br>
+<pre tabindex="0" aria-label="Whitespace productions"><code>
+/* #9 is also known as "CHARACTER TABULATION" */
+Lexical.Whitespace : #9
+/* #20 is also known as "SPACE" */
+Lexical.Whitespace : #20
+/* Legacy misspelled label for the space alternative, retained for compatibility. */
 Lexial.Whitespace : #20
-</code></p>
+</code></pre>
 </div>
 </div>
 
-<h3 id="productions-end-of-line">2.2 end of line</h3>
+<h3 id="productions-end-of-line">2.2 End of line</h3>
 <p>The word <code>Lexical.EndOfLine</code> is defined by</p>
 
 <div class="box">
 <div class="body">
-<p><code>
-/* #a is also known as "LINEFEED (LF)" */<br>
-/* #d is also known as "CARRIAGE RETURN (CR)" */<br>
-Lexical.EndOfLine : #a {#d}<br>
+<pre tabindex="0" aria-label="End-of-line productions"><code>
+/* #a is also known as "LINEFEED (LF)" */
+/* #d is also known as "CARRIAGE RETURN (CR)" */
+Lexical.EndOfLine : #a {#d}
 Lexical.EndOfLine : #d {#a}
-</code></p>
+</code></pre>
 </div>
 </div>
 
-<h3 id="productions-comment">2.3 comment</h3>
+<h3 id="productions-comment">2.3 Comment</h3>
 <p>
-The language using the Common Lexical Specification may use both single-line comments and multi-line comments.
+A consuming language may select both single-line and multi-line comments.
 A <code>Lexical.Comment</code> is either a <code>Lexical.SingleLineComment</code> or a <code>Lexical.MultiLineComment</code>.
-<code>Lexical.MultiLineComment</code> is defined by
+<code>Lexical.Comment</code> is defined by
 </p>
 
 <div class="box">
 <div class="body">
-<pre><code>
+<pre tabindex="0" aria-label="Comment productions"><code>
 Lexical.Comment : Lexical.SingleLineComment
 Lexical.Comment : Lexical.MultiLineComment
 </code></pre>
@@ -50,168 +50,173 @@ Lexical.Comment : Lexical.MultiLineComment
 </div>
 
 <p>
-A <code>Lexical.SingleLineComment</code> starts with two solidi.
-It extends to the end of the line.
+A <code>Lexical.SingleLineComment</code> begins with two solidus characters (<code>//</code>)
+and extends to the end of the line.
 <code>Lexical.SingleLineComment</code> is defined by</p>
 
 <div class="box">
 <div class="body">
-<p><code>
+<pre tabindex="0" aria-label="Single-line comment production"><code>
 /* #2f is also known as SOLIDUS */
 Lexical.SingleLineComment :
 #2f #2f
 /* any sequence of characters except for line_terminator */
-</code></p>
+</code></pre>
 </div>
 </div>
 
 <p>The <code>Lexical.LineTerminator</code> is not considered as part of the comment text.</p>
 
 <p>
-A <code>Lexical.MultiLineComment</code> is opened by a solidus and an asterisk and closed by an asterisk and a solidus.
+A <code>Lexical.MultiLineComment</code> begins with a solidus and an asterisk (<code>/*</code>)
+and ends with an asterisk and a solidus (<code>*/</code>).
 <code>Lexical.MultiLineComment</code> is defined by
 </p>
 
 <div class="box">
 <div class="body">
-<p><code>
-/* #2f is also known as SOLIDUS */<br>
-/* #2a is also known as ASTERISK */<br>
-Lexical.MultiLineComment :<br>
-#2f #2a<br>
-/* any sequence of characters except except for #2a #2f */<br>
+<pre tabindex="0" aria-label="Multi-line comment production"><code>
+/* #2f is also known as SOLIDUS */
+/* #2a is also known as ASTERISK */
+Lexical.MultiLineComment :
+#2f #2a
+/* any sequence of characters except except for #2a #2f */
 #2a #2f
-</code></p>
+</code></pre>
 </div>
 </div>
 
-<p>The <code>#2f #2a</code> and <code>#2a #2f</code> sequences are not considered as part of the comment text.</p>
+<p>The opening <code>#2f #2a</code> and closing <code>#2a #2f</code> sequences are not part of the comment text.</p>
 
-<p>This implies:</p>
+<p>Within comment text:</p>
 
 <ul>
-  <li><code>#2f #2f</code> has no special meaning either comment.</li>
+  <li><code>#2f #2f</code> has no special meaning in either kind of comment.</li>
   <li><code>#2f #2a</code> and <code>#2a #2f</code> have no special meaning in single-line comments.</li>
   <li>Multi-line comments do not nest.</li>
 </ul>
 
-<h3 id="productions-parentheses">2.4 parentheses</h3>
+<h3 id="productions-parentheses">2.4 Parentheses</h3>
 <p>The words <code>Lexical.LeftParenthesis</code> and <code>Lexical.RightParenthesis</code>, respectively, are defined by</p>
 
 <div class="box">
 <div class="body">
-<p><code>
-/* #28 is also known as "LEFT PARENTHESIS" */<br>
-Lexical.LeftParenthesis : #28<br>
-/* #29 is also known as "RIGHT PARENTHESIS" */<br>
+<pre tabindex="0" aria-label="Parenthesis productions"><code>
+/* #28 is also known as "LEFT PARENTHESIS" */
+Lexical.LeftParenthesis : #28
+/* #29 is also known as "RIGHT PARENTHESIS" */
 Lexical.RightParenthesis : #29
-</code></p>
+</code></pre>
 </div>
 </div>
 
-<h3 id="productions-curly-brackets">2.5 curly brackets</h3>
+<h3 id="productions-curly-brackets">2.5 Curly brackets</h3>
 <p>The words <code>Lexical.LeftCurlyBracket</code> and <code>Lexical.RightCurlyBracket</code>, respectively, are defined by</p>
 
 <div class="box">
 <div class="body">
-<p><code>
-/* #7b is also known as "LEFT CURLY BRACKET" */<br>
-Lexical.LeftCurlyBracket : #7b<br>
-/* #7d is also known as "RIGHT CURLY BRACKET" */<br>
+<pre tabindex="0" aria-label="Curly-bracket productions"><code>
+/* #7b is also known as "LEFT CURLY BRACKET" */
+Lexical.LeftCurlyBracket : #7b
+/* #7d is also known as "RIGHT CURLY BRACKET" */
 Lexical.RightCurlyBracket : #7d
-</code></p>
+</code></pre>
 </div>
 </div>
 
-<h3 id="productions-colon">2.6 colon</h3>
+<h3 id="productions-colon">2.6 Colon</h3>
 <p>The word <code>Lexical.Colon</code> is defined by</p>
 
 <div class="box">
-<p><code>
-/* #3a is also known as "COLON" */<br>
+<pre tabindex="0" aria-label="Colon production"><code>
+/* #3a is also known as "COLON" */
 Lexical.Colon : #3a
-</code></p>
+</code></pre>
 </div>
 
-<h3 id="productions-square-brackets">2.7 square brackets</h3>
+<h3 id="productions-square-brackets">2.7 Square brackets</h3>
 <p>The words <code>Lexical.LeftSquareBracket</code> and <code>Lexical.RightSquareBracket</code>, respectively, are defined by</p>
 
 <div class="box">
-<p><code>
-/* #5b is also known as "LEFT SQUARE BRACKET" */<br>
-Lexical.LeftSquareBracket : #5b<br>
-/* #5d is also known as "RIGHT SQUARE BRACKET" */<br>
+<pre tabindex="0" aria-label="Square-bracket productions"><code>
+/* #5b is also known as "LEFT SQUARE BRACKET" */
+Lexical.LeftSquareBracket : #5b
+/* #5d is also known as "RIGHT SQUARE BRACKET" */
 Lexical.RightSquareBracket : #5d
-</code></p>
+</code></pre>
 </div>
 
-<h3 id="productions-comma">2.8 comma</h3>
+<h3 id="productions-comma">2.8 Comma</h3>
 <p>The word <code>Lexical.Comma</code> is defined by</p>
 
 <div class="box">
-<p><code>
-/* #2c is also known as "COMMA" */<br>
+<pre tabindex="0" aria-label="Comma production"><code>
+/* #2c is also known as "COMMA" */
 Lexical.Comma : #2c
-</code></p>
+</code></pre>
 </div>
 
-<h3 id="productions-name">2.9 name</h3>
+<h3 id="productions-name">2.9 Name</h3>
 <p>The word <code>Lexical.Name</code> is defined by</p>
 
 <div class="box">
 <div class="body">
-<p><code>
-Lexical.Name : {Lexical.Underscore} Lexical.Alphabetic {Lexical.NameSuffixCharacter}<br>
-Lexical.Underscore : #5f<br>
-Lexical.Alphabetic : /* one ASCII letter from #41 to #5a or #61 to #7a */<br>
-<br>
-/* #41 is also known as "LATIN CAPITAL LETTER A" */<br>
-/* #5a is also known as "LATIN CAPITAL LETTER Z" */<br>
-/* #61 is also known as "LATIN SMALL LETTER A" */<br>
-/* #7a is also known as "LATIN SMALL LETTER Z" */<br>
-Lexical.NameSuffixCharacter : /* The unicode characters from #41 to #5a and from #61 to #7a. */<br>
-<br>
-/* #30 is also known as "DIGIT ZERO" */<br>
-/* #39 is also known as "DIGIT NINE" */<br>
-Lexical.NameSuffixCharacter : /* The unicode characters from #30 to #39. */<br>
-<br>
-/* #5f is also known as "LOW LINE" */<br>
-Lexical.NameSuffixCharacter : #5f<br>
-</code></p>
+<pre tabindex="0" aria-label="Name productions"><code>
+Lexical.Name : {Lexical.Underscore} Lexical.Alphabetic {Lexical.NameSuffixCharacter}
+Lexical.Underscore : #5f
+Lexical.Alphabetic : /* one ASCII letter from #41 to #5a or #61 to #7a */
+
+/* #41 is also known as "LATIN CAPITAL LETTER A" */
+/* #5a is also known as "LATIN CAPITAL LETTER Z" */
+/* #61 is also known as "LATIN SMALL LETTER A" */
+/* #7a is also known as "LATIN SMALL LETTER Z" */
+Lexical.NameSuffixCharacter : /* The unicode characters from #41 to #5a and from #61 to #7a. */
+
+/* #30 is also known as "DIGIT ZERO" */
+/* #39 is also known as "DIGIT NINE" */
+Lexical.NameSuffixCharacter : /* The unicode characters from #30 to #39. */
+
+/* #5f is also known as "LOW LINE" */
+Lexical.NameSuffixCharacter : #5f
+</code></pre>
 </div>
 </div>
 
-<h3 id="productions-number-literal">2.10 number literal</h3>
+<p>The shared name production requires an ASCII letter after any leading underscores.
+DDL's <a href="@{siteAddress}/specifications/data-definition-language/index.html#lexical-translation">name profile</a>
+also permits underscore-only names. That language-specific refinement does not replace the shared production above.</p>
+
+<h3 id="productions-number-literal">2.10 Number literal</h3>
 <p>The word <code>Lexical.Number</code> is defined by</p>
 
 <div class="box">
-<p><code>
-Lexical.Number : Lexical.IntegerNumber<br>
-Lexical.Number : Lexical.RealNumber<br>
-Lexical.Digit : Lexical.DecimalDigit<br>
-Lexical.IntegerNumber : [Lexical.Sign] Lexical.Digit {Lexical.Digit}<br>
-Lexical.RealNumber : [Lexical.Sign] Lexical.Period Lexical.Digit {Lexical.Digit} [Lexical.Exponent]<br>
-Lexical.RealNumber : [Lexical.Sign] Lexical.Digit {Lexical.Digit} [Lexical.Period {Lexical.Digit}] [Lexical.Exponent]<br>
-Lexical.Exponent : Lexical.ExponentPrefix [Lexical.Sign] Lexical.Digit {Lexical.Digit}<br>
-<br>
-/* #2b is also known as "PLUS SIGN" */<br>
-Lexical.Sign : #2b<br>
-/* #2d is also known as "MINUS SIGN" */<br>
-Lexical.Sign : #2d<br>
-/* #65 is also known as "LATIN SMALL LETTER E" */<br>
-Lexical.ExponentPrefix : #65<br>
-/* #45 is also known as "LATIN CAPITAL LETTER E" */<br>
-Lexical.ExponentPrefix : #45<br>
-</code></p>
+<pre tabindex="0" aria-label="Number productions"><code>
+Lexical.Number : Lexical.IntegerNumber
+Lexical.Number : Lexical.RealNumber
+Lexical.Digit : Lexical.DecimalDigit
+Lexical.IntegerNumber : [Lexical.Sign] Lexical.Digit {Lexical.Digit}
+Lexical.RealNumber : [Lexical.Sign] Lexical.Period Lexical.Digit {Lexical.Digit} [Lexical.Exponent]
+Lexical.RealNumber : [Lexical.Sign] Lexical.Digit {Lexical.Digit} [Lexical.Period {Lexical.Digit}] [Lexical.Exponent]
+Lexical.Exponent : Lexical.ExponentPrefix [Lexical.Sign] Lexical.Digit {Lexical.Digit}
+
+/* #2b is also known as "PLUS SIGN" */
+Lexical.Sign : #2b
+/* #2d is also known as "MINUS SIGN" */
+Lexical.Sign : #2d
+/* #65 is also known as "LATIN SMALL LETTER E" */
+Lexical.ExponentPrefix : #65
+/* #45 is also known as "LATIN CAPITAL LETTER E" */
+Lexical.ExponentPrefix : #45
+</code></pre>
 </div>
 
-<h3 id="productions-string-literal">2.11 string literal</h3>
+<h3 id="productions-string-literal">2.11 String literal</h3>
 <p>The word <code>Lexical.String</code> is defined by</p>
 <p>These reusable productions offer both quote styles. A consuming language may restrict the delimiters or explicitly refine the escape set;
 DDL selects double-quoted strings only, while other languages specify their own profiles.</p>
 
 <div class="box">
-<pre><code>Lexical.String : Lexical.SingleQuotedString
+<pre tabindex="0" aria-label="String productions"><code>Lexical.String : Lexical.SingleQuotedString
 Lexical.String : Lexical.DoubleQuotedString
 
 Lexical.DoubleQuotedString : Lexical.DoubleQuote {Lexical.DoubleQuotedStringCharacter} Lexical.DoubleQuote
@@ -275,87 +280,88 @@ for example, <code>"It's ready"</code> needs no escape for its apostrophe.</p>
 
 
 
-<h3 id="productions-boolean-literal">2.12 boolean literal</h3>
+<h3 id="productions-boolean-literal">2.12 Boolean literal</h3>
 <p>The word <code>Lexical.Boolean</code> is defined by</p>
 
 <div class="box">
-<p><code>
-Lexical.Boolean : Lexical.True<br>
-Lexical.Boolean : Lexical.False<br>
-Lexical.True : true<br>
-Lexical.False : false<br>
-true : #74 #72 #75 #65<br>
+<pre tabindex="0" aria-label="Boolean productions"><code>
+Lexical.Boolean : Lexical.True
+Lexical.Boolean : Lexical.False
+Lexical.True : true
+Lexical.False : false
+true : #74 #72 #75 #65
 false : #66 #61 #6c #73 #65
-</code></p>
+</code></pre>
 </div>
 
-<p>Remark: The word <code>Lexical.Boolean</code> is a so called <em>keyword</em>.
-It takes priority over the <code>Lexical.Name</code>.</p>
+<p>When a consuming language selects these alternatives, <code>true</code> and <code>false</code>
+are keywords: <code>Lexical.Boolean</code> takes priority over <code>Lexical.Name</code>
+for those spellings.</p>
 
-<h3 id="productions-void-literal">2.13 void literal</h3>
+<h3 id="productions-void-literal">2.13 Void literal</h3>
 <p>The word <code>Lexical.Void</code> is defined by</p>
 
 <div class="box">
 <div class="body">
-<p><code>
+<pre tabindex="0" aria-label="Void production"><code>
 Lexical.Void : #76 #6f #69 #64
-</code></p>
+</code></pre>
 </div>
 </div>
 
-<p>Remark: The word <code>Lexical.Void</code> is a so called <em>keyword</em>.
-It takes priority over the <code>Lexical.Name</code>.</p>
+<p>When a consuming language selects this alternative, <code>void</code> is a keyword:
+<code>Lexical.Void</code> takes priority over <code>Lexical.Name</code> for that spelling.</p>
 
-<h3 id="productions-decimal-digit">2.14 decimal digit</h3>
+<h3 id="productions-decimal-digit">2.14 Decimal digit</h3>
 <p>The word <code>Lexical.DecimalDigit</code> is defined by</p>
 
 <div class="box">
 <div class="body">
-<p><code>
+<pre tabindex="0" aria-label="Decimal-digit production"><code>
 Lexical.DecimalDigit : /* A single Unicode character from the code point range +U0030 to +U0039. */
-</code></p>
+</code></pre>
 </div>
 </div>
 
-<h3 id="productions-hexadecimal-digit">2.15 hexadecimal digit</h3>
+<h3 id="productions-hexadecimal-digit">2.15 Hexadecimal digit</h3>
 <p>The word <code>Lexical.HexadecimalDigit</code> is defined by</p>
 
 <div class="box">
 <div class="body">
-<p><code>
+<pre tabindex="0" aria-label="Hexadecimal-digit production"><code>
 Lexical.HexadecimalDigit : /* A single Unicode character from U+0030 to U+0039, U+0061 to U+0066, or U+0041 to U+0046. */
-</code></p>
+</code></pre>
 </div>
 </div>
 
-<h3 id="productions-alphanumeric">2.16 alphanumeric</h3>
+<h3 id="productions-alphanumeric">2.16 Alphanumeric</h3>
 <p>The word <code>Lexical.Alphanumeric</code> is reserved for future use.</p>
 
-<h3 id="productions-period">2.17 period</h3>
+<h3 id="productions-period">2.17 Period</h3>
 <p>The word <code>Lexical.Period</code> is defined by</p>
 
 <div class="box">
-<p><code>
-/* #2e is also known as "FULL STOP" */<br>
+<pre tabindex="0" aria-label="Period production"><code>
+/* #2e is also known as "FULL STOP" */
 Lexical.Period : #2e
-</code></p>
+</code></pre>
 </div>
 
-<h3 id="productions-end-of-input">2.18 end of input</h3>
+<h3 id="productions-end-of-input">2.18 End of input</h3>
 <p>The word <code>Lexical.EndOfInput</code> is a zero-width condition
 that is satisfied at the position immediately following the last Unicode code point of the input.
 It does not consume or represent a Unicode code point.</p>
 
-<h3 id="productions-start-of-input">2.19 start of input</h3>
+<h3 id="productions-start-of-input">2.19 Start of input</h3>
 <p>The word <code>Lexical.StartOfInput</code> is a zero-width condition
 that is satisfied at the position immediately preceding the first Unicode code point of the input.
 It does not consume or represent a Unicode code point.</p>
 
-<h3 id="productions-line-continuation">2.20 line continuation</h3>
+<h3 id="productions-line-continuation">2.20 Line continuation</h3>
 <p>The word <code>Lexical.LineContinuation</code> is defined by</p>
 <div class="box">
-<p><code>
-/* #5c is also known as "REVERSE SOLIDUS" */<br>
+<pre tabindex="0" aria-label="Line-continuation production"><code>
+/* #5c is also known as "REVERSE SOLIDUS" */
 Lexical.LineContinuation : #5c Lexical.EndOfLine
-</code></p>
+</code></pre>
 </div>

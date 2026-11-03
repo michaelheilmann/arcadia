@@ -38,6 +38,10 @@ struct Arcadia_DDLS_ValidationContext {
   Arcadia_DDLS_Diagnostics* diagnostics;
   Arcadia_StringBuilder* temporary1;
   Arcadia_Languages_StringTable* stringTable;
+  Arcadia_List* cycleStack;
+  Arcadia_List* cycleKeys;
+  Arcadia_Map* visitingSchemata;
+  Arcadia_Map* checkedSchemata;
 };
 
 Arcadia_DDLS_ValidationContext*

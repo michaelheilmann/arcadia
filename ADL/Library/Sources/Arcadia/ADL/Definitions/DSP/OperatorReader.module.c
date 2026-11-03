@@ -33,7 +33,7 @@ static const char* SCHEMA =
   "      { kind : \"MapEntry\", name : \"type\", type : { kind : \"String\" } },\n"
   "      { kind : \"MapEntry\", name : \"name\", type : { kind : \"String\" } },\n"
   "      { kind : \"MapEntry\", name : \"input\", type : { kind : \"String\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"inputs\", type : { kind : \"List\", entry : { kind : \"String\" } }, optional : \"true\" },\n"
+  "      { kind : \"MapEntry\", name : \"inputs\", type : { kind : \"List\", elements : { kind : \"String\" } }, optional : \"true\" },\n"
   "      { kind : \"MapEntry\", name : \"gain\", type : { kind : \"Number\" }, optional : \"true\" },\n"
   "      { kind : \"MapEntry\", name : \"cutoff\", type : { kind : \"Number\" }, optional : \"true\" },\n"
   "    ],\n"

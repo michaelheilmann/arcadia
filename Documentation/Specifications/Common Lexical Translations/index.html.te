@@ -7,7 +7,8 @@
   <link rel='canonical' href='@{siteAddress}/specifications/common-lexical-translations/index.html'>
   <title>Common Lexical Translations</title>
 </head>
-<body class="my-content-page-1">
+<body class="my-content-page-1 specification">
+  <a class="specification-skip" href="#introduction">Skip to specification</a>
   <header>
   @{include("./../../Commons/mathjax-definitions.i")}
   <div>
@@ -16,6 +17,14 @@
   </header>
   <main>
     <div class="left-column"></div>
+    <div class="right-column">
+      <details class="specification-contents" open>
+        <summary>On this page</summary>
+        <nav aria-label="Specification contents">
+          @{include("./contents-navigation.i")}
+        </nav>
+      </details>
+    </div>
     <div class="center-column">
     <h1>Common Lexical Translations</h1>
     <div class="abstract">@{include("./0. Abstract.i")}</div>
@@ -24,35 +33,8 @@
     @{include("./2. Productions.i")}
 
   </div>
-  <div class="right-column">
-    <nav>
-      <ul style="list-style: none">
-        <li><a href="#introduction">1. Introduction</a></li>
-        <li><a href="#productions">2 Productions</a></li>
-        <li><a href="#productions-whitespace">2.1 whitespace</a></li>
-        <li><a href="#productions-end-of-line">2.2 end-of-line</a></li>
-        <li><a href="#productions-comment">2.3 comment</a></li>
-        <li><a href="#productions-parentheses">2.4 parentheses</a></li>
-        <li><a href="#productions-curly-brackets">2.5 curly brackets</a></li>
-        <li><a href="#productions-colon">2.6 colon</a></li>
-        <li><a href="#productions-square-brackets">2.7 square brackets</a></li>
-        <li><a href="#productions-comma">2.8 comma</a></li>
-        <li><a href="#productions-name">2.9 name</a></li>
-        <li><a href="#productions-number-literal">2.10 number literal</a></li>
-        <li><a href="#productions-string-literal">2.11 string literal</a></li>
-        <li><a href="#productions-boolean-literal">2.12 boolean literal</a></li>
-        <li><a href="#productions-void-literal">2.13 void literal</a></li>
-        <li><a href="#productions-decimal-digit">2.14 decimal digit</a></li>
-        <li><a href="#productions-hexadecimal-digit">2.15 hexadecimal digit</a></li>
-        <li><a href="#productions-alphanumeric">2.16 alphanumeric</a></li>
-        <li><a href="#productions-period">2.17 period</a></li>
-        <li><a href="#productions-end-of-input">2.18 end of input</a></li>
-        <li><a href="#productions-start-of-input">2.19 start of input</a></li>
-        <li><a href="#productions-line-continuation">2.20 line continuation</a></li>
-      </ul>
-    </nav>
-  </div>
   </main>
+  @{include("./../navigation.i")}
   <footer>
     <div class="left-column"></div>
     <div class="center-column"></div>

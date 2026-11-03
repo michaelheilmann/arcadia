@@ -130,6 +130,15 @@ struct Arcadia_FileSystemDispatch {
       Arcadia_FilePath* path
     );
 
+  // True for Unix symbolic links and Windows reparse points (including junctions).
+  Arcadia_BooleanValue
+  (*isSymbolicLink)
+    (
+      Arcadia_Thread* thread,
+      Arcadia_FileSystem* self,
+      Arcadia_FilePath* path
+    );
+
   Arcadia_Natural64Value
   (*getLastWriteTime)
     (
@@ -291,6 +300,15 @@ Arcadia_FileSystem_getFileContents
 // https://michaelheilmann.com/Arcadia/Ring2/#Arcadia_FileSystem_getFileType
 Arcadia_FileType
 Arcadia_FileSystem_getFileType
+  (
+    Arcadia_Thread* thread,
+    Arcadia_FileSystem* self,
+    Arcadia_FilePath* path
+  );
+
+// Does not follow a symbolic link. The path must exist.
+Arcadia_BooleanValue
+Arcadia_FileSystem_isSymbolicLink
   (
     Arcadia_Thread* thread,
     Arcadia_FileSystem* self,

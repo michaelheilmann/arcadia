@@ -16,9 +16,9 @@ Map names are not quoted strings, and the keywords <code>true</code>, <code>fals
 <h2 id="type-reference">Six-type quick reference</h2>
 <p>Examples below are covered by <code>DocumentationContract</code> and the existing semantic fixtures.
 Each invalid example is a complete input, not just a value of a different type.</p>
-<div class="ddl-table" role="region" aria-label="DDL value types" tabindex="0">
+<div class="ddl-table specification-scroll" role="region" aria-label="DDL value types" tabindex="0">
 <table>
-  <caption>Values, examples and exact formal rules</caption>
+  <caption>Values, examples and exact formal rules<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Type and meaning</th><th scope="col">Valid example / edges</th><th scope="col">Invalid example / reason</th><th scope="col">Rules</th></tr></thead>
   <tbody>
     <tr><th scope="row">Boolean: truth value</th><td><code>true</code>, <code>false</code>; lowercase keywords</td><td><code>True</code>: a name is not a value</td><td><a href="#syntax-boolean">Syntax</a>, <a href="#type-boolean">semantics</a></td></tr>

@@ -38,8 +38,9 @@ converted to a native numeric or Boolean runtime type. Semantic analysis is an e
 The older names <code>DDL.Lexical.true</code> and <code>DDL.Lexical.false</code> refer to these same keywords.</p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="type-boolean">
 <table class="syntax-directed-translation">
-  <caption>Boolean translation</caption>
+  <caption>Boolean translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>\(\text{DDL.Syntactical.Boolean}@@1 : \text{Lexical.Boolean}@@2\)</td>
@@ -54,6 +55,7 @@ The older names <code>DDL.Lexical.true</code> and <code>DDL.Lexical.false</code>
     <td>\(\{ 1.\text{value} := \textit{false} \}\)</td>
   </tr>
 </table>
+</div>
 
 <h4 id="type-number">Number type</h4>
 <p>
@@ -64,8 +66,9 @@ introduced by <code>e</code> or <code>E</code> with an optional sign and at leas
 
 <p>The semantical translation is defined as follows:</p>
 
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="type-number">
 <table class="syntax-directed-translation">
-  <caption>Number translation</caption>
+  <caption>Number translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
@@ -80,6 +83,7 @@ introduced by <code>e</code> or <code>E</code> with an optional sign and at leas
     </td>
   </tr>
 </table>
+</div>
 
 <p><b>Representation and precision:</b> Reading a Number does not perform arithmetic or convert it to <code>int</code> or <code>float</code>.
 The grammar does not impose a fixed machine-number range, but storage is bounded by implementation resources.
@@ -100,8 +104,9 @@ Unescaped code points U+0000 through U+001F are rejected. Embedded NUL is part o
 No Unicode normalization is performed. Surrogate-pair escapes are not supported: use the scalar value itself, for example <code>\u{1F3EE}</code>.</p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="type-string">
 <table class="syntax-directed-translation">
-  <caption>String translation</caption>
+  <caption>String translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
@@ -116,6 +121,7 @@ No Unicode normalization is performed. Surrogate-pair escapes are not supported:
     </td>
   </tr>
 </table>
+</div>
 
 <h4 id="type-void">Void type</h4>
 <p>
@@ -123,8 +129,9 @@ The type \(\textit{Void}\) has a single value, \(\textit{void}\), expressed by t
 </p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="type-void">
 <table class="syntax-directed-translation">
-  <caption>Void translation</caption>
+  <caption>Void translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
@@ -139,6 +146,7 @@ The type \(\textit{Void}\) has a single value, \(\textit{void}\), expressed by t
     </td>
   </tr>
 </table>
+</div>
 
 <h3 id="semantical-translation-list-type">List type</h3>
 <p>
@@ -148,8 +156,9 @@ empty bodies and trailing commas contribute an empty list.
 </p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="semantical-translation-list-type">
 <table class="syntax-directed-translation">
-  <caption>List translation</caption>
+  <caption>List translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
 
   <tr>
@@ -249,6 +258,7 @@ empty bodies and trailing commas contribute an empty list.
   </tr>
 
 </table>
+</div>
 
 <p><b>Example</b></p>
 <div class="box">
@@ -266,8 +276,9 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
 </p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="semantical-translation-map-type">
 <table class="syntax-directed-translation">
-  <caption>Map translation (subject to unique names)</caption>
+  <caption>Map translation (subject to unique names)<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
 
   <tr>
@@ -367,6 +378,7 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
   </tr>
 
 </table>
+</div>
 
 <h3 id="semantical-translation-value-type">Value type</h3>
 <p>
@@ -380,8 +392,9 @@ The type \(\textit{Value}\) is the union of the types
 </p>
 
 <p>The semantical translation is defined as follows:</p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="semantical-translation-value-type">
 <table class="syntax-directed-translation">
-  <caption>Value translation</caption>
+  <caption>Value translation<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
   <thead><tr><th scope="col">Production</th><th scope="col">Semantic action</th></tr></thead>
   <tr>
     <td>
@@ -456,3 +469,4 @@ The type \(\textit{Value}\) is the union of the types
     </td>
   </tr>
 </table>
+</div>

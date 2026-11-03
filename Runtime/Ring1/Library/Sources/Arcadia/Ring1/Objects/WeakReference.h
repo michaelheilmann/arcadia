@@ -45,4 +45,12 @@ Arcadia_WeakReference_getValue
     Arcadia_WeakReference* self
   );
 
+void
+Arcadia_WeakReference_setValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_WeakReference* self,
+    Arcadia_Value value
+  );
+
 #endif // ARCADIA_RING1_WEAKREFERENCE_H_INCLUDED
