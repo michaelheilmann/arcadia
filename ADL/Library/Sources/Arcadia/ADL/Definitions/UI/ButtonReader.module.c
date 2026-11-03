@@ -38,18 +38,18 @@ static const char* SCHEMA =
       "      { kind : \"MapEntry\", name : \"width\", type : { kind : \"Number\" } },\n"
       "      { kind : \"MapEntry\", name : \"height\", type : { kind : \"Number\" } },\n"
       "      { kind : \"MapEntry\", name : \"text\", type : { kind : \"String\" } },\n"
-      "      { kind : \"MapEntry\", name : \"horizontalAlignment\", type : { kind : \"String\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"verticalAlignment\", type : { kind : \"String\" }, optional : \"true\" },\n"
+      "      { kind : \"MapEntry\", name : \"horizontalAlignment\", type : { kind : \"String\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"verticalAlignment\", type : { kind : \"String\" }, optional : true },\n"
   "      { kind : \"MapEntry\", name : \"backgroundColor\", type : { kind : \"Any\" } },\n"
-  "      { kind : \"MapEntry\", name : \"hoveredBackgroundColor\", type : { kind : \"Any\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"pressedBackgroundColor\", type : { kind : \"Any\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"disabledBackgroundColor\", type : { kind : \"Any\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"focusedBackgroundColor\", type : { kind : \"Any\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"pixelSize\", type : { kind : \"Number\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"borderWidth\", type : { kind : \"Number\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"borderRed\", type : { kind : \"Number\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"borderGreen\", type : { kind : \"Number\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"borderBlue\", type : { kind : \"Number\" }, optional : \"true\" },\n"
+  "      { kind : \"MapEntry\", name : \"hoveredBackgroundColor\", type : { kind : \"Any\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"pressedBackgroundColor\", type : { kind : \"Any\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"disabledBackgroundColor\", type : { kind : \"Any\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"focusedBackgroundColor\", type : { kind : \"Any\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"pixelSize\", type : { kind : \"Number\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"borderWidth\", type : { kind : \"Number\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"borderRed\", type : { kind : \"Number\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"borderGreen\", type : { kind : \"Number\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"borderBlue\", type : { kind : \"Number\" }, optional : true },\n"
   "    ],\n"
   "  },\n"
   "}\n";
@@ -168,8 +168,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_ADL_UI_ButtonReader_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 

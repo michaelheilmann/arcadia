@@ -71,7 +71,7 @@ pdlAsObjectReference
   (
     Arcadia_Thread* thread,
     Arcadia_Value v,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   if (Arcadia_Value_isVoidValue(&v)) return NULL;
@@ -370,8 +370,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectOperations,
 };
 

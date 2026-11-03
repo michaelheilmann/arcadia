@@ -46,8 +46,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_PDLC_AST_StringLiteralNode_o
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_PDLC_AST_StringLiteralNode_visitImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_PDLC_AST_StringLiteralNode_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_PDLC_AST_StringLiteralNode_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_PDLC_AST_StringLiteralNode_objectTypeOperations,
 };
 

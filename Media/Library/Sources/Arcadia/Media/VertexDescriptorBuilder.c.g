@@ -71,7 +71,7 @@ pdlAsObjectReference
   (
     Arcadia_Thread* thread,
     Arcadia_Value v,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   if (Arcadia_Value_isVoidValue(&v)) return NULL;
@@ -183,7 +183,7 @@ pdlLabel_nextElement:;
   pdlPut(thread, base, 1, pdlGet(thread, base, 7));
   pdlPut(thread, base, 2, pdlGet(thread, base, 6));
   { Arcadia_Value a = pdlGet(thread, base, 1);
-    Arcadia_ForeignProcedure* op = Arcadia_Type_getOperations(Arcadia_Value_getType(thread, &a))->isEqualTo;
+    Arcadia_ForeignProcedure* op = Arcadia_TypeDescriptor_getOperations(Arcadia_Value_getTypeDescriptor(thread, &a))->isEqualTo;
     if (!op && Arcadia_Value_isEnumerationValue(&a)) {
       Arcadia_Value b = pdlGet(thread, base, 2);
       Arcadia_BooleanValue equal = Arcadia_Value_isEnumerationValue(&b) && Arcadia_Value_isEqualTo(thread, &a, &b);
@@ -215,7 +215,7 @@ pdlLabel_nextElement:;
   pdlPut(thread, base, 1, pdlGet(thread, base, 10));
   pdlPut(thread, base, 2, pdlGet(thread, base, 8));
   { Arcadia_Value a = pdlGet(thread, base, 1);
-    Arcadia_ForeignProcedure* op = Arcadia_Type_getOperations(Arcadia_Value_getType(thread, &a))->isGreaterThan;
+    Arcadia_ForeignProcedure* op = Arcadia_TypeDescriptor_getOperations(Arcadia_Value_getTypeDescriptor(thread, &a))->isGreaterThan;
     if (!op) { Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid); Arcadia_Thread_jump(thread); }
     { Arcadia_Value v = pdlGet(thread, base, 1); Arcadia_ValueStack_pushValue(thread, &v); }
     { Arcadia_Value v = pdlGet(thread, base, 2); Arcadia_ValueStack_pushValue(thread, &v); }
@@ -233,7 +233,7 @@ pdlLabel_advance:;
   pdlPut(thread, base, 1, pdlGet(thread, base, 7));
   pdlPut(thread, base, 2, Arcadia_Value_makeNatural64Value(UINT64_C(1)));
   { Arcadia_Value a = pdlGet(thread, base, 1);
-    Arcadia_ForeignProcedure* op = Arcadia_Type_getOperations(Arcadia_Value_getType(thread, &a))->add;
+    Arcadia_ForeignProcedure* op = Arcadia_TypeDescriptor_getOperations(Arcadia_Value_getTypeDescriptor(thread, &a))->add;
     if (!op) { Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid); Arcadia_Thread_jump(thread); }
     { Arcadia_Value v = pdlGet(thread, base, 1); Arcadia_ValueStack_pushValue(thread, &v); }
     { Arcadia_Value v = pdlGet(thread, base, 2); Arcadia_ValueStack_pushValue(thread, &v); }
@@ -338,8 +338,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectOperations,
 };
 

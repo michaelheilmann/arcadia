@@ -114,7 +114,7 @@ static const Arcadia_ObjectType_Operations builderProbeObjects = {
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructBuilderProbe,
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitBuilderProbe,
 };
-static const Arcadia_Type_Operations builderProbeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &builderProbeObjects };
+static const Arcadia_TypeDescriptor_Operations builderProbeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &builderProbeObjects };
 
 Arcadia_defineObjectType(u8"Tests.NativeVertexBuilderProbe", NativeVertexBuilderProbe,
                          u8"Arcadia.Media.VertexDescriptorBuilder", Arcadia_Media_VertexDescriptorBuilder,
@@ -163,7 +163,7 @@ static const Arcadia_ObjectType_Operations listObjects = {
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructList,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeList,
 };
-static const Arcadia_Type_Operations listOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &listObjects };
+static const Arcadia_TypeDescriptor_Operations listOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &listObjects };
 
 Arcadia_defineObjectType(u8"Tests.VertexBuilderListProbe", VertexBuilderListProbe,
                          u8"Arcadia.ArrayList", Arcadia_ArrayList,

@@ -800,7 +800,7 @@ refer to <a href="https://github.com/michaelheilmann/arcadia/tree/main/README.md
 
     <tr><td>Arcadia_ValueTag_Size           </td><td>Arcadia_SizeValue           </td></tr>
 
-    <tr><td>Arcadia_ValueTag_Type           </td><td>Arcadia_TypeValue           </td></tr>
+    <tr><td>Arcadia_ValueTag_TypeDescriptor           </td><td>Arcadia_TypeDescriptorValue           </td></tr>
 
     <tr><td>Arcadia_ValueTag_Void           </td><td>Arcadia_VoidValue           </td></tr>
   </table>
@@ -1279,6 +1279,12 @@ an instance's lifetime. They are independent of memory ownership.</p>
 <code>Arcadia_Status_OperationInvalid</code> when unsupported, before validating
 an index or requested size. Invalid indexes of supporting implementations
 must raise <code>Arcadia_Status_ArgumentValueInvalid</code>.</p>
+<p>Resizable native-backed instances also support checked bulk insertion via
+<code>Arcadia_ByteArray_insertBytes</code>,
+<code>Arcadia_ByteArray_appendBytes</code> and
+<code>Arcadia_ByteArray_prependBytes</code>. These operations preserve
+overlapping source bytes and can relocate backing storage. Unsupported
+instances raise <code>Arcadia_Status_OperationInvalid</code>.</p>
 <p>The existing <code>RuntimeByteArray</code> wrapper and legacy slice views
 are immutable, fixed-size and contiguous. A slice retains its backing object;
 its bounds are validated without arithmetic overflow. Slices remain read-only
@@ -3152,12 +3158,12 @@ intentional compatibility, not duplicate native storage.</p>
     Arcadia_String_create_pn<br>
     &nbsp;&nbsp;(<br>
     &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ImmutableByteArray* immutableByteArray<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_RuntimeByteArray* runtimeByteArray<br>
     &nbsp;&nbsp;)
   </code></my-signature>
 
   <my-summary>
-    Create a string from an immutable Byte array.
+    Create a string from an immutable runtime byte array.
   </my-summary>
 
   <section class="cxx parameters">
@@ -3165,7 +3171,7 @@ intentional compatibility, not duplicate native storage.</p>
     <h1>Parameters</h1>
 
     <tr><td><a href="#">Arcadia_Thread</a>* thread</td><td>A pointer to the <code>Arcadia_Thread</code> object.</td></tr>
-    <tr><td>Arcadia_ImmutableByteBuffer* immutableByteArray</td><td>A pointer to the <code>Arcadia_ImmutableByteArray</code> object</td></tr>
+    <tr><td>Arcadia_RuntimeByteArray* runtimeByteArray</td><td>A pointer to the <code>Arcadia_RuntimeByteArray</code> object</td></tr>
 
   </section>
 
@@ -3180,7 +3186,7 @@ intentional compatibility, not duplicate native storage.</p>
 
     <h1>Errors</h1>
 
-    <tr><td>Arcadia_Status_ArgumentValueInvalid</td><td><code>immutableByteArray</code> is a null pointer.</td></tr>
+    <tr><td>Arcadia_Status_ArgumentValueInvalid</td><td><code>runtimeByteArray</code> is a null pointer.</td></tr>
     <tr><td>Arcadia_Status_EncodingInvalid     </td><td>The sequence of Bytes does not represented a UTF-8-NO-BOM string.</td></tr>
 
   </section>
@@ -3210,15 +3216,15 @@ intentional compatibility, not duplicate native storage.</p>
     <p>The following values are accepted:</p>
 
     <p>
-    The specified value may contain a <code>Arcadia_ByteBuffer</code> object.
-    In that case, the string is created from the Bytes of the Byte buffer object.
-    A <code>Arcadia_Status_EncodingInvalid</code> is raised if the Byte sequence of that <code>Arcada_ByteBuffer</code> object is not a UTF8 Byte sequence.
+    The specified value may contain an <code>Arcadia_ByteArrayBuilder</code> object.
+    In that case, the string is created from the bytes in that builder.
+    A <code>Arcadia_Status_EncodingInvalid</code> is raised if the Byte sequence of that <code>Arcadia_ByteArrayBuilder</code> object is not a UTF8 Byte sequence.
     </p>
 
     <p>
-    The specified value may contain a <code>Arcadia_ImmutableByteArray</code> object.
-    In that case, the string is created from the <code>Arcadia_ImmutableByteArray</code> object.
-    A <code>Arcadia_Status_EncodingInvalid</code> is raised if the Byte sequence of that <code>Arcada_ImmutableByteArray</code> object is not a UTF8 Byte sequence.
+    The specified value may contain an <code>Arcadia_RuntimeByteArray</code> value.
+    In that case, the string is created from the <code>Arcadia_RuntimeByteArray</code> value.
+    A <code>Arcadia_Status_EncodingInvalid</code> is raised if the Byte sequence of that <code>Arcadia_RuntimeByteArray</code> value is not a UTF8 Byte sequence.
     </p>
 
     <p>
@@ -3227,13 +3233,13 @@ intentional compatibility, not duplicate native storage.</p>
     </p>
 
     <p>
-    The specified value may contain a <code>Arcadia_StringBuffer</code> object.
-    In that case, the string is created from the <code>Arcadia_StringBuffer</code> object.
+    The specified value may contain a <code>Arcadia_StringBuilder</code> object.
+    In that case, the string is created from the <code>Arcadia_StringBuilder</code> object.
     </p>
 
     <p>
-    The specified value may contain a <code>Arcadia_ImmutableUtf8String</code> object.
-    In that case, the string is created from the <code>Arcadia_ImmutableUtf8String</code> object.
+    The specified value may contain a <code>Arcadia_RuntimeUTF8String</code> object.
+    In that case, the string is created from the <code>Arcadia_RuntimeUTF8String</code> object.
     </p>
 
   </my-summary>
@@ -3273,7 +3279,7 @@ intentional compatibility, not duplicate native storage.</p>
         Arcadia_Status_ArgumentTypeInvalid
       </div>
       <div>
-        The value is not of type <code>Arcadia_ByteBuffer</code>, <code>Arcadia_String</code>, <code>Arcadia_StringBuffer</code>, or <code>Arcadia_ImmutableByteArray</code>.
+        The value is not a supported scalar, runtime byte/string value, or an <code>Arcadia_ByteArrayBuilder</code>, <code>Arcadia_String</code>, or <code>Arcadia_StringBuilder</code> object.
       </div>
     </div>
     <div>
@@ -3281,8 +3287,8 @@ intentional compatibility, not duplicate native storage.</p>
         Arcadia_Status_EncodingInvalid
       </div>
       <div>
-        The value is a <code>Arcadia_ByteBuffer</code> or <code>Arcadia_ImmutableByteArray</code>.
-        However, the Byte sequence of that <code>Arcadia_ByteBuffer</code> or <code>Arcadia_ImmutableByteArray</code> object is not a UTF8 Byte sequence.
+        The value contains bytes from an <code>Arcadia_ByteArrayBuilder</code> object or an <code>Arcadia_RuntimeByteArray</code> value.
+        However, that byte sequence is not valid UTF-8.
       </div>
     </div>
   </section>
@@ -6499,7 +6505,7 @@ intentional compatibility, not duplicate native storage.</p>
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 15 November 2026.</div>
+    <div>Last modified on 20 November 2026.</div>
     </div>
   </div>
   <div class="center-column">

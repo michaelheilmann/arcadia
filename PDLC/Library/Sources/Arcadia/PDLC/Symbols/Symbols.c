@@ -56,8 +56,8 @@ static const Arcadia_ObjectType_Operations _objectTypesOperations = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypesOperations,
 };
 
@@ -196,7 +196,7 @@ Arcadia_PDLC_Symbols_getInstance
     Arcadia_PDLC_Context* context
   )
 {
-  Arcadia_Value k = Arcadia_Value_makeTypeValue(_Arcadia_PDLC_Symbols_getType(thread));
+  Arcadia_Value k = Arcadia_Value_makeTypeDescriptorValue(_Arcadia_PDLC_Symbols_getType(thread));
   Arcadia_Value v = Arcadia_Map_get(thread, context->instances, k);
   if (Arcadia_Value_isVoidValue(&v)) {
     v = Arcadia_Value_makeObjectReferenceValue(Arcadia_PDLC_Symbols_create(thread, context));

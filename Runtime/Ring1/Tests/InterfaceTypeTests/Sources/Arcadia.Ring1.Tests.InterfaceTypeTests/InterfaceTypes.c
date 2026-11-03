@@ -55,7 +55,7 @@ testInterfaceTypes
     Arcadia_Thread* thread
   )
 {
-  Arcadia_TypeValue interfaceA =
+  Arcadia_TypeDescriptorValue interfaceA =
     Arcadia_registerInterfaceType
       (
         thread,
@@ -66,8 +66,8 @@ testInterfaceTypes
         &Helper_typeDestructing
       );
 
-  Arcadia_TypeValue interfaceBExtends[] = { interfaceA };
-  Arcadia_TypeValue interfaceB =
+  Arcadia_TypeDescriptorValue interfaceBExtends[] = { interfaceA };
+  Arcadia_TypeDescriptorValue interfaceB =
     Arcadia_registerInterfaceType
       (
         thread,
@@ -78,8 +78,8 @@ testInterfaceTypes
         &Helper_typeDestructing
       );
 
-  Arcadia_TypeValue interfaceCExtends[] = { interfaceB };
-  Arcadia_TypeValue interfaceC =
+  Arcadia_TypeDescriptorValue interfaceCExtends[] = { interfaceB };
+  Arcadia_TypeDescriptorValue interfaceC =
     Arcadia_registerInterfaceType
       (
         thread,
@@ -90,19 +90,19 @@ testInterfaceTypes
         &Helper_typeDestructing
       );
 
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isInterfacelKind(thread, interfaceA));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_isObjectKind(thread, interfaceA));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isInterfaceKind(thread, interfaceA));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_isObjectKind(thread, interfaceA));
 
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, interfaceA, interfaceA));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, interfaceB, interfaceA));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, interfaceC, interfaceA));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, interfaceC, interfaceB));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_isDescendantType(thread, interfaceA, interfaceB));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_isDescendantType(thread, interfaceB, interfaceC));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, interfaceA, interfaceA));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, interfaceB, interfaceA));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, interfaceC, interfaceA));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, interfaceC, interfaceB));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_isDescendantType(thread, interfaceA, interfaceB));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_isDescendantType(thread, interfaceB, interfaceC));
 
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_hasChildren(thread, interfaceA));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_hasChildren(thread, interfaceB));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_hasChildren(thread, interfaceC));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_hasChildren(thread, interfaceA));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_hasChildren(thread, interfaceB));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_hasChildren(thread, interfaceC));
 
   // An object type which implements an interface type is a descendant of that interface type and
   // of the interface types it extends. Ancestor interface implementation records are added
@@ -110,7 +110,7 @@ testInterfaceTypes
   Arcadia_ObjectType_InterfaceSpecification objectAInterfaces[] = {
     { .interfaceType = interfaceB, .dispatchSize = sizeof(Arcadia_InterfaceDispatch), .initializeDispatch = NULL }
   };
-  Arcadia_TypeValue objectA =
+  Arcadia_TypeDescriptorValue objectA =
     Arcadia_registerObjectTypeWithInterfaces
       (
         thread,
@@ -126,7 +126,7 @@ testInterfaceTypes
   g_objectA_type = objectA;
 
   // An object type inherits the interface types implemented by its ancestor object types.
-  Arcadia_TypeValue objectB =
+  Arcadia_TypeDescriptorValue objectB =
     Arcadia_registerObjectType
       (
         thread,
@@ -140,7 +140,7 @@ testInterfaceTypes
   g_objectB_type = objectB;
 
   // An object type which implements no interface type.
-  Arcadia_TypeValue objectC =
+  Arcadia_TypeDescriptorValue objectC =
     Arcadia_registerObjectType
       (
         thread,
@@ -154,7 +154,7 @@ testInterfaceTypes
   g_objectC_type = objectC;
 
   // An object type without a parent object type and without virtual functions.
-  Arcadia_TypeValue objectD =
+  Arcadia_TypeDescriptorValue objectD =
     Arcadia_registerObjectType
       (
         thread,
@@ -167,34 +167,34 @@ testInterfaceTypes
       );
   g_objectD_type = objectD;
 
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectA, interfaceB));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectA, interfaceB));
   // Transitively, because interfaceB extends interfaceA.
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectA, interfaceA));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectA, interfaceA));
   // Inherited from the ancestor object type objectA.
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectB, interfaceB));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectB, interfaceA));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_isDescendantType(thread, objectC, interfaceB));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_isDescendantType(thread, objectC, interfaceA));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectD, objectD));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_isDescendantType(thread, objectD, interfaceA));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_isDescendantType(thread, objectD, _Arcadia_Object_getType(thread)));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectB, interfaceB));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectB, interfaceA));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_isDescendantType(thread, objectC, interfaceB));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_isDescendantType(thread, objectC, interfaceA));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectD, objectD));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_isDescendantType(thread, objectD, interfaceA));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_isDescendantType(thread, objectD, _Arcadia_Object_getType(thread)));
 
   // An interface type never is a descendant of an object type.
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_isDescendantType(thread, interfaceA, objectA));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_isDescendantType(thread, interfaceB, objectA));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_isDescendantType(thread, interfaceA, objectA));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_isDescendantType(thread, interfaceB, objectA));
 
   // Object type inheritance is unaffected.
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectA, objectA));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectA, _Arcadia_Object_getType(thread)));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectB, objectA));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_isDescendantType(thread, objectA, objectB));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectA, objectA));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectA, _Arcadia_Object_getType(thread)));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectB, objectA));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_isDescendantType(thread, objectA, objectB));
 
   // An interface type which is implemented is a parent type, so it is destructed later.
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_hasChildren(thread, interfaceB));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_hasChildren(thread, interfaceA));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_hasChildren(thread, objectA));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_hasChildren(thread, objectC));
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Type_hasChildren(thread, objectD));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_hasChildren(thread, interfaceB));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_hasChildren(thread, interfaceA));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_hasChildren(thread, objectA));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_hasChildren(thread, objectC));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_TypeDescriptor_hasChildren(thread, objectD));
 
   // Dispatch lookup.
   Arcadia_InterfaceDispatch* objectADispatchOfB =
@@ -258,7 +258,7 @@ testInterfaceTypes
     Arcadia_Value_makeObjectReferenceValue((Arcadia_ObjectReferenceValue)objectAInstance);
   Arcadia_Tests_assertTrue(thread, Arcadia_Value_isObjectReferenceValue(&valueOfObjectA));
   // The type of an object reference value is the type of the referenced object.
-  Arcadia_Tests_assertTrue(thread, Arcadia_Value_getType(thread, &valueOfObjectA) == objectA);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Value_getTypeDescriptor(thread, &valueOfObjectA) == objectA);
   // It is an instance of the interface types the object implements, and of their ancestor interface
   // types, as well as of the types of the object.
   Arcadia_Tests_assertTrue(thread, Arcadia_Value_isInstanceOf(thread, &valueOfObjectA, objectA));
@@ -270,7 +270,7 @@ testInterfaceTypes
   // The object reference value of an object which implements no interface type.
   Arcadia_Value valueOfObjectC =
     Arcadia_Value_makeObjectReferenceValue((Arcadia_ObjectReferenceValue)objectCInstance);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Value_getType(thread, &valueOfObjectC) == objectC);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Value_getTypeDescriptor(thread, &valueOfObjectC) == objectC);
   Arcadia_Tests_assertTrue(thread, !Arcadia_Value_isInstanceOf(thread, &valueOfObjectC, interfaceA));
   Arcadia_Tests_assertTrue(thread, !Arcadia_Value_isInstanceOf(thread, &valueOfObjectC, interfaceB));
 

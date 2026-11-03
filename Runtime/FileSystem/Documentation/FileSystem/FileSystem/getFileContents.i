@@ -3,7 +3,7 @@
   <h1 id="Arcadia_FileSystem_getFileContents">Arcadia_FileSystem_getFileContents</h1>
 
   <my-signature><code>
-  Arcadia_ByteBuffer*<br>
+  Arcadia_ByteArrayBuilder*<br>
   Arcadia_FileSystem_getFileContents<br>
   &nbsp;&nbsp;(<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
@@ -35,7 +35,7 @@
   <section class="cxx return-value">
     <h1>Return value</h1>
     <p>
-    A pointer to a <code>Arcadia_ByteBuffer</code> object with the file contents.
+    A pointer to a <code>Arcadia_ByteArrayBuilder</code> object with the file contents.
     </p>
   </section>
 

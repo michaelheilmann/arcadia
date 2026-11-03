@@ -17,8 +17,8 @@
 #define ARCADIA_MEDIA_PRIVATE (1)
 #include "Arcadia/Media/PixelFormat.h"
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
 };
 
 Arcadia_defineEnumerationType(u8"Arcadia.Media.PixelFormat", Arcadia_Media_PixelFormat,

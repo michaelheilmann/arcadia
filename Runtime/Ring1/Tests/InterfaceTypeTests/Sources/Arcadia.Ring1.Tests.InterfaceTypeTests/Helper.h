@@ -51,7 +51,7 @@ Helper_objectGetHash
 // of the object. `Arcadia_EnterConstructor`/`Arcadia_LeaveConstructor` do both, but require a
 // `_##_cName##_getType` function, which these types do not have, so the body is spelled out.
 #define Helper_defineObjectTypeOperations(_cName) \
-  static Arcadia_TypeValue g_##_cName##_type = NULL; \
+  static Arcadia_TypeDescriptorValue g_##_cName##_type = NULL; \
   \
   static void \
   _##_cName##_construct \
@@ -87,8 +87,8 @@ Helper_objectGetHash
     .initializeDispatch = &_##_cName##_initializeDispatch, \
   }; \
   \
-  static const Arcadia_Type_Operations _##_cName##_typeOperations = { \
-    Arcadia_Type_Operations_Initializer, \
+  static const Arcadia_TypeDescriptor_Operations _##_cName##_typeOperations = { \
+    Arcadia_TypeDescriptor_Operations_Initializer, \
     .objectTypeOperations = &_##_cName##_objectTypeOperations, \
   };
 

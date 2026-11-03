@@ -132,7 +132,7 @@ static const Arcadia_ObjectType_Operations childObjects = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)childVisit,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)childDispatch,
 };
-static const Arcadia_Type_Operations childOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &childObjects };
+static const Arcadia_TypeDescriptor_Operations childOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &childObjects };
 Arcadia_defineObjectType(u8"Tests.ADLColorModelChild", ADLColorModelChild,
                          u8"Arcadia.ADL.ColorDefinition", Arcadia_ADL_ColorDefinition,
                          &childOperations);
@@ -165,7 +165,7 @@ Arcadia_defineObjectType(u8"Tests.ADLColorModelChild", ADLColorModelChild,
     .construct = (Arcadia_Object_ConstructCallbackFunction*)Name##_construct, \
     .visit = (Arcadia_Object_VisitCallbackFunction*)Name##_visit, \
     .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)Name##_dispatch }; \
-  static const Arcadia_Type_Operations Name##_operations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &Name##_objects }; \
+  static const Arcadia_TypeDescriptor_Operations Name##_operations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &Name##_objects }; \
   Arcadia_defineObjectType("Tests." #Name, Name, ParentName, Parent, &Name##_operations);
 
 DEFINE_MODEL_CHILD(ADLWhiteModelChild, Arcadia_ADL_WhiteNoiseDefinition, "Arcadia.ADL.WhiteNoiseDefinition", 2)
@@ -181,7 +181,7 @@ static Arcadia_String*
 getChildPayload
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_ADL_Definition* object
   )
 {
@@ -200,7 +200,7 @@ static Arcadia_Object*
 construct
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     const Arcadia_Value* arguments,
     Arcadia_SizeValue count
   )
@@ -215,7 +215,7 @@ static void
 expectError
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     const Arcadia_Value* arguments,
     Arcadia_SizeValue count,
     Arcadia_Status expected
@@ -242,18 +242,18 @@ static void
 checkConstructor
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     const char* expectedName,
     Arcadia_Value* valid,
     Arcadia_SizeValue count,
     Arcadia_BooleanValue optionalColorNames
   )
 {
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, type) == Arcadia_TypeKind_Object);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_getKind(thread, type) == Arcadia_TypeKind_Object);
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == strlen(expectedName));
   Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_Name_getBytes(thread, name), expectedName, strlen(expectedName)));
-  Arcadia_Tests_assertTrue(thread, Arcadia_getType(thread, name) == type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, name) == type);
   Arcadia_Value arguments[255];
   for (Arcadia_SizeValue i = 0; i < 255; ++i) arguments[i] = Arcadia_Value_makeBooleanValue(false);
   if (count > 5) {
@@ -272,7 +272,7 @@ checkConstructor
     Arcadia_Value_makeNatural8Value(0), Arcadia_Value_makeNatural16Value(0),
     Arcadia_Value_makeNatural32Value(0), Arcadia_Value_makeNatural64Value(0),
     Arcadia_Value_makeSizeValue(0), Arcadia_Value_makeReal32Value(0),
-    Arcadia_Value_makeReal64Value(0), Arcadia_Value_makeTypeValue(type),
+    Arcadia_Value_makeReal64Value(0), Arcadia_Value_makeTypeDescriptorValue(type),
     Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(_Arcadia_ADL_MaterialType_getType(thread), 0)),
     valid[0], valid[1],
   };
@@ -372,7 +372,7 @@ static void
 checkLifetime
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* arguments,
     Arcadia_SizeValue count
   )
@@ -470,7 +470,7 @@ static void
 checkGeneratedEntries
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue childType,
+    Arcadia_TypeDescriptorValue childType,
     Arcadia_Value* arguments,
     Arcadia_SizeValue count,
     unsigned kind
@@ -540,7 +540,7 @@ colorTest
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)name);
   Arcadia_Value arguments[] = { Arcadia_Value_makeObjectReferenceValue(definitions), Arcadia_Value_makeObjectReferenceValue(name),
     Arcadia_Value_makeNatural8Value(0), Arcadia_Value_makeNatural8Value(73), Arcadia_Value_makeNatural8Value(255) };
-  Arcadia_TypeValue type = _Arcadia_ADL_ColorDefinition_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_ADL_ColorDefinition_getType(thread);
   checkConstructor(thread, type, "Arcadia.ADL.ColorDefinition", arguments, 5, false);
   Arcadia_ADL_ColorDefinition* color = Arcadia_ADL_ColorDefinition_create(thread, definitions, name, 0, 73, 255);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)color);
@@ -584,7 +584,7 @@ toggleTest
     Arcadia_Value_makeNatural32Value(3), Arcadia_Value_makeNatural32Value(407),
     Arcadia_Value_makeBooleanValue(true)
   };
-  Arcadia_TypeValue type = _Arcadia_ADL_UI_ToggleDefinition_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_ADL_UI_ToggleDefinition_getType(thread);
   checkConstructor(thread, type, "Arcadia.ADL.UI.ToggleDefinition", arguments, 7, false);
   for (Arcadia_SizeValue i = 0; i < 2; ++i) {
     Arcadia_ADL_UI_ToggleDefinition* toggle = Arcadia_ADL_UI_ToggleDefinition_create(thread, definitions, name,
@@ -632,7 +632,7 @@ sliderTest
     Arcadia_Value_makeReal64Value(-0.0), Arcadia_Value_makeReal64Value(19.5),
     Arcadia_Value_makeReal64Value(-3.25), Arcadia_Value_makeReal64Value(0.125)
   };
-  Arcadia_TypeValue type = _Arcadia_ADL_UI_SliderDefinition_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_ADL_UI_SliderDefinition_getType(thread);
   checkConstructor(thread, type, "Arcadia.ADL.UI.SliderDefinition", arguments, 10, false);
   Arcadia_ADL_UI_SliderDefinition* slider = Arcadia_ADL_UI_SliderDefinition_create(thread, definitions, name,
     INT32_MIN, 91, 5, UINT32_MAX, -0.0, 19.5, -3.25, 0.125);
@@ -683,7 +683,7 @@ labelTest
     Arcadia_Value_makeNatural8Value(91), Arcadia_Value_makeNatural8Value(255),
     Arcadia_Value_makeNatural8Value(0), Arcadia_Value_makeNatural32Value(17)
   };
-  Arcadia_TypeValue type = _Arcadia_ADL_UI_LabelDefinition_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_ADL_UI_LabelDefinition_getType(thread);
   checkConstructor(thread, type, "Arcadia.ADL.UI.LabelDefinition", arguments, 14, false);
   Arcadia_ADL_UI_LabelDefinition* label = Arcadia_ADL_UI_LabelDefinition_create(thread, definitions, name,
     -11, 32, 5, 1024, text, horizontal, vertical, 7, 91, 255, 0, 17);
@@ -762,7 +762,7 @@ dspDefinitionTest
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)name);
   Arcadia_Value arguments[] = { Arcadia_Value_makeObjectReferenceValue(definitions), Arcadia_Value_makeObjectReferenceValue(name),
     kind == 1 ? Arcadia_Value_makeReal32Value(-0.f) : Arcadia_Value_makeInteger32Value(-1) };
-  Arcadia_TypeValue type;
+  Arcadia_TypeDescriptorValue type;
   const char* expected;
   switch (kind) {
     case 0: type = _Arcadia_ADL_WhiteNoiseDefinition_getType(thread); expected = "Arcadia.ADL.WhiteNoiseDefinition"; break;
@@ -800,7 +800,7 @@ dspDefinitionTest
     }
   }
   checkLifetime(thread, type, arguments, kind ? 3 : 2);
-  Arcadia_TypeValue (*const childTypes[])(Arcadia_Thread*) = { _ADLWhiteModelChild_getType, _ADLConstantModelChild_getType, _ADLSineModelChild_getType, _ADLSawtoothModelChild_getType };
+  Arcadia_TypeDescriptorValue (*const childTypes[])(Arcadia_Thread*) = { _ADLWhiteModelChild_getType, _ADLConstantModelChild_getType, _ADLSineModelChild_getType, _ADLSawtoothModelChild_getType };
   checkLifetime(thread, childTypes[kind](thread), arguments, kind ? 3 : 2);
   checkGeneratedEntries(thread, childTypes[kind](thread), arguments, kind ? 3 : 2, kind + 1);
   Arcadia_ValueStack_popValues(thread, 2);
@@ -884,7 +884,7 @@ containerModelsTest
     Arcadia_Value_makeNatural32Value(97), Arcadia_Value_makeNatural32Value(109),
   };
   for (unsigned kind = 0; kind < 2; ++kind) {
-    Arcadia_TypeValue type = kind ? _Arcadia_ADL_UI_ScrollPanelDefinition_getType(thread) : _Arcadia_ADL_UI_CanvasDefinition_getType(thread);
+    Arcadia_TypeDescriptorValue type = kind ? _Arcadia_ADL_UI_ScrollPanelDefinition_getType(thread) : _Arcadia_ADL_UI_CanvasDefinition_getType(thread);
     Arcadia_SizeValue count = kind ? 8 : 4;
     checkConstructor(thread, type, kind ? "Arcadia.ADL.UI.ScrollPanelDefinition" : "Arcadia.ADL.UI.CanvasDefinition", values, count, false);
     Arcadia_Object* object = construct(thread, type, values, count);
@@ -965,7 +965,7 @@ buttonModelTest
     Arcadia_Value_makeNatural32Value(67), Arcadia_Value_makeNatural32Value(79),
     Arcadia_Value_makeNatural8Value(13), Arcadia_Value_makeNatural8Value(17), Arcadia_Value_makeNatural8Value(19),
   };
-  Arcadia_TypeValue type = _Arcadia_ADL_UI_ButtonDefinition_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_ADL_UI_ButtonDefinition_getType(thread);
   checkConstructor(thread, type, "Arcadia.ADL.UI.ButtonDefinition", values, 19, true);
   Arcadia_ADL_UI_ButtonDefinition* button = (Arcadia_ADL_UI_ButtonDefinition*)construct(thread, type, values, 19);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, button);

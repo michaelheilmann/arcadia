@@ -98,8 +98,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_Engine_Demo_MainScene_object
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_Demo_MainScene_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_Engine_Demo_MainScene_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_Engine_Demo_MainScene_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_Engine_Demo_MainScene_objectTypeOperations,
 };
 

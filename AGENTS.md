@@ -12,7 +12,7 @@
 - For cross-language formatting, read `AGENTS/Formatting.md`.
 - For repository-wide file extension conventions, read `AGENTS/FileNamingConventions.md`.
 - For test creation, assertions, discovery, fixture isolation and verification, read `AGENTS/Testing.md`; ADL and Media ownership/compatibility notes live in their respective `AGENTS.md` files.
-- AI agents must not create commits or push to remotes; for the full rules, read `AGENTS/VersionControl.md`.
+- Follow `AGENTS/VersionControl.md` for all branch, commit, push, pull-request, and merge operations.
 
 ## Task Context And Handoffs
 

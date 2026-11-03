@@ -14,28 +14,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_PIXELBUFFERIO_LINUX_BMPIMAGEWRITER_H_INCLUDED)
-#define ARCADIA_PIXELBUFFERIO_LINUX_BMPIMAGEWRITER_H_INCLUDED
+#if !defined(ARCADIA_PIXELBUFFERIO_ICOIMAGEREADER_H_INCLUDED)
+#define ARCADIA_PIXELBUFFERIO_ICOIMAGEREADER_H_INCLUDED
 
-#include "Arcadia/Ring2/Include.h"
-#include "Arcadia/PixelBufferIO/ImageWriter.h"
+#include "Arcadia/PixelBufferIO/ImageReader.h"
 
-Arcadia_declareObjectType(u8"Arcadia.Imaging.Linux.BMPImageWriter", Arcadia_Imaging_Linux_BMPImageWriter,
-                          u8"Arcadia.Imaging.ImageWriter");
+Arcadia_declareObjectType(u8"Arcadia.Imaging.ICOImageReader", Arcadia_Imaging_ICOImageReader,
+                          u8"Arcadia.Imaging.ImageReader");
 
-struct Arcadia_Imaging_Linux_BMPImageWriterDispatch {
-  Arcadia_Imaging_ImageWriterDispatch _parent;
+struct Arcadia_Imaging_ICOImageReaderDispatch {
+  Arcadia_Imaging_ImageReaderDispatch parent;
 };
 
-struct Arcadia_Imaging_Linux_BMPImageWriter {
-  Arcadia_Imaging_ImageWriter _parent;
+struct Arcadia_Imaging_ICOImageReader {
+  Arcadia_Imaging_ImageReader _parent;
   Arcadia_ImmutableList* supportedTypes;
 };
 
-Arcadia_Imaging_Linux_BMPImageWriter*
-Arcadia_Imaging_Linux_BMPImageWriter_create
+Arcadia_Imaging_ICOImageReader*
+Arcadia_Imaging_ICOImageReader_create
   (
     Arcadia_Thread* thread
   );
 
-#endif // ARCADIA_PIXELBUFFERIO_LINUX_BMPIMAGEWRITER_H_INCLUDED
+#endif // ARCADIA_PIXELBUFFERIO_ICOIMAGEREADER_H_INCLUDED

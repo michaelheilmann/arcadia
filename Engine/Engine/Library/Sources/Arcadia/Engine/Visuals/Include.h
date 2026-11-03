@@ -81,6 +81,7 @@ typedef struct Arcadia_Engine_Visuals_FragmentProgramResource Arcadia_Engine_Vis
 #include "Arcadia/Engine/Input/KeyboardKeyEvent.h"
 #include "Arcadia/Engine/Input/MouseButtonEvent.h"
 #include "Arcadia/Engine/Input/MousePointerEvent.h"
+#include "Arcadia/Engine/Input/MousePointerEventExtensions.h"
 
 #include "Arcadia/Engine/Visuals/DisplayDevice.h"
 #include "Arcadia/Engine/Visuals/DisplayMode.h"

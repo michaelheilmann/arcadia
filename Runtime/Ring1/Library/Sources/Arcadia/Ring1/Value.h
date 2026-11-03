@@ -79,7 +79,7 @@
 
 #define Arcadia_ValueTag_Size (18)
 
-#define Arcadia_ValueTag_Type (19)
+#define Arcadia_ValueTag_TypeDescriptor (19)
 
 #define Arcadia_ValueTag_Enumeration (20)
 
@@ -121,7 +121,7 @@ typedef struct Arcadia_Value {
 
     Define(Arcadia, Size, size)
 
-    Define(Arcadia, Type, type)
+    Define(Arcadia, TypeDescriptor, typeDescriptor)
 
     Define(Arcadia, Void, void)
 
@@ -205,7 +205,7 @@ Define(Arcadia, Real64, real64)
 
 Define(Arcadia, Size, size)
 
-Define(Arcadia, Type, type)
+Define(Arcadia, TypeDescriptor, typeDescriptor)
 
 Define(Arcadia, Void, void)
 
@@ -220,12 +220,13 @@ Arcadia_Value_visit
     Arcadia_Value* self
   );
 
-Arcadia_TypeValue
-Arcadia_Value_getType
+Arcadia_TypeDescriptorValue
+Arcadia_Value_getTypeDescriptor
   (
     Arcadia_Thread* thread,
     Arcadia_Value const* self
   );
+
 
 Arcadia_BooleanValue
 Arcadia_Value_isEqualTo
@@ -287,7 +288,7 @@ Arcadia_Value_isInstanceOf
   (
     Arcadia_Thread* thread,
     Arcadia_Value const* self,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   );
 
 /**
@@ -308,7 +309,7 @@ Arcadia_Value_getObjectReferenceValueChecked
   (
     Arcadia_Thread* thread,
     Arcadia_Value self,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   );
 
 #endif // ARCADIA_RING1_VALUE_H_INCLUDED

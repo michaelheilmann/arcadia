@@ -199,7 +199,7 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl,
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
-static const Arcadia_Type_Operations _typeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &_objectTypeOperations };
+static const Arcadia_TypeDescriptor_Operations _typeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &_objectTypeOperations };
 
 Arcadia_defineObjectTypeWithInterfaces
   (

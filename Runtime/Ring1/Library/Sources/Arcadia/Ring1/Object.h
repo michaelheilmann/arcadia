@@ -25,7 +25,7 @@ typedef struct Arcadia_Value Arcadia_Value;
 typedef struct Arcadia_Object Arcadia_Object;
 
 typedef struct Arcadia_ObjectDispatch {
-  Arcadia_Type* type;
+  Arcadia_TypeDescriptor* type;
 
   Arcadia_ForeignProcedure* add;
   Arcadia_ForeignProcedure* and;
@@ -48,7 +48,7 @@ typedef struct Arcadia_ObjectDispatch {
 
 } Arcadia_ObjectDispatch;
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_Object_getType
   (
     Arcadia_Thread* thread
@@ -62,7 +62,7 @@ struct Arcadia_Object {
 
 #define Arcadia_superTypeConstructor(_thread, _type, _self) \
   { \
-    Arcadia_Type_getOperations(Arcadia_ObjectType_getParentObjectType(thread, _type))->objectTypeOperations->construct(_thread, (Arcadia_Object*)_self); \
+    Arcadia_TypeDescriptor_getOperations(Arcadia_ObjectType_getParentObjectType(thread, _type))->objectTypeOperations->construct(_thread, (Arcadia_Object*)_self); \
   }
 
 /// R(untime) ex(tension) macro.
@@ -70,7 +70,7 @@ struct Arcadia_Object {
 #define Arcadia_declareObjectType(_cilName, _cName, _cilParentName) \
   typedef struct _cName##Dispatch _cName##Dispatch; \
   typedef struct _cName _cName; \
-  Arcadia_TypeValue \
+  Arcadia_TypeDescriptorValue \
   _##_cName##_getType \
     ( \
       Arcadia_Thread* thread \
@@ -79,7 +79,7 @@ struct Arcadia_Object {
 /// R(untime) ex(tension) macro.
 /// @param _cilName, _cilParentName UTF8 string literals for the Common Intermediate Language type names of the type and its parent type.
 #define Arcadia_defineObjectType(_cilName, _cName, _cilParentName, _cParentName, _cTypeOperations) \
-  static Arcadia_TypeValue g_##_cName##_type = NULL; \
+  static Arcadia_TypeDescriptorValue g_##_cName##_type = NULL; \
   \
   static void \
   _##_cName##_typeDestructing \
@@ -90,14 +90,14 @@ struct Arcadia_Object {
     g_##_cName##_type = NULL; \
   } \
   \
-  Arcadia_TypeValue \
+  Arcadia_TypeDescriptorValue \
   _##_cName##_getType \
     ( \
       Arcadia_Thread* thread \
     ) \
   { \
     if (!g_##_cName##_type) { \
-      Arcadia_TypeValue parentType = _##_cParentName##_getType(thread); \
+      Arcadia_TypeDescriptorValue parentType = _##_cParentName##_getType(thread); \
       g_##_cName##_type = Arcadia_registerObjectType \
         ( \
           thread, \
@@ -138,7 +138,7 @@ void*
 _Arcadia_EndCreate0
   (
     Arcadia_Thread* thread,
-    Arcadia_Type* type,
+    Arcadia_TypeDescriptor* type,
     Arcadia_SizeValue oldValueStackSize
   );
 
@@ -157,7 +157,7 @@ Arcadia_Object_setType
   (
     Arcadia_Thread* thread,
     Arcadia_Object* self,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   );
 
 /// @brief Visit an object.
@@ -236,7 +236,7 @@ Arcadia_Object_unlock
 /// @brief Get the type of an object.
 /// @param self A pointer to the object.
 /// @return The type of an object.
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_Object_getType
   (
     Arcadia_Thread* thread,
@@ -248,9 +248,9 @@ Arcadia_Object_isInstanceOf
   (
     Arcadia_Thread* thread,
     Arcadia_Object* object,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
-{ return Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, object), type); }
+{ return Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, object), type); }
 
 // "clone"
 Arcadia_Object*
@@ -296,13 +296,13 @@ Arcadia_Object_toString
 
 /// Utility macro to define the body of a virtual call with return value.
 #define Arcadia_VirtualCallWithReturn(Type, Function, ...) \
-  Arcadia_Type* t = Arcadia_Object_getType(thread, (Arcadia_Object*)self); \
+  Arcadia_TypeDescriptor* t = Arcadia_Object_getType(thread, (Arcadia_Object*)self); \
   Type##Dispatch* d = (Type##Dispatch*)Arcadia_ObjectType_getDispatch(t); \
   return d->Function(thread, __VA_ARGS__);
 
 /// Utility macro to define the body of a virtual call without return value.
 #define Arcadia_VirtualCall(Type, Function, ...) \
-  Arcadia_Type* t = Arcadia_Object_getType(thread, (Arcadia_Object*)self); \
+  Arcadia_TypeDescriptor* t = Arcadia_Object_getType(thread, (Arcadia_Object*)self); \
   Type##Dispatch* d = (Type##Dispatch*)Arcadia_ObjectType_getDispatch(t); \
   d->Function(thread, __VA_ARGS__);
 
@@ -360,7 +360,7 @@ Arcadia_Object_toString
 
 /// Utility macro to define the header of a constructor.
 #define Arcadia_EnterConstructor(Type) \
-  Arcadia_TypeValue _type = _##Type##_getType(thread); \
+  Arcadia_TypeDescriptorValue _type = _##Type##_getType(thread); \
   if (Arcadia_ValueStack_getSize(thread) < 1) { \
     Arcadia_Thread_setStatus(thread, Arcadia_Status_StackCorruption); \
     Arcadia_Thread_jump(thread); \

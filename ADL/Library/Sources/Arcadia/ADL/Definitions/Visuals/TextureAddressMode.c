@@ -17,8 +17,8 @@
 #define ARCADIA_ADL_PRIVATE (1)
 #include "Arcadia/ADL/Definitions/Visuals/TextureAddressMode.h"
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
 };
 
 Arcadia_defineEnumerationType(u8"Arcadia.ADL.TextureAddressMode", Arcadia_ADL_TextureAddressMode,

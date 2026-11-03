@@ -26,7 +26,7 @@ isBooleanNode
     Arcadia_Thread* thread,
     Arcadia_DDL_Node* node
   )
-{ return Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_BooleanNode_getType(thread)); }
+{ return Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_BooleanNode_getType(thread)); }
 
 static Arcadia_BooleanValue
 isNumberNode
@@ -34,7 +34,7 @@ isNumberNode
     Arcadia_Thread* thread,
     Arcadia_DDL_Node* node
   )
-{ return Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_NumberNode_getType(thread)); }
+{ return Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_NumberNode_getType(thread)); }
 
 static Arcadia_BooleanValue
 isStringNode
@@ -42,7 +42,7 @@ isStringNode
     Arcadia_Thread* thread,
     Arcadia_DDL_Node* node
   )
-{ return Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_StringNode_getType(thread)); }
+{ return Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_StringNode_getType(thread)); }
 
 static Arcadia_BooleanValue
 isMapEntryNode
@@ -50,7 +50,7 @@ isMapEntryNode
     Arcadia_Thread* thread,
     Arcadia_DDL_Node* node
   )
-{ return Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_MapEntryNode_getType(thread)); }
+{ return Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_MapEntryNode_getType(thread)); }
 
 static Arcadia_BooleanValue
 isMapNode
@@ -58,7 +58,7 @@ isMapNode
     Arcadia_Thread* thread,
     Arcadia_DDL_Node* node
   )
-{ return Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_MapNode_getType(thread)); }
+{ return Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_MapNode_getType(thread)); }
 
 static Arcadia_SizeValue
 _findIndex
@@ -541,7 +541,7 @@ Arcadia_Engine_ApplicationConfiguration_loadConfiguration
                                                                                                       Arcadia_Languages_Diagnostics_create(thread, (Arcadia_Log*)Arcadia_ConsoleLog_create(thread))));
     Arcadia_Languages_Parser_setInput(thread, (Arcadia_Languages_Parser*)parser, y);
     Arcadia_DDL_Node* node = (Arcadia_DDL_Node*)Arcadia_Value_getObjectReferenceValueChecked(thread, Arcadia_Languages_Parser_run(thread, (Arcadia_Languages_Parser*)parser), _Arcadia_DDL_Node_getType(thread));
-    if (!Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_MapNode_getType(thread))) {
+    if (!Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)node), _Arcadia_DDL_MapNode_getType(thread))) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
       Arcadia_Thread_jump(thread);
     }

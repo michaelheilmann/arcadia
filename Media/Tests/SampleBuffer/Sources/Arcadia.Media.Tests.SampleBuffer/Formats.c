@@ -27,7 +27,7 @@ _Static_assert(Arcadia_Media_SampleFormat_Real32 == 4, "Real32 remains declared"
 _Static_assert(sizeof(Arcadia_Media_SampleFormat) == sizeof(Arcadia_Integer32Value), "enum size");
 _Static_assert(_Alignof(Arcadia_Media_SampleFormat) == _Alignof(Arcadia_Integer32Value), "enum alignment");
 _Static_assert(_Generic(&Arcadia_Media_SampleFormat_getNumberOfBytes, Arcadia_SizeValue (*)(Arcadia_Thread*, Arcadia_Media_SampleFormat): 1, default: 0), "byte query signature");
-_Static_assert(_Generic(&_Arcadia_Media_SampleFormat_getType, Arcadia_TypeValue (*)(Arcadia_Thread*): 1, default: 0), "descriptor signature");
+_Static_assert(_Generic(&_Arcadia_Media_SampleFormat_getType, Arcadia_TypeDescriptorValue (*)(Arcadia_Thread*): 1, default: 0), "descriptor signature");
 
 static void
 testMetadata
@@ -36,12 +36,12 @@ testMetadata
   )
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
-  Arcadia_TypeValue type = _Arcadia_Media_SampleFormat_getType(thread);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Media_SampleFormat_getType(thread);
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
   const char expected[] = "Arcadia.Media.SampleFormat";
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == sizeof(expected) - 1 && !memcmp(Arcadia_Name_getBytes(thread, name), expected, sizeof(expected) - 1));
-  Arcadia_Tests_assertTrue(thread, Arcadia_getType(thread, name) == type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, name) == type);
   for (Arcadia_Integer32Value i = 0; i < 5; ++i) {
     Arcadia_Value value = Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(type, i));
     Arcadia_ValueStack_pushValue(thread, &value);

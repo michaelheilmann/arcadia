@@ -129,8 +129,8 @@ static const Arcadia_ObjectType_Operations probeObjects = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeProbe,
 };
 
-static const Arcadia_Type_Operations probeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations probeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &probeObjects,
 };
 
@@ -259,8 +259,8 @@ static const Arcadia_ObjectType_Operations queueObjects = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeQueue,
 };
 
-static const Arcadia_Type_Operations queueOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations queueOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &queueObjects,
 };
 
@@ -295,7 +295,7 @@ static Arcadia_Object*
 create0
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
@@ -339,7 +339,7 @@ testLifetime
   Arcadia_Set* sets[] = { self->visualsBackendTypes, self->visualsNodeFactoryTypes, self->audialsBackendTypes, self->audialsNodeFactoryTypes };
   for (unsigned i = 0; i < 4; ++i) {
     observe(thread, (void*)sets[i], i);
-    Arcadia_Set_add(thread, sets[i], Arcadia_Value_makeTypeValue(_EngineStateProbe_getType(thread)), NULL);
+    Arcadia_Set_add(thread, sets[i], Arcadia_Value_makeTypeDescriptorValue(_EngineStateProbe_getType(thread)), NULL);
   }
   self->visualsBackendContext = (void*)create0(thread, _Arcadia_Engine_Visuals_BackendContext_getType(thread));
   observe(thread, (void*)self->visualsBackendContext, 4);
@@ -358,7 +358,7 @@ testLifetime
   observe(thread, (void*)second, 11);
   Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
   for (unsigned i = 0; i < 12; ++i) Arcadia_Tests_assertTrue(thread, destroyed[i] == 0);
-  for (unsigned i = 0; i < 4; ++i) Arcadia_Tests_assertTrue(thread, Arcadia_Set_contains(thread, sets[i], Arcadia_Value_makeTypeValue(_EngineStateProbe_getType(thread))));
+  for (unsigned i = 0; i < 4; ++i) Arcadia_Tests_assertTrue(thread, Arcadia_Set_contains(thread, sets[i], Arcadia_Value_makeTypeDescriptorValue(_EngineStateProbe_getType(thread))));
   Arcadia_Tests_assertTrue(thread, Arcadia_Engine_dequeEvent(thread, self) == (Arcadia_Engine_Event*)first);
   Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_Event*)first)->timestamp == 0);
   Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));

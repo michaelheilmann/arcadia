@@ -43,8 +43,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_Media_VertexElementDescripto
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Media_VertexElementDescriptor_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_Media_VertexElementDescriptor_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_Media_VertexElementDescriptor_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_Media_VertexElementDescriptor_objectTypeOperations,
 };
 

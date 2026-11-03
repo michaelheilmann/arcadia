@@ -28,7 +28,7 @@ Arcadia_VPL_IR_getRequiredObjectArgument
   (
     Arcadia_Thread* thread,
     Arcadia_SizeValue index,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   Arcadia_Object* object = Arcadia_ValueStack_getObjectReferenceValue(thread, index);

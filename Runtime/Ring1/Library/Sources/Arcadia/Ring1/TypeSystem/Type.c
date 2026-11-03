@@ -21,10 +21,10 @@
 #include <assert.h>
 
 Arcadia_Name*
-Arcadia_Type_getName
+Arcadia_TypeDescriptor_getName
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
 {
   assert(NULL != self);
@@ -33,10 +33,10 @@ Arcadia_Type_getName
 }
 
 size_t
-Arcadia_Type_getHash
+Arcadia_TypeDescriptor_getHash
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
 {
   assert(NULL != self);
@@ -45,10 +45,10 @@ Arcadia_Type_getHash
 }
 
 Arcadia_TypeKind
-Arcadia_Type_getKind
+Arcadia_TypeDescriptor_getKind
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
 {
   assert(NULL != self);

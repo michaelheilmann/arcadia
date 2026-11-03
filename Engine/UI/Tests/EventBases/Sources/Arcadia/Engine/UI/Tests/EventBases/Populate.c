@@ -147,7 +147,7 @@ static const Arcadia_ObjectType_Operations probeObjects = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitProbe,
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructProbe,
 };
-static const Arcadia_Type_Operations probeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &probeObjects };
+static const Arcadia_TypeDescriptor_Operations probeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &probeObjects };
 
 Arcadia_defineObjectTypeWithInterfaces(u8"Tests.PopulateProbe", PopulateProbe,
                                       u8"Arcadia.Object", Arcadia_Object, &probeOperations,

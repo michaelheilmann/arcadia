@@ -83,7 +83,7 @@ visitCallback
 {
   Arcadia_Thread* thread = Arcadia_Process_getThread(process);
   for (Arcadia_SizeValue i = 0, n = typeNode->extends.size; i < n; ++i) {
-    Arcadia_Type_visit(thread, typeNode->extends.elements[i]);
+    Arcadia_TypeDescriptor_visit(thread, typeNode->extends.elements[i]);
   }
   Arcadia_Name_visit(thread, ((TypeNode*)typeNode)->name);
 }

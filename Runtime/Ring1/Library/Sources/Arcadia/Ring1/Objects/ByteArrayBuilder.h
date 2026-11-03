@@ -116,7 +116,7 @@ Arcadia_ByteArrayBuilder_isEqualTo_pn
     Arcadia_SizeValue numberOfBytes
   );
 
-// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_Bytebuffer_clear
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArrayBuilder_clear
 void
 Arcadia_ByteArrayBuilder_clear
   (

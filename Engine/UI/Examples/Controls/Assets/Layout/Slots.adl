@@ -1,0 +1,15 @@
+{
+  type : "UI.Panel",
+  name : "Controls.Layout.Slots",
+  left : 0, bottom : 0, width : 500, height : 56,
+  sizePolicy : "Fixed",
+  layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 8,
+             mainAlignment : "Start", crossAlignment : "Center" },
+  children : [ "Controls.Layout.Mode", "Controls.Layout.Content", "Controls.Layout.Fixed", "Controls.Layout.Weight" ],
+  childLayouts : [
+    { name : "Controls.Layout.Mode", mainAxisPolicy : "Fixed", mainAxisExtent : 128 },
+    { name : "Controls.Layout.Content", mainAxisPolicy : "Content" },
+    { name : "Controls.Layout.Fixed", mainAxisPolicy : "Fixed", mainAxisExtent : 96, visibility : "Visible" },
+    { name : "Controls.Layout.Weight", mainAxisPolicy : "Weight", weight : 1 },
+  ],
+}

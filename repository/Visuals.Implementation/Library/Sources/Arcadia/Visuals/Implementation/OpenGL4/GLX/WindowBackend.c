@@ -22,6 +22,7 @@
 #include <X11/keysymdef.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <limits.h>
 
 static void
 openContext
@@ -250,8 +251,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -297,12 +298,16 @@ applyIcons
     for (size_t i = 0; i < 2; ++i) {
       Arcadia_Visuals_Linux_Icon* icon = icons[i];
       if (icon) {
-        numberOfElements += icon->width * icon->height + 2;
+        size_t iconElements = icon->numberOfBytes / sizeof(unsigned long);
+        if (icon->numberOfBytes % sizeof(unsigned long) != 0 ||
+            iconElements > (size_t)INT_MAX - numberOfElements) {
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+          Arcadia_Thread_jump(thread);
+        }
+        numberOfElements += iconElements;
         Arcadia_ByteArrayBuilder_insertBackBytes(thread, byteBuffer, icon->bytes, icon->numberOfBytes);
       }
     }
-    void const* p = Arcadia_ByteArrayBuilder_getBytes(thread, byteBuffer);
-    int n = Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, byteBuffer);
     XChangeProperty(self->backendContext->display,
                     self->window,
                     self->backendContext->_NET_WM_ICON,
@@ -310,7 +315,7 @@ applyIcons
                     32,
                     PropModeReplace,
                     Arcadia_ByteArrayBuilder_getBytes(thread, byteBuffer),
-                    numberOfElements);
+                    (int)numberOfElements);
   }
   XSync(self->backendContext->display, False);
 }

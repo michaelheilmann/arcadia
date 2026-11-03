@@ -44,6 +44,10 @@ struct Arcadia_Engine_UI_Examples_Controls_ControlsScene {
   Arcadia_Engine_UI_LayoutPanelNode* sliderRowPanelNode;
   Arcadia_Engine_UI_LayoutPanelNode* choiceRowPanelNode;
   Arcadia_Engine_UI_TabBarNode* tabBarNode;
+  Arcadia_Engine_UI_LayoutPanelNode* slotDemoPanelNode;
+  Arcadia_Engine_UI_ButtonNode* slotDemoModeButtonNode;
+  Arcadia_Engine_UI_ButtonNode* slotDemoFixedButtonNode;
+  Arcadia_Engine_UI_StackLayoutSlotVisibility slotDemoVisibility;
   Arcadia_Engine_UI_LayoutPanelNode* scrollColumnPanelNode;
   Arcadia_Engine_UI_LabelNode* helpLabelNode;
   Arcadia_Engine_UI_ButtonNode* buttonNode;

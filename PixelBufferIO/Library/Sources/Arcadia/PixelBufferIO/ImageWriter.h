@@ -38,7 +38,7 @@ struct Arcadia_Imaging_ImageWriter {
 /// @param thread A pointer to this thread.
 /// @param self A pointer to this image writer.
 /// @return A set of strings denoting the extensions supported by this image writer.
-/// @remarks Canonical strings are "bmp", "ico", and "png".
+/// @remarks Canonical strings are "ico", "png", and "tif" (Windows only).
 Arcadia_ImmutableList*
 Arcadia_Imaging_ImageWriter_getSupportedTypes
   (

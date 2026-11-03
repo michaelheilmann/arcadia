@@ -1,0 +1,144 @@
+diff --git a/Runtime/Ring1/Library/Sources/Arcadia/Ring1/TypeSystem/Type.h b/Runtime/Ring1/Library/Sources/Arcadia/Ring1/TypeSystem/Type.h
+--- a/Runtime/Ring1/Library/Sources/Arcadia/Ring1/TypeSystem/Type.h
++++ b/Runtime/Ring1/Library/Sources/Arcadia/Ring1/TypeSystem/Type.h
+@@ -26,3 +26,3 @@
+ /// @brief The opaque C type representing a type.
+ /// Types are not garbage collected. Once a type was added, it remains there until the process terminates.
+-typedef void Arcadia_Type;
++typedef void Arcadia_TypeDescriptor;
+@@ -44,2 +44,2 @@
+ /// @brief A pointer to a type or the null pointer.
+-typedef Arcadia_Type* Arcadia_TypeValue;
++typedef Arcadia_TypeDescriptor* Arcadia_TypeDescriptorValue;
+@@ -51,4 +51,4 @@
+ /// @error #Arcadia_Status_ArgumentValueInvalid @a name is a null pointer
+ /// @error Arcadia_Status_TypeNotExists no type of the specified name was found
+-Arcadia_TypeValue
++Arcadia_TypeDescriptorValue
+ Arcadia_getType
+@@ -62,7 +62,7 @@
+ /// @param self A pointer to this type.
+ /// @return A pointer to the name off this type.
+ Arcadia_Name*
+-Arcadia_Type_getName
++Arcadia_TypeDescriptor_getName
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+@@ -74,7 +74,7 @@
+ /// @param self A pointer to this type.
+ /// @return The hash of this type.
+ size_t
+-Arcadia_Type_getHash
++Arcadia_TypeDescriptor_getHash
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+@@ -86,7 +86,7 @@
+ /// @param self A pointer to this type.
+ /// @return The kind of this type.
+ Arcadia_TypeKind
+-Arcadia_Type_getKind
++Arcadia_TypeDescriptor_getKind
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+@@ -99,8 +99,8 @@
+ /// @return #Arcadia_BooleanValue_True if the type is of the kind of type "enumeration". #Arcadia_BooleanValue_False otherwise.
+ static inline bool
+-Arcadia_Type_isEnumerationtKind
++Arcadia_TypeDescriptor_isEnumerationtKind
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+   )
+-{ return Arcadia_TypeKind_Enumeration == Arcadia_Type_getKind(thread, self); }
++{ return Arcadia_TypeKind_Enumeration == Arcadia_TypeDescriptor_getKind(thread, self); }
+@@ -111,8 +111,8 @@
+ /// @return #Arcadia_BooleanValue_True if the type is of the kind of type "interface". #Arcadia_BooleanValue_False otherwise.
+ static inline bool
+-Arcadia_Type_isInterfacelKind
++Arcadia_TypeDescriptor_isInterfacelKind
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+   )
+-{ return Arcadia_TypeKind_Interface == Arcadia_Type_getKind(thread, self); }
++{ return Arcadia_TypeKind_Interface == Arcadia_TypeDescriptor_getKind(thread, self); }
+@@ -123,8 +123,8 @@
+ /// @return #Arcadia_BooleanValue_True if the type is of the kind of type "internal". #Arcadia_BooleanValue_False otherwise.
+ static inline bool
+-Arcadia_Type_isInternalKind
++Arcadia_TypeDescriptor_isInternalKind
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+   )
+-{ return Arcadia_TypeKind_Internal == Arcadia_Type_getKind(thread, self); }
++{ return Arcadia_TypeKind_Internal == Arcadia_TypeDescriptor_getKind(thread, self); }
+@@ -135,8 +135,8 @@
+ /// @return #Arcadia_BooleanValue_True if the type is of the kind of type "object". #Arcadia_BooleanValue_False otherwise.
+ static inline bool
+-Arcadia_Type_isObjectKind
++Arcadia_TypeDescriptor_isObjectKind
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+   )
+-{ return Arcadia_TypeKind_Object == Arcadia_Type_getKind(thread, self); }
++{ return Arcadia_TypeKind_Object == Arcadia_TypeDescriptor_getKind(thread, self); }
+@@ -147,8 +147,8 @@
+ /// @return #Arcadia_BooleanValue_True if the type is of the kind of type "scalar". #Arcadia_BooleanValue_False otherwise.
+ static inline bool
+-Arcadia_Type_isScalarKind
++Arcadia_TypeDescriptor_isScalarKind
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+   )
+-{ return Arcadia_TypeKind_Scalar == Arcadia_Type_getKind(thread, self); }
++{ return Arcadia_TypeKind_Scalar == Arcadia_TypeDescriptor_getKind(thread, self); }
+diff --git a/Runtime/Ring1/Library/Sources/Arcadia/Ring1/TypeSystem/Type.c b/Runtime/Ring1/Library/Sources/Arcadia/Ring1/TypeSystem/Type.c
+--- a/Runtime/Ring1/Library/Sources/Arcadia/Ring1/TypeSystem/Type.c
++++ b/Runtime/Ring1/Library/Sources/Arcadia/Ring1/TypeSystem/Type.c
+@@ -21,8 +21,8 @@
+ #include <assert.h>
+ 
+ Arcadia_Name*
+-Arcadia_Type_getName
++Arcadia_TypeDescriptor_getName
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+   )
+@@ -33,8 +33,8 @@
+ }
+ 
+ size_t
+-Arcadia_Type_getHash
++Arcadia_TypeDescriptor_getHash
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+   )
+@@ -44,8 +44,8 @@
+ }
+ 
+ Arcadia_TypeKind
+-Arcadia_Type_getKind
++Arcadia_TypeDescriptor_getKind
+   (
+     Arcadia_Thread* thread,
+-    Arcadia_TypeValue self
++    Arcadia_TypeDescriptorValue self
+   )

@@ -20,6 +20,8 @@
 #include "Arcadia/Visuals/Implementation/OpenGL4/Resources/TextureResource.h"
 #include "Arcadia/Visuals/Implementation/OpenGL4/BackendContext.h"
 
+#include <math.h>
+
 static void
 Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_constructImpl
   (
@@ -93,8 +95,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -217,15 +219,19 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_renderImpl
 
   Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext* context = (Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext*)((Arcadia_Engine_Visuals_Resource*)self)->context;
   _Arcadia_Engine_Visuals_Implementation_OpenGL4_Functions* gl = Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext_getFunctions(thread, context);
-  Arcadia_Real32Value l = ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.width * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.left,
-                      b = ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.height * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.bottom,
-                      w = ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.width * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.right
-                        - ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.width * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.left,
-                      h = ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.height * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.top
-                        - ((Arcadia_Engine_Visuals_EnterPassResource*)self)->canvasSize.height * ((Arcadia_Engine_Visuals_EnterPassResource*)self)->relativeViewportRectangle.bottom;
-  gl->glViewport(l, b, w, h);
+  Arcadia_Engine_Visuals_EnterPassResource* pass = (Arcadia_Engine_Visuals_EnterPassResource*)self;
+  // Quantize edges before calculating dimensions. Implicit float-to-integer
+  // truncation can move a pixel-aligned edge by one pixel after division and
+  // multiplication through a normalized viewport rectangle.
+  GLint left = (GLint)roundf(pass->canvasSize.width * pass->relativeViewportRectangle.left);
+  GLint bottom = (GLint)roundf(pass->canvasSize.height * pass->relativeViewportRectangle.bottom);
+  GLint right = (GLint)roundf(pass->canvasSize.width * pass->relativeViewportRectangle.right);
+  GLint top = (GLint)roundf(pass->canvasSize.height * pass->relativeViewportRectangle.top);
+  GLsizei width = right - left;
+  GLsizei height = top - bottom;
+  gl->glViewport(left, bottom, width, height);
   gl->glEnable(GL_SCISSOR_TEST);
-  gl->glScissor(l, b, w, h);
+  gl->glScissor(left, bottom, width, height);
 
   // Clearing the depth buffer and depth testing are separate render-pass operations.
   if (((Arcadia_Engine_Visuals_EnterPassResource*)self)->depthTestEnabled) {

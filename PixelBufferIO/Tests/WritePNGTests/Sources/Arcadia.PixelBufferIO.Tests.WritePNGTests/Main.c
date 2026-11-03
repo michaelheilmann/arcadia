@@ -162,6 +162,26 @@ static int
 runManagedPixelStorage(void)
 { return Arcadia_Tests_safeExecute(&testManagedPixelStorage) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
+// BMP is intentionally not a supported image output format on any platform.
+static void
+testBMPUnsupported(Arcadia_Thread* thread)
+{
+  Arcadia_String* extension = Arcadia_String_createFromCxxString(thread, u8"bmp");
+  Arcadia_Object_lock(thread, (Arcadia_Object*)extension);
+  Arcadia_Imaging_ImageManager* manager = Arcadia_Imaging_ImageManager_getOrCreate(thread);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)manager);
+  Arcadia_List* writers = Arcadia_Imaging_ImageManager_getWriters(thread, manager, extension);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)writers);
+  Arcadia_Tests_assertEqualSize(thread, 0, Arcadia_Collection_getSize(thread, (Arcadia_Collection*)writers));
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)writers);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)manager);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)extension);
+}
+
+static int
+runBMPUnsupported(void)
+{ return Arcadia_Tests_safeExecute(&testBMPUnsupported) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
 static int
 runTests
   (
@@ -184,6 +204,7 @@ main
   static const Arcadia_Testing_Case cases[] = {
     { "WritePNGTests", &runTests },
     { "ManagedPixelStorage", &runManagedPixelStorage },
+    { "BMPUnsupported", &runBMPUnsupported },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

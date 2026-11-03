@@ -26,7 +26,7 @@ _Static_assert(Arcadia_Engine_UI_LayoutAlignment_End == 2, "End value");
 _Static_assert(Arcadia_Engine_UI_LayoutAlignment_Stretch == 3, "Stretch value");
 _Static_assert(sizeof(Alignment) == sizeof(Arcadia_Integer32Value), "enum size");
 _Static_assert(_Alignof(Alignment) == _Alignof(Arcadia_Integer32Value), "enum alignment");
-_Static_assert(_Generic(&_Arcadia_Engine_UI_LayoutAlignment_getType, Arcadia_TypeValue (*)(Arcadia_Thread*): 1, default: 0), "descriptor signature");
+_Static_assert(_Generic(&_Arcadia_Engine_UI_LayoutAlignment_getType, Arcadia_TypeDescriptorValue (*)(Arcadia_Thread*): 1, default: 0), "descriptor signature");
 _Static_assert(_Generic(&Arcadia_Engine_UI_StackLayout_setAlignment, void (*)(Arcadia_Thread*, Arcadia_Engine_UI_StackLayout*, Alignment, Alignment): 1, default: 0), "setAlignment signature");
 _Static_assert(_Generic(&Arcadia_Engine_UI_LayoutPanelNode_setChildCrossAlignment, void (*)(Arcadia_Thread*, Arcadia_Engine_UI_LayoutPanelNode*, Arcadia_Object*, Alignment): 1, default: 0), "child alignment signature");
 
@@ -37,13 +37,13 @@ testMetadata
   )
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
-  Arcadia_TypeValue type = _Arcadia_Engine_UI_LayoutAlignment_getType(thread);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Engine_UI_LayoutAlignment_getType(thread);
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
   const char expected[] = "Arcadia.Engine.UI.LayoutAlignment";
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == sizeof(expected) - 1);
   Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_Name_getBytes(thread, name), expected, sizeof(expected) - 1));
-  Arcadia_Tests_assertTrue(thread, Arcadia_getType(thread, name) == type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, name) == type);
   for (Arcadia_Integer32Value i = 0; i < 4; ++i) {
     Arcadia_Value value = Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(type, i));
     Arcadia_ValueStack_pushValue(thread, &value);

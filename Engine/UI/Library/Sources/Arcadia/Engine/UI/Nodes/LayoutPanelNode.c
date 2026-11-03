@@ -669,8 +669,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectOperations,
 };
 
@@ -786,6 +786,34 @@ Arcadia_Engine_UI_LayoutPanelNode_setChildVisibility
     if (self->focusedChild == child) focusChild(thread, self, NULL);
   }
   slot->visibility = visibility;
+  self->layoutDirty = Arcadia_BooleanValue_True;
+}
+
+void
+Arcadia_Engine_UI_LayoutPanelNode_setChildMainAxisSizing
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_LayoutPanelNode* self,
+    Arcadia_Object* child,
+    Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy policy,
+    Arcadia_Integer32Value mainAxisExtent,
+    Arcadia_Integer32Value weight
+  )
+{
+  if (policy < Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Content ||
+      policy > Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Weight ||
+      mainAxisExtent < 0 || weight < 0 ||
+      (policy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Content && (mainAxisExtent || weight)) ||
+      (policy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Fixed && weight) ||
+      (policy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Weight && (mainAxisExtent || !weight))) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_UI_StackLayoutSlot* slot = &self->childLayoutSlots[findChildIndex(thread, self, child)];
+  if (slot->mainAxisPolicy == policy && slot->mainAxisExtent == mainAxisExtent && slot->weight == weight) return;
+  slot->mainAxisPolicy = policy;
+  slot->mainAxisExtent = mainAxisExtent;
+  slot->weight = weight;
   self->layoutDirty = Arcadia_BooleanValue_True;
 }
 
@@ -938,6 +966,11 @@ Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition
       Arcadia_Object* child = Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)panel, i);
       Arcadia_Engine_UI_LayoutPanelNode_setChildMargin(thread, panel, child,
         slot->marginLeft, slot->marginBottom, slot->marginRight, slot->marginTop);
+      Arcadia_Engine_UI_LayoutPanelNode_setChildVisibility(thread, panel, child,
+        (Arcadia_Engine_UI_StackLayoutSlotVisibility)slot->visibility);
+      Arcadia_Engine_UI_LayoutPanelNode_setChildMainAxisSizing(thread, panel, child,
+        (Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy)slot->mainAxisPolicy,
+        slot->mainAxisExtent, slot->weight);
       if (slot->hasCrossAlignment) {
         Arcadia_Engine_UI_LayoutAlignment alignment = Arcadia_Engine_UI_LayoutAlignment_Center;
         switch (slot->crossAlignment) {

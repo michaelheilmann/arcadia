@@ -53,12 +53,12 @@ createAudialsBackendContext
     }
 
     Arcadia_Value backendTypeValue = Arcadia_List_getAt(thread, backendTypes, 0);
-    if (!Arcadia_Value_isTypeValue(&backendTypeValue)) {
+    if (!Arcadia_Value_isTypeDescriptorValue(&backendTypeValue)) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
       Arcadia_Thread_jump(thread);
     }
-    Arcadia_Type* backendType = Arcadia_Value_getTypeValue(&backendTypeValue);
-    if (!Arcadia_Type_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
+    Arcadia_TypeDescriptor* backendType = Arcadia_Value_getTypeDescriptorValue(&backendTypeValue);
+    if (!Arcadia_TypeDescriptor_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
       Arcadia_Thread_jump(thread);
     }

@@ -1,0 +1,27 @@
+diff --git a/PixelBufferIO/Library/Sources/Arcadia/PixelBufferIO/ICOImageWriter.c b/PixelBufferIO/Library/Sources/Arcadia/PixelBufferIO/ICOImageWriter.c
+--- a/PixelBufferIO/Library/Sources/Arcadia/PixelBufferIO/ICOImageWriter.c
++++ b/PixelBufferIO/Library/Sources/Arcadia/PixelBufferIO/ICOImageWriter.c
+@@ -276,7 +276,9 @@
+     Arcadia_Collection_clear(thread, (Arcadia_Collection*)pixelBuffers);
+     Arcadia_List_insertBackObjectReferenceValue(thread, pixelBuffers, pixelBuffer);
+     Arcadia_Imaging_ImageWriter_write(thread, pngImageWriter, pixelBuffers, pngParameters);
+-    Arcadia_ByteArrayBuilder_insertBackBytes(thread, targetByteBuffer, temporary->p, temporary->sz);
++    Arcadia_ByteArrayBuilder_insertBackBytes(thread, targetByteBuffer,
++      Arcadia_ByteArrayBuilder_getBytes(thread, temporary),
++      Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, temporary));
+     offset += Arcadia_ByteArrayBuilder_getSize(thread, temporary);
+   }
+ }
+diff --git a/PixelBufferIO/Library/Sources/Arcadia/PixelBufferIO/Windows/WICImageWriterBase.c b/PixelBufferIO/Library/Sources/Arcadia/PixelBufferIO/Windows/WICImageWriterBase.c
+--- a/PixelBufferIO/Library/Sources/Arcadia/PixelBufferIO/Windows/WICImageWriterBase.c
++++ b/PixelBufferIO/Library/Sources/Arcadia/PixelBufferIO/Windows/WICImageWriterBase.c
+@@ -123,7 +123,8 @@
+     Arcadia_ByteArrayBuilder_insertBackBytes(thread, b, Arcadia_String_getBytes(thread, Arcadia_Imaging_ImageWriterParameters_getPath(thread, parameters)),
+                                                   Arcadia_String_getNumberOfBytes(thread, Arcadia_Imaging_ImageWriterParameters_getPath(thread, parameters)));
+     Arcadia_ByteArrayBuilder_insertBackBytes(thread, b, u8"", 1);
+-    wchar_t* targetPathW = Arcadia_Windows_multiByteToWideCharZeroTerminated(b->p);
++    wchar_t* targetPathW = Arcadia_Windows_multiByteToWideCharZeroTerminated(
++      (char const*)Arcadia_ByteArrayBuilder_getBytes(thread, b));
+     if (!targetPathW) {
+       Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
+       Arcadia_Thread_jump(thread);

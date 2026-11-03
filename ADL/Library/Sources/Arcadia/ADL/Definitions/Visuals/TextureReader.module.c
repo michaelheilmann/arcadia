@@ -54,7 +54,7 @@ static const char* SCHEMA =
   "      {\n"
   "        kind : \"MapEntry\",\n"
   "        name : \"magnificationFilter\",\n"
-  "        optional : \"true\",\n"
+  "        optional : true,\n"
   "        type : {\n"
   "          kind : \"String\",\n"
   "        },\n"
@@ -62,7 +62,7 @@ static const char* SCHEMA =
   "      {\n"
   "        kind : \"MapEntry\",\n"
   "        name : \"minificationFilter\",\n"
-  "        optional : \"true\",\n"
+  "        optional : true,\n"
   "        type : {\n"
   "          kind : \"String\",\n"
   "        },\n"
@@ -70,7 +70,7 @@ static const char* SCHEMA =
   "      {\n"
   "        kind : \"MapEntry\",\n"
   "        name : \"addressModeU\",\n"
-  "        optional : \"true\",\n"
+  "        optional : true,\n"
   "        type : {\n"
   "          kind : \"String\",\n"
   "        },\n"
@@ -78,7 +78,7 @@ static const char* SCHEMA =
   "      {\n"
   "        kind : \"MapEntry\",\n"
   "        name : \"addressModeV\",\n"
-  "        optional : \"true\",\n"
+  "        optional : true,\n"
   "        type : {\n"
   "          kind : \"String\",\n"
   "        },\n"
@@ -151,8 +151,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_ADL_TextureReader_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 

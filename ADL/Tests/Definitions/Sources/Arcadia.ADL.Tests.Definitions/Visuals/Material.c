@@ -41,7 +41,7 @@ _Static_assert(Arcadia_ADL_BlendFunction_OneMinusDestinationAlpha == 9, "OneMinu
 #define CHECK_ENUM_ABI(Type) \
   _Static_assert(sizeof(Type) == sizeof(Arcadia_Integer32Value), #Type " size"); \
   _Static_assert(_Alignof(Type) == _Alignof(Arcadia_Integer32Value), #Type " alignment"); \
-  _Static_assert(_Generic(&_##Type##_getType, Arcadia_TypeValue (*)(Arcadia_Thread*): 1, default: 0), #Type " descriptor signature");
+  _Static_assert(_Generic(&_##Type##_getType, Arcadia_TypeDescriptorValue (*)(Arcadia_Thread*): 1, default: 0), #Type " descriptor signature");
 CHECK_ENUM_ABI(Arcadia_ADL_MaterialType)
 CHECK_ENUM_ABI(Arcadia_ADL_AmbientColorSource)
 CHECK_ENUM_ABI(Arcadia_ADL_BlendFunction)
@@ -70,16 +70,16 @@ static void
 checkMaterialEnum
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue (*getType)(Arcadia_Thread*),
+    Arcadia_TypeDescriptorValue (*getType)(Arcadia_Thread*),
     const char* expectedName,
     const Arcadia_Integer32Value* values,
     Arcadia_SizeValue count
   )
 {
   Arcadia_SizeValue entry = Arcadia_ValueStack_getSize(thread);
-  Arcadia_TypeValue type = getType(thread);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
+  Arcadia_TypeDescriptorValue type = getType(thread);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == strlen(expectedName));
   Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_Name_getBytes(thread, name), expectedName, strlen(expectedName)));
   for (Arcadia_SizeValue i = 0; i < count; ++i) {
@@ -87,7 +87,7 @@ checkMaterialEnum
     Arcadia_ValueStack_pushValue(thread, &value);
   }
   Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
-  Arcadia_Tests_assertTrue(thread, getType(thread) == type && Arcadia_getType(thread, name) == type);
+  Arcadia_Tests_assertTrue(thread, getType(thread) == type && Arcadia_getTypeDescriptorByName(thread, name) == type);
   for (Arcadia_SizeValue i = 0; i < count; ++i) {
     Arcadia_Value value = Arcadia_ValueStack_getValue(thread, count - 1 - i);
     Arcadia_Tests_assertTrue(thread, Arcadia_Value_isEnumerationValue(&value));
@@ -212,7 +212,7 @@ testMaterialEnumConsumers
     Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) >= depth);
     Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - depth);
   }
-  const Arcadia_TypeValue types[] = { _Arcadia_ADL_MaterialType_getType(thread), _Arcadia_ADL_AmbientColorSource_getType(thread), _Arcadia_ADL_BlendFunction_getType(thread), _Arcadia_ADL_BlendFunction_getType(thread) };
+  const Arcadia_TypeDescriptorValue types[] = { _Arcadia_ADL_MaterialType_getType(thread), _Arcadia_ADL_AmbientColorSource_getType(thread), _Arcadia_ADL_BlendFunction_getType(thread), _Arcadia_ADL_BlendFunction_getType(thread) };
   for (Arcadia_SizeValue bad = 0; bad < 8; ++bad) {
     Arcadia_SizeValue depth = Arcadia_ValueStack_getSize(thread);
     Arcadia_Value enums[4];

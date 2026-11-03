@@ -68,7 +68,7 @@ static const char* SCHEMA =
   "      {\n"
   "        kind : \"MapEntry\",\n"
   "        name : \"blendSourceFunction\",\n"
-  "        optional : \"true\",\n"
+  "        optional : true,\n"
   "        type : {\n"
   "          kind : \"String\",\n"
   "        },\n"
@@ -76,7 +76,7 @@ static const char* SCHEMA =
   "      {\n"
   "        kind : \"MapEntry\",\n"
   "        name : \"blendDestinationFunction\",\n"
-  "        optional : \"true\",\n"
+  "        optional : true,\n"
   "        type : {\n"
   "          kind : \"String\",\n"
   "        },\n"
@@ -158,8 +158,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_ADL_MaterialReader_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 

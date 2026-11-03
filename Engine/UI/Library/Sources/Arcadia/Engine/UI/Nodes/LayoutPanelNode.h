@@ -132,6 +132,21 @@ Arcadia_Engine_UI_LayoutPanelNode_setChildVisibility
     Arcadia_Engine_UI_StackLayoutSlotVisibility visibility
   );
 
+/// @brief Set a child's main-axis sizing independently of WidgetNode sizing.
+/// @remarks Content requires extent=weight=0. Fixed requires nonnegative extent
+///          and weight=0. Weight requires extent=0 and positive weight; the child
+///          keeps its intrinsic size and receives a share of positive surplus.
+void
+Arcadia_Engine_UI_LayoutPanelNode_setChildMainAxisSizing
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_LayoutPanelNode* self,
+    Arcadia_Object* child,
+    Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy policy,
+    Arcadia_Integer32Value mainAxisExtent,
+    Arcadia_Integer32Value weight
+  );
+
 void
 Arcadia_Engine_UI_LayoutPanelNode_clearChildCrossAlignment
   (

@@ -146,8 +146,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objectOperations,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &objectOperations,
 };
 
 Arcadia_defineObjectType(u8"Tests.ScalarMaterialProbe", ScalarMaterialProbe,
@@ -158,7 +158,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* arguments,
     Arcadia_Natural8Value count
   )
@@ -217,11 +217,11 @@ test
   for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural8Value(thread, 0);
   Arcadia_Engine_Visuals_BackendContext* context = (void*)create(thread, _Arcadia_Engine_Visuals_BackendContext_getType(thread), NULL, 0);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, context);
-  Arcadia_TypeValue materialType = _Arcadia_Engine_Visuals_MaterialResource_getType(thread);
+  Arcadia_TypeDescriptorValue materialType = _Arcadia_Engine_Visuals_MaterialResource_getType(thread);
   Arcadia_Engine_Visuals_ResourceDispatch* dispatch = (void*)Arcadia_ObjectType_getDispatch(materialType);
   Arcadia_Tests_assertTrue(thread, !dispatch->load && !dispatch->unload && !dispatch->unlink && !dispatch->render);
-  Arcadia_TypeValue blendType = _Arcadia_Engine_Visuals_BlendFunction_getType(thread);
-  Arcadia_TypeValue colorType = _Arcadia_Engine_Visuals_ColorSource_getType(thread);
+  Arcadia_TypeDescriptorValue blendType = _Arcadia_Engine_Visuals_BlendFunction_getType(thread);
+  Arcadia_TypeDescriptorValue colorType = _Arcadia_Engine_Visuals_ColorSource_getType(thread);
   Arcadia_Value arguments[] = {
     Arcadia_Value_makeObjectReferenceValue(context), Arcadia_Value_makeBooleanValue(false),
     Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(blendType, Arcadia_Engine_Visuals_BlendFunction_SourceAlpha)),

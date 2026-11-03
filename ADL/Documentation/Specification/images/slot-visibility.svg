@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 206"
+             width="100%" role="img" aria-labelledby="adl-visibility-title adl-visibility-desc"
+             style="max-width:720px;height:auto">
+          <title id="adl-visibility-title">Visible, Hidden and Collapsed child slots</title>
+          <desc id="adl-visibility-desc">Three vertical stack panels each contain a top child. Visible also renders a second child, Hidden reserves that child's space without drawing it, and Collapsed removes its space and the associated gap.</desc>
+          <g font-family="sans-serif" font-size="16" text-anchor="middle" fill="#334155">
+            <text x="118" y="21">Visible</text>
+            <text x="360" y="21">Hidden</text>
+            <text x="602" y="21">Collapsed</text>
+          </g>
+          <g fill="none" stroke="#64748b" stroke-width="2">
+            <rect x="8" y="30" width="220" height="146" rx="6"/>
+            <rect x="250" y="30" width="220" height="146" rx="6"/>
+            <rect x="492" y="30" width="220" height="146" rx="6"/>
+          </g>
+          <g fill="#bfdbfe" stroke="#2563eb" stroke-width="1.5">
+            <rect x="28" y="48" width="180" height="43" rx="4"/>
+            <rect x="28" y="107" width="180" height="43" rx="4"/>
+            <rect x="270" y="48" width="180" height="43" rx="4"/>
+            <rect x="512" y="48" width="180" height="43" rx="4"/>
+          </g>
+          <rect x="270" y="107" width="180" height="43" rx="4" fill="none"
+                stroke="#64748b" stroke-width="1.5" stroke-dasharray="6 4"/>
+          <g font-family="sans-serif" font-size="14" fill="#1e3a8a" text-anchor="middle">
+            <text x="118" y="75">Child 1</text>
+            <text x="118" y="134">Child 2</text>
+            <text x="360" y="75">Child 1</text>
+            <text x="602" y="75">Child 1</text>
+          </g>
+          <text x="360" y="133" font-family="sans-serif" font-size="12"
+                fill="#475569" text-anchor="middle">Reserved space</text>
+          <g font-family="sans-serif" font-size="12" text-anchor="middle" fill="#475569">
+            <text x="118" y="194">Both render</text>
+            <text x="360" y="194">Second does not render</text>
+            <text x="602" y="194">No second slot space</text>
+          </g>
+        </svg>

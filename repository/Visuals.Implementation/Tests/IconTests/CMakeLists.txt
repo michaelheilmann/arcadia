@@ -16,18 +16,14 @@
 
 cmake_minimum_required(VERSION 3.29)
 
-set(this ${MyProjectName}.PixelBufferIO.Tests.WriteBMPTests)
+set(this ${MyProjectName}.Engine.Visuals.Implementation.Tests.IconTests)
 
-# Create test executable.
 BeginProduct(${this} test)
+SetFolder(${this} "Backends")
 
-SetFolder(${this} "PixelBufferIO")
+OnSourceFile(${this} Arcadia.Visuals.Implementation.Tests.IconTests/Main.c)
 
-OnSourceFile(${this} Arcadia.PixelBufferIO.Tests.WriteBMPTests/Main.c)
-
-OnModuleDependency(${this} ${MyProjectName}.PixelBufferIO)
-
+OnModuleDependency(${this} ${MyProjectName}.Engine.Visuals.Implementation)
 OnModuleDependency(${this} ${MyProjectName}.Testing PRIVATE)
-set(${this}.TestIsolated TRUE)
-set(${this}.TestParallelSafe TRUE)
+
 EndProduct(${this})

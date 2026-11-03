@@ -131,7 +131,7 @@ Arcadia_Map_getObjectReferenceValueChecked
     Arcadia_Thread* thread,
     Arcadia_Map* self,
     Arcadia_Value key,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   Arcadia_Value value = Arcadia_Map_get(thread, self, key);

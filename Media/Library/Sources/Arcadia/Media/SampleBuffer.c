@@ -92,8 +92,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Media_SampleBuffer_visit,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -139,7 +139,7 @@ Arcadia_Media_SampleBuffer_constructImpl
     self->length = Arcadia_ValueStack_getInteger32Value(thread, 3);
     self->sampleRate = Arcadia_ValueStack_getInteger32Value(thread, 2);
     Arcadia_EnumerationValue enumerationValue = Arcadia_ValueStack_getEnumerationValue(thread, 1);
-    if (!Arcadia_Type_isDescendantType(thread, enumerationValue.type, _Arcadia_Media_SampleFormat_getType(thread))) {
+    if (!Arcadia_TypeDescriptor_isDescendantType(thread, enumerationValue.type, _Arcadia_Media_SampleFormat_getType(thread))) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
       Arcadia_Thread_jump(thread);
     }

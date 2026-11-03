@@ -66,7 +66,7 @@ pdlAsObjectReference
   (
     Arcadia_Thread* thread,
     Arcadia_Value v,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   if (Arcadia_Value_isVoidValue(&v)) return NULL;

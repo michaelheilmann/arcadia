@@ -154,8 +154,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_DDLS_DefaultReader_objectTyp
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_DDLS_DefaultReader_visitImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_DDLS_DefaultReader_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_DDLS_DefaultReader_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_DDLS_DefaultReader_objectTypeOperations,
 };
 

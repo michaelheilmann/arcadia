@@ -62,8 +62,8 @@ or
     Arcadia_Thread* thread
   );
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = NULL,
   .and = &and,
   .isEqualTo = &isEqualTo,

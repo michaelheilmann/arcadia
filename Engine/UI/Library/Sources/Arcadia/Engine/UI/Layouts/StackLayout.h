@@ -40,6 +40,13 @@ typedef enum Arcadia_Engine_UI_StackLayoutSlotVisibility {
   Arcadia_Engine_UI_StackLayoutSlotVisibility_Collapsed = 2,
 } Arcadia_Engine_UI_StackLayoutSlotVisibility;
 
+// Per-child main-axis sizing is independent of WidgetNode size policy.
+typedef enum Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy {
+  Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Content = 0,
+  Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Fixed = 1,
+  Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Weight = 2,
+} Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy;
+
 // Per-child layout slots are owned by the container; the layout
 // borrows these records only for the duration of a call.
 typedef struct Arcadia_Engine_UI_StackLayoutSlot {
@@ -50,6 +57,9 @@ typedef struct Arcadia_Engine_UI_StackLayoutSlot {
   Arcadia_BooleanValue hasAlignmentOverride;
   Arcadia_Engine_UI_LayoutAlignment crossAlignment;
   Arcadia_Engine_UI_StackLayoutSlotVisibility visibility;
+  Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy mainAxisPolicy;
+  Arcadia_Integer32Value mainAxisExtent;
+  Arcadia_Integer32Value weight;
 } Arcadia_Engine_UI_StackLayoutSlot;
 
 typedef struct Arcadia_Engine_UI_StackLayoutSettings {

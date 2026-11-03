@@ -45,7 +45,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Object* argument
   )
 {
@@ -185,8 +185,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objectOperations,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &objectOperations,
 };
 
 Arcadia_defineObjectType(u8"Tests.AudialsContextProbe", AudialsContextProbe,
@@ -243,7 +243,7 @@ test
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   for (size_t i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural8Value(thread, 0);
-  Arcadia_TypeValue type = _Arcadia_Engine_Audials_BackendContext_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Engine_Audials_BackendContext_getType(thread);
   Arcadia_Engine_Audials_BackendContextDispatch* root = (void*)Arcadia_ObjectType_getDispatch(type);
   Arcadia_Tests_assertTrue(thread, !root->createSoundSourceResource && !root->createStreamingSoundSourceResource && root->setMasterVolume);
   Arcadia_Engine_Audials_BackendContext* unbound = (void*)create(thread, type, NULL);

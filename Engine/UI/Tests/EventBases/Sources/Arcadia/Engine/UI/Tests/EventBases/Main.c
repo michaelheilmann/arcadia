@@ -70,8 +70,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objectOperations,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &objectOperations,
 };
 
 Arcadia_defineObjectType(u8"Tests.EventWidgetProbe", WidgetProbe,
@@ -82,7 +82,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* args,
     Arcadia_Natural8Value count
   )
@@ -97,7 +97,7 @@ static void
 expectFailure
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* args,
     Arcadia_Natural8Value count,
     Arcadia_Status status
@@ -125,7 +125,7 @@ test
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   for (size_t i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural8Value(thread, 0);
-  Arcadia_TypeValue types[] = {
+  Arcadia_TypeDescriptorValue types[] = {
     _Arcadia_Engine_UI_Event_getType(thread), _Arcadia_Engine_UI_WidgetEvent_getType(thread),
     _Arcadia_Engine_UI_WidgetPositionChangedEvent_getType(thread), _Arcadia_Engine_UI_WidgetSizeChangedEvent_getType(thread)
   };

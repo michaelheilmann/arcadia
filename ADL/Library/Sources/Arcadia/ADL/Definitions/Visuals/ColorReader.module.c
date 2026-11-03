@@ -69,7 +69,7 @@ static const char* SCHEMA =
   "        kind : \"MapEntry\",\n"
   "        name : \"alpha\",\n"
   "        type : { kind : \"Number\" },\n"
-  "        optional : \"true\",\n"
+  "        optional : true,\n"
   "      },\n"
   "    ],\n"
   "  },\n"
@@ -84,7 +84,7 @@ static const char* SCHEMA_INLINE =
   "{ kind : \"MapEntry\", name : \"red\", type : { kind : \"Number\" } },"
   "{ kind : \"MapEntry\", name : \"green\", type : { kind : \"Number\" } },"
   "{ kind : \"MapEntry\", name : \"blue\", type : { kind : \"Number\" } },"
-  "{ kind : \"MapEntry\", name : \"alpha\", type : { kind : \"Number\" }, optional : \"true\" }"
+  "{ kind : \"MapEntry\", name : \"alpha\", type : { kind : \"Number\" }, optional : true }"
   "] } }";
 
 static Arcadia_String*
@@ -151,8 +151,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_ADL_ColorReader_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 

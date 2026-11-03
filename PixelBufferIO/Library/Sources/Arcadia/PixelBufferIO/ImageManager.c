@@ -17,14 +17,15 @@
 #include "Arcadia/PixelBufferIO/ImageManager.h"
 
 #include "Arcadia/PixelBufferIO/ImageWriter.h"
+#include "Arcadia/PixelBufferIO/ImageReader.h"
+#include "Arcadia/PixelBufferIO/ICOImageReader.h"
+#include "Arcadia/PixelBufferIO/PNGImageReader.h"
 
 #include "Arcadia/PixelBufferIO/ICOImageWriter.h"
 #if Arcadia_Configuration_OperatingSystem_Windows == Arcadia_Configuration_OperatingSystem
-  #include "Arcadia/PixelBufferIO/Windows/BMPImageWriter.h"
   #include "Arcadia/PixelBufferIO/Windows/PNGImageWriter.h"
   #include "Arcadia/PixelBufferIO/Windows/TIFImageWriter.h"
 #elif Arcadia_Configuration_OperatingSystem_Linux == Arcadia_Configuration_OperatingSystem
-  #include "Arcadia/PixelBufferIO/Linux/BMPImageWriter.h"
   #include "Arcadia/PixelBufferIO/Linux/PNGImageWriter.h"
 #else
   #error("environment not (yet) supported")
@@ -73,8 +74,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Imaging_ImageManager_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -100,13 +101,25 @@ Arcadia_Imaging_ImageManager_constructImpl
   }
 
   self->writers = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  // Before the constructor publishes the derived type, its visitor is not
+  // active. Keep both managed collections rooted throughout initialization.
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self->writers);
+  self->readers = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self->readers);
+  Arcadia_Imaging_ImageReader* reader =
+    (Arcadia_Imaging_ImageReader*)Arcadia_Imaging_ICOImageReader_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)reader);
+  Arcadia_List_insertBackObjectReferenceValue(thread, self->readers, reader);
+  Arcadia_ValueStack_popValues(thread, 1);
+  reader = (Arcadia_Imaging_ImageReader*)Arcadia_Imaging_PNGImageReader_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)reader);
+  Arcadia_List_insertBackObjectReferenceValue(thread, self->readers, reader);
+  Arcadia_ValueStack_popValues(thread, 1);
   Arcadia_Imaging_ImageWriter* writer = NULL;
 
   writer = (Arcadia_Imaging_ImageWriter*)Arcadia_Imaging_ICOImageWriter_create(thread);
   Arcadia_List_insertBackObjectReferenceValue(thread, self->writers, writer);
 #if Arcadia_Configuration_OperatingSystem_Windows == Arcadia_Configuration_OperatingSystem
-  writer = (Arcadia_Imaging_ImageWriter*)Arcadia_Imaging_Windows_BMPImageWriter_create(thread);
-  Arcadia_List_insertBackObjectReferenceValue(thread, self->writers, writer);
   writer = (Arcadia_Imaging_ImageWriter*)Arcadia_Imaging_Windows_PNGImageWriter_create(thread);
   Arcadia_List_insertBackObjectReferenceValue(thread, self->writers, writer);
   writer = (Arcadia_Imaging_ImageWriter*)Arcadia_Imaging_Windows_TIFImageWriter_create(thread);
@@ -114,11 +127,10 @@ Arcadia_Imaging_ImageManager_constructImpl
 #elif Arcadia_Configuration_OperatingSystem_Linux == Arcadia_Configuration_OperatingSystem
   writer = (Arcadia_Imaging_ImageWriter*)Arcadia_Imaging_Linux_PNGImageWriter_create(thread);
   Arcadia_List_insertBackObjectReferenceValue(thread, self->writers, writer);
-  writer = (Arcadia_Imaging_ImageWriter*)Arcadia_Imaging_Linux_BMPImageWriter_create(thread);
-  Arcadia_List_insertBackObjectReferenceValue(thread, self->writers, writer);
 #else
   #error("environment not (yet) supported")
 #endif
+  Arcadia_ValueStack_popValues(thread, 2);
   Arcadia_LeaveConstructor(Arcadia_Imaging_ImageManager);
 }
 
@@ -150,6 +162,9 @@ Arcadia_Imaging_ImageManager_visit
 {
   if (self->writers) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->writers);
+  }
+  if (self->readers) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->readers);
   }
 }
 
@@ -207,4 +222,36 @@ Arcadia_Imaging_ImageManager_getWriters
 {
   Arcadia_List* list = Arcadia_List_filter(thread, self->writers, Arcadia_Value_makeObjectReferenceValue(extension), &filter);
   return list;
+}
+
+static Arcadia_BooleanValue
+filterReader
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Value context,
+    Arcadia_Value value
+  )
+{
+  Arcadia_Imaging_ImageReader* reader = Arcadia_Value_getObjectReferenceValue(&value);
+  Arcadia_ImmutableList* supported = Arcadia_Imaging_ImageReader_getSupportedTypes(thread, reader);
+  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)supported); i < n; ++i) {
+    Arcadia_Value valueAt = Arcadia_List_getAt(thread, (Arcadia_List*)supported, i);
+    Arcadia_Value requested = context;
+    if (Arcadia_Value_isEqualTo(thread, &valueAt, &requested)) {
+      return Arcadia_BooleanValue_True;
+    }
+  }
+  return Arcadia_BooleanValue_False;
+}
+
+Arcadia_List*
+Arcadia_Imaging_ImageManager_getReaders
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Imaging_ImageManager* self,
+    Arcadia_String* extension
+  )
+{
+  return Arcadia_List_filter(thread, self->readers,
+    Arcadia_Value_makeObjectReferenceValue(extension), &filterReader);
 }

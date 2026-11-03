@@ -57,7 +57,7 @@ testNatural16Registration
   // Natural16 is a scalar, not an object with an empty operations table.
   // Value comparison triggers its real runtime registration in Debug builds.
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
-  Arcadia_TypeValue type = _Arcadia_Natural16Value_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Natural16Value_getType(thread);
   Arcadia_Tests_assertTrue(thread, type != NULL);
   Arcadia_Natural16Value values[] = { 0, 1, UINT16_MAX };
   for (unsigned i = 0; i < sizeof(values) / sizeof(values[0]); ++i) {

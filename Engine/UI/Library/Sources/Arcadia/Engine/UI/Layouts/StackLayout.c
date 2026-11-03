@@ -136,8 +136,10 @@ measureImpl
     Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)child, childAvailableWidth, childAvailableHeight);
     Arcadia_Integer32Value childWidth, childHeight;
     Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
-    mainSize += settings->vertical ? (int64_t)childHeight + slot->marginTop + slot->marginBottom
-                                   : (int64_t)childWidth + slot->marginLeft + slot->marginRight;
+    int64_t mainExtent = slot->mainAxisPolicy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Fixed
+      ? slot->mainAxisExtent : (settings->vertical ? childHeight : childWidth);
+    mainSize += mainExtent + (settings->vertical ? (int64_t)slot->marginTop + slot->marginBottom
+                                               : (int64_t)slot->marginLeft + slot->marginRight);
     int64_t childCrossSize = settings->vertical ? (int64_t)childWidth + slot->marginLeft + slot->marginRight
                                                 : (int64_t)childHeight + slot->marginTop + slot->marginBottom;
     if (childCrossSize > crossSize) crossSize = childCrossSize;
@@ -175,6 +177,7 @@ arrangeChildren
   Arcadia_Integer32Value contentWidth = clampAvailable((int64_t)width - settings->paddingLeft - settings->paddingRight);
   Arcadia_Integer32Value contentHeight = clampAvailable((int64_t)height - settings->paddingBottom - settings->paddingTop);
   int64_t total = 0;
+  int64_t totalWeight = 0;
   Arcadia_Natural64Value widgetCount = 0;
   for (Arcadia_Natural64Value i = 0; i < count; ++i) {
     Arcadia_Object* child = Arcadia_Engine_UI_Container_getChildAt(thread, container, i);
@@ -184,8 +187,17 @@ arrangeChildren
     if (slot->visibility == Arcadia_Engine_UI_StackLayoutSlotVisibility_Collapsed) continue;
     Arcadia_Integer32Value childWidth, childHeight;
     Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
-    total += settings->vertical ? (int64_t)childHeight + slot->marginTop + slot->marginBottom
-                                : (int64_t)childWidth + slot->marginLeft + slot->marginRight;
+    int64_t mainExtent = slot->mainAxisPolicy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Fixed
+      ? slot->mainAxisExtent : (settings->vertical ? childHeight : childWidth);
+    total += mainExtent + (settings->vertical ? (int64_t)slot->marginTop + slot->marginBottom
+                                            : (int64_t)slot->marginLeft + slot->marginRight);
+    if (slot->mainAxisPolicy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Weight) {
+      if (slot->weight <= 0 || totalWeight > INT64_MAX - slot->weight) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+        Arcadia_Thread_jump(thread);
+      }
+      totalWeight += slot->weight;
+    }
     widgetCount++;
   }
   if (!widgetCount) return;
@@ -194,9 +206,13 @@ arrangeChildren
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_Integer32Value mainTotal = (Arcadia_Integer32Value)total;
+  int64_t contentMainExtent = settings->vertical ? contentHeight : contentWidth;
+  int64_t surplus = totalWeight && contentMainExtent > total ? contentMainExtent - total : 0;
+  int64_t weightUnit = totalWeight ? surplus / totalWeight : 0;
+  int64_t weightRemainder = totalWeight ? surplus % totalWeight : 0;
+  int64_t weightPrefix = 0;
   if (settings->vertical) {
-    Arcadia_Integer32Value y = contentBottom + contentHeight - alignedOffset(contentHeight, mainTotal, settings->mainAlignment);
+    Arcadia_Integer32Value y = contentBottom + contentHeight - alignedOffset(contentHeight, (Arcadia_Integer32Value)(total + surplus), settings->mainAlignment);
     for (Arcadia_Natural64Value i = 0; i < count; ++i) {
       Arcadia_Object* child = Arcadia_Engine_UI_Container_getChildAt(thread, container, i);
       if (!Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_WidgetNode_getType(thread))) continue;
@@ -206,6 +222,14 @@ arrangeChildren
       Arcadia_Engine_UI_LayoutAlignment crossAlignment = slot->hasAlignmentOverride ? slot->crossAlignment : settings->crossAlignment;
       Arcadia_Integer32Value childWidth, childHeight;
       Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
+      if (slot->mainAxisPolicy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Fixed)
+        childHeight = slot->mainAxisExtent;
+      if (slot->mainAxisPolicy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Weight) {
+        int64_t remainderShare = weightRemainder > weightPrefix
+          ? (weightRemainder - weightPrefix < slot->weight ? weightRemainder - weightPrefix : slot->weight) : 0;
+        childHeight = clampAvailable((int64_t)childHeight + weightUnit * slot->weight + remainderShare);
+        weightPrefix += slot->weight;
+      }
       Arcadia_Integer32Value childAvailableWidth = clampAvailable((int64_t)contentWidth - slot->marginLeft - slot->marginRight);
       y -= slot->marginTop;
       if (crossAlignment == Arcadia_Engine_UI_LayoutAlignment_Stretch) {
@@ -217,7 +241,7 @@ arrangeChildren
       y -= slot->marginBottom + settings->gap;
     }
   } else {
-    Arcadia_Integer32Value x = contentLeft + alignedOffset(contentWidth, mainTotal, settings->mainAlignment);
+    Arcadia_Integer32Value x = contentLeft + alignedOffset(contentWidth, (Arcadia_Integer32Value)(total + surplus), settings->mainAlignment);
     for (Arcadia_Natural64Value i = 0; i < count; ++i) {
       Arcadia_Object* child = Arcadia_Engine_UI_Container_getChildAt(thread, container, i);
       if (!Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_WidgetNode_getType(thread))) continue;
@@ -227,6 +251,14 @@ arrangeChildren
       Arcadia_Engine_UI_LayoutAlignment crossAlignment = slot->hasAlignmentOverride ? slot->crossAlignment : settings->crossAlignment;
       Arcadia_Integer32Value childWidth, childHeight;
       Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
+      if (slot->mainAxisPolicy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Fixed)
+        childWidth = slot->mainAxisExtent;
+      if (slot->mainAxisPolicy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Weight) {
+        int64_t remainderShare = weightRemainder > weightPrefix
+          ? (weightRemainder - weightPrefix < slot->weight ? weightRemainder - weightPrefix : slot->weight) : 0;
+        childWidth = clampAvailable((int64_t)childWidth + weightUnit * slot->weight + remainderShare);
+        weightPrefix += slot->weight;
+      }
       Arcadia_Integer32Value childAvailableHeight = clampAvailable((int64_t)contentHeight - slot->marginBottom - slot->marginTop);
       x += slot->marginLeft;
       if (crossAlignment == Arcadia_Engine_UI_LayoutAlignment_Stretch) {
@@ -313,8 +345,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectOperations,
 };
 

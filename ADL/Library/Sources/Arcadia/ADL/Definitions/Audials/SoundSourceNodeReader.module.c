@@ -32,10 +32,10 @@ static const char* SCHEMA =
   "    entries : [\n"
   "      { kind : \"MapEntry\", name : \"type\", type : { kind : \"String\" } },\n"
   "      { kind : \"MapEntry\", name : \"name\", type : { kind : \"String\" } },\n"
-  "      { kind : \"MapEntry\", name : \"sampleBuffer\", type : { kind : \"String\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"provider\", type : { kind : \"String\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"isLooping\", type : { kind : \"Boolean\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"volume\", type : { kind : \"Number\" }, optional : \"true\" },\n"
+  "      { kind : \"MapEntry\", name : \"sampleBuffer\", type : { kind : \"String\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"provider\", type : { kind : \"String\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"isLooping\", type : { kind : \"Boolean\" }, optional : true },\n"
+  "      { kind : \"MapEntry\", name : \"volume\", type : { kind : \"Number\" }, optional : true },\n"
   "    ],\n"
   "  },\n"
   "}\n";
@@ -93,8 +93,8 @@ static const Arcadia_ObjectType_Operations objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectTypeOperations,
 };
 

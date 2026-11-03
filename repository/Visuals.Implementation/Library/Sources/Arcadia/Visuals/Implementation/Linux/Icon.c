@@ -44,8 +44,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Visuals_Linux_Icon_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -70,10 +70,16 @@ Arcadia_Visuals_Linux_Icon_constructImpl
     Arcadia_Thread_jump(thread);
   }
 
+  self->bytes = NULL;
   Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Media_PixelBuffer_getType(thread));
   pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, pixelBuffer);
   Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_AlphaRedGreenBlueNatural8);
 
+  if (Arcadia_Media_PixelBuffer_getWidth(thread, pixelBuffer) <= 0 ||
+      Arcadia_Media_PixelBuffer_getHeight(thread, pixelBuffer) <= 0) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   Arcadia_Natural32Value dummy, numberOfPixels, numberOfBytes;
   if (!Arcadia_safeMultiplyNatural32Value(thread, (Arcadia_Natural32Value)Arcadia_Media_PixelBuffer_getWidth(thread, pixelBuffer),
                                                   (Arcadia_Natural32Value)Arcadia_Media_PixelBuffer_getHeight(thread, pixelBuffer), &dummy, &numberOfPixels)) {
@@ -99,10 +105,10 @@ Arcadia_Visuals_Linux_Icon_constructImpl
     for (Arcadia_SizeValue x = 0; x < self->width; ++x) {
       Arcadia_Natural8Value red, green, blue, alpha;
       Arcadia_Media_PixelBuffer_getPixelRGBA(thread, pixelBuffer, x, y, &red, &green, &blue, &alpha);
-      *p++ = alpha << 24
-           | blue << 16
-           | green << 8
-           | red << 0;
+      *p++ = ((unsigned long)alpha << 24)
+           | ((unsigned long)red << 16)
+           | ((unsigned long)green << 8)
+           | (unsigned long)blue;
     }
   }
   Arcadia_LeaveConstructor(Arcadia_Visuals_Linux_Icon);

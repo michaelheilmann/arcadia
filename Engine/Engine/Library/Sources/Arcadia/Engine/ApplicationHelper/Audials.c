@@ -68,8 +68,8 @@ findTypeByName
     Arcadia_Value y
   )
 {
-  Arcadia_Type* yy = Arcadia_Value_getTypeValue(&y);
-  Arcadia_Name* b = Arcadia_Type_getName(thread, yy);
+  Arcadia_TypeDescriptor* yy = Arcadia_Value_getTypeDescriptorValue(&y);
+  Arcadia_Name* b = Arcadia_TypeDescriptor_getName(thread, yy);
   Arcadia_String* a = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&x);
   return Arcadia_String_getNumberOfBytes(thread, a) == Arcadia_Name_getNumberOfBytes(thread, b)
       && !Arcadia_Memory_compare(thread, Arcadia_String_getBytes(thread, a), Arcadia_Name_getBytes(thread, b), Arcadia_String_getNumberOfBytes(thread, a));
@@ -99,12 +99,12 @@ Arcadia_Engine_ApplicationHelper_startupAudials
     if (Arcadia_JumpTarget_save(&jumpTarget)) {
       Arcadia_String* backendTypeName = Arcadia_Engine_ApplicationConfiguration_getString(thread, (Arcadia_DDL_Node*)configuration, path, 2);
       Arcadia_Value backendTypeValue = Arcadia_HashSet_findFirst(thread, (Arcadia_HashSet*)engine->audialsBackendTypes, Arcadia_Value_makeObjectReferenceValue(backendTypeName), &findTypeByName);
-      if (!Arcadia_Value_isTypeValue(&backendTypeValue)) {
+      if (!Arcadia_Value_isTypeDescriptorValue(&backendTypeValue)) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }
-      Arcadia_Type* backendType = Arcadia_Value_getTypeValue(&backendTypeValue);
-      if (!Arcadia_Type_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
+      Arcadia_TypeDescriptor* backendType = Arcadia_Value_getTypeDescriptorValue(&backendTypeValue);
+      if (!Arcadia_TypeDescriptor_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }
@@ -116,12 +116,12 @@ Arcadia_Engine_ApplicationHelper_startupAudials
       Arcadia_String* backendTypeName = Arcadia_String_createFromCxxString(thread, u8"Arcadia.Engine.Audials.Implementation.OpenAL.Backend");
       Arcadia_Engine_ApplicationConfiguration_setString(thread, (Arcadia_DDL_Node*)configuration, path, 2, backendTypeName);
       Arcadia_Value backendTypeValue = Arcadia_HashSet_findFirst(thread, (Arcadia_HashSet*)engine->audialsBackendTypes, Arcadia_Value_makeObjectReferenceValue(backendTypeName), &findTypeByName);
-      if (!Arcadia_Value_isTypeValue(&backendTypeValue)) {
+      if (!Arcadia_Value_isTypeDescriptorValue(&backendTypeValue)) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }
-      Arcadia_Type* backendType = Arcadia_Value_getTypeValue(&backendTypeValue);
-      if (!Arcadia_Type_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
+      Arcadia_TypeDescriptor* backendType = Arcadia_Value_getTypeDescriptorValue(&backendTypeValue);
+      if (!Arcadia_TypeDescriptor_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }
@@ -160,12 +160,12 @@ Arcadia_Engine_ApplicationHelper_startupAudials
       Arcadia_List* temporary = (Arcadia_List*)Arcadia_ArrayList_create(thread);
       Arcadia_Set_getAll(thread, engine->audialsNodeFactoryTypes, temporary);
       Arcadia_Value scneNodeFactoryTypeValue = Arcadia_List_getAt(thread, temporary, 0);
-      if (!Arcadia_Value_isTypeValue(&scneNodeFactoryTypeValue)) {
+      if (!Arcadia_Value_isTypeDescriptorValue(&scneNodeFactoryTypeValue)) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }
-      Arcadia_Type* scneNodeFactoryType = Arcadia_Value_getTypeValue(&scneNodeFactoryTypeValue);
-      if (!Arcadia_Type_isDescendantType(thread, scneNodeFactoryType, _Arcadia_Engine_Audials_NodeFactory_getType(thread))) {
+      Arcadia_TypeDescriptor* scneNodeFactoryType = Arcadia_Value_getTypeDescriptorValue(&scneNodeFactoryTypeValue);
+      if (!Arcadia_TypeDescriptor_isDescendantType(thread, scneNodeFactoryType, _Arcadia_Engine_Audials_NodeFactory_getType(thread))) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }

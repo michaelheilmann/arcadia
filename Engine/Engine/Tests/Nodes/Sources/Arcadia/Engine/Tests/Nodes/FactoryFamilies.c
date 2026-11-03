@@ -228,8 +228,8 @@ visualsDispatch
     .construct = (Arcadia_Object_ConstructCallbackFunction*)&Type##_construct, \
     .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Dispatch, \
   }; \
-  static const Arcadia_Type_Operations Type##_typeOps = { \
-    Arcadia_Type_Operations_Initializer, .objectTypeOperations = &Type##_ops, \
+  static const Arcadia_TypeDescriptor_Operations Type##_typeOps = { \
+    Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &Type##_ops, \
   }; \
   Arcadia_defineObjectType(u8"Tests." #Type, Type, u8"Arcadia.Engine." #Parent ".NodeFactory", Arcadia_Engine_##Parent##_NodeFactory, &Type##_typeOps);
 CHILD(AudialsFactoryChild, Audials, audialsDispatch)
@@ -361,10 +361,10 @@ testConstructors
     Arcadia_Value_makeNatural16Value(0), Arcadia_Value_makeNatural32Value(0),
     Arcadia_Value_makeNatural64Value(0), Arcadia_Value_makeSizeValue(0),
     Arcadia_Value_makeReal32Value(0.), Arcadia_Value_makeReal64Value(0.),
-    Arcadia_Value_makeTypeValue(_Arcadia_Engine_NodeFactory_getType(thread)),
+    Arcadia_Value_makeTypeDescriptorValue(_Arcadia_Engine_NodeFactory_getType(thread)),
   };
   for (unsigned family = 0; family < 2; ++family) {
-    Arcadia_TypeValue type = family ? _Arcadia_Engine_Visuals_NodeFactory_getType(thread) : _Arcadia_Engine_Audials_NodeFactory_getType(thread);
+    Arcadia_TypeDescriptorValue type = family ? _Arcadia_Engine_Visuals_NodeFactory_getType(thread) : _Arcadia_Engine_Audials_NodeFactory_getType(thread);
     for (unsigned i = 0; i < 255 + sizeof(bad) / sizeof(bad[0]); ++i) {
       Arcadia_SizeValue depth = Arcadia_ValueStack_getSize(thread);
       Arcadia_JumpTarget jump;

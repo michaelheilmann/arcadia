@@ -25,7 +25,7 @@ static void*
 Arcadia_allocateObject
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   );
 
 static void
@@ -83,8 +83,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_Object_objectTypeOperations 
   .initializeDispatch = &_Arcadia_Object_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_Object_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_Object_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_Object_objectTypeOperations,
 
 #define Operation(_Name) \
@@ -112,7 +112,7 @@ static const Arcadia_Type_Operations _Arcadia_Object_typeOperations = {
       Arcadia_Thread_jump(thread); \
     } \
     Arcadia_Object* object = Arcadia_ValueStack_getObjectReferenceValue(thread, numberOfArgumentValues + 1); \
-    Arcadia_Type_Operations const* operations = Arcadia_Type_getOperations(Arcadia_Object_getType(thread, object)); \
+    Arcadia_TypeDescriptor_Operations const* operations = Arcadia_TypeDescriptor_getOperations(Arcadia_Object_getType(thread, object)); \
     operations->_Name(thread); \
   }
 
@@ -203,7 +203,7 @@ getHash
 typedef struct ObjectTag ObjectTag;
 
 struct ObjectTag {
-  Arcadia_TypeValue type;
+  Arcadia_TypeDescriptorValue type;
 };
 
 static bool g_objectRegistered = false;
@@ -249,7 +249,7 @@ _Arcadia_Object_onFinalizeObject
   )
 {
   ObjectTag* objectTag = (ObjectTag*)object;
-  Arcadia_TypeValue type = (Arcadia_TypeValue)objectTag->type;
+  Arcadia_TypeDescriptorValue type = (Arcadia_TypeDescriptorValue)objectTag->type;
   if (Arcadia_Process_unlockObject(process, type)) {
     Arcadia_logf(Arcadia_LogFlags_Error, "%s:%d: <error>\n", __FILE__, __LINE__);
   }
@@ -257,7 +257,7 @@ _Arcadia_Object_onFinalizeObject
     return;
   }
   while (type) {
-    Arcadia_Object_DestructCallbackFunction* destruct = Arcadia_Type_getDestructObjectCallbackFunction(type);
+    Arcadia_Object_DestructCallbackFunction* destruct = Arcadia_TypeDescriptor_getDestructObjectCallbackFunction(type);
     if (destruct) {
       destruct(Arcadia_Process_getThread(process), (Arcadia_Object*)(((ObjectTag*)object) + 1));
     }
@@ -275,12 +275,12 @@ _Arcadia_Object_onVisitObject
   )
 {
   ObjectTag* objectTag = (ObjectTag*)object;
-  Arcadia_TypeValue type = (Arcadia_TypeValue)objectTag->type;
+  Arcadia_TypeDescriptorValue type = (Arcadia_TypeDescriptorValue)objectTag->type;
   if (type == _Arcadia_Memory_getType(Arcadia_Process_getThread(process))) {
     return;
   }
   while (type) {
-    Arcadia_Object_VisitCallbackFunction* visit = Arcadia_Type_getVisitObjectCallbackFunction(type);
+    Arcadia_Object_VisitCallbackFunction* visit = Arcadia_TypeDescriptor_getVisitObjectCallbackFunction(type);
     if (visit) {
       visit(Arcadia_Process_getThread(process), (Arcadia_Object*)(((ObjectTag*)object) + 1));
     }
@@ -292,19 +292,19 @@ static void*
 Arcadia_allocateObject
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   if (!type) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  if (!Arcadia_Type_isObjectKind(thread, type)) {
+  if (!Arcadia_TypeDescriptor_isObjectKind(thread, type)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
     Arcadia_Thread_jump(thread);
   }
 
-  Arcadia_Type* memoryType = _Arcadia_Memory_getType(thread);
+  Arcadia_TypeDescriptor* memoryType = _Arcadia_Memory_getType(thread);
 
   ObjectTag* tag = NULL;
   if (SIZE_MAX - sizeof(ObjectTag) < Arcadia_ObjectType_getValueSize(thread, (Arcadia_ObjectType*)type)) {
@@ -316,7 +316,7 @@ Arcadia_allocateObject
   if (Arcadia_Process_lockObject(Arcadia_Thread_getProcess(thread), memoryType)) {
     Arcadia_logf(Arcadia_LogFlags_Error, "%s:%d: <error>\n", __FILE__, __LINE__);
   }
-  Arcadia_Type_getOperations(type)->objectTypeOperations->construct(thread, (Arcadia_ObjectReferenceValue)(Arcadia_Object*)(tag + 1));
+  Arcadia_TypeDescriptor_getOperations(type)->objectTypeOperations->construct(thread, (Arcadia_ObjectReferenceValue)(Arcadia_Object*)(tag + 1));
   return (void*)(tag + 1);
 }
 
@@ -324,7 +324,7 @@ void*
 _Arcadia_EndCreate0
   (
     Arcadia_Thread* thread,
-    Arcadia_Type* type,
+    Arcadia_TypeDescriptor* type,
     Arcadia_SizeValue oldValueStackSize
   )
 {
@@ -350,7 +350,7 @@ _Arcadia_EndCreate0
   }
 }
 
-static Arcadia_TypeValue g__Arcadia_Object_type = NULL;
+static Arcadia_TypeDescriptorValue g__Arcadia_Object_type = NULL;
 
 static void
 _Arcadia_Object_initializeDispatchImpl
@@ -371,7 +371,7 @@ _Arcadia_Object_typeDestructing
   )
 { g__Arcadia_Object_type = NULL; }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_Object_getType
   (
     Arcadia_Thread* thread
@@ -401,7 +401,7 @@ Arcadia_Object_setType
   (
     Arcadia_Thread* thread,
     Arcadia_Object* self,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   Arcadia_Process* process = Arcadia_Thread_getProcess(thread);
@@ -529,7 +529,7 @@ Arcadia_Object_unlock
   }
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_Object_getType
   (
     Arcadia_Thread* thread,
@@ -553,7 +553,7 @@ Arcadia_Object_clone
 {
   assert(NULL != self);
 
-  Arcadia_TypeValue type = Arcadia_Object_getType(thread, self);
+  Arcadia_TypeDescriptorValue type = Arcadia_Object_getType(thread, self);
   assert(NULL != type);
   Arcadia_ObjectDispatch* objectDispatch = (Arcadia_ObjectDispatch*)Arcadia_ObjectType_getDispatch(type);
   assert(NULL != objectDispatch);
@@ -588,7 +588,7 @@ Arcadia_Object_isEqualTo
   assert(NULL != self);
   assert(NULL != other);
 
-  Arcadia_TypeValue type = Arcadia_Object_getType(thread, self);
+  Arcadia_TypeDescriptorValue type = Arcadia_Object_getType(thread, self);
   assert(NULL != type);
   Arcadia_ObjectDispatch* objectDispatch = (Arcadia_ObjectDispatch*)Arcadia_ObjectType_getDispatch(type);
   assert(NULL != objectDispatch);
@@ -620,7 +620,7 @@ Arcadia_Object_getHash
     Arcadia_Object* self
   )
 {
-  Arcadia_TypeValue type = Arcadia_Object_getType(thread, self);
+  Arcadia_TypeDescriptorValue type = Arcadia_Object_getType(thread, self);
   assert(NULL != type);
   Arcadia_ObjectDispatch* objectDispatch = (Arcadia_ObjectDispatch*)Arcadia_ObjectType_getDispatch(type);
   assert(NULL != objectDispatch);
@@ -651,7 +651,7 @@ Arcadia_Object_isIdenticalTo
     Arcadia_Value const* other
   )
 {
-  Arcadia_TypeValue type = Arcadia_Object_getType(thread, self);
+  Arcadia_TypeDescriptorValue type = Arcadia_Object_getType(thread, self);
   assert(NULL != type);
   Arcadia_ObjectDispatch* objectDispatch = (Arcadia_ObjectDispatch*)Arcadia_ObjectType_getDispatch(type);
   assert(NULL != objectDispatch);
@@ -681,7 +681,7 @@ Arcadia_Object_toString
     Arcadia_Object* self
   )
 {
-  Arcadia_TypeValue type = Arcadia_Object_getType(thread, self);
+  Arcadia_TypeDescriptorValue type = Arcadia_Object_getType(thread, self);
   assert(NULL != type);
   Arcadia_ObjectDispatch* objectDispatch = (Arcadia_ObjectDispatch*)Arcadia_ObjectType_getDispatch(type);
   assert(NULL != objectDispatch);

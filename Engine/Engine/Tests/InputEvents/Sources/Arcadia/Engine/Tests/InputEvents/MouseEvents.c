@@ -80,8 +80,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectOperations,
 };
 
@@ -93,7 +93,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* arguments,
     Arcadia_Natural8Value count
   )
@@ -108,7 +108,7 @@ static void
 expectFailure
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* arguments,
     Arcadia_Natural8Value count,
     Arcadia_Status expected
@@ -180,8 +180,8 @@ testCallbacks
     Arcadia_Thread* thread
   )
 {
-  Arcadia_TypeValue types[] = { _Arcadia_Engine_Input_MouseButtonEvent_getType(thread), _Arcadia_Engine_Input_MousePointerEvent_getType(thread) };
-  Arcadia_TypeValue enums[] = { _Arcadia_Engine_Input_MouseButtonAction_getType(thread), _Arcadia_Engine_Input_MousePointerAction_getType(thread) };
+  Arcadia_TypeDescriptorValue types[] = { _Arcadia_Engine_Input_MouseButtonEvent_getType(thread), _Arcadia_Engine_Input_MousePointerEvent_getType(thread) };
+  Arcadia_TypeDescriptorValue enums[] = { _Arcadia_Engine_Input_MouseButtonAction_getType(thread), _Arcadia_Engine_Input_MousePointerAction_getType(thread) };
   for (size_t kind = 0; kind < 2; ++kind) {
     Arcadia_Natural8Value count = kind ? 4 : 5;
     Arcadia_Value args[6] = {

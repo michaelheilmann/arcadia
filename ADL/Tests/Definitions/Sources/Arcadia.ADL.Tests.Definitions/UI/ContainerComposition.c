@@ -256,6 +256,79 @@ testDeclarativePanelChildLayouts
     "{ type: \"UI.Panel\", name: \"Test.BadSlots.Extra\", left: 0, bottom: 0, width: 10, height: 10, "
     "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", mystery: 1 }], "
     "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  // ADL main-axis sizing and visibility are applied after child population.
+  Arcadia_ADL_UI_PanelDefinition* sized = (Arcadia_ADL_UI_PanelDefinition*)Arcadia_ADL_Context_readFromString(
+    thread, context, definitions, Arcadia_String_createFromCxxString(thread,
+    "{ type: \"UI.Panel\", name: \"Test.Slots.Sized\", left: 0, bottom: 0, width: 140, height: 100, "
+    "sizePolicy: \"Fixed\", children: [\"Test.Slots.First\", \"Test.Slots.Second\"], "
+    "childLayouts: [{ name: \"Test.Slots.First\", mainAxisPolicy: \"Fixed\", mainAxisExtent: 36 }, "
+    "{ name: \"Test.Slots.Second\", mainAxisPolicy: \"Weight\", weight: 2, visibility: \"Hidden\" }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Horizontal\", gap: 5, "
+    "mainAlignment: \"Start\", crossAlignment: \"Start\" } }"), false);
+  Arcadia_Tests_assertTrue(thread, sized->childLayouts[0].mainAxisPolicy ==
+    Arcadia_ADL_UI_PanelChildMainAxisPolicy_Fixed && sized->childLayouts[0].mainAxisExtent == 36);
+  Arcadia_Tests_assertTrue(thread, sized->childLayouts[1].mainAxisPolicy ==
+    Arcadia_ADL_UI_PanelChildMainAxisPolicy_Weight && sized->childLayouts[1].weight == 2);
+  Arcadia_Tests_assertTrue(thread, sized->childLayouts[1].visibility == Arcadia_ADL_UI_PanelChildVisibility_Hidden);
+  Arcadia_Object* sizedObject = Arcadia_Engine_UI_createNodeFromDefinition(thread, NULL,
+    (Arcadia_ADL_Definition*)sized);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, sizedObject);
+  Arcadia_Engine_UI_LayoutPanelNode* sizedPanel = (Arcadia_Engine_UI_LayoutPanelNode*)sizedObject;
+  Arcadia_Engine_UI_StackLayoutSlot const* sizedSlots = Arcadia_Engine_UI_LayoutPanelNode_getChildLayoutSlots(thread, sizedPanel);
+  Arcadia_Tests_assertTrue(thread, sizedSlots[0].mainAxisPolicy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Fixed);
+  Arcadia_Tests_assertTrue(thread, sizedSlots[1].mainAxisPolicy == Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Weight &&
+    sizedSlots[1].visibility == Arcadia_Engine_UI_StackLayoutSlotVisibility_Hidden);
+  Arcadia_Engine_UI_WidgetNode* sizedFirst = (Arcadia_Engine_UI_WidgetNode*)
+    Arcadia_Engine_UI_Container_getChildAt(thread, sizedObject, 0);
+  Arcadia_Engine_UI_WidgetNode* sizedSecond = (Arcadia_Engine_UI_WidgetNode*)
+    Arcadia_Engine_UI_Container_getChildAt(thread, sizedObject, 1);
+  Arcadia_Tests_assertTrue(thread, sizedFirst->width == 36 && sizedSecond->width == 99);
+  Arcadia_ValueStack_popValues(thread, 1);
+
+  Arcadia_ADL_UI_PanelDefinition* collapsed = (Arcadia_ADL_UI_PanelDefinition*)Arcadia_ADL_Context_readFromString(
+    thread, context, definitions, Arcadia_String_createFromCxxString(thread,
+    "{ type: \"UI.Panel\", name: \"Test.Slots.Collapsed\", left: 0, bottom: 0, width: 140, height: 100, "
+    "children: [\"Test.Slots.First\", \"Test.Slots.Second\"], "
+    "childLayouts: [{ name: \"Test.Slots.First\", visibility: \"Collapsed\" }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Horizontal\", gap: 5, "
+    "mainAlignment: \"Start\", crossAlignment: \"Start\" } }"), false);
+  Arcadia_Tests_assertTrue(thread, collapsed->childLayouts[0].visibility == Arcadia_ADL_UI_PanelChildVisibility_Collapsed);
+  Arcadia_Object* collapsedObject = Arcadia_Engine_UI_createNodeFromDefinition(thread, NULL,
+    (Arcadia_ADL_Definition*)collapsed);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, collapsedObject);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)collapsedObject, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 40 && height == 30);
+  Arcadia_ValueStack_popValues(thread, 1);
+
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.Visibility\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", visibility: \"Invisible\" }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.Policy\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", mainAxisPolicy: \"Grow\" }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.FixedMissing\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", mainAxisPolicy: \"Fixed\" }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.NegativeExtent\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", mainAxisPolicy: \"Fixed\", mainAxisExtent: -1 }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.ZeroWeight\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", mainAxisPolicy: \"Weight\", weight: 0 }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.MixedFields\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", mainAxisPolicy: \"Fixed\", mainAxisExtent: 2, weight: 1 }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.OrphanWeight\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", weight: 1 }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+
   Arcadia_ValueStack_popValues(thread, 3);
   Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
 }

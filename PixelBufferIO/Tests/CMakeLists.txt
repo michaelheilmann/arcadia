@@ -16,6 +16,7 @@
 
 cmake_minimum_required(VERSION 3.29)
 
-add_subdirectory(WriteBMPTests)
 add_subdirectory(WritePNGTests)
 add_subdirectory(WriteICOTests)
+
+add_subdirectory(ReadImageTests)

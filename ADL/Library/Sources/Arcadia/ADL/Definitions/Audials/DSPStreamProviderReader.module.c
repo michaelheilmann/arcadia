@@ -33,7 +33,7 @@ static const char* SCHEMA =
   "      { kind : \"MapEntry\", name : \"name\", type : { kind : \"String\" } },\n"
   "      { kind : \"MapEntry\", name : \"dsp\", type : { kind : \"String\" } },\n"
   "      { kind : \"MapEntry\", name : \"sampleRate\", type : { kind : \"Number\" } },\n"
-  "      { kind : \"MapEntry\", name : \"duration\", type : { kind : \"Number\" }, optional : \"true\" },\n"
+  "      { kind : \"MapEntry\", name : \"duration\", type : { kind : \"Number\" }, optional : true },\n"
   "    ],\n"
   "  },\n"
   "}\n";
@@ -91,8 +91,8 @@ static const Arcadia_ObjectType_Operations objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectTypeOperations,
 };
 

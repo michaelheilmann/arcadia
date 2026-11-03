@@ -217,7 +217,7 @@ Arcadia_List_getObjectReferenceValueCheckedAt
     Arcadia_Thread* thread,
     Arcadia_List* self,
     Arcadia_SizeValue index,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   Arcadia_Object* element = Arcadia_List_getObjectReferenceValueAt(thread, self, index);

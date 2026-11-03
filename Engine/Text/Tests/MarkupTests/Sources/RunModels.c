@@ -129,8 +129,8 @@ static const Arcadia_ObjectType_Operations probeObjects = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitProbe,
 };
 
-static const Arcadia_Type_Operations probeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations probeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &probeObjects,
 };
 
@@ -142,7 +142,7 @@ static Arcadia_Engine_Text_MarkupTextRun*
 createWithArguments
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value const* arguments,
     Arcadia_Natural8Value count
   )
@@ -160,13 +160,13 @@ testAlignment
   )
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
-  Arcadia_TypeValue type = _Arcadia_Engine_Text_TextAlignment_getType(thread);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Engine_Text_TextAlignment_getType(thread);
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
   const char expected[] = "Arcadia.Engine.Text.TextAlignment";
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == sizeof(expected) - 1);
   Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_Name_getBytes(thread, name), expected, sizeof(expected) - 1));
-  Arcadia_Tests_assertTrue(thread, Arcadia_getType(thread, name) == type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, name) == type);
   for (Arcadia_Integer32Value value = 0; value < 3; ++value) {
     Arcadia_Value boxed = Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(type, value));
     Arcadia_ValueStack_pushValue(thread, &boxed);
@@ -356,7 +356,7 @@ testTypedEnumCallbacks
   for (unsigned i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural8Value(thread, 77);
   Arcadia_String* text = Arcadia_String_createFromCxxString(thread, "text");
   Arcadia_ValueStack_pushObjectReferenceValue(thread, text);
-  Arcadia_TypeValue type = _Arcadia_Engine_Text_TextAlignment_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Engine_Text_TextAlignment_getType(thread);
   Arcadia_Integer32Value alignments[] = { 0, 1, 2, INT32_MIN, INT32_MAX };
   for (unsigned derived = 0; derived < 2; ++derived) {
     for (unsigned representation = 0; representation < 2; ++representation) {
