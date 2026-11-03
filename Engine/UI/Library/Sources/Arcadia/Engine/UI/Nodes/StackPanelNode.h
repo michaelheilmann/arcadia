@@ -23,6 +23,7 @@
 #include "Arcadia/Engine/UI/WidgetNode.h"
 #include "Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h"
 #include "Arcadia/Engine/UI/Nodes/PanelNode.h"
+#include "Arcadia/Engine/UI/Layouts/StackLayout.h"
 
 Arcadia_declareObjectType(u8"Arcadia.Engine.UI.StackPanelNode", Arcadia_Engine_UI_StackPanelNode,
                           u8"Arcadia.Engine.UI.WidgetNode")
@@ -31,14 +32,8 @@ struct Arcadia_Engine_UI_StackPanelNodeDispatch {
   Arcadia_Engine_UI_WidgetNodeDispatch parent;
 };
 
-typedef struct Arcadia_Engine_UI_StackPanelNodeSlot {
-  Arcadia_Integer32Value marginLeft;
-  Arcadia_Integer32Value marginBottom;
-  Arcadia_Integer32Value marginRight;
-  Arcadia_Integer32Value marginTop;
-  Arcadia_BooleanValue hasAlignmentOverride;
-  Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment;
-} Arcadia_Engine_UI_StackPanelNodeSlot;
+// Retain the old C API and slot storage while StackPanelNode is in use.
+typedef Arcadia_Engine_UI_StackLayoutSlot Arcadia_Engine_UI_StackPanelNodeSlot;
 
 struct Arcadia_Engine_UI_StackPanelNode {
   Arcadia_Engine_UI_WidgetNode _parent;

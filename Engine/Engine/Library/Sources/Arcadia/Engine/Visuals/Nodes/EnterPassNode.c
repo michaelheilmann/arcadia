@@ -217,6 +217,7 @@ Arcadia_Engine_Visuals_EnterPassNode_renderImpl
     Arcadia_Engine_Visuals_EnterPassResource_setClearColorBuffer(thread, self->enterPassResource, Arcadia_Engine_Visuals_ViewportNode_getClearColorBuffer(thread, viewportNode));
     Arcadia_Engine_Visuals_EnterPassResource_setClearDepth(thread, self->enterPassResource, Arcadia_Engine_Visuals_ViewportNode_getClearDepth(thread, viewportNode));
     Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBuffer(thread, self->enterPassResource, Arcadia_Engine_Visuals_ViewportNode_getClearDepthBuffer(thread, viewportNode));
+    Arcadia_Engine_Visuals_EnterPassResource_setDepthTestEnabled(thread, self->enterPassResource, Arcadia_Engine_Visuals_ViewportNode_getDepthTestEnabled(thread, viewportNode));
     Arcadia_Real32Value left, bottom, right, top;
     Arcadia_Engine_Visuals_ViewportNode_getRelativeViewportRectangle(thread, viewportNode, &left, &bottom, &right, &top);
     Arcadia_Engine_Visuals_EnterPassResource_setRelativeViewportRectangle(thread, self->enterPassResource, left, bottom, right, top);

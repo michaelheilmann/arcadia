@@ -355,10 +355,15 @@ Arcadia_Engine_UI_ToggleNode_constructImpl
   self->bottom = Arcadia_ValueStack_getInteger32Value(thread, 4);
   self->width = Arcadia_ValueStack_getNatural32Value(thread, 3);
   self->height = Arcadia_ValueStack_getNatural32Value(thread, 2);
-  ((Arcadia_Engine_UI_WidgetNode*)self)->left = self->left;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->bottom = self->bottom;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->width = (Arcadia_Integer32Value)self->width;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->height = (Arcadia_Integer32Value)self->height;
+  Arcadia_Engine_UI_WidgetNode_setInitialBounds
+    (
+      thread,
+      (Arcadia_Engine_UI_WidgetNode*)self,
+      self->left,
+      self->bottom,
+      (Arcadia_Integer32Value)self->width,
+      (Arcadia_Integer32Value)self->height
+    );
   self->checked = Arcadia_ValueStack_getBooleanValue(thread, 1);
   self->enabled = Arcadia_BooleanValue_True;
   self->hovered = Arcadia_BooleanValue_False;

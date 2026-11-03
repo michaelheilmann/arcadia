@@ -38,12 +38,10 @@ platform:
   - x64
   - Win32
 
-# Build configurations "Release", "Debug", "MinSizeRel", and "RelWithDebInfo".
+# Fast CI configurations (main overrides this with the full matrix).
 configuration:
   - Release
   - Debug
-  - MinSizeRel
-  - RelWithDebInfo
 
 environment:
   CLONE_DIRECTORY: C:\Source
@@ -167,13 +165,6 @@ before_build:
 build:
   parallel: true # enable MSBuild parallel builds
   project: $(BUILD_DIRECTORY)\Arcadia.sln # path to Visual Studio solution or project
-
-after_build:
-  - ps: New-Item ${env:BUILD_DIRECTORY}\.keepme -type file
-  - ps: 7z a ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\.keepme
-  - ps: 7z a ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\Tools\TemplateEngine\Tool\${env:CONFIGURATION}\Arcadia.TemplateEngine.CLI.exe
-  - ps: 7z rn ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} Arcadia.TemplateEngine.CLI.exe TemplateEngine\Binaries\Arcadia.TemplateEngine.CLI.exe
-  - ps: Push-AppveyorArtifact ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} -FileName ${env:ARCHIVE_FILENAME} -DeploymentName ${env:ARCHIVE_FILENAME}
 
 # Configure WER after the build and before CTest, ONLY when explicitly enabled.
 before_test:
@@ -324,6 +315,24 @@ matrix:
 #  - name: $(ARCHIVE_FILENAME)
 #    path: $(PACKAGE_DIRECTORY)\$(ARCHIVE_FILENAME)
 
+# Only main runs the full eight-job matrix and publishes build artifacts.
+# develop retains the four combinations: (x64, Win32) x (Release, Debug).
+for:
+  - branches:
+      only:
+        - main
+    configuration:
+      - Release
+      - Debug
+      - MinSizeRel
+      - RelWithDebInfo
+    after_build:
+      - ps: New-Item ${env:BUILD_DIRECTORY}\.keepme -type file
+      - ps: 7z a ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\.keepme
+      - ps: 7z a ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} ${env:BUILD_DIRECTORY}\Tools\TemplateEngine\Tool\${env:CONFIGURATION}\Arcadia.TemplateEngine.CLI.exe
+      - ps: 7z rn ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} Arcadia.TemplateEngine.CLI.exe TemplateEngine\Binaries\Arcadia.TemplateEngine.CLI.exe
+      - ps: Push-AppveyorArtifact ${env:PACKAGE_DIRECTORY}\${env:ARCHIVE_FILENAME} -FileName ${env:ARCHIVE_FILENAME} -DeploymentName ${env:ARCHIVE_FILENAME}
+
 deploy:
   release: $(RELEASE_NAME)
   tag: $(RELEASE_NAME)
@@ -335,3 +344,5 @@ deploy:
   draft: true
   prerelease: false
   force_update: true
+  on:
+    branch: main

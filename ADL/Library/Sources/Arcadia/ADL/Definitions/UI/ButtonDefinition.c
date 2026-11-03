@@ -79,32 +79,29 @@ Arcadia_ADL_UI_ButtonDefinition_constructImpl
 {
   Arcadia_EnterConstructor(Arcadia_ADL_UI_ButtonDefinition);
   {
-   Arcadia_Value definitions = Arcadia_ValueStack_getValue(thread, 22);
-     Arcadia_Value name = Arcadia_ValueStack_getValue(thread, 21);
+   Arcadia_Value definitions = Arcadia_ValueStack_getValue(thread, 19);
+     Arcadia_Value name = Arcadia_ValueStack_getValue(thread, 18);
     Arcadia_ValueStack_pushValue(thread, &definitions);
     Arcadia_ValueStack_pushValue(thread, &name);
     Arcadia_ValueStack_pushNatural8Value(thread, 2);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (22 != _numberOfArguments) {
+  if (19 != _numberOfArguments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  self->left = Arcadia_ValueStack_getInteger32Value(thread, 20);
-  self->bottom = Arcadia_ValueStack_getInteger32Value(thread, 19);
-  self->width = Arcadia_ValueStack_getNatural32Value(thread, 18);
-  self->height = Arcadia_ValueStack_getNatural32Value(thread, 17);
-  self->text = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 16, _Arcadia_String_getType(thread));
-  self->horizontalAlignment = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 15, _Arcadia_String_getType(thread));
-  self->verticalAlignment = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 14, _Arcadia_String_getType(thread));
-  self->backgroundColor = Arcadia_ValueStack_isVoidValue(thread, 13) ? NULL : Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions, (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 13, _Arcadia_String_getType(thread)));
-  self->hoveredBackgroundColor = Arcadia_ValueStack_isVoidValue(thread, 12) ? NULL : Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions, (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 12, _Arcadia_String_getType(thread)));
-  self->pressedBackgroundColor = Arcadia_ValueStack_isVoidValue(thread, 11) ? NULL : Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions, (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 11, _Arcadia_String_getType(thread)));
-  self->disabledBackgroundColor = Arcadia_ValueStack_isVoidValue(thread, 10) ? NULL : Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions, (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 10, _Arcadia_String_getType(thread)));
-  self->focusedBackgroundColor = Arcadia_ValueStack_isVoidValue(thread, 9) ? NULL : Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions, (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 9, _Arcadia_String_getType(thread)));
-  self->backgroundRed = Arcadia_ValueStack_getNatural8Value(thread, 8);
-  self->backgroundGreen = Arcadia_ValueStack_getNatural8Value(thread, 7);
-  self->backgroundBlue = Arcadia_ValueStack_getNatural8Value(thread, 6);
+  self->left = Arcadia_ValueStack_getInteger32Value(thread, 17);
+  self->bottom = Arcadia_ValueStack_getInteger32Value(thread, 16);
+  self->width = Arcadia_ValueStack_getNatural32Value(thread, 15);
+  self->height = Arcadia_ValueStack_getNatural32Value(thread, 14);
+  self->text = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 13, _Arcadia_String_getType(thread));
+  self->horizontalAlignment = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 12, _Arcadia_String_getType(thread));
+  self->verticalAlignment = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 11, _Arcadia_String_getType(thread));
+  self->backgroundColor = Arcadia_ValueStack_isVoidValue(thread, 10) ? NULL : Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions, (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 10, _Arcadia_String_getType(thread)));
+  self->hoveredBackgroundColor = Arcadia_ValueStack_isVoidValue(thread, 9) ? NULL : Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions, (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 9, _Arcadia_String_getType(thread)));
+  self->pressedBackgroundColor = Arcadia_ValueStack_isVoidValue(thread, 8) ? NULL : Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions, (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 8, _Arcadia_String_getType(thread)));
+  self->disabledBackgroundColor = Arcadia_ValueStack_isVoidValue(thread, 7) ? NULL : Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions, (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 7, _Arcadia_String_getType(thread)));
+  self->focusedBackgroundColor = Arcadia_ValueStack_isVoidValue(thread, 6) ? NULL : Arcadia_ADL_Reference_create(thread, ((Arcadia_ADL_Definition*)self)->definitions, (Arcadia_String*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 6, _Arcadia_String_getType(thread)));
   self->pixelSize = Arcadia_ValueStack_getNatural32Value(thread, 5);
   self->borderWidth = Arcadia_ValueStack_getNatural32Value(thread, 4);
   self->borderRed = Arcadia_ValueStack_getNatural8Value(thread, 3);
@@ -164,9 +161,6 @@ Arcadia_ADL_UI_ButtonDefinition_create
     Arcadia_String* pressedBackgroundColor,
     Arcadia_String* disabledBackgroundColor,
     Arcadia_String* focusedBackgroundColor,
-    Arcadia_Natural8Value backgroundRed,
-    Arcadia_Natural8Value backgroundGreen,
-    Arcadia_Natural8Value backgroundBlue,
     Arcadia_Natural32Value pixelSize,
     Arcadia_Natural32Value borderWidth,
     Arcadia_Natural8Value borderRed,
@@ -189,14 +183,11 @@ Arcadia_ADL_UI_ButtonDefinition_create
   if (pressedBackgroundColor) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pressedBackgroundColor); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   if (disabledBackgroundColor) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)disabledBackgroundColor); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   if (focusedBackgroundColor) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)focusedBackgroundColor); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
-  Arcadia_ValueStack_pushNatural8Value(thread, backgroundRed);
-  Arcadia_ValueStack_pushNatural8Value(thread, backgroundGreen);
-  Arcadia_ValueStack_pushNatural8Value(thread, backgroundBlue);
   Arcadia_ValueStack_pushNatural32Value(thread, pixelSize);
   Arcadia_ValueStack_pushNatural32Value(thread, borderWidth);
   Arcadia_ValueStack_pushNatural8Value(thread, borderRed);
   Arcadia_ValueStack_pushNatural8Value(thread, borderGreen);
   Arcadia_ValueStack_pushNatural8Value(thread, borderBlue);
-  Arcadia_ValueStack_pushNatural8Value(thread, 22);
+  Arcadia_ValueStack_pushNatural8Value(thread, 19);
   _Arcadia_EndCreate(Arcadia_ADL_UI_ButtonDefinition);
 }

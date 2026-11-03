@@ -318,10 +318,10 @@ updateVertices
   computePlacement(thread, self, canvasWidth, canvasHeight, &left, &bottom);
   Arcadia_Real32Value const right = left + (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->width;
   Arcadia_Real32Value const top = bottom + (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height;
-  Arcadia_Natural8Value red = self->source->backgroundRed;
-  Arcadia_Natural8Value green = self->source->backgroundGreen;
-  Arcadia_Natural8Value blue = self->source->backgroundBlue;
-  getReferenceColor(self->source->backgroundColor, &red, &green, &blue);
+  Arcadia_ADL_ColorDefinition* baseColor = (Arcadia_ADL_ColorDefinition*)self->source->backgroundColor->definition;
+  Arcadia_Natural8Value red = baseColor->red;
+  Arcadia_Natural8Value green = baseColor->green;
+  Arcadia_Natural8Value blue = baseColor->blue;
   if (!self->enabled) {
     getReferenceColor(self->source->disabledBackgroundColor, &red, &green, &blue);
   } else if (self->pressed) {
@@ -514,11 +514,20 @@ Arcadia_Engine_UI_ButtonNode_constructImpl
 
   self->source = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_ADL_UI_ButtonDefinition_getType(thread));
   Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)self->source);
+  if (!self->source->backgroundColor || !self->source->backgroundColor->definition) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+    Arcadia_Thread_jump(thread);
+  }
   ((Arcadia_Engine_UI_WidgetNode*)self)->name = ((Arcadia_ADL_Definition*)self->source)->name;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->left = self->source->left;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->bottom = self->source->bottom;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->width = (Arcadia_Integer32Value)self->source->width;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->height = (Arcadia_Integer32Value)self->source->height;
+  Arcadia_Engine_UI_WidgetNode_setInitialBounds
+    (
+      thread,
+      (Arcadia_Engine_UI_WidgetNode*)self,
+      self->source->left,
+      self->source->bottom,
+      (Arcadia_Integer32Value)self->source->width,
+      (Arcadia_Integer32Value)self->source->height
+    );
   self->backendContext = Arcadia_ValueStack_isVoidValue(thread, 2) ? NULL : Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_Visuals_BackendContext_getType(thread));
   if (self->backendContext) {
     Arcadia_Object_lock(thread, (Arcadia_Object*)self->backendContext);
@@ -549,16 +558,17 @@ Arcadia_Engine_UI_ButtonNode_constructImpl
   Arcadia_String* pixelBufferName = Arcadia_String_createFromCxxString(thread, u8"UI.Button.Generated.PixelBuffer");
   Arcadia_String* fillName = Arcadia_String_createFromCxxString(thread, u8"UI.Button.Generated.Fill");
 
-  Arcadia_ADL_ColorDefinition* color = Arcadia_ADL_ColorDefinition_create(thread, self->generatedDefinitions, colorName, self->source->backgroundRed, self->source->backgroundGreen, self->source->backgroundBlue);
+  Arcadia_ADL_ColorDefinition* baseColor = (Arcadia_ADL_ColorDefinition*)self->source->backgroundColor->definition;
+  Arcadia_ADL_ColorDefinition* color = Arcadia_ADL_ColorDefinition_create(thread, self->generatedDefinitions, colorName, baseColor->red, baseColor->green, baseColor->blue);
   Arcadia_ADL_PixelBufferOperations_FillOperationDefinition* fill = Arcadia_ADL_PixelBufferOperations_FillOperationDefinition_create(thread, self->generatedDefinitions, fillName, colorName);
   Arcadia_ADL_PixelBufferDefinition* pixelBuffer = Arcadia_ADL_PixelBufferDefinition_create(thread, self->generatedDefinitions, pixelBufferName, 1, 1);
   Arcadia_List_insertBackObjectReferenceValue(thread, pixelBuffer->operations, (Arcadia_Object*)Arcadia_ADL_Reference_create(thread, self->generatedDefinitions, fillName));
   Arcadia_ADL_TextureDefinition* texture = Arcadia_ADL_TextureDefinition_create(thread, self->generatedDefinitions, textureName, pixelBufferName, Arcadia_ADL_TextureFilter_None, Arcadia_ADL_TextureFilter_None, Arcadia_ADL_TextureAddressMode_None, Arcadia_ADL_TextureAddressMode_None);
 
   Arcadia_Real32Value positions[90] = { 0.f };
-  Arcadia_Real32Value const r = self->source->backgroundRed / 255.f;
-  Arcadia_Real32Value const g = self->source->backgroundGreen / 255.f;
-  Arcadia_Real32Value const b = self->source->backgroundBlue / 255.f;
+  Arcadia_Real32Value const r = baseColor->red / 255.f;
+  Arcadia_Real32Value const g = baseColor->green / 255.f;
+  Arcadia_Real32Value const b = baseColor->blue / 255.f;
   Arcadia_Real32Value colors[120];
   Arcadia_Real32Value uvs[60] = { 0.f };
   for (Arcadia_SizeValue i = 0; i < 30; ++i) {

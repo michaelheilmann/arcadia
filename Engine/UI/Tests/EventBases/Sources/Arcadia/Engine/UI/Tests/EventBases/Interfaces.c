@@ -831,10 +831,12 @@ testWidgets
   engine->visualsNodeFactory = (Arcadia_Engine_NodeFactory*)Arcadia_Engine_Visuals_NodeFactory_create(thread);
   Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, definitions);
+  Arcadia_ADL_Context_readFromString(thread, Arcadia_ADL_Context_getOrCreate(thread), definitions,
+    Arcadia_String_createFromCxxString(thread, "{ type: \"Color\", name: \"Tests.InterfaceButton.Background\", red: 30, green: 40, blue: 50 }"), false);
   Arcadia_ADL_UI_ButtonDefinition* source = Arcadia_ADL_UI_ButtonDefinition_create(thread, definitions,
     Arcadia_String_createFromCxxString(thread, "Tests.InterfaceButton"), 10, 20, 100, 40,
     Arcadia_String_createFromCxxString(thread, ""), Arcadia_String_createFromCxxString(thread, "Left"), Arcadia_String_createFromCxxString(thread, "Bottom"),
-    NULL, NULL, NULL, NULL, NULL, 30, 40, 50, 16, 0, 0, 0, 0);
+    Arcadia_String_createFromCxxString(thread, "Tests.InterfaceButton.Background"), NULL, NULL, NULL, NULL, 16, 0, 0, 0, 0);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, source);
   Arcadia_Engine_UI_ButtonNode* button = Arcadia_Engine_UI_ButtonNode_create(thread, NULL, source);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, button);

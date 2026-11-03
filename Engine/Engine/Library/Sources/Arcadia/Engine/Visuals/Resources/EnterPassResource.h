@@ -48,6 +48,8 @@ struct Arcadia_Engine_Visuals_EnterPassResourceDispatch {
 
   void (*setClearDepthBuffer)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_BooleanValue);
 
+  void (*setDepthTestEnabled)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_BooleanValue);
+
   void (*setClearDepth)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Real32Value);
 
   void (*setRelativeViewportRectangle)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Real32Value, Arcadia_Real32Value, Arcadia_Real32Value, Arcadia_Real32Value);
@@ -66,6 +68,7 @@ struct Arcadia_Engine_Visuals_EnterPassResource {
   Arcadia_Math_Color4Real32* clearColor;
   Arcadia_BooleanValue clearDepthBuffer;
   Arcadia_Real32Value clearDepth;
+  Arcadia_BooleanValue depthTestEnabled;
   Arcadia_Engine_Visuals_ConstantBufferResource* viewerConstantBuffer;
 };
 
@@ -81,7 +84,9 @@ struct Arcadia_Engine_Visuals_EnterPassResource {
 
 #define Arcadia_Engine_Visuals_EnterPassResource_RelativeViewportRectangleDirty INT32_C(32)
 
-#define Arcadia_Engine_Visuals_EnterPassResource_AllDirty INT32_C(63)
+#define Arcadia_Engine_Visuals_EnterPassResource_DepthTestDirty INT32_C(64)
+
+#define Arcadia_Engine_Visuals_EnterPassResource_AllDirty INT32_C(127)
 
 void
 Arcadia_Engine_Visuals_EnterPassResource_setTargetFrameBuffer
@@ -129,6 +134,14 @@ Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBuffer
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_EnterPassResource* self,
     Arcadia_BooleanValue clearDepthBuffer
+  );
+
+void
+Arcadia_Engine_Visuals_EnterPassResource_setDepthTestEnabled
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
+    Arcadia_BooleanValue enabled
   );
 
 void

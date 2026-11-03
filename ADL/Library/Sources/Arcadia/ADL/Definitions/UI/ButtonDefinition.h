@@ -44,9 +44,6 @@ struct Arcadia_ADL_UI_ButtonDefinition {
   Arcadia_ADL_Reference* pressedBackgroundColor;
   Arcadia_ADL_Reference* disabledBackgroundColor;
   Arcadia_ADL_Reference* focusedBackgroundColor;
-  Arcadia_Natural8Value backgroundRed;
-  Arcadia_Natural8Value backgroundGreen;
-  Arcadia_Natural8Value backgroundBlue;
   Arcadia_Natural32Value pixelSize;
   Arcadia_Natural32Value borderWidth;
   Arcadia_Natural8Value borderRed;
@@ -72,9 +69,6 @@ Arcadia_ADL_UI_ButtonDefinition_create
     Arcadia_String* pressedBackgroundColor,
     Arcadia_String* disabledBackgroundColor,
     Arcadia_String* focusedBackgroundColor,
-    Arcadia_Natural8Value backgroundRed,
-    Arcadia_Natural8Value backgroundGreen,
-    Arcadia_Natural8Value backgroundBlue,
     Arcadia_Natural32Value pixelSize,
     Arcadia_Natural32Value borderWidth,
     Arcadia_Natural8Value borderRed,

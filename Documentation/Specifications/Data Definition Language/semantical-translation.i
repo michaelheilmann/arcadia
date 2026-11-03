@@ -1,7 +1,7 @@
-<h2 id="semantical-translation">Semantical translation</h2>
-<p>Semantical translation maps a sentence to a typed value. The <em>Data Definition Language</em> has six basic types:
-   \(\textit{List}\) and \(\textit{Map}\), which are the so called aggregate types, and \(\textit{Boolean}\), \(\textit{Number}\), \(\textit{String}\),      and
-   \(\textit{Void}\), which are the so called scalar types.</p>
+<h2 id="semantical-translation">7 Semantical translation</h2>
+<p>Semantical translation maps a sentence to a typed value. DDL defines six value types:
+   \(\textit{List}\) and \(\textit{Map}\) are aggregate types; \(\textit{Boolean}\), \(\textit{Number}\), \(\textit{String}\), and
+   \(\textit{Void}\) are scalar types.</p>
 
 <p>The type \(\textit{Value}\) is defined as the union of all the types above.
 \[\begin{aligned}
@@ -16,7 +16,7 @@
 
 <p>
 The translation of a sentence into values is described by syntax-directed translations
-(see <a href="#references">Aho, Sethi and Ullman</a> for background).
+(see <a href="#reference-aho">Aho, Sethi and Ullman</a> for background).
 </p>
 
 <p>At the end of translation, a value form \(x\) has an attribute \(x.\text{value}\) of type \(\textit{Value}\).
@@ -29,10 +29,10 @@ and String nodes store decoded UTF-8 text. The rules below describe the denoted 
 converted to a native numeric or Boolean runtime type. Semantic analysis is an explicit operation;
 <code>DefaultReader_run</code> parses but does not itself invoke duplicate-name checking.</p>
 
-<h3 id="semantical-translation-scalar-types">Scalar types</h3>
+<h3 id="semantical-translation-scalar-types">7.1 Scalar types</h3>
 <p>The scalar rules translate a single word into its denoted value.</p>
 
-<h4 id="type-boolean">Boolean type</h4>
+<h4 id="type-boolean">7.1.1 Boolean type</h4>
 <p>The type \(\textit{Boolean}\) has two values, \(\textit{true}\) and \(\textit{false}\), expressed by
 <code>true</code> and <code>false</code> (\(\text{Lexical.True}\) and \(\text{Lexical.False}\)).
 The older names <code>DDL.Lexical.true</code> and <code>DDL.Lexical.false</code> refer to these same keywords.</p>
@@ -57,7 +57,7 @@ The older names <code>DDL.Lexical.true</code> and <code>DDL.Lexical.false</code>
 </table>
 </div>
 
-<h4 id="type-number">Number type</h4>
+<h4 id="type-number">7.1.2 Number type</h4>
 <p>
 The type \(\textit{Number}\) retains a sequence of code points satisfying \(\text{DDL.Syntactical.Number}\).
 Its representation is textual: for example, <code>01</code> and <code>+1</code> remain distinct spellings.
@@ -89,7 +89,7 @@ introduced by <code>e</code> or <code>E</code> with an optional sign and at leas
 The grammar does not impose a fixed machine-number range, but storage is bounded by implementation resources.
 Conversions performed by consumers have their own range, precision and error behavior; this specification does not promise arbitrary-precision numeric operations.</p>
 
-<h4 id="type-string">String type</h4>
+<h4 id="type-string">7.1.3 String type</h4>
 <p>
 The \(\textit{String}\) type represents decoded text, not its quoted source spelling.
 For example, <code>"\u{41}"</code> denotes the same text as <code>"A"</code>.
@@ -123,7 +123,7 @@ No Unicode normalization is performed. Surrogate-pair escapes are not supported:
 </table>
 </div>
 
-<h4 id="type-void">Void type</h4>
+<h4 id="type-void">7.1.4 Void type</h4>
 <p>
 The type \(\textit{Void}\) has a single value, \(\textit{void}\), expressed by the keyword <code>void</code>.
 </p>
@@ -148,7 +148,7 @@ The type \(\textit{Void}\) has a single value, \(\textit{void}\), expressed by t
 </table>
 </div>
 
-<h3 id="semantical-translation-list-type">List type</h3>
+<h3 id="semantical-translation-list-type">7.2 List type</h3>
 <p>
 The type \(\textit{List}\) represents an ordered list of values of type \(\textit{Value}\).
 A list is expressed by \(\text{DDL.Syntactical.List}\). The rules prepend each element to the translated remainder;
@@ -267,7 +267,7 @@ empty bodies and trailing commas contribute an empty list.
 </code></pre>
 </div>
 
-<h3 id="semantical-translation-map-type">Map type</h3>
+<h3 id="semantical-translation-map-type">7.3 Map type</h3>
 <p>
 The type \(\textit{Map}\) represents an ordered list of entries. Each entry is a pair: a name spelling (\(\textit{Name}\), not a seventh value type)
 and a value of type \(\textit{Value}\). Name comparison is case-sensitive. Names must be unique within each map;
@@ -380,7 +380,7 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
 </table>
 </div>
 
-<h3 id="semantical-translation-value-type">Value type</h3>
+<h3 id="semantical-translation-value-type">7.4 Value type</h3>
 <p>
 The type \(\textit{Value}\) is the union of the types
 \(\textit{Boolean}\),

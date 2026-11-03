@@ -22,6 +22,7 @@
 #endif
 #include "Arcadia/ADL/Reader.h"
 #include "Arcadia/DDLS/Include.h"
+typedef struct Arcadia_ADL_ColorReader Arcadia_ADL_ColorReader;
 
 Arcadia_declareObjectType(u8"Arcadia.ADL.UI.ButtonReader", Arcadia_ADL_UI_ButtonReader,
                           u8"Arcadia.ADL.Reader");
@@ -46,13 +47,11 @@ struct Arcadia_ADL_UI_ButtonReader {
   Arcadia_String* PRESSED_BACKGROUND_COLOR;
   Arcadia_String* DISABLED_BACKGROUND_COLOR;
   Arcadia_String* FOCUSED_BACKGROUND_COLOR;
-  Arcadia_String* BACKGROUND_RED;
-  Arcadia_String* BACKGROUND_GREEN;
-  Arcadia_String* BACKGROUND_BLUE;
   Arcadia_String* SCHEMANAME;
   Arcadia_String* TYPENAME;
   Arcadia_String* CENTER;
   Arcadia_DDLS_ValidationContext* validationContext;
+  Arcadia_ADL_ColorReader* inlineColorReader;
 };
 
 Arcadia_ADL_UI_ButtonReader*

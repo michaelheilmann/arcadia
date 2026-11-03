@@ -22,8 +22,16 @@
 #if Arcadia_Engine_Visuals_VertexBufferResource_VertexDataDirty != 1
   #error("resource constants must remain usable in preprocessor expressions")
 #endif
-#if Arcadia_Engine_Visuals_EnterPassResource_AllDirty != 63
-  #error("resource flag values must be preserved")
+#if Arcadia_Engine_Visuals_EnterPassResource_ViewToProjectionMatrixDirty != 1 \
+ || Arcadia_Engine_Visuals_EnterPassResource_WorldToViewMatrixDirty != 2 \
+ || Arcadia_Engine_Visuals_EnterPassResource_CanvasSizeDirty != 4 \
+ || Arcadia_Engine_Visuals_EnterPassResource_ClearColorDirty != 8 \
+ || Arcadia_Engine_Visuals_EnterPassResource_ClearDepthDirty != 16 \
+ || Arcadia_Engine_Visuals_EnterPassResource_RelativeViewportRectangleDirty != 32
+  #error("existing resource flag values must be preserved")
+#endif
+#if Arcadia_Engine_Visuals_EnterPassResource_DepthTestDirty != 64 || Arcadia_Engine_Visuals_EnterPassResource_AllDirty != 127
+  #error("depth-test flag must be included in the all-dirty mask")
 #endif
 
 static int

@@ -399,6 +399,87 @@ testSearchErrors
   Arcadia_ValueStack_popValues(thread, 301);
 }
 
+static void
+testWidgetLayout
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  for (unsigned i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural8Value(thread, 77);
+  Arcadia_Engine_UI_WidgetNode* widget = Arcadia_Engine_UI_WidgetNode_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)widget);
+  Arcadia_Integer32Value x, y, width, height;
+  Arcadia_Engine_UI_WidgetNode_getRequestedSize(thread, widget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 0 && height == 0);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, widget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 0 && height == 0);
+
+  Arcadia_Engine_UI_WidgetNode_setBounds(thread, widget, 10, 20, 120, 44);
+  Arcadia_Engine_UI_WidgetNode_measure(thread, widget, 40, 20);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, widget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 120 && height == 44);
+  Arcadia_Engine_UI_WidgetNode_getBounds(thread, widget, &x, &y, &width, &height);
+  Arcadia_Tests_assertTrue(thread, x == 10 && y == 20 && width == 120 && height == 44);
+
+  Arcadia_Engine_UI_WidgetNode_arrange(thread, widget, 30, 40, 60, 20);
+  Arcadia_Engine_UI_WidgetNode_getBounds(thread, widget, &x, &y, &width, &height);
+  Arcadia_Tests_assertTrue(thread, x == 30 && y == 40 && width == 60 && height == 20);
+  Arcadia_Engine_UI_WidgetNode_getRequestedSize(thread, widget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 120 && height == 44);
+  Arcadia_Engine_UI_WidgetNode_measure(thread, widget, 10, 10);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, widget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 120 && height == 44);
+  Arcadia_Engine_UI_WidgetNode_getBounds(thread, widget, &x, &y, &width, &height);
+  Arcadia_Tests_assertTrue(thread, x == 30 && y == 40 && width == 60 && height == 20);
+
+  // Existing setSize semantics still update actual geometry immediately.
+  Arcadia_Engine_UI_WidgetNode_setSize(thread, widget, 90, 50);
+  Arcadia_Engine_UI_WidgetNode_getRequestedSize(thread, widget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 90 && height == 50);
+  Arcadia_Engine_UI_WidgetNode_getSize(thread, widget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 90 && height == 50);
+
+  // Bad dimensions are rejected before changing either requested or actual size.
+  for (unsigned i = 0; i < 2; ++i) {
+    Arcadia_SizeValue depth = Arcadia_ValueStack_getSize(thread);
+    Arcadia_JumpTarget jump;
+    Arcadia_Thread_pushJumpTarget(thread, &jump);
+    if (Arcadia_JumpTarget_save(&jump)) {
+      if (i == 0) Arcadia_Engine_UI_WidgetNode_measure(thread, widget, -1, 10);
+      else Arcadia_Engine_UI_WidgetNode_arrange(thread, widget, 100, 200, -1, 40);
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_Tests_assertTrue(thread, false);
+    } else {
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_Tests_assertTrue(thread, Arcadia_Thread_getStatus(thread) == Arcadia_Status_ArgumentValueInvalid);
+      Arcadia_Thread_setStatus(thread, 0);
+      Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == depth);
+    }
+  }
+  Arcadia_Engine_UI_WidgetNode_getBounds(thread, widget, &x, &y, &width, &height);
+  Arcadia_Tests_assertTrue(thread, x == 30 && y == 40 && width == 90 && height == 50);
+  Arcadia_Engine_UI_WidgetNode_getRequestedSize(thread, widget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 90 && height == 50);
+
+  // Derived widgets inherit the default layout dispatch operations.
+  NodeSearchWidget* derived = createWidget(thread, NULL);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)derived);
+  Arcadia_Engine_UI_WidgetNode* child = (Arcadia_Engine_UI_WidgetNode*)derived;
+  Arcadia_Engine_UI_WidgetNode_setBounds(thread, child, 1, 2, 30, 40);
+  Arcadia_Engine_UI_WidgetNode_measure(thread, child, 10, 10);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, child, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 30 && height == 40);
+  Arcadia_Engine_UI_WidgetNode_arrange(thread, child, 3, 4, 12, 15);
+  Arcadia_Engine_UI_WidgetNode_getBounds(thread, child, &x, &y, &width, &height);
+  Arcadia_Tests_assertTrue(thread, x == 3 && y == 4 && width == 12 && height == 15);
+  Arcadia_Engine_UI_WidgetNode_getRequestedSize(thread, child, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 30 && height == 40);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Arcadia_ValueStack_popValues(thread, 301);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
 int
 Arcadia_Engine_UI_Tests_node
   (
@@ -409,5 +490,6 @@ Arcadia_Engine_UI_Tests_node
   if (!Arcadia_Tests_safeExecute(testNodeConstructor)) { fprintf(stderr, "UI Node constructor failed\n"); return EXIT_FAILURE; }
   if (!Arcadia_Tests_safeExecute(testSearchLifetime)) { fprintf(stderr, "UI Node search lifetime failed\n"); return EXIT_FAILURE; }
   if (!Arcadia_Tests_safeExecute(testSearchErrors)) { fprintf(stderr, "UI Node search errors failed\n"); return EXIT_FAILURE; }
+  if (!Arcadia_Tests_safeExecute(testWidgetLayout)) { fprintf(stderr, "UI Widget layout failed\n"); return EXIT_FAILURE; }
   return EXIT_SUCCESS;
 }

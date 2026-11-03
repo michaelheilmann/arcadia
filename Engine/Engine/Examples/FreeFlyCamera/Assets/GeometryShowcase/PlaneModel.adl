@@ -1,0 +1,6 @@
+{
+  type : "Model",
+  name : "GeometryShowcase.PlaneModel",
+  mesh : "GeometryShowcase.PlaneMesh",
+  material : "GeometryShowcase.Material",
+}

@@ -361,10 +361,15 @@ constructImpl
   self->borderBlue = 118;
   self->numberOfSegments = Arcadia_ValueStack_getNatural32Value(thread, 2);
   self->selectedIndex = Arcadia_ValueStack_getNatural32Value(thread, 1);
-  ((Arcadia_Engine_UI_WidgetNode*)self)->left = self->left;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->bottom = self->bottom;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->width = (Arcadia_Integer32Value)self->width;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->height = (Arcadia_Integer32Value)self->height;
+  Arcadia_Engine_UI_WidgetNode_setInitialBounds
+    (
+      thread,
+      (Arcadia_Engine_UI_WidgetNode*)self,
+      self->left,
+      self->bottom,
+      (Arcadia_Integer32Value)self->width,
+      (Arcadia_Integer32Value)self->height
+    );
   if (!self->numberOfSegments) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);

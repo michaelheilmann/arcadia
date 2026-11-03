@@ -246,30 +246,6 @@ parseAlignment
   Arcadia_Thread_jump(thread);
 }
 
-static Arcadia_Integer32Value
-clampAvailable
-  (
-    Arcadia_Integer32Value value
-  )
-{
-  return value < 0 ? 0 : value;
-}
-
-static Arcadia_Integer32Value
-alignedOffset
-  (
-    Arcadia_Integer32Value available,
-    Arcadia_Integer32Value used,
-    Arcadia_Engine_UI_StackPanelNodeAlignment alignment
-  )
-{
-  Arcadia_Integer32Value extra = available - used;
-  if (extra < 0) extra = 0;
-  if (alignment == Arcadia_Engine_UI_StackPanelNodeAlignment_End) return extra;
-  if (alignment == Arcadia_Engine_UI_StackPanelNodeAlignment_Center || alignment == Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch) return extra / 2;
-  return 0;
-}
-
 static Arcadia_Engine_UI_StackPanelNodeSlot
 makeDefaultSlot
   (
@@ -386,65 +362,14 @@ arrangeChildren
 {
   Arcadia_Integer32Value left, bottom, width, height;
   Arcadia_Engine_UI_WidgetNode_getBounds(thread, (Arcadia_Engine_UI_WidgetNode*)self, &left, &bottom, &width, &height);
-  Arcadia_SizeValue n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->children);
-  if (!n) return;
-
-  Arcadia_Integer32Value contentLeft = left + self->paddingLeft;
-  Arcadia_Integer32Value contentBottom = bottom + self->paddingBottom;
-  Arcadia_Integer32Value contentWidth = clampAvailable(width - self->paddingLeft - self->paddingRight);
-  Arcadia_Integer32Value contentHeight = clampAvailable(height - self->paddingBottom - self->paddingTop);
-  Arcadia_Integer32Value numberOfWidgetChildren = 0;
-  Arcadia_Integer32Value total = 0;
-  for (Arcadia_SizeValue i = 0; i < n; ++i) {
-    Arcadia_Object* child = Arcadia_List_getObjectReferenceValueAt(thread, self->children, i);
-    if (!Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_WidgetNode_getType(thread))) continue;
-    Arcadia_Engine_UI_StackPanelNodeSlot* slot = &self->slots[i];
-    Arcadia_Integer32Value childWidth, childHeight;
-    Arcadia_Engine_UI_WidgetNode_getSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
-    total += self->vertical ? childHeight + slot->marginTop + slot->marginBottom : childWidth + slot->marginLeft + slot->marginRight;
-    ++numberOfWidgetChildren;
-  }
-  if (!numberOfWidgetChildren) return;
-  total += self->gap * (numberOfWidgetChildren - 1);
-
-  if (self->vertical) {
-    Arcadia_Integer32Value y = contentBottom + contentHeight - alignedOffset(contentHeight, total, self->mainAlignment);
-    for (Arcadia_SizeValue i = 0; i < n; ++i) {
-      Arcadia_Object* child = Arcadia_List_getObjectReferenceValueAt(thread, self->children, i);
-      if (!Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_WidgetNode_getType(thread))) continue;
-      Arcadia_Engine_UI_StackPanelNodeSlot* slot = &self->slots[i];
-      Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment = slot->hasAlignmentOverride ? slot->crossAlignment : self->crossAlignment;
-      Arcadia_Integer32Value childWidth, childHeight;
-      Arcadia_Engine_UI_WidgetNode_getSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
-      Arcadia_Integer32Value childAvailableWidth = clampAvailable(contentWidth - slot->marginLeft - slot->marginRight);
-      y -= slot->marginTop;
-      if (crossAlignment == Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch) {
-        childWidth = childAvailableWidth;
-        Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, childWidth, childHeight);
-      }
-      y -= childHeight;
-      Arcadia_Engine_UI_WidgetNode_setPosition(thread, (Arcadia_Engine_UI_WidgetNode*)child, contentLeft + slot->marginLeft + alignedOffset(childAvailableWidth, childWidth, crossAlignment), y);
-      y -= slot->marginBottom + self->gap;
-    }
-  } else {
-    Arcadia_Integer32Value x = contentLeft + alignedOffset(contentWidth, total, self->mainAlignment);
-    for (Arcadia_SizeValue i = 0; i < n; ++i) {
-      Arcadia_Object* child = Arcadia_List_getObjectReferenceValueAt(thread, self->children, i);
-      if (!Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_WidgetNode_getType(thread))) continue;
-      Arcadia_Engine_UI_StackPanelNodeSlot* slot = &self->slots[i];
-      Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment = slot->hasAlignmentOverride ? slot->crossAlignment : self->crossAlignment;
-      Arcadia_Integer32Value childWidth, childHeight;
-      Arcadia_Engine_UI_WidgetNode_getSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
-      Arcadia_Integer32Value childAvailableHeight = clampAvailable(contentHeight - slot->marginBottom - slot->marginTop);
-      x += slot->marginLeft;
-      if (crossAlignment == Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch) {
-        childHeight = childAvailableHeight;
-        Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, childWidth, childHeight);
-      }
-      Arcadia_Engine_UI_WidgetNode_setPosition(thread, (Arcadia_Engine_UI_WidgetNode*)child, x, contentBottom + slot->marginBottom + alignedOffset(childAvailableHeight, childHeight, crossAlignment));
-      x += childWidth + slot->marginRight + self->gap;
-    }
-  }
+  Arcadia_Engine_UI_StackLayoutSettings settings = {
+    .vertical = self->vertical, .gap = self->gap,
+    .paddingLeft = self->paddingLeft, .paddingBottom = self->paddingBottom,
+    .paddingRight = self->paddingRight, .paddingTop = self->paddingTop,
+    .mainAlignment = self->mainAlignment, .crossAlignment = self->crossAlignment
+  };
+  Arcadia_Engine_UI_StackLayout_arrangeLegacy(thread, (Arcadia_Object*)self, &settings, self->slots,
+      Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->children), left, bottom, width, height);
 }
 
 static Arcadia_Object*

@@ -25,6 +25,7 @@
 #include "Arcadia/ADL/Definitions/UI/CanvasDefinition.h"
 #include "Arcadia/ADL/Definitions/UI/ContainerDefinition.h"
 #include "Arcadia/ADL/Definitions/UI/LabelDefinition.h"
+#include "Arcadia/ADL/Definitions/UI/PanelDefinition.h"
 #include "Arcadia/ADL/Definitions/UI/ScrollPanelDefinition.h"
 #include "Arcadia/ADL/Definitions/UI/SegmentedChoiceDefinition.h"
 #include "Arcadia/ADL/Definitions/UI/SliderDefinition.h"

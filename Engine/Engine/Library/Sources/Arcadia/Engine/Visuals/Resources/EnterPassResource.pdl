@@ -24,7 +24,8 @@ native implementation "Arcadia/Engine/Visuals/Resources/EnterPassResource.h" cla
   constant ClearColorDirty : Arcadia.Integer32 = 8
   constant ClearDepthDirty : Arcadia.Integer32 = 16
   constant RelativeViewportRectangleDirty : Arcadia.Integer32 = 32
-  constant AllDirty : Arcadia.Integer32 = 63
+  constant DepthTestDirty : Arcadia.Integer32 = 64
+  constant AllDirty : Arcadia.Integer32 = 127
 
   variable dirty : Arcadia.Natural32
   /// The world-space to view-space matrix.
@@ -57,6 +58,8 @@ native implementation "Arcadia/Engine/Visuals/Resources/EnterPassResource.h" cla
   variable clearDepthBuffer : Arcadia.Boolean
   /// The depth to clear the depth buffer with. Default is 1.
   variable clearDepth : Arcadia.Real32
+  /// Whether depth testing is enabled. Default is true; independent of clearing.
+  variable depthTestEnabled : Arcadia.Boolean
   // Retained by the resource lifetime protocol, not by this object's GC visitor.
   variable viewerConstantBuffer : retained Arcadia.Engine.Visuals.ConstantBufferResource
 
@@ -75,6 +78,9 @@ native implementation "Arcadia/Engine/Visuals/Resources/EnterPassResource.h" cla
   /// Enable or disable clearing the depth buffer.
   /// @param clearDepthBuffer true to enable clearing; false to disable.
   method native "Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBuffer" setClearDepthBuffer(variable clearDepthBuffer : Arcadia.Boolean) : Arcadia.Void
+
+  /// Enable or disable depth testing independently of depth buffer clearing.
+  method native "Arcadia_Engine_Visuals_EnterPassResource_setDepthTestEnabled" setDepthTestEnabled(variable enabled : Arcadia.Boolean) : Arcadia.Void
 
   /// Set the clear depth. Default is 1.
   method native "Arcadia_Engine_Visuals_EnterPassResource_setClearDepth" setClearDepth(variable clearDepth : Arcadia.Real32) : Arcadia.Void

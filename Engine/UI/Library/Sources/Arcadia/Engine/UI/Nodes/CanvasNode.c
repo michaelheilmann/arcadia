@@ -337,6 +337,8 @@ setHovered
     Arcadia_Engine_UI_SliderNode_setHovered(thread, (Arcadia_Engine_UI_SliderNode*)child, hovered);
   } else if (child && Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_ToggleNode_getType(thread))) {
     Arcadia_Engine_UI_ToggleNode_setHovered(thread, (Arcadia_Engine_UI_ToggleNode*)child, hovered);
+  } else if (!hovered && child && Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_LayoutPanelNode_getType(thread))) {
+    Arcadia_Engine_UI_LayoutPanelNode_clearHover(thread, (Arcadia_Engine_UI_LayoutPanelNode*)child);
   }
 }
 
@@ -397,6 +399,12 @@ Arcadia_Engine_UI_CanvasNode_handleKeyboardKeyEventImpl
   Arcadia_Engine_UI_CanvasNode* canvas = (Arcadia_Engine_UI_CanvasNode*)self;
   if (Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Engine_Input_KeyboardKeyAction_Released &&
       Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event) == Arcadia_Engine_Input_KeyboardKey_Tabulator) {
+    // A focused layout panel gets the first chance to tab between its children.
+    // Other canvas children retain the existing top-level focus traversal.
+    if (canvas->focusedChild &&
+        Arcadia_Object_isInstanceOf(thread, canvas->focusedChild, _Arcadia_Engine_UI_LayoutPanelNode_getType(thread)) &&
+        hasInterface(thread, canvas->focusedChild, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_KeyboardInput_getType(thread)) &&
+        Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent(thread, canvas->focusedChild, event)) return Arcadia_BooleanValue_True;
     focusNextChild(thread, canvas);
     return Arcadia_BooleanValue_True;
   }
@@ -522,6 +530,7 @@ Arcadia_Engine_UI_CanvasNode_updateVisuals
 
   Arcadia_Engine_Visuals_ViewportNode_setClearColorBuffer(thread, self->viewportNode, Arcadia_BooleanValue_False);
   Arcadia_Engine_Visuals_ViewportNode_setClearDepthBuffer(thread, self->viewportNode, Arcadia_BooleanValue_False);
+  Arcadia_Engine_Visuals_ViewportNode_setDepthTestEnabled(thread, self->viewportNode, Arcadia_BooleanValue_False);
 
   Arcadia_Math_Matrix4Real32* viewToProjectionMatrix = Arcadia_Math_Matrix4Real32_create(thread);
   Arcadia_Math_Matrix4x4Real32_setOrthographicProjection(thread, viewToProjectionMatrix, 0.f, (Arcadia_Real32Value)self->visualsCanvasWidth, 0.f, (Arcadia_Real32Value)self->visualsCanvasHeight, -1.f, +1.f);

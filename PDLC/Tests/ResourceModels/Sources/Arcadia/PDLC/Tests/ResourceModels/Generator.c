@@ -317,7 +317,8 @@ generate
       Arcadia_StringBuilder_insertBackCxxString(thread, calls, "_PDLCheck(thread);\n");
     }
   }
-  Arcadia_Tests_assertTrue(thread, found == 9 && w.fields == 27 && w.nested == 6 && w.constants == 10 && w.methods == 41 && w.virtuals == 39);
+  // EnterPassResource declares depthTestEnabled, DepthTestDirty and setDepthTestEnabled.
+  Arcadia_Tests_assertTrue(thread, found == 9 && w.fields == 28 && w.nested == 6 && w.constants == 11 && w.methods == 42 && w.virtuals == 40);
   Arcadia_Tests_assertTrue(thread, w.references == 4 && w.readonly == 4 && w.outputs == 2);
   Arcadia_Tests_assertTrue(thread, w.policies[Arcadia_PDLC_Ownership_Borrowed] == 1 && w.policies[Arcadia_PDLC_Ownership_Owned] == 1 && w.policies[Arcadia_PDLC_Ownership_Retained] == 5);
   Arcadia_BooleanValue foundEnum = Arcadia_BooleanValue_False;

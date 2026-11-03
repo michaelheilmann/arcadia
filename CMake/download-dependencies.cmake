@@ -22,9 +22,18 @@ if (NOT DEFINED MyDependenciesGitHubReleasePrefix OR "${MyDependenciesGitHubRele
   message(FATAL_ERROR "MyDependenciesGitHubReleasePrefix is not defined")
 endif()
 
+# When no architecture is specified, preserve the original behavior.
+if(NOT DEFINED MyDependenciesArchitecture OR "${MyDependenciesArchitecture}" STREQUAL "")
+  set(architectures x64 x86)
+elseif(MyDependenciesArchitecture STREQUAL "x64" OR MyDependenciesArchitecture STREQUAL "x86")
+  set(architectures "${MyDependenciesArchitecture}")
+else()
+  message(FATAL_ERROR "Unsupported MyDependenciesArchitecture: '${MyDependenciesArchitecture}' (expected x64 or x86)")
+endif()
+
 file(MAKE_DIRECTORY "${MyDependenciesDirectory}")
 
-foreach (architecture x64 x86)
+foreach(architecture IN LISTS architectures)
   set(archive "${MyDependenciesDirectory}/dependencies-${architecture}.zip")
   set(url "${MyDependenciesGitHubReleasePrefix}/dependencies-${architecture}.zip")
   set(destination "${MyDependenciesDirectory}/${architecture}")

@@ -444,10 +444,15 @@ constructImpl
   self->bottom = Arcadia_ValueStack_getInteger32Value(thread, 3);
   self->width = Arcadia_ValueStack_getNatural32Value(thread, 2);
   self->height = Arcadia_ValueStack_getNatural32Value(thread, 1);
-  ((Arcadia_Engine_UI_WidgetNode*)self)->left = self->left;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->bottom = self->bottom;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->width = (Arcadia_Integer32Value)self->width;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->height = (Arcadia_Integer32Value)self->height;
+  Arcadia_Engine_UI_WidgetNode_setInitialBounds
+    (
+      thread,
+      (Arcadia_Engine_UI_WidgetNode*)self,
+      self->left,
+      self->bottom,
+      (Arcadia_Integer32Value)self->width,
+      (Arcadia_Integer32Value)self->height
+    );
   self->contentWidth = (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->width;
   self->contentHeight = (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height;
   self->scrollX = 0;

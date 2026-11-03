@@ -44,12 +44,13 @@ struct Arcadia_Games_Anima_MenuScene {
   Arcadia_Engine_Audials_StreamingSoundSourceNode* ambienceNode;
   Arcadia_Real32Value ambienceBaseVolume;
   Arcadia_Engine_UI_CanvasNode* canvasNode;
-  Arcadia_Engine_UI_StackPanelNode* startRoot;
+  Arcadia_Engine_UI_LayoutPanelNode* startRoot;
   Arcadia_Engine_UI_StackPanelNode* optionsRoot;
   Arcadia_Engine_UI_StackPanelNode* optionsContentRoot;
   Arcadia_Engine_UI_StackPanelNode* optionsFooterRoot;
   Arcadia_Engine_UI_StackPanelNode* resolutionRow;
   Arcadia_Engine_UI_StackPanelNode* resolutionSelector;
+  Arcadia_Engine_UI_StackPanelNode* windowModeRow;
   Arcadia_Engine_UI_StackPanelNode* vsyncRow;
   Arcadia_Engine_UI_StackPanelNode* brightnessRow;
   Arcadia_Engine_UI_StackPanelNode* masterVolumeRow;
@@ -71,6 +72,7 @@ struct Arcadia_Games_Anima_MenuScene {
   Arcadia_Engine_UI_LabelNode* uiVolumeValueLabel;
   Arcadia_Engine_UI_LabelNode* voiceVolumeValueLabel;
   Arcadia_Engine_UI_SegmentedChoiceNode* optionsTabs;
+  Arcadia_Engine_UI_ToggleNode* windowModeToggle;
   Arcadia_Engine_UI_ToggleNode* vsyncToggle;
   Arcadia_Engine_UI_SliderNode* brightnessSlider;
   Arcadia_Engine_UI_SliderNode* masterVolumeSlider;

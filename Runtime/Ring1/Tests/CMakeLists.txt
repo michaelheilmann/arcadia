@@ -40,6 +40,7 @@ add_subdirectory(ObjectTypeTests)
 add_subdirectory(ProcessTests)
 add_subdirectory(InterfaceTypeTests)
 add_subdirectory(WeakReferenceTests)
+add_subdirectory(SignalTests)
 
 add_subdirectory(UTF8ArrayIteratorTests)
 add_subdirectory(SubStringTests)

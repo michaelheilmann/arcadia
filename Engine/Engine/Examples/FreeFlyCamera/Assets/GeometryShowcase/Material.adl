@@ -1,0 +1,7 @@
+{
+  type : "Material",
+  name : "GeometryShowcase.Material",
+  materialType : "Blinn-Phong",
+  ambientColorSource : "Texture",
+  ambientColorTexture : "GeometryShowcase.Texture",
+}

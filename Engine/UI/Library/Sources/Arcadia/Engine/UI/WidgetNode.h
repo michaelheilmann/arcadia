@@ -35,12 +35,18 @@ struct Arcadia_Engine_UI_WidgetNodeDispatch {
   void (*setPosition)(Arcadia_Thread*, Arcadia_Engine_UI_WidgetNode*, Arcadia_Integer32Value, Arcadia_Integer32Value);
   void (*setSize)(Arcadia_Thread*, Arcadia_Engine_UI_WidgetNode*, Arcadia_Integer32Value, Arcadia_Integer32Value);
   void (*raiseSignal)(Arcadia_Thread*, Arcadia_Engine_UI_WidgetNode*, Arcadia_Engine_UI_WidgetEvent*);
+  void (*measure)(Arcadia_Thread*, Arcadia_Engine_UI_WidgetNode*, Arcadia_Integer32Value, Arcadia_Integer32Value);
+  void (*arrange)(Arcadia_Thread*, Arcadia_Engine_UI_WidgetNode*, Arcadia_Integer32Value, Arcadia_Integer32Value, Arcadia_Integer32Value, Arcadia_Integer32Value);
 };
 
 struct Arcadia_Engine_UI_WidgetNode {
   Arcadia_Engine_UI_Node _parent;
   Arcadia_Integer32Value left, bottom;
   Arcadia_Integer32Value width, height;
+  // setSize/setBounds specify the requested size; arrange assigns actual bounds.
+  Arcadia_Integer32Value requestedWidth, requestedHeight;
+  // Desired size produced by the most recent measure call.
+  Arcadia_Integer32Value desiredWidth, desiredHeight;
   Arcadia_Signal* propertyChanged;
   Arcadia_String* name;
 };
@@ -119,6 +125,51 @@ Arcadia_Engine_UI_WidgetNode_setSize
     Arcadia_Integer32Value height
   );
 
+/// @brief Measure a widget within the available size without changing its actual bounds.
+/// @remarks The default implementation reports the requested size (fixed sizing).
+///          Derived widgets can override the layout dispatch slot.
+void
+Arcadia_Engine_UI_WidgetNode_measure
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value availableWidth,
+    Arcadia_Integer32Value availableHeight
+  );
+
+/// @brief Read the size specified by the last setSize/setBounds call.
+void
+Arcadia_Engine_UI_WidgetNode_getRequestedSize
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value* width,
+    Arcadia_Integer32Value* height
+  );
+
+/// @brief Read the result of the most recent measure call (zero before the first call).
+void
+Arcadia_Engine_UI_WidgetNode_getDesiredSize
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value* width,
+    Arcadia_Integer32Value* height
+  );
+
+/// @brief Assign final bounds without overwriting the requested size.
+/// @remarks The default implementation retains the existing position/size event semantics.
+void
+Arcadia_Engine_UI_WidgetNode_arrange
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value left,
+    Arcadia_Integer32Value bottom,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  );
+
 void
 Arcadia_Engine_UI_WidgetNode_getBounds
   (
@@ -132,6 +183,20 @@ Arcadia_Engine_UI_WidgetNode_getBounds
 
 void
 Arcadia_Engine_UI_WidgetNode_setBounds
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value left,
+    Arcadia_Integer32Value bottom,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  );
+
+/// @brief Initialize bounds in a derived widget constructor.
+/// @remarks Sets actual and requested geometry without emitting signals or
+///          allocating managed objects while the derived visitor is inactive.
+void
+Arcadia_Engine_UI_WidgetNode_setInitialBounds
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_WidgetNode* self,

@@ -76,6 +76,17 @@ static const char* SCHEMA =
   "}\n"
   ;
 
+// The inline form has exactly the same Color fields, but forbids name.
+// Both schemas are validated by DDLS before the shared scalar conversions.
+static const char* SCHEMA_INLINE =
+  "{ kind : \"Schema\", name : \"InlineColor\", definition : { kind : \"Map\", entries : ["
+  "{ kind : \"MapEntry\", name : \"type\", type : { kind : \"String\" } },"
+  "{ kind : \"MapEntry\", name : \"red\", type : { kind : \"Number\" } },"
+  "{ kind : \"MapEntry\", name : \"green\", type : { kind : \"Number\" } },"
+  "{ kind : \"MapEntry\", name : \"blue\", type : { kind : \"Number\" } },"
+  "{ kind : \"MapEntry\", name : \"alpha\", type : { kind : \"Number\" }, optional : \"true\" }"
+  "] } }";
+
 static Arcadia_String*
 Arcadia_ADL_ColorReader_getTypeName
   (
@@ -188,6 +199,38 @@ Arcadia_ADL_ColorReader_read
   return definition;
 }
 
+Arcadia_ADL_ColorDefinition*
+Arcadia_ADL_ColorReader_readInline
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_ColorReader* self,
+    Arcadia_ADL_Definitions* definitions,
+    Arcadia_DDL_Node* input
+  )
+{
+  Arcadia_DDLS_ValidationContext_run(thread, self->validationContext, self->INLINE_SCHEMANAME, input);
+  Arcadia_DDL_MapNode* map = (Arcadia_DDL_MapNode*)input;
+  Arcadia_String* type = Arcadia_ADL_Reader_getStringValue(thread, map, self->TYPE);
+  Arcadia_Value expected = Arcadia_Value_makeObjectReferenceValue(self->TYPENAME);
+  if (!Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)type, &expected)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Natural8Value red = Arcadia_ADL_Reader_getNatural8Value(thread, map, self->RED);
+  Arcadia_Natural8Value green = Arcadia_ADL_Reader_getNatural8Value(thread, map, self->GREEN);
+  Arcadia_Natural8Value blue = Arcadia_ADL_Reader_getNatural8Value(thread, map, self->BLUE);
+  Arcadia_Natural8Value alpha = readAlpha(thread, map, self->ALPHA);
+
+  // ColorDefinition's generated five-argument factory still requires a String
+  // for native construction. The temporary name is erased immediately; it is
+  // never published or used for lookup, so the Color is semantically anonymous.
+  Arcadia_ADL_ColorDefinition* color = Arcadia_ADL_ColorDefinition_create(thread, definitions,
+    Arcadia_String_createFromCxxString(thread, u8""), red, green, blue);
+  ((Arcadia_ADL_Definition*)color)->name = NULL;
+  color->alpha = alpha;
+  return color;
+}
+
 static void
 Arcadia_ADL_ColorReader_constructImpl
   (
@@ -214,11 +257,20 @@ Arcadia_ADL_ColorReader_constructImpl
     Arcadia_DDLS_ValidationContext* validationContext = Arcadia_DDLS_ValidationContext_create(thread);
     Arcadia_DDLS_ValidationContext_addSchema(thread, validationContext, (Arcadia_DDLS_SchemaNode*)node);
     self->validationContext = validationContext;
+    Arcadia_DDLS_DefaultReader* inlineReader = (Arcadia_DDLS_DefaultReader*)Arcadia_DDLS_DefaultReader_create(thread);
+    Arcadia_DDLS_Node* inlineNode = Arcadia_DDLS_DefaultReader_run(thread, inlineReader,
+      Arcadia_ByteArray_createByteArray(thread, Arcadia_RuntimeByteArray_create(thread, SCHEMA_INLINE, strlen(SCHEMA_INLINE))));
+    if (!Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)inlineNode, _Arcadia_DDLS_SchemaNode_getType(thread))) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_DDLS_ValidationContext_addSchema(thread, validationContext, (Arcadia_DDLS_SchemaNode*)inlineNode);
   }
   //
   self->TYPE = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"type");
   self->NAME = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"name");
   self->SCHEMANAME = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"Color");
+  self->INLINE_SCHEMANAME = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"InlineColor");
   self->TYPENAME = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"Color");
   //
   self->RED = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"red");
@@ -260,6 +312,9 @@ Arcadia_ADL_ColorReader_visitImpl
   }
   if (self->SCHEMANAME) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->SCHEMANAME);
+  }
+  if (self->INLINE_SCHEMANAME) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->INLINE_SCHEMANAME);
   }
   if (self->TYPENAME) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->TYPENAME);

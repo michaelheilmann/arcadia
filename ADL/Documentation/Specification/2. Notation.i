@@ -1,21 +1,24 @@
       <h2 id="notation">2 Notation</h2>
       <p>
-      Adl assets are written in the
+      ADL assets are written in the
       <a href="@{siteAddress}/specifications/data-definition-language/">Arcadia Data Definition Language</a>
-      (Arcadia DDL). The grammar productions used below are given in the notation of
+      (Arcadia DDL), whose lexical and syntactical grammar uses conventions from
       <a href="@{siteAddress}/specifications/common-lexical-translations/">Arcadia Common Lexical Translations</a>.
-      A map entry line is written as <code>name : value</code> followed by a comma.
-      The name is an identifier, the value a literal or a list of literals.
+      DDL map entry syntax has the form <code>name : value</code>, with entries
+      separated by commas according to DDL. Here, the name is a DDL identifier
+      and the value is any DDL value kind permitted by the entry's ADL schema.
+      These entry examples are DDL syntax, not new ADL grammar productions;
+      the ADL specification imposes semantic constraints on DDL maps.
+      In particular, a nested DDL map is not necessarily an ADL definition.
       </p>
       <p>
-      The following types of values occur:
+      DDL provides <b>String</b>, <b>Number</b>, <b>Boolean</b>, <b>Void</b>,
+      <b>List</b> and <b>Map</b> values. This specification uses strings such as
+      <code>"Colors.Red"</code>, numbers such as <code>255</code>, lists such as
+      <code>[1.0, 0.0]</code>, and maps such as <code>{red: 255}</code>.
+      Some ADL entries encode a Boolean choice with the strings <code>"true"</code>
+      and <code>"false"</code>; these strings are not DDL Boolean values.
       </p>
-      <ul>
-        <li><b>String</b>, for example <code>"Colors.Red"</code>,</li>
-        <li><b>Number</b>, an integer literal such as <code>255</code>,</li>
-        <li><b>Boolean</b>, written as the String <code>"true"</code> or as the String <code>"false"</code>, and</li>
-        <li><b>List</b>, a comma-separated list of values in square brackets, such as <code>[ 1.0, 0.0 ]</code>.</li>
-      </ul>
       <p>
       Entry lists below are annotated with the precision the reader consumes a number
       with: <code>Natural8</code>, <code>Natural32</code>, <code>Integer32</code>,

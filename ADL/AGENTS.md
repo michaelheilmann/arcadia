@@ -7,11 +7,30 @@
 - Definition/Definitions, Context, Reader, Reference, reference resolution and reference-bearing definition implementations remain native. Opaque native imports do not own their headers/bodies. Definition's PDL constructor/link metadata describes only the native boundary, not regenerated base storage or visitors. Same-module mappings avoid aggregate cycles; foreign dependencies use ADL's master header.
 - Media DSP implementations are excluded from the migration scope; ADL DSP definition/configuration objects are distinct asset objects, not sample algorithms. Do not use their generated implementation as authorization to port Media DSP.
 
+## Specification-First Language Changes
+
+- Apply the editorial and semantic-completeness conventions in
+  `Documentation/Specifications/AGENTS.md` to the ADL specification too, even though
+  ADL's source fragments live under `ADL/Documentation/Specification/`.
+- For changes to the ADL language, review its named/inline representation,
+  permitted property contexts, validation, linking, compatibility and conformance
+  rules before modifying readers, definitions, linking, generated sources or tests.
+- Preserve existing behavior while a feature is a proposal. An editorial/specification
+  patch does not authorize runtime changes, and draft-only examples must not be
+  presented as currently accepted by the parser or reader.
+- Keep review decisions and unresolved semantic questions in the owning issue or
+  handoff. Obtain explicit maintainer acceptance of the language contract before
+  proceeding with its implementation. The anonymous-definition contract treats
+  named and inline forms as the same type and requires property-level opt-in,
+  semantic containment, recursive linking, and distinct occurrences. Inline
+  Colors are implemented for the five UI.Button color entries only; additional
+  properties or types require separate specification and implementation review.
+
 ## Preserved Contracts
 
 - TextureFilter and TextureAddressMode retain their `None = 10` sentinels. Reader rejection of explicit None strings is separate from the enum's existence and omitted-property defaults.
 - MaterialType retains BlinnPhong=0. AmbientColorSource retains Mesh/Vertex/Texture/TextureVertex=0/1/2/3; it is not Engine's three-way ColorSource. Native MaterialNode retains the TextureVertex program flag while mapping to Engine Texture at the backend boundary. BlendFunction preserves eleven values, including None=10; source/destination choices are independent.
-- ColorDefinition has Natural8 fields red/green/blue/alpha in that order. Its five-argument factory and runtime constructor still accept only definitions/name/R/G/B and initialize alpha to 255 via the PDL-owned constructor's defaultAlpha binding (ColorDefinitionRuntime.c supplies only the typed constant). Reader alpha is optional, presence-sensitive and uses RGB's Natural8 conversion semantics; explicit zero stays zero. Keep the inherited no-op link, managed parent fields, legacy RGB offsets/layout checks and factory signature; do not invent getters, slots, premultiplication or blending defaults. Media fills intentionally stay opaque, geometry conversion and example clear/text colors retain alpha 1, and UI Button retains RGB-only state. VisualsColorAlpha* and ColorModel cover these storage/default/error/GC/graph/legacy-asset contracts, not visual transparency.
+- ColorDefinition has Natural8 fields red/green/blue/alpha in that order. Its five-argument factory and runtime constructor still accept only definitions/name/R/G/B and initialize alpha to 255 via the PDL-owned constructor's defaultAlpha binding (ColorDefinitionRuntime.c supplies only the typed constant). Reader alpha is optional, presence-sensitive and uses RGB's Natural8 conversion semantics; explicit zero stays zero. Keep the inherited no-op link, managed parent fields, ColorDefinition RGBA layout checks and factory signature; the removed UI.Button background RGB fields are not part of ColorDefinition; do not invent getters, slots, premultiplication or blending defaults. Media fills intentionally stay opaque, geometry conversion and example clear/text colors retain alpha 1, and UI Button retains RGB-only state. VisualsColorAlpha* and ColorModel cover these storage/default/error/GC/graph/legacy-asset contracts, not visual transparency.
 - WhiteNoiseDefinition adds no field and ConstantDefinition owns Real32 (preserve signed zero and infinities/NaNs). SineWaveDefinition/SawtoothWaveDefinition retain signed Integer32 storage, nonvirtual getters and unrestricted signed PDL class constructor/factory ABI; keep ClassModels' full-domain checks. Separately, ordinary ADL Sine/Sawtooth asset readers require frequency in 1..INT32_MAX and raise SemanticalError for <= 0 before definition construction. Expanded graph Sine nodes use that reader too (negative bindings may fail earlier in the existing graph check). Do not duplicate this domain rule in the expander or alter Media's native ArgumentValueInvalid guards; zero is not silence. Frequency-domain named cases distinguish source rejection from native constructor errors.
 - Constructor arity must be validated before reading/forwarding superclass arguments. Otherwise wrong counts above caller stack values can produce ArgumentTypeInvalid instead of NumberOfArgumentsInvalid. Keep required definitions/name validation and native superclass visitation intact.
 

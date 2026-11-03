@@ -272,10 +272,15 @@ Arcadia_Engine_UI_LabelNode_constructImpl
   self->bottom = Arcadia_ValueStack_getInteger32Value(thread, 9);
   self->width = Arcadia_ValueStack_getNatural32Value(thread, 8);
   self->height = Arcadia_ValueStack_getNatural32Value(thread, 7);
-  ((Arcadia_Engine_UI_WidgetNode*)self)->left = self->left;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->bottom = self->bottom;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->width = (Arcadia_Integer32Value)self->width;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->height = (Arcadia_Integer32Value)self->height;
+  Arcadia_Engine_UI_WidgetNode_setInitialBounds
+    (
+      thread,
+      (Arcadia_Engine_UI_WidgetNode*)self,
+      self->left,
+      self->bottom,
+      (Arcadia_Integer32Value)self->width,
+      (Arcadia_Integer32Value)self->height
+    );
   self->horizontalAlignment = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 6, _Arcadia_String_getType(thread));
   self->verticalAlignment = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 5, _Arcadia_String_getType(thread));
   self->red = Arcadia_ValueStack_getNatural8Value(thread, 4);

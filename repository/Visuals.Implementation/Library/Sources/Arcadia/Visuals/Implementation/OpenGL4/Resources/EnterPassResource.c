@@ -227,6 +227,13 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_EnterPassResource_renderImpl
   gl->glEnable(GL_SCISSOR_TEST);
   gl->glScissor(l, b, w, h);
 
+  // Clearing the depth buffer and depth testing are separate render-pass operations.
+  if (((Arcadia_Engine_Visuals_EnterPassResource*)self)->depthTestEnabled) {
+    gl->glEnable(GL_DEPTH_TEST);
+  } else {
+    gl->glDisable(GL_DEPTH_TEST);
+  }
+
   if (((Arcadia_Engine_Visuals_EnterPassResource*)self)->clearDepthBuffer) {
     gl->glClearDepth(((Arcadia_Engine_Visuals_EnterPassResource*)self)->clearDepth);
     gl->glClear(GL_DEPTH_BUFFER_BIT);

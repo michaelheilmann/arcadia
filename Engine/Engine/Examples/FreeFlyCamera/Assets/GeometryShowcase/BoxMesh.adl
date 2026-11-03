@@ -1,0 +1,8 @@
+{
+  type : "BoxMeshGenerator",
+  name : "GeometryShowcase.BoxMesh",
+  width : 2.0,
+  height : 2.0,
+  depth : 2.0,
+  ambientColor : "GeometryShowcase.MeshColor",
+}

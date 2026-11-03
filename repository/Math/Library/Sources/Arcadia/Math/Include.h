@@ -27,7 +27,12 @@
 
 #include "Arcadia/Math/Implementation/AxisAngle3Real32.h"
 #include "Arcadia/Math/Implementation/AxisAngle3Real64.h"
+#include "Arcadia/Math/Implementation/cubicBezier.h"
 #include "Arcadia/Math/Implementation/crossProduct.h"
+#include "Arcadia/Math/Implementation/rayIntersectsSphere.h"
+#include "Arcadia/Math/Implementation/rayIntersectsPlane.h"
+#include "Arcadia/Math/Implementation/deCasteljau.h"
+#include "Arcadia/Math/Implementation/quadraticBSplineSegment.h"
 #include "Arcadia/Math/Implementation/Configure.h"
 #include "Arcadia/Math/Implementation/Color4Real32.h"
 #include "Arcadia/Math/Implementation/Color4Real64.h"

@@ -19,6 +19,9 @@
 
 #include "Arcadia/ADL/Definitions/UI/Include.h"
 #include "Arcadia/ADL/Reader.module.h"
+#include "Arcadia/ADL/Definitions/Visuals/ColorReader.module.h"
+#include "Arcadia/ADL/Definitions/Visuals/ColorDefinition.h"
+#include "Arcadia/ADL/Reference.h"
 #include <string.h>
 
 static const char* SCHEMA =
@@ -37,14 +40,11 @@ static const char* SCHEMA =
       "      { kind : \"MapEntry\", name : \"text\", type : { kind : \"String\" } },\n"
       "      { kind : \"MapEntry\", name : \"horizontalAlignment\", type : { kind : \"String\" }, optional : \"true\" },\n"
   "      { kind : \"MapEntry\", name : \"verticalAlignment\", type : { kind : \"String\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"backgroundColor\", type : { kind : \"String\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"hoveredBackgroundColor\", type : { kind : \"String\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"pressedBackgroundColor\", type : { kind : \"String\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"disabledBackgroundColor\", type : { kind : \"String\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"focusedBackgroundColor\", type : { kind : \"String\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"backgroundRed\", type : { kind : \"Number\" }, optional : \"true\" },\n"
-  "      { kind : \"MapEntry\", name : \"backgroundGreen\", type : { kind : \"Number\" }, optional : \"true\" },\n"
-       "      { kind : \"MapEntry\", name : \"backgroundBlue\", type : { kind : \"Number\" }, optional : \"true\" },\n"
+  "      { kind : \"MapEntry\", name : \"backgroundColor\", type : { kind : \"Any\" } },\n"
+  "      { kind : \"MapEntry\", name : \"hoveredBackgroundColor\", type : { kind : \"Any\" }, optional : \"true\" },\n"
+  "      { kind : \"MapEntry\", name : \"pressedBackgroundColor\", type : { kind : \"Any\" }, optional : \"true\" },\n"
+  "      { kind : \"MapEntry\", name : \"disabledBackgroundColor\", type : { kind : \"Any\" }, optional : \"true\" },\n"
+  "      { kind : \"MapEntry\", name : \"focusedBackgroundColor\", type : { kind : \"Any\" }, optional : \"true\" },\n"
   "      { kind : \"MapEntry\", name : \"pixelSize\", type : { kind : \"Number\" }, optional : \"true\" },\n"
   "      { kind : \"MapEntry\", name : \"borderWidth\", type : { kind : \"Number\" }, optional : \"true\" },\n"
   "      { kind : \"MapEntry\", name : \"borderRed\", type : { kind : \"Number\" }, optional : \"true\" },\n"
@@ -59,6 +59,57 @@ static Arcadia_ADL_UI_ButtonDefinition* Arcadia_ADL_UI_ButtonReader_read(Arcadia
 static void Arcadia_ADL_UI_ButtonReader_constructImpl(Arcadia_Thread* thread, Arcadia_ADL_UI_ButtonReader* self);
 static void Arcadia_ADL_UI_ButtonReader_initializeDispatchImpl(Arcadia_Thread* thread, Arcadia_ADL_UI_ButtonReaderDispatch* self);
 static void Arcadia_ADL_UI_ButtonReader_visitImpl(Arcadia_Thread* thread, Arcadia_ADL_UI_ButtonReader* self);
+
+static Arcadia_DDL_Node*
+getColorEntryValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_MapNode* map,
+    Arcadia_String* key
+  )
+{
+  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)map->entries); i < n; ++i) {
+    Arcadia_DDL_MapEntryNode* entry = (Arcadia_DDL_MapEntryNode*)Arcadia_List_getObjectReferenceValueCheckedAt(
+      thread, map->entries, i, _Arcadia_DDL_MapEntryNode_getType(thread));
+    Arcadia_Value expected = Arcadia_Value_makeObjectReferenceValue(key);
+    if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)entry->key->value, &expected)) {
+      if (!Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)entry->value, _Arcadia_DDL_StringNode_getType(thread)) &&
+          !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)entry->value, _Arcadia_DDL_MapNode_getType(thread))) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      return entry->value;
+    }
+  }
+  return NULL;
+}
+
+static Arcadia_String*
+getNamedColorOrNull
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_Node* value
+  )
+{
+  return value && Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)value, _Arcadia_DDL_StringNode_getType(thread))
+    ? ((Arcadia_DDL_StringNode*)value)->value : NULL;
+}
+
+static Arcadia_ADL_Reference*
+getInlineColorOrNull
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_UI_ButtonReader* self,
+    Arcadia_ADL_Definitions* definitions,
+    Arcadia_DDL_Node* value
+  )
+{
+  if (!value || !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)value, _Arcadia_DDL_MapNode_getType(thread))) {
+    return NULL;
+  }
+  Arcadia_ADL_ColorDefinition* color = Arcadia_ADL_ColorReader_readInline(thread, self->inlineColorReader, definitions, value);
+  return Arcadia_ADL_Reference_createForDefinition(thread, definitions, (Arcadia_ADL_Definition*)color);
+}
 
 static Arcadia_Natural8Value getNatural8ValueOptional(Arcadia_Thread* thread, Arcadia_DDL_MapNode* mapNode, Arcadia_String* key, Arcadia_Natural8Value defaultValue);
 static Arcadia_Natural32Value getNatural32ValueOptional(Arcadia_Thread* thread, Arcadia_DDL_MapNode* mapNode, Arcadia_String* key, Arcadia_Natural32Value defaultValue);
@@ -107,9 +158,6 @@ Arcadia_ADL_UI_ButtonReader_read
   }
 
   Arcadia_DDL_MapNode* mapNode = (Arcadia_DDL_MapNode*)input;
-  Arcadia_Natural8Value backgroundRed = getNatural8ValueOptional(thread, mapNode, self->BACKGROUND_RED, 56);
-  Arcadia_Natural8Value backgroundGreen = getNatural8ValueOptional(thread, mapNode, self->BACKGROUND_GREEN, 120);
-  Arcadia_Natural8Value backgroundBlue = getNatural8ValueOptional(thread, mapNode, self->BACKGROUND_BLUE, 240);
   Arcadia_Natural32Value pixelSize = getNatural32ValueOptional(thread, mapNode, Arcadia_String_createFromCxxString(thread, u8"pixelSize"), 24);
   Arcadia_Natural32Value borderWidth = getNatural32ValueOptional(thread, mapNode, Arcadia_String_createFromCxxString(thread, u8"borderWidth"), 0);
   Arcadia_Natural8Value borderRed = getNatural8ValueOptional(thread, mapNode, Arcadia_String_createFromCxxString(thread, u8"borderRed"), 87);
@@ -117,12 +165,17 @@ Arcadia_ADL_UI_ButtonReader_read
   Arcadia_Natural8Value borderBlue = getNatural8ValueOptional(thread, mapNode, Arcadia_String_createFromCxxString(thread, u8"borderBlue"), 118);
   Arcadia_String* horizontalAlignment = Arcadia_ADL_Reader_getStringValueOptional(thread, mapNode, self->HORIZONTAL_ALIGNMENT);
   Arcadia_String* verticalAlignment = Arcadia_ADL_Reader_getStringValueOptional(thread, mapNode, self->VERTICAL_ALIGNMENT);
-  Arcadia_String* backgroundColor = Arcadia_ADL_Reader_getStringValueOptional(thread, mapNode, self->BACKGROUND_COLOR);
-  Arcadia_String* hoveredBackgroundColor = Arcadia_ADL_Reader_getStringValueOptional(thread, mapNode, self->HOVERED_BACKGROUND_COLOR);
-  Arcadia_String* pressedBackgroundColor = Arcadia_ADL_Reader_getStringValueOptional(thread, mapNode, self->PRESSED_BACKGROUND_COLOR);
-  Arcadia_String* disabledBackgroundColor = Arcadia_ADL_Reader_getStringValueOptional(thread, mapNode, self->DISABLED_BACKGROUND_COLOR);
-  Arcadia_String* focusedBackgroundColor = Arcadia_ADL_Reader_getStringValueOptional(thread, mapNode, self->FOCUSED_BACKGROUND_COLOR);
-  return Arcadia_ADL_UI_ButtonDefinition_create(thread, definitions,
+  Arcadia_DDL_Node* backgroundValue = getColorEntryValue(thread, mapNode, self->BACKGROUND_COLOR);
+  Arcadia_DDL_Node* hoveredValue = getColorEntryValue(thread, mapNode, self->HOVERED_BACKGROUND_COLOR);
+  Arcadia_DDL_Node* pressedValue = getColorEntryValue(thread, mapNode, self->PRESSED_BACKGROUND_COLOR);
+  Arcadia_DDL_Node* disabledValue = getColorEntryValue(thread, mapNode, self->DISABLED_BACKGROUND_COLOR);
+  Arcadia_DDL_Node* focusedValue = getColorEntryValue(thread, mapNode, self->FOCUSED_BACKGROUND_COLOR);
+  Arcadia_String* backgroundColor = getNamedColorOrNull(thread, backgroundValue);
+  Arcadia_String* hoveredBackgroundColor = getNamedColorOrNull(thread, hoveredValue);
+  Arcadia_String* pressedBackgroundColor = getNamedColorOrNull(thread, pressedValue);
+  Arcadia_String* disabledBackgroundColor = getNamedColorOrNull(thread, disabledValue);
+  Arcadia_String* focusedBackgroundColor = getNamedColorOrNull(thread, focusedValue);
+  Arcadia_ADL_UI_ButtonDefinition* button = Arcadia_ADL_UI_ButtonDefinition_create(thread, definitions,
                                                 Arcadia_ADL_Reader_getStringValue(thread, mapNode, self->NAME),
                                                 Arcadia_ADL_Reader_getInteger32Value(thread, mapNode, self->LEFT),
                                                 Arcadia_ADL_Reader_getInteger32Value(thread, mapNode, self->BOTTOM),
@@ -136,14 +189,30 @@ Arcadia_ADL_UI_ButtonReader_read
                                                 pressedBackgroundColor ? pressedBackgroundColor : backgroundColor,
                                                 disabledBackgroundColor ? disabledBackgroundColor : backgroundColor,
                                                 focusedBackgroundColor ? focusedBackgroundColor : backgroundColor,
-                                                 backgroundRed,
-                                                 backgroundGreen,
-                                                 backgroundBlue,
                                                  pixelSize,
                                                  borderWidth,
                                                  borderRed,
                                                  borderGreen,
                                                  borderBlue);
+  // Root the containing definition while creating its anonymous children.
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)button);
+  Arcadia_ADL_Reference* inlineBackground = getInlineColorOrNull(thread, self, definitions, backgroundValue);
+  if (inlineBackground) button->backgroundColor = inlineBackground;
+  Arcadia_ADL_Reference* inlineHovered = getInlineColorOrNull(thread, self, definitions, hoveredValue);
+  if (inlineHovered) button->hoveredBackgroundColor = inlineHovered;
+  Arcadia_ADL_Reference* inlinePressed = getInlineColorOrNull(thread, self, definitions, pressedValue);
+  if (inlinePressed) button->pressedBackgroundColor = inlinePressed;
+  Arcadia_ADL_Reference* inlineDisabled = getInlineColorOrNull(thread, self, definitions, disabledValue);
+  if (inlineDisabled) button->disabledBackgroundColor = inlineDisabled;
+  Arcadia_ADL_Reference* inlineFocused = getInlineColorOrNull(thread, self, definitions, focusedValue);
+  if (inlineFocused) button->focusedBackgroundColor = inlineFocused;
+  // Omitted states reuse the same logical Color, with no additional definition.
+  if (!hoveredValue) button->hoveredBackgroundColor = button->backgroundColor;
+  if (!pressedValue) button->pressedBackgroundColor = button->backgroundColor;
+  if (!disabledValue) button->disabledBackgroundColor = button->backgroundColor;
+  if (!focusedValue) button->focusedBackgroundColor = button->backgroundColor;
+  Arcadia_ValueStack_popValues(thread, 1);
+  return button;
 }
 
 static Arcadia_Natural8Value
@@ -222,6 +291,7 @@ Arcadia_ADL_UI_ButtonReader_constructImpl
   Arcadia_DDLS_ValidationContext* validationContext = Arcadia_DDLS_ValidationContext_create(thread);
   Arcadia_DDLS_ValidationContext_addSchema(thread, validationContext, (Arcadia_DDLS_SchemaNode*)node);
   self->validationContext = validationContext;
+  self->inlineColorReader = Arcadia_ADL_ColorReader_create(thread);
   self->TYPE = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"type");
   self->NAME = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"name");
   self->LEFT = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"left");
@@ -236,9 +306,6 @@ Arcadia_ADL_UI_ButtonReader_constructImpl
   self->PRESSED_BACKGROUND_COLOR = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"pressedBackgroundColor");
   self->DISABLED_BACKGROUND_COLOR = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"disabledBackgroundColor");
   self->FOCUSED_BACKGROUND_COLOR = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"focusedBackgroundColor");
-  self->BACKGROUND_RED = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"backgroundRed");
-  self->BACKGROUND_GREEN = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"backgroundGreen");
-  self->BACKGROUND_BLUE = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"backgroundBlue");
   self->SCHEMANAME = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"UI.Button");
   self->TYPENAME = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"UI.Button");
   self->CENTER = Arcadia_Languages_StringTable_getOrCreateStringFromCxxString(thread, Arcadia_Languages_StringTable_getOrCreate(thread), u8"Center");
@@ -265,6 +332,9 @@ Arcadia_ADL_UI_ButtonReader_visitImpl
 {
   if (self->validationContext) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->validationContext);
+  }
+  if (self->inlineColorReader) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->inlineColorReader);
   }
 }
 

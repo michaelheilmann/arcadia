@@ -14,18 +14,36 @@
       </p>
       <pre>
 "type"  : "Color"
-"name"  : &lt;string&gt;
+"name"  : &lt;string&gt;    // top-level only; forbidden inline
 "red"   : &lt;number&gt;    // Natural8, the red component
 "green" : &lt;number&gt;    // Natural8, the green component
 "blue"  : &lt;number&gt;    // Natural8, the blue component
 "alpha" : &lt;number&gt;    // optional Natural8, defaults to 255
       </pre>
 
-      <p>Both forms are valid:</p>
+      <p>
+      A top-level Color must have a name. As specified in section 3, an inline
+      Color must omit <code>name</code> and is
+      permitted only in entries whose schemas explicitly allow it. Both contexts
+      use the same <code>"Color"</code> type, required RGB entries, optional alpha
+      entry, defaults, validation, and linking semantics. Color holds no references
+      and therefore requires no nested reference resolution in either context.
+      </p>
+      <p>Existing valid named Color examples:</p>
       <pre>
 { type: "Color", name: "Colors.Red", red: 255, green: 0, blue: 0 }
 { type: "Color", name: "Colors.TranslucentRed", red: 255, green: 0, blue: 0, alpha: 128 }
       </pre>
+      <p>Valid inline Color example within a <code>UI.Button</code> definition:</p>
+      <pre>
+backgroundColor: { type: "Color", red: 255, green: 0, blue: 0 }
+      </pre>
+      <p>
+      The example is an entry within a containing <code>UI.Button</code> map,
+      not a standalone asset. The map must not contain <code>name</code>, even
+      if its value is an empty String. A nested Color map in a property not
+      explicitly enabled for inline definitions remains invalid.
+      </p>
       <p>
       Alpha is stored in the definition, not an instruction to enable blending.
       Existing RGB-only consumers intentionally retain their behavior:

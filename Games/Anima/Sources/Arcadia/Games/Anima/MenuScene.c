@@ -110,6 +110,12 @@ applySelectedResolution
   );
 
 static void
+onWindowModeChanged
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
 onMasterVolumeChanged
   (
     Arcadia_Thread* thread
@@ -379,6 +385,7 @@ rebuildOptionsContent
   clearContainer(thread, (Arcadia_Object*)self->optionsContentRoot);
   switch (Arcadia_Engine_UI_SegmentedChoiceNode_getSelectedIndex(thread, self->optionsTabs)) {
     case 0: {
+      Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->windowModeRow);
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->resolutionRow);
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->vsyncRow);
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->brightnessRow);
@@ -670,6 +677,82 @@ onVoiceVolumeChanged
   handleVolumeChanged(thread, Arcadia_Games_Anima_AudioCategory_Voice);
 }
 
+static Arcadia_BooleanValue
+isBorderlessFullscreen
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  )
+{
+  char const* windowModePath[] = { u8"visuals", u8"windowMode" };
+  Arcadia_String* windowMode = Arcadia_Engine_ApplicationConfiguration_getString(thread,
+    self->application->configuration, windowModePath, 2);
+  return stringEquals(thread, windowMode, u8"borderless fullscreen window");
+}
+
+static void
+updateResolutionControls
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  )
+{
+  Arcadia_BooleanValue enabled = !isBorderlessFullscreen(thread, self);
+  Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->resolutionPreviousButton, enabled);
+  Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->resolutionNextButton, enabled);
+  Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->applyButton, enabled);
+}
+
+static void
+onWindowModeChanged
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Natural8Value n = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (2 != n) {
+    Arcadia_ValueStack_popValues(thread, n + 1);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Games_Anima_MenuScene* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2,
+    _Arcadia_Games_Anima_MenuScene_getType(thread));
+  Arcadia_Engine_UI_ToggleNode* toggle = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1,
+    _Arcadia_Engine_UI_ToggleNode_getType(thread));
+  if (toggle != self->windowModeToggle) return;
+
+  Arcadia_BooleanValue borderless = Arcadia_Engine_UI_ToggleNode_getChecked(thread, toggle);
+  if (!self->application->windows ||
+      !Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->application->windows)) return;
+  Arcadia_Engine_Visuals_Window* window = (Arcadia_Engine_Visuals_Window*)Arcadia_List_getObjectReferenceValueAt(thread,
+    self->application->windows, 0);
+  Arcadia_Integer32Value left, top, right, bottom;
+  Arcadia_Engine_Visuals_DisplayDevice_getBounds(thread, self->displayDevice, &left, &top, &right, &bottom);
+  if (borderless) {
+    Arcadia_Engine_Visuals_Window_setFullscreen(thread, window, Arcadia_BooleanValue_True);
+    Arcadia_Engine_Visuals_Window_setPosition(thread, window, left, top);
+    Arcadia_Engine_Visuals_Window_setSize(thread, window, right - left, bottom - top);
+  } else {
+    char const* horizontalPath[] = { u8"visuals", u8"horizontalResolution" };
+    char const* verticalPath[] = { u8"visuals", u8"verticalResolution" };
+    Arcadia_Integer32Value width = Arcadia_Engine_ApplicationConfiguration_getInteger32(thread,
+      self->application->configuration, horizontalPath, 2);
+    Arcadia_Integer32Value height = Arcadia_Engine_ApplicationConfiguration_getInteger32(thread,
+      self->application->configuration, verticalPath, 2);
+    Arcadia_Engine_Visuals_Window_setFullscreen(thread, window, Arcadia_BooleanValue_False);
+    Arcadia_Engine_Visuals_Window_setSize(thread, window, width, height);
+    Arcadia_Integer32Value windowWidth, windowHeight;
+    Arcadia_Engine_Visuals_WindowBackend_getSize(thread, window->backend, &windowWidth, &windowHeight);
+    Arcadia_Engine_Visuals_Window_setPosition(thread, window,
+      left + ((right - left) - windowWidth) / 2,
+      top + ((bottom - top) - windowHeight) / 2);
+  }
+  char const* path[] = { u8"visuals", u8"windowMode" };
+  Arcadia_Engine_ApplicationConfiguration_setString(thread, self->application->configuration, path, 2,
+    Arcadia_String_createFromCxxString(thread, borderless ? u8"borderless fullscreen window" : u8"windowed"));
+  updateResolutionControls(thread, self);
+}
+
 static void
 populateResolutionModes
   (
@@ -765,6 +848,7 @@ setResolutionSelection
     Arcadia_BooleanValue next
   )
 {
+  if (isBorderlessFullscreen(thread, self)) return;
   Arcadia_SizeValue numberOfModes = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->availableResolutionModes);
   if (!numberOfModes) return;
   if (next) {
@@ -785,6 +869,8 @@ applySelectedResolution
     Arcadia_Games_Anima_MenuScene* self
   )
 {
+  // The desktop owns the output resolution in borderless fullscreen mode.
+  if (isBorderlessFullscreen(thread, self)) return;
   if (!self->application->windows || !Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->application->windows)) return;
   Arcadia_Engine_Visuals_DisplayMode* mode = (Arcadia_Engine_Visuals_DisplayMode*)Arcadia_List_getObjectReferenceValueAt(thread,
     self->availableResolutionModes, self->selectedResolutionIndex);
@@ -867,8 +953,8 @@ ensureScene
   if (!self->cameraNode) self->cameraNode = Arcadia_Engine_Visuals_NodeFactory_createCameraNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, backendContext);
   if (!self->canvasNode) self->canvasNode = createCanvas(thread, self, backendContext);
   if (!self->startRoot) {
-    self->startRoot = Arcadia_Engine_UI_StackPanelNode_createFromDefinition(thread, backendContext,
-      (Arcadia_ADL_UI_StackPanelDefinition*)getDefinition(thread, self->definitions, u8"Anima.StackPanel.StartRoot"));
+    self->startRoot = Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition(thread, backendContext,
+      (Arcadia_ADL_UI_PanelDefinition*)getDefinition(thread, self->definitions, u8"Anima.Panel.StartRoot"));
     self->continueButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->startRoot, u8"Anima.Button.Continue");
     self->newGameButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->startRoot, u8"Anima.Button.NewGame");
     self->optionsButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->startRoot, u8"Anima.Button.Options");
@@ -890,6 +976,7 @@ ensureScene
     self->resolutionLabel = (Arcadia_Engine_UI_LabelNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Label.ResolutionValue");
     self->resolutionPreviousButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Button.ResolutionPrevious");
     self->resolutionNextButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Button.ResolutionNext");
+    self->windowModeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.WindowMode");
     self->backButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Back");
     self->resetButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Reset");
     self->applyButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Apply");
@@ -903,6 +990,8 @@ ensureScene
     self->mouseSensitivityRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.MouseSensitivity");
     self->subtitlesRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.Subtitles");
     self->highContrastRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.HighContrast");
+    self->windowModeToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->windowModeRow, u8"Anima.Toggle.WindowMode");
+    Arcadia_Engine_UI_ToggleNode_setChecked(thread, self->windowModeToggle, isBorderlessFullscreen(thread, self));
     self->vsyncToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->vsyncRow, u8"Anima.Toggle.VSync");
     self->brightnessSlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->brightnessRow, u8"Anima.Slider.Brightness");
     self->masterVolumeSlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->masterVolumeRow, u8"Anima.Slider.MasterVolume");
@@ -918,6 +1007,7 @@ ensureScene
     self->mouseSensitivitySlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->mouseSensitivityRow, u8"Anima.Slider.MouseSensitivity");
     self->subtitlesToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->subtitlesRow, u8"Anima.Toggle.Subtitles");
     self->highContrastToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->highContrastRow, u8"Anima.Toggle.HighContrast");
+    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->windowModeRow, (Arcadia_Object*)self->windowModeToggle, 284, 0, 0, 0);
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->vsyncRow, (Arcadia_Object*)self->vsyncToggle, 384, 0, 0, 0);
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->brightnessRow, (Arcadia_Object*)self->brightnessSlider, 160, 0, 0, 0);
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->masterVolumeRow, (Arcadia_Object*)self->masterVolumeSlider, 100, 0, 0, 0);
@@ -931,12 +1021,14 @@ ensureScene
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->resolutionRow, (Arcadia_Object*)self->resolutionSelector, 184, 0, 0, 0);
     populateVolumeSettings(thread, self);
     populateResolutionModes(thread, self);
+    updateResolutionControls(thread, self);
     Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)self->applyButton, 120, 44);
     Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)self->resetButton, 120, 44);
     Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)self->backButton, 120, 44);
     Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->optionsFooterRoot, (Arcadia_Object*)self->backButton, 0, 0, 328, 0);
     rebuildOptionsContent(thread, self);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SegmentedChoiceNode_getChangedSignal(thread, self->optionsTabs), (Arcadia_Object*)self, &onOptionsTabChanged);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ToggleNode_getChangedSignal(thread, self->windowModeToggle), (Arcadia_Object*)self, &onWindowModeChanged);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->backButton), (Arcadia_Object*)self, &onButtonActivated);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->applyButton), (Arcadia_Object*)self, &onButtonActivated);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->resolutionPreviousButton), (Arcadia_Object*)self, &onButtonActivated);
@@ -978,6 +1070,7 @@ constructImpl
   self->cameraNode = NULL; self->enterPassNode = NULL; self->viewportNode = NULL; self->canvasNode = NULL;
   self->ambienceNode = NULL;
   self->ambienceBaseVolume = 1.f;
+  self->windowModeRow = NULL; self->windowModeToggle = NULL;
   self->startRoot = NULL; self->optionsRoot = NULL; self->optionsContentRoot = NULL; self->optionsFooterRoot = NULL;
   self->vsyncRow = NULL; self->brightnessRow = NULL; self->masterVolumeRow = NULL; self->musicVolumeRow = NULL; self->effectsVolumeRow = NULL; self->uiVolumeRow = NULL; self->voiceVolumeRow = NULL; self->mouseSensitivityRow = NULL; self->subtitlesRow = NULL; self->highContrastRow = NULL;
   self->resolutionRow = NULL; self->resolutionSelector = NULL;
@@ -1022,6 +1115,7 @@ visitImpl
   if (self->canvasNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->canvasNode);
   if (self->startRoot) Arcadia_Object_visit(thread, (Arcadia_Object*)self->startRoot);
   if (self->optionsRoot) Arcadia_Object_visit(thread, (Arcadia_Object*)self->optionsRoot);
+  if (self->windowModeRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->windowModeRow);
   if (self->vsyncRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->vsyncRow);
   if (self->brightnessRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->brightnessRow);
   if (self->masterVolumeRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->masterVolumeRow);
@@ -1039,14 +1133,14 @@ static void
 layoutRoot
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_StackPanelNode* root,
+    Arcadia_Engine_UI_WidgetNode* root,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height,
     Arcadia_Integer32Value rootWidth,
     Arcadia_Integer32Value rootHeight
   )
 {
-  Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)root, (width - rootWidth) / 2, (height - rootHeight) / 2, rootWidth, rootHeight);
+  Arcadia_Engine_UI_WidgetNode_setBounds(thread, root, (width - rootWidth) / 2, (height - rootHeight) / 2, rootWidth, rootHeight);
 }
 
 static void
@@ -1060,8 +1154,8 @@ updateVisualsImpl
   )
 {
   ensureScene(thread, self);
-  layoutRoot(thread, self->startRoot, width, height, 420, 430);
-  layoutRoot(thread, self->optionsRoot, width, height, 760, 560);
+  layoutRoot(thread, (Arcadia_Engine_UI_WidgetNode*)self->startRoot, width, height, 420, 430);
+  layoutRoot(thread, (Arcadia_Engine_UI_WidgetNode*)self->optionsRoot, width, height, 760, 560);
   Arcadia_Math_Matrix4Real32* viewToProjectionMatrix = Arcadia_Math_Matrix4Real32_create(thread);
   Arcadia_Math_Matrix4x4Real32_setOrthographicProjection(thread, viewToProjectionMatrix, 0.f, (Arcadia_Real32Value)width, 0.f, (Arcadia_Real32Value)height, -1.f, 1.f);
   Arcadia_Engine_Visuals_CameraNode_setViewToProjectionMatrix(thread, self->cameraNode, viewToProjectionMatrix);

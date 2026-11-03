@@ -23,6 +23,12 @@
 
 #include "Arcadia/ARMS/Include.h"
 
+// Probe the same owner-to-dependent reachability as Nyx's object heap tracing.
+static unsigned senderVisits = 0;
+static unsigned senderFinalizations = 0;
+static unsigned messageVisits = 0;
+static unsigned messageFinalizations = 0;
+
 typedef struct Sender {
   char* name;
 } Sender;
@@ -33,7 +39,7 @@ Sender_visit
     void* context,
     Sender* object
   )
-{ }
+{ senderVisits++; }
 
 static void
 Sender_finalize
@@ -42,6 +48,7 @@ Sender_finalize
     Sender* object
   )
 {
+  senderFinalizations++;
   if (object->name) {
     free(object->name);
     object->name = NULL;
@@ -60,6 +67,7 @@ Message_visit
     Message* object
   )
 {
+  messageVisits++;
   if (object->sender) {
     Arcadia_ARMS_visit(object->sender);
   }
@@ -72,6 +80,7 @@ Message_finalize
     Message* object
   )
 {
+  messageFinalizations++;
   if (object->text) {
     free(object->text);
     object->text = NULL;
@@ -85,6 +94,10 @@ runTests
     void
   )
 {
+  senderVisits = 0;
+  senderFinalizations = 0;
+  messageVisits = 0;
+  messageFinalizations = 0;
   if (Arcadia_ARMS_startup()) {
     return EXIT_FAILURE;
   }
@@ -125,13 +138,29 @@ runTests
     return EXIT_FAILURE;
   }
   message->sender = sender;
-  Arcadia_ARMS_lock(message);
+  if (Arcadia_ARMS_lock(message)) {
+    Arcadia_ARMS_RunStatistics statistics = Arcadia_ARMS_RunStatistics_StaticInitializer();
+    Arcadia_ARMS_run(&statistics);
+    Arcadia_ARMS_shutdown();
+    return EXIT_FAILURE;
+  }
   Arcadia_ARMS_RunStatistics statistics = Arcadia_ARMS_RunStatistics_StaticInitializer();
-  Arcadia_ARMS_run(&statistics);
-  Arcadia_ARMS_unlock(message);
-  Arcadia_ARMS_run(&statistics);
-  Arcadia_ARMS_shutdown();
-  return EXIT_SUCCESS;
+  int failed = Arcadia_ARMS_run(&statistics) ||
+               senderVisits != 1 || messageVisits != 1 ||
+               senderFinalizations != 0 || messageFinalizations != 0;
+
+  // The message is no longer a root; its dependent sender must now be collected too.
+  if (Arcadia_ARMS_unlock(message)) {
+    failed = 1;
+  }
+  if (Arcadia_ARMS_run(&statistics) ||
+      senderFinalizations != 1 || messageFinalizations != 1) {
+    failed = 1;
+  }
+  if (Arcadia_ARMS_shutdown()) {
+    failed = 1;
+  }
+  return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
 int
