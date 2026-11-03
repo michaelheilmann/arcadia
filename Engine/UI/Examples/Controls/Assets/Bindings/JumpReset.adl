@@ -1,0 +1,11 @@
+{
+  type: "UI.Button",
+  name: "Controls.Bindings.Jump.Reset",
+  left: 0, bottom: 0, width: 265, height: 32,
+  text: "Reset Jump" , horizontalAlignment: "Center", verticalAlignment: "Center",
+  backgroundColor: "Button.Primary.Color.Normal",
+  hoveredBackgroundColor: "Button.Primary.Color.Hovered",
+  pressedBackgroundColor: "Button.Primary.Color.Pressed",
+  disabledBackgroundColor: "Button.Primary.Color.Disabled",
+  focusedBackgroundColor: "Button.Primary.Color.Focused",
+}

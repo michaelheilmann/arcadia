@@ -1,0 +1,9 @@
+{
+  type : "PixelBuffer",
+  name : "GeometryShowcase.PixelBuffer",
+  width : 256,
+  height : 256,
+  operations : [
+    "GeometryShowcase.FillOperation",
+  ],
+}

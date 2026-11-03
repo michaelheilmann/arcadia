@@ -58,7 +58,7 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_create4v
 /// @@param self A pointer to this color.
 /// @@param other A pointer to the other color.
 /// @@remarks @@a self and @@a other may refer to the same object.
-/// @@post This vector was assigned the values of the other vector.
+/// @@post This color was assigned the values of the other color.
 void
 Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_assign
   (
@@ -67,11 +67,12 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_assign
     Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* other
   );
 
-/// @@brief Linearily interpolate between this color and another color and assign the result to this color.
+/// @@brief Interpolate from this color toward another color, updating this color.
 /// @@param thread A pointer to this thread.
 /// @@param self A pointer to this color.
 /// @@param other A pointer to the other color.
-/// @@param t The interpolation value.
+/// @@param t Interpolation factor; outside [0,1] the closest endpoint is used.
+/// @@remarks Interior values clamp every resulting component to [0,1].
 /// @@remarks @@a self and @@a other may refer to the same object.
 /// @@post This color was assigned the result.
 void
@@ -81,6 +82,18 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_lerp
     Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* self,
     Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* other,
     @{componentType} t
+  );
+
+/// @@brief Copy all RGBA components to caller-owned storage.
+/// @@param thread A pointer to this thread.
+/// @@param self The color to read.
+/// @@param result A caller-owned array with @{numberOfComponents} elements.
+void
+Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_copyValues
+  (
+    Arcadia_Thread* thread,
+    const Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* self,
+    @{componentType} result[@{numberOfComponents}]
   );
 
 /// @@brief Compute the inversion of one color and assign the result to this color.

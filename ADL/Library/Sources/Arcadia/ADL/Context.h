@@ -20,8 +20,10 @@
 #if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
+
 #include "Arcadia/Ring2/Include.h"
 #include "Arcadia/DDL/Include.h"
+
 typedef struct Arcadia_ADL_Definition Arcadia_ADL_Definition;
 typedef struct Arcadia_ADL_Definitions Arcadia_ADL_Definitions;
 

@@ -208,6 +208,55 @@ testAudialsNodeFactoryDefinitions
   Arcadia_Object_unlock(thread, (Arcadia_Object*)definitions);
 }
 
+// Confirm that the AudioStreamProvider's native sample pointer remains an alias
+// of its managed ByteArray through allocation, GC and a partial final chunk.
+static void
+testManagedStreamingStorage(Arcadia_Thread* thread)
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_Media_DSP_SineWave* sine = Arcadia_Media_DSP_SineWave_create(thread, 1.0f);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)sine);
+  Arcadia_Engine_Audials_DSPStreamProvider* provider =
+    Arcadia_Engine_Audials_DSPStreamProvider_create(thread, (Arcadia_Media_DSP*)sine, 8, 10);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)provider);
+  Arcadia_Media_DSP_Buffer* target = createLockedBuffer(thread, 8, 4);
+  Arcadia_ByteArray* storage = Arcadia_Media_DSP_Buffer_getSampleBytes(thread, target);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isMutable(thread, storage));
+  Arcadia_Tests_assertFalse(thread, Arcadia_ByteArray_isResizable(thread, storage));
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isContiguous(thread, storage));
+  Arcadia_Tests_assertEqualSize(thread, 4 * sizeof(Arcadia_Real32Value),
+    Arcadia_ByteArray_getSize(thread, storage));
+
+  Arcadia_SizeValue expected[] = { 4, 4, 2 };
+  for (Arcadia_SizeValue chunk = 0; chunk < 3; ++chunk) {
+    Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+    Arcadia_Real32Value* nativeSamples = Arcadia_Media_DSP_Buffer_getSamples(thread, target);
+    Arcadia_Tests_assertTrue(thread, (void*)nativeSamples ==
+      (void*)Arcadia_ByteArray_getMutableBytes(thread,
+        Arcadia_Media_DSP_Buffer_getSampleBytes(thread, target)));
+    Arcadia_SizeValue written = 0;
+    Arcadia_Tests_assertTrue(thread, Arcadia_Engine_Audials_AudioStreamProvider_read(
+      thread, (Arcadia_Engine_Audials_AudioStreamProvider*)provider, target, &written));
+    Arcadia_Tests_assertEqualSize(thread, expected[chunk], written);
+    Arcadia_Tests_assertTrue(thread, Arcadia_Media_DSP_Buffer_getSamples(thread, target) == nativeSamples);
+    for (Arcadia_SizeValue i = 0; i < written; ++i) {
+      Arcadia_Tests_assertTrue(thread, isfinite(nativeSamples[i]));
+    }
+  }
+  Arcadia_SizeValue exhausted = 1;
+  Arcadia_Tests_assertFalse(thread, Arcadia_Engine_Audials_AudioStreamProvider_read(
+    thread, (Arcadia_Engine_Audials_AudioStreamProvider*)provider, target, &exhausted));
+  Arcadia_Tests_assertEqualSize(thread, 0, exhausted);
+  Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)target);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)provider);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)sine);
+}
+
+static int
+runManagedStreamingStorage(void)
+{ return Arcadia_Tests_safeExecute(&testManagedStreamingStorage) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
 static void
 test
   (
@@ -239,6 +288,7 @@ main
   static const Arcadia_Testing_Case cases[] = {
     { "AudialsStreaming", &runTests },
     { "GraphDualTone", &Arcadia_Engine_Tests_AudialsStreaming_graphDualTone },
+    { "ManagedStreamingStorage", &runManagedStreamingStorage },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

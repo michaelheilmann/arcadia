@@ -1,0 +1,8 @@
+native "NativeInterface.h" interface MyModule.NativeInterface {
+  method read(variable value : Arcadia.Natural64) : Arcadia.Natural64
+}
+class MyModule.Implementation implements MyModule.NativeInterface {
+  method read(variable value : Arcadia.Integer32) : Arcadia.Natural64 {
+    return 0
+  }
+}

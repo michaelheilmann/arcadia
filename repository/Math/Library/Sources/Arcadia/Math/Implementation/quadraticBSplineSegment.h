@@ -1,0 +1,50 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+#if !defined(ARCADIA_MATH_IMPLEMENTATION_QUADRATICBSPLINESEGMENT_H_INCLUDED)
+#define ARCADIA_MATH_IMPLEMENTATION_QUADRATICBSPLINESEGMENT_H_INCLUDED
+
+#include "Arcadia/Math/Implementation/Vector3Real32.h"
+#include "Arcadia/Math/Implementation/Vector3Real64.h"
+
+// Evaluate one segment of a uniform quadratic B-spline using three consecutive
+// control points, for t in [0,1]. The curve goes through the midpoints of the
+// first/second and second/third control points at t=0 and t=1 respectively.
+// Unlike quadratic Bezier, this segment does not interpolate either endpoint
+// control point. Result may alias an input vector. No allocations are performed.
+void
+Arcadia_Math_Vector3Real32_quadraticBSplineSegment
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector3Real32* p0,
+    Arcadia_Math_Vector3Real32* p1,
+    Arcadia_Math_Vector3Real32* p2,
+    Arcadia_Real32Value t,
+    Arcadia_Math_Vector3Real32* result
+  );
+
+void
+Arcadia_Math_Vector3Real64_quadraticBSplineSegment
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector3Real64* p0,
+    Arcadia_Math_Vector3Real64* p1,
+    Arcadia_Math_Vector3Real64* p2,
+    Arcadia_Real64Value t,
+    Arcadia_Math_Vector3Real64* result
+  );
+
+#endif // ARCADIA_MATH_IMPLEMENTATION_QUADRATICBSPLINESEGMENT_H_INCLUDED

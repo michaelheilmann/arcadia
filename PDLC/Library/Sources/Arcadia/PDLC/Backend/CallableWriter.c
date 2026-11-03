@@ -1460,6 +1460,52 @@ rootMethod
   return m;
 }
 
+// An operation introduced by an implemented interface has its dispatch slot in
+// that interface, not a second slot in the declaring class. Existing class
+// virtual roots retain their class slot even when a descendant adds an interface.
+static Arcadia_BooleanValue
+classMethodVirtual
+  (
+    Writer* w,
+    Arcadia_PDLC_MethodSymbol* method
+  )
+{
+  if (method->isNonvirtual) return Arcadia_BooleanValue_False;
+  Arcadia_PDLC_MethodSymbol* root = rootMethod(method);
+  if (root->isNonvirtual) return Arcadia_BooleanValue_False;
+  Arcadia_PDLC_ClassSymbol* owner = (Arcadia_PDLC_ClassSymbol*)((Arcadia_PDLC_Symbol*)root)->enclosing;
+  for (Arcadia_SizeValue i = 0; i < size(w, owner->implementsInterfaceSymbols); ++i) {
+    Arcadia_PDLC_InterfaceSymbol* interface = at(w, owner->implementsInterfaceSymbols, i);
+    for (Arcadia_SizeValue j = 0; j < size(w, interface->operations); ++j) {
+      Arcadia_PDLC_Symbol* operation = at(w, interface->operations, j);
+      if (sameString(w, operation->name, ((Arcadia_PDLC_Symbol*)root)->name)) return Arcadia_BooleanValue_False;
+    }
+  }
+  return Arcadia_BooleanValue_True;
+}
+
+static Arcadia_List*
+implementedInterfaces
+  (
+    Writer* w,
+    Arcadia_PDLC_ClassSymbol* c
+  )
+{
+  Arcadia_List* result = (Arcadia_List*)Arcadia_ArrayList_create(w->thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(w->thread, result);
+  for (Arcadia_PDLC_ClassSymbol* owner = c; owner; owner = owner->parentClassSymbol) {
+    for (Arcadia_SizeValue i = 0; i < size(w, owner->implementsInterfaceSymbols); ++i) {
+      Arcadia_PDLC_InterfaceSymbol* interface = at(w, owner->implementsInterfaceSymbols, i);
+      Arcadia_BooleanValue found = Arcadia_BooleanValue_False;
+      for (Arcadia_SizeValue j = 0; j < size(w, result); ++j) {
+        if (at(w, result, j) == interface) { found = Arcadia_BooleanValue_True; break; }
+      }
+      if (!found) Arcadia_List_insertBackObjectReferenceValue(w->thread, result, interface);
+    }
+  }
+  return result;
+}
+
 static void
 methodWrapper
   (
@@ -1468,6 +1514,7 @@ methodWrapper
   )
 {
   Arcadia_PDLC_MethodSymbol* root = rootMethod(m);
+  Arcadia_BooleanValue virtual = classMethodVirtual(w, m);
   Arcadia_PDLC_Symbol* s = (void*)m;
   signature(w, s, "");
   text(w, "\n{\n  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);\n  Arcadia_JumpTarget jump;\n  Arcadia_Thread_pushJumpTarget(thread, &jump);\n  if (!Arcadia_JumpTarget_save(&jump)) {\n    Arcadia_Thread_popJumpTarget(thread);\n    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);\n    Arcadia_Thread_jump(thread);\n  }\n  Arcadia_Value selfValue = pdlBoxObjectReference(self);\n  Arcadia_ValueStack_pushValue(thread, &selfValue);\n");
@@ -1478,7 +1525,7 @@ methodWrapper
   }
   text(w, "  pdlRequire(thread, self && Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)self, _"); string(w, cname(w, s->enclosing));
   text(w, "_getType(thread)));\n");
-  if (!m->isNonvirtual) {
+  if (virtual) {
     text(w, "  "); string(w, cname(w, ((Arcadia_PDLC_Symbol*)root)->enclosing)); text(w, "Dispatch* dispatch = ("); string(w, cname(w, ((Arcadia_PDLC_Symbol*)root)->enclosing));
     text(w, "Dispatch*)Arcadia_ObjectType_getDispatch(Arcadia_Object_getType(thread, (Arcadia_Object*)self));\n  if (!dispatch->"); memberName(w, ((Arcadia_PDLC_Symbol*)root)->name);
     text(w, ") { Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid); Arcadia_Thread_jump(thread); }\n");
@@ -1492,19 +1539,27 @@ methodWrapper
     text(w, " || Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)p"); number(w, i);
     text(w, ", _"); string(w, cname(w, p->type)); text(w, "_getType(thread)));\n");
   }
+  if (m->isAbstract && !virtual) {
+    text(w, "  Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid); Arcadia_Thread_jump(thread);\n");
+    text(w, "  Arcadia_Thread_popJumpTarget(thread);\n  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);\n  return");
+    if (!isVoid(w, returnType(s))) { text(w, " ("); typeName(w, returnType(s)); text(w, "){0}"); }
+    text(w, ";\n}\n\n");
+    return;
+  }
   text(w, "  ");
   if (!isVoid(w, returnType(s))) { typeName(w, returnType(s)); text(w, " result = "); }
-  if (m->isNonvirtual) {
+  if (!virtual) {
     string(w, cname(w, s)); text(w, "_impl(thread, self");
   } else {
     text(w, "dispatch->"); memberName(w, ((Arcadia_PDLC_Symbol*)root)->name);
     text(w, "(thread, ("); typeName(w, ((Arcadia_PDLC_Symbol*)root)->enclosing); text(w, ")self");
   }
   for (Arcadia_SizeValue i = 0; i < size(w, m->parameters); ++i) { text(w, ", p"); number(w, i); }
-  text(w, ");\n  Arcadia_Thread_popJumpTarget(thread);\n  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);\n  return");
+  text(w, ");\n");
+  text(w, "  Arcadia_Thread_popJumpTarget(thread);\n  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);\n  return");
   if (!isVoid(w, returnType(s))) text(w, " result");
   text(w, ";\n}\n\n");
-  if (m->overrideOf && !m->isAbstract) {
+  if (m->overrideOf && !m->isAbstract && virtual) {
     text(w, "static "); signatureWithReceiver(w, s, "_dispatchImpl", ((Arcadia_PDLC_Symbol*)root)->enclosing);
     text(w, "\n{\n  "); if (!isVoid(w, returnType(s))) text(w, "return ");
     string(w, cname(w, s)); text(w, "_impl(thread, ("); typeName(w, s->enclosing); text(w, ")self");
@@ -1576,7 +1631,7 @@ classHeader
   text(w, "struct "); modelName(w, c); text(w, "Dispatch {\n  "); string(w, cname(w, (void*)c->parentClassSymbol)); text(w, "Dispatch _parent;\n");
   for (Arcadia_SizeValue i = 0; i < size(w, c->members); ++i) {
     Arcadia_PDLC_Symbol* s = at(w, c->members, i);
-    if (s->kind == Arcadia_PDLC_SymbolKind_Method && !((Arcadia_PDLC_MethodSymbol*)s)->overrideOf && !((Arcadia_PDLC_MethodSymbol*)s)->isNonvirtual) {
+    if (s->kind == Arcadia_PDLC_SymbolKind_Method && !((Arcadia_PDLC_MethodSymbol*)s)->overrideOf && classMethodVirtual(w, (Arcadia_PDLC_MethodSymbol*)s)) {
       text(w, "\n  "); typeName(w, returnType(s)); text(w, " (*"); memberName(w, s->name); text(w, ")(Arcadia_Thread*, "); typeName(w, (void*)c);
       Arcadia_List* p = parameters(s);
       for (Arcadia_SizeValue j = 0; j < size(w, p); ++j) {
@@ -1631,6 +1686,8 @@ classSource
     Arcadia_PDLC_ClassSymbol* c
   )
 {
+  Arcadia_SizeValue interfaceBase = Arcadia_ValueStack_getSize(w->thread);
+  Arcadia_List* interfaces = implementedInterfaces(w, c);
   Arcadia_PDLC_Symbol* ctor = NULL;
   Arcadia_BooleanValue explicitSuper = Arcadia_BooleanValue_False;
   for (Arcadia_SizeValue i = 0; i < size(w, c->members); ++i) {
@@ -1691,7 +1748,7 @@ classSource
   text(w, "}\n\nstatic void\ninitializeDispatchImpl\n  (\n    Arcadia_Thread* thread,\n    "); string(w, cname(w, (void*)c)); text(w, "Dispatch* self\n  )\n{\n");
   for (Arcadia_SizeValue i = 0; i < size(w, c->members); ++i) {
     Arcadia_PDLC_Symbol* s = at(w, c->members, i);
-    if (s->kind != Arcadia_PDLC_SymbolKind_Method || ((Arcadia_PDLC_MethodSymbol*)s)->isNonvirtual) continue;
+    if (s->kind != Arcadia_PDLC_SymbolKind_Method || !classMethodVirtual(w, (Arcadia_PDLC_MethodSymbol*)s)) continue;
     Arcadia_PDLC_MethodSymbol* root = rootMethod((void*)s);
     text(w, "  (("); string(w, cname(w, ((Arcadia_PDLC_Symbol*)root)->enclosing)); text(w, "Dispatch*)self)->"); memberName(w, ((Arcadia_PDLC_Symbol*)root)->name);
     text(w, " = ");
@@ -1699,10 +1756,58 @@ classSource
     else { string(w, cname(w, s)); text(w, ((Arcadia_PDLC_MethodSymbol*)s)->overrideOf ? "_dispatchImpl;\n" : "_impl;\n"); }
   }
   text(w, "}\n\nstatic const Arcadia_ObjectType_Operations objectOperations = {\n  Arcadia_ObjectType_Operations_Initializer,\n  .construct = (Arcadia_Object_ConstructCallbackFunction*)constructImpl,\n  .visit = (Arcadia_Object_VisitCallbackFunction*)visitImpl,\n  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)initializeDispatchImpl,\n};\n\nstatic const Arcadia_Type_Operations typeOperations = {\n  Arcadia_Type_Operations_Initializer,\n  .objectTypeOperations = &objectOperations,\n};\n\n");
-  text(w, "Arcadia_defineObjectType(u8\""); string(w, ((Arcadia_PDLC_Symbol*)c)->name); text(w, "\", "); string(w, cname(w, (void*)c));
+  for (Arcadia_SizeValue i = 0; i < size(w, interfaces); ++i) {
+    Arcadia_PDLC_InterfaceSymbol* interface = at(w, interfaces, i);
+    for (Arcadia_SizeValue j = 0; j < size(w, interface->operations); ++j) {
+      Arcadia_PDLC_MethodSymbol* operation = at(w, interface->operations, j);
+      Arcadia_PDLC_Symbol* method = member(w, c, ((Arcadia_PDLC_Symbol*)operation)->name);
+      if (!method || method->kind != Arcadia_PDLC_SymbolKind_Method ||
+          returnType(method) != returnType((Arcadia_PDLC_Symbol*)operation) ||
+          size(w, parameters(method)) != size(w, operation->parameters))
+        fail(w, Arcadia_String_createFromCxxString(w->thread, "interface operation has no compatible class method"));
+      for (Arcadia_SizeValue k = 0; k < size(w, operation->parameters); ++k) {
+        Arcadia_PDLC_VariableSymbol* actual = at(w, parameters(method), k);
+        Arcadia_PDLC_VariableSymbol* expected = at(w, operation->parameters, k);
+        if (actual->type != expected->type || actual->isReference != expected->isReference ||
+            actual->isReadOnly != expected->isReadOnly || actual->isOutput != expected->isOutput)
+          fail(w, Arcadia_String_createFromCxxString(w->thread, "interface operation has no compatible class method"));
+      }
+      // Interface dispatch uses an erased receiver, unlike class method wrappers.
+      // An adapter also handles inherited methods without incompatible function casts.
+      text(w, "static "); typeName(w, returnType((Arcadia_PDLC_Symbol*)operation));
+      text(w, "\ninterface_"); string(w, cname(w, (void*)c)); text(w, "_"); string(w, cname(w, (void*)interface)); text(w, "_"); memberName(w, ((Arcadia_PDLC_Symbol*)operation)->name);
+      text(w, "(Arcadia_Thread* thread, Arcadia_Object* self");
+      for (Arcadia_SizeValue k = 0; k < size(w, operation->parameters); ++k) {
+        text(w, ", "); variableType(w, at(w, operation->parameters, k)); text(w, " p"); number(w, k);
+      }
+      text(w, ")\n{\n  ");
+      if (!isVoid(w, returnType(method))) text(w, "return ");
+      string(w, cname(w, method)); text(w, "(thread, ("); typeName(w, method->enclosing); text(w, ")self");
+      for (Arcadia_SizeValue k = 0; k < size(w, operation->parameters); ++k) { text(w, ", p"); number(w, k); }
+      text(w, ");\n}\n\n");
+    }
+    text(w, "static void\ninitializeInterface_"); string(w, cname(w, (void*)interface));
+    text(w, "\n  (\n    Arcadia_Thread* thread,\n    "); string(w, cname(w, (void*)interface)); text(w, "Dispatch* self\n  )\n{\n");
+    for (Arcadia_SizeValue j = 0; j < size(w, interface->operations); ++j) {
+      Arcadia_PDLC_MethodSymbol* operation = at(w, interface->operations, j);
+      text(w, "  self->"); memberName(w, ((Arcadia_PDLC_Symbol*)operation)->name); text(w, " = interface_");
+      string(w, cname(w, (void*)c)); text(w, "_"); string(w, cname(w, (void*)interface)); text(w, "_"); memberName(w, ((Arcadia_PDLC_Symbol*)operation)->name); text(w, ";\n");
+    }
+    text(w, "}\n\n");
+  }
+  text(w, size(w, interfaces) ? "Arcadia_defineObjectTypeWithInterfaces(u8\"" : "Arcadia_defineObjectType(u8\"");
+  string(w, ((Arcadia_PDLC_Symbol*)c)->name); text(w, "\", "); string(w, cname(w, (void*)c));
   text(w, ",\n                         u8\""); string(w, ((Arcadia_PDLC_Symbol*)c->parentClassSymbol)->name); text(w, "\", "); string(w, cname(w, (void*)c->parentClassSymbol));
-  text(w, ",\n                         &typeOperations);\n");
-  if (c->isAbstract) return;
+  text(w, ",\n                         &typeOperations");
+  for (Arcadia_SizeValue i = 0; i < size(w, interfaces); ++i) {
+    Arcadia_PDLC_InterfaceSymbol* interface = at(w, interfaces, i);
+    text(w, ",\n                         { _"); string(w, cname(w, (void*)interface));
+    text(w, "_getType(thread), sizeof("); string(w, cname(w, (void*)interface));
+    text(w, "Dispatch), (Arcadia_InterfaceDispatch_InitializeCallbackFunction*)initializeInterface_");
+    string(w, cname(w, (void*)interface)); text(w, " }");
+  }
+  text(w, ");\n");
+  if (c->isAbstract) { Arcadia_ValueStack_popValues(w->thread, Arcadia_ValueStack_getSize(w->thread) - interfaceBase); return; }
   text(w, "\n");
   factorySignature(w, c);
   text(w, "\n{\n  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);\n  Arcadia_JumpTarget jump;\n  Arcadia_Thread_pushJumpTarget(thread, &jump);\n  if (!Arcadia_JumpTarget_save(&jump)) {\n    Arcadia_Thread_popJumpTarget(thread);\n    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);\n    Arcadia_Thread_jump(thread);\n  }\n");
@@ -1719,6 +1824,7 @@ classSource
   }
   text(w, "  Arcadia_ValueStack_pushNatural8Value(thread, "); number(w, size(w, p)); text(w, ");\n  ");
   typeName(w, (void*)c); text(w, " result = _Arcadia_EndCreate0(thread, _"); string(w, cname(w, (void*)c)); text(w, "_getType(thread), argumentsBase);\n  Arcadia_Thread_popJumpTarget(thread);\n  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);\n  return result;\n}\n");
+  Arcadia_ValueStack_popValues(w->thread, Arcadia_ValueStack_getSize(w->thread) - interfaceBase);
 }
 
 static void
@@ -1858,6 +1964,8 @@ Arcadia_PDLC_Backend_writeExecutable
   if (header && symbol->kind == Arcadia_PDLC_SymbolKind_Class) {
     Arcadia_PDLC_ClassSymbol* c = (void*)symbol;
     addSymbol(&w, includes, (void*)c->parentClassSymbol);
+    for (Arcadia_SizeValue i = 0; i < size(&w, c->implementsInterfaceSymbols); ++i)
+      addSymbol(&w, includes, at(&w, c->implementsInterfaceSymbols, i));
     addSymbol(&w, declarations, symbol);
     for (Arcadia_SizeValue i = 0; i < size(&w, c->members); ++i) {
       Arcadia_PDLC_Symbol* member = at(&w, c->members, i);
@@ -2066,7 +2174,8 @@ Arcadia_PDLC_Backend_validateExecutables
     Arcadia_BooleanValue owned = s->kind == Arcadia_PDLC_SymbolKind_Class
       ? !((Arcadia_PDLC_ClassSymbol*)s)->isNative || ((Arcadia_PDLC_ClassSymbol*)s)->isNativeImplementation
       : s->kind == Arcadia_PDLC_SymbolKind_Enumeration ? !((Arcadia_PDLC_EnumerationSymbol*)s)->isNative
-      : s->kind == Arcadia_PDLC_SymbolKind_Interface || s->kind == Arcadia_PDLC_SymbolKind_Procedure;
+      : s->kind == Arcadia_PDLC_SymbolKind_Interface ? !((Arcadia_PDLC_InterfaceSymbol*)s)->ast || !((Arcadia_PDLC_InterfaceSymbol*)s)->ast->isNative
+      : s->kind == Arcadia_PDLC_SymbolKind_Procedure;
     if (!owned) continue;
     Arcadia_FilePath* path = Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFileAbsolutePath(thread, info);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, path);
@@ -2076,7 +2185,7 @@ Arcadia_PDLC_Backend_validateExecutables
     Arcadia_Value previous = Arcadia_Map_get(thread, headerOwners, Arcadia_Value_makeObjectReferenceValue(key));
     if (!Arcadia_Value_isVoidValue(&previous)) fail(&w, Arcadia_String_createFromCxxString(thread, "multiple declarations own the same generated header"));
     Arcadia_Map_set(thread, headerOwners, Arcadia_Value_makeObjectReferenceValue(key), Arcadia_Value_makeObjectReferenceValue(s), NULL, NULL);
-    if (s->kind == Arcadia_PDLC_SymbolKind_Class || s->kind == Arcadia_PDLC_SymbolKind_Procedure || s->kind == Arcadia_PDLC_SymbolKind_Enumeration) {
+    if (s->kind == Arcadia_PDLC_SymbolKind_Class || s->kind == Arcadia_PDLC_SymbolKind_Procedure || s->kind == Arcadia_PDLC_SymbolKind_Enumeration || s->kind == Arcadia_PDLC_SymbolKind_Interface) {
       Arcadia_PDLC_Backend_SymbolInfo* mi = Arcadia_PDLC_Backend_SymbolInfo_getModule(thread, info);
       Arcadia_FilePath* aggregate = Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFileAbsolutePath(thread, mi);
       Arcadia_ValueStack_pushObjectReferenceValue(thread, aggregate);
@@ -2093,6 +2202,9 @@ Arcadia_PDLC_Backend_validateExecutables
       if (!c->isNative || c->isNativeImplementation) continue;
     } else if (info->symbol->kind == Arcadia_PDLC_SymbolKind_Enumeration) {
       if (!((Arcadia_PDLC_EnumerationSymbol*)info->symbol)->isNative) continue;
+    } else if (info->symbol->kind == Arcadia_PDLC_SymbolKind_Interface) {
+      Arcadia_PDLC_InterfaceSymbol* interface = (Arcadia_PDLC_InterfaceSymbol*)info->symbol;
+      if (!interface->ast || !interface->ast->isNative) continue;
     } else continue;
     Arcadia_PDLC_Backend_ModuleSymbolInfo* mi = (Arcadia_PDLC_Backend_ModuleSymbolInfo*)Arcadia_PDLC_Backend_SymbolInfo_getModule(thread, info);
     Arcadia_FilePath* path = Arcadia_FilePath_clone(thread, mi->cxxFilesPath);
@@ -2117,9 +2229,12 @@ Arcadia_PDLC_Backend_validateExecutables
     Arcadia_PDLC_Symbol* s = ((Arcadia_PDLC_Backend_SymbolInfo*)Arcadia_List_getObjectReferenceValueAt(thread, infos, i))->symbol;
     if (s->kind == Arcadia_PDLC_SymbolKind_Interface) {
       Writer w = { .thread = thread, .context = context, .symbol = s, .output = output };
-      Arcadia_List* operations = ((Arcadia_PDLC_InterfaceSymbol*)s)->operations;
+      Arcadia_PDLC_InterfaceSymbol* interface = (Arcadia_PDLC_InterfaceSymbol*)s;
+      Arcadia_List* operations = interface->operations;
       for (Arcadia_SizeValue j = 0; j < size(&w, operations); ++j) {
         Arcadia_PDLC_MethodSymbol* op = at(&w, operations, j);
+        if (interface->ast && interface->ast->isNative && op->ast && (op->ast->body || nativeTarget(&w, (Arcadia_PDLC_Symbol*)op)))
+          fail(&w, Arcadia_String_createFromCxxString(thread, "native interface operations must be signature-only"));
         if (op->ast && op->ast->isNonvirtual) fail(&w, Arcadia_String_createFromCxxString(thread, "interface operations cannot be nonvirtual"));
         if (op->ast && op->ast->isAbstract && (op->ast->body || nativeTarget(&w, (Arcadia_PDLC_Symbol*)op))) fail(&w, Arcadia_String_createFromCxxString(thread, "an explicit abstract operation cannot have a body or native target"));
         for (Arcadia_SizeValue k = 0; k < size(&w, op->parameters); ++k) {

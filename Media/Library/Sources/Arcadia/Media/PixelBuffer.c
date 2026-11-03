@@ -18,11 +18,40 @@
 #include "Arcadia/Media/PixelBuffer.h"
 #include "Arcadia/Media/PixelFormat/getNumberOfBytes.h"
 
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Ring2/Include.h"
+#include <stdint.h>
 
 typedef struct PIXEL {
   Arcadia_Natural8Value r, g, b, a;
 } PIXEL;
+
+// The stored dimensions/padding are signed. Validate them before converting
+// to Size, and check BOTH row-stride addition and full-image multiplication.
+// This is storage accounting; pixel loops remain native and unchanged.
+static Arcadia_SizeValue
+checkedPixelStorageSize(Arcadia_Thread* thread, Arcadia_Integer32Value width,
+                        Arcadia_Integer32Value height, Arcadia_Integer32Value padding,
+                        Arcadia_SizeValue bytesPerPixel)
+{
+  if (width < 0 || height < 0 || padding < 0 || !bytesPerPixel) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_SizeValue w = (Arcadia_SizeValue)width;
+  Arcadia_SizeValue h = (Arcadia_SizeValue)height;
+  Arcadia_SizeValue p = (Arcadia_SizeValue)padding;
+  if (w > (SIZE_MAX - p) / bytesPerPixel) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_SizeValue stride = w * bytesPerPixel + p;
+  if (stride && h > SIZE_MAX / stride) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  return stride * h;
+}
 
 static void inline
 DECODE_ABGR
@@ -265,11 +294,15 @@ Arcadia_Media_PixelBuffer_destruct
     Arcadia_Media_PixelBuffer* self
   );
 
+static void
+Arcadia_Media_PixelBuffer_visit(Arcadia_Thread* thread, Arcadia_Media_PixelBuffer* self);
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Media_PixelBuffer_constructImpl,
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&Arcadia_Media_PixelBuffer_destruct,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Media_PixelBuffer_initializeDispatchImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Media_PixelBuffer_visit,
 };
 
 static const Arcadia_Type_Operations _typeOperations = {
@@ -293,6 +326,8 @@ Arcadia_Media_PixelBuffer_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
+  self->bytes = NULL;
+  self->byteStorage = NULL;
   if (1 == _numberOfArguments) {
     Arcadia_Media_PixelBuffer* other = (Arcadia_Media_PixelBuffer*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Media_PixelBuffer_getType(thread));
     self->width = Arcadia_Media_PixelBuffer_getNumberOfColumns(thread, other);
@@ -300,9 +335,13 @@ Arcadia_Media_PixelBuffer_constructImpl
     self->linePadding = Arcadia_Media_PixelBuffer_getLinePadding(thread, other);
     self->pixelFormat = Arcadia_Media_PixelBuffer_getPixelFormat(thread, other);
     Arcadia_SizeValue bytesPerPixel = Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, other);
-    Arcadia_SizeValue bytes = (bytesPerPixel * self->width + self->linePadding) * self->height;
-    self->bytes = Arcadia_Memory_allocateUnmanaged(thread, bytes);
-    Arcadia_Memory_copy(thread, self->bytes, other->bytes, bytes);
+    Arcadia_SizeValue bytes = checkedPixelStorageSize(thread, self->width, self->height,
+                                                       self->linePadding, bytesPerPixel);
+    self->byteStorage = Arcadia_ByteArrayFactory_createMutable(thread, bytes);
+    self->bytes = Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage);
+    if (bytes) {
+      Arcadia_Memory_copy(thread, self->bytes, other->bytes, bytes);
+    }
   } else if (4 == _numberOfArguments) {
 
     self->bytes = NULL;
@@ -312,7 +351,10 @@ Arcadia_Media_PixelBuffer_constructImpl
     self->pixelFormat = Arcadia_ValueStack_getNatural32Value(thread, 1);
 
     Arcadia_SizeValue bytesPerPixel = Arcadia_Media_PixelFormat_getNumberOfBytes(thread, self->pixelFormat);
-    self->bytes = Arcadia_Memory_allocateUnmanaged(thread, (self->width * bytesPerPixel + self->linePadding) * self->height);
+    Arcadia_SizeValue size = checkedPixelStorageSize(thread, self->width, self->height,
+                                                      self->linePadding, bytesPerPixel);
+    self->byteStorage = Arcadia_ByteArrayFactory_createMutable(thread, size);
+    self->bytes = Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage);
     switch (self->pixelFormat) {
       case Arcadia_Media_PixelFormat_AlphaBlueGreenRedNatural8: {
         Arcadia_SizeValue lineStride = self->width * bytesPerPixel + self->linePadding;
@@ -401,9 +443,16 @@ Arcadia_Media_PixelBuffer_destruct
     Arcadia_Media_PixelBuffer* self
   )
 {
-  if (self->bytes) {
-    Arcadia_Memory_deallocateUnmanaged(thread, self->bytes);
-    self->bytes = NULL;
+  // The ByteArray destructor releases the native allocation.
+  self->bytes = NULL;
+  self->byteStorage = NULL;
+}
+
+static void
+Arcadia_Media_PixelBuffer_visit(Arcadia_Thread* thread, Arcadia_Media_PixelBuffer* self)
+{
+  if (self->byteStorage) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->byteStorage);
   }
 }
 
@@ -434,10 +483,26 @@ Arcadia_Media_PixelBuffer_setPixelFormat
   size_t targetNumberOfBytesPerPixel = 0;
   getTranscodeCallbacks(thread, self->pixelFormat, &sourceNumberOfBytesPerPixel, &decodeCallback, pixelFormat, &targetNumberOfBytesPerPixel, &encodeCallback);
 
+  // Allocation may collect. Keep the source and the replacement storage rooted
+  // until the format/bytes pair has been committed to the receiver.
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
   Arcadia_Natural8Value* sourceBytes = self->bytes;
   Arcadia_Natural8Value* targetBytes = NULL;
+  Arcadia_ByteArray* targetStorage = NULL;
   if (sourceNumberOfBytesPerPixel != targetNumberOfBytesPerPixel) {
-    targetBytes = Arcadia_Memory_allocateUnmanaged(thread, (self->width * targetNumberOfBytesPerPixel + self->linePadding) * self->height);
+    Arcadia_SizeValue size = checkedPixelStorageSize(thread, self->width, self->height,
+                                                      self->linePadding, targetNumberOfBytesPerPixel);
+    targetStorage = Arcadia_ByteArrayFactory_createMutable(thread, size);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)targetStorage);
+    targetBytes = Arcadia_ByteArray_getMutableBytes(thread, targetStorage);
   } else {
     targetBytes = self->bytes;
   }
@@ -454,10 +519,12 @@ Arcadia_Media_PixelBuffer_setPixelFormat
     }
   }
   if (sourceNumberOfBytesPerPixel != targetNumberOfBytesPerPixel) {
-    Arcadia_Memory_deallocateUnmanaged(thread, sourceBytes);
+    self->byteStorage = targetStorage;
     self->bytes = targetBytes;
   }
   self->pixelFormat = pixelFormat;
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -483,20 +550,34 @@ Arcadia_Media_PixelBuffer_setLinePadding
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
       Arcadia_Thread_jump(thread);
     }
+    Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+    Arcadia_JumpTarget jump;
+    Arcadia_Thread_pushJumpTarget(thread, &jump);
+    if (!Arcadia_JumpTarget_save(&jump)) {
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
     Arcadia_Integer32Value bytesPerPixel = Arcadia_Media_PixelFormat_getNumberOfBytes(thread, self->pixelFormat);
     Arcadia_Integer32Value oldLinePadding = self->linePadding;
     Arcadia_Integer32Value newLinePadding = linePadding;
     Arcadia_Natural8Value* oldBytes = self->bytes;
-    Arcadia_Natural8Value* newBytes = NULL;
-    newBytes = Arcadia_Memory_allocateUnmanaged(thread, (self->width * bytesPerPixel + newLinePadding) * self->height);
+    Arcadia_SizeValue size = checkedPixelStorageSize(thread, self->width, self->height,
+                                                      newLinePadding, (Arcadia_SizeValue)bytesPerPixel);
+    Arcadia_ByteArray* newStorage = Arcadia_ByteArrayFactory_createMutable(thread, size);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)newStorage);
+    Arcadia_Natural8Value* newBytes = Arcadia_ByteArray_getMutableBytes(thread, newStorage);
     for (Arcadia_SizeValue rowIndex = 0; rowIndex < self->height; ++rowIndex) {
       Arcadia_Natural8Value* oldLine = oldBytes + rowIndex * (self->width * bytesPerPixel + oldLinePadding);
       Arcadia_Natural8Value* newLine = newBytes + rowIndex * (self->width * bytesPerPixel + newLinePadding);
       Arcadia_Memory_copy(thread, newLine, oldLine, self->width * bytesPerPixel);
     }
-    Arcadia_Memory_deallocateUnmanaged(thread, oldBytes);
+    self->byteStorage = newStorage;
     self->bytes = newBytes;
     self->linePadding = linePadding;
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   }
 }
 
@@ -1103,6 +1184,7 @@ Arcadia_Media_PixelBuffer_swap
     Arcadia_swapInteger32(thread, &self->height, &other->height);
     Arcadia_swapInteger32(thread, &self->linePadding, &other->linePadding);
     Arcadia_swapPointer(thread, (void**)&self->bytes, (void**)&other->bytes);
+    Arcadia_swapPointer(thread, (void**)&self->byteStorage, (void**)&other->byteStorage);
   }
 }
 
@@ -1117,13 +1199,36 @@ Arcadia_Media_PixelBuffer_assign
   if (self == other) {
     return;
   } else {
+    Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+    Arcadia_JumpTarget jump;
+    Arcadia_Thread_pushJumpTarget(thread, &jump);
+    if (!Arcadia_JumpTarget_save(&jump)) {
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)other);
     Arcadia_SizeValue bytesPerPixel = Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, other);
-    Arcadia_SizeValue numberOfBytes = (other->width * bytesPerPixel + other->linePadding) * other->height;
-    Arcadia_Memory_reallocateUnmanaged(thread, (void**)&self->bytes, numberOfBytes);
-    Arcadia_Memory_copy(thread, self->bytes, other->bytes, numberOfBytes);
+    Arcadia_SizeValue numberOfBytes = checkedPixelStorageSize(thread, other->width, other->height,
+                                                               other->linePadding, bytesPerPixel);
+    Arcadia_ByteArray* storage = Arcadia_ByteArrayFactory_createMutable(thread, numberOfBytes);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)storage);
+    Arcadia_Natural8Value* bytes = Arcadia_ByteArray_getMutableBytes(thread, storage);
+    if (numberOfBytes) {
+      Arcadia_Memory_copy(thread, bytes, other->bytes, numberOfBytes);
+    }
+    self->byteStorage = storage;
+    self->bytes = bytes;
     self->width = other->width;
     self->height = other->height;
     self->linePadding = other->linePadding;
     self->pixelFormat = other->pixelFormat;
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   }
 }
+
+Arcadia_ByteArray*
+Arcadia_Media_PixelBuffer_getPixelBytes(Arcadia_Thread* thread, Arcadia_Media_PixelBuffer* self)
+{ return self->byteStorage; }

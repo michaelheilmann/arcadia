@@ -164,6 +164,16 @@ Arcadia_Imaging_Linux_BMPImageWriter_writeBmpToByteBufferImpl
     Arcadia_ByteArrayBuilder* targetByteArrayBuilder
   )
 {
+  Arcadia_SizeValue rootBase = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget rootJump;
+  Arcadia_Thread_pushJumpTarget(thread, &rootJump);
+  if (!Arcadia_JumpTarget_save(&rootJump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)targetByteArrayBuilder);
   Arcadia_Process* process = Arcadia_Thread_getProcess(thread);
   WriteContext context;
   context.status = Arcadia_Status_Success;
@@ -174,35 +184,41 @@ Arcadia_Imaging_Linux_BMPImageWriter_writeBmpToByteBufferImpl
   switch (sourcePixelBuffer->pixelFormat) {
     case Arcadia_Media_PixelFormat_AlphaBlueGreenRedNatural8: {
       sourcePixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, sourcePixelBuffer, Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
       Arcadia_Media_PixelBuffer_setLinePadding(thread, sourcePixelBuffer, 0);
       components = 4;
     } break;
     case Arcadia_Media_PixelFormat_AlphaRedGreenBlueNatural8: {
       sourcePixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, sourcePixelBuffer, Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
       Arcadia_Media_PixelBuffer_setLinePadding(thread, sourcePixelBuffer, 0);
       components = 4;
     } break;
     case Arcadia_Media_PixelFormat_RedGreenBlueNatural8: {
       sourcePixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
       Arcadia_Media_PixelBuffer_setLinePadding(thread, sourcePixelBuffer, 0);
       components = 3;
     } break;
     case Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8: {
       sourcePixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
       Arcadia_Media_PixelBuffer_setLinePadding(thread, sourcePixelBuffer, 0);
       components = 3;
     } break;
 
     case Arcadia_Media_PixelFormat_BlueGreenRedNatural8: {
       sourcePixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, sourcePixelBuffer, Arcadia_Media_PixelFormat_RedGreenBlueNatural8);
       Arcadia_Media_PixelBuffer_setLinePadding(thread, sourcePixelBuffer, 0);
       components = 3;
     } break;
     case Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8: {
       sourcePixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, sourcePixelBuffer, Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
       Arcadia_Media_PixelBuffer_setLinePadding(thread, sourcePixelBuffer, 0);
       components = 4;
@@ -224,6 +240,8 @@ Arcadia_Imaging_Linux_BMPImageWriter_writeBmpToByteBufferImpl
     Arcadia_Thread_setStatus(thread, context.status);
     Arcadia_Thread_jump(thread);
   }
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
 }
 
 static void

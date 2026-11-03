@@ -1,0 +1,7 @@
+{
+  type: "UI.Label",
+  name: "Controls.Bindings.Sprint.Name",
+  left: 0, bottom: 0, width: 265, height: 24,
+  text: "Action: Sprint", horizontalAlignment: "Left", verticalAlignment: "Center",
+  red: 220, green: 228, blue: 240, alpha: 255, pixelSize: 16,
+}

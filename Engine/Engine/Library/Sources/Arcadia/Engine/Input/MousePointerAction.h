@@ -34,6 +34,8 @@ enum Arcadia_Engine_Input_MousePointerAction {
 
   Arcadia_Engine_Input_MousePointerAction_Moved = 2,
 
+  Arcadia_Engine_Input_MousePointerAction_Scrolled = 3,
+
 };
 
 #endif // ARCADIA_ENGINE_INPUT_MOUSEPOINTERACTION_H_INCLUDED

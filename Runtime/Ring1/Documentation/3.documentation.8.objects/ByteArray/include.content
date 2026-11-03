@@ -1,7 +1,24 @@
 <section class="cxx entity object">
 <h1 id="Arcadia_ByteArray">Arcadia_ByteArray</h1>
 <p><code>Arcadia_ByteArray</code> extends <code>Arcadia_Object</code>.</p>
-<p><code>Arcadia_ByteArray</code> represents a mutable sequence of Bytes.</p>
+<p><code>Arcadia_ByteArray</code> represents a sequence of bytes whose supported operations are described by stable capabilities.</p>
+<p>Every instance reports whether it supports mutation (<code>Arcadia_ByteArray_isMutable</code>),
+resizing (<code>Arcadia_ByteArray_isResizable</code>) and contiguous storage
+(<code>Arcadia_ByteArray_isContiguous</code>). These properties do not change during
+an instance's lifetime. They are independent of memory ownership.</p>
+<p>The common <code>Arcadia_ByteArray_setAt</code> and
+<code>Arcadia_ByteArray_resize</code> operations raise
+<code>Arcadia_Status_OperationInvalid</code> when unsupported, before validating
+an index or requested size. Invalid indexes of supporting implementations
+must raise <code>Arcadia_Status_ArgumentValueInvalid</code>.</p>
+<p>The existing <code>RuntimeByteArray</code> wrapper and legacy slice views
+are immutable, fixed-size and contiguous. A slice retains its backing object;
+its bounds are validated without arithmetic overflow. Slices remain read-only
+in this initial capability-dispatch phase.</p>
+<p>Native <code>getBytes</code> pointers are borrowed; the caller must keep the
+owning object reachable. Contiguity does not imply pointers remain valid after
+resizing or storage relocation. No raw memory addresses are transported through
+<code>Arcadia.Value</code> or PDL.</p>
 </section>
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -11,3 +28,12 @@
 @{include("./3.documentation.8.objects/ByteArray/getNumberOfBytes.content")}
 @{include("./3.documentation.8.objects/ByteArray/getSize.content")}
 @{include("./3.documentation.8.objects/ByteArray/isEmpty.content")}
+@{include("./3.documentation.8.objects/ByteArray/isMutable.content")}
+@{include("./3.documentation.8.objects/ByteArray/isResizable.content")}
+@{include("./3.documentation.8.objects/ByteArray/isContiguous.content")}
+@{include("./3.documentation.8.objects/ByteArray/setAt.content")}
+@{include("./3.documentation.8.objects/ByteArray/resize.content")}
+@{include("./3.documentation.8.objects/ByteArray/getMutableBytes.content")}
+@{include("./3.documentation.8.objects/ByteArray/slice.content")}
+@{include("./3.documentation.8.objects/ByteArray/createByteArray.content")}
+@{include("./3.documentation.8.objects/ByteArray/factory.content")}

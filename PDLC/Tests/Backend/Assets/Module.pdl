@@ -1,5 +1,83 @@
 module Test
 
+interface Test.Counter {
+  method read : Arcadia.Natural64
+  method write(variable value : Arcadia.Natural64) : Arcadia.Void
+}
+
+// The native provider owns its C header, dispatch layout, wrappers and descriptor.
+native "NativeResources/Counter.h" interface Test.NativeCounter {
+  method read : Arcadia.Natural64
+  method write(variable value : Arcadia.Natural64) : Arcadia.Void
+}
+
+class Test.NativeCounterImpl implements Test.NativeCounter {
+  variable value : Arcadia.Natural64
+  method read : Arcadia.Natural64 {
+    loadField $0 self value
+    return $0
+  }
+  method write(variable value : Arcadia.Natural64) : Arcadia.Void {
+    storeField self value value
+  }
+}
+
+class Test.CounterImpl implements Test.Counter {
+  variable value : Arcadia.Natural64
+  method read : Arcadia.Natural64 {
+    loadField $0 self value
+    return $0
+  }
+  method write(variable value : Arcadia.Natural64) : Arcadia.Void {
+    storeField self value value
+  }
+}
+
+class Test.CounterOverride extends Test.CounterImpl {
+  method read : Arcadia.Natural64 {
+    return 99
+  }
+}
+
+abstract class Test.AbstractCounter implements Test.Counter {
+  method abstract read : Arcadia.Natural64
+  method abstract write(variable value : Arcadia.Natural64) : Arcadia.Void
+}
+
+class Test.ConcreteCounter extends Test.AbstractCounter {
+  variable value : Arcadia.Natural64
+  method read : Arcadia.Natural64 {
+    loadField $0 self value
+    return $0
+  }
+  method write(variable value : Arcadia.Natural64) : Arcadia.Void {
+    storeField self value value
+  }
+}
+
+class Test.ClassVirtual {
+  method read : Arcadia.Natural64 {
+    return 17
+  }
+  method write(variable value : Arcadia.Natural64) : Arcadia.Void {}
+}
+
+class Test.ClassVirtualCounter extends Test.ClassVirtual implements Test.Counter {
+  method read : Arcadia.Natural64 {
+    return 18
+  }
+}
+
+interface Test.Resettable {
+  method reset : Arcadia.Void
+}
+
+class Test.ResettableCounter extends Test.CounterImpl implements Test.Counter, Test.Resettable {
+  method reset : Arcadia.Void {
+    invoke $0 write self 0
+  }
+}
+
 abstract class Test.AbstractBase {
   method abstract read : Arcadia.Natural64
   method abstract touch : Arcadia.Void

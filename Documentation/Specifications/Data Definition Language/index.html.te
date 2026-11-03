@@ -32,7 +32,7 @@
     <h1>Data Definition Language</h1>
     <p class="ddl-lead">Write structured data using six composable value types.</p>
 
-    <h2 id="introduction" tabindex="-1">Overview</h2>
+    <h2 id="introduction" tabindex="-1">1 Overview</h2>
     <p>The Arcadia Data Definition Language (DDL) describes structured data for exchange between humans and machines.
     A document is a sequence of Unicode code points describing one value: a Boolean, Number, String, Void, List or Map.
     Lists and maps can contain other values, including nested collections.</p>
@@ -44,7 +44,7 @@
 
     @{include("./reader-guide.i")}
 
-    <h2 id="translation">Translation pipeline</h2>
+    <h2 id="translation">4 Translation pipeline</h2>
     <ol>
       <li><a href="#lexical-translation">Lexical translation</a>: Unicode code points become words (tokens).</li>
       <li><a href="#syntactical-translation">Syntactical translation</a>: whitespace, newlines and comments are discarded;
@@ -58,12 +58,12 @@
     @{include("./semantical-translation.i")}
     @{include("./conformance.i")}
 
-    <h2 id="references">References</h2>
+    <h2 id="references">10 References</h2>
     <ul>
       <li><a href="@{siteAddress}/specifications/common-lexical-translations/index.html">Common Lexical Translations</a>: shared word productions (see DDL-specific conformance notes).</li>
       <li><a href="@{siteAddress}/specifications/mathematical-definitions-notations-and-proofs/index.html">Mathematical Definitions, Notations and Proofs</a>: grammar and list notation.</li>
       <li><a href="@{siteAddress}/specifications/data-definition-language-schema/index.html">DDLS specification</a>: schema constraints.</li>
-      <li>Aho, Sethi and Ullman, <cite>Compilers: Principles, Techniques, and Tools</cite>, first edition, p. 305: syntax-directed translation.</li>
+      <li id="reference-aho">Aho, Sethi and Ullman, <cite>Compilers: Principles, Techniques, and Tools</cite>, first edition, p. 305: syntax-directed translation.</li>
     </ul>
 
   </div>

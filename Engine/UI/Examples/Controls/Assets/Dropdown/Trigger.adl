@@ -1,0 +1,16 @@
+{
+  type : "UI.Button",
+  name : "Controls.Dropdown.Trigger",
+  left : 0,
+  bottom : 0,
+  width : 240,
+  height : 40,
+  text : "Quality (open menu)",
+  horizontalAlignment : "Center",
+  verticalAlignment : "Center",
+  backgroundColor : "Button.Primary.Color.Normal",
+  hoveredBackgroundColor : "Button.Primary.Color.Hovered",
+  pressedBackgroundColor : "Button.Primary.Color.Pressed",
+  disabledBackgroundColor : "Button.Primary.Color.Disabled",
+  focusedBackgroundColor : "Button.Primary.Color.Focused",
+}

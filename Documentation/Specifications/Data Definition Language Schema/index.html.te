@@ -29,6 +29,7 @@
             <li><a href="#choice-type">3.3 Choice type</a></li>
             <li><a href="#list-type">3.4 List type</a></li>
             <li><a href="#map-type">3.5 Map type</a></li>
+            <li><a href="#map-entry">3.5.1 Map entry</a></li>
             <li><a href="#number-type">3.6 Number type</a></li>
             <li><a href="#schema-type">3.7 Schema type</a></li>
             <li><a href="#ddls-schema-reference-type">3.8 Schema reference type</a></li>

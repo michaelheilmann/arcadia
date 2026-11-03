@@ -171,4 +171,45 @@ Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_multiplyScalar
     @{scalarType} s
   );
 
+/// @@brief Copy all vector elements into a caller-owned C array.
+/// @@param thread A pointer to this thread.
+/// @@param self The vector to read.
+/// @@param values An output array of at least @{dimensionality} elements.
+/// @@remarks The output does not reference or retain managed storage.
+/// The output may alias self->elements.
+void
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_copyValues
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self,
+    @{scalarType}* values
+  );
+
+/// @@brief Multiply this vector component-wise by another vector.
+/// @@param thread A pointer to this thread.
+/// @@param self The vector to update.
+/// @@param other The component-wise factors.
+/// @@remarks self and other may refer to the same object.
+/// @@post Every element of self is the product of its old value and the corresponding element of other.
+void
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_multiplyComponents
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* other
+  );
+
+/// @@brief Normalize this vector, leaving it unchanged when it is zero.
+/// @@param thread A pointer to this thread.
+/// @@param self A pointer to this vector.
+/// @@remarks Unlike normalize, a zero vector is accepted and remains zero.
+/// This is the behavior of the legacy dx_vec3_norm operation.
+/// @@post A nonzero vector is replaced with its unit-length direction.
+void
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_normalizeOrZero
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self
+  );
+
 #endif // ARCADIA_MATH_IMPLEMENTATION_VECTOR@{dimensionality}@{scalarSuffixUppercase}_H_INCLUDED

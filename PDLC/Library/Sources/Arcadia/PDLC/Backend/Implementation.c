@@ -399,6 +399,8 @@ onWriteSymbolInfo
     if (symbolInfo->symbol->completer) {
       Arcadia_PDLC_Completer_complete(thread, symbolInfo->symbol->completer, context, symbolInfo->symbol);
     }
+    Arcadia_PDLC_InterfaceSymbol* interface = (Arcadia_PDLC_InterfaceSymbol*)symbolInfo->symbol;
+    if (interface->ast && interface->ast->isNative) return;
 
     Arcadia_FilePath* filePath;
 

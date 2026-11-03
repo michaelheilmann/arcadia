@@ -18,10 +18,16 @@
 #define ARCADIA_ADL_DEFINITIONS_UI_CANVASDEFINITION_H_INCLUDED
 
 #if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
-  #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
+  #error("do not include `Arcadia/ADL/Definitions/UI/CanvasDefinition.h` directly, include `Arcadia/ADL/Include.h` instead")
 #endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/ADL/Definition.h"
-#include "Arcadia/Collections/Include.h"
+#include "Arcadia/ADL/Definitions/UI/ContainerDefinition.h"
+
+typedef struct Arcadia_ADL_Definitions Arcadia_ADL_Definitions;
+typedef struct Arcadia_ADL_UI_CanvasDefinition Arcadia_ADL_UI_CanvasDefinition;
+typedef struct Arcadia_List Arcadia_List;
 
 Arcadia_declareObjectType(u8"Arcadia.ADL.UI.CanvasDefinition", Arcadia_ADL_UI_CanvasDefinition,
                           u8"Arcadia.ADL.Definition");
@@ -36,6 +42,13 @@ struct Arcadia_ADL_UI_CanvasDefinition {
   Arcadia_Integer32Value height;
   Arcadia_List* childReferences;
 };
+
+Arcadia_List*
+Arcadia_ADL_UI_CanvasDefinition_getChildReferences
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_UI_CanvasDefinition* self
+  );
 
 Arcadia_ADL_UI_CanvasDefinition*
 Arcadia_ADL_UI_CanvasDefinition_create

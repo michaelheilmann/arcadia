@@ -1,0 +1,38 @@
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_isResizable">Arcadia_ByteArray_isResizable</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_ByteArray_isResizable<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Determines whether this byte array supports changing its logical size.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray const* self</code></div>
+      <div>A pointer to this byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p><code>Arcadia_BooleanValue_True</code> if this instance supports <code>resize</code>; <code>Arcadia_BooleanValue_False</code> otherwise.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The result is stable throughout this instance's lifetime. Resizability is independent of mutability and contiguity. A fixed-size array rejects <code>resize</code> even when the requested size equals its current size.</p>
+  </section>
+
+</section>

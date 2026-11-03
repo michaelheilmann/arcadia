@@ -74,6 +74,21 @@ struct Arcadia_Engine_Visuals_ViewportNodeDispatch {
       Arcadia_BooleanValue clearDepthBuffer
     );
 
+  Arcadia_BooleanValue
+  (*getDepthTestEnabled)
+    (
+      Arcadia_Thread* thread,
+      Arcadia_Engine_Visuals_ViewportNode* self
+    );
+
+  void
+  (*setDepthTestEnabled)
+    (
+      Arcadia_Thread* thread,
+      Arcadia_Engine_Visuals_ViewportNode* self,
+      Arcadia_BooleanValue enabled
+    );
+
   Arcadia_Real32Value
   (*getClearDepth)
     (
@@ -148,6 +163,8 @@ struct Arcadia_Engine_Visuals_ViewportNode {
   Arcadia_BooleanValue clearDepthBuffer;
   // Default is 1.
   Arcadia_Real32Value clearDepth;
+  // Whether fragments are depth tested. Independent of clearing. Default is true.
+  Arcadia_BooleanValue depthTestEnabled;
 
   struct {
     // Default is 0.
@@ -230,6 +247,23 @@ Arcadia_Engine_Visuals_ViewportNode_setClearDepthBuffer
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_ViewportNode* self,
     Arcadia_BooleanValue clearDepthBuffer
+  );
+
+/// Whether depth testing is enabled. Default is true.
+Arcadia_BooleanValue
+Arcadia_Engine_Visuals_ViewportNode_getDepthTestEnabled
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_ViewportNode* self
+  );
+
+/// Enable or disable depth testing independently of depth buffer clearing.
+void
+Arcadia_Engine_Visuals_ViewportNode_setDepthTestEnabled
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_ViewportNode* self,
+    Arcadia_BooleanValue enabled
   );
 
 Arcadia_Real32Value

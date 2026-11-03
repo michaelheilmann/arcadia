@@ -39,8 +39,8 @@ struct Arcadia_Media_VertexBuffer {
   Arcadia_Media_VertexDescriptor* vertexDescriptor;
   /// The number of vertices in this vertex buffer.
   Arcadia_SizeValue numberOfVertices;
-  /// Pointers to the data of the vertices of this vertex buffer.
-  void* vertices;
+  /// Fixed-size mutable contiguous ByteArray owning all vertex storage.
+  Arcadia_ByteArray* vertexBytes;
 };
 
 /// @brief Create a vertex buffer.
@@ -70,17 +70,45 @@ Arcadia_Media_VertexBuffer_getVertexDescriptor
     Arcadia_Media_VertexBuffer* self
   );
 
-/// @brief Get the vertex data of this vertex buffer.
-/// @details The vertex data is mutable, hence a caller that obtains it must be prepared to have the vertices of this
-///          vertex buffer changed, and should not share the pointer beyond the lifetime of this vertex buffer.
-/// @param thread A pointer to this thread.
-/// @param self A pointer to this vertex buffer.
-/// @return A pointer to the vertex data.
-void*
-Arcadia_Media_VertexBuffer_getVertices
+/// @brief Return the fixed-size, mutable, contiguous ByteArray holding vertex data.
+/// @details The returned ByteArray belongs to the VertexBuffer. Callers must keep
+///          the owning VertexBuffer reachable and must not resize its storage.
+///          Its size equals the vertex stride multiplied by the vertex count.
+///          Native C callers may borrow its bytes for bulk rendering operations.
+Arcadia_ByteArray*
+Arcadia_Media_VertexBuffer_getVertexBytes
   (
     Arcadia_Thread* thread,
     Arcadia_Media_VertexBuffer* self
+  );
+
+/// @brief Obtain the authoritative byte length without repeating stride multiplication.
+Arcadia_SizeValue
+Arcadia_Media_VertexBuffer_getNumberOfBytes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexBuffer* self
+  );
+
+/// @brief Create an independent mutable vertex-data copy, sharing the descriptor.
+/// @details The returned buffer owns its own fixed-size contiguous ByteArray.
+Arcadia_Media_VertexBuffer*
+Arcadia_Media_VertexBuffer_copy
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexBuffer* source
+  );
+
+/// @brief Copy the entire vertex span into another existing VertexBuffer.
+/// @details Both buffers must have the same descriptor object and vertex count.
+///          On validation failure, no bytes are written. Self-copy is a no-op.
+///          Source and destination retain their independent native allocations.
+void
+Arcadia_Media_VertexBuffer_copyInto
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexBuffer* target,
+    Arcadia_Media_VertexBuffer* source
   );
 
 #endif // ARCADIA_MEDIA_VERTEXBUFFER_H_INCLUDED

@@ -60,7 +60,7 @@
     <tr>
       <td><code>Arcadia.Engine.UI.Activatable</code></td>
       <td>Exposes a primary action independent of whether it was triggered by pointer, keyboard, or controller.</td>
-      <td>Buttons, toggles, tab buttons, dropdown entries, segmented choice segments.</td>
+      <td>Buttons, toggles, ordinary buttons used as tab headers, dropdown entries, segmented choice segments.</td>
     </tr>
     <tr>
       <td><code>Arcadia.Engine.UI.ValueControl</code></td>
@@ -82,7 +82,62 @@
 
 <p>
   The first required options-screen controls should be built by combining these interfaces: button,
-  toggle, slider, dropdown or segmented choice, tab button, scroll panel, key binding row, and warning
-  label. Confirmation dialogs and preview panels should reuse the same contracts later.
+  toggle, slider, dropdown or segmented choice, ordinary buttons composed into a tab bar, scroll panel,
+  key binding row, and warning label. Confirmation dialogs and preview panels reuse the same contracts.
+</p>
+
+<h3>Tab behavior in ADL</h3>
+<p>
+  Use <code>UI.Panel</code> with <code>layout.type: "UI.StackLayout"</code> and an ordered
+  <code>children</code> list of ordinary <code>UI.Button</code> definitions. Add the optional
+  panel field <code>behavior: "TabBar"</code> to enable exclusive selection; if omitted,
+  the panel retains normal layout-only semantics. <code>selectedChild</code> optionally names
+  one direct child button to select initially; without it, no button starts selected.
+  An unknown behavior, a selected child without tab behavior, a missing selected name,
+  or a non-button child is invalid.
+</p>
+<p>
+  Tabs are selected through the existing button activation and the tab bar's selection signal.
+  Focus does not itself select a tab. Left/Right change selection in horizontal bars;
+  Up/Down do so in vertical bars. The bar owns tab headers only, not the application content.
+  No <code>UI.TabButton</code> definition is required.
+</p>
+<h3>Composable dropdowns in ADL</h3>
+<p>
+  A single-choice dropdown combines an ordinary <code>UI.Button</code> anchor, an
+  <code>UI.ScrollPanel</code> popup, and ordinary <code>UI.Button</code> option children.
+  <code>Arcadia.Engine.UI.DropdownController</code> connects their activation signals
+  and owns committed selection, independent of the popup's transient keyboard highlight.
+  Use unique option button names as stable selected values; the option text is its display label.
+  No specialized <code>UI.Dropdown</code> or <code>UI.DropdownOption</code> schema is necessary.
+</p>
+<h3>Input bindings and warning/status messages</h3>
+<p>
+  Use a normal <code>UI.Panel</code> containing <code>UI.Label</code> for the action name,
+  current binding and status, and ordinary <code>UI.Button</code> controls for Edit and Reset.
+  <code>Arcadia.Engine.UI.BindingRowController</code> connects the buttons to the shared
+  <code>InputBindingService</code>. Action names and actual binding values belong to the
+  runtime service, not to the ADL schema; unknown action IDs are rejected by the controller.
+  The Controls gallery declares two such rows, Jump and Sprint, using the existing
+  <code>UI.Panel</code>/<code>UI.StackLayout</code>/<code>UI.Button</code>/<code>UI.Label</code> types.
+  There is no specialized KeyBindingRowNode or new reader schema.
+</p>
+<p>
+  <code>Arcadia.Engine.UI.StatusLabel_set</code> styles a normal label for information,
+  success, warning or error. Status text MUST provide a non-color cue such as
+  <code>Conflict:</code> or <code>Invalid:</code>; the label colors are supplementary.
+  A null status hides the label text. Captures are modal: click Edit, press a new key
+  or mouse button, Escape to cancel, and Reset for the application's default binding.
+  Bindings shown in the example are session-only; persistence belongs to the application.
+</p>
+<p>
+  <code>UI.ScrollPanel</code> requires <code>left</code>, <code>bottom</code>,
+  <code>width</code>, <code>height</code>, <code>contentWidth</code>,
+  <code>contentHeight</code> and a <code>children</code> array. Content dimensions
+  must not be smaller than the viewport. Unknown or incorrectly typed fields are rejected.
+  The popup is installed through the canvas overlay API, not as a regular canvas child:
+  this provides topmost rendering, Escape/outside-click dismissal, wheel scrolling,
+  viewport-constrained positioning and focus restoration. Up/Down navigate enabled options;
+  Enter/Space commits. The controller's selection signal fires only on value changes.
 </p>
 @{include("footer.i")}

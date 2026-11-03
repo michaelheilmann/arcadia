@@ -19,6 +19,8 @@
 #include "Arcadia/Audials/Implementation/OpenAL/BackendContext.h"
 #include "Arcadia/Media/Include.h"
 #include <assert.h>
+#include <limits.h>
+#include <stdint.h>
 
 #define DataDirty (1)
 #define IsLoopingDirty (2)
@@ -292,9 +294,23 @@ Arcadia_Engine_Audials_Implementation_OpenAL_SoundSourceResource_loadImpl
         Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
         Arcadia_Thread_jump(thread);
       }
-      alBufferData(self->alBufferID, AL_FORMAT_MONO16, self->sampleBuffer->bytes,
-                                                       self->sampleBuffer->length * self->sampleBuffer->sampleRate * Arcadia_Media_SampleFormat_getNumberOfBytes(thread, self->sampleBuffer->sampleFormat),
-                                                       self->sampleBuffer->sampleRate);
+      Arcadia_Integer32Value length = self->sampleBuffer->length;
+      Arcadia_Integer32Value rate = self->sampleBuffer->sampleRate;
+      if (length < 0 || rate <= 0) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+        Arcadia_Thread_jump(thread);
+      }
+      Arcadia_SizeValue high, samples, bytes;
+      if (!Arcadia_safeMultiplySizeValue(thread, (Arcadia_SizeValue)length,
+                                        (Arcadia_SizeValue)rate, &high, &samples) ||
+          !Arcadia_safeMultiplySizeValue(thread, samples, sizeof(Arcadia_Integer16Value),
+                                        &high, &bytes) ||
+          bytes > (Arcadia_SizeValue)INT_MAX) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+        Arcadia_Thread_jump(thread);
+      }
+      ALsizei byteCount = (ALsizei)bytes;
+      alBufferData(self->alBufferID, AL_FORMAT_MONO16, self->sampleBuffer->bytes, byteCount, (ALsizei)rate);
       alSourcei(self->alSourceID, AL_BUFFER, self->alBufferID);
       if (alGetError()) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);

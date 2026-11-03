@@ -226,40 +226,40 @@ body.my-content-page-1.specification {
         <summary>On this page</summary>
         <nav aria-label="On this page">
           <ul>
-  <li><a href="#introduction">Overview</a></li>
-  <li><a href="#first-document">Your first DDL document</a></li>
-  <li><a href="#type-reference">Six-type quick reference</a></li>
-  <li><a href="#translation">Translation pipeline</a></li>
-  <li><a href="#lexical-translation">Lexical translation</a></li>
-  <li><a href="#syntactical-translation">Syntactical translation</a>
+  <li><a href="#introduction">1 Overview</a></li>
+  <li><a href="#first-document">2 Your first DDL document</a></li>
+  <li><a href="#type-reference">3 Six-type quick reference</a></li>
+  <li><a href="#translation">4 Translation pipeline</a></li>
+  <li><a href="#lexical-translation">5 Lexical translation</a></li>
+  <li><a href="#syntactical-translation">6 Syntactical translation</a>
     <ul>
-      <li><a href="#syntax-value">Value</a></li>
-      <li><a href="#syntax-string">String</a></li>
-      <li><a href="#syntax-number">Number</a></li>
-      <li><a href="#syntax-boolean">Boolean</a></li>
-      <li><a href="#syntax-void">Void</a></li>
-      <li><a href="#syntax-map">Map</a></li>
-      <li><a href="#syntax-list">List</a></li>
+      <li><a href="#syntax-value">6.1 Value</a></li>
+      <li><a href="#syntax-string">6.2 String</a></li>
+      <li><a href="#syntax-number">6.3 Number</a></li>
+      <li><a href="#syntax-boolean">6.4 Boolean</a></li>
+      <li><a href="#syntax-void">6.5 Void</a></li>
+      <li><a href="#syntax-map">6.6 Map</a></li>
+      <li><a href="#syntax-list">6.7 List</a></li>
     </ul>
   </li>
-  <li><a href="#semantical-translation">Semantical translation</a>
+  <li><a href="#semantical-translation">7 Semantical translation</a>
     <ul>
-      <li><a href="#semantical-translation-scalar-types">Scalar types</a>
+      <li><a href="#semantical-translation-scalar-types">7.1 Scalar types</a>
         <ul>
-          <li><a href="#type-boolean">Boolean</a></li>
-          <li><a href="#type-number">Number</a></li>
-          <li><a href="#type-string">String</a></li>
-          <li><a href="#type-void">Void</a></li>
+          <li><a href="#type-boolean">7.1.1 Boolean</a></li>
+          <li><a href="#type-number">7.1.2 Number</a></li>
+          <li><a href="#type-string">7.1.3 String</a></li>
+          <li><a href="#type-void">7.1.4 Void</a></li>
         </ul>
       </li>
-      <li><a href="#semantical-translation-list-type">List type</a></li>
-      <li><a href="#semantical-translation-map-type">Map type</a></li>
-      <li><a href="#semantical-translation-value-type">Value type</a></li>
+      <li><a href="#semantical-translation-list-type">7.2 List type</a></li>
+      <li><a href="#semantical-translation-map-type">7.3 Map type</a></li>
+      <li><a href="#semantical-translation-value-type">7.4 Value type</a></li>
     </ul>
   </li>
-  <li><a href="#errors">Errors</a></li>
-  <li><a href="#conformance">Conformance and reader edges</a></li>
-  <li><a href="#references">References</a></li>
+  <li><a href="#errors">8 Errors</a></li>
+  <li><a href="#conformance">9 Conformance and reader edges</a></li>
+  <li><a href="#references">10 References</a></li>
 </ul>
 
         </nav>
@@ -271,7 +271,7 @@ body.my-content-page-1.specification {
     <h1>Data Definition Language</h1>
     <p class="ddl-lead">Write structured data using six composable value types.</p>
 
-    <h2 id="introduction" tabindex="-1">Overview</h2>
+    <h2 id="introduction" tabindex="-1">1 Overview</h2>
     <p>The Arcadia Data Definition Language (DDL) describes structured data for exchange between humans and machines.
     A document is a sequence of Unicode code points describing one value: a Boolean, Number, String, Void, List or Map.
     Lists and maps can contain other values, including nested collections.</p>
@@ -281,7 +281,7 @@ body.my-content-page-1.specification {
     <p class="box">DDL selects specific rules from the shared lexical specification.
     The <a href="#conformance">conformance notes</a> summarize these selections, verified reader boundaries and migration guidance.</p>
 
-    <h2 id="first-document">Your first DDL document</h2>
+    <h2 id="first-document">2 Your first DDL document</h2>
 <p>This fictional Stone Lantern record is a complete DDL document, verified by the
 <code>FirstDocument</code> reader fixture. It is an example of DDL structure, not an ADL asset or a DDLS schema.</p>
 <pre id="first-document-code" tabindex="0" aria-label="Complete Stone Lantern DDL document"><code>{
@@ -296,7 +296,7 @@ body.my-content-page-1.specification {
 <code>note</code> has the value <code>void</code>. The commas before closing brackets are permitted.
 Map names are not quoted strings, and the keywords <code>true</code>, <code>false</code> and <code>void</code> cannot be used as names.</p>
 
-<h2 id="type-reference">Six-type quick reference</h2>
+<h2 id="type-reference">3 Six-type quick reference</h2>
 <p>Examples below are covered by <code>DocumentationContract</code> and the existing semantic fixtures.
 Each invalid example is a complete input, not just a value of a different type.</p>
 <div class="ddl-table specification-scroll" role="region" aria-label="DDL value types" tabindex="0">
@@ -315,7 +315,7 @@ Each invalid example is a complete input, not just a value of a different type.<
 </div>
 
 
-    <h2 id="translation">Translation pipeline</h2>
+    <h2 id="translation">4 Translation pipeline</h2>
     <ol>
       <li><a href="#lexical-translation">Lexical translation</a>: Unicode code points become words (tokens).</li>
       <li><a href="#syntactical-translation">Syntactical translation</a>: whitespace, newlines and comments are discarded;
@@ -324,7 +324,7 @@ Each invalid example is a complete input, not just a value of a different type.<
       duplicate names in a map are rejected.</li>
     </ol>
 
-    <h2 id="lexical-translation">Lexical translation</h2>
+    <h2 id="lexical-translation">5 Lexical translation</h2>
 <p>Lexical translation turns the input sequence of Unicode code points into words (tokens).</p>
 <p>The lexical translation of the <em>Data Definition Language</em> is based on
 <a href="https://michaelheilmann.com/specifications/common-lexical-translations/index.html">Common Lexical Translations</a>.</p>
@@ -381,7 +381,7 @@ The current reader recognizes spaces and tabs, CR, LF and CRLF, <code>//</code> 
 <code>/* ... */</code> block comments. Comments are not nested. Names and keywords are case-sensitive.
 See <a href="#conformance">conformance</a> for DDL-specific selections and reader edge cases.</p>
 
-    <h2 id="syntactical-translation">Syntactical translation</h2>
+    <h2 id="syntactical-translation">6 Syntactical translation</h2>
 <p>The syntactical translation translates a sequence of words provided by the lexical translation into a sentence.</p>
 
 <p>The syntactical grammar consists of</p>
@@ -410,8 +410,8 @@ into a sentence:</p>
 A comma after the top-level value is not allowed. Whitespace and comments may follow that value before end-of-input.
 In the rules below, \(\epsilon\) is the empty sequence.</p>
 
-<h3 id="syntax-value">DDL.Syntactical.Value</h3>
-<p>The sentence \(\text{DDL.Syntactical.Value}\) is defined by</p>
+<h3 id="syntax-value">6.1 DDL.Syntactical.Value</h3>
+<p>The non-terminal \(\text{DDL.Syntactical.Value}\) is defined by</p>
 
 <div class="box">
 <my-formula-box class="align-left">\[\begin{aligned}
@@ -424,34 +424,34 @@ In the rules below, \(\epsilon\) is the empty sequence.</p>
 \end{aligned}\]</my-formula-box>
 </div>
 
-<h3 id="syntax-string">DDL.Syntactical.String</h3>
-<p>The sentence \(\text{DDL.Syntactical.String}\) is defined by</p>
+<h3 id="syntax-string">6.2 DDL.Syntactical.String</h3>
+<p>The non-terminal \(\text{DDL.Syntactical.String}\) is defined by</p>
 <my-formula-box class="align-left">\[\begin{aligned}
 &\text{DDL.Syntactical.String} : \text{Lexical.String}
 \end{aligned}\]</my-formula-box>
 
-<h3 id="syntax-number">DDL.Syntactical.Number</h3>
-<p>The sentence \(\text{DDL.Syntactical.Number}\) is</p>
+<h3 id="syntax-number">6.3 DDL.Syntactical.Number</h3>
+<p>The non-terminal \(\text{DDL.Syntactical.Number}\) is</p>
 <my-formula-box class="align-left">\[\begin{aligned}
 &\text{DDL.Syntactical.Number} : \text{Lexical.Number}
 \end{aligned}\]</my-formula-box>
 
-<h3 id="syntax-boolean">DDL.Syntactical.Boolean</h3>
-<p>The sentence \(\text{DDL.Syntactical.Boolean}\) is</p>
+<h3 id="syntax-boolean">6.4 DDL.Syntactical.Boolean</h3>
+<p>The non-terminal \(\text{DDL.Syntactical.Boolean}\) is</p>
 <my-formula-box class="align-left">\[\begin{aligned}
 &\text{DDL.Syntactical.Boolean} : \text{Lexical.Boolean}
 \end{aligned}\]</my-formula-box>
 
-<h3 id="syntax-void">DDL.Syntactical.Void</h3>
-<p>The sentence \(\text{DDL.Syntactical.Void}\) is</p>
+<h3 id="syntax-void">6.5 DDL.Syntactical.Void</h3>
+<p>The non-terminal \(\text{DDL.Syntactical.Void}\) is</p>
 <my-formula-box class="align-left">\[\begin{aligned}
 &\text{DDL.Syntactical.Void} : \text{Lexical.Void}
 \end{aligned}\]</my-formula-box>
 
-<h3 id="syntax-map">DDL.Syntactical.Map</h3>
+<h3 id="syntax-map">6.6 DDL.Syntactical.Map</h3>
 <p>A map may be empty. Each nonempty entry has a name, a colon and a value; commas separate entries,
 and one trailing comma is allowed. Quoted strings and reserved keywords are not map names.</p>
-<p>The sentence \(\text{DDL.Syntactical.Map}\) is</p>
+<p>The non-terminal \(\text{DDL.Syntactical.Map}\) is</p>
 
 <my-formula-box class="align-left">\[\begin{aligned}
 &\text{DDL.Syntactical.Map} :\text{Lexical.LeftCurlyBracket}\;\text{DDL.Syntactical.MapBody}\;\text{Lexical.RightCurlyBracket}\\
@@ -465,10 +465,10 @@ and one trailing comma is allowed. Quoted strings and reserved keywords are not 
 &\text{DDL.Syntactical.MapBodyElement} : \text{Lexical.Name}\;\text{Lexical.Colon}\;\text{DDL.Syntactical.Value}
 \end{aligned}\]</my-formula-box>
 
-<h3 id="syntax-list">DDL.Syntactical.List</h3>
+<h3 id="syntax-list">6.7 DDL.Syntactical.List</h3>
 <p>A list may be empty. Otherwise commas separate values, with one optional trailing comma.
 A comma alone does not form an empty collection.</p>
-<p>The sentence \(\text{DDL.Syntactical.List}\) is</p>
+<p>The non-terminal \(\text{DDL.Syntactical.List}\) is</p>
 
 <my-formula-box class="align-left">\[\begin{aligned}
 &\text{DDL.Syntactical.List} : \text{Lexical.LeftSquareBracket}\; \text{DDL.Syntactical.ListBody}\; \text{Lexical.RightSquareBracket}\\
@@ -485,10 +485,10 @@ A comma alone does not form an empty collection.</p>
 
 <p>The resulting sentence is consumed by the semantical translation.</p>
 
-    <h2 id="semantical-translation">Semantical translation</h2>
-<p>Semantical translation maps a sentence to a typed value. The <em>Data Definition Language</em> has six basic types:
-   \(\textit{List}\) and \(\textit{Map}\), which are the so called aggregate types, and \(\textit{Boolean}\), \(\textit{Number}\), \(\textit{String}\),      and
-   \(\textit{Void}\), which are the so called scalar types.</p>
+    <h2 id="semantical-translation">7 Semantical translation</h2>
+<p>Semantical translation maps a sentence to a typed value. DDL defines six value types:
+   \(\textit{List}\) and \(\textit{Map}\) are aggregate types; \(\textit{Boolean}\), \(\textit{Number}\), \(\textit{String}\), and
+   \(\textit{Void}\) are scalar types.</p>
 
 <p>The type \(\textit{Value}\) is defined as the union of all the types above.
 \[\begin{aligned}
@@ -503,7 +503,7 @@ A comma alone does not form an empty collection.</p>
 
 <p>
 The translation of a sentence into values is described by syntax-directed translations
-(see <a href="#references">Aho, Sethi and Ullman</a> for background).
+(see <a href="#reference-aho">Aho, Sethi and Ullman</a> for background).
 </p>
 
 <p>At the end of translation, a value form \(x\) has an attribute \(x.\text{value}\) of type \(\textit{Value}\).
@@ -516,10 +516,10 @@ and String nodes store decoded UTF-8 text. The rules below describe the denoted 
 converted to a native numeric or Boolean runtime type. Semantic analysis is an explicit operation;
 <code>DefaultReader_run</code> parses but does not itself invoke duplicate-name checking.</p>
 
-<h3 id="semantical-translation-scalar-types">Scalar types</h3>
+<h3 id="semantical-translation-scalar-types">7.1 Scalar types</h3>
 <p>The scalar rules translate a single word into its denoted value.</p>
 
-<h4 id="type-boolean">Boolean type</h4>
+<h4 id="type-boolean">7.1.1 Boolean type</h4>
 <p>The type \(\textit{Boolean}\) has two values, \(\textit{true}\) and \(\textit{false}\), expressed by
 <code>true</code> and <code>false</code> (\(\text{Lexical.True}\) and \(\text{Lexical.False}\)).
 The older names <code>DDL.Lexical.true</code> and <code>DDL.Lexical.false</code> refer to these same keywords.</p>
@@ -544,7 +544,7 @@ The older names <code>DDL.Lexical.true</code> and <code>DDL.Lexical.false</code>
 </table>
 </div>
 
-<h4 id="type-number">Number type</h4>
+<h4 id="type-number">7.1.2 Number type</h4>
 <p>
 The type \(\textit{Number}\) retains a sequence of code points satisfying \(\text{DDL.Syntactical.Number}\).
 Its representation is textual: for example, <code>01</code> and <code>+1</code> remain distinct spellings.
@@ -576,7 +576,7 @@ introduced by <code>e</code> or <code>E</code> with an optional sign and at leas
 The grammar does not impose a fixed machine-number range, but storage is bounded by implementation resources.
 Conversions performed by consumers have their own range, precision and error behavior; this specification does not promise arbitrary-precision numeric operations.</p>
 
-<h4 id="type-string">String type</h4>
+<h4 id="type-string">7.1.3 String type</h4>
 <p>
 The \(\textit{String}\) type represents decoded text, not its quoted source spelling.
 For example, <code>"\u{41}"</code> denotes the same text as <code>"A"</code>.
@@ -610,7 +610,7 @@ No Unicode normalization is performed. Surrogate-pair escapes are not supported:
 </table>
 </div>
 
-<h4 id="type-void">Void type</h4>
+<h4 id="type-void">7.1.4 Void type</h4>
 <p>
 The type \(\textit{Void}\) has a single value, \(\textit{void}\), expressed by the keyword <code>void</code>.
 </p>
@@ -635,7 +635,7 @@ The type \(\textit{Void}\) has a single value, \(\textit{void}\), expressed by t
 </table>
 </div>
 
-<h3 id="semantical-translation-list-type">List type</h3>
+<h3 id="semantical-translation-list-type">7.2 List type</h3>
 <p>
 The type \(\textit{List}\) represents an ordered list of values of type \(\textit{Value}\).
 A list is expressed by \(\text{DDL.Syntactical.List}\). The rules prepend each element to the translated remainder;
@@ -754,7 +754,7 @@ empty bodies and trailing commas contribute an empty list.
 </code></pre>
 </div>
 
-<h3 id="semantical-translation-map-type">Map type</h3>
+<h3 id="semantical-translation-map-type">7.3 Map type</h3>
 <p>
 The type \(\textit{Map}\) represents an ordered list of entries. Each entry is a pair: a name spelling (\(\textit{Name}\), not a seventh value type)
 and a value of type \(\textit{Value}\). Name comparison is case-sensitive. Names must be unique within each map;
@@ -867,7 +867,7 @@ A value of type \(\textit{Map}\) is expressed in the language by the sentence \(
 </table>
 </div>
 
-<h3 id="semantical-translation-value-type">Value type</h3>
+<h3 id="semantical-translation-value-type">7.4 Value type</h3>
 <p>
 The type \(\textit{Value}\) is the union of the types
 \(\textit{Boolean}\),
@@ -958,7 +958,7 @@ The type \(\textit{Value}\) is the union of the types
 </table>
 </div>
 
-    <h2 id="errors">Errors</h2>
+    <h2 id="errors">8 Errors</h2>
 <p>Failure categories describe where translation stops; they do not prescribe diagnostic wording.</p>
 <dl>
   <dt>Lexical error</dt><dd>The input cannot be read as words: for example <code>+</code>, <code>-</code>, <code>+e2</code>, <code>1e</code>, <code>"\q"</code>,
@@ -971,7 +971,7 @@ The type \(\textit{Value}\) is the union of the types
   Explicit semantic analysis reports <code>SemanticalError</code>; parsing alone does not reject this sentence.</dd>
 </dl>
 
-<h2 id="conformance">Conformance and reader edges</h2>
+<h2 id="conformance">9 Conformance and reader edges</h2>
 <p>The regression fixtures exercise the scanner/parser and explicit semantic analysis separately.
 These observations apply to the current implementation, not to every possible DDL implementation.
 The approved DDL-specific rules and reader boundaries are summarized below.</p>
@@ -1006,12 +1006,12 @@ Braced escapes decode to Unicode scalar values; UTF-16 surrogate-pair escapes an
 The maintained cases are discoverable through the test executable's <code>--list</code> or CTest.</p>
 
 
-    <h2 id="references">References</h2>
+    <h2 id="references">10 References</h2>
     <ul>
       <li><a href="https://michaelheilmann.com/specifications/common-lexical-translations/index.html">Common Lexical Translations</a>: shared word productions (see DDL-specific conformance notes).</li>
       <li><a href="https://michaelheilmann.com/specifications/mathematical-definitions-notations-and-proofs/index.html">Mathematical Definitions, Notations and Proofs</a>: grammar and list notation.</li>
       <li><a href="https://michaelheilmann.com/specifications/data-definition-language-schema/index.html">DDLS specification</a>: schema constraints.</li>
-      <li>Aho, Sethi and Ullman, <cite>Compilers: Principles, Techniques, and Tools</cite>, first edition, p. 305: syntax-directed translation.</li>
+      <li id="reference-aho">Aho, Sethi and Ullman, <cite>Compilers: Principles, Techniques, and Tools</cite>, first edition, p. 305: syntax-directed translation.</li>
     </ul>
 
   </div>
@@ -1034,7 +1034,7 @@ The maintained cases are discoverable through the test executable's <code>--list
     <div class="center-column"></div>
     <div class="right-column">
       <div>Website maintained by Michael Heilmann.</div>
-      <div>Last modified on 3 November 2026.</div>
+      <div>Last modified on 12 November 2026.</div>
     </div>
   </footer>
 </body>

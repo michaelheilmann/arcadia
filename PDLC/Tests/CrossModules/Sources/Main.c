@@ -18,6 +18,8 @@
 
 #include "Example/B/Include.h"
 
+_Static_assert(sizeof(Example_B_ProviderDispatch) == sizeof(Arcadia_ObjectDispatch), "foreign interface operation is not a class slot");
+
 #if !defined(EXAMPLE_A_TYPES_FLAVOR_H_INCLUDED) || defined(EXAMPLE_A_FLAVOR_H_INCLUDED)
 #error "Foreign mapped enum guards must follow the header path"
 #endif
@@ -53,6 +55,11 @@ test
   Arcadia_Tests_assertTrue(thread, holder->flavor == Example_A_Flavor_High && Example_B_Holder_getStamp(thread, holder) == Arcadia_Natural64Value_Maximum);
   Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, (void*)holder->value, _Example_A_Base_getType(thread)));
   Arcadia_Tests_assertTrue(thread, _Example_B_Child_getType(thread) && _Example_A_Root_getType(thread));
+  Arcadia_ValueStack_popValues(thread, 1);
+  Example_B_Provider* provider = Example_B_Provider_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, provider);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)provider, _Example_A_Root_getType(thread)));
+  Arcadia_Tests_assertTrue(thread, Example_A_Root_getValue(thread, (Arcadia_Object*)provider) == 87);
   Arcadia_ValueStack_popValues(thread, 1);
   Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
 }

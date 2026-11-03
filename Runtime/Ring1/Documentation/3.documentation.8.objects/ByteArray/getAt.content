@@ -24,7 +24,7 @@
       <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
     </div>
     <div>
-      <div>Arcadia_ByteArray* self</div>
+      <div>Arcadia_ByteArray const* self</div>
       <div>A pointer to this Byte array.</div>
     </div>
     <div>

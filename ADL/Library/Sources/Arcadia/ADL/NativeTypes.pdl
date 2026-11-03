@@ -21,6 +21,12 @@ native "Arcadia/ADL/Definition.h" class Arcadia.ADL.Definition extends Arcadia.O
   constructor(variable definitions : Arcadia.ADL.Definitions, variable name : Arcadia.String)
   method native "Arcadia_ADL_Definition_link" link() : Arcadia.Void
 }
+// The native interface owns its descriptor, dispatch, wrappers and child-reference
+// insertion. This signature is the dispatch slot, not addChildReference's helper.
+native "Arcadia/ADL/Definitions/UI/ContainerDefinition.h" interface Arcadia.ADL.UI.ContainerDefinition {
+  method getChildReferences : Arcadia.List
+}
+native "Arcadia/ADL/Reference.h" class Arcadia.ADL.Reference extends Arcadia.Object {}
 native "Arcadia/ADL/Include.h" class Arcadia.ADL.PixelBufferOperations.FillOperationDefinition extends Arcadia.ADL.Definition {}
 native "Arcadia/ADL/Include.h" class Arcadia.ADL.PixelBufferOperations.CheckerboardFillOperationDefinition extends Arcadia.ADL.Definition {}
 native "Arcadia/ADL/Include.h" class Arcadia.ADL.SampleBufferDefinition extends Arcadia.ADL.Definition {}

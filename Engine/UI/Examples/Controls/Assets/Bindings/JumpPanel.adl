@@ -1,0 +1,10 @@
+{
+  type: "UI.Panel",
+  name: "Controls.Bindings.Jump.Panel",
+  left: 0, bottom: 0, width: 275, height: 164,
+  sizePolicy: "Fixed",
+  children: [ "Controls.Bindings.Jump.Name", "Controls.Bindings.Jump.Value", "Controls.Bindings.Jump.Edit",
+              "Controls.Bindings.Jump.Reset", "Controls.Bindings.Jump.Status" ],
+  layout: { type: "UI.StackLayout", orientation: "Vertical", gap: 4,
+            mainAlignment: "Center", crossAlignment: "Center" },
+}

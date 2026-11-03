@@ -12,8 +12,9 @@ The definition of a rectangular user-interface button.
 <p>
 The type name of the definition, used as the <code>type</code> entry of an ADL
 asset, is <code>"UI.Button"</code>. The definition stores the button rectangle,
-alignment strings, and background color. It holds no references and therefore
-links trivially.
+alignment strings, and five Color references. Named references are resolved
+and type-checked during linking. Inline Color definitions are retained directly
+by their containing button; omitted optional state colors reuse its normal Color.
 </p>
 </my-remarks>
 
@@ -34,9 +35,16 @@ Arcadia_ADL_UI_ButtonDefinition* Arcadia_ADL_UI_ButtonDefinition_create
 &nbsp;&nbsp;&nbsp;Arcadia_String* text,
 &nbsp;&nbsp;&nbsp;Arcadia_String* horizontalAlignment,
 &nbsp;&nbsp;&nbsp;Arcadia_String* verticalAlignment,
-&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value backgroundRed,
-&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value backgroundGreen,
-&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value backgroundBlue)
+&nbsp;&nbsp;&nbsp;Arcadia_String* backgroundColor,
+&nbsp;&nbsp;&nbsp;Arcadia_String* hoveredBackgroundColor,
+&nbsp;&nbsp;&nbsp;Arcadia_String* pressedBackgroundColor,
+&nbsp;&nbsp;&nbsp;Arcadia_String* disabledBackgroundColor,
+&nbsp;&nbsp;&nbsp;Arcadia_String* focusedBackgroundColor,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural32Value pixelSize,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural32Value borderWidth,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value borderRed,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value borderGreen,
+&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value borderBlue)
 </code></my-signature>
 
 <my-summary>
@@ -86,16 +94,44 @@ Create the definition of a user-interface button.
   <div>The vertical alignment string.</div>
 </div>
 <div>
-  <div>backgroundRed</div>
-  <div>The red component of the button background.</div>
+  <div>backgroundColor</div>
+  <div>Required name of the normal background Color definition (C factory interface).</div>
 </div>
 <div>
-  <div>backgroundGreen</div>
-  <div>The green component of the button background.</div>
+  <div>hoveredBackgroundColor</div>
+  <div>Optional name of the hovered Color definition.</div>
 </div>
 <div>
-  <div>backgroundBlue</div>
-  <div>The blue component of the button background.</div>
+  <div>pressedBackgroundColor</div>
+  <div>Optional name of the pressed Color definition.</div>
+</div>
+<div>
+  <div>disabledBackgroundColor</div>
+  <div>Optional name of the disabled Color definition.</div>
+</div>
+<div>
+  <div>focusedBackgroundColor</div>
+  <div>Optional name of the focused Color definition.</div>
+</div>
+<div>
+  <div>pixelSize</div>
+  <div>The text size in pixels.</div>
+</div>
+<div>
+  <div>borderWidth</div>
+  <div>The border width in pixels.</div>
+</div>
+<div>
+  <div>borderRed</div>
+  <div>The red border component.</div>
+</div>
+<div>
+  <div>borderGreen</div>
+  <div>The green border component.</div>
+</div>
+<div>
+  <div>borderBlue</div>
+  <div>The blue border component.</div>
 </div>
 </section>
 

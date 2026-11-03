@@ -17,9 +17,45 @@
 #define ARCADIA_RING1_MODULE (1)
 #include "Arcadia/Ring1/Objects/ByteArray.h"
 
-#include "Arcadia/Ring1/Objects/ByteArrayDefaultImpl.h"
-#include "Arcadia/Ring1/Objects/ByteArraySliceImpl.h"
+#include "Arcadia/Ring1/Objects/ByteArrayFactory.h"
 #include "Arcadia/Ring1/Include.h"
+
+// Default legacy ByteArray implementations are immutable, fixed and contiguous.
+// Writable and growable implementations must override the relevant callbacks.
+static Arcadia_BooleanValue
+Arcadia_ByteArray_isMutableImpl(Arcadia_Thread* thread, Arcadia_ByteArray const* self)
+{ return Arcadia_BooleanValue_False; }
+
+static Arcadia_BooleanValue
+Arcadia_ByteArray_isResizableImpl(Arcadia_Thread* thread, Arcadia_ByteArray const* self)
+{ return Arcadia_BooleanValue_False; }
+
+static Arcadia_BooleanValue
+Arcadia_ByteArray_isContiguousImpl(Arcadia_Thread* thread, Arcadia_ByteArray const* self)
+{ return Arcadia_BooleanValue_True; }
+
+static Arcadia_Natural8Value*
+Arcadia_ByteArray_getMutableBytesImpl(Arcadia_Thread* thread, Arcadia_ByteArray* self)
+{
+  Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
+  Arcadia_Thread_jump(thread);
+}
+
+static void
+Arcadia_ByteArray_setAtImpl(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                            Arcadia_SizeValue index, Arcadia_Natural8Value value)
+{
+  Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
+  Arcadia_Thread_jump(thread);
+}
+
+static void
+Arcadia_ByteArray_resizeImpl(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                             Arcadia_SizeValue size)
+{
+  Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
+  Arcadia_Thread_jump(thread);
+}
 
 static void
 Arcadia_ByteArray_constructImpl
@@ -83,7 +119,14 @@ Arcadia_ByteArray_initializeDispatchImpl
     Arcadia_Thread* thread,
     Arcadia_ByteArrayDispatch* self
   )
-{/*Intentionally empty.*/}
+{
+  self->isMutable = &Arcadia_ByteArray_isMutableImpl;
+  self->isResizable = &Arcadia_ByteArray_isResizableImpl;
+  self->isContiguous = &Arcadia_ByteArray_isContiguousImpl;
+  self->getMutableBytes = &Arcadia_ByteArray_getMutableBytesImpl;
+  self->setAt = &Arcadia_ByteArray_setAtImpl;
+  self->resize = &Arcadia_ByteArray_resizeImpl;
+}
 
 static void
 Arcadia_ByteArray_destruct
@@ -110,6 +153,14 @@ Arcadia_ByteArray_getBytes
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_ByteArray, getBytes, self); }
 
+Arcadia_Natural8Value*
+Arcadia_ByteArray_getMutableBytes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_ByteArray, getMutableBytes, self); }
+
 Arcadia_SizeValue
 Arcadia_ByteArray_getNumberOfBytes
   (
@@ -134,6 +185,28 @@ Arcadia_ByteArray_isEmpty
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_ByteArray, isEmpty, self); }
 
+Arcadia_BooleanValue
+Arcadia_ByteArray_isMutable(Arcadia_Thread* thread, Arcadia_ByteArray const* self)
+{ Arcadia_VirtualCallWithReturn(Arcadia_ByteArray, isMutable, self); }
+
+Arcadia_BooleanValue
+Arcadia_ByteArray_isResizable(Arcadia_Thread* thread, Arcadia_ByteArray const* self)
+{ Arcadia_VirtualCallWithReturn(Arcadia_ByteArray, isResizable, self); }
+
+Arcadia_BooleanValue
+Arcadia_ByteArray_isContiguous(Arcadia_Thread* thread, Arcadia_ByteArray const* self)
+{ Arcadia_VirtualCallWithReturn(Arcadia_ByteArray, isContiguous, self); }
+
+void
+Arcadia_ByteArray_setAt(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                        Arcadia_SizeValue index, Arcadia_Natural8Value value)
+{ Arcadia_VirtualCall(Arcadia_ByteArray, setAt, self, index, value); }
+
+void
+Arcadia_ByteArray_resize(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                        Arcadia_SizeValue size)
+{ Arcadia_VirtualCall(Arcadia_ByteArray, resize, self, size); }
+
 Arcadia_ByteArray*
 Arcadia_ByteArray_slice
   (
@@ -142,7 +215,7 @@ Arcadia_ByteArray_slice
     Arcadia_SizeValue start,
     Arcadia_SizeValue size
   )
-{ return (Arcadia_ByteArray*)Arcadia_ByteArraySliceImpl_create(thread, self, start, size); }
+{ return Arcadia_ByteArrayFactory_createSlice(thread, self, start, size); }
 
 Arcadia_ByteArray*
 Arcadia_ByteArray_createByteArray
@@ -150,5 +223,5 @@ Arcadia_ByteArray_createByteArray
     Arcadia_Thread* thread,
     Arcadia_RuntimeByteArray* runtimeByteArray
   )
-{ return (Arcadia_ByteArray*)Arcadia_ByteArrayDefaultImpl_create(thread, runtimeByteArray); }
+{ return Arcadia_ByteArrayFactory_createImmutable(thread, runtimeByteArray); }
 

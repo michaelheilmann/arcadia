@@ -1,0 +1,5 @@
+native "Owned.h" interface MyModule.NativeInterface {
+  method read : Arcadia.Natural64
+}
+class "Owned.h" MyModule.Generated {
+}

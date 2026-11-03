@@ -371,7 +371,7 @@ updateScrollbarVertices
   )
 {
   Arcadia_Media_VertexBuffer* vertexBuffer = Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->scrollbarMesh);
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   Arcadia_Real32Value left = (Arcadia_Real32Value)(self->scrollX + ((Arcadia_Engine_UI_WidgetNode*)self)->width - 10);
   Arcadia_Real32Value right = (Arcadia_Real32Value)(self->scrollX + ((Arcadia_Engine_UI_WidgetNode*)self)->width - 3);
   Arcadia_Real32Value bottom = (Arcadia_Real32Value)self->scrollY;
@@ -444,16 +444,26 @@ constructImpl
   self->bottom = Arcadia_ValueStack_getInteger32Value(thread, 3);
   self->width = Arcadia_ValueStack_getNatural32Value(thread, 2);
   self->height = Arcadia_ValueStack_getNatural32Value(thread, 1);
-  ((Arcadia_Engine_UI_WidgetNode*)self)->left = self->left;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->bottom = self->bottom;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->width = (Arcadia_Integer32Value)self->width;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->height = (Arcadia_Integer32Value)self->height;
+  Arcadia_Engine_UI_WidgetNode_setInitialBounds
+    (
+      thread,
+      (Arcadia_Engine_UI_WidgetNode*)self,
+      self->left,
+      self->bottom,
+      (Arcadia_Integer32Value)self->width,
+      (Arcadia_Integer32Value)self->height
+    );
   self->contentWidth = (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->width;
   self->contentHeight = (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height;
   self->scrollX = 0;
   self->scrollY = 0;
+  self->wheelRemainderX = 0;
+  self->wheelRemainderY = 0;
   Arcadia_Engine* engine = Arcadia_Engine_getOrCreate(thread);
   self->viewportNode = Arcadia_Engine_Visuals_NodeFactory_createViewportNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, NULL);
+  // Scroll content and scrollbar are 2D overlays. A private viewport must
+  // not re-enable depth testing after CanvasNode disabled it for the UI.
+  Arcadia_Engine_Visuals_ViewportNode_setDepthTestEnabled(thread, self->viewportNode, Arcadia_BooleanValue_False);
   self->cameraNode = Arcadia_Engine_Visuals_NodeFactory_createCameraNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, NULL);
   self->generatedDefinitions = Arcadia_ADL_Definitions_create(thread);
   self->scrollbarModelResource = NULL;
@@ -750,6 +760,19 @@ handleMousePointerEventImpl
 {
   Arcadia_Engine_UI_ScrollPanelNode* panel = (Arcadia_Engine_UI_ScrollPanelNode*)self;
   Arcadia_Integer32Value y = (Arcadia_Integer32Value)panel->lastCanvasHeight - event->y;
+  if (event->action == Arcadia_Engine_Input_MousePointerAction_Scrolled) {
+    // Wheel input acts on the panel below the pointer; it does not require
+    // keyboard focus and must not change hover or press capture.
+    if (!hitTestImpl(thread, self, event->x, y)) return Arcadia_BooleanValue_False;
+    panel->wheelRemainderX += event->wheelDeltaX;
+    panel->wheelRemainderY += event->wheelDeltaY;
+    Arcadia_Integer32Value stepsX = panel->wheelRemainderX / 120;
+    Arcadia_Integer32Value stepsY = panel->wheelRemainderY / 120;
+    panel->wheelRemainderX -= stepsX * 120;
+    panel->wheelRemainderY -= stepsY * 120;
+    if (stepsX || stepsY) Arcadia_Engine_UI_Scrollable_scrollBy(thread, self, stepsX * 24, stepsY * 24);
+    return Arcadia_BooleanValue_True;
+  }
   if (panel->draggingScrollbar && event->action == Arcadia_Engine_Input_MousePointerAction_Moved) {
     scrollToScrollbarThumbOffset(thread, panel, y - ((Arcadia_Engine_UI_WidgetNode*)panel)->bottom - panel->scrollbarDragOffset);
     return Arcadia_BooleanValue_True;
@@ -762,13 +785,29 @@ handleMousePointerEventImpl
   panel->hoveredChild = child;
   Arcadia_Object* receiver = panel->pressedChild ? panel->pressedChild : child;
   if (receiver && hasInterface(thread, receiver, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_PointerInput_getType(thread))) {
-    return
-    Arcadia_Engine_UI_PointerInput_handleMousePointerEvent
-      (
-        thread,
-        receiver,
-        event
-      );
+    // Child widgets are positioned in scroll-local canvas coordinates.
+    // Forward a new event rather than mutating the caller's event.
+    Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)panel;
+    Arcadia_Engine_Input_MousePointerEvent* local = Arcadia_Engine_Input_MousePointerEvent_create(thread,
+      ((Arcadia_Engine_Event*)event)->timestamp, event->action,
+      event->x - widget->left + panel->scrollX,
+      event->y + widget->bottom - panel->scrollY);
+    local->wheelDeltaX = event->wheelDeltaX;
+    local->wheelDeltaY = event->wheelDeltaY;
+    Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)local);
+    Arcadia_JumpTarget jump;
+    Arcadia_Thread_pushJumpTarget(thread, &jump);
+    if (Arcadia_JumpTarget_save(&jump)) {
+      Arcadia_BooleanValue handled = Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, receiver, local);
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+      return handled;
+    } else {
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+      Arcadia_Thread_jump(thread);
+    }
   }
   return Arcadia_BooleanValue_False;
 }
@@ -812,13 +851,25 @@ handleMouseButtonEventImpl
     panel->pressedChild = NULL;
   }
   if (receiver && hasInterface(thread, receiver, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_PointerInput_getType(thread))) {
-    return
-    Arcadia_Engine_UI_PointerInput_handleMouseButtonEvent
-      (
-        thread,
-        receiver,
-        event
-      );
+    Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)panel;
+    Arcadia_Engine_Input_MouseButtonEvent* local = Arcadia_Engine_Input_MouseButtonEvent_create(thread,
+      ((Arcadia_Engine_Event*)event)->timestamp, event->action, event->button,
+      event->x - widget->left + panel->scrollX,
+      event->y + widget->bottom - panel->scrollY);
+    Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)local);
+    Arcadia_JumpTarget jump;
+    Arcadia_Thread_pushJumpTarget(thread, &jump);
+    if (Arcadia_JumpTarget_save(&jump)) {
+      Arcadia_BooleanValue handled = Arcadia_Engine_UI_PointerInput_handleMouseButtonEvent(thread, receiver, local);
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+      return handled;
+    } else {
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+      Arcadia_Thread_jump(thread);
+    }
   }
   return Arcadia_BooleanValue_False;
 }

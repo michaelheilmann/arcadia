@@ -264,6 +264,8 @@ updateVisuals0
           (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory,
           (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext
         );
+    // The logo is a 2D quad. The offscreen pass also has no depth attachment.
+    Arcadia_Engine_Visuals_ViewportNode_setDepthTestEnabled(thread, self->viewportNode, Arcadia_BooleanValue_False);
     Arcadia_Engine_Visuals_ViewportNode_setClearColor(thread, self->viewportNode, Arcadia_Math_Color4Real32_create4(thread, d->red / 255.f, d->green / 255.f, d->blue / 255.f, 1.f));
     Arcadia_Engine_Visuals_ViewportNode_setRelativeViewportRectangle(thread, self->viewportNode, 0.f, 0.f, 1.f, 1.f);
   }

@@ -21,6 +21,7 @@
 // WIC library
 #pragma comment (lib, "Windowscodecs.lib")
 
+#include <limits.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
@@ -261,9 +262,13 @@ startup3
   )
 {
   HRESULT hr;
-  //
+  // WIC's dimension, stride and byte-count arguments are 32-bit UINTs.
   size_t sourceWidth = Arcadia_Media_PixelBuffer_getNumberOfColumns(thread, sourcePixelBuffer);
   size_t sourceHeight = Arcadia_Media_PixelBuffer_getNumberOfRows(thread, sourcePixelBuffer);
+  if (sourceWidth > UINT_MAX || sourceHeight > UINT_MAX) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   hr = IWICBitmapFrameEncode_SetSize(self->piBitmapFrame, (UINT)sourceWidth, (UINT)sourceHeight);
   if (FAILED(hr)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
@@ -274,12 +279,16 @@ startup3
   switch (sourcePixelBuffer->pixelFormat) {
     case Arcadia_Media_PixelFormat_AlphaRedGreenBlueNatural8: {
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      // Root the converted pixel storage until the encoder has consumed it.
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8);
       sourcePixelBuffer = pixelBuffer;
       formatGUID = GUID_WICPixelFormat32bppBGRA;
     } break;
     case Arcadia_Media_PixelFormat_AlphaBlueGreenRedNatural8: {
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      // Root the converted pixel storage until the encoder has consumed it.
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8);
       sourcePixelBuffer = pixelBuffer;
       formatGUID = GUID_WICPixelFormat32bppBGRA;
@@ -294,6 +303,8 @@ startup3
       // WIC's native 24bppBGR has the components in the order blue, green, red in memory.
       // A source in the order red, green, blue must therefore be transcoded.
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      // Root the converted pixel storage until the encoder has consumed it.
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_BlueGreenRedNatural8);
       sourcePixelBuffer = pixelBuffer;
       formatGUID = GUID_WICPixelFormat24bppBGR;
@@ -305,6 +316,8 @@ startup3
       // the order red, green, blue, alpha must be transcoded explicitly. Without this,
       // red and blue end up exchanged in the encoded image.
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      // Root the converted pixel storage until the encoder has consumed it.
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8);
       sourcePixelBuffer = pixelBuffer;
       formatGUID = GUID_WICPixelFormat32bppBGRA;
@@ -320,8 +333,21 @@ startup3
     Arcadia_Thread_jump(thread);
   }
   size_t sourceLineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, sourcePixelBuffer);
+  if (sourceLineStride > UINT_MAX ||
+      (sourceHeight && sourceLineStride > UINT_MAX / sourceHeight)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   size_t sourceSizeInPixels = sourceLineStride * sourceHeight;
-  hr = IWICBitmapFrameEncode_WritePixels(self->piBitmapFrame, (UINT)sourceHeight, (UINT)sourceLineStride, (UINT)sourceSizeInPixels, (void*)sourcePixelBuffer->bytes);
+  // The source (or converted clone) is rooted by doWrite for the full WIC call.
+  Arcadia_ByteArray* storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, sourcePixelBuffer);
+  if (Arcadia_ByteArray_getSize(thread, storage) < sourceSizeInPixels) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Natural8Value* pixels = Arcadia_ByteArray_getMutableBytes(thread, storage);
+  hr = IWICBitmapFrameEncode_WritePixels(self->piBitmapFrame, (UINT)sourceHeight,
+                                        (UINT)sourceLineStride, (UINT)sourceSizeInPixels, pixels);
   if (FAILED(hr)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
     Arcadia_Thread_jump(thread);
@@ -454,6 +480,13 @@ Arcadia_Imaging_Windows_WICImageWriterBase_doWrite
     Arcadia_Imaging_ImageWriterParameters* parameters
   )
 {
+  // Keep the writer, source pixels, and destination alive across WIC calls.
+  // startup3 may also push converted PixelBuffer clones onto this frame.
+  // Those roots stay in place until WritePixels/Commit and cleanup complete.
+  Arcadia_SizeValue rootBase = Arcadia_ValueStack_getSize(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)parameters);
   const Module modules[] = {
    { &startupFactory, &shutdownFactory },
    { &startup1, &shutdown1 },
@@ -474,6 +507,7 @@ Arcadia_Imaging_Windows_WICImageWriterBase_doWrite
       while (currentModule > 0) {
         modules[--currentModule].shutdown(thread, self, sourcePixelBuffer, parameters);
       }
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
       Arcadia_Thread_jump(thread);
     }
   }
@@ -481,6 +515,7 @@ Arcadia_Imaging_Windows_WICImageWriterBase_doWrite
   while (currentModule > 0) {
     modules[--currentModule].shutdown(thread, self, sourcePixelBuffer, parameters);
   }
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
 }
 
 void

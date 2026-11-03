@@ -360,7 +360,7 @@ updateVertices
   Arcadia_Real32Value fillRight = left + (right - left) * t;
   Arcadia_Real32Value knobSize = (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height;
   Arcadia_Real32Value knobLeft = fillRight - knobSize * 0.5f;
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh));
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh)));
   writeQuad(vertices, 0, left, trackBottom, right, trackTop, 0.24f, 0.26f, self->focused ? 0.42f : 0.30f);
   writeQuad(vertices, 6, left, trackBottom, fillRight, trackTop, self->hovered ? 0.34f : 0.26f, 0.56f, 0.86f);
   writeQuad(vertices, 12, knobLeft, bottom, knobLeft + knobSize, top, self->pressed ? 0.72f : 0.90f, 0.92f, 0.96f);
@@ -387,10 +387,15 @@ Arcadia_Engine_UI_SliderNode_constructImpl
   self->bottom = Arcadia_ValueStack_getInteger32Value(thread, 7);
   self->width = Arcadia_ValueStack_getNatural32Value(thread, 6);
   self->height = Arcadia_ValueStack_getNatural32Value(thread, 5);
-  ((Arcadia_Engine_UI_WidgetNode*)self)->left = self->left;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->bottom = self->bottom;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->width = (Arcadia_Integer32Value)self->width;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->height = (Arcadia_Integer32Value)self->height;
+  Arcadia_Engine_UI_WidgetNode_setInitialBounds
+    (
+      thread,
+      (Arcadia_Engine_UI_WidgetNode*)self,
+      self->left,
+      self->bottom,
+      (Arcadia_Integer32Value)self->width,
+      (Arcadia_Integer32Value)self->height
+    );
   self->minimum = Arcadia_ValueStack_getReal64Value(thread, 4);
   self->maximum = Arcadia_ValueStack_getReal64Value(thread, 3);
   self->step = Arcadia_ValueStack_getReal64Value(thread, 1);

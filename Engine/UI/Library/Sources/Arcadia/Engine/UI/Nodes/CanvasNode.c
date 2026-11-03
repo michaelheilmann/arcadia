@@ -176,6 +176,16 @@ Arcadia_Engine_UI_CanvasNode_constructImpl
   self->hoveredChild = NULL;
   self->pressedChild = NULL;
   self->focusedChild = NULL;
+  self->popup = NULL;
+  self->focusBeforePopup = NULL;
+  self->consumePopupRelease = Arcadia_BooleanValue_False;
+  self->popupKeyboardOwner = NULL;
+  self->popupKeyboardHandler = NULL;
+  self->captureOwner = NULL;
+  self->captureKeyboardHandler = NULL;
+  self->captureMouseHandler = NULL;
+  self->suppressCaptureKeyRelease = Arcadia_BooleanValue_False;
+  self->suppressCaptureButtonRelease = Arcadia_BooleanValue_False;
   Arcadia_LeaveConstructor(Arcadia_Engine_UI_CanvasNode);
 }
 
@@ -204,6 +214,10 @@ Arcadia_Engine_UI_CanvasNode_visitImpl
   if (self->focusedChild) {
     Arcadia_Object_visit(thread, self->focusedChild);
   }
+  if (self->popup) Arcadia_Object_visit(thread, self->popup);
+  if (self->focusBeforePopup) Arcadia_Object_visit(thread, self->focusBeforePopup);
+  if (self->popupKeyboardOwner) Arcadia_Object_visit(thread, self->popupKeyboardOwner);
+  if (self->captureOwner) Arcadia_Object_visit(thread, self->captureOwner);
 }
 
 static void
@@ -246,6 +260,22 @@ Arcadia_Engine_UI_CanvasNode_initializePointerInputDispatchImpl
   self->handleMouseButtonEvent = &Arcadia_Engine_UI_CanvasNode_handleMouseButtonEventImpl;
 }
 
+static void
+focusChild
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self,
+    Arcadia_Object* child
+  );
+
+static void
+setHovered
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* child,
+    Arcadia_BooleanValue hovered
+  );
+
 static Arcadia_BooleanValue
 hasInterface
   (
@@ -255,6 +285,250 @@ hasInterface
   )
 {
   return NULL != Arcadia_ObjectType_getInterfaceDispatch(thread, (Arcadia_ObjectType*)Arcadia_Object_getType(thread, object), interfaceType);
+}
+
+// An overlay is not in children. Validate its capabilities before replacing
+// an existing popup so an invalid request never destroys a valid overlay.
+static Arcadia_BooleanValue
+hasPopupCapabilities
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* popup
+  )
+{
+  return popup &&
+    Arcadia_Object_isInstanceOf(thread, popup, _Arcadia_Engine_UI_WidgetNode_getType(thread)) &&
+    hasInterface(thread, popup, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_HitTestable_getType(thread)) &&
+    hasInterface(thread, popup, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_Renderable_getType(thread)) &&
+    hasInterface(thread, popup, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_KeyboardInput_getType(thread)) &&
+    hasInterface(thread, popup, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_PointerInput_getType(thread)) &&
+    hasInterface(thread, popup, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_Focusable_getType(thread));
+}
+
+Arcadia_Object*
+Arcadia_Engine_UI_CanvasNode_getPopup
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self
+  )
+{ return self->popup; }
+
+void
+Arcadia_Engine_UI_CanvasNode_setPopupKeyboardHandler
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self,
+    Arcadia_Object* owner,
+    Arcadia_Engine_UI_CanvasPopupKeyboardHandler handler
+  )
+{
+  if (!self->popup || !owner || !handler) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  self->popupKeyboardOwner = owner;
+  self->popupKeyboardHandler = handler;
+}
+
+void
+Arcadia_Engine_UI_CanvasNode_hidePopup
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self
+  )
+{
+  if (!self->popup) return;
+  // Clear owned references first; focus callbacks may reenter and show a new
+  // popup, which must not be overwritten by this closing operation.
+  Arcadia_Object* previous = self->focusBeforePopup;
+  if (previous) Arcadia_ValueStack_pushObjectReferenceValue(thread, previous);
+  else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+  Arcadia_Object* oldPopup = self->popup;
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, oldPopup);
+  self->popup = NULL;
+  self->focusBeforePopup = NULL;
+  self->popupKeyboardOwner = NULL;
+  self->popupKeyboardHandler = NULL;
+  if (self->focusedChild == oldPopup) focusChild(thread, self, previous);
+  Arcadia_ValueStack_popValues(thread, 2);
+}
+
+void
+Arcadia_Engine_UI_CanvasNode_showPopup
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self,
+    Arcadia_Object* popup
+  )
+{
+  if (self->captureOwner) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (!hasPopupCapabilities(thread, popup)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->children); i < n; ++i) {
+    if (Arcadia_List_getObjectReferenceValueAt(thread, self->children, i) == popup) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+      Arcadia_Thread_jump(thread);
+    }
+  }
+  if (self->popup == popup) return;
+  if (self->popup) Arcadia_Engine_UI_CanvasNode_hidePopup(thread, self);
+  self->popup = popup;
+  self->focusBeforePopup = self->focusedChild;
+  if (self->hoveredChild) setHovered(thread, self->hoveredChild, Arcadia_BooleanValue_False);
+  self->hoveredChild = NULL;
+  self->pressedChild = NULL;
+  focusChild(thread, self, popup);
+}
+
+void
+Arcadia_Engine_UI_CanvasNode_beginInputCapture
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self,
+    Arcadia_Object* owner,
+    Arcadia_Engine_UI_CanvasCaptureKeyboardHandler keyboard,
+    Arcadia_Engine_UI_CanvasCaptureMouseHandler mouse
+  )
+{
+  if (!owner || !keyboard || !mouse || self->captureOwner || self->popup || self->consumePopupRelease ||
+      self->suppressCaptureKeyRelease || self->suppressCaptureButtonRelease) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  // Clear old pointer capture but leave normal keyboard focus untouched.
+  self->pressedChild = NULL;
+  self->captureOwner = owner;
+  self->captureKeyboardHandler = keyboard;
+  self->captureMouseHandler = mouse;
+}
+
+void
+Arcadia_Engine_UI_CanvasNode_endInputCapture
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self,
+    Arcadia_Object* owner
+  )
+{
+  if (owner != self->captureOwner) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  self->captureOwner = NULL;
+  self->captureKeyboardHandler = NULL;
+  self->captureMouseHandler = NULL;
+}
+
+void
+Arcadia_Engine_UI_CanvasNode_suppressKeyboardRelease
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self,
+    Arcadia_Engine_Input_KeyboardKey key
+  )
+{
+  self->suppressedCaptureKey = key;
+  self->suppressCaptureKeyRelease = Arcadia_BooleanValue_True;
+}
+
+void
+Arcadia_Engine_UI_CanvasNode_suppressMouseButtonRelease
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self,
+    Arcadia_Natural64Value button
+  )
+{
+  self->suppressedCaptureButton = button;
+  self->suppressCaptureButtonRelease = Arcadia_BooleanValue_True;
+}
+
+// Widget bounds are in the local content coordinate space of their nearest
+// ScrollPanelNode. Descendants of a LayoutPanelNode retain that space. Find
+// the anchor through the actual container tree before placing a canvas-level
+// popup; merely using anchor->left/bottom ignores every enclosing scroll
+// viewport and sends the popup to an unrelated location on the screen.
+static Arcadia_BooleanValue
+findPopupAnchor
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* node,
+    Arcadia_Engine_UI_WidgetNode* anchor,
+    Arcadia_Integer32Value offsetX,
+    Arcadia_Integer32Value offsetY,
+    Arcadia_Integer32Value* canvasX,
+    Arcadia_Integer32Value* canvasY,
+    Arcadia_Natural32Value depth
+  )
+{
+  if (!node || depth > 64) return Arcadia_BooleanValue_False;
+  if (node == (Arcadia_Object*)anchor) {
+    *canvasX = anchor->left + offsetX;
+    *canvasY = anchor->bottom + offsetY;
+    return Arcadia_BooleanValue_True;
+  }
+  if (!hasInterface(thread, node, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_Container_getType(thread)))
+    return Arcadia_BooleanValue_False;
+  if (Arcadia_Object_isInstanceOf(thread, node, _Arcadia_Engine_UI_ScrollPanelNode_getType(thread))) {
+    Arcadia_Engine_UI_ScrollPanelNode* scroll = (Arcadia_Engine_UI_ScrollPanelNode*)node;
+    Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)node;
+    offsetX += widget->left - scroll->scrollX;
+    offsetY += widget->bottom - scroll->scrollY;
+  }
+  Arcadia_Natural64Value count = Arcadia_Engine_UI_Container_getChildCount(thread, node);
+  for (Arcadia_Natural64Value i = 0; i < count; ++i) {
+    Arcadia_Object* child = Arcadia_Engine_UI_Container_getChildAt(thread, node, i);
+    if (findPopupAnchor(thread, child, anchor, offsetX, offsetY, canvasX, canvasY, depth + 1))
+      return Arcadia_BooleanValue_True;
+  }
+  return Arcadia_BooleanValue_False;
+}
+
+void
+Arcadia_Engine_UI_CanvasNode_placePopup
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self,
+    Arcadia_Engine_UI_WidgetNode* anchor,
+    Arcadia_Engine_UI_WidgetNode* popup,
+    Arcadia_Integer32Value requestedWidth,
+    Arcadia_Integer32Value requestedHeight
+  )
+{
+  if (!anchor || !popup || requestedWidth <= 0 || requestedHeight <= 0 ||
+      self->visualsCanvasWidth <= 0 || self->visualsCanvasHeight <= 0) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Integer32Value width = requestedWidth < self->visualsCanvasWidth ? requestedWidth : self->visualsCanvasWidth;
+  Arcadia_Integer32Value height = requestedHeight < self->visualsCanvasHeight ? requestedHeight : self->visualsCanvasHeight;
+  Arcadia_Integer32Value anchorX = anchor->left;
+  Arcadia_Integer32Value anchorY = anchor->bottom;
+  // Keep the old canvas-space behavior for detached anchors, but normalize
+  // anchors in the canvas tree through each enclosing scroll viewport.
+  Arcadia_Natural64Value count = Arcadia_Engine_UI_Container_getChildCount(thread, (Arcadia_Object*)self);
+  for (Arcadia_Natural64Value i = 0; i < count; ++i) {
+    Arcadia_Object* child = Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self, i);
+    if (findPopupAnchor(thread, child, anchor, 0, 0, &anchorX, &anchorY, 0)) break;
+  }
+  Arcadia_Integer32Value x = anchorX;
+  if (x < 0) x = 0;
+  if (x > self->visualsCanvasWidth - width) x = self->visualsCanvasWidth - width;
+  Arcadia_Integer32Value below = anchorY;
+  Arcadia_Integer32Value above = self->visualsCanvasHeight - anchorY - anchor->height;
+  Arcadia_Integer32Value y;
+  if (below >= height) y = anchorY - height;
+  else if (above >= height) y = anchorY + anchor->height;
+  else if (below >= above) y = below > height ? anchorY - height : 0;
+  else y = anchorY + anchor->height;
+  if (y < 0) y = 0;
+  if (y > self->visualsCanvasHeight - height) y = self->visualsCanvasHeight - height;
+  Arcadia_Engine_UI_WidgetNode_setBounds(thread, popup, x, y, width, height);
 }
 
 static Arcadia_Object*
@@ -337,6 +611,8 @@ setHovered
     Arcadia_Engine_UI_SliderNode_setHovered(thread, (Arcadia_Engine_UI_SliderNode*)child, hovered);
   } else if (child && Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_ToggleNode_getType(thread))) {
     Arcadia_Engine_UI_ToggleNode_setHovered(thread, (Arcadia_Engine_UI_ToggleNode*)child, hovered);
+  } else if (!hovered && child && Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_LayoutPanelNode_getType(thread))) {
+    Arcadia_Engine_UI_LayoutPanelNode_clearHover(thread, (Arcadia_Engine_UI_LayoutPanelNode*)child);
   }
 }
 
@@ -395,8 +671,45 @@ Arcadia_Engine_UI_CanvasNode_handleKeyboardKeyEventImpl
   )
 {
   Arcadia_Engine_UI_CanvasNode* canvas = (Arcadia_Engine_UI_CanvasNode*)self;
+  if (canvas->suppressCaptureKeyRelease &&
+      Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Engine_Input_KeyboardKeyAction_Released &&
+      Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event) == canvas->suppressedCaptureKey) {
+    canvas->suppressCaptureKeyRelease = Arcadia_BooleanValue_False;
+    return Arcadia_BooleanValue_True;
+  }
+  if (canvas->captureOwner) {
+    canvas->captureKeyboardHandler(thread, canvas->captureOwner, event);
+    return Arcadia_BooleanValue_True;
+  }
+  if (canvas->popup) {
+    if (Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Engine_Input_KeyboardKeyAction_Released) {
+      Arcadia_Engine_Input_KeyboardKey key = Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event);
+      if (key == Arcadia_Engine_Input_KeyboardKey_Escape) {
+        Arcadia_Engine_UI_CanvasNode_hidePopup(thread, canvas);
+        return Arcadia_BooleanValue_True;
+      }
+      if (key == Arcadia_Engine_Input_KeyboardKey_Tabulator) {
+        Arcadia_Engine_UI_CanvasNode_hidePopup(thread, canvas);
+        focusNextChild(thread, canvas);
+        return Arcadia_BooleanValue_True;
+      }
+    }
+    if (canvas->popupKeyboardHandler && canvas->popupKeyboardOwner &&
+        canvas->popupKeyboardHandler(thread, canvas->popupKeyboardOwner, event))
+      return Arcadia_BooleanValue_True;
+    // A keyboard handler may have closed the popup reentrantly.
+    if (canvas->popup)
+      Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent(thread, canvas->popup, event);
+    return Arcadia_BooleanValue_True;
+  }
   if (Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Engine_Input_KeyboardKeyAction_Released &&
       Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event) == Arcadia_Engine_Input_KeyboardKey_Tabulator) {
+    // A focused layout panel gets the first chance to tab between its children.
+    // Other canvas children retain the existing top-level focus traversal.
+    if (canvas->focusedChild &&
+        Arcadia_Object_isInstanceOf(thread, canvas->focusedChild, _Arcadia_Engine_UI_LayoutPanelNode_getType(thread)) &&
+        hasInterface(thread, canvas->focusedChild, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_KeyboardInput_getType(thread)) &&
+        Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent(thread, canvas->focusedChild, event)) return Arcadia_BooleanValue_True;
     focusNextChild(thread, canvas);
     return Arcadia_BooleanValue_True;
   }
@@ -421,7 +734,20 @@ Arcadia_Engine_UI_CanvasNode_handleMousePointerEventImpl
   )
 {
   Arcadia_Engine_UI_CanvasNode* canvas = (Arcadia_Engine_UI_CanvasNode*)self;
+  if (canvas->captureOwner) return Arcadia_BooleanValue_True;
+  if (canvas->popup) {
+    Arcadia_Object* popup = canvas->popup;
+    if (Arcadia_Engine_UI_HitTestable_hitTest(thread, popup, event->x, canvas->visualsCanvasHeight - event->y))
+      Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, popup, event);
+    // A modal popup consumes wheel/motion outside its bounds as well.
+    return Arcadia_BooleanValue_True;
+  }
   Arcadia_Object* child = hitTest(thread, canvas, event->x, canvas->visualsCanvasHeight - event->y);
+  if (event->action == Arcadia_Engine_Input_MousePointerAction_Scrolled) {
+    if (child && hasInterface(thread, child, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_PointerInput_getType(thread)))
+      return Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, child, event);
+    return Arcadia_BooleanValue_False;
+  }
   if (canvas->hoveredChild != child) {
     setHovered(thread, canvas->hoveredChild, Arcadia_BooleanValue_False);
     setHovered(thread, child, Arcadia_BooleanValue_True);
@@ -449,6 +775,36 @@ Arcadia_Engine_UI_CanvasNode_handleMouseButtonEventImpl
   )
 {
   Arcadia_Engine_UI_CanvasNode* canvas = (Arcadia_Engine_UI_CanvasNode*)self;
+  if (canvas->suppressCaptureButtonRelease &&
+      event->action == Arcadia_Engine_Input_MouseButtonAction_Released &&
+      event->button == canvas->suppressedCaptureButton) {
+    canvas->suppressCaptureButtonRelease = Arcadia_BooleanValue_False;
+    return Arcadia_BooleanValue_True;
+  }
+  if (canvas->captureOwner) {
+    canvas->captureMouseHandler(thread, canvas->captureOwner, event);
+    return Arcadia_BooleanValue_True;
+  }
+  if (canvas->consumePopupRelease) {
+    if (event->action == Arcadia_Engine_Input_MouseButtonAction_Released)
+      canvas->consumePopupRelease = Arcadia_BooleanValue_False;
+    return Arcadia_BooleanValue_True;
+  }
+  if (canvas->popup) {
+    Arcadia_Object* popup = canvas->popup;
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, popup);
+    Arcadia_BooleanValue inside = Arcadia_Engine_UI_HitTestable_hitTest(thread, popup,
+      event->x, canvas->visualsCanvasHeight - event->y);
+    if (!inside && event->action == Arcadia_Engine_Input_MouseButtonAction_Pressed) {
+      // Dismiss without click-through. The release of this press is consumed too.
+      canvas->consumePopupRelease = Arcadia_BooleanValue_True;
+      Arcadia_Engine_UI_CanvasNode_hidePopup(thread, canvas);
+    } else if (inside) {
+      Arcadia_Engine_UI_PointerInput_handleMouseButtonEvent(thread, popup, event);
+    }
+    Arcadia_ValueStack_popValues(thread, 1);
+    return Arcadia_BooleanValue_True;
+  }
   Arcadia_Object* child = hitTest(thread, canvas, event->x, canvas->visualsCanvasHeight - event->y);
   if (event->action == Arcadia_Engine_Input_MouseButtonAction_Pressed) {
     canvas->pressedChild = child;
@@ -522,6 +878,7 @@ Arcadia_Engine_UI_CanvasNode_updateVisuals
 
   Arcadia_Engine_Visuals_ViewportNode_setClearColorBuffer(thread, self->viewportNode, Arcadia_BooleanValue_False);
   Arcadia_Engine_Visuals_ViewportNode_setClearDepthBuffer(thread, self->viewportNode, Arcadia_BooleanValue_False);
+  Arcadia_Engine_Visuals_ViewportNode_setDepthTestEnabled(thread, self->viewportNode, Arcadia_BooleanValue_False);
 
   Arcadia_Math_Matrix4Real32* viewToProjectionMatrix = Arcadia_Math_Matrix4Real32_create(thread);
   Arcadia_Math_Matrix4x4Real32_setOrthographicProjection(thread, viewToProjectionMatrix, 0.f, (Arcadia_Real32Value)self->visualsCanvasWidth, 0.f, (Arcadia_Real32Value)self->visualsCanvasHeight, -1.f, +1.f);
@@ -545,5 +902,12 @@ Arcadia_Engine_UI_CanvasNode_updateVisuals
     if (renderableDispatch && renderableDispatch->render) {
       Arcadia_Engine_UI_Renderable_render(thread, object, enterPassNode);
     }
+  }
+  if (self->popup) {
+    // The popup is not a normal child; render it above all regular children.
+    Arcadia_Engine_Visuals_EnterPassNode_setViewportNode(thread, enterPassNode, self->viewportNode);
+    Arcadia_Engine_Visuals_EnterPassNode_setCameraNode(thread, enterPassNode, self->cameraNode);
+    Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)enterPassNode, enterPassNode);
+    Arcadia_Engine_UI_Renderable_render(thread, self->popup, enterPassNode);
   }
 }

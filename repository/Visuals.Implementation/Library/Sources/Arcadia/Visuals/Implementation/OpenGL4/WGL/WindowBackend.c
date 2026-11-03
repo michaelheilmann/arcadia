@@ -485,7 +485,7 @@ setFullscreenImpl
       }
       SetWindowLongPtr(self->windowHandle, GWL_STYLE, dwStyle);
       if (!SetWindowPos(self->windowHandle,
-                        HWND_TOPMOST,
+                        fullscreen ? HWND_TOPMOST : HWND_NOTOPMOST,
                         ((Arcadia_Engine_Visuals_WindowBackend*)self)->bounds.left,
                         ((Arcadia_Engine_Visuals_WindowBackend*)self)->bounds.top,
                         ((Arcadia_Engine_Visuals_WindowBackend*)self)->bounds.width,

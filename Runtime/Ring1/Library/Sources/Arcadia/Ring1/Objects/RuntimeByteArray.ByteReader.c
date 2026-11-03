@@ -124,7 +124,11 @@ Arcadia_RuntimeByteArray_ByteReader_visit
     Arcadia_Thread* thread,
     Arcadia_RuntimeByteArray_ByteReader* self
   )
-{/*Intentionally empty.*/}
+{
+  if (self->source) {
+    Arcadia_RuntimeByteArray_visit(thread, self->source);
+  }
+}
 
 static Arcadia_BooleanValue
 Arcadia_RuntimeByteArray_ByteReader_hasValueImpl
