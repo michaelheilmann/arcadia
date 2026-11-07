@@ -148,6 +148,27 @@
       <code>Stretch</code>. A stack layout does not own its children.
       The existing <code>UI.StackPanel</code> definition remains supported.
       </p>
+      <p>
+      An optional <code>childLayouts</code> list overrides margins and cross-axis
+      alignment for selected child names. Names must occur exactly once in
+      <code>children</code> and may not be repeated in <code>childLayouts</code>.
+      Unspecified margins default to zero; an unspecified cross-axis alignment
+      inherits the layout's <code>crossAlignment</code>. Negative margins,
+      unknown names, and unknown properties are invalid.
+      </p>
+      <pre>
+"childLayouts" : [ // optional
+  { "name" : "Options.Toggle.VSync", "marginLeft" : 384 },
+  { "name" : "Options.Button.Apply", "marginRight" : 120, "crossAlignment" : "End" }
+]
+      </pre>
+      <p>
+      Per-child fields are <code>marginLeft</code>, <code>marginBottom</code>,
+      <code>marginRight</code>, <code>marginTop</code> (optional nonnegative
+      Integer32 values), and <code>crossAlignment</code> (an optional alignment
+      string). Runtime changes to child collections use the same container slot
+      mechanism, while these ADL overrides apply at initial construction.
+      </p>
 
       <h3>UI.StackPanel</h3>
       <p>Type name: <code>"UI.StackPanel"</code>. A panel that stacks its children along one axis.</p>

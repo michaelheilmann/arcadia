@@ -169,6 +169,81 @@ testDeclarativePanels
   Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
 }
 
+static void
+testDeclarativePanelChildLayouts
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)context);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definitions);
+  Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread,
+    "{ type: \"UI.Panel\", name: \"Test.Slots.First\", left: 0, bottom: 0, width: 30, height: 20, "
+    "children: [], layout: { type: \"UI.StackLayout\", orientation: \"Horizontal\", "
+    "paddingLeft: 15, paddingRight: 15, paddingTop: 10, paddingBottom: 10 } }"), false);
+  Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread,
+    "{ type: \"UI.Panel\", name: \"Test.Slots.Second\", left: 0, bottom: 0, width: 40, height: 30, "
+    "children: [], layout: { type: \"UI.StackLayout\", orientation: \"Horizontal\", "
+    "paddingLeft: 20, paddingRight: 20, paddingTop: 15, paddingBottom: 15 } }"), false);
+  Arcadia_ADL_UI_PanelDefinition* definition = (Arcadia_ADL_UI_PanelDefinition*)Arcadia_ADL_Context_readFromString(
+    thread, context, definitions, Arcadia_String_createFromCxxString(thread,
+    "{ type: \"UI.Panel\", name: \"Test.Slots.Root\", left: 10, bottom: 20, width: 140, height: 100, "
+    "children: [\"Test.Slots.First\", \"Test.Slots.Second\"], "
+    "childLayouts: [{ name: \"Test.Slots.Second\", marginLeft: 15, marginTop: 4, crossAlignment: \"End\" }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\", gap: 5, "
+    "paddingLeft: 2, paddingRight: 4, paddingTop: 6, paddingBottom: 3, "
+    "mainAlignment: \"Start\", crossAlignment: \"Start\" } }"), false);
+  Arcadia_Tests_assertTrue(thread, definition->childLayoutCount == 2);
+  Arcadia_Tests_assertTrue(thread, definition->childLayouts && !definition->childLayouts[0].configured);
+  Arcadia_Tests_assertTrue(thread, definition->childLayouts[1].marginLeft == 15);
+  Arcadia_Tests_assertTrue(thread, definition->childLayouts[1].marginTop == 4);
+  Arcadia_Tests_assertTrue(thread, definition->childLayouts[1].hasCrossAlignment);
+  Arcadia_Tests_assertTrue(thread, definition->childLayouts[1].crossAlignment == Arcadia_ADL_UI_PanelChildCrossAlignment_End);
+  Arcadia_Object* object = Arcadia_Engine_UI_createNodeFromDefinition(thread, NULL, (Arcadia_ADL_Definition*)definition);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, object);
+  Arcadia_Engine_UI_LayoutPanelNode* panel = (Arcadia_Engine_UI_LayoutPanelNode*)object;
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_Container_getChildCount(thread, object) == 2);
+  Arcadia_Engine_UI_WidgetNode* first = (Arcadia_Engine_UI_WidgetNode*)Arcadia_Engine_UI_Container_getChildAt(thread, object, 0);
+  Arcadia_Engine_UI_WidgetNode* second = (Arcadia_Engine_UI_WidgetNode*)Arcadia_Engine_UI_Container_getChildAt(thread, object, 1);
+  Arcadia_Engine_UI_StackLayoutSlot const* slots = Arcadia_Engine_UI_LayoutPanelNode_getChildLayoutSlots(thread, panel);
+  Arcadia_Tests_assertTrue(thread, slots[0].marginLeft == 0 && slots[0].marginTop == 0);
+  Arcadia_Tests_assertTrue(thread, slots[1].marginLeft == 15 && slots[1].marginTop == 4);
+  Arcadia_Tests_assertTrue(thread, slots[1].hasAlignmentOverride);
+  Arcadia_Tests_assertTrue(thread, slots[1].crossAlignment == Arcadia_Engine_UI_StackPanelNodeAlignment_End);
+  Arcadia_Tests_assertTrue(thread, first->left == 12 && first->bottom == 94);
+  Arcadia_Tests_assertTrue(thread, second->left == 106 && second->bottom == 55);
+  Arcadia_Integer32Value width, height;
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)panel, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 61 && height == 68);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.Unknown\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Does.Not.Exist\", marginLeft: 2 }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.Duplicate\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", marginLeft: 2 }, "
+    "{ name: \"Test.Slots.First\", marginRight: 3 }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.Negative\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", marginTop: -1 }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.Alignment\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", crossAlignment: \"Above\" }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadSlots.Extra\", left: 0, bottom: 0, width: 10, height: 10, "
+    "children: [\"Test.Slots.First\"], childLayouts: [{ name: \"Test.Slots.First\", mystery: 1 }], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  Arcadia_ValueStack_popValues(thread, 3);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
 void
 Arcadia_ADL_Tests_UI_ContainerCompositionTest1
   (
@@ -177,6 +252,7 @@ Arcadia_ADL_Tests_UI_ContainerCompositionTest1
 {
   testInlineButtonColors(thread);
   testDeclarativePanels(thread);
+  testDeclarativePanelChildLayouts(thread);
   Arcadia_Tests_assertTrue(thread, 0.33 == Arcadia_Engine_UI_SliderNode_projectValue(0.333, 0.0, 1.0, 0.01));
   Arcadia_Tests_assertTrue(thread, 0.34 == Arcadia_Engine_UI_SliderNode_projectValue(0.335, 0.0, 1.0, 0.01));
   Arcadia_Tests_assertTrue(thread, 0.0 == Arcadia_Engine_UI_SliderNode_projectValue(-0.02, 0.0, 1.0, 0.01));

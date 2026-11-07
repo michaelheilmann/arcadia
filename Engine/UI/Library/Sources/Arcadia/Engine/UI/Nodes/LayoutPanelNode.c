@@ -828,6 +828,32 @@ Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition
   Arcadia_ValueStack_popValues(thread, 1);
   Arcadia_Engine_UI_WidgetNode_setName(thread, (Arcadia_Engine_UI_WidgetNode*)panel, ((Arcadia_ADL_Definition*)source)->name);
   Arcadia_Engine_UI_populateContainerFromDefinition(thread, backendContext, (Arcadia_Object*)panel, (Arcadia_Object*)source);
+  if (source->childLayouts) {
+    if (Arcadia_Engine_UI_Container_getChildCount(thread, (Arcadia_Object*)panel) != source->childLayoutCount) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    for (Arcadia_SizeValue i = 0; i < source->childLayoutCount; ++i) {
+      Arcadia_ADL_UI_PanelChildLayout const* slot = &source->childLayouts[i];
+      if (!slot->configured) continue;
+      Arcadia_Object* child = Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)panel, i);
+      Arcadia_Engine_UI_LayoutPanelNode_setChildMargin(thread, panel, child,
+        slot->marginLeft, slot->marginBottom, slot->marginRight, slot->marginTop);
+      if (slot->hasCrossAlignment) {
+        Arcadia_Engine_UI_StackPanelNodeAlignment alignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Center;
+        switch (slot->crossAlignment) {
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_Start: alignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Start; break;
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_Center: alignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Center; break;
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_End: alignment = Arcadia_Engine_UI_StackPanelNodeAlignment_End; break;
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_Stretch: alignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch; break;
+          default:
+            Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+            Arcadia_Thread_jump(thread);
+        }
+        Arcadia_Engine_UI_LayoutPanelNode_setChildCrossAlignment(thread, panel, child, alignment);
+      }
+    }
+  }
   Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)panel,
     (Arcadia_Integer32Value)source->width, (Arcadia_Integer32Value)source->height);
   Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)panel,

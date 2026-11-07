@@ -47,8 +47,24 @@ constructImpl
   self->paddingRight = self->paddingTop = 0;
   self->mainAlignment = NULL;
   self->crossAlignment = NULL;
+  self->childLayouts = NULL;
+  self->childLayoutCount = 0;
   self->childReferences = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   Arcadia_LeaveConstructor(Arcadia_ADL_UI_PanelDefinition);
+}
+
+static void
+destructImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_UI_PanelDefinition* self
+  )
+{
+  if (self->childLayouts) {
+    Arcadia_Memory_deallocateUnmanaged(thread, self->childLayouts);
+    self->childLayouts = NULL;
+  }
+  self->childLayoutCount = 0;
 }
 
 static void
@@ -83,6 +99,7 @@ initializeContainerDefinitionDispatchImpl
 static const Arcadia_ObjectType_Operations objectOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructImpl,
+  .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
 

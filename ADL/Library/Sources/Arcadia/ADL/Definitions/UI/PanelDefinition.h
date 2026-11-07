@@ -26,6 +26,20 @@
 
 // A generic container definition with an explicitly selected layout strategy.
 // The first supported strategy is UI.StackLayout.
+// Alignment values belong to ADL and do not depend on Engine/UI enums.
+typedef enum Arcadia_ADL_UI_PanelChildCrossAlignment {
+  Arcadia_ADL_UI_PanelChildCrossAlignment_Start,
+  Arcadia_ADL_UI_PanelChildCrossAlignment_Center,
+  Arcadia_ADL_UI_PanelChildCrossAlignment_End,
+  Arcadia_ADL_UI_PanelChildCrossAlignment_Stretch,
+} Arcadia_ADL_UI_PanelChildCrossAlignment;
+
+typedef struct Arcadia_ADL_UI_PanelChildLayout {
+  Arcadia_Integer32Value marginLeft, marginBottom, marginRight, marginTop;
+  Arcadia_ADL_UI_PanelChildCrossAlignment crossAlignment;
+  Arcadia_BooleanValue hasCrossAlignment;
+  Arcadia_BooleanValue configured;
+} Arcadia_ADL_UI_PanelChildLayout;
 Arcadia_declareObjectType(u8"Arcadia.ADL.UI.PanelDefinition", Arcadia_ADL_UI_PanelDefinition,
                           u8"Arcadia.ADL.Definition")
 
@@ -44,6 +58,10 @@ struct Arcadia_ADL_UI_PanelDefinition {
   Arcadia_String* mainAlignment;
   Arcadia_String* crossAlignment;
   Arcadia_List* childReferences;
+  // One unmanaged POD slot per child reference, if overrides were declared.
+  // The definition owns this memory; it contains no managed object pointers.
+  Arcadia_ADL_UI_PanelChildLayout* childLayouts;
+  Arcadia_SizeValue childLayoutCount;
 };
 
 Arcadia_ADL_UI_PanelDefinition*
