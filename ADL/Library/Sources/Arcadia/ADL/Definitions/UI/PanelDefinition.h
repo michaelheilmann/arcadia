@@ -57,6 +57,9 @@ struct Arcadia_ADL_UI_PanelDefinition {
   Arcadia_Integer32Value paddingLeft, paddingBottom, paddingRight, paddingTop;
   Arcadia_String* mainAlignment;
   Arcadia_String* crossAlignment;
+  // Optional model-backed background, independent of the layout strategy.
+  Arcadia_String* backgroundModelName;
+  Arcadia_Natural32Value backgroundBorderWidth;
   Arcadia_List* childReferences;
   // One unmanaged POD slot per child reference, if overrides were declared.
   // The definition owns this memory; it contains no managed object pointers.

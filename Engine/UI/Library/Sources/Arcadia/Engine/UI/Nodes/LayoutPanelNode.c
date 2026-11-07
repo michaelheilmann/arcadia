@@ -366,6 +366,8 @@ constructImpl
   }
   Arcadia_ValueStack_popValues(thread, 1);
   self->layout = NULL;
+  self->backgroundPanelNode = NULL;
+  self->backgroundBorderWidth = 0;
   self->hoveredChild = NULL;
   self->pressedChild = NULL;
   self->focusedChild = NULL;
@@ -401,6 +403,7 @@ visitImpl
   if (self->children) Arcadia_Object_visit(thread, (Arcadia_Object*)self->children);
   if (self->childConnections) Arcadia_Object_visit(thread, (Arcadia_Object*)self->childConnections);
   if (self->layout) Arcadia_Object_visit(thread, self->layout);
+  if (self->backgroundPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->backgroundPanelNode);
   if (self->hoveredChild) Arcadia_Object_visit(thread, self->hoveredChild);
   if (self->pressedChild) Arcadia_Object_visit(thread, self->pressedChild);
   if (self->focusedChild) Arcadia_Object_visit(thread, self->focusedChild);
@@ -577,6 +580,12 @@ renderImpl
   Arcadia_Engine_Visuals_ViewportNode_getCanvasSize(thread, enterPassNode->viewportNode, &canvasWidth, &canvasHeight);
   panel->lastCanvasHeight = canvasHeight;
   Arcadia_Engine_UI_LayoutPanelNode_updateLayout(thread, panel);
+  if (panel->backgroundPanelNode) {
+    Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)panel;
+    Arcadia_Engine_UI_PanelNode_updateBackgroundGeometry(thread, panel->backgroundPanelNode,
+      widget->left, widget->bottom, widget->width, widget->height, panel->backgroundBorderWidth);
+    Arcadia_Engine_UI_Renderable_render(thread, (Arcadia_Object*)panel->backgroundPanelNode, enterPassNode);
+  }
   Arcadia_SizeValue n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)panel->children);
   for (Arcadia_SizeValue i = 0; i < n; ++i) {
     Arcadia_Object* child = Arcadia_List_getObjectReferenceValueAt(thread, panel->children, i);
@@ -826,6 +835,16 @@ Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition
     parseAlignment(thread, source->mainAlignment), parseAlignment(thread, source->crossAlignment));
   Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
   Arcadia_ValueStack_popValues(thread, 1);
+  panel->backgroundBorderWidth = source->backgroundBorderWidth;
+  if (source->backgroundModelName) {
+    Arcadia_ADL_Definition* model = Arcadia_ADL_Definitions_getDefinitionOrNull(thread,
+      ((Arcadia_ADL_Definition*)source)->definitions, source->backgroundModelName);
+    if (!model || !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)model, _Arcadia_ADL_ModelDefinition_getType(thread))) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    panel->backgroundPanelNode = Arcadia_Engine_UI_PanelNode_create(thread, backendContext, (Arcadia_ADL_ModelDefinition*)model);
+  }
   Arcadia_Engine_UI_WidgetNode_setName(thread, (Arcadia_Engine_UI_WidgetNode*)panel, ((Arcadia_ADL_Definition*)source)->name);
   Arcadia_Engine_UI_populateContainerFromDefinition(thread, backendContext, (Arcadia_Object*)panel, (Arcadia_Object*)source);
   if (source->childLayouts) {

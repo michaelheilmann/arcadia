@@ -130,6 +130,8 @@
 "width"                  : &lt;number&gt; // Natural32
 "height"                 : &lt;number&gt; // Natural32
 "children"               : &lt;list of strings&gt; // ordered definition references
+"backgroundModel"        : &lt;string&gt; // optional ADL Model definition name
+"backgroundBorderWidth"  : &lt;number&gt; // optional Natural32, default 0
 "layout" : {
   "type"                 : "UI.StackLayout"
   "orientation"          : "Vertical" | "Horizontal"
@@ -147,6 +149,13 @@
       <code>Start</code>, <code>Center</code>, <code>End</code>, or
       <code>Stretch</code>. A stack layout does not own its children.
       The existing <code>UI.StackPanel</code> definition remains supported.
+      </p>
+      <p>
+      <code>backgroundModel</code> optionally refers to a model definition used
+      to render the panel background before its children. The optional
+      <code>backgroundBorderWidth</code> controls the model-backed frame's border
+      (as for <code>UI.StackPanel</code>); it defaults to zero. A missing or
+      non-model background reference is a semantic error during node creation.
       </p>
       <p>
       An optional <code>childLayouts</code> list overrides margins and cross-axis

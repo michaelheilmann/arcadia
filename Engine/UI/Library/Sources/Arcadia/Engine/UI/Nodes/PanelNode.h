@@ -43,7 +43,25 @@ struct Arcadia_Engine_UI_PanelNode {
   Arcadia_Engine_Visuals_BackendContext* backendContext;
   /// The model resource.
   Arcadia_Engine_Visuals_ModelResource* modelResource;
+  /// Cache the last generated background quad geometry.
+  Arcadia_Natural32Value lastBackgroundBorderWidth;
+  Arcadia_BooleanValue backgroundGeometryValid;
 };
+
+/// @brief Update a model-backed background's quad vertices to the owning panel.
+/// @remarks The source mesh must contain the background's expected quad vertices.
+///          This function is shared by legacy StackPanelNode and LayoutPanelNode.
+void
+Arcadia_Engine_UI_PanelNode_updateBackgroundGeometry
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_PanelNode* self,
+    Arcadia_Integer32Value left,
+    Arcadia_Integer32Value bottom,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height,
+    Arcadia_Natural32Value borderWidth
+  );
 
 Arcadia_Engine_UI_PanelNode*
 Arcadia_Engine_UI_PanelNode_create

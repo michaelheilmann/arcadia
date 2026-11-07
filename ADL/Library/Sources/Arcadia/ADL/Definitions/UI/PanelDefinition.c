@@ -47,6 +47,8 @@ constructImpl
   self->paddingRight = self->paddingTop = 0;
   self->mainAlignment = NULL;
   self->crossAlignment = NULL;
+  self->backgroundModelName = NULL;
+  self->backgroundBorderWidth = 0;
   self->childLayouts = NULL;
   self->childLayoutCount = 0;
   self->childReferences = (Arcadia_List*)Arcadia_ArrayList_create(thread);
@@ -77,6 +79,7 @@ visitImpl
   if (self->layoutType) Arcadia_Object_visit(thread, (Arcadia_Object*)self->layoutType);
   if (self->mainAlignment) Arcadia_Object_visit(thread, (Arcadia_Object*)self->mainAlignment);
   if (self->crossAlignment) Arcadia_Object_visit(thread, (Arcadia_Object*)self->crossAlignment);
+  if (self->backgroundModelName) Arcadia_Object_visit(thread, (Arcadia_Object*)self->backgroundModelName);
   if (self->childReferences) Arcadia_Object_visit(thread, (Arcadia_Object*)self->childReferences);
 }
 

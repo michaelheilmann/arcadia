@@ -24,6 +24,7 @@
 #include "Arcadia/Engine/UI/WidgetNode.h"
 #include "Arcadia/ADL/Include.h"
 #include "Arcadia/Engine/UI/Layout.h"
+#include "Arcadia/Engine/UI/Nodes/PanelNode.h"
 #include "Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h"
 
 typedef struct Arcadia_Engine_UI_StackLayoutSlot Arcadia_Engine_UI_StackLayoutSlot;
@@ -47,6 +48,8 @@ struct Arcadia_Engine_UI_LayoutPanelNode {
   Arcadia_Engine_UI_StackLayoutSlot* childLayoutSlots;
   Arcadia_SizeValue childLayoutSlotCapacity;
   Arcadia_Object* layout;
+  Arcadia_Engine_UI_PanelNode* backgroundPanelNode;
+  Arcadia_Natural32Value backgroundBorderWidth;
   Arcadia_Object* hoveredChild;
   Arcadia_Object* pressedChild;
   Arcadia_Object* focusedChild;

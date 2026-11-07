@@ -51,6 +51,7 @@ static const char* PANEL_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.Panel")
   STRING_FIELD("type") STRING_FIELD("name") NUMBER_FIELD("left") NUMBER_FIELD("bottom")
   NUMBER_FIELD("width") NUMBER_FIELD("height") LIST_FIELD("children")
+  OPTIONAL_STRING_FIELD("backgroundModel") OPTIONAL_NUMBER_FIELD("backgroundBorderWidth")
   "{ kind : \"MapEntry\", name : \"layout\", type : { kind : \"Map\", entries : ["
     STRING_FIELD("type") STRING_FIELD("orientation")
     OPTIONAL_NUMBER_FIELD("gap") OPTIONAL_NUMBER_FIELD("paddingLeft")
@@ -366,6 +367,9 @@ read
     definition->paddingTop = padTop;
     definition->mainAlignment = mainAlignment ? mainAlignment : Arcadia_String_createFromCxxString(thread, u8"Center");
     definition->crossAlignment = crossAlignment ? crossAlignment : Arcadia_String_createFromCxxString(thread, u8"Center");
+    definition->backgroundModelName = Arcadia_ADL_Reader_getStringValueOptional(thread, map,
+      Arcadia_String_createFromCxxString(thread, u8"backgroundModel"));
+    definition->backgroundBorderWidth = getNatural32ValueOptional(thread, map, u8"backgroundBorderWidth", 0);
     Arcadia_List* childNames = Arcadia_ADL_Reader_getListValue(thread, map, Arcadia_String_createFromCxxString(thread, u8"children"));
     Arcadia_SizeValue childCount = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)childNames);
     for (Arcadia_SizeValue i = 0; i < childCount; ++i) {

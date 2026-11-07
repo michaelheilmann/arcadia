@@ -200,17 +200,6 @@ updateBackgroundPanelVertices
   );
 
 static void
-writeQuadPositions
-  (
-    Arcadia_Real32Value* vertices,
-    Arcadia_SizeValue vertexIndex,
-    Arcadia_Real32Value left,
-    Arcadia_Real32Value bottom,
-    Arcadia_Real32Value right,
-    Arcadia_Real32Value top
-  );
-
-static void
 validateAlignment
   (
     Arcadia_Thread* thread,
@@ -770,55 +759,8 @@ updateBackgroundPanelVertices
   )
 {
   Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)self;
-  Arcadia_Engine_UI_WidgetNode* backgroundWidget = (Arcadia_Engine_UI_WidgetNode*)self->backgroundPanelNode;
-  if (widget->left == backgroundWidget->left && widget->bottom == backgroundWidget->bottom &&
-      widget->width == backgroundWidget->width && widget->height == backgroundWidget->height) {
-    return;
-  }
-  Arcadia_Engine_UI_WidgetNode_setBounds(thread, backgroundWidget, widget->left, widget->bottom, widget->width, widget->height);
-  Arcadia_Real32Value left = (Arcadia_Real32Value)widget->left;
-  Arcadia_Real32Value bottom = (Arcadia_Real32Value)widget->bottom;
-  Arcadia_Real32Value right = left + (Arcadia_Real32Value)widget->width;
-  Arcadia_Real32Value top = bottom + (Arcadia_Real32Value)widget->height;
-  Arcadia_Real32Value borderWidth = (Arcadia_Real32Value)self->backgroundBorderWidth;
-  Arcadia_Real32Value maxBorderWidth = (widget->width < widget->height
-    ? (Arcadia_Real32Value)widget->width : (Arcadia_Real32Value)widget->height) * 0.5f;
-  if (borderWidth > maxBorderWidth) {
-    borderWidth = maxBorderWidth;
-  }
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread,
-    Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->backgroundPanelNode->mesh));
-  writeQuadPositions(vertices, 0, left + borderWidth, bottom + borderWidth, right - borderWidth, top - borderWidth);
-  if (borderWidth > 0.f) {
-    writeQuadPositions(vertices, 6, left, bottom, right, bottom + borderWidth);
-    writeQuadPositions(vertices, 12, left, top - borderWidth, right, top);
-    writeQuadPositions(vertices, 18, left, bottom + borderWidth, left + borderWidth, top - borderWidth);
-    writeQuadPositions(vertices, 24, right - borderWidth, bottom + borderWidth, right, top - borderWidth);
-  }
-  Arcadia_Engine_Visuals_MeshNode_markVerticesDirty(thread, self->backgroundPanelNode->mesh);
-}
-
-static void
-writeQuadPositions
-  (
-    Arcadia_Real32Value* vertices,
-    Arcadia_SizeValue vertexIndex,
-    Arcadia_Real32Value left,
-    Arcadia_Real32Value bottom,
-    Arcadia_Real32Value right,
-    Arcadia_Real32Value top
-  )
-{
-  Arcadia_Real32Value const positions[6][3] = {
-    { left, bottom, 0.f }, { right, bottom, 0.f }, { left, top, 0.f },
-    { right, bottom, 0.f }, { right, top, 0.f }, { left, top, 0.f },
-  };
-  for (Arcadia_SizeValue i = 0; i < 6; ++i) {
-    Arcadia_SizeValue j = (vertexIndex + i) * 9;
-    vertices[j + 0] = positions[i][0];
-    vertices[j + 1] = positions[i][1];
-    vertices[j + 2] = positions[i][2];
-  }
+  Arcadia_Engine_UI_PanelNode_updateBackgroundGeometry(thread, self->backgroundPanelNode,
+    widget->left, widget->bottom, widget->width, widget->height, self->backgroundBorderWidth);
 }
 
 Arcadia_Engine_UI_StackPanelNode*

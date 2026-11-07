@@ -244,6 +244,56 @@ testDeclarativePanelChildLayouts
   Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
 }
 
+static void
+testDeclarativePanelBackground
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)context);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definitions);
+  Arcadia_ADL_UI_PanelDefinition* definition = (Arcadia_ADL_UI_PanelDefinition*)Arcadia_ADL_Context_readFromString(
+    thread, context, definitions, Arcadia_String_createFromCxxString(thread,
+    "{ type: \"UI.Panel\", name: \"Test.Background.Root\", left: 0, bottom: 0, width: 120, height: 80, "
+    "children: [], backgroundModel: \"Test.Background.Model\", backgroundBorderWidth: 3, "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }"), false);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definition);
+  Arcadia_Tests_assertTrue(thread, definition->backgroundModelName != NULL);
+  Arcadia_Tests_assertTrue(thread, Arcadia_String_isEqualTo_pn(thread, definition->backgroundModelName, "Test.Background.Model", 21));
+  Arcadia_Tests_assertTrue(thread, definition->backgroundBorderWidth == 3);
+  // The ADL field is valid, but a missing model reference must be rejected
+  // by the UI factory without attempting to create a graphics resource.
+  Arcadia_SizeValue checkpoint = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition(thread, NULL, definition);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, false);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, Arcadia_Thread_getStatus(thread) == Arcadia_Status_SemanticalError);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == checkpoint);
+  }
+  Arcadia_ADL_UI_PanelDefinition* plain = (Arcadia_ADL_UI_PanelDefinition*)Arcadia_ADL_Context_readFromString(
+    thread, context, definitions, Arcadia_String_createFromCxxString(thread,
+    "{ type: \"UI.Panel\", name: \"Test.Background.Plain\", left: 0, bottom: 0, width: 100, height: 60, "
+    "children: [], layout: { type: \"UI.StackLayout\", orientation: \"Horizontal\" } }"), false);
+  Arcadia_Tests_assertTrue(thread, plain->backgroundModelName == NULL && plain->backgroundBorderWidth == 0);
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.Background.InvalidType\", left: 0, bottom: 0, width: 100, height: 60, "
+    "children: [], backgroundModel: 42, layout: { type: \"UI.StackLayout\", orientation: \"Horizontal\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.Background.InvalidBorder\", left: 0, bottom: 0, width: 100, height: 60, "
+    "children: [], backgroundBorderWidth: \"invalid\", layout: { type: \"UI.StackLayout\", orientation: \"Horizontal\" } }");
+  Arcadia_ValueStack_popValues(thread, 3);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
 void
 Arcadia_ADL_Tests_UI_ContainerCompositionTest1
   (
@@ -253,6 +303,7 @@ Arcadia_ADL_Tests_UI_ContainerCompositionTest1
   testInlineButtonColors(thread);
   testDeclarativePanels(thread);
   testDeclarativePanelChildLayouts(thread);
+  testDeclarativePanelBackground(thread);
   Arcadia_Tests_assertTrue(thread, 0.33 == Arcadia_Engine_UI_SliderNode_projectValue(0.333, 0.0, 1.0, 0.01));
   Arcadia_Tests_assertTrue(thread, 0.34 == Arcadia_Engine_UI_SliderNode_projectValue(0.335, 0.0, 1.0, 0.01));
   Arcadia_Tests_assertTrue(thread, 0.0 == Arcadia_Engine_UI_SliderNode_projectValue(-0.02, 0.0, 1.0, 0.01));
