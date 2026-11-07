@@ -27,6 +27,7 @@
 #define M(name) Arcadia_Math_Matrix4Real32_##name
 #define V(name) Arcadia_Math_Vector3Real32_##name
 #define G(name) Arcadia_Math_Matrix4x4Real32_##name
+#define GValue(name) Arcadia_Math_Matrix4x4Real32Value_##name
 #define Test(name) real32_##name
 #define Tolerance 1.e-5
 #include "Cases.i"
@@ -36,6 +37,7 @@
 #undef M
 #undef V
 #undef G
+#undef GValue
 #undef Test
 #undef Tolerance
 
@@ -45,6 +47,7 @@
 #define M(name) Arcadia_Math_Matrix4Real64_##name
 #define V(name) Arcadia_Math_Vector3Real64_##name
 #define G(name) Arcadia_Math_Matrix4x4Real64_##name
+#define GValue(name) Arcadia_Math_Matrix4x4Real64Value_##name
 #define Test(name) real64_##name
 #define Tolerance 1.e-12
 #include "Cases.i"
@@ -54,6 +57,7 @@
 #undef M
 #undef V
 #undef G
+#undef GValue
 #undef Test
 #undef Tolerance
 

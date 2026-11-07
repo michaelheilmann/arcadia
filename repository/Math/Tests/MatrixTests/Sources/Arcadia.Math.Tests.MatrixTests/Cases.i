@@ -201,7 +201,7 @@ Test(rotationYLegacy)
   const Scalar expectedX[] = { (Scalar)0, (Scalar)-1, (Scalar)0, (Scalar)1 };
   const Scalar expectedZ[] = { (Scalar)-1, (Scalar)0, (Scalar)1, (Scalar)0 };
   for (Arcadia_SizeValue i = 0; i < 4; ++i) {
-    G(setRotationY)(thread, matrix, angles[i]);
+    GValue(setRotationY)(thread, matrix, angles[i]);
     point->elements[0] = (Scalar)0;
     point->elements[1] = (Scalar)0;
     point->elements[2] = (Scalar)-1;
@@ -212,7 +212,7 @@ Test(rotationYLegacy)
   }
   const Scalar angle = (Scalar)12.3456789012345;
   const double radians = (double)angle * (3.14159265358979323846 / 180.0);
-  G(setRotationY)(thread, matrix, angle);
+  GValue(setRotationY)(thread, matrix, angle);
   point->elements[0] = (Scalar)0;
   point->elements[1] = (Scalar)0;
   point->elements[2] = (Scalar)-1;
