@@ -221,6 +221,11 @@ handleMousePointerEventImpl
   Arcadia_Engine_UI_LayoutPanelNode* self = (Arcadia_Engine_UI_LayoutPanelNode*)object;
   Arcadia_Object* child = event->action == Arcadia_Engine_Input_MousePointerAction_Exited ? NULL :
     hitTestChild(thread, self, event->x, (Arcadia_Integer32Value)self->lastCanvasHeight - event->y);
+  if (event->action == Arcadia_Engine_Input_MousePointerAction_Scrolled) {
+    if (hasInterface(thread, child, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_PointerInput_getType(thread)))
+      return Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, child, event);
+    return Arcadia_BooleanValue_False;
+  }
   if (self->hoveredChild != child) {
     setHovered(thread, self->hoveredChild, Arcadia_BooleanValue_False);
     setHovered(thread, child, Arcadia_BooleanValue_True);

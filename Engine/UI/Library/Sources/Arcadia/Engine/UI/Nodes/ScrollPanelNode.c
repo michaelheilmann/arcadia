@@ -457,6 +457,8 @@ constructImpl
   self->contentHeight = (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height;
   self->scrollX = 0;
   self->scrollY = 0;
+  self->wheelRemainderX = 0;
+  self->wheelRemainderY = 0;
   Arcadia_Engine* engine = Arcadia_Engine_getOrCreate(thread);
   self->viewportNode = Arcadia_Engine_Visuals_NodeFactory_createViewportNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, NULL);
   // Scroll content and scrollbar are 2D overlays. A private viewport must
@@ -758,6 +760,19 @@ handleMousePointerEventImpl
 {
   Arcadia_Engine_UI_ScrollPanelNode* panel = (Arcadia_Engine_UI_ScrollPanelNode*)self;
   Arcadia_Integer32Value y = (Arcadia_Integer32Value)panel->lastCanvasHeight - event->y;
+  if (event->action == Arcadia_Engine_Input_MousePointerAction_Scrolled) {
+    // Wheel input acts on the panel below the pointer; it does not require
+    // keyboard focus and must not change hover or press capture.
+    if (!hitTestImpl(thread, self, event->x, y)) return Arcadia_BooleanValue_False;
+    panel->wheelRemainderX += event->wheelDeltaX;
+    panel->wheelRemainderY += event->wheelDeltaY;
+    Arcadia_Integer32Value stepsX = panel->wheelRemainderX / 120;
+    Arcadia_Integer32Value stepsY = panel->wheelRemainderY / 120;
+    panel->wheelRemainderX -= stepsX * 120;
+    panel->wheelRemainderY -= stepsY * 120;
+    if (stepsX || stepsY) Arcadia_Engine_UI_Scrollable_scrollBy(thread, self, stepsX * 24, stepsY * 24);
+    return Arcadia_BooleanValue_True;
+  }
   if (panel->draggingScrollbar && event->action == Arcadia_Engine_Input_MousePointerAction_Moved) {
     scrollToScrollbarThumbOffset(thread, panel, y - ((Arcadia_Engine_UI_WidgetNode*)panel)->bottom - panel->scrollbarDragOffset);
     return Arcadia_BooleanValue_True;

@@ -139,6 +139,50 @@ Test(factoryAndInterpolation)
   Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
 }
 
+// Native value access and the object-system clone replace legacy
+// Core.Assets.Matrix4x4R32's copy-out and independent value semantics.
+static void
+Test(nativeValues)
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+  Scalar initial[16];
+  Scalar copied[16];
+  for (Arcadia_SizeValue i = 0; i < 16; ++i) {
+    initial[i] = (Scalar)(i + 1);
+    copied[i] = (Scalar)-1;
+  }
+  Matrix* original = M(createWithValues)(thread, initial);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)original);
+  M(copyValues)(thread, original, copied);
+  for (Arcadia_SizeValue i = 0; i < 16; ++i) {
+    Arcadia_Tests_assertTrue(thread, copied[i] == (Scalar)(i + 1));
+  }
+  // Mutating either native buffer must not affect the managed object.
+  initial[0] = (Scalar)-100;
+  copied[1] = (Scalar)-200;
+  Arcadia_Tests_assertTrue(thread, original->elements[0][0] == (Scalar)1);
+  Arcadia_Tests_assertTrue(thread, original->elements[0][1] == (Scalar)2);
+
+  Matrix* clone = (Matrix*)Arcadia_Object_clone(thread, (Arcadia_Object*)original);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)clone);
+  Arcadia_Tests_assertTrue(thread, clone != original);
+  Arcadia_Value cloneValue = Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)clone);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)original, &cloneValue));
+  M(copyValues)(thread, clone, copied);
+  for (Arcadia_SizeValue i = 0; i < 16; ++i) {
+    Arcadia_Tests_assertTrue(thread, copied[i] == (Scalar)(i + 1));
+  }
+  clone->elements[2][3] = (Scalar)-42;
+  Arcadia_Tests_assertTrue(thread, original->elements[2][3] == (Scalar)12);
+  Arcadia_Tests_assertFalse(thread, Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)original, &cloneValue));
+  M(copyValues)(thread, clone, copied);
+  Arcadia_Tests_assertTrue(thread, copied[2 * 4 + 3] == (Scalar)-42);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+}
+
 static void
 Test(run)
   (

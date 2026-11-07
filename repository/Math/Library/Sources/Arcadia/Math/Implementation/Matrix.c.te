@@ -31,6 +31,12 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_initializeDispatchImpl
   );
 
 static void
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_clone
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
 Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_isEqualTo
   (
     Arcadia_Thread* thread
@@ -75,6 +81,21 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_createWithValues
   }
   Arcadia_ValueStack_pushNatural8Value(thread, @{dimensionality} * @{dimensionality});
   _Arcadia_EndCreate(Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix});
+}
+
+void
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_copyValues
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* self,
+    @{scalarType}* values
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+    for (Arcadia_SizeValue j = 0; j < @{dimensionality}; ++j) {
+      values[i * @{dimensionality} + j] = self->elements[i][j];
+    }
+  }
 }
 
 void
@@ -144,7 +165,27 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_initializeDispatchImpl
     Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}Dispatch* self
   )
 {
+  ((Arcadia_ObjectDispatch*)self)->clone = &Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_clone;
   ((Arcadia_ObjectDispatch*)self)->isEqualTo = &Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_isEqualTo;
+}
+
+// The receiver remains rooted on the value stack until its copy is complete.
+static void
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_clone
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Natural8Value numberOfArguments = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (1 != numberOfArguments) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_getType(thread));
+  Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* clone = Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_create(thread);
+  Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_assign(thread, clone, self);
+  Arcadia_ValueStack_popValues(thread, 2);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)clone);
 }
 
 static void

@@ -759,6 +759,19 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onButtonPressEv
   if (!windowBackend) {
     return;
   }
+  // X11 core wheel events arrive as buttons 4/5 (vertical) or 6/7
+  // (horizontal), each press representing a wheel notch. Ignore releases.
+  if (x11event->button == Button4 || x11event->button == Button5 ||
+      x11event->button == 6 || x11event->button == 7) {
+    Arcadia_Engine_Input_MousePointerEvent* event = Arcadia_Engine_Input_MousePointerEvent_createScrolled
+      (
+        thread, Arcadia_getTickCount(thread), x11event->x, x11event->y,
+        x11event->button == 6 ? -120 : x11event->button == 7 ? 120 : 0,
+        x11event->button == Button4 ? 120 : x11event->button == Button5 ? -120 : 0
+      );
+    Arcadia_Engine_enqueEvent(thread, Arcadia_Engine_getOrCreate(thread), (Arcadia_Engine_Event*)event);
+    return;
+  }
   Arcadia_Natural64Value button = 0;
   switch (x11event->button) {
     case Button1: {
@@ -769,12 +782,6 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onButtonPressEv
     } break;
     case Button3: {
       button = 2;
-    } break;
-    case Button4: {
-      button = 3;
-    } break;
-    case Button5: {
-      button = 4;
     } break;
     default: {
       return;
@@ -808,6 +815,9 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onButtonRelease
   if (!windowBackend) {
     return;
   }
+  // X11 wheel events are delivered on press only; releases are not buttons.
+  if (x11event->button == Button4 || x11event->button == Button5 ||
+      x11event->button == 6 || x11event->button == 7) return;
   Arcadia_Natural64Value button = 0;
   switch (x11event->button) {
     case Button1: {
@@ -818,12 +828,6 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_BackendContext_onButtonRelease
     } break;
     case Button3: {
       button = 2;
-    } break;
-    case Button4: {
-      button = 3;
-    } break;
-    case Button5: {
-      button = 4;
     } break;
     default: {
       return;

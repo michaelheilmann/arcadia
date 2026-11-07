@@ -93,6 +93,24 @@ runFactoryAndInterpolationReal64
   return Arcadia_Tests_safeExecute(&real64_factoryAndInterpolation) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static int
+runNativeValuesReal32
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&real32_nativeValues) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNativeValuesReal64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&real64_nativeValues) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -105,6 +123,8 @@ main
     { "Real64", &runReal64 },
     { "FactoryAndInterpolationReal32", &runFactoryAndInterpolationReal32 },
     { "FactoryAndInterpolationReal64", &runFactoryAndInterpolationReal64 },
+    { "NativeValuesReal32", &runNativeValuesReal32 },
+    { "NativeValuesReal64", &runNativeValuesReal64 },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

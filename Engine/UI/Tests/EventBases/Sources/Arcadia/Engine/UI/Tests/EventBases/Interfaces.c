@@ -885,6 +885,26 @@ testWidgets
   Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent(thread, (void*)panel, event));
   Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
   Arcadia_Tests_assertTrue(thread, x == 48 && y == 46);
+  // Wheel events use screen-space pointer coordinates and do not require focus.
+  panel->lastCanvasHeight = 100.f;
+  Arcadia_Engine_Input_MousePointerEvent* wheel = Arcadia_Engine_Input_MousePointerEvent_createScrolled(thread, 0, 12, 60, 0, -120);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, wheel);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (void*)panel, wheel));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 22);
+  wheel->wheelDeltaY = 60;
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (void*)panel, wheel));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 22);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (void*)panel, wheel));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 46);
+  wheel->x = 500;
+  wheel->wheelDeltaY = -120;
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (void*)panel, wheel));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 46);
+  Arcadia_ValueStack_popValues(thread, 1);
   Arcadia_Engine_Input_MousePointerEvent* pointer = Arcadia_Engine_Input_MousePointerEvent_create(thread, 0, Arcadia_Engine_Input_MousePointerAction_Entered, 11, 22);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, pointer);
   Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (void*)button, pointer) && button->hovered);

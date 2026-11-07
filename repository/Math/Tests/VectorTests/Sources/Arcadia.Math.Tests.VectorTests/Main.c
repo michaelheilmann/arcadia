@@ -22,6 +22,7 @@
 #include "Vector2.h"
 #include "ComponentMultiply.h"
 #include "NormalizeOrZero.h"
+#include "NativeValues.h"
 
 static void
 test1
@@ -591,6 +592,12 @@ main
     { "Vector2Real64", &Arcadia_Math_Tests_Vector2_real64 },
     { "VectorTemplateReal32", &Arcadia_Math_Tests_Vector2_templateReal32 },
     { "VectorTemplateReal64", &Arcadia_Math_Tests_Vector2_templateReal64 },
+    { "NativeValuesVector2Real32", &Arcadia_Math_Tests_nativeVectorValues2Real32_run },
+    { "NativeValuesVector2Real64", &Arcadia_Math_Tests_nativeVectorValues2Real64_run },
+    { "NativeValuesVector3Real32", &Arcadia_Math_Tests_nativeVectorValues3Real32_run },
+    { "NativeValuesVector3Real64", &Arcadia_Math_Tests_nativeVectorValues3Real64_run },
+    { "NativeValuesVector4Real32", &Arcadia_Math_Tests_nativeVectorValues4Real32_run },
+    { "NativeValuesVector4Real64", &Arcadia_Math_Tests_nativeVectorValues4Real64_run },
     { "MultiplyComponentsVector2Real32", &Arcadia_Math_Tests_multiplyComponentsVector2Real32 },
     { "MultiplyComponentsVector2Real64", &Arcadia_Math_Tests_multiplyComponentsVector2Real64 },
     { "MultiplyComponentsVector3Real32", &Arcadia_Math_Tests_multiplyComponentsVector3Real32 },

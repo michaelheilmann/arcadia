@@ -47,6 +47,20 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_createWithValues
     @{scalarType} const* values
   );
 
+/// @@brief Copy matrix components into a caller-owned row-major array.
+/// @@param thread A pointer to this thread.
+/// @@param self The matrix to read.
+/// @@param values An output array of at least @{dimensionality} * @{dimensionality} elements.
+/// @@remarks No managed objects are allocated or returned. The output must
+/// refer to a contiguous scalar array, not the matrix's nested arrays.
+void
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_copyValues
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* self,
+    @{scalarType}* values
+  );
+
 /// @@brief Assign this matrix the values of an identity matrix.
 /// @@param thread A pointer to this thread.
 /// @@param self A pointer to this matrix.

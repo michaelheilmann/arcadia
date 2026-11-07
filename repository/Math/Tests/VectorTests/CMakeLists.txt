@@ -30,6 +30,9 @@ OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/ComponentMultiply.c)
 OnHeaderFile(${this} Arcadia.Math.Tests.VectorTests/ComponentMultiply.h)
 OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/NormalizeOrZero.c)
 OnHeaderFile(${this} Arcadia.Math.Tests.VectorTests/NormalizeOrZero.h)
+OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/NativeValues.c)
+OnHeaderFile(${this} Arcadia.Math.Tests.VectorTests/NativeValues.h)
+OnInlayFile(${this} Arcadia.Math.Tests.VectorTests/NativeValues.i)
 
 OnModuleDependency(${this} ${MyProjectName}.Math PRIVATE)
 

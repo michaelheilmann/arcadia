@@ -171,6 +171,20 @@ Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_multiplyScalar
     @{scalarType} s
   );
 
+/// @@brief Copy all vector elements into a caller-owned C array.
+/// @@param thread A pointer to this thread.
+/// @@param self The vector to read.
+/// @@param values An output array of at least @{dimensionality} elements.
+/// @@remarks The output does not reference or retain managed storage.
+/// The output may alias self->elements.
+void
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_copyValues
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self,
+    @{scalarType}* values
+  );
+
 /// @@brief Multiply this vector component-wise by another vector.
 /// @@param thread A pointer to this thread.
 /// @@param self The vector to update.

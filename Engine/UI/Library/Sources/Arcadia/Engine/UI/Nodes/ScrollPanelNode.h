@@ -39,6 +39,9 @@ struct Arcadia_Engine_UI_ScrollPanelNode {
   Arcadia_Natural32Value contentHeight;
   Arcadia_Integer32Value scrollX;
   Arcadia_Integer32Value scrollY;
+  // Remainders allow high-resolution wheel deltas smaller than one notch.
+  Arcadia_Integer32Value wheelRemainderX;
+  Arcadia_Integer32Value wheelRemainderY;
   Arcadia_Engine_Visuals_ViewportNode* viewportNode;
   Arcadia_Engine_Visuals_CameraNode* cameraNode;
   Arcadia_ADL_Definitions* generatedDefinitions;

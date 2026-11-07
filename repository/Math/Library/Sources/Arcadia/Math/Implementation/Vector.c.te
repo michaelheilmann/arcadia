@@ -318,6 +318,19 @@ Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_multiplyScalar
 }
 
 void
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_copyValues
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self,
+    @{scalarType}* values
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+    values[i] = self->elements[i];
+  }
+}
+
+void
 Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_multiplyComponents
   (
     Arcadia_Thread* thread,

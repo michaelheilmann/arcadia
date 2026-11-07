@@ -430,6 +430,11 @@ Arcadia_Engine_UI_CanvasNode_handleMousePointerEventImpl
 {
   Arcadia_Engine_UI_CanvasNode* canvas = (Arcadia_Engine_UI_CanvasNode*)self;
   Arcadia_Object* child = hitTest(thread, canvas, event->x, canvas->visualsCanvasHeight - event->y);
+  if (event->action == Arcadia_Engine_Input_MousePointerAction_Scrolled) {
+    if (child && hasInterface(thread, child, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_PointerInput_getType(thread)))
+      return Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, child, event);
+    return Arcadia_BooleanValue_False;
+  }
   if (canvas->hoveredChild != child) {
     setHovered(thread, canvas->hoveredChild, Arcadia_BooleanValue_False);
     setHovered(thread, child, Arcadia_BooleanValue_True);
