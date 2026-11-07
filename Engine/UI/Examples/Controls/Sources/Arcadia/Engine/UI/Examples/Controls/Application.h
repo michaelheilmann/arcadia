@@ -14,37 +14,37 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_APPLICATION_H_INCLUDED)
-#define ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_APPLICATION_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_APPLICATION_H_INCLUDED)
+#define ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_APPLICATION_H_INCLUDED
 
 #include "Arcadia/DDL/Include.h"
 #include "Arcadia/Engine/Include.h"
 
-Arcadia_declareObjectType(u8"Arcadia.Engine.UI.Examples.Button.Application", Arcadia_Engine_UI_Examples_Button_Application,
+Arcadia_declareObjectType(u8"Arcadia.Engine.UI.Examples.Controls.Application", Arcadia_Engine_UI_Examples_Controls_Application,
                           u8"Arcadia.Engine.Application");
 
-struct Arcadia_Engine_UI_Examples_Button_ApplicationDispatch {
+struct Arcadia_Engine_UI_Examples_Controls_ApplicationDispatch {
   Arcadia_Engine_ApplicationDispatch parent;
 };
 
-struct Arcadia_Engine_UI_Examples_Button_Application {
+struct Arcadia_Engine_UI_Examples_Controls_Application {
   Arcadia_Engine_Application parent;
   Arcadia_Slot* sceneOnQuitRequestedSlot;
   Arcadia_Engine_SceneManager* sceneManager;
 };
 
-Arcadia_Engine_UI_Examples_Button_Application*
-Arcadia_Engine_UI_Examples_Button_Application_create
+Arcadia_Engine_UI_Examples_Controls_Application*
+Arcadia_Engine_UI_Examples_Controls_Application_create
   (
     Arcadia_Thread* thread
   );
 
 void
-Arcadia_Engine_UI_Examples_Button_Application_onWindowClosedEvent
+Arcadia_Engine_UI_Examples_Controls_Application_onWindowClosedEvent
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_Application* self,
+    Arcadia_Engine_UI_Examples_Controls_Application* self,
     Arcadia_Engine_Visuals_WindowClosedEvent* event
   );
 
-#endif // ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_APPLICATION_H_INCLUDED
+#endif // ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_APPLICATION_H_INCLUDED

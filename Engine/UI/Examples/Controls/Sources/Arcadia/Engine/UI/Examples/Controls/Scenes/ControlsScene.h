@@ -14,21 +14,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_SCENES_BUTTONSCENE_H_INCLUDED)
-#define ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_SCENES_BUTTONSCENE_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_SCENES_CONTROLSSCENE_H_INCLUDED)
+#define ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_SCENES_CONTROLSSCENE_H_INCLUDED
 
 #include "Arcadia/ADL/Include.h"
 #include "Arcadia/Engine/Include.h"
 #include "Arcadia/Engine/UI/Include.h"
 
-Arcadia_declareObjectType(u8"Arcadia.Engine.UI.Examples.Button.ButtonScene", Arcadia_Engine_UI_Examples_Button_ButtonScene,
+Arcadia_declareObjectType(u8"Arcadia.Engine.UI.Examples.Controls.ControlsScene", Arcadia_Engine_UI_Examples_Controls_ControlsScene,
                           u8"Arcadia.Engine.Scene");
 
-struct Arcadia_Engine_UI_Examples_Button_ButtonSceneDispatch {
+struct Arcadia_Engine_UI_Examples_Controls_ControlsSceneDispatch {
   Arcadia_Engine_SceneDispatch parent;
 };
 
-struct Arcadia_Engine_UI_Examples_Button_ButtonScene {
+struct Arcadia_Engine_UI_Examples_Controls_ControlsScene {
   Arcadia_Engine_Scene parent;
 
   Arcadia_ADL_Definitions* definitions;
@@ -61,12 +61,12 @@ struct Arcadia_Engine_UI_Examples_Button_ButtonScene {
   Arcadia_Engine_UI_LabelNode* scrollPanelFourthLabelNode;
 };
 
-Arcadia_Engine_UI_Examples_Button_ButtonScene*
-Arcadia_Engine_UI_Examples_Button_ButtonScene_create
+Arcadia_Engine_UI_Examples_Controls_ControlsScene*
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine,
     Arcadia_Engine_SceneManager* sceneManager
   );
 
-#endif // ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_SCENES_BUTTONSCENE_H_INCLUDED
+#endif // ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_SCENES_CONTROLSSCENE_H_INCLUDED

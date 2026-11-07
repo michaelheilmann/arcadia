@@ -14,7 +14,4 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_CONFIGURE_H_INCLUDED)
-#define ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_CONFIGURE_H_INCLUDED
-
-#endif // ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_CONFIGURE_H_INCLUDED
+#include "Arcadia/Engine/UI/Examples/Controls/AssetUtilities.h"

@@ -14,51 +14,51 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include "Arcadia/Engine/UI/Examples/Button/Application.h"
+#include "Arcadia/Engine/UI/Examples/Controls/Application.h"
 
 #include "Arcadia/Audials/Implementation/Include.h"
 #include "Arcadia/Visuals/Implementation/Include.h"
 
 static void
-Arcadia_Engine_UI_Examples_Button_Application_startupImpl
+Arcadia_Engine_UI_Examples_Controls_Application_startupImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_Application* self
+    Arcadia_Engine_UI_Examples_Controls_Application* self
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_Application_shutdownImpl
+Arcadia_Engine_UI_Examples_Controls_Application_shutdownImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_Application* self
+    Arcadia_Engine_UI_Examples_Controls_Application* self
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_Application_constructImpl
+Arcadia_Engine_UI_Examples_Controls_Application_constructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_Application* self
+    Arcadia_Engine_UI_Examples_Controls_Application* self
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_Application_initializeDispatchImpl
+Arcadia_Engine_UI_Examples_Controls_Application_initializeDispatchImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ApplicationDispatch* self
+    Arcadia_Engine_UI_Examples_Controls_ApplicationDispatch* self
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_Application_visit
+Arcadia_Engine_UI_Examples_Controls_Application_visit
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_Application* self
+    Arcadia_Engine_UI_Examples_Controls_Application* self
   );
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
-  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_UI_Examples_Button_Application_constructImpl,
-  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_UI_Examples_Button_Application_visit,
-  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_UI_Examples_Button_Application_initializeDispatchImpl,
+  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_UI_Examples_Controls_Application_constructImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_UI_Examples_Controls_Application_visit,
+  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_UI_Examples_Controls_Application_initializeDispatchImpl,
 };
 
 static const Arcadia_Type_Operations _typeOperations = {
@@ -66,15 +66,15 @@ static const Arcadia_Type_Operations _typeOperations = {
   .objectTypeOperations = &_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.Engine.UI.Examples.Button.Application", Arcadia_Engine_UI_Examples_Button_Application,
+Arcadia_defineObjectType(u8"Arcadia.Engine.UI.Examples.Controls.Application", Arcadia_Engine_UI_Examples_Controls_Application,
                          u8"Arcadia.Engine.Application", Arcadia_Engine_Application,
                          &_typeOperations);
 
 static void
-Arcadia_Engine_UI_Examples_Button_Application_startupImpl
+Arcadia_Engine_UI_Examples_Controls_Application_startupImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_Application* self
+    Arcadia_Engine_UI_Examples_Controls_Application* self
   )
 {
   ((Arcadia_Engine_Application*)self)->configuration = (Arcadia_DDL_Node*)Arcadia_Engine_ApplicationConfiguration_loadConfiguration(thread, ((Arcadia_Engine_Application*)self)->configurationDirectoryName);
@@ -85,10 +85,10 @@ Arcadia_Engine_UI_Examples_Button_Application_startupImpl
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_Application_shutdownImpl
+Arcadia_Engine_UI_Examples_Controls_Application_shutdownImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_Application* self
+    Arcadia_Engine_UI_Examples_Controls_Application* self
   )
 {
   Arcadia_JumpTarget jumpTarget;
@@ -120,13 +120,13 @@ Arcadia_Engine_UI_Examples_Button_Application_shutdownImpl
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_Application_constructImpl
+Arcadia_Engine_UI_Examples_Controls_Application_constructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_Application* self
+    Arcadia_Engine_UI_Examples_Controls_Application* self
   )
 {
-  Arcadia_EnterConstructor(Arcadia_Engine_UI_Examples_Button_Application);
+  Arcadia_EnterConstructor(Arcadia_Engine_UI_Examples_Controls_Application);
   {
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
@@ -140,25 +140,25 @@ Arcadia_Engine_UI_Examples_Button_Application_constructImpl
   ((Arcadia_Engine_Application*)self)->configuration = NULL;
   self->sceneManager = Arcadia_Engine_SceneManager_create(thread, ((Arcadia_Engine_Application*)self)->engine);
   self->sceneOnQuitRequestedSlot = NULL;
-  Arcadia_LeaveConstructor(Arcadia_Engine_UI_Examples_Button_Application);
+  Arcadia_LeaveConstructor(Arcadia_Engine_UI_Examples_Controls_Application);
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_Application_initializeDispatchImpl
+Arcadia_Engine_UI_Examples_Controls_Application_initializeDispatchImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ApplicationDispatch* self
+    Arcadia_Engine_UI_Examples_Controls_ApplicationDispatch* self
   )
 {
-  ((Arcadia_Engine_ApplicationDispatch*)self)->startup = (void (*)(Arcadia_Thread*, Arcadia_Engine_Application*))&Arcadia_Engine_UI_Examples_Button_Application_startupImpl;
-  ((Arcadia_Engine_ApplicationDispatch*)self)->shutdown = (void (*)(Arcadia_Thread*, Arcadia_Engine_Application*))&Arcadia_Engine_UI_Examples_Button_Application_shutdownImpl;
+  ((Arcadia_Engine_ApplicationDispatch*)self)->startup = (void (*)(Arcadia_Thread*, Arcadia_Engine_Application*))&Arcadia_Engine_UI_Examples_Controls_Application_startupImpl;
+  ((Arcadia_Engine_ApplicationDispatch*)self)->shutdown = (void (*)(Arcadia_Thread*, Arcadia_Engine_Application*))&Arcadia_Engine_UI_Examples_Controls_Application_shutdownImpl;
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_Application_visit
+Arcadia_Engine_UI_Examples_Controls_Application_visit
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_Application* self
+    Arcadia_Engine_UI_Examples_Controls_Application* self
   )
 {
   if (self->sceneManager) {
@@ -166,15 +166,15 @@ Arcadia_Engine_UI_Examples_Button_Application_visit
   }
 }
 
-Arcadia_Engine_UI_Examples_Button_Application*
-Arcadia_Engine_UI_Examples_Button_Application_create
+Arcadia_Engine_UI_Examples_Controls_Application*
+Arcadia_Engine_UI_Examples_Controls_Application_create
   (
     Arcadia_Thread* thread
   )
 {
-  _Arcadia_BeginCreate(Arcadia_Engine_UI_Examples_Button_Application);
+  _Arcadia_BeginCreate(Arcadia_Engine_UI_Examples_Controls_Application);
   Arcadia_ValueStack_pushNatural8Value(thread, 0);
-  _Arcadia_EndCreate(Arcadia_Engine_UI_Examples_Button_Application);
+  _Arcadia_EndCreate(Arcadia_Engine_UI_Examples_Controls_Application);
 }
 
 static Arcadia_BooleanValue
@@ -189,10 +189,10 @@ filterWindows
 }
 
 void
-Arcadia_Engine_UI_Examples_Button_Application_onWindowClosedEvent
+Arcadia_Engine_UI_Examples_Controls_Application_onWindowClosedEvent
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_Application* self,
+    Arcadia_Engine_UI_Examples_Controls_Application* self,
     Arcadia_Engine_Visuals_WindowClosedEvent* event
   )
 {

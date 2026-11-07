@@ -35,19 +35,19 @@ if (NOT TARGET ${this})
 
   SetFolder(${this} "Engine/UI")
 
-  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Engine/UI/Examples/Button/Configure.h
-                              ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Engine/UI/Examples/Button/Configure.h.i)
+  OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Engine/UI/Examples/Controls/Configure.h
+                              ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Engine/UI/Examples/Controls/Configure.h.i)
 
-  OnSourceFile(${this} Arcadia/Engine/UI/Examples/Button/Main.c)
+  OnSourceFile(${this} Arcadia/Engine/UI/Examples/Controls/Main.c)
 
-  OnSourceFile(${this} Arcadia/Engine/UI/Examples/Button/Application.c)
-  OnHeaderFile(${this} Arcadia/Engine/UI/Examples/Button/Application.h)
+  OnSourceFile(${this} Arcadia/Engine/UI/Examples/Controls/Application.c)
+  OnHeaderFile(${this} Arcadia/Engine/UI/Examples/Controls/Application.h)
 
-  OnSourceFile(${this} Arcadia/Engine/UI/Examples/Button/AssetUtilities.c)
-  OnHeaderFile(${this} Arcadia/Engine/UI/Examples/Button/AssetUtilities.h)
+  OnSourceFile(${this} Arcadia/Engine/UI/Examples/Controls/AssetUtilities.c)
+  OnHeaderFile(${this} Arcadia/Engine/UI/Examples/Controls/AssetUtilities.h)
 
-  OnSourceFile(${this} Arcadia/Engine/UI/Examples/Button/Scenes/ButtonScene.c)
-  OnHeaderFile(${this} Arcadia/Engine/UI/Examples/Button/Scenes/ButtonScene.h)
+  OnSourceFile(${this} Arcadia/Engine/UI/Examples/Controls/Scenes/ControlsScene.c)
+  OnHeaderFile(${this} Arcadia/Engine/UI/Examples/Controls/Scenes/ControlsScene.h)
 
   OnAssetsDirectory(${this} ${CMAKE_CURRENT_SOURCE_DIR}/Assets ${CMAKE_CURRENT_BINARY_DIR}/Assets)
 

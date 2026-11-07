@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_ASSETUTILITIES_H_INCLUDED)
-#define ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_ASSETUTILITIES_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_ASSETUTILITIES_H_INCLUDED)
+#define ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_ASSETUTILITIES_H_INCLUDED
 
 #include "Arcadia/Ring2/Include.h"
 #include "Arcadia/ADL/Include.h"
 
 static inline void
-Arcadia_Engine_UI_Examples_Button_AssetUtilities_enumerateFiles
+Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles
   (
     Arcadia_Thread* thread,
     Arcadia_FilePath* filePath,
@@ -45,7 +45,7 @@ Arcadia_Engine_UI_Examples_Button_AssetUtilities_enumerateFiles
       Arcadia_FilePath* temporary = Arcadia_FilePath_clone(thread, filePath);
       Arcadia_FilePath_append(thread, temporary, elementPath);
       if (Arcadia_FileSystem_directoryFileExists(thread, fileSystem, temporary)) {
-        Arcadia_Engine_UI_Examples_Button_AssetUtilities_enumerateFiles(thread, temporary, files);
+        Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, temporary, files);
       } else {
         Arcadia_List_insertBackObjectReferenceValue(thread, files, (Arcadia_Object*)temporary);
       }
@@ -55,7 +55,7 @@ Arcadia_Engine_UI_Examples_Button_AssetUtilities_enumerateFiles
 }
 
 static inline Arcadia_ADL_UI_ButtonDefinition*
-Arcadia_Engine_UI_Examples_Button_getButtonDefinition
+Arcadia_Engine_UI_Examples_Controls_getButtonDefinition
   (
     Arcadia_Thread* thread,
     Arcadia_ADL_Definitions* definitions,
@@ -77,4 +77,4 @@ Arcadia_Engine_UI_Examples_Button_getButtonDefinition
   return (Arcadia_ADL_UI_ButtonDefinition*)definition;
 }
 
-#endif // ARCADIA_ENGINE_UI_EXAMPLES_BUTTON_ASSETUTILITIES_H_INCLUDED
+#endif // ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_ASSETUTILITIES_H_INCLUDED

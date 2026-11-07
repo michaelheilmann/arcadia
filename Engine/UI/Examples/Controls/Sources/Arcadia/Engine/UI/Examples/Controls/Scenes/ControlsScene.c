@@ -14,80 +14,80 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include "Arcadia/Engine/UI/Examples/Button/Scenes/ButtonScene.h"
+#include "Arcadia/Engine/UI/Examples/Controls/Scenes/ControlsScene.h"
 
-#include "Arcadia/Engine/UI/Examples/Button/AssetUtilities.h"
+#include "Arcadia/Engine/UI/Examples/Controls/AssetUtilities.h"
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_constructImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_constructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_initializeDispatchImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_initializeDispatchImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonSceneDispatch* self
+    Arcadia_Engine_UI_Examples_Controls_ControlsSceneDispatch* self
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_visit
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_visit
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_updateAudialsImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateAudialsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Real64Value tick,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_updateLogicsImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateLogicsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Real64Value tick
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_updateVisualsImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateVisualsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Real64Value tick,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_handleKeyboardKeyEventImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleKeyboardKeyEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Engine_Input_KeyboardKeyEvent* event
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_handleMouseButtonEventImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMouseButtonEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Engine_Input_MouseButtonEvent* event
   );
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_handleMousePointerEventImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMousePointerEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Engine_Input_MousePointerEvent* event
   );
 
@@ -119,7 +119,7 @@ static void
 layoutControls
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
   );
@@ -127,9 +127,9 @@ layoutControls
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
-  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_UI_Examples_Button_ButtonScene_constructImpl,
-  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_UI_Examples_Button_ButtonScene_initializeDispatchImpl,
-  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_UI_Examples_Button_ButtonScene_visit,
+  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_UI_Examples_Controls_ControlsScene_constructImpl,
+  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_UI_Examples_Controls_ControlsScene_initializeDispatchImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_UI_Examples_Controls_ControlsScene_visit,
 };
 
 static const Arcadia_Type_Operations _typeOperations = {
@@ -137,7 +137,7 @@ static const Arcadia_Type_Operations _typeOperations = {
   .objectTypeOperations = &_objectTypeOperations,
 };
 
-Arcadia_defineObjectType(u8"Arcadia.Engine.UI.Examples.Button.ButtonScene", Arcadia_Engine_UI_Examples_Button_ButtonScene,
+Arcadia_defineObjectType(u8"Arcadia.Engine.UI.Examples.Controls.ControlsScene", Arcadia_Engine_UI_Examples_Controls_ControlsScene,
                          u8"Arcadia.Engine.Scene", Arcadia_Engine_Scene,
                          &_typeOperations);
 
@@ -145,7 +145,7 @@ static void
 layoutControls
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
   )
@@ -174,8 +174,8 @@ onButtonActivated
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_Engine_UI_Examples_Button_ButtonScene* self =
-    (Arcadia_Engine_UI_Examples_Button_ButtonScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Button_ButtonScene_getType(thread));
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
   Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_ButtonNode_getType(thread));
   if (self->helpLabelNode) {
     Arcadia_Engine_UI_LabelNode_setText(thread, self->helpLabelNode, Arcadia_String_createFromCxxString(thread, u8"Button activated"));
@@ -194,8 +194,8 @@ onToggleChanged
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_Engine_UI_Examples_Button_ButtonScene* self =
-    (Arcadia_Engine_UI_Examples_Button_ButtonScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Button_ButtonScene_getType(thread));
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
   Arcadia_Engine_UI_ToggleNode* toggle = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_ToggleNode_getType(thread));
   if (self->helpLabelNode) {
     Arcadia_Engine_UI_LabelNode_setText(thread, self->helpLabelNode,
@@ -215,8 +215,8 @@ onSliderChanged
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_Engine_UI_Examples_Button_ButtonScene* self =
-    (Arcadia_Engine_UI_Examples_Button_ButtonScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Button_ButtonScene_getType(thread));
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
   Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_SliderNode_getType(thread));
   if (self->helpLabelNode) {
     Arcadia_Engine_UI_LabelNode_setText(thread, self->helpLabelNode, Arcadia_String_createFromCxxString(thread, u8"Slider value changed"));
@@ -235,8 +235,8 @@ onSegmentedChoiceChanged
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_Engine_UI_Examples_Button_ButtonScene* self =
-    (Arcadia_Engine_UI_Examples_Button_ButtonScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Button_ButtonScene_getType(thread));
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
   Arcadia_Engine_UI_SegmentedChoiceNode* segmentedChoice = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_SegmentedChoiceNode_getType(thread));
   if (self->helpLabelNode) {
     Arcadia_Natural32Value selectedIndex = Arcadia_Engine_UI_SegmentedChoiceNode_getSelectedIndex(thread, segmentedChoice);
@@ -246,13 +246,13 @@ onSegmentedChoiceChanged
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_constructImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_constructImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self
   )
 {
-  Arcadia_EnterConstructor(Arcadia_Engine_UI_Examples_Button_ButtonScene);
+  Arcadia_EnterConstructor(Arcadia_Engine_UI_Examples_Controls_ControlsScene);
   {
     Arcadia_Value engine = Arcadia_ValueStack_getValue(thread, 2);
     Arcadia_Value sceneManager = Arcadia_ValueStack_getValue(thread, 1);
@@ -293,29 +293,29 @@ Arcadia_Engine_UI_Examples_Button_ButtonScene_constructImpl
   self->scrollPanelSecondLabelNode = NULL;
   self->scrollPanelThirdLabelNode = NULL;
   self->scrollPanelFourthLabelNode = NULL;
-  Arcadia_LeaveConstructor(Arcadia_Engine_UI_Examples_Button_ButtonScene);
+  Arcadia_LeaveConstructor(Arcadia_Engine_UI_Examples_Controls_ControlsScene);
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_initializeDispatchImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_initializeDispatchImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonSceneDispatch* self
+    Arcadia_Engine_UI_Examples_Controls_ControlsSceneDispatch* self
   )
 {
-  ((Arcadia_Engine_SceneDispatch*)self)->updateAudials = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value))&Arcadia_Engine_UI_Examples_Button_ButtonScene_updateAudialsImpl;
-  ((Arcadia_Engine_SceneDispatch*)self)->updateLogics = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value))&Arcadia_Engine_UI_Examples_Button_ButtonScene_updateLogicsImpl;
-  ((Arcadia_Engine_SceneDispatch*)self)->updateVisuals = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value))&Arcadia_Engine_UI_Examples_Button_ButtonScene_updateVisualsImpl;
-  ((Arcadia_Engine_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*))&Arcadia_Engine_UI_Examples_Button_ButtonScene_handleKeyboardKeyEventImpl;
-  ((Arcadia_Engine_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MouseButtonEvent*))&Arcadia_Engine_UI_Examples_Button_ButtonScene_handleMouseButtonEventImpl;
-  ((Arcadia_Engine_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MousePointerEvent*))&Arcadia_Engine_UI_Examples_Button_ButtonScene_handleMousePointerEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateAudials = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateAudialsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateLogics = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateLogicsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateVisuals = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateVisualsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleKeyboardKeyEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MouseButtonEvent*))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMouseButtonEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MousePointerEvent*))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMousePointerEventImpl;
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_visit
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_visit
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self
   )
 {
   if (self->definitions) Arcadia_Object_visit(thread, (Arcadia_Object*)self->definitions);
@@ -378,7 +378,7 @@ static void
 load
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self
   )
 {
   if (!self->definitions) {
@@ -386,7 +386,7 @@ load
     Arcadia_FileSystem* fileSystem = Arcadia_FileSystem_getOrCreate(thread);
     Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
     Arcadia_List* files = (Arcadia_List*)Arcadia_ArrayList_create(thread);
-    Arcadia_Engine_UI_Examples_Button_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Button")), files);
+    Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Button")), files);
     for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)files); i < n; ++i) {
       Arcadia_FilePath* filePath = (Arcadia_FilePath*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, files, i, _Arcadia_FilePath_getType(thread));
       Arcadia_ByteArrayBuilder* fileBytes = Arcadia_FileSystem_getFileContents(thread, fileSystem, filePath);
@@ -450,7 +450,7 @@ load
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->bodyPanelNode, (Arcadia_Object*)self->scrollColumnPanelNode);
   }
   if (!self->buttonNode) {
-    Arcadia_ADL_UI_ButtonDefinition* buttonDefinition = Arcadia_Engine_UI_Examples_Button_getButtonDefinition(thread, self->definitions,
+    Arcadia_ADL_UI_ButtonDefinition* buttonDefinition = Arcadia_Engine_UI_Examples_Controls_getButtonDefinition(thread, self->definitions,
                                                                                                               Arcadia_String_createFromCxxString(thread, "Assets/Button/Button.adl"),
                                                                                                               Arcadia_String_createFromCxxString(thread, "Button.Primary"));
     self->buttonNode = Arcadia_Engine_UI_ButtonNode_create(thread, (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext, buttonDefinition);
@@ -678,10 +678,10 @@ load
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_updateAudialsImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateAudialsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Real64Value tick,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
@@ -689,19 +689,19 @@ Arcadia_Engine_UI_Examples_Button_ButtonScene_updateAudialsImpl
 { load(thread, self); }
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_updateLogicsImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateLogicsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Real64Value tick
   )
 {/*Intentionally empty.*/}
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_updateVisualsImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateVisualsImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Real64Value tick,
     Arcadia_Integer32Value width,
     Arcadia_Integer32Value height
@@ -724,10 +724,10 @@ Arcadia_Engine_UI_Examples_Button_ButtonScene_updateVisualsImpl
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_handleKeyboardKeyEventImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleKeyboardKeyEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Engine_Input_KeyboardKeyEvent* event
   )
 {
@@ -744,10 +744,10 @@ Arcadia_Engine_UI_Examples_Button_ButtonScene_handleKeyboardKeyEventImpl
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_handleMouseButtonEventImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMouseButtonEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Engine_Input_MouseButtonEvent* event
   )
 {
@@ -756,10 +756,10 @@ Arcadia_Engine_UI_Examples_Button_ButtonScene_handleMouseButtonEventImpl
 }
 
 static void
-Arcadia_Engine_UI_Examples_Button_ButtonScene_handleMousePointerEventImpl
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMousePointerEventImpl
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_Examples_Button_ButtonScene* self,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
     Arcadia_Engine_Input_MousePointerEvent* event
   )
 {
@@ -767,17 +767,17 @@ Arcadia_Engine_UI_Examples_Button_ButtonScene_handleMousePointerEventImpl
   Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (Arcadia_Object*)self->canvasNode, event);
 }
 
-Arcadia_Engine_UI_Examples_Button_ButtonScene*
-Arcadia_Engine_UI_Examples_Button_ButtonScene_create
+Arcadia_Engine_UI_Examples_Controls_ControlsScene*
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_create
   (
     Arcadia_Thread* thread,
     Arcadia_Engine* engine,
     Arcadia_Engine_SceneManager* sceneManager
   )
 {
-  _Arcadia_BeginCreate(Arcadia_Engine_UI_Examples_Button_ButtonScene);
+  _Arcadia_BeginCreate(Arcadia_Engine_UI_Examples_Controls_ControlsScene);
   if (engine) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)engine); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   if (sceneManager) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sceneManager); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
   Arcadia_ValueStack_pushNatural8Value(thread, 2);
-  _Arcadia_EndCreate(Arcadia_Engine_UI_Examples_Button_ButtonScene);
+  _Arcadia_EndCreate(Arcadia_Engine_UI_Examples_Controls_ControlsScene);
 }

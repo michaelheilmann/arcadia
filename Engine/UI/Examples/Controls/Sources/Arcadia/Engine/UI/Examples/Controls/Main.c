@@ -17,8 +17,8 @@
 #include "Arcadia/Engine/Include.h"
 
 #include "Arcadia/DDL/Include.h"
-#include "Arcadia/Engine/UI/Examples/Button/Application.h"
-#include "Arcadia/Engine/UI/Examples/Button/Scenes/ButtonScene.h"
+#include "Arcadia/Engine/UI/Examples/Controls/Application.h"
+#include "Arcadia/Engine/UI/Examples/Controls/Scenes/ControlsScene.h"
 
 #include <stdlib.h>
 
@@ -34,8 +34,8 @@ onQuitRequested
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_Engine_UI_Examples_Button_Application* application =
-    (Arcadia_Engine_UI_Examples_Button_Application*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_Engine_UI_Examples_Button_Application_getType(thread));
+  Arcadia_Engine_UI_Examples_Controls_Application* application =
+    (Arcadia_Engine_UI_Examples_Controls_Application*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_Engine_UI_Examples_Controls_Application_getType(thread));
   Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent_getType(thread));
   Arcadia_Engine_Application_setQuitRequested(thread, (Arcadia_Engine_Application*)application, Arcadia_BooleanValue_True);
 }
@@ -52,7 +52,7 @@ onSceneChanged
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_Engine_UI_Examples_Button_Application* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 4, _Arcadia_Engine_UI_Examples_Button_Application_getType(thread));
+  Arcadia_Engine_UI_Examples_Controls_Application* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 4, _Arcadia_Engine_UI_Examples_Controls_Application_getType(thread));
   Arcadia_Engine_Scene* newScene = NULL;
   if (Arcadia_ValueStack_isObjectReferenceValue(thread, 1)) {
     newScene = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_Scene_getType(thread));
@@ -73,17 +73,17 @@ main1
     char** argv
   )
 {
-  Arcadia_Engine_UI_Examples_Button_Application* application = NULL;
+  Arcadia_Engine_UI_Examples_Controls_Application* application = NULL;
   Arcadia_Thread* thread = Arcadia_Process_getThread(process);
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
-    application = Arcadia_Engine_UI_Examples_Button_Application_create(thread);
+    application = Arcadia_Engine_UI_Examples_Controls_Application_create(thread);
     Arcadia_Object_lock(thread, (Arcadia_Object*)application);
     Arcadia_Engine_Application_startup(thread, (Arcadia_Engine_Application*)application);
     Arcadia_Signal_connect(thread, application->sceneManager->sceneChangedEvent, (Arcadia_Object*)application, &onSceneChanged);
     Arcadia_Engine_SceneManager_setScene(thread, application->sceneManager,
-      (Arcadia_Engine_Scene*)Arcadia_Engine_UI_Examples_Button_ButtonScene_create(thread, ((Arcadia_Engine_Application*)application)->engine, application->sceneManager));
+      (Arcadia_Engine_Scene*)Arcadia_Engine_UI_Examples_Controls_ControlsScene_create(thread, ((Arcadia_Engine_Application*)application)->engine, application->sceneManager));
 
     Arcadia_Process_stepARMS(process);
 
@@ -115,7 +115,7 @@ main1
       // which mouse-look regularly does.
       while (NULL != (event = Arcadia_Engine_dequeEvent(thread, ((Arcadia_Engine_Application*)application)->engine))) {
         if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)event, _Arcadia_Engine_Visuals_WindowClosedEvent_getType(thread))) {
-          Arcadia_Engine_UI_Examples_Button_Application_onWindowClosedEvent(thread, application, (Arcadia_Engine_Visuals_WindowClosedEvent*)event);
+          Arcadia_Engine_UI_Examples_Controls_Application_onWindowClosedEvent(thread, application, (Arcadia_Engine_Visuals_WindowClosedEvent*)event);
         }
         if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)event, _Arcadia_Engine_Input_MouseButtonEvent_getType(thread))) {
           Arcadia_Engine_Scene_handleMouseButtonEvent(thread, Arcadia_Engine_SceneManager_getScene(thread, application->sceneManager), (Arcadia_Engine_Input_MouseButtonEvent*)event);
