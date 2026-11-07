@@ -280,7 +280,7 @@ loadDefinitions
   Arcadia_ADL_Definitions_link(thread, self->definitions);
 }
 
-static Arcadia_Engine_UI_StackPanelNode*
+static Arcadia_Engine_UI_LayoutPanelNode*
 createOptionRow
   (
     Arcadia_Thread* thread,
@@ -289,8 +289,8 @@ createOptionRow
     char const* name
   )
 {
-  return Arcadia_Engine_UI_StackPanelNode_createFromDefinition(thread, backendContext,
-    (Arcadia_ADL_UI_StackPanelDefinition*)getDefinition(thread, self->definitions, name));
+  return Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition(thread, backendContext,
+    (Arcadia_ADL_UI_PanelDefinition*)getDefinition(thread, self->definitions, name));
 }
 
 static Arcadia_Object*
@@ -966,30 +966,30 @@ ensureScene
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->exitButton), (Arcadia_Object*)self, &onButtonActivated);
   }
   if (!self->optionsRoot) {
-    self->optionsRoot = Arcadia_Engine_UI_StackPanelNode_createFromDefinition(thread, backendContext,
-      (Arcadia_ADL_UI_StackPanelDefinition*)getDefinition(thread, self->definitions, u8"Anima.StackPanel.OptionsRoot"));
+    self->optionsRoot = Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition(thread, backendContext,
+      (Arcadia_ADL_UI_PanelDefinition*)getDefinition(thread, self->definitions, u8"Anima.Panel.OptionsRoot"));
     self->optionsTabs = (Arcadia_Engine_UI_SegmentedChoiceNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.SegmentedChoice.OptionsTabs");
-    self->optionsContentRoot = (Arcadia_Engine_UI_StackPanelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.StackPanel.OptionsContent");
-    self->optionsFooterRoot = (Arcadia_Engine_UI_StackPanelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.StackPanel.OptionsFooter");
-    self->resolutionRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.Resolution");
-    self->resolutionSelector = (Arcadia_Engine_UI_StackPanelNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.StackPanel.ResolutionSelector");
+    self->optionsContentRoot = (Arcadia_Engine_UI_LayoutPanelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.Panel.OptionsContent");
+    self->optionsFooterRoot = (Arcadia_Engine_UI_LayoutPanelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.Panel.OptionsFooter");
+    self->resolutionRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.Resolution");
+    self->resolutionSelector = (Arcadia_Engine_UI_LayoutPanelNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Panel.ResolutionSelector");
     self->resolutionLabel = (Arcadia_Engine_UI_LabelNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Label.ResolutionValue");
     self->resolutionPreviousButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Button.ResolutionPrevious");
     self->resolutionNextButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Button.ResolutionNext");
-    self->windowModeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.WindowMode");
+    self->windowModeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.WindowMode");
     self->backButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Back");
     self->resetButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Reset");
     self->applyButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Apply");
-    self->vsyncRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.VSync");
-    self->brightnessRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.Brightness");
-    self->masterVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.MasterVolume");
-    self->musicVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.MusicVolume");
-    self->effectsVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.EffectsVolume");
-    self->uiVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.UIVolume");
-    self->voiceVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.VoiceVolume");
-    self->mouseSensitivityRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.MouseSensitivity");
-    self->subtitlesRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.Subtitles");
-    self->highContrastRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.HighContrast");
+    self->vsyncRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.VSync");
+    self->brightnessRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.Brightness");
+    self->masterVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.MasterVolume");
+    self->musicVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.MusicVolume");
+    self->effectsVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.EffectsVolume");
+    self->uiVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.UIVolume");
+    self->voiceVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.VoiceVolume");
+    self->mouseSensitivityRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.MouseSensitivity");
+    self->subtitlesRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.Subtitles");
+    self->highContrastRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.HighContrast");
     self->windowModeToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->windowModeRow, u8"Anima.Toggle.WindowMode");
     Arcadia_Engine_UI_ToggleNode_setChecked(thread, self->windowModeToggle, isBorderlessFullscreen(thread, self));
     self->vsyncToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->vsyncRow, u8"Anima.Toggle.VSync");
@@ -1007,25 +1007,10 @@ ensureScene
     self->mouseSensitivitySlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->mouseSensitivityRow, u8"Anima.Slider.MouseSensitivity");
     self->subtitlesToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->subtitlesRow, u8"Anima.Toggle.Subtitles");
     self->highContrastToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->highContrastRow, u8"Anima.Toggle.HighContrast");
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->windowModeRow, (Arcadia_Object*)self->windowModeToggle, 284, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->vsyncRow, (Arcadia_Object*)self->vsyncToggle, 384, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->brightnessRow, (Arcadia_Object*)self->brightnessSlider, 160, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->masterVolumeRow, (Arcadia_Object*)self->masterVolumeSlider, 100, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->musicVolumeRow, (Arcadia_Object*)self->musicVolumeSlider, 100, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->effectsVolumeRow, (Arcadia_Object*)self->effectsVolumeSlider, 100, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->uiVolumeRow, (Arcadia_Object*)self->uiVolumeSlider, 100, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->voiceVolumeRow, (Arcadia_Object*)self->voiceVolumeSlider, 100, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->mouseSensitivityRow, (Arcadia_Object*)self->mouseSensitivitySlider, 160, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->subtitlesRow, (Arcadia_Object*)self->subtitlesToggle, 384, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->highContrastRow, (Arcadia_Object*)self->highContrastToggle, 384, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->resolutionRow, (Arcadia_Object*)self->resolutionSelector, 184, 0, 0, 0);
+    // Control spacing and button dimensions are now owned by Menu.adl.
     populateVolumeSettings(thread, self);
     populateResolutionModes(thread, self);
     updateResolutionControls(thread, self);
-    Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)self->applyButton, 120, 44);
-    Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)self->resetButton, 120, 44);
-    Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)self->backButton, 120, 44);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->optionsFooterRoot, (Arcadia_Object*)self->backButton, 0, 0, 328, 0);
     rebuildOptionsContent(thread, self);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SegmentedChoiceNode_getChangedSignal(thread, self->optionsTabs), (Arcadia_Object*)self, &onOptionsTabChanged);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ToggleNode_getChangedSignal(thread, self->windowModeToggle), (Arcadia_Object*)self, &onWindowModeChanged);
