@@ -332,4 +332,39 @@ Arcadia_Media_PixelNatural8_lerp
   return (Arcadia_Natural8Value)((numerator + 127u) / 255u);
 }
 
+// Convert byte components to normalized RGBA Real32 values without allocating a
+// managed color. The result always uses R, G, B, A component order, regardless
+// of the original pixel storage layout. This is a direct value conversion:
+// it does not perform gamma correction or premultiply alpha.
+//
+// The separate RGB alpha argument is a Real32 value passed through unchanged,
+// preserving the original RGB-to-RGBA conversion semantics.
+static inline void
+Arcadia_Media_PixelRedGreenBlueNatural8_toColor4Real32Values
+  (
+    const Arcadia_Media_PixelRedGreenBlueNatural8* source,
+    Arcadia_Real32Value alpha,
+    Arcadia_Real32Value result[4]
+  )
+{
+  result[0] = (Arcadia_Real32Value)source->r / 255.f;
+  result[1] = (Arcadia_Real32Value)source->g / 255.f;
+  result[2] = (Arcadia_Real32Value)source->b / 255.f;
+  result[3] = alpha;
+}
+
+// RGBA alpha is stored as Natural8 and is normalized in the same way as RGB.
+static inline void
+Arcadia_Media_PixelRedGreenBlueAlphaNatural8_toColor4Real32Values
+  (
+    const Arcadia_Media_PixelRedGreenBlueAlphaNatural8* source,
+    Arcadia_Real32Value result[4]
+  )
+{
+  result[0] = (Arcadia_Real32Value)source->r / 255.f;
+  result[1] = (Arcadia_Real32Value)source->g / 255.f;
+  result[2] = (Arcadia_Real32Value)source->b / 255.f;
+  result[3] = (Arcadia_Real32Value)source->a / 255.f;
+}
+
 #endif // ARCADIA_MEDIA_PIXELVALUESNATURAL8_H_INCLUDED

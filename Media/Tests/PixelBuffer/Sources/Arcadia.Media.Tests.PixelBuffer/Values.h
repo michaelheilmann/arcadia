@@ -29,4 +29,10 @@ Arcadia_Media_Tests_PixelBuffer_pixelValueInterpolation
     void
   );
 
+int
+Arcadia_Media_Tests_PixelBuffer_pixelValueColorConversions
+  (
+    void
+  );
+
 #endif // ARCADIA_MEDIA_TESTS_PIXELBUFFER_VALUES_H_INCLUDED

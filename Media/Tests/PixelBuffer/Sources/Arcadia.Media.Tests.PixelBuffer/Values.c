@@ -341,6 +341,43 @@ testRGBA
 }
 
 static void
+testColorConversions
+  (
+    Arcadia_Thread* thread
+  )
+{
+  // RGB uses the caller-provided Real32 alpha rather than synthesizing 255.
+  Arcadia_Media_PixelRedGreenBlueNatural8 rgb;
+  Arcadia_Real32Value actual[4] = { -1.f, -1.f, -1.f, -1.f };
+  Arcadia_Media_PixelRedGreenBlueNatural8_set(&rgb, 0, 128, 255);
+  Arcadia_Media_PixelRedGreenBlueNatural8_toColor4Real32Values(&rgb, 0.375f, actual);
+  Arcadia_Tests_assertTrue(thread, actual[0] == 0.f);
+  Arcadia_Tests_assertTrue(thread, actual[1] == 128.f / 255.f);
+  Arcadia_Tests_assertTrue(thread, actual[2] == 1.f);
+  Arcadia_Tests_assertTrue(thread, actual[3] == 0.375f);
+
+  Arcadia_Media_PixelRedGreenBlueNatural8_set(&rgb, 255, 0, 128);
+  Arcadia_Media_PixelRedGreenBlueNatural8_toColor4Real32Values(&rgb, 0.f, actual);
+  Arcadia_Tests_assertTrue(thread, actual[0] == 1.f);
+  Arcadia_Tests_assertTrue(thread, actual[1] == 0.f);
+  Arcadia_Tests_assertTrue(thread, actual[2] == 128.f / 255.f);
+  Arcadia_Tests_assertTrue(thread, actual[3] == 0.f);
+
+  // RGBA alpha comes from the stored byte, even when it is 0 or fractional.
+  Arcadia_Media_PixelRedGreenBlueAlphaNatural8 rgba;
+  const Arcadia_Natural8Value alphas[] = { 0, 1, 128, 255 };
+  for (Arcadia_SizeValue i = 0; i < sizeof(alphas) / sizeof(alphas[0]); ++i) {
+    Arcadia_Media_PixelRedGreenBlueAlphaNatural8_set(&rgba, 17, 53, 101, alphas[i]);
+    actual[0] = actual[1] = actual[2] = actual[3] = -1.f;
+    Arcadia_Media_PixelRedGreenBlueAlphaNatural8_toColor4Real32Values(&rgba, actual);
+    Arcadia_Tests_assertTrue(thread, actual[0] == 17.f / 255.f);
+    Arcadia_Tests_assertTrue(thread, actual[1] == 53.f / 255.f);
+    Arcadia_Tests_assertTrue(thread, actual[2] == 101.f / 255.f);
+    Arcadia_Tests_assertTrue(thread, actual[3] == (Arcadia_Real32Value)alphas[i] / 255.f);
+  }
+}
+
+static void
 testInterpolation
   (
     Arcadia_Thread* thread
@@ -403,4 +440,13 @@ Arcadia_Media_Tests_PixelBuffer_pixelValueInterpolation
   )
 {
   return Arcadia_Tests_safeExecute(&testInterpolation) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int
+Arcadia_Media_Tests_PixelBuffer_pixelValueColorConversions
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testColorConversions) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
