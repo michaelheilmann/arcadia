@@ -34,6 +34,8 @@ OnSourceFile(${this} Arcadia.Media.Tests.PixelBuffer/Formats.c)
 OnHeaderFile(${this} Arcadia.Media.Tests.PixelBuffer/Formats.h)
 OnSourceFile(${this} Arcadia.Media.Tests.PixelBuffer/Values.c)
 OnHeaderFile(${this} Arcadia.Media.Tests.PixelBuffer/Values.h)
+OnSourceFile(${this} Arcadia.Media.Tests.PixelBuffer/NamedColors.c)
+OnHeaderFile(${this} Arcadia.Media.Tests.PixelBuffer/NamedColors.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Media PRIVATE)
 

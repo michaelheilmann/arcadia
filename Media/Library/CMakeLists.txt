@@ -32,6 +32,7 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Media/Include.c)
   OnHeaderFile(${this} Arcadia/Media/Include.h)
   OnHeaderFile(${this} Arcadia/Media/PixelValuesNatural8.h)
+  OnHeaderFile(${this} Arcadia/Media/ColorPaletteNatural8.h)
 
   OnSourceFile(${this} Arcadia/Media/PixelBuffer.c)
   OnHeaderFile(${this} Arcadia/Media/PixelBuffer.h)
