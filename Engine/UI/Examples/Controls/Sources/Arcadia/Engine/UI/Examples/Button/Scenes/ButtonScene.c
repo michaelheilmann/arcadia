@@ -348,6 +348,32 @@ Arcadia_Engine_UI_Examples_Button_ButtonScene_visit
   if (self->scrollPanelFourthLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->scrollPanelFourthLabelNode);
 }
 
+// Assemble a fixed-size panel and its independently configured stack layout.
+// All example controls are still created programmatically below.
+static Arcadia_Engine_UI_LayoutPanelNode*
+createExamplePanel
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height,
+    Arcadia_BooleanValue vertical,
+    Arcadia_Integer32Value gap,
+    Arcadia_Engine_UI_StackPanelNodeAlignment mainAlignment,
+    Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment
+  )
+{
+  Arcadia_Engine_UI_LayoutPanelNode* panel = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)panel);
+  Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 0, 0, width, height);
+  Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy(thread, panel, Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed);
+  Arcadia_Engine_UI_StackLayout* layout = Arcadia_Engine_UI_StackLayout_create(thread, vertical, gap);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)layout);
+  Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout, mainAlignment, crossAlignment);
+  Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
+  Arcadia_ValueStack_popValues(thread, 2);
+  return panel;
+}
+
 static void
 load
   (
@@ -385,42 +411,42 @@ load
     self->canvasNode = Arcadia_Engine_UI_CanvasNode_create(thread);
   }
   if (!self->rootPanelNode) {
-    self->rootPanelNode = Arcadia_Engine_UI_StackPanelNode_create(thread, 0, 0, 800, 336, Arcadia_BooleanValue_True, 16);
-    Arcadia_Engine_UI_StackPanelNode_setAlignment(thread, self->rootPanelNode, Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+    self->rootPanelNode = createExamplePanel(thread, 800, 336, Arcadia_BooleanValue_True, 16,
+      Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->canvasNode, (Arcadia_Object*)self->rootPanelNode);
   }
   if (!self->bodyPanelNode) {
-    self->bodyPanelNode = Arcadia_Engine_UI_StackPanelNode_create(thread, 0, 0, 800, 260, Arcadia_BooleanValue_False, 20);
-    Arcadia_Engine_UI_StackPanelNode_setAlignment(thread, self->bodyPanelNode, Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+    self->bodyPanelNode = createExamplePanel(thread, 800, 260, Arcadia_BooleanValue_False, 20,
+      Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
   }
   if (!self->leftColumnPanelNode) {
-    self->leftColumnPanelNode = Arcadia_Engine_UI_StackPanelNode_create(thread, 0, 0, 500, 260, Arcadia_BooleanValue_True, 20);
-    Arcadia_Engine_UI_StackPanelNode_setAlignment(thread, self->leftColumnPanelNode, Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch);
+    self->leftColumnPanelNode = createExamplePanel(thread, 500, 260, Arcadia_BooleanValue_True, 20,
+      Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->bodyPanelNode, (Arcadia_Object*)self->leftColumnPanelNode);
   }
   if (!self->buttonRowPanelNode) {
-    self->buttonRowPanelNode = Arcadia_Engine_UI_StackPanelNode_create(thread, 0, 0, 500, 64, Arcadia_BooleanValue_False, 20);
-    Arcadia_Engine_UI_StackPanelNode_setAlignment(thread, self->buttonRowPanelNode, Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+    self->buttonRowPanelNode = createExamplePanel(thread, 500, 64, Arcadia_BooleanValue_False, 20,
+      Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->buttonRowPanelNode);
   }
   if (!self->toggleRowPanelNode) {
-    self->toggleRowPanelNode = Arcadia_Engine_UI_StackPanelNode_create(thread, 0, 0, 500, 48, Arcadia_BooleanValue_False, 0);
-    Arcadia_Engine_UI_StackPanelNode_setAlignment(thread, self->toggleRowPanelNode, Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+    self->toggleRowPanelNode = createExamplePanel(thread, 500, 48, Arcadia_BooleanValue_False, 0,
+      Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->toggleRowPanelNode);
   }
   if (!self->sliderRowPanelNode) {
-    self->sliderRowPanelNode = Arcadia_Engine_UI_StackPanelNode_create(thread, 0, 0, 500, 40, Arcadia_BooleanValue_False, 0);
-    Arcadia_Engine_UI_StackPanelNode_setAlignment(thread, self->sliderRowPanelNode, Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+    self->sliderRowPanelNode = createExamplePanel(thread, 500, 40, Arcadia_BooleanValue_False, 0,
+      Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->sliderRowPanelNode);
   }
   if (!self->choiceRowPanelNode) {
-    self->choiceRowPanelNode = Arcadia_Engine_UI_StackPanelNode_create(thread, 0, 0, 500, 40, Arcadia_BooleanValue_False, 0);
-    Arcadia_Engine_UI_StackPanelNode_setAlignment(thread, self->choiceRowPanelNode, Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+    self->choiceRowPanelNode = createExamplePanel(thread, 500, 40, Arcadia_BooleanValue_False, 0,
+      Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->choiceRowPanelNode);
   }
   if (!self->scrollColumnPanelNode) {
-    self->scrollColumnPanelNode = Arcadia_Engine_UI_StackPanelNode_create(thread, 0, 0, 280, 196, Arcadia_BooleanValue_True, 24);
-    Arcadia_Engine_UI_StackPanelNode_setAlignment(thread, self->scrollColumnPanelNode, Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+    self->scrollColumnPanelNode = createExamplePanel(thread, 280, 196, Arcadia_BooleanValue_True, 24,
+      Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->bodyPanelNode, (Arcadia_Object*)self->scrollColumnPanelNode);
   }
   if (!self->buttonNode) {
@@ -429,7 +455,6 @@ load
                                                                                                               Arcadia_String_createFromCxxString(thread, "Button.Primary"));
     self->buttonNode = Arcadia_Engine_UI_ButtonNode_create(thread, (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext, buttonDefinition);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->buttonRowPanelNode, (Arcadia_Object*)self->buttonNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->buttonRowPanelNode, (Arcadia_Object*)self->buttonNode, 0, 0, 0, 0);
   }
   if (!self->disabledButtonNode) {
     Arcadia_ADL_UI_ButtonDefinition* disabledButtonDefinition =
@@ -456,7 +481,6 @@ load
     self->disabledButtonNode = Arcadia_Engine_UI_ButtonNode_create(thread, (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext, disabledButtonDefinition);
     Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->disabledButtonNode, Arcadia_BooleanValue_False);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->buttonRowPanelNode, (Arcadia_Object*)self->disabledButtonNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->buttonRowPanelNode, (Arcadia_Object*)self->disabledButtonNode, 0, 0, 0, 0);
   }
   if (!self->toggleLabelNode) {
     self->toggleLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
@@ -473,7 +497,6 @@ load
                                                               240,
                                                               255);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->toggleRowPanelNode, (Arcadia_Object*)self->toggleLabelNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->toggleRowPanelNode, (Arcadia_Object*)self->toggleLabelNode, 0, 0, 0, 0);
   }
   if (!self->toggleNode) {
     self->toggleNode = Arcadia_Engine_UI_ToggleNode_create(thread,
@@ -484,7 +507,6 @@ load
                                                           48,
                                                           Arcadia_BooleanValue_False);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->toggleRowPanelNode, (Arcadia_Object*)self->toggleNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->toggleRowPanelNode, (Arcadia_Object*)self->toggleNode, 0, 0, 0, 0);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ToggleNode_getChangedSignal(thread, self->toggleNode), (Arcadia_Object*)self, &onToggleChanged);
   }
   if (!self->sliderLabelNode) {
@@ -502,7 +524,6 @@ load
                                                               240,
                                                               255);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->sliderRowPanelNode, (Arcadia_Object*)self->sliderLabelNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->sliderRowPanelNode, (Arcadia_Object*)self->sliderLabelNode, 0, 0, 0, 0);
   }
   if (!self->sliderNode) {
     self->sliderNode = Arcadia_Engine_UI_SliderNode_create(thread,
@@ -516,7 +537,6 @@ load
                                                           0.35,
                                                           0.05);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->sliderRowPanelNode, (Arcadia_Object*)self->sliderNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->sliderRowPanelNode, (Arcadia_Object*)self->sliderNode, 0, 0, 0, 0);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SliderNode_getChangedSignal(thread, self->sliderNode), (Arcadia_Object*)self, &onSliderChanged);
   }
   if (!self->segmentedChoiceLabelNode) {
@@ -534,7 +554,6 @@ load
                                                                        240,
                                                                        255);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->choiceRowPanelNode, (Arcadia_Object*)self->segmentedChoiceLabelNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->choiceRowPanelNode, (Arcadia_Object*)self->segmentedChoiceLabelNode, 0, 0, 0, 0);
   }
   if (!self->segmentedChoiceNode) {
     self->segmentedChoiceNode = Arcadia_Engine_UI_SegmentedChoiceNode_create(thread,
@@ -546,7 +565,6 @@ load
                                                                            3,
                                                                            1);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->choiceRowPanelNode, (Arcadia_Object*)self->segmentedChoiceNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->choiceRowPanelNode, (Arcadia_Object*)self->segmentedChoiceNode, 0, 0, 0, 0);
     Arcadia_Engine_UI_SegmentedChoiceNode_setSegmentLabel(thread, self->segmentedChoiceNode, 0, Arcadia_String_createFromCxxString(thread, u8"Low"));
     Arcadia_Engine_UI_SegmentedChoiceNode_setSegmentLabel(thread, self->segmentedChoiceNode, 1, Arcadia_String_createFromCxxString(thread, u8"Medium"));
     Arcadia_Engine_UI_SegmentedChoiceNode_setSegmentLabel(thread, self->segmentedChoiceNode, 2, Arcadia_String_createFromCxxString(thread, u8"High"));
@@ -567,13 +585,11 @@ load
                                                                    240,
                                                                    255);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->scrollColumnPanelNode, (Arcadia_Object*)self->scrollPanelLabelNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->scrollColumnPanelNode, (Arcadia_Object*)self->scrollPanelLabelNode, 0, 0, 0, 0);
   }
   if (!self->scrollPanelNode) {
     self->scrollPanelNode = Arcadia_Engine_UI_ScrollPanelNode_create(thread, 680, 24, 240, 96);
     Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, self->scrollPanelNode, 240, 140);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->scrollColumnPanelNode, (Arcadia_Object*)self->scrollPanelNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->scrollColumnPanelNode, (Arcadia_Object*)self->scrollPanelNode, 0, 0, 0, 0);
   }
   if (!self->scrollPanelFirstLabelNode) {
     self->scrollPanelFirstLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
@@ -654,9 +670,7 @@ load
                                                             240,
                                                             255);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->rootPanelNode, (Arcadia_Object*)self->helpLabelNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->rootPanelNode, (Arcadia_Object*)self->helpLabelNode, 0, 0, 0, 0);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->rootPanelNode, (Arcadia_Object*)self->bodyPanelNode);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->rootPanelNode, (Arcadia_Object*)self->bodyPanelNode, 0, 0, 0, 0);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->buttonNode), (Arcadia_Object*)self, &onButtonActivated);
   }
 }

@@ -26,6 +26,10 @@ SetFolder(${this} "Math")
 OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/Main.c)
 OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/Vector2.c)
 OnHeaderFile(${this} Arcadia.Math.Tests.VectorTests/Vector2.h)
+OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/ComponentMultiply.c)
+OnHeaderFile(${this} Arcadia.Math.Tests.VectorTests/ComponentMultiply.h)
+OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/NormalizeOrZero.c)
+OnHeaderFile(${this} Arcadia.Math.Tests.VectorTests/NormalizeOrZero.h)
 
 OnModuleDependency(${this} ${MyProjectName}.Math PRIVATE)
 

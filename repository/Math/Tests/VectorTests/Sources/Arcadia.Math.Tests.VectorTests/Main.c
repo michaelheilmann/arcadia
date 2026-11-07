@@ -20,6 +20,8 @@
 
 #include "Arcadia/Math/Include.h"
 #include "Vector2.h"
+#include "ComponentMultiply.h"
+#include "NormalizeOrZero.h"
 
 static void
 test1
@@ -589,6 +591,18 @@ main
     { "Vector2Real64", &Arcadia_Math_Tests_Vector2_real64 },
     { "VectorTemplateReal32", &Arcadia_Math_Tests_Vector2_templateReal32 },
     { "VectorTemplateReal64", &Arcadia_Math_Tests_Vector2_templateReal64 },
+    { "MultiplyComponentsVector2Real32", &Arcadia_Math_Tests_multiplyComponentsVector2Real32 },
+    { "MultiplyComponentsVector2Real64", &Arcadia_Math_Tests_multiplyComponentsVector2Real64 },
+    { "MultiplyComponentsVector3Real32", &Arcadia_Math_Tests_multiplyComponentsVector3Real32 },
+    { "MultiplyComponentsVector3Real64", &Arcadia_Math_Tests_multiplyComponentsVector3Real64 },
+    { "MultiplyComponentsVector4Real32", &Arcadia_Math_Tests_multiplyComponentsVector4Real32 },
+    { "MultiplyComponentsVector4Real64", &Arcadia_Math_Tests_multiplyComponentsVector4Real64 },
+    { "NormalizeOrZeroVector2Real32", &Arcadia_Math_Tests_normalizeOrZeroVector2Real32 },
+    { "NormalizeOrZeroVector2Real64", &Arcadia_Math_Tests_normalizeOrZeroVector2Real64 },
+    { "NormalizeOrZeroVector3Real32", &Arcadia_Math_Tests_normalizeOrZeroVector3Real32 },
+    { "NormalizeOrZeroVector3Real64", &Arcadia_Math_Tests_normalizeOrZeroVector3Real64 },
+    { "NormalizeOrZeroVector4Real32", &Arcadia_Math_Tests_normalizeOrZeroVector4Real32 },
+    { "NormalizeOrZeroVector4Real64", &Arcadia_Math_Tests_normalizeOrZeroVector4Real64 },
     { "VectorTests", &runTests },
     { "CubicBezierReal32", &runCubicBezierReal32 },
     { "CubicBezierReal64", &runCubicBezierReal64 },

@@ -316,3 +316,32 @@ Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_multiplyScalar
     self->elements[i] *= s;
   }
 }
+
+void
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_multiplyComponents
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* other
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+    self->elements[i] *= other->elements[i];
+  }
+}
+
+void
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_normalizeOrZero
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self
+  )
+{
+  @{scalarType} length = Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_getLength(thread, self);
+  if (@{zeroScalarLiteral} == length) {
+    return;
+  }
+  for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+    self->elements[i] /= length;
+  }
+}
