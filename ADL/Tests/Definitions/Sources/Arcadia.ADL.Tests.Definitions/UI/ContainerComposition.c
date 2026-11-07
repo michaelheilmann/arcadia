@@ -136,8 +136,8 @@ testDeclarativePanels
   Arcadia_Engine_UI_StackLayout* layout = (Arcadia_Engine_UI_StackLayout*)Arcadia_Engine_UI_LayoutPanelNode_getLayout(thread, panel);
   Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)layout, _Arcadia_Engine_UI_StackLayout_getType(thread)));
   Arcadia_Tests_assertTrue(thread, layout->settings.vertical && layout->settings.gap == 5);
-  Arcadia_Tests_assertTrue(thread, layout->settings.mainAlignment == Arcadia_Engine_UI_StackPanelNodeAlignment_Start);
-  Arcadia_Tests_assertTrue(thread, layout->settings.crossAlignment == Arcadia_Engine_UI_StackPanelNodeAlignment_End);
+  Arcadia_Tests_assertTrue(thread, layout->settings.mainAlignment == Arcadia_Engine_UI_LayoutAlignment_Start);
+  Arcadia_Tests_assertTrue(thread, layout->settings.crossAlignment == Arcadia_Engine_UI_LayoutAlignment_End);
   Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_Container_getChildCount(thread, object) == 2);
   Arcadia_Engine_UI_WidgetNode* first = (Arcadia_Engine_UI_WidgetNode*)Arcadia_Engine_UI_Container_getChildAt(thread, object, 0);
   Arcadia_Engine_UI_WidgetNode* second = (Arcadia_Engine_UI_WidgetNode*)Arcadia_Engine_UI_Container_getChildAt(thread, object, 1);
@@ -212,7 +212,7 @@ testDeclarativePanelChildLayouts
   Arcadia_Tests_assertTrue(thread, slots[0].marginLeft == 0 && slots[0].marginTop == 0);
   Arcadia_Tests_assertTrue(thread, slots[1].marginLeft == 15 && slots[1].marginTop == 4);
   Arcadia_Tests_assertTrue(thread, slots[1].hasAlignmentOverride);
-  Arcadia_Tests_assertTrue(thread, slots[1].crossAlignment == Arcadia_Engine_UI_StackPanelNodeAlignment_End);
+  Arcadia_Tests_assertTrue(thread, slots[1].crossAlignment == Arcadia_Engine_UI_LayoutAlignment_End);
   Arcadia_Tests_assertTrue(thread, first->left == 12 && first->bottom == 94);
   Arcadia_Tests_assertTrue(thread, second->left == 106 && second->bottom == 55);
   Arcadia_Integer32Value width, height;

@@ -14,28 +14,28 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#if !defined(ARCADIA_ENGINE_UI_NODES_STACKPANELNODEALIGNMENT_H_INCLUDED)
-#define ARCADIA_ENGINE_UI_NODES_STACKPANELNODEALIGNMENT_H_INCLUDED
+#if !defined(ARCADIA_ENGINE_UI_LAYOUTALIGNMENT_H_INCLUDED)
+#define ARCADIA_ENGINE_UI_LAYOUTALIGNMENT_H_INCLUDED
 
 #if !defined(ARCADIA_ENGINE_UI_PRIVATE) || 1 != ARCADIA_ENGINE_UI_PRIVATE
-  #error("do not include `Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h` directly, include `Arcadia/Engine/UI/Include.h` instead")
+  #error("do not include `Arcadia/Engine/UI/LayoutAlignment.h` directly, include `Arcadia/Engine/UI/Include.h` instead")
 #endif
 
 #include "Arcadia/Ring1/Include.h"
 
-Arcadia_declareEnumerationType("Arcadia.Engine.UI.StackPanelNodeAlignment",
-                               Arcadia_Engine_UI_StackPanelNodeAlignment);
+Arcadia_declareEnumerationType("Arcadia.Engine.UI.LayoutAlignment",
+                               Arcadia_Engine_UI_LayoutAlignment);
 
-enum Arcadia_Engine_UI_StackPanelNodeAlignment {
+enum Arcadia_Engine_UI_LayoutAlignment {
 
-  Arcadia_Engine_UI_StackPanelNodeAlignment_Start = 0,
+  Arcadia_Engine_UI_LayoutAlignment_Start = 0,
 
-  Arcadia_Engine_UI_StackPanelNodeAlignment_Center = 1,
+  Arcadia_Engine_UI_LayoutAlignment_Center = 1,
 
-  Arcadia_Engine_UI_StackPanelNodeAlignment_End = 2,
+  Arcadia_Engine_UI_LayoutAlignment_End = 2,
 
-  Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch = 3,
+  Arcadia_Engine_UI_LayoutAlignment_Stretch = 3,
 
 };
 
-#endif // ARCADIA_ENGINE_UI_NODES_STACKPANELNODEALIGNMENT_H_INCLUDED
+#endif // ARCADIA_ENGINE_UI_LAYOUTALIGNMENT_H_INCLUDED

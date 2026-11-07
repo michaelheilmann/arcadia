@@ -203,16 +203,16 @@ static void
 validateAlignment
   (
     Arcadia_Thread* thread,
-    Arcadia_Engine_UI_StackPanelNodeAlignment alignment
+    Arcadia_Engine_UI_LayoutAlignment alignment
   )
 {
-  if (alignment < Arcadia_Engine_UI_StackPanelNodeAlignment_Start || alignment > Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch) {
+  if (alignment < Arcadia_Engine_UI_LayoutAlignment_Start || alignment > Arcadia_Engine_UI_LayoutAlignment_Stretch) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
 }
 
-static Arcadia_Engine_UI_StackPanelNodeAlignment
+static Arcadia_Engine_UI_LayoutAlignment
 parseAlignment
   (
     Arcadia_Thread* thread,
@@ -220,16 +220,16 @@ parseAlignment
   )
 {
   if (Arcadia_Engine_UI_TextUtilities_stringEqualsCxx(thread, alignment, u8"Start")) {
-    return Arcadia_Engine_UI_StackPanelNodeAlignment_Start;
+    return Arcadia_Engine_UI_LayoutAlignment_Start;
   }
   if (Arcadia_Engine_UI_TextUtilities_stringEqualsCxx(thread, alignment, u8"Center")) {
-    return Arcadia_Engine_UI_StackPanelNodeAlignment_Center;
+    return Arcadia_Engine_UI_LayoutAlignment_Center;
   }
   if (Arcadia_Engine_UI_TextUtilities_stringEqualsCxx(thread, alignment, u8"End")) {
-    return Arcadia_Engine_UI_StackPanelNodeAlignment_End;
+    return Arcadia_Engine_UI_LayoutAlignment_End;
   }
   if (Arcadia_Engine_UI_TextUtilities_stringEqualsCxx(thread, alignment, u8"Stretch")) {
-    return Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch;
+    return Arcadia_Engine_UI_LayoutAlignment_Stretch;
   }
   Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
   Arcadia_Thread_jump(thread);
@@ -247,7 +247,7 @@ makeDefaultSlot
   slot.marginRight = 0;
   slot.marginTop = 0;
   slot.hasAlignmentOverride = Arcadia_BooleanValue_False;
-  slot.crossAlignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Center;
+  slot.crossAlignment = Arcadia_Engine_UI_LayoutAlignment_Center;
   return slot;
 }
 
@@ -424,8 +424,8 @@ constructImpl
   self->paddingBottom = 0;
   self->paddingRight = 0;
   self->paddingTop = 0;
-  self->mainAlignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Center;
-  self->crossAlignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Center;
+  self->mainAlignment = Arcadia_Engine_UI_LayoutAlignment_Center;
+  self->crossAlignment = Arcadia_Engine_UI_LayoutAlignment_Center;
   self->children = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   self->slots = NULL;
   self->slotCapacity = 0;
@@ -843,8 +843,8 @@ Arcadia_Engine_UI_StackPanelNode_setAlignment
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_StackPanelNode* self,
-    Arcadia_Engine_UI_StackPanelNodeAlignment mainAlignment,
-    Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment
+    Arcadia_Engine_UI_LayoutAlignment mainAlignment,
+    Arcadia_Engine_UI_LayoutAlignment crossAlignment
   )
 {
   validateAlignment(thread, mainAlignment);
@@ -882,7 +882,7 @@ Arcadia_Engine_UI_StackPanelNode_setChildCrossAlignment
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_StackPanelNode* self,
     Arcadia_Object* child,
-    Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment
+    Arcadia_Engine_UI_LayoutAlignment crossAlignment
   )
 {
   validateAlignment(thread, crossAlignment);

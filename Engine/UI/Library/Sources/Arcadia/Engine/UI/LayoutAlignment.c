@@ -15,11 +15,11 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #define ARCADIA_ENGINE_UI_PRIVATE (1)
-#include "Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h"
+#include "Arcadia/Engine/UI/LayoutAlignment.h"
 
 static const Arcadia_Type_Operations _typeOperations = {
   Arcadia_Type_Operations_Initializer,
 };
 
-Arcadia_defineEnumerationType(u8"Arcadia.Engine.UI.StackPanelNodeAlignment", Arcadia_Engine_UI_StackPanelNodeAlignment,
+Arcadia_defineEnumerationType(u8"Arcadia.Engine.UI.LayoutAlignment", Arcadia_Engine_UI_LayoutAlignment,
                               &_typeOperations);

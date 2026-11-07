@@ -358,8 +358,8 @@ createExamplePanel
     Arcadia_Integer32Value height,
     Arcadia_BooleanValue vertical,
     Arcadia_Integer32Value gap,
-    Arcadia_Engine_UI_StackPanelNodeAlignment mainAlignment,
-    Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment
+    Arcadia_Engine_UI_LayoutAlignment mainAlignment,
+    Arcadia_Engine_UI_LayoutAlignment crossAlignment
   )
 {
   Arcadia_Engine_UI_LayoutPanelNode* panel = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
@@ -412,41 +412,41 @@ load
   }
   if (!self->rootPanelNode) {
     self->rootPanelNode = createExamplePanel(thread, 800, 336, Arcadia_BooleanValue_True, 16,
-      Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+      Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->canvasNode, (Arcadia_Object*)self->rootPanelNode);
   }
   if (!self->bodyPanelNode) {
     self->bodyPanelNode = createExamplePanel(thread, 800, 260, Arcadia_BooleanValue_False, 20,
-      Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+      Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Center);
   }
   if (!self->leftColumnPanelNode) {
     self->leftColumnPanelNode = createExamplePanel(thread, 500, 260, Arcadia_BooleanValue_True, 20,
-      Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch);
+      Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Stretch);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->bodyPanelNode, (Arcadia_Object*)self->leftColumnPanelNode);
   }
   if (!self->buttonRowPanelNode) {
     self->buttonRowPanelNode = createExamplePanel(thread, 500, 64, Arcadia_BooleanValue_False, 20,
-      Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+      Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->buttonRowPanelNode);
   }
   if (!self->toggleRowPanelNode) {
     self->toggleRowPanelNode = createExamplePanel(thread, 500, 48, Arcadia_BooleanValue_False, 0,
-      Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+      Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->toggleRowPanelNode);
   }
   if (!self->sliderRowPanelNode) {
     self->sliderRowPanelNode = createExamplePanel(thread, 500, 40, Arcadia_BooleanValue_False, 0,
-      Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+      Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->sliderRowPanelNode);
   }
   if (!self->choiceRowPanelNode) {
     self->choiceRowPanelNode = createExamplePanel(thread, 500, 40, Arcadia_BooleanValue_False, 0,
-      Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+      Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->choiceRowPanelNode);
   }
   if (!self->scrollColumnPanelNode) {
     self->scrollColumnPanelNode = createExamplePanel(thread, 280, 196, Arcadia_BooleanValue_True, 12,
-      Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+      Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->bodyPanelNode, (Arcadia_Object*)self->scrollColumnPanelNode);
   }
   if (!self->buttonNode) {

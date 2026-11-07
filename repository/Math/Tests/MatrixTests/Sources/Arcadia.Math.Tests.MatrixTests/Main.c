@@ -111,6 +111,24 @@ runNativeValuesReal64
   return Arcadia_Tests_safeExecute(&real64_nativeValues) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static int
+runLegacyRotationYReal32
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&real32_rotationYLegacy) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runLegacyRotationYReal64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&real64_rotationYLegacy) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -125,6 +143,8 @@ main
     { "FactoryAndInterpolationReal64", &runFactoryAndInterpolationReal64 },
     { "NativeValuesReal32", &runNativeValuesReal32 },
     { "NativeValuesReal64", &runNativeValuesReal64 },
+    { "LegacyRotationYReal32", &runLegacyRotationYReal32 },
+    { "LegacyRotationYReal64", &runLegacyRotationYReal64 },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

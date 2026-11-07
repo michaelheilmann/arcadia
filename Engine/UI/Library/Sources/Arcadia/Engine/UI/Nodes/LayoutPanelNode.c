@@ -729,11 +729,11 @@ Arcadia_Engine_UI_LayoutPanelNode_setChildCrossAlignment
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_LayoutPanelNode* self,
     Arcadia_Object* child,
-    Arcadia_Engine_UI_StackPanelNodeAlignment alignment
+    Arcadia_Engine_UI_LayoutAlignment alignment
   )
 {
-  if (alignment < Arcadia_Engine_UI_StackPanelNodeAlignment_Start ||
-      alignment > Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch) {
+  if (alignment < Arcadia_Engine_UI_LayoutAlignment_Start ||
+      alignment > Arcadia_Engine_UI_LayoutAlignment_Stretch) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
@@ -798,17 +798,17 @@ Arcadia_Engine_UI_LayoutPanelNode_clearHover
   self->hoveredChild = NULL;
 }
 
-static Arcadia_Engine_UI_StackPanelNodeAlignment
+static Arcadia_Engine_UI_LayoutAlignment
 parseAlignment
   (
     Arcadia_Thread* thread,
     Arcadia_String* value
   )
 {
-  if (Arcadia_String_isEqualTo_pn(thread, value, "Start", 5)) return Arcadia_Engine_UI_StackPanelNodeAlignment_Start;
-  if (Arcadia_String_isEqualTo_pn(thread, value, "Center", 6)) return Arcadia_Engine_UI_StackPanelNodeAlignment_Center;
-  if (Arcadia_String_isEqualTo_pn(thread, value, "End", 3)) return Arcadia_Engine_UI_StackPanelNodeAlignment_End;
-  if (Arcadia_String_isEqualTo_pn(thread, value, "Stretch", 7)) return Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch;
+  if (Arcadia_String_isEqualTo_pn(thread, value, "Start", 5)) return Arcadia_Engine_UI_LayoutAlignment_Start;
+  if (Arcadia_String_isEqualTo_pn(thread, value, "Center", 6)) return Arcadia_Engine_UI_LayoutAlignment_Center;
+  if (Arcadia_String_isEqualTo_pn(thread, value, "End", 3)) return Arcadia_Engine_UI_LayoutAlignment_End;
+  if (Arcadia_String_isEqualTo_pn(thread, value, "Stretch", 7)) return Arcadia_Engine_UI_LayoutAlignment_Stretch;
   Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
   Arcadia_Thread_jump(thread);
 }
@@ -873,12 +873,12 @@ Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition
       Arcadia_Engine_UI_LayoutPanelNode_setChildMargin(thread, panel, child,
         slot->marginLeft, slot->marginBottom, slot->marginRight, slot->marginTop);
       if (slot->hasCrossAlignment) {
-        Arcadia_Engine_UI_StackPanelNodeAlignment alignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Center;
+        Arcadia_Engine_UI_LayoutAlignment alignment = Arcadia_Engine_UI_LayoutAlignment_Center;
         switch (slot->crossAlignment) {
-          case Arcadia_ADL_UI_PanelChildCrossAlignment_Start: alignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Start; break;
-          case Arcadia_ADL_UI_PanelChildCrossAlignment_Center: alignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Center; break;
-          case Arcadia_ADL_UI_PanelChildCrossAlignment_End: alignment = Arcadia_Engine_UI_StackPanelNodeAlignment_End; break;
-          case Arcadia_ADL_UI_PanelChildCrossAlignment_Stretch: alignment = Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch; break;
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_Start: alignment = Arcadia_Engine_UI_LayoutAlignment_Start; break;
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_Center: alignment = Arcadia_Engine_UI_LayoutAlignment_Center; break;
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_End: alignment = Arcadia_Engine_UI_LayoutAlignment_End; break;
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_Stretch: alignment = Arcadia_Engine_UI_LayoutAlignment_Stretch; break;
           default:
             Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
             Arcadia_Thread_jump(thread);

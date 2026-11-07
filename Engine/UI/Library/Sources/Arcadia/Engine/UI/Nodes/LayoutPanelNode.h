@@ -25,7 +25,7 @@
 #include "Arcadia/ADL/Include.h"
 #include "Arcadia/Engine/UI/Layout.h"
 #include "Arcadia/Engine/UI/Nodes/PanelNode.h"
-#include "Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h"
+#include "Arcadia/Engine/UI/LayoutAlignment.h"
 
 typedef struct Arcadia_Engine_UI_StackLayoutSlot Arcadia_Engine_UI_StackLayoutSlot;
 
@@ -116,7 +116,7 @@ Arcadia_Engine_UI_LayoutPanelNode_setChildCrossAlignment
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_LayoutPanelNode* self,
     Arcadia_Object* child,
-    Arcadia_Engine_UI_StackPanelNodeAlignment alignment
+    Arcadia_Engine_UI_LayoutAlignment alignment
   );
 
 void

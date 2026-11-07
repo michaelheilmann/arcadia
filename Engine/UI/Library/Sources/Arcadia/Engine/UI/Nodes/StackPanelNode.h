@@ -21,7 +21,7 @@
   #error("do not include directly, include `Arcadia/Engine/UI/Include.h` instead")
 #endif
 #include "Arcadia/Engine/UI/WidgetNode.h"
-#include "Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h"
+#include "Arcadia/Engine/UI/LayoutAlignment.h"
 #include "Arcadia/Engine/UI/Nodes/PanelNode.h"
 #include "Arcadia/Engine/UI/Layouts/StackLayout.h"
 
@@ -51,8 +51,8 @@ struct Arcadia_Engine_UI_StackPanelNode {
   Arcadia_Integer32Value paddingBottom;
   Arcadia_Integer32Value paddingRight;
   Arcadia_Integer32Value paddingTop;
-  Arcadia_Engine_UI_StackPanelNodeAlignment mainAlignment;
-  Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment;
+  Arcadia_Engine_UI_LayoutAlignment mainAlignment;
+  Arcadia_Engine_UI_LayoutAlignment crossAlignment;
   Arcadia_Real32Value lastCanvasHeight;
   Arcadia_BooleanValue focused;
 };
@@ -93,8 +93,8 @@ Arcadia_Engine_UI_StackPanelNode_setAlignment
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_StackPanelNode* self,
-    Arcadia_Engine_UI_StackPanelNodeAlignment mainAlignment,
-    Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment
+    Arcadia_Engine_UI_LayoutAlignment mainAlignment,
+    Arcadia_Engine_UI_LayoutAlignment crossAlignment
   );
 
 void
@@ -115,7 +115,7 @@ Arcadia_Engine_UI_StackPanelNode_setChildCrossAlignment
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_StackPanelNode* self,
     Arcadia_Object* child,
-    Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment
+    Arcadia_Engine_UI_LayoutAlignment crossAlignment
   );
 
 void

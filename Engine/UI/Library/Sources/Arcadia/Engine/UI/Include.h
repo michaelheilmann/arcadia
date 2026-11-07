@@ -50,7 +50,7 @@
 #include "Arcadia/Engine/UI/Nodes/ScrollPanelNode.h"
 #include "Arcadia/Engine/UI/Nodes/SegmentedChoiceNode.h"
 #include "Arcadia/Engine/UI/Nodes/SliderNode.h"
-#include "Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h"
+#include "Arcadia/Engine/UI/LayoutAlignment.h"
 #include "Arcadia/Engine/UI/Nodes/StackPanelNode.h"
 #include "Arcadia/Engine/UI/Nodes/ToggleNode.h"
 

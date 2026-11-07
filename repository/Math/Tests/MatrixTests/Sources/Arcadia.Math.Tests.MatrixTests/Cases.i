@@ -183,6 +183,45 @@ Test(nativeValues)
   Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
 }
 
+// Port of the 0 / 90 / 180 / 270 degree Y-rotation checks from
+// repository/Math/@migrate/{1,2,3}/math.c. Also catches the historical
+// Real64 implementation using Real32 angle conversion and intermediates.
+static void
+Test(rotationYLegacy)
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+  Matrix* matrix = M(create)(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)matrix);
+  Vector* point = V(create)(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)point);
+  const Scalar angles[] = { (Scalar)0, (Scalar)90, (Scalar)180, (Scalar)270 };
+  const Scalar expectedX[] = { (Scalar)0, (Scalar)-1, (Scalar)0, (Scalar)1 };
+  const Scalar expectedZ[] = { (Scalar)-1, (Scalar)0, (Scalar)1, (Scalar)0 };
+  for (Arcadia_SizeValue i = 0; i < 4; ++i) {
+    G(setRotationY)(thread, matrix, angles[i]);
+    point->elements[0] = (Scalar)0;
+    point->elements[1] = (Scalar)0;
+    point->elements[2] = (Scalar)-1;
+    G(transformPoint)(thread, matrix, point);
+    Test(assertNear)(thread, point->elements[0], expectedX[i]);
+    Test(assertNear)(thread, point->elements[1], (Scalar)0);
+    Test(assertNear)(thread, point->elements[2], expectedZ[i]);
+  }
+  const Scalar angle = (Scalar)12.3456789012345;
+  const double radians = (double)angle * (3.14159265358979323846 / 180.0);
+  G(setRotationY)(thread, matrix, angle);
+  point->elements[0] = (Scalar)0;
+  point->elements[1] = (Scalar)0;
+  point->elements[2] = (Scalar)-1;
+  G(transformPoint)(thread, matrix, point);
+  Test(assertNear)(thread, point->elements[0], (Scalar)-sin(radians));
+  Test(assertNear)(thread, point->elements[2], (Scalar)-cos(radians));
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+}
+
 static void
 Test(run)
   (
