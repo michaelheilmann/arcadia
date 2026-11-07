@@ -445,7 +445,7 @@ load
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->choiceRowPanelNode);
   }
   if (!self->scrollColumnPanelNode) {
-    self->scrollColumnPanelNode = createExamplePanel(thread, 280, 196, Arcadia_BooleanValue_True, 24,
+    self->scrollColumnPanelNode = createExamplePanel(thread, 280, 196, Arcadia_BooleanValue_True, 12,
       Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->bodyPanelNode, (Arcadia_Object*)self->scrollColumnPanelNode);
   }
@@ -573,10 +573,10 @@ load
   if (!self->scrollPanelLabelNode) {
     self->scrollPanelLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
                                                                    (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
-                                                                   Arcadia_String_createFromCxxString(thread, u8"Scroll panel (Up/Down)"),
+                                                                   Arcadia_String_createFromCxxString(thread, u8"Scroll (Up/Down)"),
                                                                    680,
                                                                    188,
-                                                                   280,
+                                                                   240,
                                                                    32,
                                                                    Arcadia_String_createFromCxxString(thread, u8"Left"),
                                                                    Arcadia_String_createFromCxxString(thread, u8"Center"),
@@ -596,7 +596,7 @@ load
                                                                         (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
                                                                         Arcadia_String_createFromCxxString(thread, u8"Display"),
                                                                         0,
-                                                                        0,
+                                                                        108,
                                                                         220,
                                                                         32,
                                                                         Arcadia_String_createFromCxxString(thread, u8"Left"),
@@ -612,7 +612,7 @@ load
                                                                          (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
                                                                          Arcadia_String_createFromCxxString(thread, u8"Audio"),
                                                                          0,
-                                                                         36,
+                                                                         72,
                                                                          220,
                                                                          32,
                                                                          Arcadia_String_createFromCxxString(thread, u8"Left"),
@@ -628,7 +628,7 @@ load
                                                                         (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
                                                                         Arcadia_String_createFromCxxString(thread, u8"Controls"),
                                                                         0,
-                                                                        72,
+                                                                        36,
                                                                         220,
                                                                         32,
                                                                         Arcadia_String_createFromCxxString(thread, u8"Left"),
@@ -644,7 +644,7 @@ load
                                                                          (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
                                                                          Arcadia_String_createFromCxxString(thread, u8"Accessibility"),
                                                                          0,
-                                                                         108,
+                                                                         0,
                                                                          220,
                                                                          32,
                                                                          Arcadia_String_createFromCxxString(thread, u8"Left"),
@@ -654,6 +654,8 @@ load
                                                                          252,
                                                                          255);
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->scrollPanelNode, (Arcadia_Object*)self->scrollPanelFourthLabelNode);
+    // Start at the top of the content, so Down reveals later items.
+    Arcadia_Engine_UI_Scrollable_scrollTo(thread, (Arcadia_Object*)self->scrollPanelNode, 0, 44);
   }
   if (!self->helpLabelNode) {
     self->helpLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,

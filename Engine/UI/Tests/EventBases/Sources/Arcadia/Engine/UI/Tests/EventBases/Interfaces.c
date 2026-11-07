@@ -866,12 +866,23 @@ testWidgets
   Arcadia_Engine_UI_Renderable_render(thread, (void*)button, pass);
   Arcadia_Engine_UI_ScrollPanelNode* panel = Arcadia_Engine_UI_ScrollPanelNode_create(thread, 0, 0, 100, 60);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, panel);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Engine_Visuals_ViewportNode_getDepthTestEnabled(thread, panel->viewportNode));
   Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, panel, 500, 400);
   Arcadia_Engine_UI_Scrollable_scrollTo(thread, (void*)panel, 37, 53);
   Arcadia_Integer32Value x, y;
   Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
   Arcadia_Tests_assertTrue(thread, x == 37 && y == 53);
   Arcadia_Engine_UI_Scrollable_scrollBy(thread, (void*)panel, 11, -7);
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 46);
+  // Up/Down must be handled when the scroll panel has keyboard focus.
+  event->action = Arcadia_Engine_Input_KeyboardKeyAction_Released;
+  event->key = Arcadia_Engine_Input_KeyboardKey_UpArrow;
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent(thread, (void*)panel, event));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 70);
+  event->key = Arcadia_Engine_Input_KeyboardKey_DownArrow;
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent(thread, (void*)panel, event));
   Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
   Arcadia_Tests_assertTrue(thread, x == 48 && y == 46);
   Arcadia_Engine_Input_MousePointerEvent* pointer = Arcadia_Engine_Input_MousePointerEvent_create(thread, 0, Arcadia_Engine_Input_MousePointerAction_Entered, 11, 22);

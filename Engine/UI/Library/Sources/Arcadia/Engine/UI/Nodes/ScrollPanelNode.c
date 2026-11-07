@@ -459,6 +459,9 @@ constructImpl
   self->scrollY = 0;
   Arcadia_Engine* engine = Arcadia_Engine_getOrCreate(thread);
   self->viewportNode = Arcadia_Engine_Visuals_NodeFactory_createViewportNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, NULL);
+  // Scroll content and scrollbar are 2D overlays. A private viewport must
+  // not re-enable depth testing after CanvasNode disabled it for the UI.
+  Arcadia_Engine_Visuals_ViewportNode_setDepthTestEnabled(thread, self->viewportNode, Arcadia_BooleanValue_False);
   self->cameraNode = Arcadia_Engine_Visuals_NodeFactory_createCameraNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, NULL);
   self->generatedDefinitions = Arcadia_ADL_Definitions_create(thread);
   self->scrollbarModelResource = NULL;
