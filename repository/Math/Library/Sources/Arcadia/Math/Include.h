@@ -44,6 +44,8 @@
 #include "Arcadia/Math/Implementation/Matrix3Real64.h"
 #include "Arcadia/Math/Implementation/AABB3Real32.h"
 #include "Arcadia/Math/Implementation/AABB3Real64.h"
+#include "Arcadia/Math/Implementation/RayGeometry3Real32.h"
+#include "Arcadia/Math/Implementation/RayGeometry3Real64.h"
 #include "Arcadia/Math/Implementation/Rectangle2Real32.h"
 #include "Arcadia/Math/Implementation/Rectangle2Real64.h"
 #include "Arcadia/Math/Implementation/setLookAt.h"
