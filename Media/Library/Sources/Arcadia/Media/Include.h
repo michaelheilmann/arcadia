@@ -27,6 +27,7 @@
 
 #include "Arcadia/Media/PixelBuffer.h"
 #include "Arcadia/Media/PixelBufferComposite.h"
+#include "Arcadia/Media/PixelValuesNatural8.h"
 #include "Arcadia/Media/PixelBufferOperations/CheckerboardFill.h"
 #include "Arcadia/Media/PixelBufferOperations/Fill.h"
 #include "Arcadia/Media/PixelBufferOperations/requireDefinition.h"
