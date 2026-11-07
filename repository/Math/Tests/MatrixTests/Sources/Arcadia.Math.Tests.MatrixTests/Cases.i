@@ -57,6 +57,88 @@ Test(expectInvalidLookAt)
   }
 }
 
+// This case is included twice: once for Real32 and once for Real64.
+// The old Core.Assets.Matrix4x4R32 wrapper copied values into its object;
+// the generated factory must likewise copy all 16 row-major components.
+static void
+Test(factoryAndInterpolation)
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+  Scalar original[16];
+  Scalar destination[16];
+  for (Arcadia_SizeValue i = 0; i < 16; ++i) {
+    original[i] = (Scalar)(i + 1);
+    destination[i] = (Scalar)(i + 17);
+  }
+
+  Matrix* a = M(createWithValues)(thread, original);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)a);
+  Matrix* b = M(createWithValues)(thread, destination);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)b);
+  Matrix* zero = M(create)(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)zero);
+
+  for (Arcadia_SizeValue i = 0; i < 4; ++i) {
+    for (Arcadia_SizeValue j = 0; j < 4; ++j) {
+      Arcadia_SizeValue index = i * 4 + j;
+      Test(assertNear)(thread, a->elements[i][j], original[index]);
+      Test(assertNear)(thread, b->elements[i][j], destination[index]);
+      Test(assertNear)(thread, zero->elements[i][j], (Scalar)0);
+    }
+  }
+
+  // Factories copy the input. Mutating the original array cannot affect a.
+  original[0] = (Scalar)-123;
+  Test(assertNear)(thread, a->elements[0][0], (Scalar)1);
+
+  // 0 and 1 are special-case endpoints; the interior must use both operands.
+  M(lerp)(thread, a, b, (Scalar)0);
+  Test(assertNear)(thread, a->elements[0][0], (Scalar)1);
+  M(lerp)(thread, a, b, (Scalar)0.25);
+  for (Arcadia_SizeValue i = 0; i < 4; ++i) {
+    for (Arcadia_SizeValue j = 0; j < 4; ++j) {
+      Arcadia_SizeValue index = i * 4 + j;
+      Test(assertNear)(thread, a->elements[i][j], (Scalar)(index + 5));
+    }
+  }
+
+  // self and other may alias without changing the value.
+  M(lerp)(thread, a, a, (Scalar)0.5);
+  Test(assertNear)(thread, a->elements[0][0], (Scalar)5);
+  Test(assertNear)(thread, a->elements[3][3], (Scalar)20);
+
+  M(lerp)(thread, a, b, (Scalar)1);
+  for (Arcadia_SizeValue i = 0; i < 4; ++i) {
+    for (Arcadia_SizeValue j = 0; j < 4; ++j) {
+      Test(assertNear)(thread, a->elements[i][j], destination[i * 4 + j]);
+    }
+  }
+
+  // Interpolation back toward zero also tests fractional results.
+  M(lerp)(thread, a, zero, (Scalar)0.5);
+  Test(assertNear)(thread, a->elements[0][0], (Scalar)8.5);
+  Test(assertNear)(thread, a->elements[3][3], (Scalar)16);
+  M(lerp)(thread, a, zero, (Scalar)1);
+  for (Arcadia_SizeValue i = 0; i < 4; ++i) {
+    for (Arcadia_SizeValue j = 0; j < 4; ++j) {
+      Test(assertNear)(thread, a->elements[i][j], (Scalar)0);
+    }
+  }
+
+  // The existing setter and assign operation remain consistent with the factory.
+  M(setWithValues)(thread, a, original);
+  Test(assertNear)(thread, a->elements[0][0], (Scalar)-123);
+  Test(assertNear)(thread, a->elements[3][3], (Scalar)16);
+  M(assign)(thread, a, b);
+  Test(assertNear)(thread, a->elements[0][0], (Scalar)17);
+  M(assign)(thread, a, a);
+  Test(assertNear)(thread, a->elements[3][3], (Scalar)32);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - stackSize);
+}
+
 static void
 Test(run)
   (

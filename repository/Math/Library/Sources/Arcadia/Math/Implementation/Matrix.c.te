@@ -122,6 +122,14 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_constructImpl
         self->elements[i][j] = @{zeroScalarLiteral};
       }
     }
+  } else if (@{dimensionality} * @{dimensionality} == _numberOfArguments) {
+    // createWithValues pushes components in row-major order; the value stack
+    // is read in reverse order, just as for the generated vector constructors.
+    for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+      for (Arcadia_SizeValue j = 0; j < @{dimensionality}; ++j) {
+        self->elements[i][j] = Arcadia_ValueStack_get@{scalarSuffix}Value(thread, @{dimensionality} * @{dimensionality} - (i * @{dimensionality} + j));
+      }
+    }
   } else {
     Arcadia_Thread_setStatus(thread,  Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
@@ -255,7 +263,7 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_lerp
     @{scalarType} s = @{oneScalarLiteral} - t;
     for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
       for (Arcadia_SizeValue j = 0; j < @{dimensionality}; ++j) {
-        self->elements[i][j] = s * self->elements[i][j] + t * self->elements[i][j];
+        self->elements[i][j] = s * self->elements[i][j] + t * other->elements[i][j];
       }
     }
   }
