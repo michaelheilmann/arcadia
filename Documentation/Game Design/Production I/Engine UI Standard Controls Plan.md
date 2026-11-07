@@ -87,8 +87,11 @@ features implemented on `develop`, not unmerged proposals or tickets that merely
 - [x] Add `SegmentedChoiceNode`.
 - [x] Add `ScrollPanelNode`.
 - [x] Implement keyboard/wheel input for the scroll panel on existing WGL/GLX backends.
-- [ ] Add reusable `TabButton` and `TabBar`, followed by ADL and gallery support
-  ([#105–#107](https://github.com/michaelheilmann/arcadia-alm/issues/105)).
+- [x] Add reusable selection styling to ordinary `ButtonNode` for tab headers; keep focus and activation independent
+  ([#105](https://github.com/michaelheilmann/arcadia-alm/issues/105)).
+- [ ] Compose a `TabBar` controller around ordinary buttons; add ADL composition and a gallery demonstration
+  ([#106](https://github.com/michaelheilmann/arcadia-alm/issues/106),
+  [#107](https://github.com/michaelheilmann/arcadia-alm/issues/107)).
 
 ## Milestone 3: Composite Options Screen Controls
 
@@ -107,6 +110,10 @@ features implemented on `develop`, not unmerged proposals or tickets that merely
 
 ## Notes
 
+- Use HTML/CSS/JavaScript as architectural inspiration: small reusable nodes, layout and styles describe structure and
+  presentation; composition/controllers provide behavior. Avoid a public `TabButtonNode` or `UI.TabButton` definition.
+- Selected buttons reuse their existing `pressedBackgroundColor` until independent selection styling is justified.
+  Selection does not imply focus, activate the button or enforce exclusivity; those belong to the composing controller.
 - Prefer small, reusable control behavior over duplicating hit testing, focus, text rendering, and pointer handling in each
   control.
 - Keep C construction APIs usable. Add ADL definitions after behavior is stable enough to declare as data.

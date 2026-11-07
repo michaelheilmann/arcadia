@@ -326,6 +326,11 @@ updateVertices
     getReferenceColor(self->source->disabledBackgroundColor, &red, &green, &blue);
   } else if (self->pressed) {
     getReferenceColor(self->source->pressedBackgroundColor, &red, &green, &blue);
+  } else if (self->selected) {
+    // Selection belongs to the composing control, not the focus or input state.
+    // Reuse the button's configured pressed palette until a separate style
+    // contract is demonstrably necessary.
+    getReferenceColor(self->source->pressedBackgroundColor, &red, &green, &blue);
   } else if (self->hovered) {
     getReferenceColor(self->source->hoveredBackgroundColor, &red, &green, &blue);
   } else if (self->focused) {
@@ -549,6 +554,7 @@ Arcadia_Engine_UI_ButtonNode_constructImpl
   self->hovered = Arcadia_BooleanValue_False;
   self->pressed = Arcadia_BooleanValue_False;
   self->focused = Arcadia_BooleanValue_False;
+  self->selected = Arcadia_BooleanValue_False;
   self->activated = Arcadia_Signal_create(thread);
 
   Arcadia_String* colorName = Arcadia_String_createFromCxxString(thread, u8"UI.Button.Generated.Color");
@@ -918,6 +924,23 @@ Arcadia_Engine_UI_ButtonNode_setHovered
     Arcadia_BooleanValue hovered
   )
 { self->hovered = self->enabled && hovered; }
+
+void
+Arcadia_Engine_UI_ButtonNode_setSelected
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self,
+    Arcadia_BooleanValue selected
+  )
+{ self->selected = selected; }
+
+Arcadia_BooleanValue
+Arcadia_Engine_UI_ButtonNode_getSelected
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self
+  )
+{ return self->selected; }
 
 Arcadia_Signal*
 Arcadia_Engine_UI_ButtonNode_getActivatedSignal
