@@ -37,6 +37,8 @@
 #include "Arcadia/Math/Implementation/Color4Real32.h"
 #include "Arcadia/Math/Implementation/Color4Real64.h"
 #include "Arcadia/Math/Implementation/QuaternionReal32.h"
+#include "Arcadia/Math/Implementation/Rectangle2Real32.h"
+#include "Arcadia/Math/Implementation/Rectangle2Real64.h"
 #include "Arcadia/Math/Implementation/setLookAt.h"
 #include "Arcadia/Math/Implementation/setOrthographicProjection.h"
 #include "Arcadia/Math/Implementation/setPerspectiveProjection.h"
