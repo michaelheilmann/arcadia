@@ -51,9 +51,6 @@ Arcadia_Engine_UI_createNodeFromDefinition
   if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)source, _Arcadia_ADL_UI_PanelDefinition_getType(thread))) {
     return (Arcadia_Object*)Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition(thread, backendContext, (Arcadia_ADL_UI_PanelDefinition*)source);
   }
-  if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)source, _Arcadia_ADL_UI_StackPanelDefinition_getType(thread))) {
-    return (Arcadia_Object*)Arcadia_Engine_UI_StackPanelNode_createFromDefinition(thread, backendContext, (Arcadia_ADL_UI_StackPanelDefinition*)source);
-  }
   if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)source, _Arcadia_ADL_UI_ToggleDefinition_getType(thread))) {
     return (Arcadia_Object*)Arcadia_Engine_UI_ToggleNode_createFromDefinition(thread, backendContext, (Arcadia_ADL_UI_ToggleDefinition*)source);
   }

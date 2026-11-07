@@ -367,11 +367,23 @@ Arcadia_ADL_Tests_UI_ContainerCompositionTest1
   Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
   Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
   static const char* rootDefinitionDDL =
-    "{ type : \"UI.StackPanel\", name : \"Test.Root\", left : 0, bottom : 0, width : 100, height : 100, vertical : \"true\", gap : 0, paddingLeft : 0, paddingBottom : 0, paddingRight : 0, paddingTop : 0, mainAlignment : \"Center\", crossAlignment : \"Center\", children : [ \"Test.Parent\" ] }";
+    "{ type : \"UI.Panel\", name : \"Test.Root\", left : 0, bottom : 0, width : 100, height : 100, "
+    "sizePolicy : \"Fixed\", children : [ \"Test.Parent\" ], "
+    "layout : { type : \"UI.StackLayout\", orientation : \"Vertical\", gap : 0, "
+    "paddingLeft : 0, paddingBottom : 0, paddingRight : 0, paddingTop : 0, "
+    "mainAlignment : \"Center\", crossAlignment : \"Center\" } }";
   static const char* parentDefinitionDDL =
-    "{ type : \"UI.StackPanel\", name : \"Test.Parent\", left : 0, bottom : 0, width : 100, height : 100, vertical : \"true\", gap : 0, paddingLeft : 0, paddingBottom : 0, paddingRight : 0, paddingTop : 0, mainAlignment : \"Center\", crossAlignment : \"Center\", children : [ \"Test.Child\" ] }";
+    "{ type : \"UI.Panel\", name : \"Test.Parent\", left : 0, bottom : 0, width : 100, height : 100, "
+    "sizePolicy : \"Fixed\", children : [ \"Test.Child\" ], "
+    "layout : { type : \"UI.StackLayout\", orientation : \"Vertical\", gap : 0, "
+    "paddingLeft : 0, paddingBottom : 0, paddingRight : 0, paddingTop : 0, "
+    "mainAlignment : \"Center\", crossAlignment : \"Center\" } }";
   static const char* childDefinitionDDL =
-    "{ type : \"UI.StackPanel\", name : \"Test.Child\", left : 0, bottom : 0, width : 100, height : 100, vertical : \"true\", gap : 0, paddingLeft : 0, paddingBottom : 0, paddingRight : 0, paddingTop : 0, mainAlignment : \"Center\", crossAlignment : \"Center\", children : [] }";
+    "{ type : \"UI.Panel\", name : \"Test.Child\", left : 0, bottom : 0, width : 100, height : 100, "
+    "sizePolicy : \"Fixed\", children : [], "
+    "layout : { type : \"UI.StackLayout\", orientation : \"Vertical\", gap : 0, "
+    "paddingLeft : 0, paddingBottom : 0, paddingRight : 0, paddingTop : 0, "
+    "mainAlignment : \"Center\", crossAlignment : \"Center\" } }";
   static const char* labelDefinitionDDL =
     "{ type : \"UI.Label\", name : \"Test.Label\", left : 0, bottom : 0, width : 100, height : 24, text : \"Example\", horizontalAlignment : \"Center\", verticalAlignment : \"Center\", red : 1, green : 2, blue : 3, alpha : 255, pixelSize : 18 }";
   static const char* segmentedChoiceDefinitionDDL =
@@ -400,7 +412,7 @@ Arcadia_ADL_Tests_UI_ContainerCompositionTest1
   Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, buttonColorDDL), Arcadia_BooleanValue_False);
   Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_createFromCxxString(thread, buttonDefinitionDDL), Arcadia_BooleanValue_False);
 
-  Arcadia_ADL_UI_StackPanelDefinition* rootDefinition = (Arcadia_ADL_UI_StackPanelDefinition*)Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions, Arcadia_String_createFromCxxString(thread, u8"Test.Root"));
+  Arcadia_ADL_UI_PanelDefinition* rootDefinition = (Arcadia_ADL_UI_PanelDefinition*)Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions, Arcadia_String_createFromCxxString(thread, u8"Test.Root"));
   Arcadia_ADL_UI_LabelDefinition* labelDefinition = (Arcadia_ADL_UI_LabelDefinition*)Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions, Arcadia_String_createFromCxxString(thread, u8"Test.Label"));
   Arcadia_ADL_UI_SegmentedChoiceDefinition* segmentedChoiceDefinition = (Arcadia_ADL_UI_SegmentedChoiceDefinition*)Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions, Arcadia_String_createFromCxxString(thread, u8"Test.Tabs"));
   Arcadia_ADL_UI_SliderDefinition* sliderDefinition = (Arcadia_ADL_UI_SliderDefinition*)Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions, Arcadia_String_createFromCxxString(thread, u8"Test.Slider"));
@@ -424,8 +436,8 @@ Arcadia_ADL_Tests_UI_ContainerCompositionTest1
   assertRecordRejected(thread, context, definitions,
     "{ type : \"UI.Button\", name : \"Test.LegacyBackground\", left : 0, bottom : 0, width : 120, height : 40, text : \"Legacy\", backgroundColor : \"Test.Button.Normal\", backgroundRed : 1, backgroundGreen : 2, backgroundBlue : 3 }");
 
-  Arcadia_Engine_UI_StackPanelNode* firstRoot = Arcadia_Engine_UI_StackPanelNode_createFromDefinition(thread, NULL, rootDefinition);
-  Arcadia_Engine_UI_StackPanelNode* secondRoot = Arcadia_Engine_UI_StackPanelNode_createFromDefinition(thread, NULL, rootDefinition);
+  Arcadia_Engine_UI_LayoutPanelNode* firstRoot = Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition(thread, NULL, rootDefinition);
+  Arcadia_Engine_UI_LayoutPanelNode* secondRoot = Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition(thread, NULL, rootDefinition);
   Arcadia_Tests_assertTrue(thread, 1 == Arcadia_Engine_UI_Container_getChildCount(thread, (Arcadia_Object*)firstRoot));
   Arcadia_Tests_assertTrue(thread, 1 == Arcadia_Engine_UI_Container_getChildCount(thread, (Arcadia_Object*)secondRoot));
 
@@ -433,12 +445,12 @@ Arcadia_ADL_Tests_UI_ContainerCompositionTest1
   Arcadia_Object* secondParent = Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)secondRoot, 0);
   Arcadia_Tests_assertTrue(thread, NULL != firstParent);
   Arcadia_Tests_assertTrue(thread, NULL != secondParent);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, firstParent, _Arcadia_Engine_UI_StackPanelNode_getType(thread)));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, secondParent, _Arcadia_Engine_UI_StackPanelNode_getType(thread)));
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, firstParent, _Arcadia_Engine_UI_LayoutPanelNode_getType(thread)));
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, secondParent, _Arcadia_Engine_UI_LayoutPanelNode_getType(thread)));
   Arcadia_Tests_assertTrue(thread, firstParent != secondParent);
   Arcadia_Tests_assertTrue(thread, 1 == Arcadia_Engine_UI_Container_getChildCount(thread, firstParent));
 
   Arcadia_Object* firstChild = Arcadia_Engine_UI_Container_getChildAt(thread, firstParent, 0);
   Arcadia_Tests_assertTrue(thread, NULL != firstChild);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, firstChild, _Arcadia_Engine_UI_StackPanelNode_getType(thread)));
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, firstChild, _Arcadia_Engine_UI_LayoutPanelNode_getType(thread)));
 }

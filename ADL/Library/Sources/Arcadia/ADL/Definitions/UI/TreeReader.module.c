@@ -70,15 +70,6 @@ static const char* PANEL_SCHEMA =
     "] } } },"
   MAP_SCHEMA_END;
 
-static const char* STACK_PANEL_SCHEMA =
-  MAP_SCHEMA_BEGIN("UI.StackPanel")
-  STRING_FIELD("type") STRING_FIELD("name") NUMBER_FIELD("left") NUMBER_FIELD("bottom")
-  NUMBER_FIELD("width") NUMBER_FIELD("height") STRING_FIELD("vertical") NUMBER_FIELD("gap")
-  NUMBER_FIELD("paddingLeft") NUMBER_FIELD("paddingBottom") NUMBER_FIELD("paddingRight")
-  NUMBER_FIELD("paddingTop") STRING_FIELD("mainAlignment") STRING_FIELD("crossAlignment")
-  LIST_FIELD("children") OPTIONAL_STRING_FIELD("backgroundModel")
-  OPTIONAL_NUMBER_FIELD("backgroundBorderWidth") MAP_SCHEMA_END;
-
 static const char* SEGMENTED_CHOICE_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.SegmentedChoice")
   STRING_FIELD("type") STRING_FIELD("name") NUMBER_FIELD("left") NUMBER_FIELD("bottom")
@@ -304,7 +295,6 @@ read
   Arcadia_String* name = Arcadia_ADL_Reader_getStringValue(thread, map, Arcadia_String_createFromCxxString(thread, u8"name"));
   Arcadia_Value labelType = Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8"UI.Label"));
   Arcadia_Value panelType = Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8"UI.Panel"));
-  Arcadia_Value stackPanelType = Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8"UI.StackPanel"));
   Arcadia_Value segmentedChoiceType = Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8"UI.SegmentedChoice"));
   Arcadia_Value sliderType = Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8"UI.Slider"));
   Arcadia_Value toggleType = Arcadia_Value_makeObjectReferenceValue(Arcadia_String_createFromCxxString(thread, u8"UI.Toggle"));
@@ -435,30 +425,6 @@ read
     }
     Arcadia_Thread_popJumpTarget(thread);
     Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
-    return (Arcadia_ADL_Definition*)definition;
-  }
-
-  if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)type, &stackPanelType)) {
-    Arcadia_ADL_UI_StackPanelDefinition* definition = Arcadia_ADL_UI_StackPanelDefinition_create(thread, definitions, name,
-      Arcadia_ADL_Reader_getInteger32Value(thread, map, Arcadia_String_createFromCxxString(thread, u8"left")),
-      Arcadia_ADL_Reader_getInteger32Value(thread, map, Arcadia_String_createFromCxxString(thread, u8"bottom")),
-      Arcadia_ADL_Reader_getNatural32Value(thread, map, Arcadia_String_createFromCxxString(thread, u8"width")),
-      Arcadia_ADL_Reader_getNatural32Value(thread, map, Arcadia_String_createFromCxxString(thread, u8"height")),
-      Arcadia_String_toBoolean(thread, Arcadia_ADL_Reader_getStringValue(thread, map, Arcadia_String_createFromCxxString(thread, u8"vertical"))),
-      Arcadia_ADL_Reader_getInteger32Value(thread, map, Arcadia_String_createFromCxxString(thread, u8"gap")),
-      Arcadia_ADL_Reader_getInteger32Value(thread, map, Arcadia_String_createFromCxxString(thread, u8"paddingLeft")),
-      Arcadia_ADL_Reader_getInteger32Value(thread, map, Arcadia_String_createFromCxxString(thread, u8"paddingBottom")),
-      Arcadia_ADL_Reader_getInteger32Value(thread, map, Arcadia_String_createFromCxxString(thread, u8"paddingRight")),
-      Arcadia_ADL_Reader_getInteger32Value(thread, map, Arcadia_String_createFromCxxString(thread, u8"paddingTop")),
-      Arcadia_ADL_Reader_getStringValue(thread, map, Arcadia_String_createFromCxxString(thread, u8"mainAlignment")),
-      Arcadia_ADL_Reader_getStringValue(thread, map, Arcadia_String_createFromCxxString(thread, u8"crossAlignment")),
-      Arcadia_ADL_Reader_getStringValueOptional(thread, map, Arcadia_String_createFromCxxString(thread, u8"backgroundModel")),
-      getNatural32ValueOptional(thread, map, u8"backgroundBorderWidth", 0));
-    Arcadia_List* childNames = Arcadia_ADL_Reader_getListValue(thread, map, Arcadia_String_createFromCxxString(thread, u8"children"));
-    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)childNames); i < n; ++i) {
-      Arcadia_DDL_StringNode* childName = (Arcadia_DDL_StringNode*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, childNames, i, _Arcadia_DDL_StringNode_getType(thread));
-      Arcadia_ADL_UI_ContainerDefinition_addChildReference(thread, (Arcadia_Object*)definition, childName->value);
-    }
     return (Arcadia_ADL_Definition*)definition;
   }
 
@@ -595,7 +561,7 @@ constructImpl
     Arcadia_Thread_jump(thread);
   }
   Arcadia_DDLS_ValidationContext* validationContext = Arcadia_DDLS_ValidationContext_create(thread);
-  const char* schemas[] = { LABEL_SCHEMA, PANEL_SCHEMA, STACK_PANEL_SCHEMA, SEGMENTED_CHOICE_SCHEMA, SLIDER_SCHEMA, TOGGLE_SCHEMA };
+  const char* schemas[] = { LABEL_SCHEMA, PANEL_SCHEMA, SEGMENTED_CHOICE_SCHEMA, SLIDER_SCHEMA, TOGGLE_SCHEMA };
   for (Arcadia_SizeValue i = 0; i < sizeof(schemas) / sizeof(schemas[0]); ++i) {
     Arcadia_DDLS_DefaultReader* reader = Arcadia_DDLS_DefaultReader_create(thread);
     Arcadia_DDLS_SchemaNode* schema = (Arcadia_DDLS_SchemaNode*)Arcadia_DDLS_DefaultReader_run(thread, reader,

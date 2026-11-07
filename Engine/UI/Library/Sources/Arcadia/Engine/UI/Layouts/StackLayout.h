@@ -87,21 +87,4 @@ Arcadia_Engine_UI_StackLayout_setAlignment
     Arcadia_Engine_UI_LayoutAlignment crossAlignment
   );
 
-// Transitional adapter: preserve StackPanelNode's current geometry and
-// setSize/setPosition semantics until its ADL definitions are migrated.
-// Slots and settings remain owned by the caller and are not retained.
-void
-Arcadia_Engine_UI_StackLayout_arrangeLegacy
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Object* container,
-    Arcadia_Engine_UI_StackLayoutSettings const* settings,
-    Arcadia_Engine_UI_StackLayoutSlot const* slots,
-    Arcadia_SizeValue slotCount,
-    Arcadia_Integer32Value left,
-    Arcadia_Integer32Value bottom,
-    Arcadia_Integer32Value width,
-    Arcadia_Integer32Value height
-  );
-
 #endif // ARCADIA_ENGINE_UI_LAYOUTS_STACKLAYOUT_H_INCLUDED

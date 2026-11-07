@@ -164,8 +164,7 @@ arrangeChildren
     Arcadia_Integer32Value left,
     Arcadia_Integer32Value bottom,
     Arcadia_Integer32Value width,
-    Arcadia_Integer32Value height,
-    Arcadia_BooleanValue legacy
+    Arcadia_Integer32Value height
   )
 {
   Arcadia_Natural64Value count = Arcadia_Engine_UI_Container_getChildCount(thread, container);
@@ -182,8 +181,7 @@ arrangeChildren
     Arcadia_Engine_UI_StackLayoutSlot fallback;
     Arcadia_Engine_UI_StackLayoutSlot const* slot = getSlot(thread, slots, slotCount, (Arcadia_SizeValue)i, &fallback);
     Arcadia_Integer32Value childWidth, childHeight;
-    if (legacy) Arcadia_Engine_UI_WidgetNode_getSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
-    else Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
+    Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
     total += settings->vertical ? (int64_t)childHeight + slot->marginTop + slot->marginBottom
                                 : (int64_t)childWidth + slot->marginLeft + slot->marginRight;
     widgetCount++;
@@ -204,18 +202,15 @@ arrangeChildren
       Arcadia_Engine_UI_StackLayoutSlot const* slot = getSlot(thread, slots, slotCount, (Arcadia_SizeValue)i, &fallback);
       Arcadia_Engine_UI_LayoutAlignment crossAlignment = slot->hasAlignmentOverride ? slot->crossAlignment : settings->crossAlignment;
       Arcadia_Integer32Value childWidth, childHeight;
-      if (legacy) Arcadia_Engine_UI_WidgetNode_getSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
-      else Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
+      Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
       Arcadia_Integer32Value childAvailableWidth = clampAvailable((int64_t)contentWidth - slot->marginLeft - slot->marginRight);
       y -= slot->marginTop;
       if (crossAlignment == Arcadia_Engine_UI_LayoutAlignment_Stretch) {
         childWidth = childAvailableWidth;
-        if (legacy) Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, childWidth, childHeight);
       }
       y -= childHeight;
       Arcadia_Integer32Value x = contentLeft + slot->marginLeft + alignedOffset(childAvailableWidth, childWidth, crossAlignment);
-      if (legacy) Arcadia_Engine_UI_WidgetNode_setPosition(thread, (Arcadia_Engine_UI_WidgetNode*)child, x, y);
-      else Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)child, x, y, childWidth, childHeight);
+      Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)child, x, y, childWidth, childHeight);
       y -= slot->marginBottom + settings->gap;
     }
   } else {
@@ -227,17 +222,14 @@ arrangeChildren
       Arcadia_Engine_UI_StackLayoutSlot const* slot = getSlot(thread, slots, slotCount, (Arcadia_SizeValue)i, &fallback);
       Arcadia_Engine_UI_LayoutAlignment crossAlignment = slot->hasAlignmentOverride ? slot->crossAlignment : settings->crossAlignment;
       Arcadia_Integer32Value childWidth, childHeight;
-      if (legacy) Arcadia_Engine_UI_WidgetNode_getSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
-      else Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
+      Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, &childWidth, &childHeight);
       Arcadia_Integer32Value childAvailableHeight = clampAvailable((int64_t)contentHeight - slot->marginBottom - slot->marginTop);
       x += slot->marginLeft;
       if (crossAlignment == Arcadia_Engine_UI_LayoutAlignment_Stretch) {
         childHeight = childAvailableHeight;
-        if (legacy) Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)child, childWidth, childHeight);
       }
       Arcadia_Integer32Value y = contentBottom + slot->marginBottom + alignedOffset(childAvailableHeight, childHeight, crossAlignment);
-      if (legacy) Arcadia_Engine_UI_WidgetNode_setPosition(thread, (Arcadia_Engine_UI_WidgetNode*)child, x, y);
-      else Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)child, x, y, childWidth, childHeight);
+      Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)child, x, y, childWidth, childHeight);
       x += childWidth + slot->marginRight + settings->gap;
     }
   }
@@ -271,7 +263,7 @@ layoutArrangeImpl
   Arcadia_Engine_UI_StackLayout* layout = (Arcadia_Engine_UI_StackLayout*)self;
   Arcadia_Engine_UI_StackLayoutSlot const* slots = getContainerSlots(thread, container);
   Arcadia_SizeValue count = Arcadia_Engine_UI_Container_getChildCount(thread, container);
-  arrangeChildren(thread, container, &layout->settings, slots, count, left, bottom, width, height, Arcadia_BooleanValue_False);
+  arrangeChildren(thread, container, &layout->settings, slots, count, left, bottom, width, height);
 }
 
 static void
@@ -380,21 +372,4 @@ Arcadia_Engine_UI_StackLayout_setAlignment
   validateAlignment(thread, crossAlignment);
   self->settings.mainAlignment = mainAlignment;
   self->settings.crossAlignment = crossAlignment;
-}
-
-void
-Arcadia_Engine_UI_StackLayout_arrangeLegacy
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Object* container,
-    Arcadia_Engine_UI_StackLayoutSettings const* settings,
-    Arcadia_Engine_UI_StackLayoutSlot const* slots,
-    Arcadia_SizeValue slotCount,
-    Arcadia_Integer32Value left,
-    Arcadia_Integer32Value bottom,
-    Arcadia_Integer32Value width,
-    Arcadia_Integer32Value height
-  )
-{
-  arrangeChildren(thread, container, settings, slots, slotCount, left, bottom, width, height, Arcadia_BooleanValue_True);
 }

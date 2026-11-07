@@ -158,13 +158,12 @@
       For <code>UI.Panel</code>, alignment must be one of
       <code>Start</code>, <code>Center</code>, <code>End</code>, or
       <code>Stretch</code>. A stack layout does not own its children.
-      The existing <code>UI.StackPanel</code> definition remains supported.
       </p>
       <p>
       <code>backgroundModel</code> optionally refers to a model definition used
       to render the panel background before its children. The optional
       <code>backgroundBorderWidth</code> controls the model-backed frame's border
-      (as for <code>UI.StackPanel</code>); it defaults to zero. A missing or
+      and defaults to zero. A missing or
       non-model background reference is a semantic error during node creation.
       </p>
       <p>
@@ -187,34 +186,6 @@
       Integer32 values), and <code>crossAlignment</code> (an optional alignment
       string). Runtime changes to child collections use the same container slot
       mechanism, while these ADL overrides apply at initial construction.
-      </p>
-
-      <h3>UI.StackPanel</h3>
-      <p>Type name: <code>"UI.StackPanel"</code>. A panel that stacks its children along one axis.</p>
-      <pre>
-"type"                   : "UI.StackPanel"
-"name"                   : &lt;string&gt;
-"left"                   : &lt;number&gt;   // Integer32
-"bottom"                 : &lt;number&gt;   // Integer32
-"width"                  : &lt;number&gt;   // Natural32
-"height"                 : &lt;number&gt;   // Natural32
-"vertical"               : &lt;string&gt;   // Boolean
-"gap"                    : &lt;number&gt;   // Integer32
-"paddingLeft"            : &lt;number&gt;   // Integer32
-"paddingBottom"          : &lt;number&gt;   // Integer32
-"paddingRight"           : &lt;number&gt;   // Integer32
-"paddingTop"             : &lt;number&gt;   // Integer32
-"mainAlignment"          : &lt;string&gt;
-"crossAlignment"         : &lt;string&gt;
-"children"               : &lt;list of strings&gt;   // references to user-interface definitions
-"backgroundModel"        : &lt;string&gt;   // optional, reference to a Model definition
-"backgroundBorderWidth"  : &lt;number&gt;   // optional, Natural32, defaults to 0
-      </pre>
-      <p>
-      The <code>vertical</code> entry selects the stack axis. Each element of the
-      <code>children</code> list names a child definition; the children are added in
-      list order. While linking, the <code>backgroundModel</code> reference, when
-      present, is resolved.
       </p>
 
       <h3>UI.SegmentedChoice</h3>
@@ -276,7 +247,7 @@
       The <code>Arcadia.ADL</code> module defines three further user-interface
       definition types, <code>"Canvas"</code>, <code>"Container"</code>, and
       <code>"ScrollPanel"</code>, that share the container interface
-      <code>"UI.StackPanel"</code> implements. No reader is registered for them, so an
+      <code>"UI.Panel"</code> implements. No reader is registered for them, so an
       asset cannot carry them as its <code>type</code> entry; they occur only in the C
       interface of the module. This document does not specify their entries.
       </p>
