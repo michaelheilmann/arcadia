@@ -35,6 +35,8 @@
 #include "Arcadia/Math/Implementation/quadraticBSplineSegment.h"
 #include "Arcadia/Math/Implementation/Configure.h"
 #include "Arcadia/Math/Implementation/RgbReal32.h"
+#include "Arcadia/Math/Implementation/Lagrange3.h"
+#include "Arcadia/Math/Implementation/Bezier3Values.h"
 #include "Arcadia/Math/Implementation/Color4Real32.h"
 #include "Arcadia/Math/Implementation/Color4Real64.h"
 #include "Arcadia/Math/Implementation/QuaternionReal32.h"
