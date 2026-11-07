@@ -51,6 +51,7 @@ static const char* PANEL_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.Panel")
   STRING_FIELD("type") STRING_FIELD("name") NUMBER_FIELD("left") NUMBER_FIELD("bottom")
   NUMBER_FIELD("width") NUMBER_FIELD("height") LIST_FIELD("children")
+  OPTIONAL_STRING_FIELD("sizePolicy")
   OPTIONAL_STRING_FIELD("backgroundModel") OPTIONAL_NUMBER_FIELD("backgroundBorderWidth")
   "{ kind : \"MapEntry\", name : \"layout\", type : { kind : \"Map\", entries : ["
     STRING_FIELD("type") STRING_FIELD("orientation")
@@ -330,6 +331,12 @@ read
     Arcadia_String* orientation = Arcadia_ADL_Reader_getStringValue(thread, layout, Arcadia_String_createFromCxxString(thread, u8"orientation"));
     Arcadia_String* mainAlignment = Arcadia_ADL_Reader_getStringValueOptional(thread, layout, Arcadia_String_createFromCxxString(thread, u8"mainAlignment"));
     Arcadia_String* crossAlignment = Arcadia_ADL_Reader_getStringValueOptional(thread, layout, Arcadia_String_createFromCxxString(thread, u8"crossAlignment"));
+    Arcadia_String* sizePolicy = Arcadia_ADL_Reader_getStringValueOptional(thread, map, Arcadia_String_createFromCxxString(thread, u8"sizePolicy"));
+    if (sizePolicy && !Arcadia_String_isEqualTo_pn(thread, sizePolicy, "Content", 7) &&
+        !Arcadia_String_isEqualTo_pn(thread, sizePolicy, "Fixed", 5)) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
     Arcadia_Integer32Value gap = getInteger32ValueOptional(thread, layout, u8"gap", 0);
     Arcadia_Integer32Value padLeft = getInteger32ValueOptional(thread, layout, u8"paddingLeft", 0);
     Arcadia_Integer32Value padBottom = getInteger32ValueOptional(thread, layout, u8"paddingBottom", 0);
@@ -359,6 +366,7 @@ read
     }
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definition);
     definition->layoutType = layoutType;
+    definition->sizePolicy = sizePolicy;
     definition->vertical = Arcadia_String_isEqualTo_pn(thread, orientation, "Vertical", 8);
     definition->gap = gap;
     definition->paddingLeft = padLeft;

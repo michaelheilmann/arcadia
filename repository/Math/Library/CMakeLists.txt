@@ -50,6 +50,20 @@ if (NOT TARGET ${this})
                      "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/AxisAngle3Real64.env")
 
     OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector.c.te"
+                     "${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Math/Implementation/Vector2Real32.c"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector2Real32.env")
+    OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector.h.te"
+                     "${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Math/Implementation/Vector2Real32.h"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector2Real32.env")
+
+    OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector.c.te"
+                     "${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Math/Implementation/Vector2Real64.c"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector2Real64.env")
+    OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector.h.te"
+                     "${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Math/Implementation/Vector2Real64.h"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector2Real64.env")
+
+    OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector.c.te"
                      "${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/Math/Implementation/Vector3Real32.c"
                      "${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector3Real32.env")
     OnTemplateEngine("${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/Math/Implementation/Vector.h.te"
@@ -123,6 +137,10 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Math/Implementation/Color4Real64.c GENERATED)
   OnHeaderFile(${this} Arcadia/Math/Implementation/Color4Real64.h GENERATED)
 
+  OnSourceFile(${this} Arcadia/Math/Implementation/Vector2Real32.c GENERATED)
+  OnHeaderFile(${this} Arcadia/Math/Implementation/Vector2Real32.h GENERATED)
+  OnSourceFile(${this} Arcadia/Math/Implementation/Vector2Real64.c GENERATED)
+  OnHeaderFile(${this} Arcadia/Math/Implementation/Vector2Real64.h GENERATED)
   OnSourceFile(${this} Arcadia/Math/Implementation/Vector3Real32.c GENERATED)
   OnHeaderFile(${this} Arcadia/Math/Implementation/Vector3Real32.h GENERATED)
   OnSourceFile(${this} Arcadia/Math/Implementation/Vector3Real64.c GENERATED)

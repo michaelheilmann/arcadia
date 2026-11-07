@@ -23,6 +23,14 @@
 #include "Arcadia/Engine/UI/Node.h"
 typedef struct Arcadia_Engine_UI_WidgetEvent Arcadia_Engine_UI_WidgetEvent;
 
+// A persistent sizing policy for widgets participating in layout.
+// Fixed uses requestedWidth/requestedHeight; Content uses the measured content.
+// Widgets without a content layout naturally have fixed sizing.
+typedef enum Arcadia_Engine_UI_WidgetNodeSizePolicy {
+  Arcadia_Engine_UI_WidgetNodeSizePolicy_Content,
+  Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed,
+} Arcadia_Engine_UI_WidgetNodeSizePolicy;
+
 // The "UI widget" node.
 Arcadia_declareObjectType(u8"Arcadia.Engine.UI.WidgetNode", Arcadia_Engine_UI_WidgetNode,
                           u8"Arcadia.Engine.UI.Node")
@@ -47,6 +55,8 @@ struct Arcadia_Engine_UI_WidgetNode {
   Arcadia_Integer32Value requestedWidth, requestedHeight;
   // Desired size produced by the most recent measure call.
   Arcadia_Integer32Value desiredWidth, desiredHeight;
+  // The general sizing semantics; containers choose how to measure content.
+  Arcadia_Engine_UI_WidgetNodeSizePolicy sizePolicy;
   Arcadia_Signal* propertyChanged;
   Arcadia_String* name;
 };

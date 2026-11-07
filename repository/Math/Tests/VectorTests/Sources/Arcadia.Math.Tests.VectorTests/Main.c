@@ -19,6 +19,7 @@
 #include <stdlib.h>
 
 #include "Arcadia/Math/Include.h"
+#include "Vector2.h"
 
 static void
 test1
@@ -584,6 +585,10 @@ main
   )
 {
   static const Arcadia_Testing_Case cases[] = {
+    { "Vector2Real32", &Arcadia_Math_Tests_Vector2_real32 },
+    { "Vector2Real64", &Arcadia_Math_Tests_Vector2_real64 },
+    { "VectorTemplateReal32", &Arcadia_Math_Tests_Vector2_templateReal32 },
+    { "VectorTemplateReal64", &Arcadia_Math_Tests_Vector2_templateReal64 },
     { "VectorTests", &runTests },
     { "CubicBezierReal32", &runCubicBezierReal32 },
     { "CubicBezierReal64", &runCubicBezierReal64 },

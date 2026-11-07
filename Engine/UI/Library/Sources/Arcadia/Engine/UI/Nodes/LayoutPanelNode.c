@@ -373,6 +373,7 @@ constructImpl
   self->focusedChild = NULL;
   self->lastCanvasHeight = 0.f;
   self->focused = Arcadia_BooleanValue_False;
+  ((Arcadia_Engine_UI_WidgetNode*)self)->sizePolicy = Arcadia_Engine_UI_WidgetNodeSizePolicy_Content;
   self->layoutDirty = Arcadia_BooleanValue_True;
   self->layoutInProgress = Arcadia_BooleanValue_False;
   self->hasArranged = Arcadia_BooleanValue_False;
@@ -519,7 +520,12 @@ measureImpl
     return;
   }
   Arcadia_Integer32Value width = 0, height = 0;
+  // Always measure descendants, even when this panel has a fixed desired size.
   Arcadia_Engine_UI_Layout_measure(thread, self->layout, (Arcadia_Object*)self, availableWidth, availableHeight, &width, &height);
+  if (widget->sizePolicy == Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed) {
+    width = widget->requestedWidth;
+    height = widget->requestedHeight;
+  }
   if (width < 0 || width > Arcadia_Integer32Value_Maximum / 2 ||
       height < 0 || height > Arcadia_Integer32Value_Maximum / 2) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
@@ -835,6 +841,9 @@ Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition
     parseAlignment(thread, source->mainAlignment), parseAlignment(thread, source->crossAlignment));
   Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
   Arcadia_ValueStack_popValues(thread, 1);
+  if (source->sizePolicy && Arcadia_String_isEqualTo_pn(thread, source->sizePolicy, "Fixed", 5)) {
+    Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy(thread, panel, Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed);
+  }
   panel->backgroundBorderWidth = source->backgroundBorderWidth;
   if (source->backgroundModelName) {
     Arcadia_ADL_Definition* model = Arcadia_ADL_Definitions_getDefinitionOrNull(thread,
@@ -880,6 +889,26 @@ Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition
   Arcadia_Thread_popJumpTarget(thread);
   Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   return panel;
+}
+
+void
+Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_LayoutPanelNode* self,
+    Arcadia_Engine_UI_WidgetNodeSizePolicy policy
+  )
+{
+  if (policy != Arcadia_Engine_UI_WidgetNodeSizePolicy_Content &&
+      policy != Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)self;
+  if (widget->sizePolicy != policy) {
+    widget->sizePolicy = policy;
+    self->layoutDirty = Arcadia_BooleanValue_True;
+  }
 }
 
 Arcadia_Object*

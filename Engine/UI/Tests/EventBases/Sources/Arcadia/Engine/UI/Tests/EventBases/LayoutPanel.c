@@ -201,6 +201,18 @@ testLayoutPanel
   Arcadia_Tests_assertTrue(thread, first->left == 9 && first->bottom == 14 && first->width == 60 && first->height == 20);
   Arcadia_Tests_assertTrue(thread, second->left == 9 && second->bottom == 41 && second->width == 80 && second->height == 30);
 
+  // The new explicit sizing policy must preserve the parent's size without
+  // skipping measurement of its descendants.
+  Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy(thread, panel, Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed);
+  Arcadia_Tests_assertTrue(thread, panel->layoutDirty);
+  Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 300, 200);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)panel, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 200 && height == 100 && measureCount == 2);
+  Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy(thread, panel, Arcadia_Engine_UI_WidgetNodeSizePolicy_Content);
+  Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 300, 200);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)panel, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 88 && height == 65);
+
   invalidMeasurement = Arcadia_BooleanValue_True;
   Arcadia_JumpTarget jump;
   Arcadia_Thread_pushJumpTarget(thread, &jump);

@@ -41,6 +41,7 @@ constructImpl
   self->width = Arcadia_ValueStack_getNatural32Value(thread, 2);
   self->height = Arcadia_ValueStack_getNatural32Value(thread, 1);
   self->layoutType = NULL;
+  self->sizePolicy = NULL;
   self->vertical = Arcadia_BooleanValue_True;
   self->gap = 0;
   self->paddingLeft = self->paddingBottom = 0;
@@ -77,6 +78,7 @@ visitImpl
   )
 {
   if (self->layoutType) Arcadia_Object_visit(thread, (Arcadia_Object*)self->layoutType);
+  if (self->sizePolicy) Arcadia_Object_visit(thread, (Arcadia_Object*)self->sizePolicy);
   if (self->mainAlignment) Arcadia_Object_visit(thread, (Arcadia_Object*)self->mainAlignment);
   if (self->crossAlignment) Arcadia_Object_visit(thread, (Arcadia_Object*)self->crossAlignment);
   if (self->backgroundModelName) Arcadia_Object_visit(thread, (Arcadia_Object*)self->backgroundModelName);

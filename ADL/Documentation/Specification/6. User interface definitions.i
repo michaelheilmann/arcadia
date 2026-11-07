@@ -129,6 +129,7 @@
 "bottom"                 : &lt;number&gt; // Integer32
 "width"                  : &lt;number&gt; // Natural32
 "height"                 : &lt;number&gt; // Natural32
+"sizePolicy"             : "Content" | "Fixed" // optional, default Content
 "children"               : &lt;list of strings&gt; // ordered definition references
 "backgroundModel"        : &lt;string&gt; // optional ADL Model definition name
 "backgroundBorderWidth"  : &lt;number&gt; // optional Natural32, default 0
@@ -144,6 +145,15 @@
   "crossAlignment"       : &lt;string&gt; // optional, default "Center"
 }
       </pre>
+      <p>
+      <code>sizePolicy: "Content"</code> measures the panel from its children
+      and layout padding (the existing default). <code>sizePolicy: "Fixed"</code>
+      instead uses the panel's explicit <code>width</code> and
+      <code>height</code> as its desired size, while still measuring and arranging
+      its children. This is a persistent sizing behavior, not a migration flag.
+      It is useful for tabbed content areas whose dimensions must not change
+      when children are added or removed.
+      </p>
       <p>
       For <code>UI.Panel</code>, alignment must be one of
       <code>Start</code>, <code>Center</code>, <code>End</code>, or

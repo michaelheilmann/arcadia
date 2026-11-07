@@ -294,6 +294,60 @@ testDeclarativePanelBackground
   Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
 }
 
+static void
+testDeclarativePanelSizing
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)context);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definitions);
+  Arcadia_ADL_UI_PanelDefinition* fixed = (Arcadia_ADL_UI_PanelDefinition*)Arcadia_ADL_Context_readFromString(
+    thread, context, definitions, Arcadia_String_createFromCxxString(thread,
+    "{ type: \"UI.Panel\", name: \"Test.Sizing.Fixed\", left: 0, bottom: 0, width: 712, height: 280, "
+    "sizePolicy: \"Fixed\", children: [], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }"), false);
+  Arcadia_Tests_assertTrue(thread, Arcadia_String_isEqualTo_pn(thread, fixed->sizePolicy, "Fixed", 5));
+  Arcadia_Object* fixedObject = Arcadia_Engine_UI_createNodeFromDefinition(thread, NULL, (Arcadia_ADL_Definition*)fixed);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, fixedObject);
+  Arcadia_Engine_UI_WidgetNode* fixedWidget = (Arcadia_Engine_UI_WidgetNode*)fixedObject;
+  Arcadia_Tests_assertTrue(thread, fixedWidget->sizePolicy == Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed);
+  Arcadia_Integer32Value width, height;
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, fixedWidget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 712 && height == 280);
+  // Mutating the child list must not collapse an explicitly sized content area.
+  Arcadia_Engine_UI_WidgetNode* child = Arcadia_Engine_UI_WidgetNode_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)child);
+  Arcadia_Engine_UI_WidgetNode_setSize(thread, child, 20, 12);
+  Arcadia_Engine_UI_Container_addChild(thread, fixedObject, (Arcadia_Object*)child);
+  Arcadia_Engine_UI_LayoutPanelNode_updateLayout(thread, (Arcadia_Engine_UI_LayoutPanelNode*)fixedObject);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, fixedWidget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 712 && height == 280);
+  Arcadia_Engine_UI_Container_removeChild(thread, fixedObject, (Arcadia_Object*)child);
+  Arcadia_Engine_UI_LayoutPanelNode_updateLayout(thread, (Arcadia_Engine_UI_LayoutPanelNode*)fixedObject);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, fixedWidget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 712 && height == 280);
+  Arcadia_ADL_UI_PanelDefinition* content = (Arcadia_ADL_UI_PanelDefinition*)Arcadia_ADL_Context_readFromString(
+    thread, context, definitions, Arcadia_String_createFromCxxString(thread,
+    "{ type: \"UI.Panel\", name: \"Test.Sizing.Content\", left: 0, bottom: 0, width: 712, height: 280, "
+    "children: [], layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }"), false);
+  Arcadia_Object* contentObject = Arcadia_Engine_UI_createNodeFromDefinition(thread, NULL, (Arcadia_ADL_Definition*)content);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, contentObject);
+  Arcadia_Engine_UI_WidgetNode* contentWidget = (Arcadia_Engine_UI_WidgetNode*)contentObject;
+  Arcadia_Tests_assertTrue(thread, contentWidget->sizePolicy == Arcadia_Engine_UI_WidgetNodeSizePolicy_Content);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, contentWidget, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 0 && height == 0);
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.Sizing.Invalid\", left: 0, bottom: 0, width: 10, height: 10, "
+    "sizePolicy: \"Unknown\", children: [], "
+    "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\" } }");
+  Arcadia_ValueStack_popValues(thread, 5);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
 void
 Arcadia_ADL_Tests_UI_ContainerCompositionTest1
   (
@@ -304,6 +358,7 @@ Arcadia_ADL_Tests_UI_ContainerCompositionTest1
   testDeclarativePanels(thread);
   testDeclarativePanelChildLayouts(thread);
   testDeclarativePanelBackground(thread);
+  testDeclarativePanelSizing(thread);
   Arcadia_Tests_assertTrue(thread, 0.33 == Arcadia_Engine_UI_SliderNode_projectValue(0.333, 0.0, 1.0, 0.01));
   Arcadia_Tests_assertTrue(thread, 0.34 == Arcadia_Engine_UI_SliderNode_projectValue(0.335, 0.0, 1.0, 0.01));
   Arcadia_Tests_assertTrue(thread, 0.0 == Arcadia_Engine_UI_SliderNode_projectValue(-0.02, 0.0, 1.0, 0.01));

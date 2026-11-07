@@ -52,6 +52,8 @@ struct Arcadia_ADL_UI_PanelDefinition {
   Arcadia_Integer32Value left, bottom;
   Arcadia_Natural32Value width, height;
   Arcadia_String* layoutType;
+  // Optional: "Content" (default) or "Fixed"; belongs to the panel, not the layout strategy.
+  Arcadia_String* sizePolicy;
   Arcadia_BooleanValue vertical;
   Arcadia_Integer32Value gap;
   Arcadia_Integer32Value paddingLeft, paddingBottom, paddingRight, paddingTop;

@@ -49,8 +49,12 @@
 #include "Arcadia/Math/Implementation/setTranslation.h"
 #include "Arcadia/Math/Implementation/transformDirection.h"
 #include "Arcadia/Math/Implementation/transformPoint.h"
+#include "Arcadia/Math/Implementation/Vector2Real32.h"
+#include "Arcadia/Math/Implementation/Vector2Real64.h"
 #include "Arcadia/Math/Implementation/Vector3Real32.h"
 #include "Arcadia/Math/Implementation/Vector3Real64.h"
+#include "Arcadia/Math/Implementation/Vector4Real32.h"
+#include "Arcadia/Math/Implementation/Vector4Real64.h"
 
 #undef ARCADIA_MATH_EXPORT
 #pragma pop_macro("ARCADIA_MATH_EXPORT")
