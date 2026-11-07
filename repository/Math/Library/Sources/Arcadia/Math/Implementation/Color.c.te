@@ -33,6 +33,12 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_initializeDispatchImpl
   );
 
 static void
+Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_clone
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
 Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_isEqualTo
   (
     Arcadia_Thread* thread
@@ -110,9 +116,9 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 0);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
-  if (4 == _numberOfArguments) {
+  if (@{numberOfComponents} == _numberOfArguments) {
     for (Arcadia_SizeValue i = 0; i < @{numberOfComponents}; ++i) {
-      self->components[i] = Arcadia_ValueStack_getReal32Value(thread, 4 - i);
+      self->components[i] = Arcadia_ValueStack_get@{componentSuffix}Value(thread, @{numberOfComponents} - i);
     }
   } else if (0 == _numberOfArguments) {
     for (Arcadia_SizeValue i = 0; i < @{numberOfComponents}; ++i) {
@@ -132,7 +138,26 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_initializeDispatchImpl
     Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}Dispatch* self
   )
 {
+  ((Arcadia_ObjectDispatch*)self)->clone = &Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_clone;
   ((Arcadia_ObjectDispatch*)self)->isEqualTo = &Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_isEqualTo;
+}
+
+// The receiver is rooted until the independent clone has been created.
+static void
+Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_clone
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Natural8Value numberOfArguments = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (1 != numberOfArguments) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_getType(thread));
+  Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* clone = Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_create4v(thread, self->components);
+  Arcadia_ValueStack_popValues(thread, 2);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)clone);
 }
 
 static void
@@ -186,6 +211,47 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_assign
 }
 
 void
+Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_copyValues
+  (
+    Arcadia_Thread* thread,
+    const Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* self,
+    @{componentType} result[@{numberOfComponents}]
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < @{numberOfComponents}; ++i) {
+    result[i] = self->components[i];
+  }
+}
+
+void
+Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_lerp
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* self,
+    Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}* other,
+    @{componentType} t
+  )
+{
+  if (t <= @{minimumComponentValue}) {
+    return;
+  }
+  if (t >= @{maximumComponentValue}) {
+    Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_assign(thread, self, other);
+    return;
+  }
+  @{componentType} s = @{maximumComponentValue} - t;
+  for (Arcadia_SizeValue i = 0; i < @{numberOfComponents}; ++i) {
+    @{componentType} value = s * self->components[i] + t * other->components[i];
+    if (value < @{minimumComponentValue}) {
+      value = @{minimumComponentValue};
+    } else if (value > @{maximumComponentValue}) {
+      value = @{maximumComponentValue};
+    }
+    self->components[i] = value;
+  }
+}
+
+void
 Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_invert
   (
     Arcadia_Thread* thread,
@@ -194,7 +260,7 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_invert
   )
 {
   for (Arcadia_SizeValue i = 0; i < @{numberOfComponents}; ++i) {
-    self->components[i] = @{maximumComponentValue} - self->components[i];
+    self->components[i] = @{maximumComponentValue} - other->components[i];
   }
 }
 
@@ -207,8 +273,12 @@ Arcadia_Math_Color@{numberOfComponents}@{componentSuffix}_add
   )
 {
   for (Arcadia_SizeValue i = 0; i < @{numberOfComponents}; ++i) {
-    if (self->components[i] > @{maximumComponentValue}) {
-      self->components[i] = @{maximumComponentValue};
+    @{componentType} value = self->components[i] + other->components[i];
+    if (value < @{minimumComponentValue}) {
+      value = @{minimumComponentValue};
+    } else if (value > @{maximumComponentValue}) {
+      value = @{maximumComponentValue};
     }
+    self->components[i] = value;
   }
 }

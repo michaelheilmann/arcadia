@@ -31,6 +31,12 @@ wrappers were removed after their create-from-values / read-back semantics
 became available in `Arcadia.Math`. The empty `getWorkingDirectory` stubs
 were also removed; working-directory lookup does not belong to Math.
 
+## Color4 generator hardening
+
+The maintained Color4 generator now supports Real32 and Real64 argument
+transport, interpolation, inversion, saturating addition, cloning and
+independent component copies. ColorObjectTests verifies both precisions.
+
 ## Remaining review before removal
 
 - `2/math.h` defines a native three-component `Core_InlineRgbR32` value,
