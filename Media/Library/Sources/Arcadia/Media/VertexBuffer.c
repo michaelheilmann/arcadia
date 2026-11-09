@@ -166,10 +166,63 @@ Arcadia_Media_VertexBuffer_getVertexBytes
   )
 { return self->vertexBytes; }
 
-void*
-Arcadia_Media_VertexBuffer_getVertices
+Arcadia_SizeValue
+Arcadia_Media_VertexBuffer_getNumberOfBytes
   (
     Arcadia_Thread* thread,
     Arcadia_Media_VertexBuffer* self
   )
-{ return Arcadia_ByteArray_getMutableBytes(thread, self->vertexBytes); }
+{ return Arcadia_ByteArray_getSize(thread, self->vertexBytes); }
+
+void
+Arcadia_Media_VertexBuffer_copyInto
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexBuffer* target,
+    Arcadia_Media_VertexBuffer* source
+  )
+{
+  if (!target || !source || target->vertexDescriptor != source->vertexDescriptor ||
+      target->numberOfVertices != source->numberOfVertices) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (target == source) {
+    return;
+  }
+  Arcadia_SizeValue size = Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, source);
+  if (size != Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, target)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (size) {
+    Arcadia_Memory_copy(thread, Arcadia_ByteArray_getMutableBytes(thread, target->vertexBytes),
+                        Arcadia_ByteArray_getBytes(thread, source->vertexBytes), size);
+  }
+}
+
+Arcadia_Media_VertexBuffer*
+Arcadia_Media_VertexBuffer_copy
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexBuffer* source
+  )
+{
+  if (!source) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  // Protect the source across the destination's collecting allocation.
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)source);
+  Arcadia_Media_VertexBuffer* target = Arcadia_Media_VertexBuffer_create
+    (
+      thread,
+      Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, source),
+      Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, source)
+    );
+  Arcadia_Object_lock(thread, (Arcadia_Object*)target);
+  Arcadia_Media_VertexBuffer_copyInto(thread, target, source);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)target);
+  Arcadia_ValueStack_popValues(thread, 1);
+  return target;
+}

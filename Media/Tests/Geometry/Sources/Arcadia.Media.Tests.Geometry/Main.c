@@ -554,9 +554,12 @@ test8
   expectSize(thread, "vertex byte size is not the descriptor stride times the vertex count.",
              Arcadia_ByteArray_getSize(thread, bytes1),
              6 * componentsInVertex * sizeof(Arcadia_Real32Value));
-  if (Arcadia_ByteArray_getBytes(thread, bytes1) != Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer1)) {
-    testFailure(thread, "legacy byte access does not alias the new ByteArray storage.");
+  if (Arcadia_ByteArray_getBytes(thread, bytes1) != Arcadia_ByteArray_getMutableBytes(thread, bytes1)) {
+    testFailure(thread, "mutable and readonly borrows refer to different vertex storage.");
   }
+  expectSize(thread, "the vertex byte-count API disagrees with ByteArray storage.",
+             Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, vertexBuffer1),
+             Arcadia_ByteArray_getSize(thread, bytes1));
   Arcadia_Real32Value* vertices1 = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, bytes1);
   Arcadia_Real32Value* vertices2 = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, bytes2);
   if (vertices1 == vertices2) {
@@ -570,9 +573,38 @@ test8
               vertices2[0], reference);
   // ... nor the geometry.
   Arcadia_Media_VertexBuffer* vertexBuffer3 = Arcadia_Media_Geometry_getVertexBuffer(thread, geometry);
-  Arcadia_Real32Value const* vertices3 = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer3);
+  Arcadia_Real32Value const* vertices3 = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer3));
   expectFloat(thread, "changing the vertex data of a vertex buffer of the plane changed the vertex data of the plane.",
               vertices3[0], reference);
+
+  // A new copy owns independent bytes and retains the exact descriptor.
+  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer1);
+  Arcadia_Media_VertexBuffer* copy = Arcadia_Media_VertexBuffer_copy(thread, vertexBuffer1);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)copy);
+  if (Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, copy) !=
+      Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, vertexBuffer1)) {
+    testFailure(thread, "copy changed the descriptor.");
+  }
+  expectSize(thread, "copy changed the vertex count.",
+             Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, copy), 6);
+  Arcadia_ByteArray* copyBytes = Arcadia_Media_VertexBuffer_getVertexBytes(thread, copy);
+  expectSize(thread, "copy changed the byte count.",
+             Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, copy),
+             Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, vertexBuffer1));
+  if (Arcadia_ByteArray_getBytes(thread, copyBytes) == Arcadia_ByteArray_getBytes(thread, bytes1)) {
+    testFailure(thread, "copy aliases its source bytes.");
+  }
+  Arcadia_Real32Value copiedFirst = ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread, copyBytes))[0];
+  vertices1[0] += 2.f;
+  expectFloat(thread, "copy was changed with its source.",
+              ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread, copyBytes))[0], copiedFirst);
+
+  // Copying into an existing buffer replaces bytes without reallocating it.
+  Arcadia_Media_VertexBuffer_copyInto(thread, vertexBuffer2, copy);
+  expectFloat(thread, "copyInto did not copy vertex bytes.",
+              ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread, bytes2))[0], copiedFirst);
+  Arcadia_Media_VertexBuffer_copyInto(thread, copy, copy); // self-copy is permitted
 
   // The vertex buffer must retain its managed ByteArray through garbage collection.
   Arcadia_Real32Value expectedAfterGC = vertices1[0];
@@ -596,7 +628,70 @@ test8
     Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
     Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_AllocationFailed, status);
   }
+  // A live VertexBuffer roots its ByteArray, including after its source changes.
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  expectFloat(thread, "independent copy storage lost after GC.",
+              ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+                Arcadia_Media_VertexBuffer_getVertexBytes(thread, copy)))[0], copiedFirst);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)copy);
   Arcadia_Object_unlock(thread, (Arcadia_Object*)vertexBuffer1);
+}
+
+static void
+testVertexBufferEmptyAndCopyMismatch(Arcadia_Thread* thread)
+{
+  Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  defineCommonDefinitions(thread, context, definitions);
+  readDefinition(thread, context, definitions,
+    "{\n"
+    "  type : \"PlaneMeshGenerator\",\n"
+    "  name : \"MyGame.Meshes.MyPlane\",\n"
+    "  width : 2.0,\n"
+    "  height : 4.0,\n"
+    "  ambientColor : \"MyGame.Colors.MyWhite\",\n"
+    "}\n");
+  Arcadia_ADL_Definitions_link(thread, definitions);
+  Arcadia_Media_Geometry* geometry = Arcadia_Media_Geometry_createFromMeshGenerator(thread,
+    getMeshGenerator(thread, definitions, "MyGame.Meshes.MyPlane"));
+  Arcadia_Object_lock(thread, (Arcadia_Object*)geometry);
+  Arcadia_Media_VertexBuffer* populated = Arcadia_Media_Geometry_getVertexBuffer(thread, geometry);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)populated);
+  Arcadia_Media_VertexBuffer* empty = Arcadia_Media_VertexBuffer_create(thread,
+    Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, populated), 0);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)empty);
+  expectSize(thread, "empty vertex buffer has nonzero byte length.",
+             Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, empty), 0);
+  Arcadia_Media_VertexBuffer* duplicate = Arcadia_Media_VertexBuffer_copy(thread, empty);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)duplicate);
+  expectSize(thread, "empty vertex copy has nonzero vertices.",
+             Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, duplicate), 0);
+  Arcadia_Media_VertexBuffer_copyInto(thread, empty, duplicate);
+
+  Arcadia_JumpTarget target;
+  Arcadia_Thread_pushJumpTarget(thread, &target);
+  if (Arcadia_JumpTarget_save(&target)) {
+    Arcadia_Media_VertexBuffer_copyInto(thread, empty, populated);
+    Arcadia_Thread_popJumpTarget(thread);
+    testFailure(thread, "copyInto accepted mismatched vertex counts.");
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_ArgumentValueInvalid, status);
+  }
+  expectSize(thread, "mismatched copy changed target length.",
+             Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, empty), 0);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)duplicate);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)empty);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)populated);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)geometry);
+}
+
+static int
+runVertexBufferEmptyAndCopyMismatch(void)
+{
+  return Arcadia_Tests_safeExecute(&testVertexBufferEmptyAndCopyMismatch) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static int
@@ -687,6 +782,7 @@ main
     { "UnsupportedGeneratorConstruction", &runUnsupportedGeneratorConstruction },
     { "UnsupportedGeneratorRejection", &runUnsupportedGeneratorRejection },
     { "VertexBufferCopies", &runVertexBufferCopies },
+    { "VertexBufferEmptyAndCopyMismatch", &runVertexBufferEmptyAndCopyMismatch },
     { "VertexBuilder", &Arcadia_Media_Tests_Geometry_vertexBuilder },
     { "VertexEnums", &Arcadia_Media_Tests_Geometry_vertexEnums },
   };
