@@ -1502,11 +1502,18 @@ contiguous ByteArray sources. <code>copyImmutable</code> creates a separate
 immutable runtime-value-backed snapshot; it never aliases the source, even if
 its capability queries report immutable. Non-contiguous sources are rejected
 by these initial copy APIs.</p>
-<p>The factory-owned writable storage is deallocated with its object. A borrow
-from <code>Arcadia_ByteArray_getBytes</code> is native C-only and valid only while
+<p>The factory-owned writable storage is deallocated with its object.
+<code>Arcadia_ByteArray_getMutableBytes</code> is a native-C-only writable
+borrow for mutable contiguous storage; immutable wrappers and read-only slice
+views reject this request with <code>Arcadia_Status_OperationInvalid</code>.
+The caller may write any byte in the current logical range without per-byte
+virtual dispatch. The caller must not write beyond that range.
+A borrow from <code>Arcadia_ByteArray_getBytes</code> is native C-only and valid only while
 the underlying object and its storage are alive; resizing can relocate or
 invalidate a borrowed pointer. The returned pointer must not be stored in
-PDL values. Clients must root managed objects while borrowing their storage.</p>
+PDL values. Clients must root managed objects while borrowing their storage.
+A borrow is invalidated by any operation that may relocate storage; reacquire
+the pointer after resizing. Never cache mutable pointers across a resize.</p>
 <p>Fixed-size mutable storage supports <code>setAt</code> but rejects
 <code>resize</code> with <code>Arcadia_Status_OperationInvalid</code> even when
 the requested size equals the current size. Mutable writes outside the current
@@ -1514,8 +1521,11 @@ bounds raise <code>Arcadia_Status_ArgumentValueInvalid</code>. Growable storage
 zeroes newly exposed elements, including after shrinking and regrowing.</p>
 <p>Legacy slices continue as fixed-size read-only views; this phase does not
 introduce writable slice forwarding or altered reader cursor behavior.
-<code>ByteArrayBuilder</code> and all three byte-reader implementations remain
-available for compatibility during the staged consolidation.</p>
+<code>ByteArrayBuilder</code> is a compatibility facade over a factory-created
+resizable ByteArray. Its bulk insert operation allows copying from its own
+current logical range, including ranges spanning the insertion point; the
+source offset is retained over possible reallocation. The legacy builder
+readers and all other byte-reader implementations remain available.</p>
 </section>
 
 

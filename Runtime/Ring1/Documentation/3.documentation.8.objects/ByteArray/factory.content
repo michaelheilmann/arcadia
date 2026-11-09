@@ -12,6 +12,16 @@ contiguous ByteArray sources. <code>copyImmutable</code> creates a separate
 immutable runtime-value-backed snapshot; it never aliases the source, even if
 its capability queries report immutable. Non-contiguous sources are rejected
 by these initial copy APIs.</p>
+<p><code>Arcadia_ByteArrayFactory_borrowReadOnly</code> and
+<code>Arcadia_ByteArrayFactory_borrowMutable</code> create fixed-size contiguous
+views over existing native C memory without copying or allocating storage.
+They preserve the caller's pointer and never deallocate it. The caller MUST
+keep that memory alive and valid until the ByteArray object is no longer used.
+A managed ByteArray reference does not keep external memory alive. The mutable
+variant permits in-place writes, while the read-only variant rejects mutation;
+both reject resizing. A nonempty view requires a non-null pointer; an empty
+view may use null. Caller-owned memory must not be relocated while borrowed,
+and only native C callers may pass the pointer—never PDL or Arcadia.Value.</p>
 <p>The factory-owned writable storage is deallocated with its object.
 <code>Arcadia_ByteArray_getMutableBytes</code> is a native-C-only writable
 borrow for mutable contiguous storage; immutable wrappers and read-only slice

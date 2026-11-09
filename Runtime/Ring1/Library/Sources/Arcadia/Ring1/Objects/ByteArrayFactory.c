@@ -16,6 +16,7 @@
 
 #define ARCADIA_RING1_MODULE (1)
 #include "Arcadia/Ring1/Objects/ByteArrayFactory.h"
+#include "Arcadia/Ring1/Objects/ByteArrayBorrowedImpl.h"
 #include "Arcadia/Ring1/Objects/ByteArrayDefaultImpl.h"
 #include "Arcadia/Ring1/Objects/ByteArrayNativeImpl.h"
 #include "Arcadia/Ring1/Include.h"
@@ -31,6 +32,21 @@ Arcadia_ByteArrayFactory_createMutable(Arcadia_Thread* thread, Arcadia_SizeValue
 Arcadia_ByteArray*
 Arcadia_ByteArrayFactory_createResizable(Arcadia_Thread* thread, Arcadia_SizeValue size)
 { return (Arcadia_ByteArray*)Arcadia_ByteArrayNativeImpl_create(thread, size, Arcadia_BooleanValue_True); }
+
+// These factory variants borrow external native storage; they never free it.
+Arcadia_ByteArray*
+Arcadia_ByteArrayFactory_borrowReadOnly(Arcadia_Thread* thread,
+                                        Arcadia_Natural8Value const* bytes, Arcadia_SizeValue size)
+{
+  return (Arcadia_ByteArray*)Arcadia_ByteArrayBorrowedImpl_create(thread, bytes, size, Arcadia_BooleanValue_False);
+}
+
+Arcadia_ByteArray*
+Arcadia_ByteArrayFactory_borrowMutable(Arcadia_Thread* thread,
+                                       Arcadia_Natural8Value* bytes, Arcadia_SizeValue size)
+{
+  return (Arcadia_ByteArray*)Arcadia_ByteArrayBorrowedImpl_create(thread, bytes, size, Arcadia_BooleanValue_True);
+}
 
 static Arcadia_ByteArray*
 copyNative(Arcadia_Thread* thread, Arcadia_ByteArray* source, Arcadia_BooleanValue resizable)
