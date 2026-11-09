@@ -129,7 +129,10 @@
 "bottom"                 : &lt;number&gt; // Integer32
 "width"                  : &lt;number&gt; // Natural32
 "height"                 : &lt;number&gt; // Natural32
+"sizePolicy"             : "Content" | "Fixed" // optional, default Content
 "children"               : &lt;list of strings&gt; // ordered definition references
+"backgroundModel"        : &lt;string&gt; // optional ADL Model definition name
+"backgroundBorderWidth"  : &lt;number&gt; // optional Natural32, default 0
 "layout" : {
   "type"                 : "UI.StackLayout"
   "orientation"          : "Vertical" | "Horizontal"
@@ -143,38 +146,46 @@
 }
       </pre>
       <p>
+      <code>sizePolicy: "Content"</code> measures the panel from its children
+      and layout padding (the existing default). <code>sizePolicy: "Fixed"</code>
+      instead uses the panel's explicit <code>width</code> and
+      <code>height</code> as its desired size, while still measuring and arranging
+      its children. This is a persistent sizing behavior, not a migration flag.
+      It is useful for tabbed content areas whose dimensions must not change
+      when children are added or removed.
+      </p>
+      <p>
       For <code>UI.Panel</code>, alignment must be one of
       <code>Start</code>, <code>Center</code>, <code>End</code>, or
       <code>Stretch</code>. A stack layout does not own its children.
-      The existing <code>UI.StackPanel</code> definition remains supported.
       </p>
-
-      <h3>UI.StackPanel</h3>
-      <p>Type name: <code>"UI.StackPanel"</code>. A panel that stacks its children along one axis.</p>
+      <p>
+      <code>backgroundModel</code> optionally refers to a model definition used
+      to render the panel background before its children. The optional
+      <code>backgroundBorderWidth</code> controls the model-backed frame's border
+      and defaults to zero. A missing or
+      non-model background reference is a semantic error during node creation.
+      </p>
+      <p>
+      An optional <code>childLayouts</code> list overrides margins and cross-axis
+      alignment for selected child names. Names must occur exactly once in
+      <code>children</code> and may not be repeated in <code>childLayouts</code>.
+      Unspecified margins default to zero; an unspecified cross-axis alignment
+      inherits the layout's <code>crossAlignment</code>. Negative margins,
+      unknown names, and unknown properties are invalid.
+      </p>
       <pre>
-"type"                   : "UI.StackPanel"
-"name"                   : &lt;string&gt;
-"left"                   : &lt;number&gt;   // Integer32
-"bottom"                 : &lt;number&gt;   // Integer32
-"width"                  : &lt;number&gt;   // Natural32
-"height"                 : &lt;number&gt;   // Natural32
-"vertical"               : &lt;string&gt;   // Boolean
-"gap"                    : &lt;number&gt;   // Integer32
-"paddingLeft"            : &lt;number&gt;   // Integer32
-"paddingBottom"          : &lt;number&gt;   // Integer32
-"paddingRight"           : &lt;number&gt;   // Integer32
-"paddingTop"             : &lt;number&gt;   // Integer32
-"mainAlignment"          : &lt;string&gt;
-"crossAlignment"         : &lt;string&gt;
-"children"               : &lt;list of strings&gt;   // references to user-interface definitions
-"backgroundModel"        : &lt;string&gt;   // optional, reference to a Model definition
-"backgroundBorderWidth"  : &lt;number&gt;   // optional, Natural32, defaults to 0
+"childLayouts" : [ // optional
+  { "name" : "Options.Toggle.VSync", "marginLeft" : 384 },
+  { "name" : "Options.Button.Apply", "marginRight" : 120, "crossAlignment" : "End" }
+]
       </pre>
       <p>
-      The <code>vertical</code> entry selects the stack axis. Each element of the
-      <code>children</code> list names a child definition; the children are added in
-      list order. While linking, the <code>backgroundModel</code> reference, when
-      present, is resolved.
+      Per-child fields are <code>marginLeft</code>, <code>marginBottom</code>,
+      <code>marginRight</code>, <code>marginTop</code> (optional nonnegative
+      Integer32 values), and <code>crossAlignment</code> (an optional alignment
+      string). Runtime changes to child collections use the same container slot
+      mechanism, while these ADL overrides apply at initial construction.
       </p>
 
       <h3>UI.SegmentedChoice</h3>
@@ -236,7 +247,7 @@
       The <code>Arcadia.ADL</code> module defines three further user-interface
       definition types, <code>"Canvas"</code>, <code>"Container"</code>, and
       <code>"ScrollPanel"</code>, that share the container interface
-      <code>"UI.StackPanel"</code> implements. No reader is registered for them, so an
+      <code>"UI.Panel"</code> implements. No reader is registered for them, so an
       asset cannot carry them as its <code>type</code> entry; they occur only in the C
       interface of the module. This document does not specify their entries.
       </p>

@@ -46,3 +46,5 @@ add_subdirectory(UTF8ArrayIteratorTests)
 add_subdirectory(SubStringTests)
 
 add_subdirectory(UnicodeCodePointReaderTests)
+add_subdirectory(ByteArrayTests)
+add_subdirectory(ByteArrayBuilderTests)

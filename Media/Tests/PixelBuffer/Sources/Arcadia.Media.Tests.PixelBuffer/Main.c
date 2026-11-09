@@ -24,6 +24,8 @@
 #include "Operations.h"
 #include "FillModels.h"
 #include "Formats.h"
+#include "Values.h"
+#include "NamedColors.h"
 
 int
 main
@@ -41,6 +43,10 @@ main
     { "Resize", &Arcadia_Media_Tests_PixelBuffer_resize },
     { "BulkResize", &Arcadia_Media_Tests_PixelBuffer_bulkResize },
     { "Composite", &Arcadia_Media_Tests_PixelBuffer_composite },
+    { "PixelValues", &Arcadia_Media_Tests_PixelBuffer_pixelValues },
+    { "PixelValueInterpolation", &Arcadia_Media_Tests_PixelBuffer_pixelValueInterpolation },
+    { "PixelValueColorConversions", &Arcadia_Media_Tests_PixelBuffer_pixelValueColorConversions },
+    { "NamedColors", &Arcadia_Media_Tests_PixelBuffer_namedColors },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

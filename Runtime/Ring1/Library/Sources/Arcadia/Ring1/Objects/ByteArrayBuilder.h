@@ -34,9 +34,12 @@ struct Arcadia_ByteArrayBuilderDispatch {
 
 struct Arcadia_ByteArrayBuilder {
   Arcadia_Object _parent;
+  // Compatibility mirrors for existing native callers and reader adapters.
+  // The storage ByteArray is the sole owner of the unmanaged allocation.
   char* p;
   Arcadia_SizeValue sz;
   Arcadia_SizeValue cp;
+  Arcadia_ByteArray* storage;
 };
 
 // https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArrayBuilder_create
@@ -169,6 +172,7 @@ Arcadia_ByteArrayBuilder_swap
   Arcadia_swapPointer(thread, (void**)&self->p, (void**)&other->p);
   Arcadia_swapSize(thread, &self->sz, &other->sz);
   Arcadia_swapSize(thread, &self->cp, &other->cp);
+  Arcadia_swapPointer(thread, (void**)&self->storage, (void**)&other->storage);
 }
 
 Arcadia_ByteArray*

@@ -171,6 +171,24 @@ testMaterialEnumConsumers
   Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definitions);
   checkMaterialFields(thread, readMaterialEnums(thread, context, definitions, "Blinn-Phong", "Mesh", NULL, NULL), 0, 0, 0);
+  const Arcadia_SizeValue invalidCounts[] = { 0, 1, 6, 8, 255 };
+  for (Arcadia_SizeValue i = 0; i < sizeof(invalidCounts) / sizeof(invalidCounts[0]); ++i) {
+    Arcadia_SizeValue depth = Arcadia_ValueStack_getSize(thread);
+    Arcadia_JumpTarget jump;
+    Arcadia_Thread_pushJumpTarget(thread, &jump);
+    if (Arcadia_JumpTarget_save(&jump)) {
+      for (Arcadia_SizeValue j = 0; j < invalidCounts[i]; ++j) Arcadia_ValueStack_pushBooleanValue(thread, false);
+      Arcadia_ValueStack_pushNatural8Value(thread, (Arcadia_Natural8Value)invalidCounts[i]);
+      _Arcadia_EndCreate0(thread, _Arcadia_ADL_MaterialDefinition_getType(thread), depth);
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_Tests_assertTrue(thread, false);
+    } else {
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_Status actual = Arcadia_Thread_getStatus(thread);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+      Arcadia_Tests_assertTrue(thread, actual == Arcadia_Status_NumberOfArgumentsInvalid && Arcadia_ValueStack_getSize(thread) == depth);
+    }
+  }
   const char* const invalid[][4] = {
     { "Invalid", "Mesh", NULL, NULL }, { "BlinnPhong", "Mesh", NULL, NULL },
     { "Blinn-Phong", "Invalid", NULL, NULL }, { "Blinn-Phong", "texturevertex", NULL, NULL },

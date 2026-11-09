@@ -41,14 +41,35 @@ constructImpl
   self->width = Arcadia_ValueStack_getNatural32Value(thread, 2);
   self->height = Arcadia_ValueStack_getNatural32Value(thread, 1);
   self->layoutType = NULL;
+  self->sizePolicy = NULL;
+  self->tabBehavior = Arcadia_BooleanValue_False;
+  self->selectedChildName = NULL;
   self->vertical = Arcadia_BooleanValue_True;
   self->gap = 0;
   self->paddingLeft = self->paddingBottom = 0;
   self->paddingRight = self->paddingTop = 0;
   self->mainAlignment = NULL;
   self->crossAlignment = NULL;
+  self->backgroundModelName = NULL;
+  self->backgroundBorderWidth = 0;
+  self->childLayouts = NULL;
+  self->childLayoutCount = 0;
   self->childReferences = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   Arcadia_LeaveConstructor(Arcadia_ADL_UI_PanelDefinition);
+}
+
+static void
+destructImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_UI_PanelDefinition* self
+  )
+{
+  if (self->childLayouts) {
+    Arcadia_Memory_deallocateUnmanaged(thread, self->childLayouts);
+    self->childLayouts = NULL;
+  }
+  self->childLayoutCount = 0;
 }
 
 static void
@@ -59,8 +80,11 @@ visitImpl
   )
 {
   if (self->layoutType) Arcadia_Object_visit(thread, (Arcadia_Object*)self->layoutType);
+  if (self->sizePolicy) Arcadia_Object_visit(thread, (Arcadia_Object*)self->sizePolicy);
+  if (self->selectedChildName) Arcadia_Object_visit(thread, (Arcadia_Object*)self->selectedChildName);
   if (self->mainAlignment) Arcadia_Object_visit(thread, (Arcadia_Object*)self->mainAlignment);
   if (self->crossAlignment) Arcadia_Object_visit(thread, (Arcadia_Object*)self->crossAlignment);
+  if (self->backgroundModelName) Arcadia_Object_visit(thread, (Arcadia_Object*)self->backgroundModelName);
   if (self->childReferences) Arcadia_Object_visit(thread, (Arcadia_Object*)self->childReferences);
 }
 
@@ -83,6 +107,7 @@ initializeContainerDefinitionDispatchImpl
 static const Arcadia_ObjectType_Operations objectOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructImpl,
+  .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
 

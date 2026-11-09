@@ -149,6 +149,8 @@ Arcadia_Engine_UI_PanelNode_constructImpl
   }
   //
   self->modelResource = NULL;
+  self->backgroundGeometryValid = Arcadia_BooleanValue_False;
+  self->lastBackgroundBorderWidth = 0;
   //
 
   Arcadia_LeaveConstructor(Arcadia_Engine_UI_PanelNode);
@@ -276,6 +278,67 @@ Arcadia_Engine_UI_PanelNode_setVisualsBackendContextImpl
     self->modelResource = NULL;
   }
   self->backendContext = backendContext;
+}
+
+static void
+writeBackgroundQuadPositions
+  (
+    Arcadia_Real32Value* vertices,
+    Arcadia_SizeValue vertexIndex,
+    Arcadia_Real32Value left,
+    Arcadia_Real32Value bottom,
+    Arcadia_Real32Value right,
+    Arcadia_Real32Value top
+  )
+{
+  Arcadia_Real32Value const positions[6][3] = {
+    { left, bottom, 0.f }, { right, bottom, 0.f }, { left, top, 0.f },
+    { right, bottom, 0.f }, { right, top, 0.f }, { left, top, 0.f },
+  };
+  for (Arcadia_SizeValue i = 0; i < 6; ++i) {
+    Arcadia_SizeValue j = (vertexIndex + i) * 9;
+    vertices[j + 0] = positions[i][0];
+    vertices[j + 1] = positions[i][1];
+    vertices[j + 2] = positions[i][2];
+  }
+}
+
+void
+Arcadia_Engine_UI_PanelNode_updateBackgroundGeometry
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_PanelNode* self,
+    Arcadia_Integer32Value left,
+    Arcadia_Integer32Value bottom,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height,
+    Arcadia_Natural32Value borderWidth
+  )
+{
+  Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)self;
+  if (self->backgroundGeometryValid && self->lastBackgroundBorderWidth == borderWidth &&
+      widget->left == left && widget->bottom == bottom &&
+      widget->width == width && widget->height == height) return;
+  Arcadia_Engine_UI_WidgetNode_setBounds(thread, widget, left, bottom, width, height);
+  Arcadia_Real32Value x0 = (Arcadia_Real32Value)left;
+  Arcadia_Real32Value y0 = (Arcadia_Real32Value)bottom;
+  Arcadia_Real32Value x1 = x0 + (Arcadia_Real32Value)width;
+  Arcadia_Real32Value y1 = y0 + (Arcadia_Real32Value)height;
+  Arcadia_Real32Value border = (Arcadia_Real32Value)borderWidth;
+  Arcadia_Real32Value maxBorder = (width < height ? (Arcadia_Real32Value)width : (Arcadia_Real32Value)height) * 0.5f;
+  if (border > maxBorder) border = maxBorder;
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread,
+    Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh));
+  writeBackgroundQuadPositions(vertices, 0, x0 + border, y0 + border, x1 - border, y1 - border);
+  if (border > 0.f) {
+    writeBackgroundQuadPositions(vertices, 6, x0, y0, x1, y0 + border);
+    writeBackgroundQuadPositions(vertices, 12, x0, y1 - border, x1, y1);
+    writeBackgroundQuadPositions(vertices, 18, x0, y0 + border, x0 + border, y1 - border);
+    writeBackgroundQuadPositions(vertices, 24, x1 - border, y0 + border, x1, y1 - border);
+  }
+  Arcadia_Engine_Visuals_MeshNode_markVerticesDirty(thread, self->mesh);
+  self->lastBackgroundBorderWidth = borderWidth;
+  self->backgroundGeometryValid = Arcadia_BooleanValue_True;
 }
 
 Arcadia_Engine_UI_PanelNode*

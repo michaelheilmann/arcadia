@@ -17,7 +17,9 @@
 #define ARCADIA_RING1_MODULE (1)
 #include "Arcadia/Ring1/Objects/ByteArrayBuilder.h"
 
+#include "Arcadia/Ring1/Objects/ByteArrayNativeImpl.h"
 #include "Arcadia/Ring1/Include.h"
+#include <stdint.h>
 
 static void
 Arcadia_ByteArrayBuilder_constructImpl
@@ -40,10 +42,31 @@ Arcadia_ByteArrayBuilder_destruct
     Arcadia_ByteArrayBuilder* self
   );
 
+static void
+Arcadia_ByteArrayBuilder_visit
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArrayBuilder* self
+  );
+
+static void
+Arcadia_ByteArrayBuilder_syncStorage
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArrayBuilder* self
+  )
+{
+  Arcadia_ByteArrayNativeImpl* storage = (Arcadia_ByteArrayNativeImpl*)self->storage;
+  self->p = (char*)storage->bytes;
+  self->sz = storage->size;
+  self->cp = storage->capacity;
+}
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_ByteArrayBuilder_constructImpl,
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&Arcadia_ByteArrayBuilder_destruct,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_ByteArrayBuilder_visit,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_ByteArrayBuilder_initializeDispatchImpl,
 };
 
@@ -75,7 +98,10 @@ Arcadia_ByteArrayBuilder_constructImpl
   self->p = NULL;
   self->sz = 0;
   self->cp = 0;
-  self->p = Arcadia_Memory_allocateUnmanaged(thread, 0);
+  self->storage = NULL;
+  // The native-backed ByteArray owns the allocation; this builder is an API facade.
+  self->storage = Arcadia_ByteArrayFactory_createResizable(thread, 0);
+  Arcadia_ByteArrayBuilder_syncStorage(thread, self);
   Arcadia_LeaveConstructor(Arcadia_ByteArrayBuilder);
 }
 
@@ -93,10 +119,17 @@ Arcadia_ByteArrayBuilder_destruct
     Arcadia_Thread* thread,
     Arcadia_ByteArrayBuilder* self
   )
+{/* Storage is owned by the managed ByteArray, not by this facade. */}
+
+static void
+Arcadia_ByteArrayBuilder_visit
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArrayBuilder* self
+  )
 {
-  if (self->p) {
-    Arcadia_Memory_deallocateUnmanaged(thread, self->p);
-    self->p = NULL;
+  if (self->storage) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->storage);
   }
 }
 
@@ -191,24 +224,25 @@ Arcadia_ByteArrayBuilder_insertBytes
   if (!numberOfBytes) {
     return;
   }
-  // TODO: Use Arcadia_Arrays_* maybe?
-  Arcadia_SizeValue freeCapacity = self->cp - self->sz;
-  if (freeCapacity < numberOfBytes) {
-    Arcadia_SizeValue additionalCapacity = numberOfBytes - freeCapacity;
-    Arcadia_SizeValue oldCapacity = self->cp;
-    if (SIZE_MAX - oldCapacity < additionalCapacity) {
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
-      Arcadia_Thread_jump(thread);
-    }
-    Arcadia_SizeValue newCapacity = oldCapacity + additionalCapacity;
-    Arcadia_Memory_reallocateUnmanaged(thread, (void**)&self->p, newCapacity);
-    self->cp = newCapacity;
+  if (numberOfBytes > SIZE_MAX - self->sz) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
   }
-  if (index < self->sz) {
-    Arcadia_Memory_copy(thread, self->p + index, self->p + index + numberOfBytes, self->sz - index);
+  // A source range within the builder would be invalidated by a possible reallocation.
+  // Reject it rather than dereference a stale address or silently corrupt the input.
+  uintptr_t address = (uintptr_t)bytes;
+  uintptr_t base = (uintptr_t)self->p;
+  if (address >= base && address - base < self->sz) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_SizeValue oldSize = self->sz;
+  Arcadia_ByteArray_resize(thread, self->storage, oldSize + numberOfBytes);
+  Arcadia_ByteArrayBuilder_syncStorage(thread, self);
+  if (index < oldSize) {
+    Arcadia_Memory_copy(thread, self->p + index + numberOfBytes, self->p + index, oldSize - index);
   }
   Arcadia_Memory_copy(thread, self->p + index, bytes, numberOfBytes);
-  self->sz += numberOfBytes;
 }
 
 Arcadia_BooleanValue
@@ -256,7 +290,8 @@ Arcadia_ByteArrayBuilder_clear
     Arcadia_ByteArrayBuilder* self
   )
 {
-  self->sz = 0;
+  Arcadia_ByteArray_resize(thread, self->storage, 0);
+  Arcadia_ByteArrayBuilder_syncStorage(thread, self);
 }
 
 Arcadia_SizeValue
@@ -266,7 +301,7 @@ Arcadia_ByteArrayBuilder_getSize
     Arcadia_ByteArrayBuilder const* self
   )
 {
-  return self->sz;
+  return Arcadia_ByteArray_getSize(thread, self->storage);
 }
 
 Arcadia_SizeValue
@@ -275,7 +310,7 @@ Arcadia_ByteArrayBuilder_getNumberOfBytes
     Arcadia_Thread* thread,
     Arcadia_ByteArrayBuilder const* self
   )
-{ return self->sz; }
+{ return Arcadia_ByteArray_getSize(thread, self->storage); }
 
 Arcadia_Natural8Value const*
 Arcadia_ByteArrayBuilder_getBytes
@@ -283,7 +318,7 @@ Arcadia_ByteArrayBuilder_getBytes
     Arcadia_Thread* thread,
     Arcadia_ByteArrayBuilder const* self
   )
-{ return self->p; }
+{ return Arcadia_ByteArray_getBytes(thread, self->storage); }
 
 Arcadia_Natural8Value
 Arcadia_ByteArrayBuilder_getAt
@@ -293,11 +328,7 @@ Arcadia_ByteArrayBuilder_getAt
     Arcadia_SizeValue index
   )
 {
-  if (index >= self->sz) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-  return *(self->p + index);
+  return Arcadia_ByteArray_getAt(thread, self->storage, index);
 }
 
 Arcadia_ByteArray*
@@ -306,4 +337,4 @@ Arcadia_ByteArrayBuilder_toByteArray
     Arcadia_Thread* thread,
     Arcadia_ByteArrayBuilder* self
   )
-{ return Arcadia_ByteArray_createByteArray(thread, Arcadia_RuntimeByteArray_create(thread, Arcadia_ByteArrayBuilder_getBytes(thread, self), Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, self))); }
+{ return Arcadia_ByteArrayFactory_copyImmutable(thread, self->storage); }

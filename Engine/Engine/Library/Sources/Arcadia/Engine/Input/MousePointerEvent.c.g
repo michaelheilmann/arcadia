@@ -185,6 +185,8 @@ constructImpl
   self->action = (Arcadia_Engine_Input_MousePointerAction){0};
   self->x = (Arcadia_Integer32Value){0};
   self->y = (Arcadia_Integer32Value){0};
+  self->wheelDeltaX = (Arcadia_Integer32Value){0};
+  self->wheelDeltaY = (Arcadia_Integer32Value){0};
   { Arcadia_Value args[5];
     args[0] = Arcadia_ValueStack_getValue(thread, 4);
     args[1] = Arcadia_ValueStack_getValue(thread, 3);

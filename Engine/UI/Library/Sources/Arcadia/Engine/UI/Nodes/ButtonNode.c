@@ -326,6 +326,11 @@ updateVertices
     getReferenceColor(self->source->disabledBackgroundColor, &red, &green, &blue);
   } else if (self->pressed) {
     getReferenceColor(self->source->pressedBackgroundColor, &red, &green, &blue);
+  } else if (self->selected) {
+    // Selection belongs to the composing control, not the focus or input state.
+    // Reuse the button's configured pressed palette until a separate style
+    // contract is demonstrably necessary.
+    getReferenceColor(self->source->pressedBackgroundColor, &red, &green, &blue);
   } else if (self->hovered) {
     getReferenceColor(self->source->hoveredBackgroundColor, &red, &green, &blue);
   } else if (self->focused) {
@@ -549,7 +554,11 @@ Arcadia_Engine_UI_ButtonNode_constructImpl
   self->hovered = Arcadia_BooleanValue_False;
   self->pressed = Arcadia_BooleanValue_False;
   self->focused = Arcadia_BooleanValue_False;
+  self->selected = Arcadia_BooleanValue_False;
   self->activated = Arcadia_Signal_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self->activated);
+  self->enabledChanged = Arcadia_Signal_create(thread);
+  Arcadia_ValueStack_popValues(thread, 1);
 
   Arcadia_String* colorName = Arcadia_String_createFromCxxString(thread, u8"UI.Button.Generated.Color");
   Arcadia_String* meshName = Arcadia_String_createFromCxxString(thread, u8"UI.Button.Generated.Mesh");
@@ -830,6 +839,7 @@ Arcadia_Engine_UI_ButtonNode_visitImpl
   if (self->material) Arcadia_Object_visit(thread, (Arcadia_Object*)self->material);
   if (self->labelModelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->labelModelNode);
   if (self->activated) Arcadia_Object_visit(thread, (Arcadia_Object*)self->activated);
+  if (self->enabledChanged) Arcadia_Object_visit(thread, (Arcadia_Object*)self->enabledChanged);
 }
 
 static void
@@ -902,12 +912,16 @@ Arcadia_Engine_UI_ButtonNode_setEnabled
     Arcadia_BooleanValue enabled
   )
 {
+  if (self->enabled == enabled) return;
   self->enabled = enabled;
   if (!enabled) {
     self->hovered = Arcadia_BooleanValue_False;
     self->pressed = Arcadia_BooleanValue_False;
     self->focused = Arcadia_BooleanValue_False;
   }
+  Arcadia_ValueStack_pushNatural8Value(thread, 0);
+  Arcadia_Signal_emit(thread, self->enabledChanged, (Arcadia_Object*)self);
+  Arcadia_ValueStack_popValues(thread, 1);
 }
 
 void
@@ -919,6 +933,23 @@ Arcadia_Engine_UI_ButtonNode_setHovered
   )
 { self->hovered = self->enabled && hovered; }
 
+void
+Arcadia_Engine_UI_ButtonNode_setSelected
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self,
+    Arcadia_BooleanValue selected
+  )
+{ self->selected = selected; }
+
+Arcadia_BooleanValue
+Arcadia_Engine_UI_ButtonNode_getSelected
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self
+  )
+{ return self->selected; }
+
 Arcadia_Signal*
 Arcadia_Engine_UI_ButtonNode_getActivatedSignal
   (
@@ -926,5 +957,13 @@ Arcadia_Engine_UI_ButtonNode_getActivatedSignal
     Arcadia_Engine_UI_ButtonNode* self
   )
 { return self->activated; }
+
+Arcadia_Signal*
+Arcadia_Engine_UI_ButtonNode_getEnabledChangedSignal
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self
+  )
+{ return self->enabledChanged; }
 
 #undef VerticesDirty

@@ -3,8 +3,8 @@
 ## Ownership And Includes
 
 - Public consumers include `Arcadia/ADL/Include.h`. The aggregate scopes `ARCADIA_ADL_PRIVATE`; retain the separate EXPORT convention. Do not restore `ARCADIA_ADL_MODULE` or bypass another module's private guards.
-- The Arcadia.ADL PDL module owns five generated enums and five generated definition classes. Their inputs are registered in `Library/CMakeLists.txt`; normal builds compile committed outputs, while explicit PDLC invocation regenerates them. Follow root regeneration instructions and the per-class workflow in `Engine/AGENTS.md`.
-- Definition/Definitions, Context, Reader, Reference, reference resolution and reference-bearing definition implementations remain native. Opaque native imports do not own their headers/bodies. Definition's PDL constructor/link metadata describes only the native boundary, not regenerated base storage or visitors. Same-module mappings avoid aggregate cycles; foreign dependencies use ADL's master header.
+- The Arcadia.ADL PDL module owns five generated enums and eleven generated definition classes (including UI Toggle, Slider, Label, Canvas, ScrollPanel and Button). Their inputs are registered in `Library/CMakeLists.txt`; normal builds compile committed outputs, while explicit PDLC invocation regenerates them. The native `ContainerDefinition` interface remains an opaque signature import; its descriptor, dispatch and child insertion remain native. Button retains native reference creation and ordered color resolution helpers. Follow root regeneration instructions and the per-class workflow in `Engine/AGENTS.md`.
+- Definition/Definitions, Context, Reader, Reference, reference resolution and other reference-bearing definition implementations remain native. Label's three managed String fields are generated, with a native required-string validation helper. Opaque native imports do not own their headers/bodies. Definition's PDL constructor/link metadata describes only the native boundary, not regenerated base storage or visitors. Same-module mappings avoid aggregate cycles; foreign dependencies use ADL's master header.
 - Media DSP implementations are excluded from the migration scope; ADL DSP definition/configuration objects are distinct asset objects, not sample algorithms. Do not use their generated implementation as authorization to port Media DSP.
 
 ## Specification-First Language Changes
@@ -40,7 +40,7 @@
 - VisualsTextureEnums and VisualsMaterialEnums establish parsing/factory/enum transport and GC behavior, not backend rendering equivalence or material/reference graph lifetime. Preserve distinct U/V, magnification/minification and source/destination values so swaps are detected.
 - Use DSPSineWaveDefinition or SineWaveModel; DSPSineWaveDefinitionRepeat was an identical fresh-process workload and is retired without an alias.
 - MaterialDefinition's native visitor must trace ambientColorTexture. VisualsMaterialDefinition2 keeps only the material strongly rooted, observes the Reference weakly, forces collection before/after linking, and verifies release after dropping the material root. This regression is separate from scalar material-enum coverage; keep the reference-bearing implementation native.
-- Broad Reference/Definitions/Context/Reader, graph expansion/linking and material/mesh/UI-family migrations remain deferred pending their own ownership, resolution, cycle/cache and partial-progress audits.
+- Broad Reference/Definitions/Context/Reader, graph expansion/linking and material/mesh/remaining UI-family migrations remain deferred pending their own ownership, resolution, cycle/cache and partial-progress audits.
 
 ## Graph Composition
 

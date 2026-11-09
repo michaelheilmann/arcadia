@@ -13,6 +13,10 @@ branches:
 environment:
   CLONE_DIRECTORY: /tmp/arcadia-source
   BUILD_DIRECTORY: /tmp/arcadia-build
+  # Ninja uses one build type per job.
+  matrix:
+    - BUILD_CONFIGURATION: Debug
+    - BUILD_CONFIGURATION: Release
 
 # The clone directory.
 clone_folder: '%CLONE_DIRECTORY%'
@@ -30,16 +34,19 @@ install:
 before_build:
     - sh: |
         set -e
-        "$HOME/.local/bin/cmake" -S "$CLONE_DIRECTORY" -B "$BUILD_DIRECTORY" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DArcadia.Engine.Visuals.Implementation.OpenGL4.Enabled=TRUE -DArcadia.Engine.Audials.Implementation.OpenAL.Enabled=TRUE
+        echo "Linux CI configuration: $BUILD_CONFIGURATION"
+        "$HOME/.local/bin/cmake" -S "$CLONE_DIRECTORY" -B "$BUILD_DIRECTORY" -G Ninja \
+          -DCMAKE_BUILD_TYPE="$BUILD_CONFIGURATION" \
+          -DArcadia.Engine.Visuals.Implementation.OpenGL4.Enabled=TRUE -DArcadia.Engine.Audials.Implementation.OpenAL.Enabled=TRUE
     - ps: |
         # Create the build directory.
         New-Item -Path "${env:BUILD_DIRECTORY}" -ItemType Directory -Force
 
 
-        ${env:RELEASE_NAME}="arcadia-linux-$(${env:APPVEYOR_REPO_BRANCH})-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())"
+        ${env:RELEASE_NAME}="arcadia-linux-$(${env:APPVEYOR_REPO_BRANCH})-$(${env:BUILD_CONFIGURATION}.ToLower())-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())"
 
         ${env:ARCHIVE_FILENAME}="arcadia-${env:APPVEYOR_REPO_BRANCH}";
-        ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}-linux"
+        ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}-linux-$(${env:BUILD_CONFIGURATION}.ToLower())"
 
         ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}-v$(${env:APPVEYOR_BUILD_VERSION}.ToLower())";
         ${env:ARCHIVE_FILENAME}="${env:ARCHIVE_FILENAME}.tar.gz";
@@ -56,14 +63,18 @@ test_script:
         # Preserve failures while still attempting the independent sanitizer gate.
         status=0
         "$HOME/.local/bin/ctest" --test-dir "$BUILD_DIRECTORY" --output-on-failure --output-junit "$BUILD_DIRECTORY/test-results-$APPVEYOR_JOB_ID.xml" || status=$?
-        "$HOME/.local/bin/cmake" -S "$CLONE_DIRECTORY/Runtime/Testing/Tests/Sanitizers" -B "$BUILD_DIRECTORY/sanitizers" -G Ninja -DCMAKE_BUILD_TYPE=Debug &&
-        "$HOME/.local/bin/cmake" --build "$BUILD_DIRECTORY/sanitizers" --parallel 2 &&
-        ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 "$HOME/.local/bin/ctest" --test-dir "$BUILD_DIRECTORY/sanitizers" --output-on-failure --output-junit "$BUILD_DIRECTORY/sanitizer-results-$APPVEYOR_JOB_ID.xml" || status=$?
+        if [ "$BUILD_CONFIGURATION" = Debug ]; then
+          "$HOME/.local/bin/cmake" -S "$CLONE_DIRECTORY/Runtime/Testing/Tests/Sanitizers" -B "$BUILD_DIRECTORY/sanitizers" -G Ninja -DCMAKE_BUILD_TYPE=Debug &&
+          "$HOME/.local/bin/cmake" --build "$BUILD_DIRECTORY/sanitizers" --parallel 2 &&
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 "$HOME/.local/bin/ctest" --test-dir "$BUILD_DIRECTORY/sanitizers" --output-on-failure --output-junit "$BUILD_DIRECTORY/sanitizer-results-$APPVEYOR_JOB_ID.xml" || status=$?
+        fi
         # Exit only a subshell; exiting AppVeyor's persistent shell skips on_finish.
         (exit "$status")
 on_finish:
     - ps: |
-        foreach ($name in @("test-results-$($env:APPVEYOR_JOB_ID).xml", "sanitizer-results-$($env:APPVEYOR_JOB_ID).xml")) {
+        $reports = @("test-results-$($env:APPVEYOR_JOB_ID).xml")
+        if ($env:BUILD_CONFIGURATION -eq 'Debug') { $reports += "sanitizer-results-$($env:APPVEYOR_JOB_ID).xml" }
+        foreach ($name in $reports) {
           $report = Join-Path $env:BUILD_DIRECTORY $name
           if (Test-Path $report) {
             $webClient = New-Object 'System.Net.WebClient'

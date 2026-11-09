@@ -1,0 +1,961 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+#include "Arcadia/Engine/UI/Examples/Controls/Scenes/ControlsScene.h"
+
+#include "Arcadia/Engine/UI/Examples/Controls/AssetUtilities.h"
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_constructImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self
+  );
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_initializeDispatchImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsSceneDispatch* self
+  );
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_visit
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self
+  );
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateAudialsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Real64Value tick,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  );
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateLogicsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Real64Value tick
+  );
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateVisualsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Real64Value tick,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  );
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleKeyboardKeyEventImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Engine_Input_KeyboardKeyEvent* event
+  );
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMouseButtonEventImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Engine_Input_MouseButtonEvent* event
+  );
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMousePointerEventImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Engine_Input_MousePointerEvent* event
+  );
+
+static void
+onButtonActivated
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
+onToggleChanged
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
+onSliderChanged
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
+onSegmentedChoiceChanged
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
+onTabSelectionChanged
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
+layoutControls
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  );
+
+
+static const Arcadia_ObjectType_Operations _objectTypeOperations = {
+  Arcadia_ObjectType_Operations_Initializer,
+  .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Engine_UI_Examples_Controls_ControlsScene_constructImpl,
+  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Engine_UI_Examples_Controls_ControlsScene_initializeDispatchImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_UI_Examples_Controls_ControlsScene_visit,
+};
+
+static const Arcadia_Type_Operations _typeOperations = {
+  Arcadia_Type_Operations_Initializer,
+  .objectTypeOperations = &_objectTypeOperations,
+};
+
+Arcadia_defineObjectType(u8"Arcadia.Engine.UI.Examples.Controls.ControlsScene", Arcadia_Engine_UI_Examples_Controls_ControlsScene,
+                         u8"Arcadia.Engine.Scene", Arcadia_Engine_Scene,
+                         &_typeOperations);
+
+static void
+layoutControls
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  )
+{
+  Arcadia_Integer32Value const designWidth = 800;
+  Arcadia_Integer32Value const designHeight = 600;
+  Arcadia_Integer32Value const left = (width - designWidth) / 2;
+  Arcadia_Integer32Value const bottom = (height - designHeight) / 2;
+
+  if (self->helpLabelNode) Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)self->helpLabelNode, left, bottom + 560, 760, 40);
+  if (self->rootPanelNode) Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)self->rootPanelNode, left, bottom, designWidth, designHeight);
+  if (self->scrollPanelNode) {
+    Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, self->scrollPanelNode, 240, 140);
+  }
+}
+
+static void
+onButtonActivated
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Natural8Value numberOfArgumentValues = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (2 != numberOfArgumentValues) {
+    Arcadia_ValueStack_popValues(thread, numberOfArgumentValues + 1);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
+  Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_ButtonNode_getType(thread));
+  if (self->helpLabelNode) {
+    Arcadia_Engine_UI_LabelNode_setText(thread, self->helpLabelNode, Arcadia_String_createFromCxxString(thread, u8"Button activated"));
+  }
+}
+
+static void
+onToggleChanged
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Natural8Value numberOfArgumentValues = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (2 != numberOfArgumentValues) {
+    Arcadia_ValueStack_popValues(thread, numberOfArgumentValues + 1);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
+  Arcadia_Engine_UI_ToggleNode* toggle = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_ToggleNode_getType(thread));
+  if (self->helpLabelNode) {
+    Arcadia_Engine_UI_LabelNode_setText(thread, self->helpLabelNode,
+                                        Arcadia_String_createFromCxxString(thread, Arcadia_Engine_UI_ToggleNode_getChecked(thread, toggle) ? u8"Toggle switched on" : u8"Toggle switched off"));
+  }
+}
+
+static void
+onSliderChanged
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Natural8Value numberOfArgumentValues = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (2 != numberOfArgumentValues) {
+    Arcadia_ValueStack_popValues(thread, numberOfArgumentValues + 1);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
+  Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_SliderNode_getType(thread));
+  if (self->helpLabelNode) {
+    Arcadia_Engine_UI_LabelNode_setText(thread, self->helpLabelNode, Arcadia_String_createFromCxxString(thread, u8"Slider value changed"));
+  }
+}
+
+static void
+onSegmentedChoiceChanged
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Natural8Value numberOfArgumentValues = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (2 != numberOfArgumentValues) {
+    Arcadia_ValueStack_popValues(thread, numberOfArgumentValues + 1);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
+  Arcadia_Engine_UI_SegmentedChoiceNode* segmentedChoice = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_SegmentedChoiceNode_getType(thread));
+  if (self->helpLabelNode) {
+    Arcadia_Natural32Value selectedIndex = Arcadia_Engine_UI_SegmentedChoiceNode_getSelectedIndex(thread, segmentedChoice);
+    Arcadia_Engine_UI_LabelNode_setText(thread, self->helpLabelNode,
+                                        Arcadia_String_createFromCxxString(thread, 0 == selectedIndex ? u8"Choice: Low" : 1 == selectedIndex ? u8"Choice: Medium" : u8"Choice: High"));
+  }
+}
+
+static void
+onTabSelectionChanged
+  (
+    Arcadia_Thread* thread
+  )
+{
+  if (Arcadia_ValueStack_getNatural8Value(thread, 0) != 2) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2,
+      _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
+  Arcadia_Engine_UI_TabBarNode* bar = (Arcadia_Engine_UI_TabBarNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1,
+    _Arcadia_Engine_UI_TabBarNode_getType(thread));
+  Arcadia_Engine_UI_ButtonNode* selected = Arcadia_Engine_UI_TabBarNode_getSelected(thread, bar);
+  Arcadia_String* name = selected ? Arcadia_Engine_UI_WidgetNode_getName(thread, (Arcadia_Engine_UI_WidgetNode*)selected) : NULL;
+  char const* label = "Tab: none";
+  if (name && Arcadia_String_isEqualTo_pn(thread, name, "Controls.Tabs.Display", 21)) label = "Tab: Display";
+  else if (name && Arcadia_String_isEqualTo_pn(thread, name, "Controls.Tabs.Audio", 19)) label = "Tab: Audio";
+  else if (name && Arcadia_String_isEqualTo_pn(thread, name, "Controls.Tabs.Controls", 22)) label = "Tab: Controls";
+  if (self->helpLabelNode) {
+    Arcadia_Engine_UI_LabelNode_setText(thread, self->helpLabelNode, Arcadia_String_createFromCxxString(thread, label));
+  }
+}
+
+static void
+onDropdownSelectionChanged
+  (
+    Arcadia_Thread* thread
+  )
+{
+  if (Arcadia_ValueStack_getNatural8Value(thread, 0) != 2) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2,
+      _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
+  Arcadia_Engine_UI_DropdownController* dropdown = (Arcadia_Engine_UI_DropdownController*)
+    Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_DropdownController_getType(thread));
+  Arcadia_String* selected = Arcadia_Engine_UI_DropdownController_getSelectedLabel(thread, dropdown);
+  if (self->helpLabelNode && selected) Arcadia_Engine_UI_LabelNode_setText(thread, self->helpLabelNode, selected);
+}
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_constructImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self
+  )
+{
+  Arcadia_EnterConstructor(Arcadia_Engine_UI_Examples_Controls_ControlsScene);
+  {
+    Arcadia_Value engine = Arcadia_ValueStack_getValue(thread, 2);
+    Arcadia_Value sceneManager = Arcadia_ValueStack_getValue(thread, 1);
+    Arcadia_ValueStack_pushValue(thread, &engine);
+    Arcadia_ValueStack_pushValue(thread, &sceneManager);
+    Arcadia_ValueStack_pushNatural8Value(thread, 2);
+    Arcadia_superTypeConstructor(thread, _type, self);
+  }
+  if (2 != _numberOfArguments) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  self->definitions = NULL;
+  self->cameraNode = NULL;
+  self->enterPassNode = NULL;
+  self->viewportNode = NULL;
+  self->canvasNode = NULL;
+  self->rootPanelNode = NULL;
+  self->bodyPanelNode = NULL;
+  self->leftColumnPanelNode = NULL;
+  self->buttonRowPanelNode = NULL;
+  self->toggleRowPanelNode = NULL;
+  self->sliderRowPanelNode = NULL;
+  self->choiceRowPanelNode = NULL;
+  self->tabBarNode = NULL;
+  self->scrollColumnPanelNode = NULL;
+  self->helpLabelNode = NULL;
+  self->buttonNode = NULL;
+  self->disabledButtonNode = NULL;
+  self->toggleLabelNode = NULL;
+  self->toggleNode = NULL;
+  self->sliderLabelNode = NULL;
+  self->sliderNode = NULL;
+  self->segmentedChoiceLabelNode = NULL;
+  self->segmentedChoiceNode = NULL;
+  self->dropdownAnchorNode = NULL;
+  self->dropdownPopupNode = NULL;
+  self->dropdownController = NULL;
+  self->dropdownSelectionConnection = NULL;
+  self->bindingService = NULL;
+  self->jumpBindingPanelNode = NULL;
+  self->sprintBindingPanelNode = NULL;
+  self->jumpBindingController = NULL;
+  self->sprintBindingController = NULL;
+  self->scrollPanelLabelNode = NULL;
+  self->scrollPanelNode = NULL;
+  self->scrollPanelFirstLabelNode = NULL;
+  self->scrollPanelSecondLabelNode = NULL;
+  self->scrollPanelThirdLabelNode = NULL;
+  self->scrollPanelFourthLabelNode = NULL;
+  Arcadia_LeaveConstructor(Arcadia_Engine_UI_Examples_Controls_ControlsScene);
+}
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_initializeDispatchImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsSceneDispatch* self
+  )
+{
+  ((Arcadia_Engine_SceneDispatch*)self)->updateAudials = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateAudialsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateLogics = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateLogicsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->updateVisuals = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Real64Value, Arcadia_Integer32Value, Arcadia_Integer32Value))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateVisualsImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleKeyboardKeyEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_KeyboardKeyEvent*))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleKeyboardKeyEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleMouseButtonEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MouseButtonEvent*))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMouseButtonEventImpl;
+  ((Arcadia_Engine_SceneDispatch*)self)->handleMousePointerEvent = (void (*)(Arcadia_Thread*, Arcadia_Engine_Scene*, Arcadia_Engine_Input_MousePointerEvent*))&Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMousePointerEventImpl;
+}
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_visit
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self
+  )
+{
+  if (self->definitions) Arcadia_Object_visit(thread, (Arcadia_Object*)self->definitions);
+  if (self->cameraNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->cameraNode);
+  if (self->enterPassNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->enterPassNode);
+  if (self->viewportNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->viewportNode);
+  if (self->canvasNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->canvasNode);
+  if (self->rootPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->rootPanelNode);
+  if (self->bodyPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->bodyPanelNode);
+  if (self->leftColumnPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->leftColumnPanelNode);
+  if (self->buttonRowPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->buttonRowPanelNode);
+  if (self->toggleRowPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->toggleRowPanelNode);
+  if (self->sliderRowPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->sliderRowPanelNode);
+  if (self->choiceRowPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->choiceRowPanelNode);
+  if (self->tabBarNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->tabBarNode);
+  if (self->scrollColumnPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->scrollColumnPanelNode);
+  if (self->helpLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->helpLabelNode);
+  if (self->buttonNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->buttonNode);
+  if (self->disabledButtonNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->disabledButtonNode);
+  if (self->toggleLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->toggleLabelNode);
+  if (self->toggleNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->toggleNode);
+  if (self->sliderLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->sliderLabelNode);
+  if (self->sliderNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->sliderNode);
+  if (self->segmentedChoiceLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->segmentedChoiceLabelNode);
+  if (self->segmentedChoiceNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->segmentedChoiceNode);
+  if (self->dropdownAnchorNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->dropdownAnchorNode);
+  if (self->dropdownPopupNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->dropdownPopupNode);
+  if (self->dropdownController) Arcadia_Object_visit(thread, (Arcadia_Object*)self->dropdownController);
+  if (self->dropdownSelectionConnection) Arcadia_Object_visit(thread, (Arcadia_Object*)self->dropdownSelectionConnection);
+  if (self->bindingService) Arcadia_Object_visit(thread, (Arcadia_Object*)self->bindingService);
+  if (self->jumpBindingPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->jumpBindingPanelNode);
+  if (self->sprintBindingPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->sprintBindingPanelNode);
+  if (self->jumpBindingController) Arcadia_Object_visit(thread, (Arcadia_Object*)self->jumpBindingController);
+  if (self->sprintBindingController) Arcadia_Object_visit(thread, (Arcadia_Object*)self->sprintBindingController);
+  if (self->scrollPanelLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->scrollPanelLabelNode);
+  if (self->scrollPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->scrollPanelNode);
+  if (self->scrollPanelFirstLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->scrollPanelFirstLabelNode);
+  if (self->scrollPanelSecondLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->scrollPanelSecondLabelNode);
+  if (self->scrollPanelThirdLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->scrollPanelThirdLabelNode);
+  if (self->scrollPanelFourthLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->scrollPanelFourthLabelNode);
+}
+
+// Assemble a fixed-size panel and its independently configured stack layout.
+// All example controls are still created programmatically below.
+static Arcadia_Engine_UI_LayoutPanelNode*
+createExamplePanel
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height,
+    Arcadia_BooleanValue vertical,
+    Arcadia_Integer32Value gap,
+    Arcadia_Engine_UI_LayoutAlignment mainAlignment,
+    Arcadia_Engine_UI_LayoutAlignment crossAlignment
+  )
+{
+  Arcadia_Engine_UI_LayoutPanelNode* panel = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)panel);
+  Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 0, 0, width, height);
+  Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy(thread, panel, Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed);
+  Arcadia_Engine_UI_StackLayout* layout = Arcadia_Engine_UI_StackLayout_create(thread, vertical, gap);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)layout);
+  Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout, mainAlignment, crossAlignment);
+  Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
+  Arcadia_ValueStack_popValues(thread, 2);
+  return panel;
+}
+
+static void
+load
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self
+  )
+{
+  if (!self->definitions) {
+    Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+    Arcadia_FileSystem* fileSystem = Arcadia_FileSystem_getOrCreate(thread);
+    Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+    Arcadia_List* files = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+    Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Button")), files);
+    Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Tabs")), files);
+    Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Dropdown")), files);
+    Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Bindings")), files);
+    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)files); i < n; ++i) {
+      Arcadia_FilePath* filePath = (Arcadia_FilePath*)Arcadia_List_getObjectReferenceValueCheckedAt(thread, files, i, _Arcadia_FilePath_getType(thread));
+      Arcadia_ByteArrayBuilder* fileBytes = Arcadia_FileSystem_getFileContents(thread, fileSystem, filePath);
+      Arcadia_ADL_Context_readFromString(thread, context, definitions, Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue(fileBytes)), Arcadia_BooleanValue_True);
+    }
+    self->definitions = definitions;
+  }
+
+  Arcadia_Engine* engine = ((Arcadia_Engine_Scene*)self)->engine;
+  if (!self->enterPassNode) {
+    self->enterPassNode = Arcadia_Engine_Visuals_NodeFactory_createEnterPassNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext);
+  }
+  if (!self->viewportNode) {
+    self->viewportNode = (Arcadia_Engine_Visuals_ViewportNode*)Arcadia_Engine_Visuals_NodeFactory_createViewportNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext);
+    Arcadia_Engine_Visuals_ViewportNode_setClearColor(thread, self->viewportNode, Arcadia_Math_Color4Real32_create4(thread, 0.08f, 0.09f, 0.11f, 1.f));
+    Arcadia_Engine_Visuals_ViewportNode_setRelativeViewportRectangle(thread, self->viewportNode, 0.f, 0.f, 1.f, 1.f);
+  }
+  if (!self->cameraNode) {
+    self->cameraNode = (Arcadia_Engine_Visuals_CameraNode*)Arcadia_Engine_Visuals_NodeFactory_createCameraNode(thread, (Arcadia_Engine_Visuals_NodeFactory*)engine->visualsNodeFactory, (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext);
+  }
+  if (!self->canvasNode) {
+    self->canvasNode = Arcadia_Engine_UI_CanvasNode_create(thread);
+  }
+  if (!self->rootPanelNode) {
+    self->rootPanelNode = createExamplePanel(thread, 800, 600, Arcadia_BooleanValue_True, 16,
+      Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Center);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->canvasNode, (Arcadia_Object*)self->rootPanelNode);
+  }
+  if (!self->bodyPanelNode) {
+    self->bodyPanelNode = createExamplePanel(thread, 800, 540, Arcadia_BooleanValue_False, 20,
+      Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Center);
+  }
+  if (!self->leftColumnPanelNode) {
+    self->leftColumnPanelNode = createExamplePanel(thread, 500, 540, Arcadia_BooleanValue_True, 20,
+      Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Stretch);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->bodyPanelNode, (Arcadia_Object*)self->leftColumnPanelNode);
+  }
+  if (!self->buttonRowPanelNode) {
+    self->buttonRowPanelNode = createExamplePanel(thread, 500, 64, Arcadia_BooleanValue_False, 20,
+      Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->buttonRowPanelNode);
+  }
+  if (!self->toggleRowPanelNode) {
+    self->toggleRowPanelNode = createExamplePanel(thread, 500, 48, Arcadia_BooleanValue_False, 0,
+      Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->toggleRowPanelNode);
+  }
+  if (!self->sliderRowPanelNode) {
+    self->sliderRowPanelNode = createExamplePanel(thread, 500, 40, Arcadia_BooleanValue_False, 0,
+      Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->sliderRowPanelNode);
+  }
+  if (!self->choiceRowPanelNode) {
+    self->choiceRowPanelNode = createExamplePanel(thread, 500, 40, Arcadia_BooleanValue_False, 0,
+      Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->choiceRowPanelNode);
+  }
+  if (!self->tabBarNode) {
+    Arcadia_ADL_Definition* definition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, self->definitions,
+      Arcadia_String_createFromCxxString(thread, u8"Controls.Tabs"));
+    if (!definition || !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)definition, _Arcadia_ADL_UI_PanelDefinition_getType(thread))) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    self->tabBarNode = (Arcadia_Engine_UI_TabBarNode*)Arcadia_Engine_UI_createNodeFromDefinition(thread,
+      (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext, definition);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->tabBarNode);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_TabBarNode_getSelectionChangedSignal(thread, self->tabBarNode),
+      (Arcadia_Object*)self, &onTabSelectionChanged);
+  }
+  if (!self->dropdownController) {
+    Arcadia_ADL_Definition* triggerDefinition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, self->definitions,
+      Arcadia_String_createFromCxxString(thread, u8"Controls.Dropdown.Trigger"));
+    Arcadia_ADL_Definition* popupDefinition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, self->definitions,
+      Arcadia_String_createFromCxxString(thread, u8"Controls.Dropdown.Popup"));
+    if (!triggerDefinition || !popupDefinition ||
+        !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)triggerDefinition, _Arcadia_ADL_UI_ButtonDefinition_getType(thread)) ||
+        !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)popupDefinition, _Arcadia_ADL_UI_ScrollPanelDefinition_getType(thread))) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    self->dropdownAnchorNode = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_createNodeFromDefinition(thread,
+      (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext, triggerDefinition);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->dropdownAnchorNode);
+    self->dropdownPopupNode = (Arcadia_Engine_UI_ScrollPanelNode*)Arcadia_Engine_UI_createNodeFromDefinition(thread,
+      (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext, popupDefinition);
+    self->dropdownController = Arcadia_Engine_UI_DropdownController_create(thread, self->canvasNode,
+      self->dropdownAnchorNode, self->dropdownPopupNode);
+    Arcadia_Engine_UI_DropdownController_selectValue(thread, self->dropdownController,
+      Arcadia_String_createFromCxxString(thread, u8"Controls.Dropdown.Medium"));
+    self->dropdownSelectionConnection = Arcadia_Signal_connect(thread,
+      Arcadia_Engine_UI_DropdownController_getSelectionChangedSignal(thread, self->dropdownController),
+      (Arcadia_Object*)self, &onDropdownSelectionChanged);
+  }
+  if (!self->scrollColumnPanelNode) {
+    self->scrollColumnPanelNode = createExamplePanel(thread, 280, 540, Arcadia_BooleanValue_True, 12,
+      Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Center);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->bodyPanelNode, (Arcadia_Object*)self->scrollColumnPanelNode);
+  }
+  if (!self->buttonNode) {
+    Arcadia_ADL_UI_ButtonDefinition* buttonDefinition = Arcadia_Engine_UI_Examples_Controls_getButtonDefinition(thread, self->definitions,
+                                                                                                              Arcadia_String_createFromCxxString(thread, "Assets/Button/Button.adl"),
+                                                                                                              Arcadia_String_createFromCxxString(thread, "Button.Primary"));
+    self->buttonNode = Arcadia_Engine_UI_ButtonNode_create(thread, (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext, buttonDefinition);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->buttonRowPanelNode, (Arcadia_Object*)self->buttonNode);
+  }
+  if (!self->disabledButtonNode) {
+    Arcadia_ADL_UI_ButtonDefinition* disabledButtonDefinition =
+      Arcadia_ADL_UI_ButtonDefinition_create(thread,
+                                             self->definitions,
+                                             Arcadia_String_createFromCxxString(thread, u8"Button.Disabled"),
+                                             420,
+                                             240,
+                                             240,
+                                             64,
+                                             Arcadia_String_createFromCxxString(thread, u8"Disabled"),
+                                             Arcadia_String_createFromCxxString(thread, u8"Left"),
+                                             Arcadia_String_createFromCxxString(thread, u8"Bottom"),
+                                             Arcadia_String_createFromCxxString(thread, u8"Button.Primary.Color.Normal"),
+                                             Arcadia_String_createFromCxxString(thread, u8"Button.Primary.Color.Hovered"),
+                                             Arcadia_String_createFromCxxString(thread, u8"Button.Primary.Color.Pressed"),
+                                             Arcadia_String_createFromCxxString(thread, u8"Button.Primary.Color.Disabled"),
+                                             Arcadia_String_createFromCxxString(thread, u8"Button.Primary.Color.Focused"),
+                                              24,
+                                              0,
+                                              87,
+                                              104,
+                                              118);
+    self->disabledButtonNode = Arcadia_Engine_UI_ButtonNode_create(thread, (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext, disabledButtonDefinition);
+    Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->disabledButtonNode, Arcadia_BooleanValue_False);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->buttonRowPanelNode, (Arcadia_Object*)self->disabledButtonNode);
+  }
+  if (!self->toggleLabelNode) {
+    self->toggleLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
+                                                              (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                              Arcadia_String_createFromCxxString(thread, u8"Toggle"),
+                                                              160,
+                                                              148,
+                                                              160,
+                                                              40,
+                                                              Arcadia_String_createFromCxxString(thread, u8"Left"),
+                                                              Arcadia_String_createFromCxxString(thread, u8"Bottom"),
+                                                              220,
+                                                              228,
+                                                              240,
+                                                              255);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->toggleRowPanelNode, (Arcadia_Object*)self->toggleLabelNode);
+  }
+  if (!self->toggleNode) {
+    self->toggleNode = Arcadia_Engine_UI_ToggleNode_create(thread,
+                                                          (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                          320,
+                                                          144,
+                                                          96,
+                                                          48,
+                                                          Arcadia_BooleanValue_False);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->toggleRowPanelNode, (Arcadia_Object*)self->toggleNode);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ToggleNode_getChangedSignal(thread, self->toggleNode), (Arcadia_Object*)self, &onToggleChanged);
+  }
+  if (!self->sliderLabelNode) {
+    self->sliderLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
+                                                              (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                              Arcadia_String_createFromCxxString(thread, u8"Slider"),
+                                                              160,
+                                                              80,
+                                                              160,
+                                                              40,
+                                                              Arcadia_String_createFromCxxString(thread, u8"Left"),
+                                                              Arcadia_String_createFromCxxString(thread, u8"Bottom"),
+                                                              220,
+                                                              228,
+                                                              240,
+                                                              255);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->sliderRowPanelNode, (Arcadia_Object*)self->sliderLabelNode);
+  }
+  if (!self->sliderNode) {
+    self->sliderNode = Arcadia_Engine_UI_SliderNode_create(thread,
+                                                          (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                          320,
+                                                          80,
+                                                          240,
+                                                          36,
+                                                          0.0,
+                                                          1.0,
+                                                          0.35,
+                                                          0.05);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->sliderRowPanelNode, (Arcadia_Object*)self->sliderNode);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SliderNode_getChangedSignal(thread, self->sliderNode), (Arcadia_Object*)self, &onSliderChanged);
+  }
+  if (!self->segmentedChoiceLabelNode) {
+    self->segmentedChoiceLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
+                                                                       (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                                       Arcadia_String_createFromCxxString(thread, u8"Choice"),
+                                                                       160,
+                                                                       24,
+                                                                       160,
+                                                                       40,
+                                                                       Arcadia_String_createFromCxxString(thread, u8"Left"),
+                                                                       Arcadia_String_createFromCxxString(thread, u8"Bottom"),
+                                                                       220,
+                                                                       228,
+                                                                       240,
+                                                                       255);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->choiceRowPanelNode, (Arcadia_Object*)self->segmentedChoiceLabelNode);
+  }
+  if (!self->segmentedChoiceNode) {
+    self->segmentedChoiceNode = Arcadia_Engine_UI_SegmentedChoiceNode_create(thread,
+                                                                           (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                                            320,
+                                                                            24,
+                                                                            300,
+                                                                            40,
+                                                                           3,
+                                                                           1);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->choiceRowPanelNode, (Arcadia_Object*)self->segmentedChoiceNode);
+    Arcadia_Engine_UI_SegmentedChoiceNode_setSegmentLabel(thread, self->segmentedChoiceNode, 0, Arcadia_String_createFromCxxString(thread, u8"Low"));
+    Arcadia_Engine_UI_SegmentedChoiceNode_setSegmentLabel(thread, self->segmentedChoiceNode, 1, Arcadia_String_createFromCxxString(thread, u8"Medium"));
+    Arcadia_Engine_UI_SegmentedChoiceNode_setSegmentLabel(thread, self->segmentedChoiceNode, 2, Arcadia_String_createFromCxxString(thread, u8"High"));
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SegmentedChoiceNode_getChangedSignal(thread, self->segmentedChoiceNode), (Arcadia_Object*)self, &onSegmentedChoiceChanged);
+  }
+  if (!self->scrollPanelLabelNode) {
+    self->scrollPanelLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
+                                                                   (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                                   Arcadia_String_createFromCxxString(thread, u8"Scroll (Up/Down)"),
+                                                                   680,
+                                                                   188,
+                                                                   240,
+                                                                   32,
+                                                                   Arcadia_String_createFromCxxString(thread, u8"Left"),
+                                                                   Arcadia_String_createFromCxxString(thread, u8"Center"),
+                                                                   220,
+                                                                   228,
+                                                                   240,
+                                                                   255);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->scrollColumnPanelNode, (Arcadia_Object*)self->scrollPanelLabelNode);
+  }
+  if (!self->scrollPanelNode) {
+    self->scrollPanelNode = Arcadia_Engine_UI_ScrollPanelNode_create(thread, 680, 24, 240, 96);
+    Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, self->scrollPanelNode, 240, 140);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->scrollColumnPanelNode, (Arcadia_Object*)self->scrollPanelNode);
+  }
+  if (!self->scrollPanelFirstLabelNode) {
+    self->scrollPanelFirstLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
+                                                                        (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                                        Arcadia_String_createFromCxxString(thread, u8"Display"),
+                                                                        0,
+                                                                        108,
+                                                                        220,
+                                                                        32,
+                                                                        Arcadia_String_createFromCxxString(thread, u8"Left"),
+                                                                        Arcadia_String_createFromCxxString(thread, u8"Center"),
+                                                                        245,
+                                                                        248,
+                                                                        252,
+                                                                        255);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->scrollPanelNode, (Arcadia_Object*)self->scrollPanelFirstLabelNode);
+  }
+  if (!self->scrollPanelSecondLabelNode) {
+    self->scrollPanelSecondLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
+                                                                         (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                                         Arcadia_String_createFromCxxString(thread, u8"Audio"),
+                                                                         0,
+                                                                         72,
+                                                                         220,
+                                                                         32,
+                                                                         Arcadia_String_createFromCxxString(thread, u8"Left"),
+                                                                         Arcadia_String_createFromCxxString(thread, u8"Center"),
+                                                                         245,
+                                                                         248,
+                                                                         252,
+                                                                         255);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->scrollPanelNode, (Arcadia_Object*)self->scrollPanelSecondLabelNode);
+  }
+  if (!self->scrollPanelThirdLabelNode) {
+    self->scrollPanelThirdLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
+                                                                        (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                                        Arcadia_String_createFromCxxString(thread, u8"Controls"),
+                                                                        0,
+                                                                        36,
+                                                                        220,
+                                                                        32,
+                                                                        Arcadia_String_createFromCxxString(thread, u8"Left"),
+                                                                        Arcadia_String_createFromCxxString(thread, u8"Center"),
+                                                                        245,
+                                                                        248,
+                                                                        252,
+                                                                        255);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->scrollPanelNode, (Arcadia_Object*)self->scrollPanelThirdLabelNode);
+  }
+  if (!self->scrollPanelFourthLabelNode) {
+    self->scrollPanelFourthLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
+                                                                         (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                                         Arcadia_String_createFromCxxString(thread, u8"Accessibility"),
+                                                                         0,
+                                                                         0,
+                                                                         220,
+                                                                         32,
+                                                                         Arcadia_String_createFromCxxString(thread, u8"Left"),
+                                                                         Arcadia_String_createFromCxxString(thread, u8"Center"),
+                                                                         245,
+                                                                         248,
+                                                                         252,
+                                                                         255);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->scrollPanelNode, (Arcadia_Object*)self->scrollPanelFourthLabelNode);
+    // Start at the top of the content, so Down reveals later items.
+    Arcadia_Engine_UI_Scrollable_scrollTo(thread, (Arcadia_Object*)self->scrollPanelNode, 0, 44);
+  }
+  if (!self->bindingService) {
+    self->bindingService = Arcadia_Engine_UI_InputBindingService_create(thread);
+    Arcadia_String* jump = Arcadia_String_createFromCxxString(thread, u8"Jump");
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)jump);
+    Arcadia_String* sprint = Arcadia_String_createFromCxxString(thread, u8"Sprint");
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sprint);
+    Arcadia_Engine_UI_InputBindingService_addAction(thread, self->bindingService, jump);
+    Arcadia_Engine_UI_InputBindingService_addAction(thread, self->bindingService, sprint);
+    Arcadia_Engine_UI_InputBinding jumpDefault = {
+      .device = Arcadia_Engine_UI_InputBindingDevice_Keyboard,
+      .code = Arcadia_Engine_Input_KeyboardKey_Space,
+      .bound = Arcadia_BooleanValue_True,
+    };
+    Arcadia_Engine_UI_InputBinding sprintDefault = {
+      .device = Arcadia_Engine_UI_InputBindingDevice_Keyboard,
+      .code = Arcadia_Engine_Input_KeyboardKey_K,
+      .modifiers = Arcadia_Engine_UI_InputBindingModifier_Shift,
+      .bound = Arcadia_BooleanValue_True,
+    };
+    Arcadia_Engine_UI_InputBindingService_assign(thread, self->bindingService, jump, jumpDefault);
+    Arcadia_Engine_UI_InputBindingService_assign(thread, self->bindingService, sprint, sprintDefault);
+    Arcadia_ValueStack_popValues(thread, 2);
+  }
+  if (!self->jumpBindingController || !self->sprintBindingController) {
+    // Rows are ordinary ADL panels: labels and buttons in a stack. No binding
+    // view subtype or operating-system-specific key names in ADL.
+    Arcadia_String* actionNames[] = { Arcadia_String_createFromCxxString(thread, u8"Jump"),
+                                      Arcadia_String_createFromCxxString(thread, u8"Sprint") };
+    Arcadia_String* panelNames[] = { Arcadia_String_createFromCxxString(thread, u8"Controls.Bindings.Jump.Panel"),
+                                     Arcadia_String_createFromCxxString(thread, u8"Controls.Bindings.Sprint.Panel") };
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)actionNames[0]);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)actionNames[1]);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)panelNames[0]);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)panelNames[1]);
+    for (Arcadia_SizeValue i = 0; i < 2; ++i) {
+      Arcadia_ADL_Definition* definition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, self->definitions, panelNames[i]);
+      if (!definition || !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)definition, _Arcadia_ADL_UI_PanelDefinition_getType(thread))) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      Arcadia_Engine_UI_LayoutPanelNode* panel = (Arcadia_Engine_UI_LayoutPanelNode*)Arcadia_Engine_UI_createNodeFromDefinition(thread,
+        (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext, definition);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)panel);
+      Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->scrollColumnPanelNode, (Arcadia_Object*)panel);
+      Arcadia_Engine_UI_LabelNode* value = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)panel, 1);
+      Arcadia_Engine_UI_ButtonNode* edit = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)panel, 2);
+      Arcadia_Engine_UI_ButtonNode* reset = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)panel, 3);
+      Arcadia_Engine_UI_LabelNode* status = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)panel, 4);
+      Arcadia_Engine_UI_InputBinding def = {
+        .device = Arcadia_Engine_UI_InputBindingDevice_Keyboard,
+        .code = i == 0 ? Arcadia_Engine_Input_KeyboardKey_Space : Arcadia_Engine_Input_KeyboardKey_K,
+        .modifiers = i == 0 ? 0 : Arcadia_Engine_UI_InputBindingModifier_Shift,
+        .bound = Arcadia_BooleanValue_True,
+      };
+      Arcadia_Engine_UI_BindingRowController* controller = Arcadia_Engine_UI_BindingRowController_create(thread,
+        self->bindingService, self->canvasNode, actionNames[i], edit, reset, value, status, def);
+      if (i == 0) { self->jumpBindingPanelNode = panel; self->jumpBindingController = controller; }
+      else { self->sprintBindingPanelNode = panel; self->sprintBindingController = controller; }
+      Arcadia_ValueStack_popValues(thread, 1);
+    }
+    Arcadia_ValueStack_popValues(thread, 4);
+  }
+  if (!self->helpLabelNode) {
+    self->helpLabelNode = Arcadia_Engine_UI_LabelNode_create(thread,
+                                                             (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext,
+                                                             Arcadia_String_createFromCxxString(thread, u8"Hover, click, or press Tab then Space/Return"),
+                                                             160,
+                                                             320,
+                                                             760,
+                                                             40,
+                                                             Arcadia_String_createFromCxxString(thread, u8"Left"),
+                                                             Arcadia_String_createFromCxxString(thread, u8"Center"),
+                                                            220,
+                                                            228,
+                                                            240,
+                                                            255);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->rootPanelNode, (Arcadia_Object*)self->helpLabelNode);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->rootPanelNode, (Arcadia_Object*)self->bodyPanelNode);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->buttonNode), (Arcadia_Object*)self, &onButtonActivated);
+  }
+}
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateAudialsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Real64Value tick,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  )
+{ load(thread, self); }
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateLogicsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Real64Value tick
+  )
+{/*Intentionally empty.*/}
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_updateVisualsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Real64Value tick,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  )
+{
+  load(thread, self);
+  layoutControls(thread, self, width, height);
+
+  Arcadia_Math_Matrix4Real32* viewToProjectionMatrix = Arcadia_Math_Matrix4Real32_create(thread);
+  Arcadia_Math_Matrix4x4Real32_setOrthographicProjection(thread, viewToProjectionMatrix, 0.f, (Arcadia_Real32Value)width, 0.f, (Arcadia_Real32Value)height, -1.f, 1.f);
+  Arcadia_Engine_Visuals_CameraNode_setViewToProjectionMatrix(thread, self->cameraNode, viewToProjectionMatrix);
+  Arcadia_Engine_Visuals_ViewportNode_setCanvasSize(thread, self->viewportNode, width, height);
+  Arcadia_Engine_Visuals_EnterPassNode_setViewportNode(thread, self->enterPassNode, self->viewportNode);
+  Arcadia_Engine_Visuals_EnterPassNode_setCameraNode(thread, self->enterPassNode, self->cameraNode);
+  Arcadia_Engine_Visuals_EnterPassNode_setFrameBufferNode(thread, self->enterPassNode, NULL);
+  Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)self->enterPassNode, self->enterPassNode);
+
+  Arcadia_Engine_UI_CanvasNode_setVisualsCanvasSize(thread, self->canvasNode, width, height);
+  if (self->jumpBindingController) Arcadia_Engine_UI_BindingRowController_refresh(thread, self->jumpBindingController);
+  if (self->sprintBindingController) Arcadia_Engine_UI_BindingRowController_refresh(thread, self->sprintBindingController);
+  if (self->dropdownController && Arcadia_Engine_UI_DropdownController_isOpen(thread, self->dropdownController))
+    Arcadia_Engine_UI_DropdownController_reposition(thread, self->dropdownController);
+  Arcadia_Engine_UI_CanvasNode_updateVisuals(thread, self->canvasNode, self->enterPassNode);
+}
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleKeyboardKeyEventImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Engine_Input_KeyboardKeyEvent* event
+  )
+{
+  // The canvas must receive Escape before the scene's quit shortcut: an
+  // active popup or binding capture owns Escape and consumes its release.
+  if (self->canvasNode && Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent(thread, (Arcadia_Object*)self->canvasNode, event)) return;
+  if (Arcadia_Engine_Input_KeyboardKeyEvent_getAction(thread, event) == Arcadia_Engine_Input_KeyboardKeyAction_Released &&
+      Arcadia_Engine_Input_KeyboardKeyEvent_getKey(thread, event) == Arcadia_Engine_Input_KeyboardKey_Escape) {
+    Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent* e = Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent_create(thread, Arcadia_getTickCount(thread));
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)e);
+    Arcadia_ValueStack_pushNatural8Value(thread, 1);
+    Arcadia_Signal_emit(thread, ((Arcadia_Engine_Scene*)self)->applicationQuitRequestSignal, (Arcadia_Object*)self);
+    Arcadia_ValueStack_popValues(thread, 2);
+  }
+}
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMouseButtonEventImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Engine_Input_MouseButtonEvent* event
+  )
+{
+  load(thread, self);
+  Arcadia_Engine_UI_PointerInput_handleMouseButtonEvent(thread, (Arcadia_Object*)self->canvasNode, event);
+}
+
+static void
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_handleMousePointerEventImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_Examples_Controls_ControlsScene* self,
+    Arcadia_Engine_Input_MousePointerEvent* event
+  )
+{
+  load(thread, self);
+  Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (Arcadia_Object*)self->canvasNode, event);
+}
+
+Arcadia_Engine_UI_Examples_Controls_ControlsScene*
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_create
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine* engine,
+    Arcadia_Engine_SceneManager* sceneManager
+  )
+{
+  _Arcadia_BeginCreate(Arcadia_Engine_UI_Examples_Controls_ControlsScene);
+  if (engine) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)engine); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+  if (sceneManager) Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sceneManager); else Arcadia_ValueStack_pushVoidValue(thread, Arcadia_VoidValue_Void);
+  Arcadia_ValueStack_pushNatural8Value(thread, 2);
+  _Arcadia_EndCreate(Arcadia_Engine_UI_Examples_Controls_ControlsScene);
+}

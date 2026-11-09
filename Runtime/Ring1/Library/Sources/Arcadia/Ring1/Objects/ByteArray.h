@@ -63,6 +63,16 @@ struct Arcadia_ByteArrayDispatch {
       Arcadia_ByteArray const* self
     );
 
+  // Capability queries are side-effect-free and stable for each instance.
+  Arcadia_BooleanValue (*isMutable)(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
+  Arcadia_BooleanValue (*isResizable)(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
+  Arcadia_BooleanValue (*isContiguous)(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
+
+  void (*setAt)(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                Arcadia_SizeValue index, Arcadia_Natural8Value value);
+  void (*resize)(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                 Arcadia_SizeValue size);
+
   Arcadia_BooleanValue
   (*isEmpty)
     (
@@ -116,6 +126,17 @@ Arcadia_ByteArray_isEmpty
     Arcadia_Thread* thread,
     Arcadia_ByteArray const* self
   );
+
+// Mutations unsupported by the concrete implementation raise
+// Arcadia_Status_OperationInvalid before inspecting indices or sizes.
+// Existing fixed immutable byte arrays and their views reject both operations.
+Arcadia_BooleanValue Arcadia_ByteArray_isMutable(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
+Arcadia_BooleanValue Arcadia_ByteArray_isResizable(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
+Arcadia_BooleanValue Arcadia_ByteArray_isContiguous(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
+void Arcadia_ByteArray_setAt(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                             Arcadia_SizeValue index, Arcadia_Natural8Value value);
+void Arcadia_ByteArray_resize(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                              Arcadia_SizeValue size);
 
 Arcadia_ByteArray*
 Arcadia_ByteArray_slice

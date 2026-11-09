@@ -48,8 +48,8 @@ testVertical
   Arcadia_Engine_UI_StackLayout* layout = Arcadia_Engine_UI_StackLayout_create(thread, Arcadia_BooleanValue_True, 7);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, layout);
   Arcadia_Engine_UI_StackLayout_setPadding(thread, layout, 10, 5, 4, 6);
-  Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout, Arcadia_Engine_UI_StackPanelNodeAlignment_Center,
-                                            Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+  Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout, Arcadia_Engine_UI_LayoutAlignment_Center,
+                                            Arcadia_Engine_UI_LayoutAlignment_Center);
   Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
   Arcadia_ValueStack_popValues(thread, 1);
   Arcadia_Engine_UI_WidgetNode* first = addWidget(thread, panel, 40, 20);
@@ -65,8 +65,8 @@ testVertical
   Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 5, 10, 200, 140);
   Arcadia_Tests_assertTrue(thread, first->left == 88 && first->bottom == 88 && first->width == 40 && first->height == 20);
   Arcadia_Tests_assertTrue(thread, second->left == 68 && second->bottom == 51 && second->width == 80 && second->height == 30);
-  Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout, Arcadia_Engine_UI_StackPanelNodeAlignment_Center,
-                                            Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch);
+  Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout, Arcadia_Engine_UI_LayoutAlignment_Center,
+                                            Arcadia_Engine_UI_LayoutAlignment_Stretch);
   Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 5, 10, 200, 140);
   Arcadia_Tests_assertTrue(thread, first->left == 15 && first->bottom == 88 && first->width == 186);
   Arcadia_Tests_assertTrue(thread, second->left == 15 && second->bottom == 51 && second->width == 186);
@@ -93,8 +93,8 @@ testHorizontal
   Arcadia_Engine_UI_StackLayout* layout = Arcadia_Engine_UI_StackLayout_create(thread, Arcadia_BooleanValue_False, 4);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, layout);
   Arcadia_Engine_UI_StackLayout_setPadding(thread, layout, 1, 2, 3, 4);
-  Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout, Arcadia_Engine_UI_StackPanelNodeAlignment_End,
-                                            Arcadia_Engine_UI_StackPanelNodeAlignment_End);
+  Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout, Arcadia_Engine_UI_LayoutAlignment_End,
+                                            Arcadia_Engine_UI_LayoutAlignment_End);
   Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
   Arcadia_ValueStack_popValues(thread, 1);
   Arcadia_Engine_UI_WidgetNode* first = addWidget(thread, panel, 20, 10);
@@ -128,8 +128,8 @@ testAnimaStartMenuGeometry
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)layout);
   Arcadia_Engine_UI_StackLayout_setPadding(thread, layout, 24, 24, 24, 24);
   Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout,
-    Arcadia_Engine_UI_StackPanelNodeAlignment_Center,
-    Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+    Arcadia_Engine_UI_LayoutAlignment_Center,
+    Arcadia_Engine_UI_LayoutAlignment_Center);
   Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
   Arcadia_ValueStack_popValues(thread, 1);
 
@@ -178,7 +178,7 @@ testLayoutPanelChildSlots
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)layout);
   Arcadia_Engine_UI_StackLayout_setPadding(thread, layout, 10, 5, 4, 6);
   Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout,
-    Arcadia_Engine_UI_StackPanelNodeAlignment_Center, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+    Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Center);
   Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
   Arcadia_ValueStack_popValues(thread, 1);
   Arcadia_Engine_UI_WidgetNode* first = addWidget(thread, panel, 40, 20);
@@ -196,7 +196,7 @@ testLayoutPanelChildSlots
   Arcadia_Tests_assertTrue(thread, second->left == 71 && second->bottom == 52);
   // A slot override must not alter the sibling's settings.
   Arcadia_Engine_UI_LayoutPanelNode_setChildCrossAlignment(thread, panel, (Arcadia_Object*)second,
-    Arcadia_Engine_UI_StackPanelNodeAlignment_End);
+    Arcadia_Engine_UI_LayoutAlignment_End);
   Arcadia_Engine_UI_LayoutPanelNode_updateLayout(thread, panel);
   Arcadia_Tests_assertTrue(thread, first->left == 89 && second->left == 116);
   Arcadia_Engine_UI_LayoutPanelNode_clearChildCrossAlignment(thread, panel, (Arcadia_Object*)second);
@@ -247,43 +247,6 @@ testLayoutPanelChildSlots
 }
 
 static void
-testLegacySlots
-  (
-    Arcadia_Thread* thread
-  )
-{
-  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
-  Arcadia_Engine_UI_StackPanelNode* panel = Arcadia_Engine_UI_StackPanelNode_create(thread, 5, 10, 200, 140, Arcadia_BooleanValue_True, 7);
-  Arcadia_ValueStack_pushObjectReferenceValue(thread, panel);
-  Arcadia_Engine_UI_WidgetNode* first = Arcadia_Engine_UI_WidgetNode_create(thread);
-  Arcadia_ValueStack_pushObjectReferenceValue(thread, first);
-  Arcadia_Engine_UI_WidgetNode_setSize(thread, first, 40, 20);
-  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)panel, (Arcadia_Object*)first);
-  Arcadia_ValueStack_popValues(thread, 1);
-  Arcadia_Engine_UI_WidgetNode* second = Arcadia_Engine_UI_WidgetNode_create(thread);
-  Arcadia_ValueStack_pushObjectReferenceValue(thread, second);
-  Arcadia_Engine_UI_WidgetNode_setSize(thread, second, 80, 30);
-  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)panel, (Arcadia_Object*)second);
-  Arcadia_ValueStack_popValues(thread, 1);
-  Arcadia_Engine_UI_StackPanelNode_setPadding(thread, panel, 10, 5, 4, 6);
-  Arcadia_Engine_UI_StackPanelNode_setAlignment(thread, panel, Arcadia_Engine_UI_StackPanelNodeAlignment_Center,
-                                               Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
-  Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, panel, (Arcadia_Object*)first, 3, 0, 1, 0);
-  Arcadia_Engine_UI_StackLayoutSettings settings = {
-    .vertical = panel->vertical, .gap = panel->gap,
-    .paddingLeft = panel->paddingLeft, .paddingBottom = panel->paddingBottom,
-    .paddingRight = panel->paddingRight, .paddingTop = panel->paddingTop,
-    .mainAlignment = panel->mainAlignment, .crossAlignment = panel->crossAlignment
-  };
-  Arcadia_Engine_UI_StackLayout_arrangeLegacy(thread, (Arcadia_Object*)panel, &settings, panel->slots,
-                                              Arcadia_Engine_UI_Container_getChildCount(thread, (Arcadia_Object*)panel), 5, 10, 200, 140);
-  Arcadia_Tests_assertTrue(thread, first->left == 89 && first->bottom == 88 && first->width == 40 && first->height == 20);
-  Arcadia_Tests_assertTrue(thread, second->left == 68 && second->bottom == 51 && second->width == 80 && second->height == 30);
-  Arcadia_ValueStack_popValues(thread, 1);
-  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
-}
-
-static void
 testInvalidConfiguration
   (
     Arcadia_Thread* thread
@@ -308,6 +271,180 @@ testInvalidConfiguration
   Arcadia_ValueStack_popValues(thread, 1);
 }
 
+static void
+testAnimaOptionsPanelGeometry
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_Engine_UI_LayoutPanelNode* root = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)root);
+  Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)root, 760, 560);
+  Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy(thread, root, Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed);
+  Arcadia_Engine_UI_StackLayout* rootLayout = Arcadia_Engine_UI_StackLayout_create(thread, Arcadia_BooleanValue_True, 16);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)rootLayout);
+  Arcadia_Engine_UI_StackLayout_setPadding(thread, rootLayout, 24, 24, 24, 24);
+  Arcadia_Engine_UI_StackLayout_setAlignment(thread, rootLayout,
+    Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Start);
+  Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, root, (Arcadia_Object*)rootLayout);
+  Arcadia_ValueStack_popValues(thread, 1);
+
+  Arcadia_Engine_UI_WidgetNode* title = addWidget(thread, root, 680, 44);
+  Arcadia_Engine_UI_WidgetNode* tabs = addWidget(thread, root, 712, 42);
+  Arcadia_Engine_UI_LayoutPanelNode* content = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)content);
+  Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)content, 712, 280);
+  Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy(thread, content, Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed);
+  Arcadia_Engine_UI_StackLayout* contentLayout = Arcadia_Engine_UI_StackLayout_create(thread, Arcadia_BooleanValue_True, 10);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)contentLayout);
+  Arcadia_Engine_UI_StackLayout_setAlignment(thread, contentLayout,
+    Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Start);
+  Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, content, (Arcadia_Object*)contentLayout);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)root, (Arcadia_Object*)content);
+  Arcadia_ValueStack_popValues(thread, 1);
+
+  Arcadia_Engine_UI_LayoutPanelNode* footer = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)footer);
+  Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)footer, 712, 48);
+  Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy(thread, footer, Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed);
+  Arcadia_Engine_UI_StackLayout* footerLayout = Arcadia_Engine_UI_StackLayout_create(thread, Arcadia_BooleanValue_False, 12);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)footerLayout);
+  Arcadia_Engine_UI_StackLayout_setAlignment(thread, footerLayout,
+    Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
+  Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, footer, (Arcadia_Object*)footerLayout);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)root, (Arcadia_Object*)footer);
+  Arcadia_ValueStack_popValues(thread, 1);
+
+  Arcadia_Engine_UI_WidgetNode* back = addWidget(thread, footer, 120, 44);
+  Arcadia_Engine_UI_WidgetNode* reset = addWidget(thread, footer, 120, 44);
+  Arcadia_Engine_UI_WidgetNode* apply = addWidget(thread, footer, 120, 44);
+  Arcadia_Engine_UI_LayoutPanelNode_setChildMargin(thread, footer, (Arcadia_Object*)back, 0, 0, 328, 0);
+  Arcadia_Engine_UI_WidgetNode* rows[4];
+  for (Arcadia_SizeValue i = 0; i < 4; ++i) rows[i] = addWidget(thread, content, 712, 44);
+  Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)root, 100, 100, 760, 560);
+  Arcadia_Engine_UI_LayoutPanelNode_updateLayout(thread, root);
+  Arcadia_Integer32Value width, height;
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)root, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 760 && height == 560);
+  Arcadia_Tests_assertTrue(thread, title->left == 124 && title->bottom == 567);
+  Arcadia_Tests_assertTrue(thread, tabs->left == 124 && tabs->bottom == 509);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)content)->left == 124);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)content)->bottom == 213);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)footer)->bottom == 149);
+  Arcadia_Tests_assertTrue(thread, back->left == 124 && reset->left == 584 && apply->left == 716);
+  Arcadia_Tests_assertTrue(thread, back->bottom == 151 && reset->bottom == 151 && apply->bottom == 151);
+  Arcadia_Tests_assertTrue(thread, rows[0]->bottom == 449 && rows[3]->bottom == 287);
+
+  // Tab changes replace rows, but may not move the footer or collapse content.
+  for (Arcadia_SizeValue i = 0; i < 4; ++i)
+    Arcadia_Engine_UI_Container_removeChild(thread, (Arcadia_Object*)content, (Arcadia_Object*)rows[i]);
+  Arcadia_Engine_UI_LayoutPanelNode_updateLayout(thread, root);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)content, &width, &height);
+  Arcadia_Tests_assertTrue(thread, width == 712 && height == 280);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)content)->bottom == 213);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)footer)->bottom == 149);
+  Arcadia_Engine_UI_WidgetNode* row = addWidget(thread, content, 712, 44);
+  Arcadia_Engine_UI_LayoutPanelNode_updateLayout(thread, root);
+  Arcadia_Tests_assertTrue(thread, row->bottom == 449);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)footer)->bottom == 149);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+// Reproduce the Button example's nested fixed-size layout without graphics.
+static Arcadia_Engine_UI_LayoutPanelNode*
+makeButtonExamplePanel
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height,
+    Arcadia_BooleanValue vertical,
+    Arcadia_Integer32Value gap,
+    Arcadia_Engine_UI_LayoutAlignment mainAlignment,
+    Arcadia_Engine_UI_LayoutAlignment crossAlignment
+  )
+{
+  Arcadia_Engine_UI_LayoutPanelNode* panel = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)panel);
+  Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)panel, width, height);
+  Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy(thread, panel, Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed);
+  Arcadia_Engine_UI_StackLayout* layout = Arcadia_Engine_UI_StackLayout_create(thread, vertical, gap);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)layout);
+  Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout, mainAlignment, crossAlignment);
+  Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
+  Arcadia_ValueStack_popValues(thread, 2);
+  return panel;
+}
+
+static void
+testButtonExamplePanelGeometry
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_Engine_UI_LayoutPanelNode* root = makeButtonExamplePanel(thread, 800, 336, Arcadia_BooleanValue_True, 16,
+    Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Center);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)root);
+  Arcadia_Engine_UI_LayoutPanelNode* body = makeButtonExamplePanel(thread, 800, 260, Arcadia_BooleanValue_False, 20,
+    Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Center);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)body);
+  Arcadia_Engine_UI_LayoutPanelNode* left = makeButtonExamplePanel(thread, 500, 260, Arcadia_BooleanValue_True, 20,
+    Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Stretch);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)left);
+  Arcadia_Engine_UI_LayoutPanelNode* scroll = makeButtonExamplePanel(thread, 280, 196, Arcadia_BooleanValue_True, 24,
+    Arcadia_Engine_UI_LayoutAlignment_Center, Arcadia_Engine_UI_LayoutAlignment_Center);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)scroll);
+  Arcadia_Engine_UI_LayoutPanelNode* buttons = makeButtonExamplePanel(thread, 500, 64, Arcadia_BooleanValue_False, 20,
+    Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)buttons);
+
+  Arcadia_Engine_UI_WidgetNode* help = addWidget(thread, root, 760, 40);
+  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)root, (Arcadia_Object*)body);
+  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)body, (Arcadia_Object*)left);
+  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)body, (Arcadia_Object*)scroll);
+  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)left, (Arcadia_Object*)buttons);
+  Arcadia_Engine_UI_LayoutPanelNode* toggles = makeButtonExamplePanel(thread, 500, 48, Arcadia_BooleanValue_False, 0,
+    Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)toggles);
+  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)left, (Arcadia_Object*)toggles);
+  Arcadia_Engine_UI_LayoutPanelNode* sliders = makeButtonExamplePanel(thread, 500, 40, Arcadia_BooleanValue_False, 0,
+    Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sliders);
+  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)left, (Arcadia_Object*)sliders);
+  Arcadia_Engine_UI_LayoutPanelNode* choices = makeButtonExamplePanel(thread, 500, 40, Arcadia_BooleanValue_False, 0,
+    Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)choices);
+  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)left, (Arcadia_Object*)choices);
+  Arcadia_Engine_UI_WidgetNode* firstButton = addWidget(thread, buttons, 240, 64);
+  Arcadia_Engine_UI_WidgetNode* secondButton = addWidget(thread, buttons, 240, 64);
+  Arcadia_Engine_UI_WidgetNode* scrollLabel = addWidget(thread, scroll, 280, 32);
+  Arcadia_Engine_UI_WidgetNode* scrollView = addWidget(thread, scroll, 240, 96);
+
+  Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)root, 10, 20, 800, 336);
+  Arcadia_Engine_UI_LayoutPanelNode_updateLayout(thread, root);
+  Arcadia_Tests_assertTrue(thread, help->left == 30 && help->bottom == 306);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)body)->left == 10 && ((Arcadia_Engine_UI_WidgetNode*)body)->bottom == 30);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)scroll)->left == 530 && ((Arcadia_Engine_UI_WidgetNode*)scroll)->bottom == 62);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)buttons)->left == 10 && ((Arcadia_Engine_UI_WidgetNode*)buttons)->bottom == 222);
+  Arcadia_Tests_assertTrue(thread, firstButton->left == 10 && firstButton->bottom == 222);
+  Arcadia_Tests_assertTrue(thread, secondButton->left == 270 && secondButton->bottom == 222);
+  Arcadia_Tests_assertTrue(thread, scrollLabel->left == 530 && scrollLabel->bottom == 204);
+  Arcadia_Tests_assertTrue(thread, scrollView->left == 550 && scrollView->bottom == 84);
+  Arcadia_Integer32Value w, h;
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)root, &w, &h);
+  Arcadia_Tests_assertTrue(thread, w == 800 && h == 336);
+  Arcadia_Engine_UI_Container_removeChild(thread, (Arcadia_Object*)scroll, (Arcadia_Object*)scrollLabel);
+  Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)scroll, 280, 196);
+  Arcadia_Engine_UI_WidgetNode_getDesiredSize(thread, (Arcadia_Engine_UI_WidgetNode*)scroll, &w, &h);
+  Arcadia_Tests_assertTrue(thread, w == 280 && h == 196);
+  Arcadia_ValueStack_popValues(thread, 8);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
 int
 Arcadia_Engine_UI_Tests_stackLayout
   (
@@ -318,6 +455,7 @@ Arcadia_Engine_UI_Tests_stackLayout
   if (!Arcadia_Tests_safeExecute(testHorizontal)) return EXIT_FAILURE;
   if (!Arcadia_Tests_safeExecute(testAnimaStartMenuGeometry)) return EXIT_FAILURE;
   if (!Arcadia_Tests_safeExecute(testLayoutPanelChildSlots)) return EXIT_FAILURE;
-  if (!Arcadia_Tests_safeExecute(testLegacySlots)) return EXIT_FAILURE;
+  if (!Arcadia_Tests_safeExecute(testButtonExamplePanelGeometry)) return EXIT_FAILURE;
+  if (!Arcadia_Tests_safeExecute(testAnimaOptionsPanelGeometry)) return EXIT_FAILURE;
   return Arcadia_Tests_safeExecute(testInvalidConfiguration) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

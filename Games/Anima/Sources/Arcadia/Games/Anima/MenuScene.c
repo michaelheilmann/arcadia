@@ -95,15 +95,22 @@ populateResolutionModes
   );
 
 static void
-setResolutionSelection
+createResolutionDropdown
   (
     Arcadia_Thread* thread,
     Arcadia_Games_Anima_MenuScene* self,
-    Arcadia_BooleanValue next
+    Arcadia_Engine_Visuals_BackendContext* backendContext
   );
 
 static void
 applySelectedResolution
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  );
+
+static Arcadia_BooleanValue
+isBorderlessFullscreen
   (
     Arcadia_Thread* thread,
     Arcadia_Games_Anima_MenuScene* self
@@ -179,6 +186,13 @@ getReal64ConfigurationValueOrDefault
 
 static void
 populateVolumeSettings
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  );
+
+static void
+resetAudioSettings
   (
     Arcadia_Thread* thread,
     Arcadia_Games_Anima_MenuScene* self
@@ -280,7 +294,7 @@ loadDefinitions
   Arcadia_ADL_Definitions_link(thread, self->definitions);
 }
 
-static Arcadia_Engine_UI_StackPanelNode*
+static Arcadia_Engine_UI_LayoutPanelNode*
 createOptionRow
   (
     Arcadia_Thread* thread,
@@ -289,8 +303,8 @@ createOptionRow
     char const* name
   )
 {
-  return Arcadia_Engine_UI_StackPanelNode_createFromDefinition(thread, backendContext,
-    (Arcadia_ADL_UI_StackPanelDefinition*)getDefinition(thread, self->definitions, name));
+  return Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition(thread, backendContext,
+    (Arcadia_ADL_UI_PanelDefinition*)getDefinition(thread, self->definitions, name));
 }
 
 static Arcadia_Object*
@@ -313,6 +327,9 @@ setMode
   )
 {
   if (self->mode == mode || !self->canvasNode) return;
+  if (self->bindingService) Arcadia_Engine_UI_InputBindingService_cancelCapture(thread, self->bindingService);
+  // A canvas overlay must never outlive the menu which opened it.
+  if (self->resolutionDropdown) Arcadia_Engine_UI_DropdownController_close(thread, self->resolutionDropdown);
   Arcadia_Object* oldRoot = self->mode == Arcadia_Games_Anima_MenuMode_Start ? (Arcadia_Object*)self->startRoot : (Arcadia_Object*)self->optionsRoot;
   Arcadia_Object* newRoot = mode == Arcadia_Games_Anima_MenuMode_Start ? (Arcadia_Object*)self->startRoot : (Arcadia_Object*)self->optionsRoot;
   if (oldRoot) Arcadia_Engine_UI_Container_removeChild(thread, (Arcadia_Object*)self->canvasNode, oldRoot);
@@ -332,12 +349,41 @@ onButtonActivated
   Arcadia_Engine_UI_ButtonNode* button = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_ButtonNode_getType(thread));
   if (button == self->optionsButton) {
     setMode(thread, self, Arcadia_Games_Anima_MenuMode_Options);
-  } else if (button == self->resolutionPreviousButton) {
-    setResolutionSelection(thread, self, Arcadia_BooleanValue_False);
-  } else if (button == self->resolutionNextButton) {
-    setResolutionSelection(thread, self, Arcadia_BooleanValue_True);
   } else if (button == self->applyButton) {
-    applySelectedResolution(thread, self);
+    // Resolution is the only currently supported explicit Apply action.
+    if (self->optionsTabs &&
+        Arcadia_Engine_UI_TabBarNode_getSelected(thread, self->optionsTabs) &&
+        stringEquals(thread, Arcadia_Engine_UI_WidgetNode_getName(thread,
+          (Arcadia_Engine_UI_WidgetNode*)Arcadia_Engine_UI_TabBarNode_getSelected(thread, self->optionsTabs)),
+          u8"Anima.Tab.Display")) applySelectedResolution(thread, self);
+  } else if (button == self->resetButton) {
+    Arcadia_Engine_UI_ButtonNode* selected = self->optionsTabs ? Arcadia_Engine_UI_TabBarNode_getSelected(thread, self->optionsTabs) : NULL;
+    Arcadia_String* name = selected ? Arcadia_Engine_UI_WidgetNode_getName(thread, (Arcadia_Engine_UI_WidgetNode*)selected) : NULL;
+    if (name && stringEquals(thread, name, u8"Anima.Tab.Audio")) {
+      resetAudioSettings(thread, self);
+    } else if (name && stringEquals(thread, name, u8"Anima.Tab.Controls")) {
+      if (self->jumpBindingController) Arcadia_Engine_UI_BindingRowController_reset(thread, self->jumpBindingController);
+      if (self->sprintBindingController) Arcadia_Engine_UI_BindingRowController_reset(thread, self->sprintBindingController);
+    } else if (name && stringEquals(thread, name, u8"Anima.Tab.Display")) {
+      // Restore the configured resolution selection; Apply remains explicit.
+      char const* widthPath[] = { u8"visuals", u8"horizontalResolution" };
+      char const* heightPath[] = { u8"visuals", u8"verticalResolution" };
+      Arcadia_Integer32Value configuredWidth = Arcadia_Engine_ApplicationConfiguration_getInteger32(thread, self->application->configuration, widthPath, 2);
+      Arcadia_Integer32Value configuredHeight = Arcadia_Engine_ApplicationConfiguration_getInteger32(thread, self->application->configuration, heightPath, 2);
+      if (self->availableResolutionModes) {
+        for (Arcadia_SizeValue j = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->availableResolutionModes); j < n; ++j) {
+          Arcadia_Engine_Visuals_DisplayMode* mode = (Arcadia_Engine_Visuals_DisplayMode*)Arcadia_List_getObjectReferenceValueAt(thread, self->availableResolutionModes, j);
+          if (Arcadia_Engine_Visuals_DisplayMode_getHorizontalResolution(thread, mode) == configuredWidth &&
+              Arcadia_Engine_Visuals_DisplayMode_getVerticalResolution(thread, mode) == configuredHeight) {
+            self->selectedResolutionIndex = j;
+            Arcadia_Engine_UI_DropdownController_select(thread, self->resolutionDropdown, j);
+            Arcadia_Engine_UI_LabelNode_setText(thread, self->resolutionLabel,
+              (Arcadia_String*)Arcadia_List_getObjectReferenceValueAt(thread, self->availableResolutionLabels, j));
+            break;
+          }
+        }
+      }
+    }
   } else if (button == self->backButton) {
     setMode(thread, self, Arcadia_Games_Anima_MenuMode_Start);
   } else if (button == self->exitButton) {
@@ -383,7 +429,15 @@ rebuildOptionsContent
 {
   if (!self->optionsContentRoot || !self->optionsTabs) return;
   clearContainer(thread, (Arcadia_Object*)self->optionsContentRoot);
-  switch (Arcadia_Engine_UI_SegmentedChoiceNode_getSelectedIndex(thread, self->optionsTabs)) {
+  Arcadia_Engine_UI_ButtonNode* selected = Arcadia_Engine_UI_TabBarNode_getSelected(thread, self->optionsTabs);
+  Arcadia_String* tab = selected ? Arcadia_Engine_UI_WidgetNode_getName(thread, (Arcadia_Engine_UI_WidgetNode*)selected) : NULL;
+  Arcadia_Natural32Value category = 0;
+  if (tab && stringEquals(thread, tab, u8"Anima.Tab.Audio")) category = 1;
+  else if (tab && stringEquals(thread, tab, u8"Anima.Tab.Controls")) category = 2;
+  else if (tab && stringEquals(thread, tab, u8"Anima.Tab.Accessibility")) category = 3;
+  if (category != 0 && self->resolutionDropdown)
+    Arcadia_Engine_UI_DropdownController_close(thread, self->resolutionDropdown);
+  switch (category) {
     case 0: {
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->windowModeRow);
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->resolutionRow);
@@ -399,12 +453,28 @@ rebuildOptionsContent
     } break;
     case 2: {
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->mouseSensitivityRow);
+      if (self->jumpBindingRow) Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->jumpBindingRow);
+      if (self->sprintBindingRow) Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->sprintBindingRow);
     } break;
     case 3: {
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->subtitlesRow);
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->highContrastRow);
     } break;
   }
+  if (self->optionsStatusLabel) {
+    char const* message = category == 0 ? u8"Warning: resolution applies in windowed mode; VSync/brightness pending; borderless uses desktop." :
+      category == 1 ? u8"Info: effects, UI and voice levels are saved; routing is pending." :
+      category == 2 ? u8"Warning: bindings are session-only; mouse sensitivity is not active yet." :
+                      u8"Warning: accessibility settings are not yet applied to rendering.";
+    Arcadia_Engine_UI_StatusLabel_set(thread, self->optionsStatusLabel,
+      category == 1 ? Arcadia_Engine_UI_StatusSeverity_Informational : Arcadia_Engine_UI_StatusSeverity_Warning,
+      Arcadia_String_createFromCxxString(thread, message));
+  }
+  // Unsupported accessibility settings have no meaningful Reset action yet.
+  if (self->resetButton) Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->resetButton, category != 3);
+  // There is no meaningful explicit Apply action outside Display at present.
+  if (self->applyButton) Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->applyButton,
+    category == 0 && !isBorderlessFullscreen(thread, self));
 }
 
 static Arcadia_String*
@@ -609,6 +679,21 @@ populateVolumeSettings
 }
 
 static void
+resetAudioSettings
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < 5; ++i) {
+    char const* path[] = { u8"audials", _audioVolumeSettings[i].key };
+    Arcadia_Engine_ApplicationConfiguration_setReal64(thread, self->application->configuration,
+      path, 2, _audioVolumeSettings[i].defaultValue);
+    syncVolumeSetting(thread, self, (Arcadia_Games_Anima_AudioCategory)i);
+  }
+}
+
+static void
 handleVolumeChanged
   (
     Arcadia_Thread* thread,
@@ -698,8 +783,10 @@ updateResolutionControls
   )
 {
   Arcadia_BooleanValue enabled = !isBorderlessFullscreen(thread, self);
-  Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->resolutionPreviousButton, enabled);
-  Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->resolutionNextButton, enabled);
+  if (self->resolutionDropdown)
+    Arcadia_Engine_UI_DropdownController_setEnabled(thread, self->resolutionDropdown, enabled);
+  else if (self->resolutionDropdownButton)
+    Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->resolutionDropdownButton, enabled);
   Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->applyButton, enabled);
 }
 
@@ -841,25 +928,88 @@ populateResolutionModes
 }
 
 static void
-setResolutionSelection
+onResolutionDropdownChanged
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Natural8Value n = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (2 != n) {
+    Arcadia_ValueStack_popValues(thread, n + 1);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Games_Anima_MenuScene* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2,
+    _Arcadia_Games_Anima_MenuScene_getType(thread));
+  Arcadia_Engine_UI_DropdownController* dropdown = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1,
+    _Arcadia_Engine_UI_DropdownController_getType(thread));
+  if (dropdown != self->resolutionDropdown) return;
+  Arcadia_Natural64Value index = Arcadia_Engine_UI_DropdownController_getSelectedIndex(thread, dropdown);
+  if (index == Arcadia_Natural64Value_Maximum ||
+      index >= Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->availableResolutionModes)) return;
+  self->selectedResolutionIndex = (Arcadia_SizeValue)index;
+  Arcadia_Engine_UI_LabelNode_setText(thread, self->resolutionLabel,
+    (Arcadia_String*)Arcadia_List_getObjectReferenceValueAt(thread, self->availableResolutionLabels, index));
+}
+
+static void
+createResolutionDropdown
   (
     Arcadia_Thread* thread,
     Arcadia_Games_Anima_MenuScene* self,
-    Arcadia_BooleanValue next
+    Arcadia_Engine_Visuals_BackendContext* backendContext
   )
 {
-  if (isBorderlessFullscreen(thread, self)) return;
-  Arcadia_SizeValue numberOfModes = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->availableResolutionModes);
-  if (!numberOfModes) return;
-  if (next) {
-    self->selectedResolutionIndex = (self->selectedResolutionIndex + 1) % numberOfModes;
-  } else if (self->selectedResolutionIndex) {
-    --self->selectedResolutionIndex;
-  } else {
-    self->selectedResolutionIndex = numberOfModes - 1;
+  if (self->resolutionDropdown) return;
+  Arcadia_SizeValue optionCount = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->availableResolutionModes);
+  if (!optionCount || optionCount > 4096) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
   }
-  Arcadia_Engine_UI_LabelNode_setText(thread, self->resolutionLabel,
-    (Arcadia_String*)Arcadia_List_getObjectReferenceValueAt(thread, self->availableResolutionLabels, self->selectedResolutionIndex));
+  Arcadia_Natural32Value contentHeight = (Arcadia_Natural32Value)(optionCount * 40);
+  Arcadia_Natural32Value popupHeight = contentHeight < 200 ? contentHeight : 200;
+  self->resolutionPopup = Arcadia_Engine_UI_ScrollPanelNode_create(thread, 0, 0, 296, popupHeight);
+  Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, self->resolutionPopup, 296, contentHeight);
+
+  // The color definitions are already loaded from Menu.adl. Root each shared
+  // string and each temporary node across allocations and signal connections.
+  Arcadia_SizeValue roots = Arcadia_ValueStack_getSize(thread);
+  Arcadia_String* center = Arcadia_String_createFromCxxString(thread, u8"Center");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)center);
+  char const* colors[] = { u8"Anima.Button.Normal", u8"Anima.Button.Hovered",
+    u8"Anima.Button.Pressed", u8"Anima.Button.Disabled", u8"Anima.Button.Focused" };
+  Arcadia_String* palette[5];
+  for (Arcadia_SizeValue i = 0; i < 5; ++i) {
+    palette[i] = Arcadia_String_createFromCxxString(thread, colors[i]);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)palette[i]);
+  }
+  for (Arcadia_SizeValue i = 0; i < optionCount; ++i) {
+    Arcadia_StringBuilder* builder = Arcadia_StringBuilder_create(thread);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)builder);
+    Arcadia_StringBuilder_insertBackCxxString(thread, builder, u8"Anima.Resolution.Option.");
+    Arcadia_StringBuilder_insertBackCxxInt(thread, builder, (int)i);
+    Arcadia_String* name = Arcadia_String_create_pn(thread, Arcadia_RuntimeByteArray_create(thread,
+      Arcadia_StringBuilder_getBytes(thread, builder), Arcadia_StringBuilder_getNumberOfBytes(thread, builder)));
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)name);
+    Arcadia_String* label = (Arcadia_String*)Arcadia_List_getObjectReferenceValueAt(thread, self->availableResolutionLabels, i);
+    Arcadia_ADL_UI_ButtonDefinition* definition = Arcadia_ADL_UI_ButtonDefinition_create(thread,
+      self->definitions, name, 0, (Arcadia_Integer32Value)((optionCount - 1 - i) * 40), 296, 40,
+      label, center, center, palette[0], palette[1], palette[2], palette[3], palette[4],
+      18, 1, 65, 87, 102);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definition);
+    Arcadia_Engine_UI_ButtonNode* option = Arcadia_Engine_UI_ButtonNode_create(thread, backendContext, definition);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)option);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->resolutionPopup, (Arcadia_Object*)option);
+    Arcadia_ValueStack_popValues(thread, 4);
+  }
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - roots);
+
+  self->resolutionDropdown = Arcadia_Engine_UI_DropdownController_create(thread,
+    self->canvasNode, self->resolutionDropdownButton, self->resolutionPopup);
+  Arcadia_Engine_UI_DropdownController_select(thread, self->resolutionDropdown, self->selectedResolutionIndex);
+  self->resolutionSelectionConnection = Arcadia_Signal_connect(thread,
+    Arcadia_Engine_UI_DropdownController_getSelectionChangedSignal(thread, self->resolutionDropdown),
+    (Arcadia_Object*)self, &onResolutionDropdownChanged);
 }
 
 static void
@@ -912,7 +1062,7 @@ onOptionsTabChanged
   Arcadia_Natural8Value n = Arcadia_ValueStack_getNatural8Value(thread, 0);
   if (2 != n) { Arcadia_ValueStack_popValues(thread, n + 1); Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid); Arcadia_Thread_jump(thread); }
   Arcadia_Games_Anima_MenuScene* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Games_Anima_MenuScene_getType(thread));
-  Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_SegmentedChoiceNode_getType(thread));
+  Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_TabBarNode_getType(thread));
   rebuildOptionsContent(thread, self);
 }
 
@@ -966,30 +1116,31 @@ ensureScene
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->exitButton), (Arcadia_Object*)self, &onButtonActivated);
   }
   if (!self->optionsRoot) {
-    self->optionsRoot = Arcadia_Engine_UI_StackPanelNode_createFromDefinition(thread, backendContext,
-      (Arcadia_ADL_UI_StackPanelDefinition*)getDefinition(thread, self->definitions, u8"Anima.StackPanel.OptionsRoot"));
-    self->optionsTabs = (Arcadia_Engine_UI_SegmentedChoiceNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.SegmentedChoice.OptionsTabs");
-    self->optionsContentRoot = (Arcadia_Engine_UI_StackPanelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.StackPanel.OptionsContent");
-    self->optionsFooterRoot = (Arcadia_Engine_UI_StackPanelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.StackPanel.OptionsFooter");
-    self->resolutionRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.Resolution");
-    self->resolutionSelector = (Arcadia_Engine_UI_StackPanelNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.StackPanel.ResolutionSelector");
+    self->optionsRoot = Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition(thread, backendContext,
+      (Arcadia_ADL_UI_PanelDefinition*)getDefinition(thread, self->definitions, u8"Anima.Panel.OptionsRoot"));
+    self->optionsTabs = (Arcadia_Engine_UI_TabBarNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.Panel.OptionsTabs");
+    self->optionsStatusLabel = (Arcadia_Engine_UI_LabelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.Label.OptionsStatus");
+    self->optionsContentRoot = (Arcadia_Engine_UI_LayoutPanelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.Panel.OptionsContent");
+    self->optionsFooterRoot = (Arcadia_Engine_UI_LayoutPanelNode*)findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.Panel.OptionsFooter");
+    self->resolutionRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.Resolution");
+    self->resolutionSelector = (Arcadia_Engine_UI_LayoutPanelNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Panel.ResolutionSelector");
     self->resolutionLabel = (Arcadia_Engine_UI_LabelNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Label.ResolutionValue");
-    self->resolutionPreviousButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Button.ResolutionPrevious");
-    self->resolutionNextButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->resolutionRow, u8"Anima.Button.ResolutionNext");
-    self->windowModeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.WindowMode");
+    self->resolutionDropdownButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread,
+      (Arcadia_Object*)self->resolutionRow, u8"Anima.Button.ResolutionDropdown");
+    self->windowModeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.WindowMode");
     self->backButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Back");
     self->resetButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Reset");
     self->applyButton = (Arcadia_Engine_UI_ButtonNode*)findWidget(thread, (Arcadia_Object*)self->optionsFooterRoot, u8"Anima.Button.Apply");
-    self->vsyncRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.VSync");
-    self->brightnessRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.Brightness");
-    self->masterVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.MasterVolume");
-    self->musicVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.MusicVolume");
-    self->effectsVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.EffectsVolume");
-    self->uiVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.UIVolume");
-    self->voiceVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.VoiceVolume");
-    self->mouseSensitivityRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.MouseSensitivity");
-    self->subtitlesRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.Subtitles");
-    self->highContrastRow = createOptionRow(thread, self, backendContext, u8"Anima.StackPanel.OptionsRow.HighContrast");
+    self->vsyncRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.VSync");
+    self->brightnessRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.Brightness");
+    self->masterVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.MasterVolume");
+    self->musicVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.MusicVolume");
+    self->effectsVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.EffectsVolume");
+    self->uiVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.UIVolume");
+    self->voiceVolumeRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.VoiceVolume");
+    self->mouseSensitivityRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.MouseSensitivity");
+    self->subtitlesRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.Subtitles");
+    self->highContrastRow = createOptionRow(thread, self, backendContext, u8"Anima.Panel.OptionsRow.HighContrast");
     self->windowModeToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->windowModeRow, u8"Anima.Toggle.WindowMode");
     Arcadia_Engine_UI_ToggleNode_setChecked(thread, self->windowModeToggle, isBorderlessFullscreen(thread, self));
     self->vsyncToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->vsyncRow, u8"Anima.Toggle.VSync");
@@ -1007,32 +1158,55 @@ ensureScene
     self->mouseSensitivitySlider = (Arcadia_Engine_UI_SliderNode*)findWidget(thread, (Arcadia_Object*)self->mouseSensitivityRow, u8"Anima.Slider.MouseSensitivity");
     self->subtitlesToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->subtitlesRow, u8"Anima.Toggle.Subtitles");
     self->highContrastToggle = (Arcadia_Engine_UI_ToggleNode*)findWidget(thread, (Arcadia_Object*)self->highContrastRow, u8"Anima.Toggle.HighContrast");
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->windowModeRow, (Arcadia_Object*)self->windowModeToggle, 284, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->vsyncRow, (Arcadia_Object*)self->vsyncToggle, 384, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->brightnessRow, (Arcadia_Object*)self->brightnessSlider, 160, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->masterVolumeRow, (Arcadia_Object*)self->masterVolumeSlider, 100, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->musicVolumeRow, (Arcadia_Object*)self->musicVolumeSlider, 100, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->effectsVolumeRow, (Arcadia_Object*)self->effectsVolumeSlider, 100, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->uiVolumeRow, (Arcadia_Object*)self->uiVolumeSlider, 100, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->voiceVolumeRow, (Arcadia_Object*)self->voiceVolumeSlider, 100, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->mouseSensitivityRow, (Arcadia_Object*)self->mouseSensitivitySlider, 160, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->subtitlesRow, (Arcadia_Object*)self->subtitlesToggle, 384, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->highContrastRow, (Arcadia_Object*)self->highContrastToggle, 384, 0, 0, 0);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->resolutionRow, (Arcadia_Object*)self->resolutionSelector, 184, 0, 0, 0);
+    // Action capture is independent of ADL layout and is not yet persistent.
+    self->bindingService = Arcadia_Engine_UI_InputBindingService_create(thread);
+    Arcadia_String* jumpName = Arcadia_String_createFromCxxString(thread, u8"Jump");
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)jumpName);
+    Arcadia_String* sprintName = Arcadia_String_createFromCxxString(thread, u8"Sprint");
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sprintName);
+    Arcadia_Engine_UI_InputBindingService_addAction(thread, self->bindingService, jumpName);
+    Arcadia_Engine_UI_InputBindingService_addAction(thread, self->bindingService, sprintName);
+    Arcadia_Engine_UI_InputBinding jumpDefault = {
+      .device = Arcadia_Engine_UI_InputBindingDevice_Keyboard,
+      .code = Arcadia_Engine_Input_KeyboardKey_Space,
+      .bound = Arcadia_BooleanValue_True,
+    };
+    Arcadia_Engine_UI_InputBinding sprintDefault = {
+      .device = Arcadia_Engine_UI_InputBindingDevice_Keyboard,
+      .code = Arcadia_Engine_Input_KeyboardKey_K,
+      .modifiers = Arcadia_Engine_UI_InputBindingModifier_Shift,
+      .bound = Arcadia_BooleanValue_True,
+    };
+    Arcadia_Engine_UI_InputBindingService_assign(thread, self->bindingService, jumpName, jumpDefault);
+    Arcadia_Engine_UI_InputBindingService_assign(thread, self->bindingService, sprintName, sprintDefault);
+    char const* rowNames[] = { u8"Anima.Panel.Binding.Jump", u8"Anima.Panel.Binding.Sprint" };
+    Arcadia_String* actionNames[] = { jumpName, sprintName };
+    for (Arcadia_SizeValue i = 0; i < 2; ++i) {
+      Arcadia_Engine_UI_LayoutPanelNode* row = createOptionRow(thread, self, backendContext, rowNames[i]);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)row);
+      Arcadia_Engine_UI_LabelNode* value = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)row, 1);
+      Arcadia_Engine_UI_ButtonNode* edit = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)row, 2);
+      Arcadia_Engine_UI_ButtonNode* reset = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)row, 3);
+      Arcadia_Engine_UI_LabelNode* status = (Arcadia_Engine_UI_LabelNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)row, 4);
+      Arcadia_Engine_UI_BindingRowController* controller = Arcadia_Engine_UI_BindingRowController_create(thread,
+        self->bindingService, self->canvasNode, actionNames[i], edit, reset, value, status,
+        i == 0 ? jumpDefault : sprintDefault);
+      if (i == 0) { self->jumpBindingRow = row; self->jumpBindingController = controller; }
+      else { self->sprintBindingRow = row; self->sprintBindingController = controller; }
+      Arcadia_ValueStack_popValues(thread, 1);
+    }
+    Arcadia_ValueStack_popValues(thread, 2);
+    // Control spacing and button dimensions are now owned by Menu.adl.
     populateVolumeSettings(thread, self);
     populateResolutionModes(thread, self);
+    createResolutionDropdown(thread, self, backendContext);
     updateResolutionControls(thread, self);
-    Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)self->applyButton, 120, 44);
-    Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)self->resetButton, 120, 44);
-    Arcadia_Engine_UI_WidgetNode_setSize(thread, (Arcadia_Engine_UI_WidgetNode*)self->backButton, 120, 44);
-    Arcadia_Engine_UI_StackPanelNode_setChildMargin(thread, self->optionsFooterRoot, (Arcadia_Object*)self->backButton, 0, 0, 328, 0);
     rebuildOptionsContent(thread, self);
-    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SegmentedChoiceNode_getChangedSignal(thread, self->optionsTabs), (Arcadia_Object*)self, &onOptionsTabChanged);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_TabBarNode_getSelectionChangedSignal(thread, self->optionsTabs), (Arcadia_Object*)self, &onOptionsTabChanged);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ToggleNode_getChangedSignal(thread, self->windowModeToggle), (Arcadia_Object*)self, &onWindowModeChanged);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->resetButton), (Arcadia_Object*)self, &onButtonActivated);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->backButton), (Arcadia_Object*)self, &onButtonActivated);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->applyButton), (Arcadia_Object*)self, &onButtonActivated);
-    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->resolutionPreviousButton), (Arcadia_Object*)self, &onButtonActivated);
-    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->resolutionNextButton), (Arcadia_Object*)self, &onButtonActivated);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SliderNode_getChangedSignal(thread, self->masterVolumeSlider), (Arcadia_Object*)self, &onMasterVolumeChanged);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SliderNode_getChangedSignal(thread, self->musicVolumeSlider), (Arcadia_Object*)self, &onMusicVolumeChanged);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_SliderNode_getChangedSignal(thread, self->effectsVolumeSlider), (Arcadia_Object*)self, &onEffectsVolumeChanged);
@@ -1072,6 +1246,10 @@ constructImpl
   self->ambienceBaseVolume = 1.f;
   self->windowModeRow = NULL; self->windowModeToggle = NULL;
   self->startRoot = NULL; self->optionsRoot = NULL; self->optionsContentRoot = NULL; self->optionsFooterRoot = NULL;
+  self->resolutionDropdownButton = NULL; self->resolutionPopup = NULL;
+  self->resolutionDropdown = NULL; self->resolutionSelectionConnection = NULL;
+  self->optionsStatusLabel = NULL; self->jumpBindingRow = NULL; self->sprintBindingRow = NULL;
+  self->bindingService = NULL; self->jumpBindingController = NULL; self->sprintBindingController = NULL;
   self->vsyncRow = NULL; self->brightnessRow = NULL; self->masterVolumeRow = NULL; self->musicVolumeRow = NULL; self->effectsVolumeRow = NULL; self->uiVolumeRow = NULL; self->voiceVolumeRow = NULL; self->mouseSensitivityRow = NULL; self->subtitlesRow = NULL; self->highContrastRow = NULL;
   self->resolutionRow = NULL; self->resolutionSelector = NULL;
   self->continueButton = NULL; self->newGameButton = NULL; self->optionsButton = NULL; self->exitButton = NULL;
@@ -1079,7 +1257,6 @@ constructImpl
   self->resolutionLabel = NULL;
   self->optionsTabs = NULL; self->vsyncToggle = NULL; self->brightnessSlider = NULL; self->masterVolumeSlider = NULL; self->musicVolumeSlider = NULL; self->effectsVolumeSlider = NULL; self->uiVolumeSlider = NULL; self->voiceVolumeSlider = NULL; self->mouseSensitivitySlider = NULL; self->subtitlesToggle = NULL; self->highContrastToggle = NULL;
   self->applyButton = NULL; self->resetButton = NULL; self->backButton = NULL;
-  self->resolutionPreviousButton = NULL; self->resolutionNextButton = NULL;
   Arcadia_LeaveConstructor(Arcadia_Games_Anima_MenuScene);
 }
 
@@ -1115,6 +1292,16 @@ visitImpl
   if (self->canvasNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->canvasNode);
   if (self->startRoot) Arcadia_Object_visit(thread, (Arcadia_Object*)self->startRoot);
   if (self->optionsRoot) Arcadia_Object_visit(thread, (Arcadia_Object*)self->optionsRoot);
+  if (self->optionsStatusLabel) Arcadia_Object_visit(thread, (Arcadia_Object*)self->optionsStatusLabel);
+  if (self->resolutionDropdownButton) Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolutionDropdownButton);
+  if (self->resolutionPopup) Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolutionPopup);
+  if (self->resolutionDropdown) Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolutionDropdown);
+  if (self->resolutionSelectionConnection) Arcadia_Object_visit(thread, (Arcadia_Object*)self->resolutionSelectionConnection);
+  if (self->jumpBindingRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->jumpBindingRow);
+  if (self->sprintBindingRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->sprintBindingRow);
+  if (self->bindingService) Arcadia_Object_visit(thread, (Arcadia_Object*)self->bindingService);
+  if (self->jumpBindingController) Arcadia_Object_visit(thread, (Arcadia_Object*)self->jumpBindingController);
+  if (self->sprintBindingController) Arcadia_Object_visit(thread, (Arcadia_Object*)self->sprintBindingController);
   if (self->windowModeRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->windowModeRow);
   if (self->vsyncRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->vsyncRow);
   if (self->brightnessRow) Arcadia_Object_visit(thread, (Arcadia_Object*)self->brightnessRow);
@@ -1165,6 +1352,10 @@ updateVisualsImpl
   Arcadia_Engine_Visuals_EnterPassNode_setFrameBufferNode(thread, self->enterPassNode, NULL);
   Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)self->enterPassNode, self->enterPassNode);
   Arcadia_Engine_UI_CanvasNode_setVisualsCanvasSize(thread, self->canvasNode, width, height);
+  if (self->jumpBindingController) Arcadia_Engine_UI_BindingRowController_refresh(thread, self->jumpBindingController);
+  if (self->sprintBindingController) Arcadia_Engine_UI_BindingRowController_refresh(thread, self->sprintBindingController);
+  if (self->resolutionDropdown && Arcadia_Engine_UI_DropdownController_isOpen(thread, self->resolutionDropdown))
+    Arcadia_Engine_UI_DropdownController_reposition(thread, self->resolutionDropdown);
   Arcadia_Engine_UI_CanvasNode_updateVisuals(thread, self->canvasNode, self->enterPassNode);
 }
 

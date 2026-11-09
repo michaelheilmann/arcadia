@@ -125,7 +125,11 @@ Arcadia_ByteArrayBuilder_ByteReader_visit
     Arcadia_Thread* thread,
     Arcadia_ByteArrayBuilder_ByteReader* self
   )
-{/*Intentionally empty.*/}
+{
+  if (self->source) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->source);
+  }
+}
 
 static Arcadia_BooleanValue
 Arcadia_ByteArrayBuilder_ByteReader_hasValueImpl
@@ -134,7 +138,7 @@ Arcadia_ByteArrayBuilder_ByteReader_hasValueImpl
     Arcadia_ByteArrayBuilder_ByteReader* self
   )
 {
-  return self->index < self->source->sz;
+  return self->index < Arcadia_ByteArrayBuilder_getSize(thread, self->source);
 }
 
 static Arcadia_BooleanValue
@@ -156,7 +160,7 @@ Arcadia_ByteArrayBuilder_ByteReader_getValueImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
     Arcadia_Thread_jump(thread);
   }
-  return self->source->p[self->index];
+  return Arcadia_ByteArrayBuilder_getAt(thread, self->source, self->index);
 }
 
 static void

@@ -1,0 +1,29 @@
+<section class="cxx entity object">
+<h2>ByteArrayFactory and storage</h2>
+<p><code>Arcadia_ByteArrayFactory_createImmutable</code> wraps an immutable
+<code>Arcadia_RuntimeByteArray</code> without copying and keeps the runtime value
+reachable through GC traversal. The immutable runtime value remains distinct
+from the object-level <code>Arcadia_ByteArray</code>.</p>
+<p><code>Arcadia_ByteArrayFactory_createMutable</code> creates mutable,
+fixed-size contiguous native storage; <code>createResizable</code> creates mutable,
+resizable contiguous native storage. Both zero-initialize their requested size.
+<code>copyMutable</code> and <code>copyResizable</code> make independent copies of
+contiguous ByteArray sources. <code>copyImmutable</code> creates a separate
+immutable runtime-value-backed snapshot; it never aliases the source, even if
+its capability queries report immutable. Non-contiguous sources are rejected
+by these initial copy APIs.</p>
+<p>The factory-owned writable storage is deallocated with its object. A borrow
+from <code>Arcadia_ByteArray_getBytes</code> is native C-only and valid only while
+the underlying object and its storage are alive; resizing can relocate or
+invalidate a borrowed pointer. The returned pointer must not be stored in
+PDL values. Clients must root managed objects while borrowing their storage.</p>
+<p>Fixed-size mutable storage supports <code>setAt</code> but rejects
+<code>resize</code> with <code>Arcadia_Status_OperationInvalid</code> even when
+the requested size equals the current size. Mutable writes outside the current
+bounds raise <code>Arcadia_Status_ArgumentValueInvalid</code>. Growable storage
+zeroes newly exposed elements, including after shrinking and regrowing.</p>
+<p>Legacy slices continue as fixed-size read-only views; this phase does not
+introduce writable slice forwarding or altered reader cursor behavior.
+<code>ByteArrayBuilder</code> and all three byte-reader implementations remain
+available for compatibility during the staged consolidation.</p>
+</section>

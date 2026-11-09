@@ -22,7 +22,7 @@
 #endif
 
 #include "Arcadia/Engine/UI/Layout.h"
-#include "Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h"
+#include "Arcadia/Engine/UI/LayoutAlignment.h"
 
 // A layout strategy: it holds configuration, not child widgets.
 Arcadia_declareObjectType(u8"Arcadia.Engine.UI.StackLayout", Arcadia_Engine_UI_StackLayout,
@@ -32,15 +32,15 @@ struct Arcadia_Engine_UI_StackLayoutDispatch {
   Arcadia_ObjectDispatch _parent;
 };
 
-// Compatibility with StackPanelNode's per-child layout slots. The container
-// owns these records; the layout only borrows them for the duration of a call.
+// Per-child layout slots are owned by the container; the layout
+// borrows these records only for the duration of a call.
 typedef struct Arcadia_Engine_UI_StackLayoutSlot {
   Arcadia_Integer32Value marginLeft;
   Arcadia_Integer32Value marginBottom;
   Arcadia_Integer32Value marginRight;
   Arcadia_Integer32Value marginTop;
   Arcadia_BooleanValue hasAlignmentOverride;
-  Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment;
+  Arcadia_Engine_UI_LayoutAlignment crossAlignment;
 } Arcadia_Engine_UI_StackLayoutSlot;
 
 typedef struct Arcadia_Engine_UI_StackLayoutSettings {
@@ -50,8 +50,8 @@ typedef struct Arcadia_Engine_UI_StackLayoutSettings {
   Arcadia_Integer32Value paddingBottom;
   Arcadia_Integer32Value paddingRight;
   Arcadia_Integer32Value paddingTop;
-  Arcadia_Engine_UI_StackPanelNodeAlignment mainAlignment;
-  Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment;
+  Arcadia_Engine_UI_LayoutAlignment mainAlignment;
+  Arcadia_Engine_UI_LayoutAlignment crossAlignment;
 } Arcadia_Engine_UI_StackLayoutSettings;
 
 struct Arcadia_Engine_UI_StackLayout {
@@ -83,25 +83,8 @@ Arcadia_Engine_UI_StackLayout_setAlignment
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_StackLayout* self,
-    Arcadia_Engine_UI_StackPanelNodeAlignment mainAlignment,
-    Arcadia_Engine_UI_StackPanelNodeAlignment crossAlignment
-  );
-
-// Transitional adapter: preserve StackPanelNode's current geometry and
-// setSize/setPosition semantics until its ADL definitions are migrated.
-// Slots and settings remain owned by the caller and are not retained.
-void
-Arcadia_Engine_UI_StackLayout_arrangeLegacy
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Object* container,
-    Arcadia_Engine_UI_StackLayoutSettings const* settings,
-    Arcadia_Engine_UI_StackLayoutSlot const* slots,
-    Arcadia_SizeValue slotCount,
-    Arcadia_Integer32Value left,
-    Arcadia_Integer32Value bottom,
-    Arcadia_Integer32Value width,
-    Arcadia_Integer32Value height
+    Arcadia_Engine_UI_LayoutAlignment mainAlignment,
+    Arcadia_Engine_UI_LayoutAlignment crossAlignment
   );
 
 #endif // ARCADIA_ENGINE_UI_LAYOUTS_STACKLAYOUT_H_INCLUDED

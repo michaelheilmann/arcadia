@@ -21,6 +21,11 @@
 #include "Arcadia/Engine/UI/Tests/EventBases/Alignment.h"
 #include "Arcadia/Engine/UI/Tests/EventBases/LayoutPanel.h"
 #include "Arcadia/Engine/UI/Tests/EventBases/LayoutPanelInput.h"
+#include "Arcadia/Engine/UI/Tests/EventBases/TabBar.h"
+#include "Arcadia/Engine/UI/Tests/EventBases/CanvasPopup.h"
+#include "Arcadia/Engine/UI/Tests/EventBases/Dropdown.h"
+#include "Arcadia/Engine/UI/Tests/EventBases/InputBinding.h"
+#include "Arcadia/Engine/UI/Tests/EventBases/BindingRow.h"
 #include "Arcadia/Engine/UI/Tests/EventBases/StackLayout.h"
 #include "Arcadia/Engine/UI/Tests/EventBases/Node.h"
 #include "Arcadia/Engine/UI/Tests/EventBases/Populate.h"
@@ -221,6 +226,11 @@ main
     { "Alignment", &Arcadia_Engine_UI_Tests_alignment },
     { "LayoutPanel", &Arcadia_Engine_UI_Tests_layoutPanel },
     { "LayoutPanelInput", &Arcadia_Engine_UI_Tests_layoutPanelInput },
+    { "TabBar", &Arcadia_Engine_UI_Tests_tabBar },
+    { "CanvasPopup", &Arcadia_Engine_UI_Tests_canvasPopup },
+    { "Dropdown", &Arcadia_Engine_UI_Tests_dropdown },
+    { "InputBinding", &Arcadia_Engine_UI_Tests_inputBinding },
+    { "BindingRow", &Arcadia_Engine_UI_Tests_bindingRow },
     { "StackLayout", &Arcadia_Engine_UI_Tests_stackLayout },
     { "Node", &Arcadia_Engine_UI_Tests_node },
     { "Populate", &Arcadia_Engine_UI_Tests_EventBases_populate },

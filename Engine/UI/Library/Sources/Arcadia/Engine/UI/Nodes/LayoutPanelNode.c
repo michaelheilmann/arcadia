@@ -221,6 +221,11 @@ handleMousePointerEventImpl
   Arcadia_Engine_UI_LayoutPanelNode* self = (Arcadia_Engine_UI_LayoutPanelNode*)object;
   Arcadia_Object* child = event->action == Arcadia_Engine_Input_MousePointerAction_Exited ? NULL :
     hitTestChild(thread, self, event->x, (Arcadia_Integer32Value)self->lastCanvasHeight - event->y);
+  if (event->action == Arcadia_Engine_Input_MousePointerAction_Scrolled) {
+    if (hasInterface(thread, child, (Arcadia_InterfaceType*)_Arcadia_Engine_UI_PointerInput_getType(thread)))
+      return Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, child, event);
+    return Arcadia_BooleanValue_False;
+  }
   if (self->hoveredChild != child) {
     setHovered(thread, self->hoveredChild, Arcadia_BooleanValue_False);
     setHovered(thread, child, Arcadia_BooleanValue_True);
@@ -366,11 +371,14 @@ constructImpl
   }
   Arcadia_ValueStack_popValues(thread, 1);
   self->layout = NULL;
+  self->backgroundPanelNode = NULL;
+  self->backgroundBorderWidth = 0;
   self->hoveredChild = NULL;
   self->pressedChild = NULL;
   self->focusedChild = NULL;
   self->lastCanvasHeight = 0.f;
   self->focused = Arcadia_BooleanValue_False;
+  ((Arcadia_Engine_UI_WidgetNode*)self)->sizePolicy = Arcadia_Engine_UI_WidgetNodeSizePolicy_Content;
   self->layoutDirty = Arcadia_BooleanValue_True;
   self->layoutInProgress = Arcadia_BooleanValue_False;
   self->hasArranged = Arcadia_BooleanValue_False;
@@ -401,6 +409,7 @@ visitImpl
   if (self->children) Arcadia_Object_visit(thread, (Arcadia_Object*)self->children);
   if (self->childConnections) Arcadia_Object_visit(thread, (Arcadia_Object*)self->childConnections);
   if (self->layout) Arcadia_Object_visit(thread, self->layout);
+  if (self->backgroundPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->backgroundPanelNode);
   if (self->hoveredChild) Arcadia_Object_visit(thread, self->hoveredChild);
   if (self->pressedChild) Arcadia_Object_visit(thread, self->pressedChild);
   if (self->focusedChild) Arcadia_Object_visit(thread, self->focusedChild);
@@ -516,7 +525,12 @@ measureImpl
     return;
   }
   Arcadia_Integer32Value width = 0, height = 0;
+  // Always measure descendants, even when this panel has a fixed desired size.
   Arcadia_Engine_UI_Layout_measure(thread, self->layout, (Arcadia_Object*)self, availableWidth, availableHeight, &width, &height);
+  if (widget->sizePolicy == Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed) {
+    width = widget->requestedWidth;
+    height = widget->requestedHeight;
+  }
   if (width < 0 || width > Arcadia_Integer32Value_Maximum / 2 ||
       height < 0 || height > Arcadia_Integer32Value_Maximum / 2) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
@@ -577,6 +591,12 @@ renderImpl
   Arcadia_Engine_Visuals_ViewportNode_getCanvasSize(thread, enterPassNode->viewportNode, &canvasWidth, &canvasHeight);
   panel->lastCanvasHeight = canvasHeight;
   Arcadia_Engine_UI_LayoutPanelNode_updateLayout(thread, panel);
+  if (panel->backgroundPanelNode) {
+    Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)panel;
+    Arcadia_Engine_UI_PanelNode_updateBackgroundGeometry(thread, panel->backgroundPanelNode,
+      widget->left, widget->bottom, widget->width, widget->height, panel->backgroundBorderWidth);
+    Arcadia_Engine_UI_Renderable_render(thread, (Arcadia_Object*)panel->backgroundPanelNode, enterPassNode);
+  }
   Arcadia_SizeValue n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)panel->children);
   for (Arcadia_SizeValue i = 0; i < n; ++i) {
     Arcadia_Object* child = Arcadia_List_getObjectReferenceValueAt(thread, panel->children, i);
@@ -709,11 +729,11 @@ Arcadia_Engine_UI_LayoutPanelNode_setChildCrossAlignment
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_LayoutPanelNode* self,
     Arcadia_Object* child,
-    Arcadia_Engine_UI_StackPanelNodeAlignment alignment
+    Arcadia_Engine_UI_LayoutAlignment alignment
   )
 {
-  if (alignment < Arcadia_Engine_UI_StackPanelNodeAlignment_Start ||
-      alignment > Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch) {
+  if (alignment < Arcadia_Engine_UI_LayoutAlignment_Start ||
+      alignment > Arcadia_Engine_UI_LayoutAlignment_Stretch) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
@@ -778,17 +798,17 @@ Arcadia_Engine_UI_LayoutPanelNode_clearHover
   self->hoveredChild = NULL;
 }
 
-static Arcadia_Engine_UI_StackPanelNodeAlignment
+static Arcadia_Engine_UI_LayoutAlignment
 parseAlignment
   (
     Arcadia_Thread* thread,
     Arcadia_String* value
   )
 {
-  if (Arcadia_String_isEqualTo_pn(thread, value, "Start", 5)) return Arcadia_Engine_UI_StackPanelNodeAlignment_Start;
-  if (Arcadia_String_isEqualTo_pn(thread, value, "Center", 6)) return Arcadia_Engine_UI_StackPanelNodeAlignment_Center;
-  if (Arcadia_String_isEqualTo_pn(thread, value, "End", 3)) return Arcadia_Engine_UI_StackPanelNodeAlignment_End;
-  if (Arcadia_String_isEqualTo_pn(thread, value, "Stretch", 7)) return Arcadia_Engine_UI_StackPanelNodeAlignment_Stretch;
+  if (Arcadia_String_isEqualTo_pn(thread, value, "Start", 5)) return Arcadia_Engine_UI_LayoutAlignment_Start;
+  if (Arcadia_String_isEqualTo_pn(thread, value, "Center", 6)) return Arcadia_Engine_UI_LayoutAlignment_Center;
+  if (Arcadia_String_isEqualTo_pn(thread, value, "End", 3)) return Arcadia_Engine_UI_LayoutAlignment_End;
+  if (Arcadia_String_isEqualTo_pn(thread, value, "Stretch", 7)) return Arcadia_Engine_UI_LayoutAlignment_Stretch;
   Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
   Arcadia_Thread_jump(thread);
 }
@@ -814,7 +834,9 @@ Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition
     Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_Engine_UI_LayoutPanelNode* panel = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
+  Arcadia_Engine_UI_LayoutPanelNode* panel = source->tabBehavior
+    ? (Arcadia_Engine_UI_LayoutPanelNode*)Arcadia_Engine_UI_TabBarNode_create(thread, source->vertical, source->gap)
+    : Arcadia_Engine_UI_LayoutPanelNode_create(thread);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)panel);
   Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)panel,
     source->left, source->bottom, (Arcadia_Integer32Value)source->width, (Arcadia_Integer32Value)source->height);
@@ -826,8 +848,65 @@ Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition
     parseAlignment(thread, source->mainAlignment), parseAlignment(thread, source->crossAlignment));
   Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
   Arcadia_ValueStack_popValues(thread, 1);
+  if (source->sizePolicy && Arcadia_String_isEqualTo_pn(thread, source->sizePolicy, "Fixed", 5)) {
+    Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy(thread, panel, Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed);
+  }
+  panel->backgroundBorderWidth = source->backgroundBorderWidth;
+  if (source->backgroundModelName) {
+    Arcadia_ADL_Definition* model = Arcadia_ADL_Definitions_getDefinitionOrNull(thread,
+      ((Arcadia_ADL_Definition*)source)->definitions, source->backgroundModelName);
+    if (!model || !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)model, _Arcadia_ADL_ModelDefinition_getType(thread))) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    panel->backgroundPanelNode = Arcadia_Engine_UI_PanelNode_create(thread, backendContext, (Arcadia_ADL_ModelDefinition*)model);
+  }
   Arcadia_Engine_UI_WidgetNode_setName(thread, (Arcadia_Engine_UI_WidgetNode*)panel, ((Arcadia_ADL_Definition*)source)->name);
   Arcadia_Engine_UI_populateContainerFromDefinition(thread, backendContext, (Arcadia_Object*)panel, (Arcadia_Object*)source);
+  if (source->selectedChildName) {
+    Arcadia_Engine_UI_ButtonNode* selected = NULL;
+    Arcadia_Value expectedName = Arcadia_Value_makeObjectReferenceValue(source->selectedChildName);
+    Arcadia_Natural64Value n = Arcadia_Engine_UI_Container_getChildCount(thread, (Arcadia_Object*)panel);
+    for (Arcadia_Natural64Value i = 0; i < n; ++i) {
+      Arcadia_Engine_UI_ButtonNode* button = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)panel, i);
+      Arcadia_String* name = Arcadia_Engine_UI_WidgetNode_getName(thread, (Arcadia_Engine_UI_WidgetNode*)button);
+      if (name && Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)name, &expectedName)) {
+        selected = button;
+        break;
+      }
+    }
+    if (!selected || !selected->enabled) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_Engine_UI_TabBarNode_select(thread, (Arcadia_Engine_UI_TabBarNode*)panel, selected);
+  }
+  if (source->childLayouts) {
+    if (Arcadia_Engine_UI_Container_getChildCount(thread, (Arcadia_Object*)panel) != source->childLayoutCount) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    for (Arcadia_SizeValue i = 0; i < source->childLayoutCount; ++i) {
+      Arcadia_ADL_UI_PanelChildLayout const* slot = &source->childLayouts[i];
+      if (!slot->configured) continue;
+      Arcadia_Object* child = Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)panel, i);
+      Arcadia_Engine_UI_LayoutPanelNode_setChildMargin(thread, panel, child,
+        slot->marginLeft, slot->marginBottom, slot->marginRight, slot->marginTop);
+      if (slot->hasCrossAlignment) {
+        Arcadia_Engine_UI_LayoutAlignment alignment = Arcadia_Engine_UI_LayoutAlignment_Center;
+        switch (slot->crossAlignment) {
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_Start: alignment = Arcadia_Engine_UI_LayoutAlignment_Start; break;
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_Center: alignment = Arcadia_Engine_UI_LayoutAlignment_Center; break;
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_End: alignment = Arcadia_Engine_UI_LayoutAlignment_End; break;
+          case Arcadia_ADL_UI_PanelChildCrossAlignment_Stretch: alignment = Arcadia_Engine_UI_LayoutAlignment_Stretch; break;
+          default:
+            Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+            Arcadia_Thread_jump(thread);
+        }
+        Arcadia_Engine_UI_LayoutPanelNode_setChildCrossAlignment(thread, panel, child, alignment);
+      }
+    }
+  }
   Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)panel,
     (Arcadia_Integer32Value)source->width, (Arcadia_Integer32Value)source->height);
   Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)panel,
@@ -835,6 +914,26 @@ Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition
   Arcadia_Thread_popJumpTarget(thread);
   Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   return panel;
+}
+
+void
+Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_LayoutPanelNode* self,
+    Arcadia_Engine_UI_WidgetNodeSizePolicy policy
+  )
+{
+  if (policy != Arcadia_Engine_UI_WidgetNodeSizePolicy_Content &&
+      policy != Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)self;
+  if (widget->sizePolicy != policy) {
+    widget->sizePolicy = policy;
+    self->layoutDirty = Arcadia_BooleanValue_True;
+  }
 }
 
 Arcadia_Object*

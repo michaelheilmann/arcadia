@@ -122,7 +122,8 @@ Arcadia_ByteArraySliceImpl_constructImpl
   self->start = Arcadia_ValueStack_getSizeValue(thread, 2);
   self->size = Arcadia_ValueStack_getSizeValue(thread, 1);
   // Example:We have and array [0,1,2,4,5]. Then the slices (4,1) and (5,0) are both valid.
-  if (self->start + self->size > Arcadia_ByteArray_getSize(thread, self->byteArray)) {
+  Arcadia_SizeValue backingSize = Arcadia_ByteArray_getSize(thread, self->byteArray);
+  if (self->start > backingSize || self->size > backingSize - self->start) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
@@ -180,6 +181,21 @@ Arcadia_ByteArraySliceImpl_create
   _Arcadia_EndCreate(Arcadia_ByteArraySliceImpl);
 }
 
+// A slice's fixed logical range must remain inside its resizable backing.
+static void
+Arcadia_ByteArraySliceImpl_validateBacking
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArraySliceImpl const* self
+  )
+{
+  Arcadia_SizeValue backingSize = Arcadia_ByteArray_getSize(thread, self->byteArray);
+  if (self->start > backingSize || self->size > backingSize - self->start) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+}
+
 static Arcadia_Natural8Value
 Arcadia_ByteArraySliceImpl_getAt
   (
@@ -192,6 +208,7 @@ Arcadia_ByteArraySliceImpl_getAt
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
+  Arcadia_ByteArraySliceImpl_validateBacking(thread, self);
   return Arcadia_ByteArray_getAt(thread, self->byteArray, self->start + index);
 }
 
@@ -201,7 +218,10 @@ Arcadia_ByteArraySliceImpl_getBytes
     Arcadia_Thread* thread,
     Arcadia_ByteArraySliceImpl const* self
   )
-{ return Arcadia_ByteArray_getBytes(thread, self->byteArray) + self->start; }
+{
+  Arcadia_ByteArraySliceImpl_validateBacking(thread, self);
+  return Arcadia_ByteArray_getBytes(thread, self->byteArray) + self->start;
+}
 
 static Arcadia_SizeValue
 Arcadia_ByteArraySliceImpl_getNumberOfBytes

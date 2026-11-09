@@ -1269,7 +1269,24 @@ collector does not guarantee finalization order.
 <section class="cxx entity object">
 <h1 id="Arcadia_ByteArray">Arcadia_ByteArray</h1>
 <p><code>Arcadia_ByteArray</code> extends <code>Arcadia_Object</code>.</p>
-<p><code>Arcadia_ByteArray</code> represents a mutable sequence of Bytes.</p>
+<p><code>Arcadia_ByteArray</code> represents a sequence of bytes whose supported operations are described by stable capabilities.</p>
+<p>Every instance reports whether it supports mutation (<code>Arcadia_ByteArray_isMutable</code>),
+resizing (<code>Arcadia_ByteArray_isResizable</code>) and contiguous storage
+(<code>Arcadia_ByteArray_isContiguous</code>). These properties do not change during
+an instance's lifetime. They are independent of memory ownership.</p>
+<p>The common <code>Arcadia_ByteArray_setAt</code> and
+<code>Arcadia_ByteArray_resize</code> operations raise
+<code>Arcadia_Status_OperationInvalid</code> when unsupported, before validating
+an index or requested size. Invalid indexes of supporting implementations
+must raise <code>Arcadia_Status_ArgumentValueInvalid</code>.</p>
+<p>The existing <code>RuntimeByteArray</code> wrapper and legacy slice views
+are immutable, fixed-size and contiguous. A slice retains its backing object;
+its bounds are validated without arithmetic overflow. Slices remain read-only
+in this initial capability-dispatch phase.</p>
+<p>Native <code>getBytes</code> pointers are borrowed; the caller must keep the
+owning object reachable. Contiguity does not imply pointers remain valid after
+resizing or storage relocation. No raw memory addresses are transported through
+<code>Arcadia.Value</code> or PDL.</p>
 </section>
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -1470,6 +1487,37 @@ collector does not guarantee finalization order.
   </section>
 
 </section>
+
+<section class="cxx entity object">
+<h2>ByteArrayFactory and storage</h2>
+<p><code>Arcadia_ByteArrayFactory_createImmutable</code> wraps an immutable
+<code>Arcadia_RuntimeByteArray</code> without copying and keeps the runtime value
+reachable through GC traversal. The immutable runtime value remains distinct
+from the object-level <code>Arcadia_ByteArray</code>.</p>
+<p><code>Arcadia_ByteArrayFactory_createMutable</code> creates mutable,
+fixed-size contiguous native storage; <code>createResizable</code> creates mutable,
+resizable contiguous native storage. Both zero-initialize their requested size.
+<code>copyMutable</code> and <code>copyResizable</code> make independent copies of
+contiguous ByteArray sources. <code>copyImmutable</code> creates a separate
+immutable runtime-value-backed snapshot; it never aliases the source, even if
+its capability queries report immutable. Non-contiguous sources are rejected
+by these initial copy APIs.</p>
+<p>The factory-owned writable storage is deallocated with its object. A borrow
+from <code>Arcadia_ByteArray_getBytes</code> is native C-only and valid only while
+the underlying object and its storage are alive; resizing can relocate or
+invalidate a borrowed pointer. The returned pointer must not be stored in
+PDL values. Clients must root managed objects while borrowing their storage.</p>
+<p>Fixed-size mutable storage supports <code>setAt</code> but rejects
+<code>resize</code> with <code>Arcadia_Status_OperationInvalid</code> even when
+the requested size equals the current size. Mutable writes outside the current
+bounds raise <code>Arcadia_Status_ArgumentValueInvalid</code>. Growable storage
+zeroes newly exposed elements, including after shrinking and regrowing.</p>
+<p>Legacy slices continue as fixed-size read-only views; this phase does not
+introduce writable slice forwarding or altered reader cursor behavior.
+<code>ByteArrayBuilder</code> and all three byte-reader implementations remain
+available for compatibility during the staged consolidation.</p>
+</section>
+
 
 <section class="cxx entity object">
 <h1 id="Arcadia_ByteArrayBuilder">Arcadia_ByteArrayBuilder</h1>
@@ -6049,7 +6097,7 @@ collector does not guarantee finalization order.
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 6 November 2026.</div>
+    <div>Last modified on 9 November 2026.</div>
     </div>
   </div>
   <div class="center-column">

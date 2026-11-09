@@ -235,7 +235,7 @@ testSearch
   for (unsigned i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural8Value(thread, 77);
   NodeSearchBranch* root = createBranch(thread);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, root);
-  Arcadia_Engine_UI_StackPanelNode* branch = Arcadia_Engine_UI_StackPanelNode_create(thread, 0, 0, 100, 100, true, 0);
+  Arcadia_Engine_UI_LayoutPanelNode* branch = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
   root->first = (void*)branch; root->count = 1;
   NodeSearchWidget* deep = createWidget(thread, "needle");
   Arcadia_ValueStack_pushObjectReferenceValue(thread, deep);

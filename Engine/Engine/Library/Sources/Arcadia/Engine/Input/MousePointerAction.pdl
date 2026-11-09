@@ -23,4 +23,7 @@ enumeration Arcadia.Engine.Input.MousePointerAction {
 
   Moved = 2
 
+  // Position is in window coordinates, wheel deltas in 120 units per notch.
+  Scrolled = 3
+
 }

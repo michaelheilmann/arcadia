@@ -16,6 +16,7 @@
 
 #include "Arcadia/Engine/UI/Tests/EventBases/Interfaces.h"
 #include "Arcadia/Engine/UI/Include.h"
+#include "Arcadia/Media/Include.h"
 #include <stddef.h>
 #include <math.h>
 
@@ -833,24 +834,33 @@ testWidgets
   Arcadia_ValueStack_pushObjectReferenceValue(thread, definitions);
   Arcadia_ADL_Context_readFromString(thread, Arcadia_ADL_Context_getOrCreate(thread), definitions,
     Arcadia_String_createFromCxxString(thread, "{ type: \"Color\", name: \"Tests.InterfaceButton.Background\", red: 30, green: 40, blue: 50 }"), false);
+  Arcadia_ADL_Context_readFromString(thread, Arcadia_ADL_Context_getOrCreate(thread), definitions,
+    Arcadia_String_createFromCxxString(thread, "{ type: \"Color\", name: \"Tests.InterfaceButton.Selected\", red: 80, green: 100, blue: 120 }"), false);
   Arcadia_ADL_UI_ButtonDefinition* source = Arcadia_ADL_UI_ButtonDefinition_create(thread, definitions,
     Arcadia_String_createFromCxxString(thread, "Tests.InterfaceButton"), 10, 20, 100, 40,
     Arcadia_String_createFromCxxString(thread, ""), Arcadia_String_createFromCxxString(thread, "Left"), Arcadia_String_createFromCxxString(thread, "Bottom"),
-    Arcadia_String_createFromCxxString(thread, "Tests.InterfaceButton.Background"), NULL, NULL, NULL, NULL, 16, 0, 0, 0, 0);
+    Arcadia_String_createFromCxxString(thread, "Tests.InterfaceButton.Background"), NULL,
+    Arcadia_String_createFromCxxString(thread, "Tests.InterfaceButton.Selected"), NULL, NULL, 16, 0, 0, 0, 0);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, source);
   Arcadia_Engine_UI_ButtonNode* button = Arcadia_Engine_UI_ButtonNode_create(thread, NULL, source);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, button);
   Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, button), (Arcadia_Object*)button, &onActivate);
   Arcadia_Engine_UI_Activatable_activate(thread, (void*)button);
   Arcadia_Tests_assertTrue(thread, activations == 1);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Engine_UI_ButtonNode_getSelected(thread, button));
+  Arcadia_Engine_UI_ButtonNode_setSelected(thread, button, Arcadia_BooleanValue_True);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_ButtonNode_getSelected(thread, button) && activations == 1);
   Arcadia_Engine_UI_ButtonNode_setEnabled(thread, button, false);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_ButtonNode_getSelected(thread, button));
   Arcadia_Engine_UI_Activatable_activate(thread, (void*)button);
   Arcadia_Tests_assertTrue(thread, activations == 1);
   Arcadia_Engine_UI_ButtonNode_setEnabled(thread, button, true);
   Arcadia_Engine_UI_Focusable_focus(thread, (void*)button);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_Focusable_isFocused(thread, (void*)button));
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_Focusable_isFocused(thread, (void*)button) &&
+                            Arcadia_Engine_UI_ButtonNode_getSelected(thread, button));
   Arcadia_Engine_UI_Focusable_blur(thread, (void*)button);
-  Arcadia_Tests_assertTrue(thread, !Arcadia_Engine_UI_Focusable_isFocused(thread, (void*)button));
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Engine_UI_Focusable_isFocused(thread, (void*)button) &&
+                            Arcadia_Engine_UI_ButtonNode_getSelected(thread, button));
   Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_HitTestable_hitTest(thread, (void*)button, 10, 20));
   Arcadia_Tests_assertTrue(thread, !Arcadia_Engine_UI_HitTestable_hitTest(thread, (void*)button, 110, 60));
   Arcadia_Engine_Input_KeyboardKeyEvent* event = Arcadia_Engine_Input_KeyboardKeyEvent_create(thread, 0, Arcadia_Engine_Input_KeyboardKeyAction_Released, Arcadia_Engine_Input_KeyboardKey_Return);
@@ -864,8 +874,28 @@ testWidgets
   Arcadia_ValueStack_pushObjectReferenceValue(thread, viewport);
   Arcadia_Engine_Visuals_EnterPassNode_setViewportNode(thread, pass, viewport);
   Arcadia_Engine_UI_Renderable_render(thread, (void*)button, pass);
+  // Selection reuses the pressed palette without pressing or activating.
+  Arcadia_Real32Value* buttonVertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices
+    (thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, button->mesh));
+  Arcadia_Tests_assertTrue(thread, buttonVertices[3] == 80.f / 255.f &&
+                            buttonVertices[4] == 100.f / 255.f &&
+                            buttonVertices[5] == 120.f / 255.f);
+  Arcadia_Engine_UI_ButtonNode_setHovered(thread, button, Arcadia_BooleanValue_True);
+  Arcadia_Engine_UI_Renderable_render(thread, (void*)button, pass);
+  Arcadia_Tests_assertTrue(thread, buttonVertices[3] == 80.f / 255.f);
+  // A disabled selected tab remains logically selected, but uses disabled styling.
+  Arcadia_Engine_UI_ButtonNode_setEnabled(thread, button, Arcadia_BooleanValue_False);
+  Arcadia_Engine_UI_Renderable_render(thread, (void*)button, pass);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_ButtonNode_getSelected(thread, button) &&
+                            buttonVertices[3] == 30.f / 255.f);
+  Arcadia_Engine_UI_ButtonNode_setEnabled(thread, button, Arcadia_BooleanValue_True);
+  Arcadia_Engine_UI_ButtonNode_setSelected(thread, button, Arcadia_BooleanValue_False);
+  Arcadia_Engine_UI_Renderable_render(thread, (void*)button, pass);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Engine_UI_ButtonNode_getSelected(thread, button) &&
+                            buttonVertices[3] == 30.f / 255.f && activations == 2);
   Arcadia_Engine_UI_ScrollPanelNode* panel = Arcadia_Engine_UI_ScrollPanelNode_create(thread, 0, 0, 100, 60);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, panel);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Engine_Visuals_ViewportNode_getDepthTestEnabled(thread, panel->viewportNode));
   Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, panel, 500, 400);
   Arcadia_Engine_UI_Scrollable_scrollTo(thread, (void*)panel, 37, 53);
   Arcadia_Integer32Value x, y;
@@ -874,6 +904,36 @@ testWidgets
   Arcadia_Engine_UI_Scrollable_scrollBy(thread, (void*)panel, 11, -7);
   Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
   Arcadia_Tests_assertTrue(thread, x == 48 && y == 46);
+  // Up/Down must be handled when the scroll panel has keyboard focus.
+  event->action = Arcadia_Engine_Input_KeyboardKeyAction_Released;
+  event->key = Arcadia_Engine_Input_KeyboardKey_UpArrow;
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent(thread, (void*)panel, event));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 70);
+  event->key = Arcadia_Engine_Input_KeyboardKey_DownArrow;
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_KeyboardInput_handleKeyboardKeyEvent(thread, (void*)panel, event));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 46);
+  // Wheel events use screen-space pointer coordinates and do not require focus.
+  panel->lastCanvasHeight = 100.f;
+  Arcadia_Engine_Input_MousePointerEvent* wheel = Arcadia_Engine_Input_MousePointerEvent_createScrolled(thread, 0, 12, 60, 0, -120);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, wheel);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (void*)panel, wheel));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 22);
+  wheel->wheelDeltaY = 60;
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (void*)panel, wheel));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 22);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (void*)panel, wheel));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 46);
+  wheel->x = 500;
+  wheel->wheelDeltaY = -120;
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (void*)panel, wheel));
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, panel, &x, &y);
+  Arcadia_Tests_assertTrue(thread, x == 48 && y == 46);
+  Arcadia_ValueStack_popValues(thread, 1);
   Arcadia_Engine_Input_MousePointerEvent* pointer = Arcadia_Engine_Input_MousePointerEvent_create(thread, 0, Arcadia_Engine_Input_MousePointerAction_Entered, 11, 22);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, pointer);
   Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (void*)button, pointer) && button->hovered);

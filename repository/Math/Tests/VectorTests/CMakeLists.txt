@@ -24,6 +24,15 @@ BeginProduct(${this} test)
 SetFolder(${this} "Math")
 
 OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/Main.c)
+OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/Vector2.c)
+OnHeaderFile(${this} Arcadia.Math.Tests.VectorTests/Vector2.h)
+OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/ComponentMultiply.c)
+OnHeaderFile(${this} Arcadia.Math.Tests.VectorTests/ComponentMultiply.h)
+OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/NormalizeOrZero.c)
+OnHeaderFile(${this} Arcadia.Math.Tests.VectorTests/NormalizeOrZero.h)
+OnSourceFile(${this} Arcadia.Math.Tests.VectorTests/NativeValues.c)
+OnHeaderFile(${this} Arcadia.Math.Tests.VectorTests/NativeValues.h)
+OnInlayFile(${this} Arcadia.Math.Tests.VectorTests/NativeValues.i)
 
 OnModuleDependency(${this} ${MyProjectName}.Math PRIVATE)
 

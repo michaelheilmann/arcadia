@@ -38,18 +38,87 @@ foreach(architecture IN LISTS architectures)
   set(url "${MyDependenciesGitHubReleasePrefix}/dependencies-${architecture}.zip")
   set(destination "${MyDependenciesDirectory}/${architecture}")
 
-  message(STATUS "Downloading ${url} to ${archive}")
-  file(DOWNLOAD
-       "${url}"
-       "${archive}"
-       SHOW_PROGRESS
-       STATUS status)
+  # Retry only transient HTTP responses and interrupted transfers. Missing
+  # release assets (404), certificate errors, and other permanent failures
+  # must still fail immediately.
+  set(maxAttempts 3)
+  foreach(attempt RANGE 1 ${maxAttempts})
+    message(STATUS "Downloading ${url} to ${archive} (attempt ${attempt}/${maxAttempts})")
+    file(DOWNLOAD
+         "${url}"
+         "${archive}"
+         SHOW_PROGRESS
+         TIMEOUT 120
+         INACTIVITY_TIMEOUT 30
+         STATUS status
+         LOG downloadLog)
 
-  list(GET status 0 statusCode)
-  list(GET status 1 statusMessage)
-  if (NOT statusCode EQUAL 0)
-    message(FATAL_ERROR "Downloading ${url} failed: ${statusMessage}")
-  endif()
+    list(GET status 0 transferCode)
+    list(GET status 1 transferMessage)
+    if (transferCode EQUAL 0)
+      break()
+    endif()
+
+    # Keep the final response after proxy negotiation and redirects.
+    string(REGEX MATCHALL "HTTP/[0-9.]+[ \t]+[0-9][0-9][0-9]" httpResponses "${downloadLog}")
+    set(httpDetails "")
+    set(httpStatus "")
+    if (httpResponses)
+      list(GET httpResponses -1 httpResponse)
+      set(httpDetails "; ${httpResponse}")
+      string(REGEX MATCH "[0-9][0-9][0-9]$" httpStatus "${httpResponse}")
+    endif()
+
+    file(REMOVE "${archive}")
+    set(errorDetails "libcurl ${transferCode}: ${transferMessage}${httpDetails}")
+    set(retryable FALSE)
+    if (httpStatus MATCHES "^(429|500|502|503|504)$")
+      set(retryable TRUE)
+    elseif (httpStatus STREQUAL "" AND transferCode MATCHES "^(7|28|52|56)$")
+      # No definitive HTTP rejection; connection interrupted or timed out.
+      set(retryable TRUE)
+    endif()
+
+    # Some CI gateways consistently return HTTP/2 504. On Windows, try a
+    # different HTTP stack/protocol before giving up, without suppressing
+    # certificate verification or treating HTTP failures as successful.
+    if (WIN32 AND attempt EQUAL maxAttempts AND httpStatus STREQUAL "504")
+      find_program(arcadiaCurlExecutable NAMES curl.exe)
+      if (arcadiaCurlExecutable)
+        message(STATUS "HTTP/2 504 after ${maxAttempts} attempts; trying curl.exe with HTTP/1.1")
+        execute_process(
+          COMMAND "${arcadiaCurlExecutable}"
+                  --http1.1 --fail --location --silent --show-error
+                  --connect-timeout 30 --max-time 120
+                  --output "${archive}"
+                  --write-out "HTTP %{http_code}"
+                  "${url}"
+          RESULT_VARIABLE curlExitCode
+          OUTPUT_VARIABLE curlHttpStatus
+          ERROR_VARIABLE curlError)
+        string(STRIP "${curlHttpStatus}" curlHttpStatus)
+        string(STRIP "${curlError}" curlError)
+        if (curlExitCode EQUAL 0)
+          message(STATUS "Dependency download succeeded using curl.exe HTTP/1.1 (${curlHttpStatus})")
+          break()
+        endif()
+        file(REMOVE "${archive}")
+        set(errorDetails "${errorDetails}; curl.exe HTTP/1.1 failed (exit ${curlExitCode}; ${curlHttpStatus}; ${curlError})")
+      else()
+        message(WARNING "curl.exe not found; HTTP/1.1 fallback unavailable")
+      endif()
+    endif()
+
+    if (NOT retryable OR attempt EQUAL maxAttempts)
+      message(FATAL_ERROR
+        "Downloading ${url} failed after ${attempt} attempt(s) (${errorDetails})")
+    endif()
+
+    # Short bounded backoff: two seconds, then four seconds.
+    math(EXPR delay "${attempt} * 2")
+    message(WARNING "Download failed (${errorDetails}); retrying in ${delay}s")
+    execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep "${delay}")
+  endforeach()
 
   file(REMOVE_RECURSE "${destination}")
   file(MAKE_DIRECTORY "${destination}")

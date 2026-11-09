@@ -35,7 +35,6 @@
           <tr><td><code>"UI.Button"</code></td><td>6 User interface definitions</td></tr>
           <tr><td><code>"UI.Label"</code></td><td>6 User interface definitions</td></tr>
           <tr><td><code>"UI.Panel"</code></td><td>6 User interface definitions</td></tr>
-          <tr><td><code>"UI.StackPanel"</code></td><td>6 User interface definitions</td></tr>
           <tr><td><code>"UI.SegmentedChoice"</code></td><td>6 User interface definitions</td></tr>
           <tr><td><code>"UI.Slider"</code></td><td>6 User interface definitions</td></tr>
           <tr><td><code>"UI.Toggle"</code></td><td>6 User interface definitions</td></tr>

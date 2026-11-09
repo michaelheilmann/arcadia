@@ -154,17 +154,24 @@ testFactories
           Arcadia_ValueStack_popValues(thread, 1);
         }
       }
-      for (Arcadia_Integer32Value action = Arcadia_Engine_Input_MousePointerAction_Entered; action <= Arcadia_Engine_Input_MousePointerAction_Moved; ++action) {
+      for (Arcadia_Integer32Value action = Arcadia_Engine_Input_MousePointerAction_Entered; action <= Arcadia_Engine_Input_MousePointerAction_Scrolled; ++action) {
         Arcadia_Engine_Input_MousePointerEvent* self = Arcadia_Engine_Input_MousePointerEvent_create(thread, boundaries[t], action, pairs[p][0], pairs[p][1]);
         Arcadia_ValueStack_pushObjectReferenceValue(thread, self);
         Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
         Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_Event*)self)->timestamp == boundaries[t] && self->action == action);
         Arcadia_Tests_assertTrue(thread, self->x == pairs[p][0] && self->y == pairs[p][1]);
+        Arcadia_Tests_assertTrue(thread, self->wheelDeltaX == 0 && self->wheelDeltaY == 0);
         Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)self, _Arcadia_Engine_Event_getType(thread)));
         Arcadia_ValueStack_popValues(thread, 1);
       }
     }
   }
+  Arcadia_Engine_Input_MousePointerEvent* wheel = Arcadia_Engine_Input_MousePointerEvent_createScrolled(thread, 17, 23, 31, -120, 240);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, wheel);
+  Arcadia_Tests_assertTrue(thread, wheel->action == Arcadia_Engine_Input_MousePointerAction_Scrolled);
+  Arcadia_Tests_assertTrue(thread, wheel->x == 23 && wheel->y == 31 && wheel->wheelDeltaX == -120 && wheel->wheelDeltaY == 240);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_Event*)wheel)->timestamp == 17);
+  Arcadia_ValueStack_popValues(thread, 1);
 }
 
 static void

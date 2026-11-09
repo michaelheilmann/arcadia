@@ -63,9 +63,9 @@ Arcadia_Math_Matrix4x4Real64Value_setRotationY
     Arcadia_Real64Value a
   )
 {
-  a = Arcadia_Math_degreesToRadiansReal32Value(thread, a);
-  Arcadia_Real32Value c = Arcadia_cosReal64Value(thread, a);
-  Arcadia_Real32Value s = Arcadia_sinReal64Value(thread, a);
+  a = Arcadia_Math_degreesToRadiansReal64Value(thread, a);
+  Arcadia_Real64Value c = Arcadia_cosReal64Value(thread, a);
+  Arcadia_Real64Value s = Arcadia_sinReal64Value(thread, a);
 
   // column #1
   self->elements[0][0] = +c;

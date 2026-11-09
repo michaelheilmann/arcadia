@@ -212,7 +212,7 @@ testInput
   Arcadia_Engine_UI_StackLayout* layout = Arcadia_Engine_UI_StackLayout_create(thread, Arcadia_BooleanValue_True, 0);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)layout);
   Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout,
-    Arcadia_Engine_UI_StackPanelNodeAlignment_Start, Arcadia_Engine_UI_StackPanelNodeAlignment_Center);
+    Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
   Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
   Arcadia_ValueStack_popValues(thread, 1);
   InputProbe* first = createProbe(thread);

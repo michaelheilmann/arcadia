@@ -19,6 +19,10 @@
 #include <stdlib.h>
 
 #include "Arcadia/Math/Include.h"
+#include "Vector2.h"
+#include "ComponentMultiply.h"
+#include "NormalizeOrZero.h"
+#include "NativeValues.h"
 
 static void
 test1
@@ -584,6 +588,28 @@ main
   )
 {
   static const Arcadia_Testing_Case cases[] = {
+    { "Vector2Real32", &Arcadia_Math_Tests_Vector2_real32 },
+    { "Vector2Real64", &Arcadia_Math_Tests_Vector2_real64 },
+    { "VectorTemplateReal32", &Arcadia_Math_Tests_Vector2_templateReal32 },
+    { "VectorTemplateReal64", &Arcadia_Math_Tests_Vector2_templateReal64 },
+    { "NativeValuesVector2Real32", &Arcadia_Math_Tests_nativeVectorValues2Real32_run },
+    { "NativeValuesVector2Real64", &Arcadia_Math_Tests_nativeVectorValues2Real64_run },
+    { "NativeValuesVector3Real32", &Arcadia_Math_Tests_nativeVectorValues3Real32_run },
+    { "NativeValuesVector3Real64", &Arcadia_Math_Tests_nativeVectorValues3Real64_run },
+    { "NativeValuesVector4Real32", &Arcadia_Math_Tests_nativeVectorValues4Real32_run },
+    { "NativeValuesVector4Real64", &Arcadia_Math_Tests_nativeVectorValues4Real64_run },
+    { "MultiplyComponentsVector2Real32", &Arcadia_Math_Tests_multiplyComponentsVector2Real32 },
+    { "MultiplyComponentsVector2Real64", &Arcadia_Math_Tests_multiplyComponentsVector2Real64 },
+    { "MultiplyComponentsVector3Real32", &Arcadia_Math_Tests_multiplyComponentsVector3Real32 },
+    { "MultiplyComponentsVector3Real64", &Arcadia_Math_Tests_multiplyComponentsVector3Real64 },
+    { "MultiplyComponentsVector4Real32", &Arcadia_Math_Tests_multiplyComponentsVector4Real32 },
+    { "MultiplyComponentsVector4Real64", &Arcadia_Math_Tests_multiplyComponentsVector4Real64 },
+    { "NormalizeOrZeroVector2Real32", &Arcadia_Math_Tests_normalizeOrZeroVector2Real32 },
+    { "NormalizeOrZeroVector2Real64", &Arcadia_Math_Tests_normalizeOrZeroVector2Real64 },
+    { "NormalizeOrZeroVector3Real32", &Arcadia_Math_Tests_normalizeOrZeroVector3Real32 },
+    { "NormalizeOrZeroVector3Real64", &Arcadia_Math_Tests_normalizeOrZeroVector3Real64 },
+    { "NormalizeOrZeroVector4Real32", &Arcadia_Math_Tests_normalizeOrZeroVector4Real32 },
+    { "NormalizeOrZeroVector4Real64", &Arcadia_Math_Tests_normalizeOrZeroVector4Real64 },
     { "VectorTests", &runTests },
     { "CubicBezierReal32", &runCubicBezierReal32 },
     { "CubicBezierReal64", &runCubicBezierReal64 },

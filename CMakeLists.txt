@@ -92,6 +92,9 @@ add_subdirectory(Runtime/FileSystem)
 add_subdirectory(Runtime/Print)
 add_subdirectory(Runtime/Logging)
 
+# Reusable networking infrastructure.
+add_subdirectory(Network)
+
 # The languages.
 add_subdirectory(Languages)
 

@@ -23,7 +23,7 @@
 #define Arcadia_Math_PI_Real32Value 3.1415926f
 
 /// Symbolic constant for the Arcadia_Real64Value representation of PI.
-#define Arcadia_Math_PI_Real64Value 3.1415926
+#define Arcadia_Math_PI_Real64Value 3.14159265358979323846
 
 /// @{
 /// @brief Convert an angle in radians into a corresponding angle in degrees.

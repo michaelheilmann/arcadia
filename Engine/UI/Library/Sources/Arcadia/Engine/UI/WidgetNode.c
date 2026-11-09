@@ -162,6 +162,7 @@ Arcadia_Engine_UI_WidgetNode_constructImpl
   self->requestedHeight = 0;
   self->desiredWidth = 0;
   self->desiredHeight = 0;
+  self->sizePolicy = Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed;
   self->propertyChanged = Arcadia_Signal_create(thread);
   self->name = NULL;
   Arcadia_LeaveConstructor(Arcadia_Engine_UI_WidgetNode);

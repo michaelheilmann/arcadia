@@ -29,6 +29,7 @@ set(bRoot "${root}/B/Library/Sources")
 set(aSources "${aRoot}/Example/A/Base.c.g" "${aRoot}/Example/A/Types/Flavor.c" "${aRoot}/Example/A/Root.c" "${aRoot}/Example/A/answer.c.g")
 set(bSources "${bRoot}/Example/B/Derived.c.g" "${bRoot}/Example/B/Holder.c.g" "${bRoot}/Example/B/Child.c" "${bRoot}/Example/B/answer.c.g" "${bRoot}/Example/B/answerFromA.c.g")
 list(APPEND bSources "${bRoot}/Example/B/defaultFlavor.c.g")
+list(APPEND bSources "${bRoot}/Example/B/Provider.c.g")
 list(APPEND aSources "${aRoot}/Example/A.c.g")
 list(APPEND bSources "${bRoot}/Example/B.c.g")
 set(headers "${aRoot}/Example/A/Base.h" "${aRoot}/Example/A/Types/Flavor.h" "${aRoot}/Example/A/Root.h"
@@ -37,6 +38,7 @@ set(headers "${aRoot}/Example/A/Base.h" "${aRoot}/Example/A/Types/Flavor.h" "${a
              "${aRoot}/Example/A/Include.h" "${bRoot}/Example/B/Include.h")
 list(APPEND headers "${aRoot}/Example/A.h" "${bRoot}/Example/B.h")
 list(APPEND headers "${bRoot}/Example/B/defaultFlavor.h")
+list(APPEND headers "${bRoot}/Example/B/Provider.h")
 file(GLOB_RECURSE inputs CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Assets/*")
 add_custom_command(
   OUTPUT ${aSources} ${bSources} ${headers}

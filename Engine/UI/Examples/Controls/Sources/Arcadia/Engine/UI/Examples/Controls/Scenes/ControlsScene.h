@@ -1,0 +1,82 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+#if !defined(ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_SCENES_CONTROLSSCENE_H_INCLUDED)
+#define ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_SCENES_CONTROLSSCENE_H_INCLUDED
+
+#include "Arcadia/ADL/Include.h"
+#include "Arcadia/Engine/Include.h"
+#include "Arcadia/Engine/UI/Include.h"
+
+Arcadia_declareObjectType(u8"Arcadia.Engine.UI.Examples.Controls.ControlsScene", Arcadia_Engine_UI_Examples_Controls_ControlsScene,
+                          u8"Arcadia.Engine.Scene");
+
+struct Arcadia_Engine_UI_Examples_Controls_ControlsSceneDispatch {
+  Arcadia_Engine_SceneDispatch parent;
+};
+
+struct Arcadia_Engine_UI_Examples_Controls_ControlsScene {
+  Arcadia_Engine_Scene parent;
+
+  Arcadia_ADL_Definitions* definitions;
+  Arcadia_Engine_Visuals_CameraNode* cameraNode;
+  Arcadia_Engine_Visuals_EnterPassNode* enterPassNode;
+  Arcadia_Engine_Visuals_ViewportNode* viewportNode;
+  Arcadia_Engine_UI_CanvasNode* canvasNode;
+  Arcadia_Engine_UI_LayoutPanelNode* rootPanelNode;
+  Arcadia_Engine_UI_LayoutPanelNode* bodyPanelNode;
+  Arcadia_Engine_UI_LayoutPanelNode* leftColumnPanelNode;
+  Arcadia_Engine_UI_LayoutPanelNode* buttonRowPanelNode;
+  Arcadia_Engine_UI_LayoutPanelNode* toggleRowPanelNode;
+  Arcadia_Engine_UI_LayoutPanelNode* sliderRowPanelNode;
+  Arcadia_Engine_UI_LayoutPanelNode* choiceRowPanelNode;
+  Arcadia_Engine_UI_TabBarNode* tabBarNode;
+  Arcadia_Engine_UI_LayoutPanelNode* scrollColumnPanelNode;
+  Arcadia_Engine_UI_LabelNode* helpLabelNode;
+  Arcadia_Engine_UI_ButtonNode* buttonNode;
+  Arcadia_Engine_UI_ButtonNode* disabledButtonNode;
+  Arcadia_Engine_UI_LabelNode* toggleLabelNode;
+  Arcadia_Engine_UI_ToggleNode* toggleNode;
+  Arcadia_Engine_UI_LabelNode* sliderLabelNode;
+  Arcadia_Engine_UI_SliderNode* sliderNode;
+  Arcadia_Engine_UI_LabelNode* segmentedChoiceLabelNode;
+  Arcadia_Engine_UI_SegmentedChoiceNode* segmentedChoiceNode;
+  Arcadia_Engine_UI_ButtonNode* dropdownAnchorNode;
+  Arcadia_Engine_UI_ScrollPanelNode* dropdownPopupNode;
+  Arcadia_Engine_UI_DropdownController* dropdownController;
+  Arcadia_Slot* dropdownSelectionConnection;
+  Arcadia_Engine_UI_InputBindingService* bindingService;
+  Arcadia_Engine_UI_LayoutPanelNode* jumpBindingPanelNode;
+  Arcadia_Engine_UI_LayoutPanelNode* sprintBindingPanelNode;
+  Arcadia_Engine_UI_BindingRowController* jumpBindingController;
+  Arcadia_Engine_UI_BindingRowController* sprintBindingController;
+  Arcadia_Engine_UI_LabelNode* scrollPanelLabelNode;
+  Arcadia_Engine_UI_ScrollPanelNode* scrollPanelNode;
+  Arcadia_Engine_UI_LabelNode* scrollPanelFirstLabelNode;
+  Arcadia_Engine_UI_LabelNode* scrollPanelSecondLabelNode;
+  Arcadia_Engine_UI_LabelNode* scrollPanelThirdLabelNode;
+  Arcadia_Engine_UI_LabelNode* scrollPanelFourthLabelNode;
+};
+
+Arcadia_Engine_UI_Examples_Controls_ControlsScene*
+Arcadia_Engine_UI_Examples_Controls_ControlsScene_create
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine* engine,
+    Arcadia_Engine_SceneManager* sceneManager
+  );
+
+#endif // ARCADIA_ENGINE_UI_EXAMPLES_CONTROLS_SCENES_CONTROLSSCENE_H_INCLUDED

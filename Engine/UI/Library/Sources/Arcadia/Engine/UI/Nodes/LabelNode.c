@@ -373,7 +373,7 @@ Arcadia_Engine_UI_LabelNode_renderImpl
     Arcadia_Engine_Visuals_EnterPassNode* enterPassNode
   )
 {
-  if (!self->modelNode) return;
+  if (!self->modelNode || !self->numberOfGlyphs || !self->alpha) return;
   Arcadia_Real32Value canvasWidth, canvasHeight;
   Arcadia_Engine_Visuals_ViewportNode_getCanvasSize(thread, enterPassNode->viewportNode, &canvasWidth, &canvasHeight);
   updateVertices(thread, self, canvasWidth, canvasHeight);
@@ -470,7 +470,23 @@ Arcadia_Engine_UI_LabelNode_setText
   Arcadia_SizeValue numberOfLines = 0;
   Arcadia_Engine_UI_TextUtilities_countGlyphsAndLines(thread, text, &numberOfGlyphs, &numberOfLines);
   if (numberOfGlyphs > maximumNumberOfGlyphs) {
-    numberOfGlyphs = maximumNumberOfGlyphs;
+    // The old mesh only reserves six vertices per original glyph. Truncating
+    // to that capacity loses warning text and binding descriptions. Rebuild
+    // the model with capacity for the entire replacement string instead.
+    // Keep the new text rooted while allocation may trigger collection.
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)text);
+    if (self->glyphs) Arcadia_Memory_deallocateUnmanaged(thread, self->glyphs);
+    if (self->lines) Arcadia_Memory_deallocateUnmanaged(thread, self->lines);
+    self->glyphs = NULL;
+    self->lines = NULL;
+    self->numberOfGlyphs = 0;
+    self->numberOfLines = 0;
+    self->generatedDefinitions = Arcadia_ADL_Definitions_create(thread);
+    self->modelNode = NULL;
+    self->text = text;
+    createModel(thread, self);
+    Arcadia_ValueStack_popValues(thread, 1);
+    return;
   }
   Arcadia_FontIO_AtlasGlyphInformation* glyphs = NULL;
   Arcadia_Engine_UI_TextLine* lines = NULL;

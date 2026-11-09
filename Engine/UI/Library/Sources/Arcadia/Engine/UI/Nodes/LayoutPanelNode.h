@@ -24,7 +24,8 @@
 #include "Arcadia/Engine/UI/WidgetNode.h"
 #include "Arcadia/ADL/Include.h"
 #include "Arcadia/Engine/UI/Layout.h"
-#include "Arcadia/Engine/UI/Nodes/StackPanelNodeAlignment.h"
+#include "Arcadia/Engine/UI/Nodes/PanelNode.h"
+#include "Arcadia/Engine/UI/LayoutAlignment.h"
 
 typedef struct Arcadia_Engine_UI_StackLayoutSlot Arcadia_Engine_UI_StackLayoutSlot;
 
@@ -47,6 +48,8 @@ struct Arcadia_Engine_UI_LayoutPanelNode {
   Arcadia_Engine_UI_StackLayoutSlot* childLayoutSlots;
   Arcadia_SizeValue childLayoutSlotCapacity;
   Arcadia_Object* layout;
+  Arcadia_Engine_UI_PanelNode* backgroundPanelNode;
+  Arcadia_Natural32Value backgroundBorderWidth;
   Arcadia_Object* hoveredChild;
   Arcadia_Object* pressedChild;
   Arcadia_Object* focusedChild;
@@ -82,6 +85,17 @@ Arcadia_Engine_UI_LayoutPanelNode_createFromDefinition
     Arcadia_ADL_UI_PanelDefinition* source
   );
 
+/// @brief Switch between content-derived and explicit requested sizing.
+/// @remarks LayoutPanelNode defaults to Content. Fixed retains its requested
+///          width and height even when tab/page changes alter its children.
+void
+Arcadia_Engine_UI_LayoutPanelNode_setSizePolicy
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_LayoutPanelNode* self,
+    Arcadia_Engine_UI_WidgetNodeSizePolicy policy
+  );
+
 /// @brief Set per-child margins without changing a widget's requested size.
 void
 Arcadia_Engine_UI_LayoutPanelNode_setChildMargin
@@ -102,7 +116,7 @@ Arcadia_Engine_UI_LayoutPanelNode_setChildCrossAlignment
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_LayoutPanelNode* self,
     Arcadia_Object* child,
-    Arcadia_Engine_UI_StackPanelNodeAlignment alignment
+    Arcadia_Engine_UI_LayoutAlignment alignment
   );
 
 void

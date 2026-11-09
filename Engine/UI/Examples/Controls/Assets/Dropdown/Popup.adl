@@ -1,0 +1,12 @@
+{
+  type : "UI.ScrollPanel",
+  name : "Controls.Dropdown.Popup",
+  left : 0,
+  bottom : 0,
+  width : 240,
+  height : 112,
+  contentWidth : 240,
+  contentHeight : 176,
+  children : [ "Controls.Dropdown.Low", "Controls.Dropdown.Medium",
+               "Controls.Dropdown.High", "Controls.Dropdown.Ultra" ],
+}

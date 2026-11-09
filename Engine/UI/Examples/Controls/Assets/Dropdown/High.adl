@@ -1,0 +1,16 @@
+{
+  type : "UI.Button",
+  name : "Controls.Dropdown.High",
+  left : 0,
+  bottom : 88,
+  width : 228,
+  height : 40,
+  text : "High",
+  horizontalAlignment : "Center",
+  verticalAlignment : "Center",
+  backgroundColor : "Button.Primary.Color.Normal",
+  hoveredBackgroundColor : "Button.Primary.Color.Hovered",
+  pressedBackgroundColor : "Button.Primary.Color.Pressed",
+  disabledBackgroundColor : "Button.Primary.Color.Disabled",
+  focusedBackgroundColor : "Button.Primary.Color.Focused",
+}

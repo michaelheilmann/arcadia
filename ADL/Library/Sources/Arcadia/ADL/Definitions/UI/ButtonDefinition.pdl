@@ -1,0 +1,92 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// A button definition. Its optional color names become native Reference objects;
+// linking preserves native resolution order, type checks and partial progress.
+class "Arcadia/ADL/Definitions/UI/ButtonDefinition.h" Arcadia.ADL.UI.ButtonDefinition extends Arcadia.ADL.Definition {
+  variable left : Arcadia.Integer32
+  variable bottom : Arcadia.Integer32
+  variable width : Arcadia.Natural32
+  variable height : Arcadia.Natural32
+  variable text : Arcadia.String
+  variable horizontalAlignment : Arcadia.String
+  variable verticalAlignment : Arcadia.String
+  variable backgroundColor : Arcadia.ADL.Reference
+  variable hoveredBackgroundColor : Arcadia.ADL.Reference
+  variable pressedBackgroundColor : Arcadia.ADL.Reference
+  variable disabledBackgroundColor : Arcadia.ADL.Reference
+  variable focusedBackgroundColor : Arcadia.ADL.Reference
+  variable pixelSize : Arcadia.Natural32
+  variable borderWidth : Arcadia.Natural32
+  variable borderRed : Arcadia.Natural8
+  variable borderGreen : Arcadia.Natural8
+  variable borderBlue : Arcadia.Natural8
+
+  constructor
+    (
+      variable definitions : Arcadia.ADL.Definitions,
+      variable name : Arcadia.String,
+      variable left : Arcadia.Integer32,
+      variable bottom : Arcadia.Integer32,
+      variable width : Arcadia.Natural32,
+      variable height : Arcadia.Natural32,
+      variable text : Arcadia.String,
+      variable horizontalAlignment : Arcadia.String,
+      variable verticalAlignment : Arcadia.String,
+      variable backgroundColor : Arcadia.String,
+      variable hoveredBackgroundColor : Arcadia.String,
+      variable pressedBackgroundColor : Arcadia.String,
+      variable disabledBackgroundColor : Arcadia.String,
+      variable focusedBackgroundColor : Arcadia.String,
+      variable pixelSize : Arcadia.Natural32,
+      variable borderWidth : Arcadia.Natural32,
+      variable borderRed : Arcadia.Natural8,
+      variable borderGreen : Arcadia.Natural8,
+      variable borderBlue : Arcadia.Natural8
+    )
+  {
+    construct $0 Arcadia.ADL.Definition self definitions name
+    storeField self left left
+    storeField self bottom bottom
+    storeField self width width
+    storeField self height height
+    call $1 Arcadia.ADL.UI.requireLabelString text
+    storeField self text $1
+    call $2 Arcadia.ADL.UI.requireLabelString horizontalAlignment
+    storeField self horizontalAlignment $2
+    call $3 Arcadia.ADL.UI.requireLabelString verticalAlignment
+    storeField self verticalAlignment $3
+    call $4 Arcadia.ADL.UI.createOptionalColorReference definitions backgroundColor
+    storeField self backgroundColor $4
+    call $5 Arcadia.ADL.UI.createOptionalColorReference definitions hoveredBackgroundColor
+    storeField self hoveredBackgroundColor $5
+    call $6 Arcadia.ADL.UI.createOptionalColorReference definitions pressedBackgroundColor
+    storeField self pressedBackgroundColor $6
+    call $7 Arcadia.ADL.UI.createOptionalColorReference definitions disabledBackgroundColor
+    storeField self disabledBackgroundColor $7
+    call $8 Arcadia.ADL.UI.createOptionalColorReference definitions focusedBackgroundColor
+    storeField self focusedBackgroundColor $8
+    storeField self pixelSize pixelSize
+    storeField self borderWidth borderWidth
+    storeField self borderRed borderRed
+    storeField self borderGreen borderGreen
+    storeField self borderBlue borderBlue
+  }
+
+  method native "Arcadia_ADL_UI_ButtonDefinition_linkImpl" link : Arcadia.Void
+}
+
+procedure native "Arcadia_ADL_UI_createOptionalColorReferenceImpl" Arcadia.ADL.UI.createOptionalColorReference(variable definitions : Arcadia.ADL.Definitions, variable name : Arcadia.String) : Arcadia.ADL.Reference

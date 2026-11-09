@@ -18,10 +18,15 @@
 #define ARCADIA_ADL_DEFINITIONS_UI_BUTTONDEFINITION_H_INCLUDED
 
 #if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
-  #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
+  #error("do not include `Arcadia/ADL/Definitions/UI/ButtonDefinition.h` directly, include `Arcadia/ADL/Include.h` instead")
 #endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/ADL/Definition.h"
+
+typedef struct Arcadia_ADL_Definitions Arcadia_ADL_Definitions;
 typedef struct Arcadia_ADL_Reference Arcadia_ADL_Reference;
+typedef struct Arcadia_ADL_UI_ButtonDefinition Arcadia_ADL_UI_ButtonDefinition;
 
 Arcadia_declareObjectType(u8"Arcadia.ADL.UI.ButtonDefinition", Arcadia_ADL_UI_ButtonDefinition,
                           u8"Arcadia.ADL.Definition");
@@ -50,6 +55,13 @@ struct Arcadia_ADL_UI_ButtonDefinition {
   Arcadia_Natural8Value borderGreen;
   Arcadia_Natural8Value borderBlue;
 };
+
+void
+Arcadia_ADL_UI_ButtonDefinition_link
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_UI_ButtonDefinition* self
+  );
 
 Arcadia_ADL_UI_ButtonDefinition*
 Arcadia_ADL_UI_ButtonDefinition_create
