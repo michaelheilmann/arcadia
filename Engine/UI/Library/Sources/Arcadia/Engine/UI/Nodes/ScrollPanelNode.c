@@ -371,7 +371,7 @@ updateScrollbarVertices
   )
 {
   Arcadia_Media_VertexBuffer* vertexBuffer = Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->scrollbarMesh);
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   Arcadia_Real32Value left = (Arcadia_Real32Value)(self->scrollX + ((Arcadia_Engine_UI_WidgetNode*)self)->width - 10);
   Arcadia_Real32Value right = (Arcadia_Real32Value)(self->scrollX + ((Arcadia_Engine_UI_WidgetNode*)self)->width - 3);
   Arcadia_Real32Value bottom = (Arcadia_Real32Value)self->scrollY;

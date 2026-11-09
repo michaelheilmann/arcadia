@@ -339,11 +339,8 @@ updateVertices
   Arcadia_Real32Value const r = red / 255.f;
   Arcadia_Real32Value const g = green / 255.f;
   Arcadia_Real32Value const b = blue / 255.f;
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices
-    (
-      thread,
-      Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh)
-    );
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh)));
   Arcadia_Real32Value borderWidth = (Arcadia_Real32Value)self->source->borderWidth;
   Arcadia_Real32Value maxBorderWidth = (Arcadia_Real32Value)
     (((Arcadia_Engine_UI_WidgetNode*)self)->width < ((Arcadia_Engine_UI_WidgetNode*)self)->height
@@ -420,7 +417,7 @@ updateLabelVertices
                                                            center, center, Arcadia_BooleanValue_True,
                                                            (Arcadia_Real32Value)self->labelFontAtlasWidth, (Arcadia_Real32Value)self->labelFontAtlasHeight,
                                                            1.f, 1.f, 1.f, 1.f,
-                                                           (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer),
+                                                           (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer)),
                                                            Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer), 9);
   Arcadia_ValueStack_popValues(thread, 1);
   self->labelModelNode->mesh->dirtyFlags |= VerticesDirty;

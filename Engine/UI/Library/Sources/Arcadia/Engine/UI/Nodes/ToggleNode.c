@@ -329,7 +329,7 @@ updateVertices
   Arcadia_Real32Value knobSize = (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height - 12.f;
   Arcadia_Real32Value knobLeft = self->checked ? right - knobSize - 6.f : left + 6.f;
   Arcadia_Real32Value knobBottom = bottom + 6.f;
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh));
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh)));
   writeQuad(vertices, 0, left, bottom, right, top, trackRed, trackGreen, trackBlue);
   writeQuad(vertices, 6, knobLeft, knobBottom, knobLeft + knobSize, knobBottom + knobSize, 0.92f, 0.94f, 0.96f);
   self->mesh->dirtyFlags |= VerticesDirty;

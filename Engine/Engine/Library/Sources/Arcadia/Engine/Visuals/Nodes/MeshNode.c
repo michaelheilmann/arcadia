@@ -214,8 +214,8 @@ Arcadia_Engine_Visuals_MeshNode_renderImpl
           self->vertexBufferResource,
           vertexDescriptor,
           numberOfVertices,
-          Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer),
-          numberOfVertices * Arcadia_Media_VertexDescriptor_getStride(thread, vertexDescriptor)
+          Arcadia_ByteArray_getBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer)),
+          Arcadia_ByteArray_getSize(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer))
         );
       self->dirtyFlags &= ~VerticesDirty;
     }

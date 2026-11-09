@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "Arcadia/Media/Include.h"
@@ -543,8 +544,21 @@ test8
   if (vertexBuffer1 == vertexBuffer2) {
     testFailure(thread, "the geometry returned the same vertex buffer twice.");
   }
-  Arcadia_Real32Value* vertices1 = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer1);
-  Arcadia_Real32Value* vertices2 = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer2);
+  Arcadia_ByteArray* bytes1 = Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer1);
+  Arcadia_ByteArray* bytes2 = Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer2);
+  if (!Arcadia_ByteArray_isMutable(thread, bytes1) ||
+       Arcadia_ByteArray_isResizable(thread, bytes1) ||
+      !Arcadia_ByteArray_isContiguous(thread, bytes1)) {
+    testFailure(thread, "vertex storage does not have fixed mutable contiguous capabilities.");
+  }
+  expectSize(thread, "vertex byte size is not the descriptor stride times the vertex count.",
+             Arcadia_ByteArray_getSize(thread, bytes1),
+             6 * componentsInVertex * sizeof(Arcadia_Real32Value));
+  if (Arcadia_ByteArray_getBytes(thread, bytes1) != Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer1)) {
+    testFailure(thread, "legacy byte access does not alias the new ByteArray storage.");
+  }
+  Arcadia_Real32Value* vertices1 = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, bytes1);
+  Arcadia_Real32Value* vertices2 = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, bytes2);
   if (vertices1 == vertices2) {
     testFailure(thread, "both vertex buffers of the plane share their vertex data.");
   }
@@ -559,6 +573,30 @@ test8
   Arcadia_Real32Value const* vertices3 = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer3);
   expectFloat(thread, "changing the vertex data of a vertex buffer of the plane changed the vertex data of the plane.",
               vertices3[0], reference);
+
+  // The vertex buffer must retain its managed ByteArray through garbage collection.
+  Arcadia_Real32Value expectedAfterGC = vertices1[0];
+  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer1);
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  expectFloat(thread, "vertex storage was lost during GC.",
+              ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+                Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer1)))[0], expectedAfterGC);
+
+  // A vertex count that would overflow stride multiplication must be rejected.
+  Arcadia_JumpTarget target;
+  Arcadia_Thread_pushJumpTarget(thread, &target);
+  if (Arcadia_JumpTarget_save(&target)) {
+    (void)Arcadia_Media_VertexBuffer_create(thread,
+      Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, vertexBuffer1), SIZE_MAX);
+    Arcadia_Thread_popJumpTarget(thread);
+    testFailure(thread, "vertex stride multiplication overflow was not rejected.");
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_AllocationFailed, status);
+  }
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)vertexBuffer1);
 }
 
 static int

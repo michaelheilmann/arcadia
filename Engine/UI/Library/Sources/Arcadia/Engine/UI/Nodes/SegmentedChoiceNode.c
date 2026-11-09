@@ -274,7 +274,7 @@ updateVertices
 {
   self->lastCanvasWidth = canvasWidth;
   self->lastCanvasHeight = canvasHeight;
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh));
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh)));
   Arcadia_Real32Value segmentWidth = (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->width / (Arcadia_Real32Value)self->numberOfSegments;
   for (Arcadia_Natural32Value i = 0; i < self->numberOfSegments; ++i) {
     Arcadia_Real32Value red = i == self->selectedIndex ? 0.24f : 0.18f;

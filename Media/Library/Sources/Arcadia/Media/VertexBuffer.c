@@ -18,6 +18,7 @@
 #include "Arcadia/Media/VertexBuffer.h"
 
 #include "Arcadia/Media/Include.h"
+#include <stdint.h>
 
 static void
 Arcadia_Media_VertexBuffer_constructImpl
@@ -81,10 +82,16 @@ Arcadia_Media_VertexBuffer_constructImpl
     Arcadia_superTypeConstructor(thread, _type, self);
   }
   //
+  self->vertexBytes = NULL;
   self->vertexDescriptor = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Media_VertexDescriptor_getType(thread));
   self->numberOfVertices = Arcadia_ValueStack_getSizeValue(thread, 1);
-  Arcadia_SizeValue numberOfBytes = self->vertexDescriptor->stride * self->numberOfVertices;
-  self->vertices = Arcadia_Memory_allocateUnmanaged(thread, numberOfBytes);
+  Arcadia_SizeValue stride = Arcadia_Media_VertexDescriptor_getStride(thread, self->vertexDescriptor);
+  if (self->numberOfVertices && stride > SIZE_MAX / self->numberOfVertices) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  // The factory allocates fixed-size mutable storage. It is not resized after construction.
+  self->vertexBytes = Arcadia_ByteArrayFactory_createMutable(thread, stride * self->numberOfVertices);
   //
   Arcadia_LeaveConstructor(Arcadia_Media_VertexBuffer);
 }
@@ -95,12 +102,7 @@ Arcadia_Media_VertexBuffer_destructImpl
     Arcadia_Thread* thread,
     Arcadia_Media_VertexBuffer* self
   )
-{
-  if (self->vertices) {
-    Arcadia_Memory_deallocateUnmanaged(thread, self->vertices);
-    self->vertices = NULL;
-  }
-}
+{/* The ByteArray owns the allocation and releases it through its destructor. */}
 
 static void
 Arcadia_Media_VertexBuffer_initializeDispatchImpl
@@ -119,6 +121,9 @@ Arcadia_Media_VertexBuffer_visitImpl
 {
   if (self->vertexDescriptor) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->vertexDescriptor);
+  }
+  if (self->vertexBytes) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->vertexBytes);
   }
 }
 
@@ -153,10 +158,18 @@ Arcadia_Media_VertexBuffer_getVertexDescriptor
   )
 { return self->vertexDescriptor; }
 
+Arcadia_ByteArray*
+Arcadia_Media_VertexBuffer_getVertexBytes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_VertexBuffer* self
+  )
+{ return self->vertexBytes; }
+
 void*
 Arcadia_Media_VertexBuffer_getVertices
   (
     Arcadia_Thread* thread,
     Arcadia_Media_VertexBuffer* self
   )
-{ return self->vertices; }
+{ return Arcadia_ByteArray_getMutableBytes(thread, self->vertexBytes); }

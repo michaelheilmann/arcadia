@@ -162,7 +162,7 @@ updateVertices
   Arcadia_Real32Value left, bottom;
   computePlacement(thread, self, canvasWidth, canvasHeight, &left, &bottom);
   Arcadia_Media_VertexBuffer* vertexBuffer = Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->modelNode->mesh);
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   Arcadia_Engine_UI_TextUtilities_writeMultilineGlyphQuads(thread, self->glyphs, self->numberOfGlyphs, self->lines, self->numberOfLines,
                                                            self->lineTop, self->lineBottom,
                                                            (Arcadia_Integer32Value)left, (Arcadia_Integer32Value)bottom, ((Arcadia_Engine_UI_WidgetNode*)self)->width, ((Arcadia_Engine_UI_WidgetNode*)self)->height,

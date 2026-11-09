@@ -179,13 +179,15 @@ Arcadia_Media_Geometry_getVertexBuffer
       self->vertexBuffer->vertexDescriptor,
       self->vertexBuffer->numberOfVertices
     );
-  Arcadia_Memory_copy
-    (
-      thread,
-      vertexBuffer->vertices,
-      self->vertexBuffer->vertices,
-      self->vertexBuffer->vertexDescriptor->stride * self->vertexBuffer->numberOfVertices
-    );
+  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer);
+  Arcadia_ByteArray* source = Arcadia_Media_VertexBuffer_getVertexBytes(thread, self->vertexBuffer);
+  Arcadia_ByteArray* target = Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer);
+  Arcadia_SizeValue numberOfBytes = Arcadia_ByteArray_getSize(thread, source);
+  if (numberOfBytes) {
+    Arcadia_Memory_copy(thread, Arcadia_ByteArray_getMutableBytes(thread, target),
+                        Arcadia_ByteArray_getBytes(thread, source), numberOfBytes);
+  }
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)vertexBuffer);
   return vertexBuffer;
 }
 
@@ -438,7 +440,8 @@ Arcadia_Media_Geometry_fill
     Arcadia_Media_Geometry_GeneratorKind generatorKind
   )
 {
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)self->vertexBuffer->vertices;
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes
+    (thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, self->vertexBuffer));
   switch (generatorKind) {
     case Arcadia_Media_Geometry_GeneratorKind_BakedMesh: {
       Arcadia_Media_Geometry_fillBakedMesh(thread, vertices, (Arcadia_ADL_MeshDefinition*)meshGenerator);

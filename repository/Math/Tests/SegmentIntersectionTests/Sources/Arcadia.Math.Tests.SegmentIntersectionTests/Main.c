@@ -49,9 +49,11 @@ static int test##S(void) { \
 
 #define S 32
 #include "CasesSweep.i"
+#include "CasesLegacyJava.i"
 #undef S
 #define S 64
 #include "CasesSweep.i"
+#include "CasesLegacyJava.i"
 #undef S
 TESTS(32)
 TESTS(64)
@@ -80,7 +82,25 @@ int main(int argc, char** argv) {
     {"Real32SweepExpiry", &sweepExpiry32},
     {"Real64SweepExpiry", &sweepExpiry64},
     {"Real32SweepEventOracle", &sweepEventOracle32},
+    {"Real32LegacyGeneric001", &legacyTest132},
+    {"Real32LegacyGeneric002", &legacyTest232},
+    {"Real32LegacyGeneric003", &legacyTest332},
+    {"Real32LegacyGeneric004", &legacyTest432},
+    {"Real32LegacyGeneric005", &legacyTest532},
+    {"Real32LegacyGeneric006", &legacyTest632},
+    {"Real32LegacyGeneric007", &legacyTest732},
+    {"Real32LegacyGeneric008", &legacyTest832},
+    {"Real32LegacyReversed", &legacyReversed32},
     {"Real64SweepEventOracle", &sweepEventOracle64},
+    {"Real64LegacyGeneric001", &legacyTest164},
+    {"Real64LegacyGeneric002", &legacyTest264},
+    {"Real64LegacyGeneric003", &legacyTest364},
+    {"Real64LegacyGeneric004", &legacyTest464},
+    {"Real64LegacyGeneric005", &legacyTest564},
+    {"Real64LegacyGeneric006", &legacyTest664},
+    {"Real64LegacyGeneric007", &legacyTest764},
+    {"Real64LegacyGeneric008", &legacyTest864},
+    {"Real64LegacyReversed", &legacyReversed64},
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases)/sizeof(cases[0]));
 }
