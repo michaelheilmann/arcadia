@@ -49,6 +49,10 @@ struct Arcadia_ByteArrayDispatch {
       Arcadia_ByteArray const* self
     );
 
+  // Native C-only borrowed mutable pointer; implementations without writable
+  // contiguous storage raise OperationInvalid rather than returning a pointer.
+  Arcadia_Natural8Value* (*getMutableBytes)(Arcadia_Thread* thread, Arcadia_ByteArray* self);
+
   Arcadia_SizeValue
   (*getNumberOfBytes)
     (
@@ -101,6 +105,16 @@ Arcadia_ByteArray_getBytes
   (
     Arcadia_Thread* thread,
     Arcadia_ByteArray const* self
+  );
+
+// Native C-only. Requires mutable and contiguous storage. The returned pointer
+// is borrowed and can be invalidated by resizing; root the owner while using it.
+// Unsupported calls raise Arcadia_Status_OperationInvalid.
+Arcadia_Natural8Value*
+Arcadia_ByteArray_getMutableBytes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray* self
   );
 
 // https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_getNumberOfBytes

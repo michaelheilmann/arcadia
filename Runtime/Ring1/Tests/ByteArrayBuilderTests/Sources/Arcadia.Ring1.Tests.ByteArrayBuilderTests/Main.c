@@ -121,6 +121,50 @@ testImmutableSnapshot(Arcadia_Thread* thread)
   Arcadia_Object_unlock(thread, (Arcadia_Object*)source);
 }
 
+// A self-referential insert must survive growth, including relocation of the
+// backing buffer. Exercise source ranges before, after and across the gap.
+static void
+testSelfInsertion(Arcadia_Thread* thread)
+{
+  Arcadia_ByteArrayBuilder* b = Arcadia_ByteArrayBuilder_create(thread);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)b);
+
+  Arcadia_ByteArrayBuilder_insertBackBytes(thread, b, "abcd", 4);
+  Arcadia_ByteArrayBuilder_insertBytes(thread, b, 2,
+                                      Arcadia_ByteArrayBuilder_getBytes(thread, b) + 1, 3);
+  Arcadia_Tests_assertEqualBytes(thread, "abbcdcd", 7,
+                                Arcadia_ByteArrayBuilder_getBytes(thread, b),
+                                Arcadia_ByteArrayBuilder_getSize(thread, b));
+
+  Arcadia_ByteArrayBuilder_clear(thread, b);
+  Arcadia_ByteArrayBuilder_insertBackBytes(thread, b, "abcd", 4);
+  Arcadia_ByteArrayBuilder_insertBytes(thread, b, 3,
+                                      Arcadia_ByteArrayBuilder_getBytes(thread, b), 2);
+  Arcadia_Tests_assertEqualBytes(thread, "abcabd", 6,
+                                Arcadia_ByteArrayBuilder_getBytes(thread, b),
+                                Arcadia_ByteArrayBuilder_getSize(thread, b));
+
+  Arcadia_ByteArrayBuilder_clear(thread, b);
+  Arcadia_ByteArrayBuilder_insertBackBytes(thread, b, "abcd", 4);
+  Arcadia_ByteArrayBuilder_insertBytes(thread, b, 1,
+                                      Arcadia_ByteArrayBuilder_getBytes(thread, b) + 2, 2);
+  Arcadia_Tests_assertEqualBytes(thread, "acdbcd", 6,
+                                Arcadia_ByteArrayBuilder_getBytes(thread, b),
+                                Arcadia_ByteArrayBuilder_getSize(thread, b));
+
+  Arcadia_ByteArrayBuilder_clear(thread, b);
+  Arcadia_ByteArrayBuilder_insertBackBytes(thread, b, "abc", 3);
+  Arcadia_ByteArrayBuilder_insertBackBytes(thread, b, Arcadia_ByteArrayBuilder_getBytes(thread, b), 3);
+  Arcadia_Tests_assertEqualBytes(thread, "abcabc", 6,
+                                Arcadia_ByteArrayBuilder_getBytes(thread, b),
+                                Arcadia_ByteArrayBuilder_getSize(thread, b));
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)b);
+}
+
+static int
+runSelfInsertion(void)
+{ return Arcadia_Tests_safeExecute(&testSelfInsertion) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
 static int
 runInsertAtAllPositions(void)
 { return Arcadia_Tests_safeExecute(&testInsertAtAllPositions) ? EXIT_SUCCESS : EXIT_FAILURE; }
@@ -142,6 +186,7 @@ main(int argc, char** argv)
 {
   static const Arcadia_Testing_Case cases[] = {
     { "InsertAtAllPositions", &runInsertAtAllPositions },
+    { "SelfInsertion", &runSelfInsertion },
     { "StorageAndSwap", &runStorageAndSwap },
     { "ReaderAfterMutations", &runReaderAfterMutations },
     { "ImmutableSnapshot", &runImmutableSnapshot },

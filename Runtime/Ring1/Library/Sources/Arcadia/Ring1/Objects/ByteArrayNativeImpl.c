@@ -42,6 +42,10 @@ static Arcadia_Natural8Value const*
 Arcadia_ByteArrayNativeImpl_getBytes(Arcadia_Thread* thread, Arcadia_ByteArrayNativeImpl const* self)
 { return self->bytes; }
 
+static Arcadia_Natural8Value*
+Arcadia_ByteArrayNativeImpl_getMutableBytes(Arcadia_Thread* thread, Arcadia_ByteArrayNativeImpl* self)
+{ return self->bytes; }
+
 static Arcadia_SizeValue
 Arcadia_ByteArrayNativeImpl_getSize(Arcadia_Thread* thread, Arcadia_ByteArrayNativeImpl const* self)
 { return self->size; }
@@ -156,6 +160,7 @@ Arcadia_ByteArrayNativeImpl_initializeDispatch(Arcadia_Thread* thread, Arcadia_B
   Arcadia_ByteArrayDispatch* d = (Arcadia_ByteArrayDispatch*)self;
   d->getAt = (Arcadia_Natural8Value (*)(Arcadia_Thread*, Arcadia_ByteArray const*, Arcadia_SizeValue))&Arcadia_ByteArrayNativeImpl_getAt;
   d->getBytes = (Arcadia_Natural8Value const* (*)(Arcadia_Thread*, Arcadia_ByteArray const*))&Arcadia_ByteArrayNativeImpl_getBytes;
+  d->getMutableBytes = (Arcadia_Natural8Value* (*)(Arcadia_Thread*, Arcadia_ByteArray*))&Arcadia_ByteArrayNativeImpl_getMutableBytes;
   d->getNumberOfBytes = (Arcadia_SizeValue (*)(Arcadia_Thread*, Arcadia_ByteArray const*))&Arcadia_ByteArrayNativeImpl_getSize;
   d->getSize = (Arcadia_SizeValue (*)(Arcadia_Thread*, Arcadia_ByteArray const*))&Arcadia_ByteArrayNativeImpl_getSize;
   d->isEmpty = (Arcadia_BooleanValue (*)(Arcadia_Thread*, Arcadia_ByteArray const*))&Arcadia_ByteArrayNativeImpl_isEmpty;

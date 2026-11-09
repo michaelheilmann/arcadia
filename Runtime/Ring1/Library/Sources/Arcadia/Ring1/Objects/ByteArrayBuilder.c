@@ -228,13 +228,18 @@ Arcadia_ByteArrayBuilder_insertBytes
     Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
     Arcadia_Thread_jump(thread);
   }
-  // A source range within the builder would be invalidated by a possible reallocation.
-  // Reject it rather than dereference a stale address or silently corrupt the input.
+  // Remember the source offset before resize: the allocation may relocate.
+  // Self-insertion is supported even when the source straddles the insertion.
   uintptr_t address = (uintptr_t)bytes;
   uintptr_t base = (uintptr_t)self->p;
-  if (address >= base && address - base < self->sz) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
-    Arcadia_Thread_jump(thread);
+  Arcadia_BooleanValue alias = address >= base && address - base < self->sz;
+  Arcadia_SizeValue sourceOffset = 0;
+  if (alias) {
+    sourceOffset = (Arcadia_SizeValue)(address - base);
+    if (numberOfBytes > self->sz - sourceOffset) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+      Arcadia_Thread_jump(thread);
+    }
   }
   Arcadia_SizeValue oldSize = self->sz;
   Arcadia_ByteArray_resize(thread, self->storage, oldSize + numberOfBytes);
@@ -242,7 +247,21 @@ Arcadia_ByteArrayBuilder_insertBytes
   if (index < oldSize) {
     Arcadia_Memory_copy(thread, self->p + index + numberOfBytes, self->p + index, oldSize - index);
   }
-  Arcadia_Memory_copy(thread, self->p + index, bytes, numberOfBytes);
+  if (!alias) {
+    Arcadia_Memory_copy(thread, self->p + index, bytes, numberOfBytes);
+  } else if (sourceOffset + numberOfBytes <= index) {
+    // Source lies entirely before the inserted gap.
+    Arcadia_Memory_copy(thread, self->p + index, self->p + sourceOffset, numberOfBytes);
+  } else if (sourceOffset >= index) {
+    // Source has moved right by the inserted length.
+    Arcadia_Memory_copy(thread, self->p + index, self->p + sourceOffset + numberOfBytes, numberOfBytes);
+  } else {
+    // Source crosses the gap. Each source segment is copied from its new location.
+    Arcadia_SizeValue beforeGap = index - sourceOffset;
+    Arcadia_Memory_copy(thread, self->p + index, self->p + sourceOffset, beforeGap);
+    Arcadia_Memory_copy(thread, self->p + index + beforeGap,
+                        self->p + index + numberOfBytes, numberOfBytes - beforeGap);
+  }
 }
 
 Arcadia_BooleanValue

@@ -35,6 +35,13 @@ static Arcadia_BooleanValue
 Arcadia_ByteArray_isContiguousImpl(Arcadia_Thread* thread, Arcadia_ByteArray const* self)
 { return Arcadia_BooleanValue_True; }
 
+static Arcadia_Natural8Value*
+Arcadia_ByteArray_getMutableBytesImpl(Arcadia_Thread* thread, Arcadia_ByteArray* self)
+{
+  Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
+  Arcadia_Thread_jump(thread);
+}
+
 static void
 Arcadia_ByteArray_setAtImpl(Arcadia_Thread* thread, Arcadia_ByteArray* self,
                             Arcadia_SizeValue index, Arcadia_Natural8Value value)
@@ -117,6 +124,7 @@ Arcadia_ByteArray_initializeDispatchImpl
   self->isMutable = &Arcadia_ByteArray_isMutableImpl;
   self->isResizable = &Arcadia_ByteArray_isResizableImpl;
   self->isContiguous = &Arcadia_ByteArray_isContiguousImpl;
+  self->getMutableBytes = &Arcadia_ByteArray_getMutableBytesImpl;
   self->setAt = &Arcadia_ByteArray_setAtImpl;
   self->resize = &Arcadia_ByteArray_resizeImpl;
 }
@@ -145,6 +153,14 @@ Arcadia_ByteArray_getBytes
     Arcadia_ByteArray const* self
   )
 { Arcadia_VirtualCallWithReturn(Arcadia_ByteArray, getBytes, self); }
+
+Arcadia_Natural8Value*
+Arcadia_ByteArray_getMutableBytes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_ByteArray, getMutableBytes, self); }
 
 Arcadia_SizeValue
 Arcadia_ByteArray_getNumberOfBytes

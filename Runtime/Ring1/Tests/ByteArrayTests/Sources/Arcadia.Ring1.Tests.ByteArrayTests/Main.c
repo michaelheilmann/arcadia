@@ -214,6 +214,70 @@ testReaderAndSliceGCLifetimes(Arcadia_Thread* thread)
   Arcadia_Object_unlock(thread, (Arcadia_Object*)arrayReader);
 }
 
+static void
+expectMutableBorrowInvalid(Arcadia_Thread* thread, Arcadia_ByteArray* array)
+{
+  Arcadia_JumpTarget target;
+  Arcadia_Thread_pushJumpTarget(thread, &target);
+  if (Arcadia_JumpTarget_save(&target)) {
+    (void)Arcadia_ByteArray_getMutableBytes(thread, array);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_OperationInvalid, status);
+  }
+}
+
+static void
+testNativeMutableBorrow(Arcadia_Thread* thread)
+{
+  Arcadia_ByteArray* fixed = Arcadia_ByteArrayFactory_createMutable(thread, 4);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)fixed);
+  Arcadia_Natural8Value* writable = Arcadia_ByteArray_getMutableBytes(thread, fixed);
+  Arcadia_Tests_assertTrue(thread, writable == Arcadia_ByteArray_getBytes(thread, fixed));
+  writable[0] = 31;
+  writable[3] = 73;
+  Arcadia_Tests_assertEqualSize(thread, 31, Arcadia_ByteArray_getAt(thread, fixed, 0));
+  Arcadia_Tests_assertEqualSize(thread, 73, Arcadia_ByteArray_getAt(thread, fixed, 3));
+  Arcadia_Tests_assertFalse(thread, Arcadia_ByteArray_isResizable(thread, fixed));
+
+  Arcadia_ByteArray* grow = Arcadia_ByteArrayFactory_copyResizable(thread, fixed);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)grow);
+  Arcadia_ByteArray_resize(thread, grow, 9);
+  Arcadia_Natural8Value* newBorrow = Arcadia_ByteArray_getMutableBytes(thread, grow);
+  Arcadia_Tests_assertEqualSize(thread, 31, newBorrow[0]);
+  Arcadia_Tests_assertEqualSize(thread, 73, newBorrow[3]);
+  for (Arcadia_SizeValue i = 4; i < 9; ++i) {
+    Arcadia_Tests_assertEqualSize(thread, 0, newBorrow[i]);
+  }
+  newBorrow[8] = 201;
+  Arcadia_Tests_assertEqualSize(thread, 201, Arcadia_ByteArray_getAt(thread, grow, 8));
+  Arcadia_Tests_assertEqualSize(thread, 0, Arcadia_ByteArray_getAt(thread, fixed, 2));
+
+  Arcadia_ByteArray* snapshot = Arcadia_ByteArrayFactory_copyImmutable(thread, grow);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)snapshot);
+  Arcadia_Tests_assertFalse(thread, Arcadia_ByteArray_isMutable(thread, snapshot));
+  expectMutableBorrowInvalid(thread, snapshot);
+  Arcadia_ByteArray* slice = Arcadia_ByteArray_slice(thread, fixed, 1, 2);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)slice);
+  expectMutableBorrowInvalid(thread, slice);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)slice);
+  Arcadia_ByteArray_setAt(thread, grow, 8, 0);
+  Arcadia_Tests_assertEqualSize(thread, 201, Arcadia_ByteArray_getAt(thread, snapshot, 8));
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  Arcadia_Tests_assertEqualSize(thread, 201, Arcadia_ByteArray_getAt(thread, snapshot, 8));
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)snapshot);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)grow);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)fixed);
+}
+
+static int runNativeMutableBorrow(void)
+{ return Arcadia_Tests_safeExecute(&testNativeMutableBorrow) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
 static int runFactory(void)
 { return Arcadia_Tests_safeExecute(&testFactory) ? EXIT_SUCCESS : EXIT_FAILURE; }
 static int runImmutable(void)
@@ -229,6 +293,7 @@ int main(int argc, char** argv)
 {
   static const Arcadia_Testing_Case cases[] = {
     { "FactoryAndResize", &runFactory },
+    { "NativeMutableBorrow", &runNativeMutableBorrow },
     { "ImmutableAndCopy", &runImmutable },
     { "ReaderMutationAndResize", &runReaders },
     { "SliceBackingResize", &runSliceResize },
