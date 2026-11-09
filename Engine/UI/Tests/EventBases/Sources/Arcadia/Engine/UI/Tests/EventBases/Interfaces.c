@@ -875,8 +875,9 @@ testWidgets
   Arcadia_Engine_Visuals_EnterPassNode_setViewportNode(thread, pass, viewport);
   Arcadia_Engine_UI_Renderable_render(thread, (void*)button, pass);
   // Selection reuses the pressed palette without pressing or activating.
-  Arcadia_Real32Value* buttonVertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices
-    (thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, button->mesh));
+  Arcadia_Real32Value const* buttonVertices = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread,
+      Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, button->mesh)));
   Arcadia_Tests_assertTrue(thread, buttonVertices[3] == 80.f / 255.f &&
                             buttonVertices[4] == 100.f / 255.f &&
                             buttonVertices[5] == 120.f / 255.f);

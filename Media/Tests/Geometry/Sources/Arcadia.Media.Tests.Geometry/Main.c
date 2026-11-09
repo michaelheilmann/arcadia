@@ -194,7 +194,8 @@ test1
   // The mesh-wide ambient color is the red of the referenced `Arcadia.ADL.Color` definition, with an alpha of one.
   expectComponents(thread, "the mesh-wide ambient color of the plane is wrong.", Arcadia_Media_Geometry_getAmbientColor(thread, geometry), 1.f, 0.f, 0.f, 1.f);
   //
-  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   // All vertices of the plane lie in the XZ plane, hence their y coordinate is zero.
   for (Arcadia_SizeValue i = 0; i < 6; ++i) {
     expectFloat(thread, "a vertex of the plane does not lie in the XZ plane.", vertices[i * componentsInVertex + 1], 0.f);
@@ -265,7 +266,8 @@ test2
   expectSize(thread, "the box does not have 36 vertices.", Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer), 36);
   expectComponents(thread, "the mesh-wide ambient color of the box is wrong.", Arcadia_Media_Geometry_getAmbientColor(thread, geometry), 1.f, 1.f, 1.f, 1.f);
   //
-  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   // The box spans the given dimensions, centered at the origin.
   {
     Arcadia_Real32Value minimumX = vertices[0], maximumX = vertices[0];
@@ -331,7 +333,8 @@ test3
   expectSize(thread, "the sphere does not have the expected number of vertices.", Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer), 8 * 4 * 6);
   expectComponents(thread, "the mesh-wide ambient color of the sphere is wrong.", Arcadia_Media_Geometry_getAmbientColor(thread, geometry), 1.f, 1.f, 1.f, 1.f);
   //
-  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   Arcadia_SizeValue numberOfVertices = Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer);
   for (Arcadia_SizeValue i = 0; i < numberOfVertices; ++i) {
     Arcadia_Real32Value x = vertices[i * componentsInVertex + 0];
@@ -398,7 +401,8 @@ test4
   expectSize(thread, "the baked mesh does not have 3 vertices.", Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer), 3);
   expectComponents(thread, "the mesh-wide ambient color of the baked mesh is wrong.", Arcadia_Media_Geometry_getAmbientColor(thread, geometry), 1.f, 0.f, 0.f, 1.f);
   //
-  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   // The positions of the baked mesh are copied as is.
   expectFloat(thread, "the first vertex of the baked mesh is wrong.", vertices[0 * componentsInVertex + 0], 0.f);
   expectFloat(thread, "the second vertex of the baked mesh is wrong.", vertices[1 * componentsInVertex + 0], 1.f);
@@ -531,9 +535,12 @@ test8
   Arcadia_ADL_Definitions_link(thread, definitions);
   //
   Arcadia_Media_Geometry* geometry = Arcadia_Media_Geometry_createFromMeshGenerator(thread, getMeshGenerator(thread, definitions, "MyGame.Meshes.MyPlane"));
-  //
+  Arcadia_Object_lock(thread, (Arcadia_Object*)geometry);
+  // Root each copy before obtaining the next: constructing a ByteArray may trigger GC.
   Arcadia_Media_VertexBuffer* vertexBuffer1 = Arcadia_Media_Geometry_getVertexBuffer(thread, geometry);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer1);
   Arcadia_Media_VertexBuffer* vertexBuffer2 = Arcadia_Media_Geometry_getVertexBuffer(thread, geometry);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer2);
   // Both copies describe the same geometry.
   expectSize(thread, "the first vertex buffer of the plane does not have 6 vertices.", Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer1), 6);
   expectSize(thread, "the second vertex buffer of the plane does not have 6 vertices.", Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer2), 6);
@@ -573,13 +580,13 @@ test8
               vertices2[0], reference);
   // ... nor the geometry.
   Arcadia_Media_VertexBuffer* vertexBuffer3 = Arcadia_Media_Geometry_getVertexBuffer(thread, geometry);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer3);
   Arcadia_Real32Value const* vertices3 = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
     Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer3));
   expectFloat(thread, "changing the vertex data of a vertex buffer of the plane changed the vertex data of the plane.",
               vertices3[0], reference);
 
   // A new copy owns independent bytes and retains the exact descriptor.
-  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer1);
   Arcadia_Media_VertexBuffer* copy = Arcadia_Media_VertexBuffer_copy(thread, vertexBuffer1);
   Arcadia_Object_lock(thread, (Arcadia_Object*)copy);
   if (Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, copy) !=
@@ -608,7 +615,6 @@ test8
 
   // The vertex buffer must retain its managed ByteArray through garbage collection.
   Arcadia_Real32Value expectedAfterGC = vertices1[0];
-  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer1);
   Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
   expectFloat(thread, "vertex storage was lost during GC.",
               ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
@@ -634,7 +640,10 @@ test8
               ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
                 Arcadia_Media_VertexBuffer_getVertexBytes(thread, copy)))[0], copiedFirst);
   Arcadia_Object_unlock(thread, (Arcadia_Object*)copy);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)vertexBuffer3);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)vertexBuffer2);
   Arcadia_Object_unlock(thread, (Arcadia_Object*)vertexBuffer1);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)geometry);
 }
 
 static void

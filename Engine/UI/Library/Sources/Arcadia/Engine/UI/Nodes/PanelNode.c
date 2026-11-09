@@ -327,8 +327,9 @@ Arcadia_Engine_UI_PanelNode_updateBackgroundGeometry
   Arcadia_Real32Value border = (Arcadia_Real32Value)borderWidth;
   Arcadia_Real32Value maxBorder = (width < height ? (Arcadia_Real32Value)width : (Arcadia_Real32Value)height) * 0.5f;
   if (border > maxBorder) border = maxBorder;
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread,
-    Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh));
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread,
+      Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh)));
   writeBackgroundQuadPositions(vertices, 0, x0 + border, y0 + border, x1 - border, y1 - border);
   if (border > 0.f) {
     writeBackgroundQuadPositions(vertices, 6, x0, y0, x1, y0 + border);
