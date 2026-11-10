@@ -35,6 +35,7 @@ testByteArrayStorage(Arcadia_Thread* thread)
   Arcadia_Media_PixelBuffer* a = Arcadia_Media_PixelBuffer_create(thread, 0, 2, 2,
     Arcadia_Media_PixelFormat_RedGreenBlueNatural8);
   Arcadia_Object_lock(thread, (Arcadia_Object*)a);
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   Arcadia_ByteArray* storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, a);
   Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isMutable(thread, storage));
   Arcadia_Tests_assertFalse(thread, Arcadia_ByteArray_isResizable(thread, storage));
@@ -43,12 +44,14 @@ testByteArrayStorage(Arcadia_Thread* thread)
   Arcadia_Tests_assertEqualSize(thread, Arcadia_ByteArray_getSize(thread, storage), 12);
 
   Arcadia_Media_PixelBuffer_setLinePadding(thread, a, 2);
+  Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
   storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, a);
   Arcadia_Tests_assertEqualSize(thread, Arcadia_ByteArray_getSize(thread, storage), 16);
   Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread, storage) == a->bytes);
 
   Arcadia_Media_PixelBuffer_setPixelFormat(thread, a,
     Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
+  Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
   storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, a);
   Arcadia_Tests_assertEqualSize(thread, Arcadia_ByteArray_getSize(thread, storage), 20);
   Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread, storage) == a->bytes);
@@ -71,6 +74,7 @@ testByteArrayStorage(Arcadia_Thread* thread)
     Arcadia_Media_PixelBuffer_getPixelBytes(thread, b)) == b->bytes);
 
   Arcadia_Media_PixelBuffer_assign(thread, a, b);
+  Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
   Arcadia_Tests_assertTrue(thread, a->bytes != b->bytes);
   Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
   Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread,

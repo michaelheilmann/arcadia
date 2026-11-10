@@ -453,12 +453,24 @@ Arcadia_Media_PixelBuffer_setPixelFormat
   size_t targetNumberOfBytesPerPixel = 0;
   getTranscodeCallbacks(thread, self->pixelFormat, &sourceNumberOfBytesPerPixel, &decodeCallback, pixelFormat, &targetNumberOfBytesPerPixel, &encodeCallback);
 
+  // Allocation may collect. Keep the source and the replacement storage rooted
+  // until the format/bytes pair has been committed to the receiver.
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
   Arcadia_Natural8Value* sourceBytes = self->bytes;
   Arcadia_Natural8Value* targetBytes = NULL;
   Arcadia_ByteArray* targetStorage = NULL;
   if (sourceNumberOfBytesPerPixel != targetNumberOfBytesPerPixel) {
     Arcadia_SizeValue size = (self->width * targetNumberOfBytesPerPixel + self->linePadding) * self->height;
     targetStorage = Arcadia_ByteArrayFactory_createMutable(thread, size);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)targetStorage);
     targetBytes = Arcadia_ByteArray_getMutableBytes(thread, targetStorage);
   } else {
     targetBytes = self->bytes;
@@ -480,6 +492,8 @@ Arcadia_Media_PixelBuffer_setPixelFormat
     self->bytes = targetBytes;
   }
   self->pixelFormat = pixelFormat;
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -505,12 +519,22 @@ Arcadia_Media_PixelBuffer_setLinePadding
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
       Arcadia_Thread_jump(thread);
     }
+    Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+    Arcadia_JumpTarget jump;
+    Arcadia_Thread_pushJumpTarget(thread, &jump);
+    if (!Arcadia_JumpTarget_save(&jump)) {
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
     Arcadia_Integer32Value bytesPerPixel = Arcadia_Media_PixelFormat_getNumberOfBytes(thread, self->pixelFormat);
     Arcadia_Integer32Value oldLinePadding = self->linePadding;
     Arcadia_Integer32Value newLinePadding = linePadding;
     Arcadia_Natural8Value* oldBytes = self->bytes;
     Arcadia_SizeValue size = (self->width * bytesPerPixel + newLinePadding) * self->height;
     Arcadia_ByteArray* newStorage = Arcadia_ByteArrayFactory_createMutable(thread, size);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)newStorage);
     Arcadia_Natural8Value* newBytes = Arcadia_ByteArray_getMutableBytes(thread, newStorage);
     for (Arcadia_SizeValue rowIndex = 0; rowIndex < self->height; ++rowIndex) {
       Arcadia_Natural8Value* oldLine = oldBytes + rowIndex * (self->width * bytesPerPixel + oldLinePadding);
@@ -520,6 +544,8 @@ Arcadia_Media_PixelBuffer_setLinePadding
     self->byteStorage = newStorage;
     self->bytes = newBytes;
     self->linePadding = linePadding;
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   }
 }
 
@@ -1141,9 +1167,20 @@ Arcadia_Media_PixelBuffer_assign
   if (self == other) {
     return;
   } else {
+    Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+    Arcadia_JumpTarget jump;
+    Arcadia_Thread_pushJumpTarget(thread, &jump);
+    if (!Arcadia_JumpTarget_save(&jump)) {
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)other);
     Arcadia_SizeValue bytesPerPixel = Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, other);
     Arcadia_SizeValue numberOfBytes = (other->width * bytesPerPixel + other->linePadding) * other->height;
     Arcadia_ByteArray* storage = Arcadia_ByteArrayFactory_createMutable(thread, numberOfBytes);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)storage);
     Arcadia_Natural8Value* bytes = Arcadia_ByteArray_getMutableBytes(thread, storage);
     if (numberOfBytes) {
       Arcadia_Memory_copy(thread, bytes, other->bytes, numberOfBytes);
@@ -1154,6 +1191,8 @@ Arcadia_Media_PixelBuffer_assign
     self->height = other->height;
     self->linePadding = other->linePadding;
     self->pixelFormat = other->pixelFormat;
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
   }
 }
 
