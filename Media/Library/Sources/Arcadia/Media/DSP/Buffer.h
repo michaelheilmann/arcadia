@@ -20,6 +20,7 @@
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
   #error("do not include directly, include `Arcadia/Media/Include.h` instead")
 #endif
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Ring2/Include.h"
 
 /// @brief Internal mono Real32 sample buffer used while rendering DSP graphs.
@@ -39,6 +40,8 @@ struct Arcadia_Media_DSP_Buffer {
   Arcadia_Real32Value* samples;
   Arcadia_Natural32Value sampleRate;
   Arcadia_SizeValue numberOfSamples;
+  /// Fixed-size mutable storage owning the mono Real32 sample bytes.
+  Arcadia_ByteArray* sampleBytes;
 };
 
 /// @brief Create a zero-initialized DSP buffer.
@@ -86,5 +89,11 @@ Arcadia_Media_DSP_Buffer_getNumberOfSamples
     Arcadia_Thread* thread,
     Arcadia_Media_DSP_Buffer* self
   );
+
+/// @brief Return the fixed-size, mutable ByteArray owning the sample storage.
+/// @details Native C code may bulk borrow its bytes. Buffer ownership keeps it
+///          alive until the DSP.Buffer itself becomes unreachable.
+Arcadia_ByteArray*
+Arcadia_Media_DSP_Buffer_getSampleBytes(Arcadia_Thread* thread, Arcadia_Media_DSP_Buffer* self);
 
 #endif // ARCADIA_MEDIA_DSP_BUFFER_H_INCLUDED

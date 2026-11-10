@@ -20,6 +20,7 @@
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
   #error("do not include directly, include `Arcadia/Media/Include.h` instead")
 #endif
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Ring2/Include.h"
 #include "Arcadia/Media/PixelFormat.h"
 
@@ -33,7 +34,7 @@ struct Arcadia_Media_PixelBufferDispatch {
 
 struct Arcadia_Media_PixelBuffer {
   Arcadia_Object _parent;
-  /// A pointer to the Bytes of this pixel buffer.
+  /// Compatibility pointer into storage; never free/reallocate this field directly.
   Arcadia_Natural8Value* bytes;
   /// The pixel format of this pixel buffer.
   Arcadia_Media_PixelFormat pixelFormat;
@@ -43,6 +44,8 @@ struct Arcadia_Media_PixelBuffer {
   Arcadia_Integer32Value width;
   /// The line padding of this pixel buffer.
   Arcadia_Integer32Value linePadding;
+  /// Fixed-size, mutable, contiguous storage that owns the pixel bytes.
+  Arcadia_ByteArray* byteStorage;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -429,5 +432,13 @@ Arcadia_Media_PixelBuffer_assign
     Arcadia_Media_PixelBuffer* self,
     Arcadia_Media_PixelBuffer* other
   );
+
+/// @brief Obtain the fixed-size mutable contiguous ByteArray owning all pixel bytes.
+/// @details The view includes row padding; width/height, format and padding changes
+///          can replace this storage object, invalidating earlier byte borrows.
+///          Keep the PixelBuffer alive while using its storage. Native-only pointers
+///          never cross an Arcadia.Value/PDL boundary.
+Arcadia_ByteArray*
+Arcadia_Media_PixelBuffer_getPixelBytes(Arcadia_Thread* thread, Arcadia_Media_PixelBuffer* self);
 
 #endif // ARCADIA_MEDIA_PIXELBUFFER_H_INCLUDED

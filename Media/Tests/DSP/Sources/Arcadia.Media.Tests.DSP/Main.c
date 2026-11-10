@@ -133,9 +133,19 @@ testBuffer
   Arcadia_Tests_assertTrue(thread, 48000 == Arcadia_Media_DSP_Buffer_getSampleRate(thread, buffer));
   Arcadia_Tests_assertTrue(thread, 4 == Arcadia_Media_DSP_Buffer_getNumberOfSamples(thread, buffer));
   Arcadia_Real32Value* samples = Arcadia_Media_DSP_Buffer_getSamples(thread, buffer);
+  Arcadia_ByteArray* byteStorage = Arcadia_Media_DSP_Buffer_getSampleBytes(thread, buffer);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isMutable(thread, byteStorage));
+  Arcadia_Tests_assertFalse(thread, Arcadia_ByteArray_isResizable(thread, byteStorage));
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isContiguous(thread, byteStorage));
+  Arcadia_Tests_assertEqualSize(thread, 4 * sizeof(Arcadia_Real32Value),
+    Arcadia_ByteArray_getSize(thread, byteStorage));
+  Arcadia_Tests_assertTrue(thread, (void*)samples == (void*)Arcadia_ByteArray_getMutableBytes(thread, byteStorage));
   for (Arcadia_SizeValue i = 0; i < 4; ++i) {
     assertReal32Near(thread, samples[i], 0.0f);
   }
+  samples[1] = 0.5f;
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  assertReal32Near(thread, Arcadia_Media_DSP_Buffer_getSamples(thread, buffer)[1], 0.5f);
   Arcadia_Object_unlock(thread, (Arcadia_Object*)buffer);
 }
 

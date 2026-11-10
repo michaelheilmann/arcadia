@@ -16,6 +16,7 @@
 
 #define ARCADIA_MEDIA_PRIVATE (1)
 #include "Arcadia/Media/DSP/Buffer.h"
+#include <stdint.h>
 
 static void
 Arcadia_Media_DSP_Buffer_constructImpl
@@ -38,11 +39,15 @@ Arcadia_Media_DSP_Buffer_initializeDispatchImpl
     Arcadia_Media_DSP_BufferDispatch* self
   );
 
+static void
+Arcadia_Media_DSP_Buffer_visitImpl(Arcadia_Thread* thread, Arcadia_Media_DSP_Buffer* self);
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Media_DSP_Buffer_constructImpl,
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&Arcadia_Media_DSP_Buffer_destructImpl,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Media_DSP_Buffer_initializeDispatchImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Media_DSP_Buffer_visitImpl,
 };
 
 static const Arcadia_Type_Operations _typeOperations = {
@@ -71,16 +76,21 @@ Arcadia_Media_DSP_Buffer_constructImpl
     Arcadia_Thread_jump(thread);
   }
   self->samples = NULL;
+  self->sampleBytes = NULL;
   self->sampleRate = Arcadia_ValueStack_getNatural32Value(thread, 2);
   self->numberOfSamples = Arcadia_ValueStack_getSizeValue(thread, 1);
   if (!self->sampleRate) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  self->samples = Arcadia_Memory_allocateUnmanaged(thread, self->numberOfSamples * sizeof(Arcadia_Real32Value));
-  for (Arcadia_SizeValue i = 0, n = self->numberOfSamples; i < n; ++i) {
-    self->samples[i] = 0.0f;
+  if (self->numberOfSamples > SIZE_MAX / sizeof(Arcadia_Real32Value)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
   }
+  // Factory memory is zero-filled and owned by the managed ByteArray.
+  self->sampleBytes = Arcadia_ByteArrayFactory_createMutable(thread,
+    self->numberOfSamples * sizeof(Arcadia_Real32Value));
+  self->samples = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, self->sampleBytes);
   Arcadia_LeaveConstructor(Arcadia_Media_DSP_Buffer);
 }
 
@@ -91,9 +101,16 @@ Arcadia_Media_DSP_Buffer_destructImpl
     Arcadia_Media_DSP_Buffer* self
   )
 {
-  if (self->samples) {
-    Arcadia_Memory_deallocateUnmanaged(thread, self->samples);
-    self->samples = NULL;
+  // Storage is GC-managed; no native free here.
+  self->samples = NULL;
+  self->sampleBytes = NULL;
+}
+
+static void
+Arcadia_Media_DSP_Buffer_visitImpl(Arcadia_Thread* thread, Arcadia_Media_DSP_Buffer* self)
+{
+  if (self->sampleBytes) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->sampleBytes);
   }
 }
 
@@ -143,3 +160,7 @@ Arcadia_Media_DSP_Buffer_getNumberOfSamples
     Arcadia_Media_DSP_Buffer* self
   )
 { return self->numberOfSamples; }
+
+Arcadia_ByteArray*
+Arcadia_Media_DSP_Buffer_getSampleBytes(Arcadia_Thread* thread, Arcadia_Media_DSP_Buffer* self)
+{ return self->sampleBytes; }

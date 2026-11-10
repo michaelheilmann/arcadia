@@ -27,6 +27,62 @@
 #include "Values.h"
 #include "NamedColors.h"
 
+static void
+testByteArrayStorage(Arcadia_Thread* thread)
+{
+  // Verify that the native compatibility pointer always aliases managed
+  // storage through changes which replace allocations.
+  Arcadia_Media_PixelBuffer* a = Arcadia_Media_PixelBuffer_create(thread, 0, 2, 2,
+    Arcadia_Media_PixelFormat_RedGreenBlueNatural8);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)a);
+  Arcadia_ByteArray* storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, a);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isMutable(thread, storage));
+  Arcadia_Tests_assertFalse(thread, Arcadia_ByteArray_isResizable(thread, storage));
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isContiguous(thread, storage));
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread, storage) == a->bytes);
+  Arcadia_Tests_assertEqualSize(thread, Arcadia_ByteArray_getSize(thread, storage), 12);
+
+  Arcadia_Media_PixelBuffer_setLinePadding(thread, a, 2);
+  storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, a);
+  Arcadia_Tests_assertEqualSize(thread, Arcadia_ByteArray_getSize(thread, storage), 16);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread, storage) == a->bytes);
+
+  Arcadia_Media_PixelBuffer_setPixelFormat(thread, a,
+    Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
+  storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, a);
+  Arcadia_Tests_assertEqualSize(thread, Arcadia_ByteArray_getSize(thread, storage), 20);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread, storage) == a->bytes);
+
+  Arcadia_Media_PixelBuffer_setWidth(thread, a, 3);
+  storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, a);
+  Arcadia_Tests_assertEqualSize(thread, Arcadia_ByteArray_getSize(thread, storage), 28);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread, storage) == a->bytes);
+
+  Arcadia_Media_PixelBuffer* b = Arcadia_Media_PixelBuffer_createClone(thread, a);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)b);
+  Arcadia_Tests_assertTrue(thread, b->bytes != a->bytes);
+  Arcadia_Tests_assertEqualSize(thread,
+    Arcadia_ByteArray_getSize(thread, Arcadia_Media_PixelBuffer_getPixelBytes(thread, b)), 28);
+
+  Arcadia_Media_PixelBuffer_swap(thread, a, b);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, a)) == a->bytes);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, b)) == b->bytes);
+
+  Arcadia_Media_PixelBuffer_assign(thread, a, b);
+  Arcadia_Tests_assertTrue(thread, a->bytes != b->bytes);
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, a)) == a->bytes);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)b);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)a);
+}
+
+static int
+runByteArrayStorage(void)
+{ return Arcadia_Tests_safeExecute(&testByteArrayStorage) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
 int
 main
   (
@@ -35,6 +91,7 @@ main
   )
 {
   static const Arcadia_Testing_Case cases[] = {
+    { "ByteArrayStorage", &runByteArrayStorage },
     { "Operations", &Arcadia_Media_Tests_PixelBuffer_operations },
     { "Fills", &Arcadia_Media_Tests_PixelBuffer_fills },
     { "FormatMetadata", &Arcadia_Media_Tests_PixelBuffer_formatMetadata },
