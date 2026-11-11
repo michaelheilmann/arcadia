@@ -91,6 +91,9 @@ testManagedPixelStorage(Arcadia_Thread* thread)
   Arcadia_String* extension = Arcadia_String_createFromCxxString(thread, u8"bmp");
   Arcadia_Object_lock(thread, (Arcadia_Object*)extension);
   Arcadia_Imaging_ImageManager* manager = Arcadia_Imaging_ImageManager_getOrCreate(thread);
+  // Filtering allocates a list; keep the weakly cached manager alive while
+  // obtaining and using its registered writer instances.
+  Arcadia_Object_lock(thread, (Arcadia_Object*)manager);
   Arcadia_List* writers = Arcadia_Imaging_ImageManager_getWriters(thread, manager, extension);
   Arcadia_Object_lock(thread, (Arcadia_Object*)writers);
   Arcadia_Tests_assertTrue(thread,
@@ -145,6 +148,7 @@ testManagedPixelStorage(Arcadia_Thread* thread)
   Arcadia_Object_unlock(thread, (Arcadia_Object*)sources);
   Arcadia_Object_unlock(thread, (Arcadia_Object*)writer);
   Arcadia_Object_unlock(thread, (Arcadia_Object*)writers);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)manager);
   Arcadia_Object_unlock(thread, (Arcadia_Object*)extension);
 }
 

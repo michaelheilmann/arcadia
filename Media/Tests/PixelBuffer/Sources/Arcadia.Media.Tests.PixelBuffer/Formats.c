@@ -186,19 +186,18 @@ testResize
     Arcadia_Media_PixelBuffer* buffer = Arcadia_Media_PixelBuffer_create(thread, 5, 3, 2, formats[i]);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, buffer);
     Arcadia_SizeValue oldStride = 3 * byteCounts[formats[i]] + 5;
-    // A guard tail makes an old out-of-bounds fill fail an assertion without
-    // corrupting the allocator before the test can report the failure.
-    Arcadia_Memory_reallocateUnmanaged(thread, (void**)&buffer->bytes, oldStride * 2 + 16);
-    memset(buffer->bytes, 0xa7, oldStride * 2 + 16);
+    // This is a borrowed pointer into ByteArray-owned storage. Never call
+    // reallocateUnmanaged on it: doing so corrupts the owner allocation.
+    Arcadia_ByteArray* storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, buffer);
+    Arcadia_Tests_assertEqualSize(thread, oldStride * 2, Arcadia_ByteArray_getSize(thread, storage));
+    Arcadia_Tests_assertTrue(thread, buffer->bytes == Arcadia_ByteArray_getMutableBytes(thread, storage));
+    memset(buffer->bytes, 0xa7, oldStride * 2);
     Arcadia_Media_PixelBuffer_fill(thread, buffer, 17, 53, 101, 149);
-    // In particular, BGRA must advance each pixel once, not twice.
+    // Ensure each pixel is written exactly once and row padding is untouched.
     for (Arcadia_SizeValue y = 0; y < 2; ++y) {
       for (Arcadia_SizeValue x = 3 * byteCounts[formats[i]]; x < oldStride; ++x) {
         Arcadia_Tests_assertTrue(thread, buffer->bytes[y * oldStride + x] == 0xa7);
       }
-    }
-    for (Arcadia_SizeValue x = oldStride * 2; x < oldStride * 2 + 16; ++x) {
-      Arcadia_Tests_assertTrue(thread, buffer->bytes[x] == 0xa7);
     }
     Arcadia_Media_PixelBuffer_setWidth(thread, buffer, 7);
     Arcadia_Media_PixelBuffer_setHeight(thread, buffer, 5);
