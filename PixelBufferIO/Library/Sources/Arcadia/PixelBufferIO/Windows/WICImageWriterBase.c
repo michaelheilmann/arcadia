@@ -274,12 +274,16 @@ startup3
   switch (sourcePixelBuffer->pixelFormat) {
     case Arcadia_Media_PixelFormat_AlphaRedGreenBlueNatural8: {
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      // Root the converted pixel storage until the encoder has consumed it.
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8);
       sourcePixelBuffer = pixelBuffer;
       formatGUID = GUID_WICPixelFormat32bppBGRA;
     } break;
     case Arcadia_Media_PixelFormat_AlphaBlueGreenRedNatural8: {
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      // Root the converted pixel storage until the encoder has consumed it.
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8);
       sourcePixelBuffer = pixelBuffer;
       formatGUID = GUID_WICPixelFormat32bppBGRA;
@@ -294,6 +298,8 @@ startup3
       // WIC's native 24bppBGR has the components in the order blue, green, red in memory.
       // A source in the order red, green, blue must therefore be transcoded.
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      // Root the converted pixel storage until the encoder has consumed it.
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_BlueGreenRedNatural8);
       sourcePixelBuffer = pixelBuffer;
       formatGUID = GUID_WICPixelFormat24bppBGR;
@@ -305,6 +311,8 @@ startup3
       // the order red, green, blue, alpha must be transcoded explicitly. Without this,
       // red and blue end up exchanged in the encoded image.
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      // Root the converted pixel storage until the encoder has consumed it.
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8);
       sourcePixelBuffer = pixelBuffer;
       formatGUID = GUID_WICPixelFormat32bppBGRA;
@@ -454,6 +462,13 @@ Arcadia_Imaging_Windows_WICImageWriterBase_doWrite
     Arcadia_Imaging_ImageWriterParameters* parameters
   )
 {
+  // Keep the writer, source pixels, and destination alive across WIC calls.
+  // startup3 may also push converted PixelBuffer clones onto this frame.
+  // Those roots stay in place until WritePixels/Commit and cleanup complete.
+  Arcadia_SizeValue rootBase = Arcadia_ValueStack_getSize(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)parameters);
   const Module modules[] = {
    { &startupFactory, &shutdownFactory },
    { &startup1, &shutdown1 },
@@ -474,6 +489,7 @@ Arcadia_Imaging_Windows_WICImageWriterBase_doWrite
       while (currentModule > 0) {
         modules[--currentModule].shutdown(thread, self, sourcePixelBuffer, parameters);
       }
+      Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
       Arcadia_Thread_jump(thread);
     }
   }
@@ -481,6 +497,7 @@ Arcadia_Imaging_Windows_WICImageWriterBase_doWrite
   while (currentModule > 0) {
     modules[--currentModule].shutdown(thread, self, sourcePixelBuffer, parameters);
   }
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
 }
 
 void
