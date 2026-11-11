@@ -255,9 +255,9 @@ Arcadia_Media_SampleBuffer_fill
       } break;
       case Arcadia_Media_SampleFormat_Integer8: {
         Arcadia_Real32Value* source = Arcadia_Media_DSP_Buffer_getSamples(thread, temporary);
-        Arcadia_Integer16Value* p = (Arcadia_Integer16Value*)self->bytes;
+        Arcadia_Integer8Value* p = (Arcadia_Integer8Value*)self->bytes;
         for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
-          Arcadia_Integer16Value sample = Arcadia_Media_quantizeInteger16(thread, source[i]);
+          Arcadia_Integer8Value sample = Arcadia_Media_quantizeInteger8(thread, source[i]);
           p[i] = sample;
         }
       } break;

@@ -81,6 +81,31 @@ runConstruction
   return Arcadia_Tests_safeExecute(&test1) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+// Exercise signed 8-bit DSP output, including its final sample, after GC.
+static void
+testInteger8DspFill(Arcadia_Thread* thread)
+{
+  Arcadia_Media_SampleBuffer* buffer =
+    Arcadia_Media_SampleBuffer_create(thread, 1, 8, Arcadia_Media_SampleFormat_Integer8);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)buffer);
+  Arcadia_Media_DSP_SineWave* sine = Arcadia_Media_DSP_SineWave_create(thread, 1.0f);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)sine);
+  Arcadia_Media_SampleBuffer_fill(thread, buffer, (Arcadia_Media_DSP*)sine);
+  Arcadia_Integer8Value* pcm = (Arcadia_Integer8Value*)buffer->bytes;
+  Arcadia_Tests_assertTrue(thread, pcm[0] == 0);
+  Arcadia_Tests_assertTrue(thread, pcm[2] >= 126);
+  Arcadia_Tests_assertTrue(thread, pcm[6] <= -126);
+  Arcadia_Tests_assertTrue(thread, pcm[7] < 0);
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  Arcadia_Tests_assertTrue(thread, pcm[2] >= 126 && pcm[6] <= -126);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)sine);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)buffer);
+}
+
+static int
+runInteger8DspFill(void)
+{ return Arcadia_Tests_safeExecute(&testInteger8DspFill) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
 int
 main
   (
@@ -91,6 +116,7 @@ main
   static const Arcadia_Testing_Case cases[] = {
     { "Construction", &runConstruction },
     { "Formats", &Arcadia_Media_Tests_SampleBuffer_formats },
+    { "Integer8DspFill", &runInteger8DspFill },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }
