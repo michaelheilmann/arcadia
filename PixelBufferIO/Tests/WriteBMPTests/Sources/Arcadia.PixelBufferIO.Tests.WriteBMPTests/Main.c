@@ -101,6 +101,14 @@ testManagedPixelStorage(Arcadia_Thread* thread)
   Arcadia_Imaging_ImageWriter* writer = (Arcadia_Imaging_ImageWriter*)
     Arcadia_List_getObjectReferenceValueAt(thread, writers, 0);
   Arcadia_Object_lock(thread, (Arcadia_Object*)writer);
+  // Check the writer's own supportedTypes reference independently of WIC.
+  // Without an object visitor this list is reclaimed by the first GC pass.
+  for (Arcadia_SizeValue gcPass = 0; gcPass < 3; ++gcPass) {
+    Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+    Arcadia_ImmutableList* supported = Arcadia_Imaging_ImageWriter_getSupportedTypes(thread, writer);
+    Arcadia_Tests_assertTrue(thread, Arcadia_List_contains(thread, (Arcadia_List*)supported,
+      Arcadia_Value_makeObjectReferenceValue(extension)));
+  }
   Arcadia_List* sources = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   Arcadia_Object_lock(thread, (Arcadia_Object*)sources);
 
