@@ -106,6 +106,37 @@ static int
 runInteger8DspFill(void)
 { return Arcadia_Tests_safeExecute(&testInteger8DspFill) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
+static void
+expectInvalidDimensions(Arcadia_Thread* thread, Arcadia_Integer32Value length,
+                        Arcadia_Integer32Value sampleRate)
+{
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Media_SampleBuffer_create(thread, length, sampleRate, Arcadia_Media_SampleFormat_Integer8);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, false);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, Arcadia_Thread_getStatus(thread) == Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_setStatus(thread, 0);
+  }
+}
+
+static void
+testDimensions(Arcadia_Thread* thread)
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  expectInvalidDimensions(thread, -1, 48000);
+  expectInvalidDimensions(thread, 1, 0);
+  expectInvalidDimensions(thread, 1, -1);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+static int
+runDimensions(void)
+{ return Arcadia_Tests_safeExecute(&testDimensions) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
 int
 main
   (
@@ -117,6 +148,7 @@ main
     { "Construction", &runConstruction },
     { "Formats", &Arcadia_Media_Tests_SampleBuffer_formats },
     { "Integer8DspFill", &runInteger8DspFill },
+    { "Dimensions", &runDimensions },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }
