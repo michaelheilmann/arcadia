@@ -19,6 +19,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "Arcadia/Media/Include.h"
 
@@ -927,6 +928,94 @@ runReproducibility
   return Arcadia_Tests_safeExecute(&testReproducibility) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+
+static void
+testBufferStorageEdges(Arcadia_Thread* thread)
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_Media_DSP_Buffer* empty = createLockedBuffer(thread, 48000, 0);
+  Arcadia_ByteArray* bytes = Arcadia_Media_DSP_Buffer_getSampleBytes(thread, empty);
+  Arcadia_Tests_assertEqualSize(thread, 0, Arcadia_ByteArray_getSize(thread, bytes));
+  Arcadia_Tests_assertEqualSize(thread, 0, Arcadia_Media_DSP_Buffer_getNumberOfSamples(thread, empty));
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isMutable(thread, bytes));
+  Arcadia_Tests_assertFalse(thread, Arcadia_ByteArray_isResizable(thread, bytes));
+  Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isContiguous(thread, bytes));
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  Arcadia_Tests_assertTrue(thread, (void*)Arcadia_Media_DSP_Buffer_getSamples(thread, empty) ==
+    (void*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_DSP_Buffer_getSampleBytes(thread, empty)));
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)empty);
+
+  Arcadia_Media_DSP_Buffer* populated = createLockedBuffer(thread, 48000, 4096);
+  Arcadia_Real32Value* samples = Arcadia_Media_DSP_Buffer_getSamples(thread, populated);
+  for (Arcadia_SizeValue i = 0; i < 4096; ++i) {
+    Arcadia_Tests_assertTrue(thread, samples[i] == 0.f);
+  }
+  samples[0] = 0.25f;
+  samples[4095] = -0.5f;
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Media_DSP_Buffer_getSamples(thread, populated)[0] == 0.25f);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Media_DSP_Buffer_getSamples(thread, populated)[4095] == -0.5f);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)populated);
+
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (Arcadia_JumpTarget_save(&jump)) {
+    (void)Arcadia_Media_DSP_Buffer_create(thread, 0, 4);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, false);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_ArgumentValueInvalid, status);
+  }
+
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (Arcadia_JumpTarget_save(&jump)) {
+    (void)Arcadia_Media_DSP_Buffer_create(thread, 48000, SIZE_MAX);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, false);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_AllocationFailed, status);
+  }
+  Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
+}
+
+static int
+runBufferStorageEdges(void)
+{ return Arcadia_Tests_safeExecute(&testBufferStorageEdges) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
+static void
+testBufferStorageStress(Arcadia_Thread* thread)
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_Media_DSP_Buffer* buffer = createLockedBuffer(thread, 48000, 4096);
+  Arcadia_Real32Value* samples = Arcadia_Media_DSP_Buffer_getSamples(thread, buffer);
+  Arcadia_Tests_assertTrue(thread, (void*)samples == (void*)Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_DSP_Buffer_getSampleBytes(thread, buffer)));
+  for (Arcadia_SizeValue i = 0; i < 4096; ++i) {
+    Arcadia_Tests_assertTrue(thread, samples[i] == 0.0f);
+    samples[i] = (Arcadia_Real32Value)(i % 17) * 0.125f;
+  }
+  for (Arcadia_SizeValue pass = 0; pass < 4; ++pass) {
+    Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+    samples = Arcadia_Media_DSP_Buffer_getSamples(thread, buffer);
+    Arcadia_Tests_assertTrue(thread, (void*)samples == (void*)Arcadia_ByteArray_getMutableBytes(thread,
+      Arcadia_Media_DSP_Buffer_getSampleBytes(thread, buffer)));
+    for (Arcadia_SizeValue i = 0; i < 4096; ++i) {
+      Arcadia_Tests_assertTrue(thread, samples[i] == (Arcadia_Real32Value)(i % 17) * 0.125f);
+    }
+  }
+  Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)buffer);
+}
+
+static int
+runBufferStorageStress(void)
+{ return Arcadia_Tests_safeExecute(&testBufferStorageStress) ? EXIT_SUCCESS : EXIT_FAILURE; }
 int
 main
   (
@@ -936,6 +1025,8 @@ main
 {
   static const Arcadia_Testing_Case cases[] = {
     { "DSP", &runTests },
+    { "BufferStorageEdges", &runBufferStorageEdges },
+    { "BufferStorageStress", &runBufferStorageStress },
     { "WaveFrequencyDomain", &runWaveFrequencyDomain },
     { "MixSummation", &runMixSummation },
     { "Reproducibility", &runReproducibility },

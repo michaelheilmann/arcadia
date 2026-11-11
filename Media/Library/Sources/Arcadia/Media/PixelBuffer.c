@@ -20,10 +20,38 @@
 
 #include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Ring2/Include.h"
+#include <stdint.h>
 
 typedef struct PIXEL {
   Arcadia_Natural8Value r, g, b, a;
 } PIXEL;
+
+// The stored dimensions/padding are signed. Validate them before converting
+// to Size, and check BOTH row-stride addition and full-image multiplication.
+// This is storage accounting; pixel loops remain native and unchanged.
+static Arcadia_SizeValue
+checkedPixelStorageSize(Arcadia_Thread* thread, Arcadia_Integer32Value width,
+                        Arcadia_Integer32Value height, Arcadia_Integer32Value padding,
+                        Arcadia_SizeValue bytesPerPixel)
+{
+  if (width < 0 || height < 0 || padding < 0 || !bytesPerPixel) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_SizeValue w = (Arcadia_SizeValue)width;
+  Arcadia_SizeValue h = (Arcadia_SizeValue)height;
+  Arcadia_SizeValue p = (Arcadia_SizeValue)padding;
+  if (w > (SIZE_MAX - p) / bytesPerPixel) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_SizeValue stride = w * bytesPerPixel + p;
+  if (stride && h > SIZE_MAX / stride) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  return stride * h;
+}
 
 static void inline
 DECODE_ABGR
@@ -307,7 +335,8 @@ Arcadia_Media_PixelBuffer_constructImpl
     self->linePadding = Arcadia_Media_PixelBuffer_getLinePadding(thread, other);
     self->pixelFormat = Arcadia_Media_PixelBuffer_getPixelFormat(thread, other);
     Arcadia_SizeValue bytesPerPixel = Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, other);
-    Arcadia_SizeValue bytes = (bytesPerPixel * self->width + self->linePadding) * self->height;
+    Arcadia_SizeValue bytes = checkedPixelStorageSize(thread, self->width, self->height,
+                                                       self->linePadding, bytesPerPixel);
     self->byteStorage = Arcadia_ByteArrayFactory_createMutable(thread, bytes);
     self->bytes = Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage);
     if (bytes) {
@@ -322,7 +351,8 @@ Arcadia_Media_PixelBuffer_constructImpl
     self->pixelFormat = Arcadia_ValueStack_getNatural32Value(thread, 1);
 
     Arcadia_SizeValue bytesPerPixel = Arcadia_Media_PixelFormat_getNumberOfBytes(thread, self->pixelFormat);
-    Arcadia_SizeValue size = (self->width * bytesPerPixel + self->linePadding) * self->height;
+    Arcadia_SizeValue size = checkedPixelStorageSize(thread, self->width, self->height,
+                                                      self->linePadding, bytesPerPixel);
     self->byteStorage = Arcadia_ByteArrayFactory_createMutable(thread, size);
     self->bytes = Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage);
     switch (self->pixelFormat) {
@@ -468,7 +498,8 @@ Arcadia_Media_PixelBuffer_setPixelFormat
   Arcadia_Natural8Value* targetBytes = NULL;
   Arcadia_ByteArray* targetStorage = NULL;
   if (sourceNumberOfBytesPerPixel != targetNumberOfBytesPerPixel) {
-    Arcadia_SizeValue size = (self->width * targetNumberOfBytesPerPixel + self->linePadding) * self->height;
+    Arcadia_SizeValue size = checkedPixelStorageSize(thread, self->width, self->height,
+                                                      self->linePadding, targetNumberOfBytesPerPixel);
     targetStorage = Arcadia_ByteArrayFactory_createMutable(thread, size);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)targetStorage);
     targetBytes = Arcadia_ByteArray_getMutableBytes(thread, targetStorage);
@@ -532,7 +563,8 @@ Arcadia_Media_PixelBuffer_setLinePadding
     Arcadia_Integer32Value oldLinePadding = self->linePadding;
     Arcadia_Integer32Value newLinePadding = linePadding;
     Arcadia_Natural8Value* oldBytes = self->bytes;
-    Arcadia_SizeValue size = (self->width * bytesPerPixel + newLinePadding) * self->height;
+    Arcadia_SizeValue size = checkedPixelStorageSize(thread, self->width, self->height,
+                                                      newLinePadding, (Arcadia_SizeValue)bytesPerPixel);
     Arcadia_ByteArray* newStorage = Arcadia_ByteArrayFactory_createMutable(thread, size);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)newStorage);
     Arcadia_Natural8Value* newBytes = Arcadia_ByteArray_getMutableBytes(thread, newStorage);
@@ -1178,7 +1210,8 @@ Arcadia_Media_PixelBuffer_assign
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)other);
     Arcadia_SizeValue bytesPerPixel = Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, other);
-    Arcadia_SizeValue numberOfBytes = (other->width * bytesPerPixel + other->linePadding) * other->height;
+    Arcadia_SizeValue numberOfBytes = checkedPixelStorageSize(thread, other->width, other->height,
+                                                               other->linePadding, bytesPerPixel);
     Arcadia_ByteArray* storage = Arcadia_ByteArrayFactory_createMutable(thread, numberOfBytes);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)storage);
     Arcadia_Natural8Value* bytes = Arcadia_ByteArray_getMutableBytes(thread, storage);
