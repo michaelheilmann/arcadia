@@ -21,6 +21,7 @@
 // WIC library
 #pragma comment (lib, "Windowscodecs.lib")
 
+#include <limits.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
@@ -261,9 +262,13 @@ startup3
   )
 {
   HRESULT hr;
-  //
+  // WIC's dimension, stride and byte-count arguments are 32-bit UINTs.
   size_t sourceWidth = Arcadia_Media_PixelBuffer_getNumberOfColumns(thread, sourcePixelBuffer);
   size_t sourceHeight = Arcadia_Media_PixelBuffer_getNumberOfRows(thread, sourcePixelBuffer);
+  if (sourceWidth > UINT_MAX || sourceHeight > UINT_MAX) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   hr = IWICBitmapFrameEncode_SetSize(self->piBitmapFrame, (UINT)sourceWidth, (UINT)sourceHeight);
   if (FAILED(hr)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
@@ -328,8 +333,21 @@ startup3
     Arcadia_Thread_jump(thread);
   }
   size_t sourceLineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, sourcePixelBuffer);
+  if (sourceLineStride > UINT_MAX ||
+      (sourceHeight && sourceLineStride > UINT_MAX / sourceHeight)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   size_t sourceSizeInPixels = sourceLineStride * sourceHeight;
-  hr = IWICBitmapFrameEncode_WritePixels(self->piBitmapFrame, (UINT)sourceHeight, (UINT)sourceLineStride, (UINT)sourceSizeInPixels, (void*)sourcePixelBuffer->bytes);
+  // The source (or converted clone) is rooted by doWrite for the full WIC call.
+  Arcadia_ByteArray* storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, sourcePixelBuffer);
+  if (Arcadia_ByteArray_getSize(thread, storage) < sourceSizeInPixels) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Natural8Value* pixels = Arcadia_ByteArray_getMutableBytes(thread, storage);
+  hr = IWICBitmapFrameEncode_WritePixels(self->piBitmapFrame, (UINT)sourceHeight,
+                                        (UINT)sourceLineStride, (UINT)sourceSizeInPixels, pixels);
   if (FAILED(hr)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
     Arcadia_Thread_jump(thread);
