@@ -164,6 +164,39 @@ static int
 runManagedPixelStorage(void)
 { return Arcadia_Tests_safeExecute(&testManagedPixelStorage) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
+#if Arcadia_Configuration_OperatingSystem_Windows == Arcadia_Configuration_OperatingSystem
+static void
+testTifWriterSupportedTypesGc(Arcadia_Thread* thread)
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_String* extension = Arcadia_String_createFromCxxString(thread, u8"tif");
+  Arcadia_Object_lock(thread, (Arcadia_Object*)extension);
+  Arcadia_Imaging_ImageManager* manager = Arcadia_Imaging_ImageManager_getOrCreate(thread);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)manager);
+  Arcadia_List* writers = Arcadia_Imaging_ImageManager_getWriters(thread, manager, extension);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)writers);
+  Arcadia_Tests_assertEqualSize(thread, 1, Arcadia_Collection_getSize(thread, (Arcadia_Collection*)writers));
+  Arcadia_Imaging_ImageWriter* writer = (Arcadia_Imaging_ImageWriter*)
+    Arcadia_List_getObjectReferenceValueAt(thread, writers, 0);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)writer);
+  for (Arcadia_SizeValue pass = 0; pass < 3; ++pass) {
+    Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+    Arcadia_ImmutableList* supported = Arcadia_Imaging_ImageWriter_getSupportedTypes(thread, writer);
+    Arcadia_Tests_assertTrue(thread, Arcadia_List_contains(thread, (Arcadia_List*)supported,
+      Arcadia_Value_makeObjectReferenceValue(extension)));
+  }
+  Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)writer);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)writers);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)manager);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)extension);
+}
+
+static int
+runTifWriterSupportedTypesGc(void)
+{ return Arcadia_Tests_safeExecute(&testTifWriterSupportedTypesGc) ? EXIT_SUCCESS : EXIT_FAILURE; }
+#endif
+
 static int
 runTests
   (
@@ -186,6 +219,9 @@ main
   static const Arcadia_Testing_Case cases[] = {
     { "WriteBMPTests", &runTests },
     { "ManagedPixelStorage", &runManagedPixelStorage },
+#if Arcadia_Configuration_OperatingSystem_Windows == Arcadia_Configuration_OperatingSystem
+    { "TifWriterSupportedTypesGc", &runTifWriterSupportedTypesGc },
+#endif
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }
