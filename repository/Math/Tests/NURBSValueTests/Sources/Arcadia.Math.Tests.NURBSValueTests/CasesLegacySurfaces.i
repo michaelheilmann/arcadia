@@ -3,7 +3,11 @@
 // Legacy order (4,4) corresponds to Arcadia degree (3,3).
 #define LegacyCheck(test) do { if (!(test)) return EXIT_FAILURE; } while (0)
 
-static int Case(legacyNURBSFlatSurface)(void)
+static int
+Case(legacyNURBSFlatSurface)
+  (
+    void
+  )
 {
   const Scalar points[16][3] = {
     {0,0,0}, {0,1,0}, {0,2,0}, {0,3,0},
@@ -25,7 +29,11 @@ static int Case(legacyNURBSFlatSurface)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(legacyNURBSCurvedSurface)(void)
+static int
+Case(legacyNURBSCurvedSurface)
+  (
+    void
+  )
 {
   const Scalar points[16][3] = {
     {0,0,0}, {0,1,1}, {0,2,1}, {0,3,0},

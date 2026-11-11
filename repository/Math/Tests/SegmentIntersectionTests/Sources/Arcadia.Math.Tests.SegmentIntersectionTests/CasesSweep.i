@@ -253,7 +253,6 @@ T(sweepFirstHit)
   return EXIT_SUCCESS;
 }
 
-
 // A sparse high-cardinality input should not require the quadratic active
 // scan used by the first salvage increment. The entire collection stays
 // active in X, but every lane has a disjoint Y interval.

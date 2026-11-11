@@ -17,9 +17,28 @@
 #if !defined(ARCADIA_MATH_TESTS_VECTORTESTS_VECTOR2_H_INCLUDED)
 #define ARCADIA_MATH_TESTS_VECTORTESTS_VECTOR2_H_INCLUDED
 
-int Arcadia_Math_Tests_Vector2_real32(void);
-int Arcadia_Math_Tests_Vector2_real64(void);
-int Arcadia_Math_Tests_Vector2_templateReal32(void);
-int Arcadia_Math_Tests_Vector2_templateReal64(void);
+int
+Arcadia_Math_Tests_Vector2_real32
+  (
+    void
+  );
+
+int
+Arcadia_Math_Tests_Vector2_real64
+  (
+    void
+  );
+
+int
+Arcadia_Math_Tests_Vector2_templateReal32
+  (
+    void
+  );
+
+int
+Arcadia_Math_Tests_Vector2_templateReal64
+  (
+    void
+  );
 
 #endif // ARCADIA_MATH_TESTS_VECTORTESTS_VECTOR2_H_INCLUDED

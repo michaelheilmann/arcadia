@@ -153,7 +153,6 @@ runCubicBezierReal64
   return Arcadia_Tests_safeExecute(&testCubicBezierReal64) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-
 static void
 testRayIntersectsSphereReal32
   (

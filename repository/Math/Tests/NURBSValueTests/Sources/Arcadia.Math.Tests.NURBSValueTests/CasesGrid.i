@@ -1,7 +1,11 @@
 // Companion-grid tests instantiated for both Real32 and Real64.
 #define GridCheck(test) do { if (!(test)) return EXIT_FAILURE; } while (0)
 
-static int Case(gridCounts)(void)
+static int
+Case(gridCounts)
+  (
+    void
+  )
 {
   Arcadia_SizeValue vertices = 99, triangles = 98;
   GridCheck(Arcadia_Math_NURBS3Grid_getCounts(3, 4, &vertices, &triangles));
@@ -20,7 +24,11 @@ static int Case(gridCounts)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(gridTriangles)(void)
+static int
+Case(gridTriangles)
+  (
+    void
+  )
 {
   Arcadia_SizeValue triangles[12][3];
   for (int i = 0; i < 12; ++i) for (int j = 0; j < 3; ++j) triangles[i][j] = 999;
@@ -37,7 +45,11 @@ static int Case(gridTriangles)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(gridUV)(void)
+static int
+Case(gridUV)
+  (
+    void
+  )
 {
   Scalar uv[12][2];
   for (int i = 0; i < 12; ++i) uv[i][0] = uv[i][1] = (Scalar)-1;
@@ -52,7 +64,11 @@ static int Case(gridUV)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(gridSampleCompatibility)(void)
+static int
+Case(gridSampleCompatibility)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {{0,0,0},{0,2,0},{2,0,0},{2,2,0}};
   const Scalar knots[4] = {0,0,1,1};

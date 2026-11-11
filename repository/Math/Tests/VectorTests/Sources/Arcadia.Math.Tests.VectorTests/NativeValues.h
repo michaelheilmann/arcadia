@@ -17,11 +17,40 @@
 #if !defined(ARCADIA_MATH_TESTS_VECTORTESTS_NATIVEVALUES_H_INCLUDED)
 #define ARCADIA_MATH_TESTS_VECTORTESTS_NATIVEVALUES_H_INCLUDED
 
-int Arcadia_Math_Tests_nativeVectorValues2Real32_run(void);
-int Arcadia_Math_Tests_nativeVectorValues2Real64_run(void);
-int Arcadia_Math_Tests_nativeVectorValues3Real32_run(void);
-int Arcadia_Math_Tests_nativeVectorValues3Real64_run(void);
-int Arcadia_Math_Tests_nativeVectorValues4Real32_run(void);
-int Arcadia_Math_Tests_nativeVectorValues4Real64_run(void);
+int
+Arcadia_Math_Tests_nativeVectorValues2Real32_run
+  (
+    void
+  );
+
+int
+Arcadia_Math_Tests_nativeVectorValues2Real64_run
+  (
+    void
+  );
+
+int
+Arcadia_Math_Tests_nativeVectorValues3Real32_run
+  (
+    void
+  );
+
+int
+Arcadia_Math_Tests_nativeVectorValues3Real64_run
+  (
+    void
+  );
+
+int
+Arcadia_Math_Tests_nativeVectorValues4Real32_run
+  (
+    void
+  );
+
+int
+Arcadia_Math_Tests_nativeVectorValues4Real64_run
+  (
+    void
+  );
 
 #endif // ARCADIA_MATH_TESTS_VECTORTESTS_NATIVEVALUES_H_INCLUDED

@@ -2,7 +2,11 @@
 #define CheckDiff(test) do { if (!(test)) return EXIT_FAILURE; } while (0)
 #define D(name) N(name)
 
-static int Case(curveTangentLine)(void)
+static int
+Case(curveTangentLine)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = {{1,2,3},{3,6,9}};
   const Scalar knots[4] = {0,0,1,1};
@@ -17,7 +21,11 @@ static int Case(curveTangentLine)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(curveTangentRational)(void)
+static int
+Case(curveTangentRational)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = {{0,0,0},{2,0,0}};
   const Scalar weights[2] = {1,3};
@@ -29,7 +37,11 @@ static int Case(curveTangentRational)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(curveTangentQuadratic)(void)
+static int
+Case(curveTangentQuadratic)
+  (
+    void
+  )
 {
   Scalar points[3][3] = {{0,0,0},{1,2,3},{4,8,12}};
   const Scalar knots[6] = {0,0,0,1,1,1};
@@ -44,7 +56,11 @@ static int Case(curveTangentQuadratic)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(curveTangentDegreeZero)(void)
+static int
+Case(curveTangentDegreeZero)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = {{5,6,7},{8,9,10}};
   const Scalar knots[3] = {0,(Scalar)0.5,1};
@@ -54,7 +70,11 @@ static int Case(curveTangentDegreeZero)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(curveTangentRepeated)(void)
+static int
+Case(curveTangentRepeated)
+  (
+    void
+  )
 {
   const Scalar points[5][3] = {{0,0,0},{1,0,0},{2,0,0},{3,0,0},{4,0,0}};
   const Scalar knots[8] = {0,0,0,(Scalar)0.5,(Scalar)0.5,1,1,1};
@@ -65,7 +85,11 @@ static int Case(curveTangentRepeated)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(curveTangentInvalid)(void)
+static int
+Case(curveTangentInvalid)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = {{0,0,0},{2,0,0}};
   const Scalar knots[4] = {0,0,1,1};
@@ -78,7 +102,11 @@ static int Case(curveTangentInvalid)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(surfaceDifferentialsPlane)(void)
+static int
+Case(surfaceDifferentialsPlane)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {{0,0,0},{0,2,0},{2,0,0},{2,2,0}};
   const Scalar knots[4] = {0,0,1,1};
@@ -94,7 +122,11 @@ static int Case(surfaceDifferentialsPlane)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(surfaceDifferentialsRational)(void)
+static int
+Case(surfaceDifferentialsRational)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {{0,0,0},{0,2,0},{2,0,0},{2,2,0}};
   const Scalar weights[4] = {1,1,1,5};
@@ -109,7 +141,11 @@ static int Case(surfaceDifferentialsRational)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(surfaceDifferentialsDegenerate)(void)
+static int
+Case(surfaceDifferentialsDegenerate)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {{1,2,3},{1,2,3},{1,2,3},{1,2,3}};
   const Scalar knots[4] = {0,0,1,1};
@@ -122,7 +158,11 @@ static int Case(surfaceDifferentialsDegenerate)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(surfaceDifferentialsAlias)(void)
+static int
+Case(surfaceDifferentialsAlias)
+  (
+    void
+  )
 {
   Scalar points[4][3] = {{0,0,0},{0,2,0},{2,0,0},{2,2,0}};
   const Scalar knots[4] = {0,0,1,1};
@@ -135,7 +175,11 @@ static int Case(surfaceDifferentialsAlias)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(surfaceSamplingGrid)(void)
+static int
+Case(surfaceSamplingGrid)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {{0,0,0},{0,2,0},{2,0,0},{2,2,0}};
   const Scalar knots[4] = {0,0,1,1};
@@ -152,7 +196,11 @@ static int Case(surfaceSamplingGrid)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(surfaceSamplingDegenerate)(void)
+static int
+Case(surfaceSamplingDegenerate)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {{1,1,1},{1,1,1},{1,1,1},{1,1,1}};
   const Scalar knots[4] = {0,0,1,1};
@@ -167,7 +215,11 @@ static int Case(surfaceSamplingDegenerate)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(surfaceSamplingInvalid)(void)
+static int
+Case(surfaceSamplingInvalid)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {{0,0,0},{0,2,0},{2,0,0},{2,2,0}};
   const Scalar knots[4] = {0,0,1,1};

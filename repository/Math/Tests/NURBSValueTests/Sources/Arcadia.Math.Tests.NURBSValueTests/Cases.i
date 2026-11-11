@@ -2,7 +2,10 @@
 #define Check(test) do { if (!(test)) return EXIT_FAILURE; } while (0)
 
 static int
-Case(openUniform)(void)
+Case(openUniform)
+  (
+    void
+  )
 {
   Scalar knots[7] = { (Scalar)-2, (Scalar)-2, (Scalar)-2, (Scalar)-2, (Scalar)-2, (Scalar)-2, (Scalar)-2 };
   Check(N(makeOpenUniformKnots)(4, 2, knots, 7));
@@ -15,7 +18,10 @@ Case(openUniform)(void)
 }
 
 static int
-Case(curveEndpoints)(void)
+Case(curveEndpoints)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = { { 0, 0, 0 }, { 2, 4, 6 } };
   Scalar knots[4];
@@ -34,7 +40,10 @@ Case(curveEndpoints)(void)
 }
 
 static int
-Case(curveRational)(void)
+Case(curveRational)
+  (
+    void
+  )
 {
   Scalar points[2][3] = { { 0, 0, 0 }, { 2, 0, 0 } };
   const Scalar weights[2] = { 1, 3 };
@@ -53,7 +62,10 @@ Case(curveRational)(void)
 }
 
 static int
-Case(curveRepeated)(void)
+Case(curveRepeated)
+  (
+    void
+  )
 {
   const Scalar points[5][3] = {
     { 0, 0, 0 }, { 1, 0, 0 }, { 2, 0, 0 }, { 3, 0, 0 }, { 4, 0, 0 }
@@ -71,7 +83,10 @@ Case(curveRepeated)(void)
 }
 
 static int
-Case(curveDegreeZero)(void)
+Case(curveDegreeZero)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = { { 4, 0, 0 }, { 9, 0, 0 } };
   const Scalar knots[3] = { 0, (Scalar)0.5, 1 };
@@ -87,7 +102,10 @@ Case(curveDegreeZero)(void)
 }
 
 static int
-Case(curveInvalid)(void)
+Case(curveInvalid)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = { { 0, 0, 0 }, { 2, 0, 0 } };
   const Scalar knots[4] = { 0, 0, 1, 1 };
@@ -107,7 +125,10 @@ Case(curveInvalid)(void)
 }
 
 static int
-Case(surfaceBilinear)(void)
+Case(surfaceBilinear)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {
     { 0, 0, 0 }, { 0, 2, 0 }, { 2, 0, 0 }, { 2, 2, 0 }
@@ -127,7 +148,10 @@ Case(surfaceBilinear)(void)
 }
 
 static int
-Case(surfaceRectangular)(void)
+Case(surfaceRectangular)
+  (
+    void
+  )
 {
   Scalar points[6][3] = {
     { 0, 0, 0 }, { 0, 2, 0 }, { 0, 4, 0 },
@@ -151,7 +175,10 @@ Case(surfaceRectangular)(void)
 }
 
 static int
-Case(surfaceRational)(void)
+Case(surfaceRational)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {
     { 0, 0, 0 }, { 0, 2, 0 }, { 2, 0, 0 }, { 2, 2, 0 }
@@ -168,7 +195,10 @@ Case(surfaceRational)(void)
 }
 
 static int
-Case(surfaceDegreeZero)(void)
+Case(surfaceDegreeZero)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {
     { 0, 0, 0 }, { 0, 2, 0 }, { 2, 0, 0 }, { 2, 2, 0 }
@@ -186,7 +216,10 @@ Case(surfaceDegreeZero)(void)
 }
 
 static int
-Case(surfaceConstant)(void)
+Case(surfaceConstant)
+  (
+    void
+  )
 {
   const Scalar points[6][3] = {
     { 7, -2, 5 }, { 7, -2, 5 }, { 7, -2, 5 },
@@ -207,7 +240,10 @@ Case(surfaceConstant)(void)
 }
 
 static int
-Case(surfaceInvalid)(void)
+Case(surfaceInvalid)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {
     { 0, 0, 0 }, { 0, 2, 0 }, { 2, 0, 0 }, { 2, 2, 0 }

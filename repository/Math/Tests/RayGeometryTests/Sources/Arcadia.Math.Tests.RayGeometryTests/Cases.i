@@ -5,7 +5,10 @@
 #define NEAR(a, b) (fabs((double)((a) - (b))) <= 0.00001)
 
 static int
-Test(rayValues)(void)
+Test(rayValues)
+  (
+    void
+  )
 {
   RAY ray;
   Scalar origin[3] = { 1, 2, 3 }, direction[3] = { 2, 0, -1 };
@@ -25,7 +28,10 @@ Test(rayValues)(void)
 }
 
 static int
-Test(planeValues)(void)
+Test(planeValues)
+  (
+    void
+  )
 {
   PLANE plane;
   Scalar p[3] = { 0, 0, 2 }, n[3] = { 0, 0, 2 };
@@ -46,7 +52,10 @@ Test(planeValues)(void)
 }
 
 static int
-Test(sphereValues)(void)
+Test(sphereValues)
+  (
+    void
+  )
 {
   SPHERE a, b;
   Scalar origin[3] = { 0, 0, 0 }, offset[3] = { 3, 0, 0 }, far[3] = { 4, 0, 0 };
@@ -66,7 +75,10 @@ Test(sphereValues)(void)
 }
 
 static int
-Test(rayPlane)(void)
+Test(rayPlane)
+  (
+    void
+  )
 {
   RAY ray;
   PLANE plane;
@@ -93,7 +105,10 @@ Test(rayPlane)(void)
 }
 
 static int
-Test(raySphere)(void)
+Test(raySphere)
+  (
+    void
+  )
 {
   RAY ray;
   SPHERE sphere;
@@ -119,7 +134,10 @@ Test(raySphere)(void)
 }
 
 static int
-Test(rayAABB)(void)
+Test(rayAABB)
+  (
+    void
+  )
 {
   RAY ray;
   AABB bounds;
@@ -153,7 +171,10 @@ Test(rayAABB)(void)
 }
 
 static int
-Test(rayTriangle)(void)
+Test(rayTriangle)
+  (
+    void
+  )
 {
   RAY ray;
   Scalar a[3] = { 0, 0, 0 }, b[3] = { 1, 0, 0 }, c[3] = { 0, 1, 0 };
@@ -184,7 +205,10 @@ Test(rayTriangle)(void)
 }
 
 static int
-Test(optionalOutputs)(void)
+Test(optionalOutputs)
+  (
+    void
+  )
 {
   RAY ray;
   PLANE plane;
@@ -205,10 +229,12 @@ Test(optionalOutputs)(void)
   return EXIT_SUCCESS;
 }
 
-
 // Nyx M0_Plane_Distance and M0_Plane_GetPoint adapted to existing native planes.
 static int
-Test(planeMetricAndProjection)(void)
+Test(planeMetricAndProjection)
+  (
+    void
+  )
 {
   PLANE plane;
   const Scalar point[3] = { 0, 0, 2 };
@@ -232,7 +258,10 @@ Test(planeMetricAndProjection)(void)
 }
 
 static int
-Test(planeTranslateChecked)(void)
+Test(planeTranslateChecked)
+  (
+    void
+  )
 {
   PLANE plane;
   const Scalar point[3] = { 0, 0, 2 };
@@ -251,7 +280,10 @@ Test(planeTranslateChecked)(void)
 }
 
 static int
-Test(planeMetricInvalid)(void)
+Test(planeMetricInvalid)
+  (
+    void
+  )
 {
   PLANE plane;
   const Scalar point[3] = { 0, 0, 2 };

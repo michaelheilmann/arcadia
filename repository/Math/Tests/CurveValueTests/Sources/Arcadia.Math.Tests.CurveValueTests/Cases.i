@@ -3,7 +3,10 @@
 #include <math.h>
 
 static void
-Test(uniformKnotsImpl)(Arcadia_Thread* thread)
+Test(uniformKnotsImpl)
+  (
+    Arcadia_Thread* thread
+  )
 {
   Scalar knots[5] = { -1, -1, -1, -1, -1 };
   Arcadia_Tests_assertTrue(thread, L(setUniformKnots)(5, knots));
@@ -16,7 +19,10 @@ Test(uniformKnotsImpl)(Arcadia_Thread* thread)
 }
 
 static void
-Test(chordKnotsImpl)(Arcadia_Thread* thread)
+Test(chordKnotsImpl)
+  (
+    Arcadia_Thread* thread
+  )
 {
   const Scalar points[][3] = { { 0, 0, 0 }, { 3, 0, 0 }, { 3, 4, 0 } };
   Scalar knots[3] = { -1, -1, -1 };
@@ -33,7 +39,10 @@ Test(chordKnotsImpl)(Arcadia_Thread* thread)
 }
 
 static void
-Test(lagrangeLineImpl)(Arcadia_Thread* thread)
+Test(lagrangeLineImpl)
+  (
+    Arcadia_Thread* thread
+  )
 {
   Scalar points[][3] = { { 0, 2, 4 }, { 4, 6, 8 } };
   Scalar knots[2] = { 0, 1 }, weights[2] = { 0, 0 };
@@ -49,7 +58,10 @@ Test(lagrangeLineImpl)(Arcadia_Thread* thread)
 }
 
 static void
-Test(lagrangePolynomialImpl)(Arcadia_Thread* thread)
+Test(lagrangePolynomialImpl)
+  (
+    Arcadia_Thread* thread
+  )
 {
   const Scalar points[][3] = { { 0, 0, 0 }, { 1, 1, 1 }, { 2, 4, 8 } };
   const Scalar knots[3] = { 0, 1, 2 };
@@ -65,7 +77,10 @@ Test(lagrangePolynomialImpl)(Arcadia_Thread* thread)
 }
 
 static void
-Test(lagrangeInvalidImpl)(Arcadia_Thread* thread)
+Test(lagrangeInvalidImpl)
+  (
+    Arcadia_Thread* thread
+  )
 {
   const Scalar knots[3] = { 0, 1, 1 };
   Scalar weights[3] = { 23, 23, 23 };
@@ -81,7 +96,10 @@ Test(lagrangeInvalidImpl)(Arcadia_Thread* thread)
 }
 
 static void
-Test(bezierCubicImpl)(Arcadia_Thread* thread)
+Test(bezierCubicImpl)
+  (
+    Arcadia_Thread* thread
+  )
 {
   const Scalar points[][3] = { { 0, 0, 0 }, { 1, 3, 0 }, { 2, 3, 0 }, { 3, 0, 0 } };
   Scalar workspace[12], result[3] = { -1, -1, -1 };
@@ -98,7 +116,10 @@ Test(bezierCubicImpl)(Arcadia_Thread* thread)
 }
 
 static void
-Test(bezierDegenerateImpl)(Arcadia_Thread* thread)
+Test(bezierDegenerateImpl)
+  (
+    Arcadia_Thread* thread
+  )
 {
   Scalar points[][3] = { { 2, 4, 6 }, { 6, 8, 10 } };
   Scalar workspace[6], result[3] = { 101, 102, 103 };
@@ -115,7 +136,10 @@ Test(bezierDegenerateImpl)(Arcadia_Thread* thread)
 }
 
 static void
-Test(bezierInvalidImpl)(Arcadia_Thread* thread)
+Test(bezierInvalidImpl)
+  (
+    Arcadia_Thread* thread
+  )
 {
   const Scalar points[][3] = { { 0, 0, 0 }, { 1, 1, 1 } };
   Scalar workspace[6], result[3] = { 30, 40, 50 };

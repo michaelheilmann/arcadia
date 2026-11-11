@@ -59,7 +59,13 @@ TESTS(32)
 TESTS(64)
 #undef TESTS
 
-int main(int argc, char** argv) {
+int
+main
+  (
+    int argc,
+    char** argv
+  )
+{
   static const Arcadia_Testing_Case cases[] = {
     {"Real32SegmentIntersections", &test32},
     {"Real64SegmentIntersections", &test64},
