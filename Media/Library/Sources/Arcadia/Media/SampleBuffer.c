@@ -21,8 +21,6 @@
 #include "Arcadia/Media/SampleFormat/getNumberOfBytes.h"
 #include "Arcadia/Media/DSP.h"
 #include "Arcadia/Media/Quantization.h"
-#include <stdint.h>
-
 // Validate sample dimensions and multiplication before allocating or indexing PCM.
 static Arcadia_SizeValue
 checkedNumberOfSamples(Arcadia_Thread* thread, Arcadia_Integer32Value length, Arcadia_Integer32Value sampleRate)
@@ -31,21 +29,24 @@ checkedNumberOfSamples(Arcadia_Thread* thread, Arcadia_Integer32Value length, Ar
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  if ((Arcadia_SizeValue)length > SIZE_MAX / (Arcadia_SizeValue)sampleRate) {
+  Arcadia_SizeValue high, low;
+  if (!Arcadia_safeMultiplySizeValue(thread, (Arcadia_SizeValue)length,
+                                    (Arcadia_SizeValue)sampleRate, &high, &low)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
     Arcadia_Thread_jump(thread);
   }
-  return (Arcadia_SizeValue)length * (Arcadia_SizeValue)sampleRate;
+  return low;
 }
 
 static Arcadia_SizeValue
 checkedNumberOfBytes(Arcadia_Thread* thread, Arcadia_SizeValue samples, Arcadia_SizeValue bytesPerSample)
 {
-  if (samples > SIZE_MAX / bytesPerSample) {
+  Arcadia_SizeValue high, low;
+  if (!Arcadia_safeMultiplySizeValue(thread, samples, bytesPerSample, &high, &low)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
     Arcadia_Thread_jump(thread);
   }
-  return samples * bytesPerSample;
+  return low;
 }
 
 /// @code

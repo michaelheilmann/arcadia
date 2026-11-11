@@ -296,12 +296,20 @@ Arcadia_Engine_Audials_Implementation_OpenAL_SoundSourceResource_loadImpl
       }
       Arcadia_Integer32Value length = self->sampleBuffer->length;
       Arcadia_Integer32Value rate = self->sampleBuffer->sampleRate;
-      if (length < 0 || rate <= 0 ||
-          (Arcadia_SizeValue)length > (Arcadia_SizeValue)INT_MAX / (Arcadia_SizeValue)rate / sizeof(Arcadia_Integer16Value)) {
+      if (length < 0 || rate <= 0) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
         Arcadia_Thread_jump(thread);
       }
-      ALsizei byteCount = (ALsizei)((Arcadia_SizeValue)length * (Arcadia_SizeValue)rate * sizeof(Arcadia_Integer16Value));
+      Arcadia_SizeValue high, samples, bytes;
+      if (!Arcadia_safeMultiplySizeValue(thread, (Arcadia_SizeValue)length,
+                                        (Arcadia_SizeValue)rate, &high, &samples) ||
+          !Arcadia_safeMultiplySizeValue(thread, samples, sizeof(Arcadia_Integer16Value),
+                                        &high, &bytes) ||
+          bytes > (Arcadia_SizeValue)INT_MAX) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+        Arcadia_Thread_jump(thread);
+      }
+      ALsizei byteCount = (ALsizei)bytes;
       alBufferData(self->alBufferID, AL_FORMAT_MONO16, self->sampleBuffer->bytes, byteCount, (ALsizei)rate);
       alSourcei(self->alSourceID, AL_BUFFER, self->alBufferID);
       if (alGetError()) {
