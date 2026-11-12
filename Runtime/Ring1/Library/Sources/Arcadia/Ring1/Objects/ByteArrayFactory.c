@@ -24,7 +24,13 @@
 
 Arcadia_ByteArray*
 Arcadia_ByteArrayFactory_createImmutable(Arcadia_Thread* thread, Arcadia_RuntimeByteArray* source)
-{ return (Arcadia_ByteArray*)Arcadia_ByteArrayDefaultImpl_create(thread, source); }
+{
+  if (!source) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  return (Arcadia_ByteArray*)Arcadia_ByteArrayDefaultImpl_create(thread, source);
+}
 
 Arcadia_ByteArray*
 Arcadia_ByteArrayFactory_createMutable(Arcadia_Thread* thread, Arcadia_SizeValue size)
