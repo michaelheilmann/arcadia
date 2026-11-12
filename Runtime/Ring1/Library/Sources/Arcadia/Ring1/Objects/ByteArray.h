@@ -141,16 +141,48 @@ Arcadia_ByteArray_isEmpty
     Arcadia_ByteArray const* self
   );
 
-// Mutations unsupported by the concrete implementation raise
-// Arcadia_Status_OperationInvalid before inspecting indices or sizes.
-// Existing fixed immutable byte arrays and their views reject both operations.
-Arcadia_BooleanValue Arcadia_ByteArray_isMutable(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
-Arcadia_BooleanValue Arcadia_ByteArray_isResizable(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
-Arcadia_BooleanValue Arcadia_ByteArray_isContiguous(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
-void Arcadia_ByteArray_setAt(Arcadia_Thread* thread, Arcadia_ByteArray* self,
-                             Arcadia_SizeValue index, Arcadia_Natural8Value value);
-void Arcadia_ByteArray_resize(Arcadia_Thread* thread, Arcadia_ByteArray* self,
-                              Arcadia_SizeValue size);
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_isMutable
+Arcadia_BooleanValue
+Arcadia_ByteArray_isMutable
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray const* self
+  );
+
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_isResizable
+Arcadia_BooleanValue
+Arcadia_ByteArray_isResizable
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray const* self
+  );
+
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_isContiguous
+Arcadia_BooleanValue
+Arcadia_ByteArray_isContiguous
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray const* self
+  );
+
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_setAt
+void
+Arcadia_ByteArray_setAt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray* self,
+    Arcadia_SizeValue index,
+    Arcadia_Natural8Value value
+  );
+
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_resize
+void
+Arcadia_ByteArray_resize
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray* self,
+    Arcadia_SizeValue size
+  );
 
 Arcadia_ByteArray*
 Arcadia_ByteArray_slice
