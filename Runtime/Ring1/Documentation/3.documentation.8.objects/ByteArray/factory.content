@@ -39,11 +39,35 @@ the pointer after resizing. Never cache mutable pointers across a resize.</p>
 the requested size equals the current size. Mutable writes outside the current
 bounds raise <code>Arcadia_Status_ArgumentValueInvalid</code>. Growable storage
 zeroes newly exposed elements, including after shrinking and regrowing.</p>
-<p>Legacy slices continue as fixed-size read-only views; this phase does not
-introduce writable slice forwarding or altered reader cursor behavior.
-<code>ByteArrayBuilder</code> is a compatibility facade over a factory-created
-resizable ByteArray. Its bulk insert operation allows copying from its own
-current logical range, including ranges spanning the insertion point; the
-source offset is retained over possible reallocation. The legacy builder
-readers and all other byte-reader implementations remain available.</p>
+<p><code>Arcadia_ByteArrayFactory_createSlice</code> is the public construction
+path for fixed-size, read-only ByteArray views. Each slice holds a GC-visible
+reference to its source, and its stable contiguity capability equals the
+source's stable contiguity capability. Reading fails with
+<code>Arcadia_Status_ArgumentValueInvalid</code> when resizing has made the
+slice's original range invalid. Native <code>getBytes</code> is supported only
+for contiguous backing storage; logical <code>getAt</code> remains available
+otherwise. Writes and resizing through a slice are not supported.</p>
+<p><code>ByteArrayBuilder</code> remains a compatibility facade over a
+factory-created resizable ByteArray. It does not own a second byte allocation.
+Its bulk insertion supports valid self-insertion across the insertion point;
+source bytes inside reserved but unused capacity are rejected before resize.
+The <code>ByteArrayBuilder.ByteReader</code> reads the builder's current
+ByteArray storage, so its cursor observes builder insertion, clearing and
+subsequent re-growth.</p>
+<p><code>ByteArrayDefaultImpl</code> is the necessary concrete immutable wrapper
+behind <code>createImmutable</code>; <code>ByteArraySliceImpl</code> remains
+the factory-created view. Their concrete type names remain registered for
+compatibility, but callers should construct them through
+<code>ByteArrayFactory</code> and <code>Arcadia_ByteArray_slice</code>.
+The distinct <code>RuntimeByteArray</code> built-in value is retained, not
+replaced with an object.</p>
+<p>Existing <code>ByteArray.ByteReader</code>,
+<code>ByteArrayBuilder.ByteReader</code>, and
+<code>RuntimeByteArray.ByteReader</code> types remain compatible with their
+existing consumers. All are live, indexed readers: a cursor at or beyond the
+current source size has no value; reading or advancing at end-of-input raises
+<code>Arcadia_Status_OperationInvalid</code>. A newly extended resizable
+source may make a previously exhausted cursor readable again. Reader objects
+retain their managed sources via GC visitation; only the runtime-value reader
+visits a <code>RuntimeByteArray</code> value directly.</p>
 </section>
