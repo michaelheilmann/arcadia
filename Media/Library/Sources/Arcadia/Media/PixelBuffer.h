@@ -102,9 +102,9 @@ Arcadia_Media_PixelBuffer_setLinePadding
 /// @brief Get component values of a pixel at the specified position in this pixel buffer.
 /// @param self A pointer to this pixel buffer.
 /// @param column The column index of the pixel.
-/// Must be non-negative. Must be smaller than or equal to the number of columns.
+/// Must be non-negative and strictly smaller than the number of columns.
 /// @param row The row of the pixel.
-/// Must be non-negative. Must be smaller than or equal to the number of rows.
+/// Must be non-negative and strictly smaller than the number of rows.
 /// @param r A pointer to a <code>Arcadia_Natural8Value</code> variable.
 /// @param g A pointer to a <code>Arcadia_Natural8Value</code> variable.
 /// @param b A pointer to a <code>Arcadia_Natural8Value</code> variable.
@@ -135,9 +135,9 @@ Arcadia_Media_PixelBuffer_getPixelRGBA
 /// @brief Set component values of a pixel at the specified position in this pixel buffer.
 /// @param self A pointer to this pixel buffer.
 /// @param column The column index of the pixel.
-/// Must be non-negative. Must be smaller than or equal to the number of columns.
+/// Must be non-negative and strictly smaller than the number of columns.
 /// @param row The row of the pixel.
-/// Must be non-negative. Must be smaller than or equal to the number of rows.
+/// Must be non-negative and strictly smaller than the number of rows.
 /// @param r The red component value.
 /// @param g The green component value.
 /// @param b The blue component value.
@@ -328,6 +328,8 @@ Arcadia_Media_PixelBuffer_setNumberOfRows
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 // https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer_getLineStride
+// Raises Arcadia_Status_ArgumentValueInvalid if the calculated line stride
+// cannot be represented in Arcadia_Integer32Value.
 Arcadia_Integer32Value
 Arcadia_Media_PixelBuffer_getLineStride
   (
