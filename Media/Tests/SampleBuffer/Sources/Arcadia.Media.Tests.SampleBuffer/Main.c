@@ -137,6 +137,60 @@ static int
 runDimensions(void)
 { return Arcadia_Tests_safeExecute(&testDimensions) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
+// Verify PCM silence values and independent clone storage across all four formats.
+static void
+testPcmSilenceAndClone(Arcadia_Thread* thread)
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  const Arcadia_Media_SampleFormat formats[] = {
+    Arcadia_Media_SampleFormat_Integer16,
+    Arcadia_Media_SampleFormat_Integer8,
+    Arcadia_Media_SampleFormat_Natural16,
+    Arcadia_Media_SampleFormat_Natural8,
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i) {
+    Arcadia_Media_SampleBuffer* buffer = Arcadia_Media_SampleBuffer_create(thread, 1, 8, formats[i]);
+    Arcadia_Object_lock(thread, (Arcadia_Object*)buffer);
+    Arcadia_SizeValue bytesPerSample = Arcadia_Media_SampleFormat_getNumberOfBytes(thread, formats[i]);
+    Arcadia_SizeValue byteCount = 8 * bytesPerSample;
+    for (Arcadia_SizeValue j = 0; j < 8; ++j) {
+      switch (formats[i]) {
+        case Arcadia_Media_SampleFormat_Integer16:
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Integer16Value*)buffer->bytes)[j] == 0);
+          break;
+        case Arcadia_Media_SampleFormat_Integer8:
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Integer8Value*)buffer->bytes)[j] == 0);
+          break;
+        case Arcadia_Media_SampleFormat_Natural16:
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Natural16Value*)buffer->bytes)[j] == 32768);
+          break;
+        case Arcadia_Media_SampleFormat_Natural8:
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Natural8Value*)buffer->bytes)[j] == 128);
+          break;
+        default:
+          Arcadia_Tests_assertTrue(thread, false);
+          break;
+      }
+    }
+    Arcadia_Media_SampleBuffer* clone = Arcadia_Media_SampleBuffer_createClone(thread, buffer);
+    Arcadia_Object_lock(thread, (Arcadia_Object*)clone);
+    Arcadia_Tests_assertTrue(thread, clone->bytes != buffer->bytes);
+    Arcadia_Tests_assertTrue(thread, !memcmp(clone->bytes, buffer->bytes, byteCount));
+    Arcadia_Natural8Value firstByte = clone->bytes[0];
+    buffer->bytes[0] ^= 0x5a;
+    Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+    Arcadia_Tests_assertTrue(thread, clone->bytes[0] == firstByte);
+    Arcadia_Tests_assertTrue(thread, clone->bytes[0] != buffer->bytes[0]);
+    Arcadia_Object_unlock(thread, (Arcadia_Object*)clone);
+    Arcadia_Object_unlock(thread, (Arcadia_Object*)buffer);
+  }
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+static int
+runPcmSilenceAndClone(void)
+{ return Arcadia_Tests_safeExecute(&testPcmSilenceAndClone) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
 int
 main
   (
@@ -149,6 +203,7 @@ main
     { "Formats", &Arcadia_Media_Tests_SampleBuffer_formats },
     { "Integer8DspFill", &runInteger8DspFill },
     { "Dimensions", &runDimensions },
+    { "PcmSilenceAndClone", &runPcmSilenceAndClone },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }
