@@ -225,16 +225,22 @@ Arcadia_ByteArrayBuilder_insertBytes
   }
   // Remember the source offset before resize: the allocation may relocate.
   // Self-insertion is supported even when the source straddles the insertion.
+  // A pointer into unused capacity cannot be a valid source range: resize
+  // could relocate the allocation before the invalid source is accessed.
   uintptr_t address = (uintptr_t)bytes;
   uintptr_t base = (uintptr_t)self->p;
-  Arcadia_BooleanValue alias = address >= base && address - base < self->sz;
+  Arcadia_BooleanValue alias = address >= base && address - base < self->cp;
   Arcadia_SizeValue sourceOffset = 0;
   if (alias) {
     sourceOffset = (Arcadia_SizeValue)(address - base);
-    if (numberOfBytes > self->sz - sourceOffset) {
+    if (sourceOffset >= self->sz || numberOfBytes > self->sz - sourceOffset) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
       Arcadia_Thread_jump(thread);
     }
+  } else if (address < base && numberOfBytes > base - address) {
+    // A source range from before this allocation must not overlap it.
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
   }
   Arcadia_SizeValue oldSize = self->sz;
   Arcadia_ByteArray_resize(thread, self->storage, sumLow);
