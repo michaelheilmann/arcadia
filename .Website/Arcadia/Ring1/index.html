@@ -1488,6 +1488,260 @@ resizing or storage relocation. No raw memory addresses are transported through
 
 </section>
 
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_isMutable">Arcadia_ByteArray_isMutable</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_ByteArray_isMutable<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Determines whether this byte array supports modifying existing byte values.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray const* self</code></div>
+      <div>A pointer to this byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p><code>Arcadia_BooleanValue_True</code> if this instance supports <code>setAt</code>; <code>Arcadia_BooleanValue_False</code> otherwise.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The result is stable throughout this instance's lifetime. Mutability does not imply resizability or contiguity. A read-only view can refer to externally mutable storage without exposing writes through the ByteArray interface.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_isResizable">Arcadia_ByteArray_isResizable</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_ByteArray_isResizable<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Determines whether this byte array supports changing its logical size.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray const* self</code></div>
+      <div>A pointer to this byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p><code>Arcadia_BooleanValue_True</code> if this instance supports <code>resize</code>; <code>Arcadia_BooleanValue_False</code> otherwise.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The result is stable throughout this instance's lifetime. Resizability is independent of mutability and contiguity. A fixed-size array rejects <code>resize</code> even when the requested size equals its current size.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_isContiguous">Arcadia_ByteArray_isContiguous</h1>
+
+  <my-signature><code>
+  Arcadia_BooleanValue<br>
+  Arcadia_ByteArray_isContiguous<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Determines whether the byte array stores its logical bytes in one contiguous range.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray const* self</code></div>
+      <div>A pointer to this byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p><code>Arcadia_BooleanValue_True</code> if this instance provides contiguous storage; <code>Arcadia_BooleanValue_False</code> otherwise.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The result is stable throughout this instance's lifetime. Contiguity does not imply mutability, resizability, ownership of memory, or pointer stability across resizing. Native pointer borrowing still requires that the owner remain reachable.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_setAt">Arcadia_ByteArray_setAt</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_ByteArray_setAt<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value value<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Replaces the byte at the given index.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray* self</code></div>
+      <div>A pointer to this byte array.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_SizeValue index</code></div>
+      <div>The zero-based index of the byte to replace.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Natural8Value value</code></div>
+      <div>The new byte value.</div>
+    </div>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The index must be in the range <code>[0, getSize())</code>.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <p>If the instance does not support mutation, <code>Arcadia_Status_OperationInvalid</code> is raised before checking the index. For a mutable instance, an invalid index raises <code>Arcadia_Status_ArgumentValueInvalid</code>.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_resize">Arcadia_ByteArray_resize</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_ByteArray_resize<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue size<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Changes the logical size of a resizable byte array.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray* self</code></div>
+      <div>A pointer to this byte array.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_SizeValue size</code></div>
+      <div>The requested logical number of bytes.</div>
+    </div>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>Newly exposed bytes are initialized to zero. A resize can relocate storage and invalidate previously borrowed native pointers; reacquire them after resizing.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <p>If the instance does not support resizing, <code>Arcadia_Status_OperationInvalid</code> is raised before inspecting the requested size.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_getMutableBytes">Arcadia_ByteArray_getMutableBytes</h1>
+
+  <my-signature><code>
+  Arcadia_Natural8Value*<br>
+  Arcadia_ByteArray_getMutableBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Borrows a writable pointer to the contiguous bytes for native C use.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray* self</code></div>
+      <div>A pointer to this byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A borrowed pointer to the current logical byte range.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>Only mutable contiguous instances support this operation. The caller must keep the owning object reachable, must not write beyond the current size, and must reacquire the pointer after a resize or relocation. Never pass the address through PDL or <code>Arcadia.Value</code>.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <p>If writable contiguous storage is unavailable, <code>Arcadia_Status_OperationInvalid</code> is raised.</p>
+  </section>
+
+</section>
+
 <section class="cxx entity object">
 <h2>ByteArrayFactory and storage</h2>
 <p><code>Arcadia_ByteArrayFactory_createImmutable</code> wraps an immutable
