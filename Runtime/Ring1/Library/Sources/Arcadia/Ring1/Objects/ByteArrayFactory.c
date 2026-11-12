@@ -52,7 +52,13 @@ Arcadia_ByteArrayFactory_borrowMutable(Arcadia_Thread* thread,
 Arcadia_ByteArray*
 Arcadia_ByteArrayFactory_createSlice(Arcadia_Thread* thread, Arcadia_ByteArray* source,
                                      Arcadia_SizeValue start, Arcadia_SizeValue size)
-{ return (Arcadia_ByteArray*)Arcadia_ByteArraySliceImpl_create(thread, source, start, size); }
+{
+  if (!source) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  return (Arcadia_ByteArray*)Arcadia_ByteArraySliceImpl_create(thread, source, start, size);
+}
 
 static Arcadia_ByteArray*
 copyNative(Arcadia_Thread* thread, Arcadia_ByteArray* source, Arcadia_BooleanValue resizable)
@@ -61,14 +67,15 @@ copyNative(Arcadia_Thread* thread, Arcadia_ByteArray* source, Arcadia_BooleanVal
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  // Retain source across allocation, including a possible GC during object construction.
+  // Keep both arrays alive: the virtual source getter may allocate and collect.
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)source);
   Arcadia_SizeValue size = Arcadia_ByteArray_getSize(thread, source);
   Arcadia_ByteArrayNativeImpl* target = Arcadia_ByteArrayNativeImpl_create(thread, size, resizable);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)target);
   if (size) {
     Arcadia_Memory_copy(thread, target->bytes, Arcadia_ByteArray_getBytes(thread, source), size);
   }
-  Arcadia_ValueStack_popValues(thread, 1);
+  Arcadia_ValueStack_popValues(thread, 2);
   return (Arcadia_ByteArray*)target;
 }
 
