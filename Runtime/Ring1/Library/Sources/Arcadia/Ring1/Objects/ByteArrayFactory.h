@@ -55,6 +55,7 @@ Arcadia_ByteArrayFactory_createSlice(Arcadia_Thread* thread, Arcadia_ByteArray* 
                                      Arcadia_SizeValue start, Arcadia_SizeValue size);
 
 // Copies always own independent storage, regardless of the source's capabilities.
+// Contiguous sources use native bulk copying; non-contiguous sources use logical getAt.
 Arcadia_ByteArray*
 Arcadia_ByteArrayFactory_copyMutable(Arcadia_Thread* thread, Arcadia_ByteArray* source);
 
@@ -62,7 +63,7 @@ Arcadia_ByteArray*
 Arcadia_ByteArrayFactory_copyResizable(Arcadia_Thread* thread, Arcadia_ByteArray* source);
 
 // Always produces an independent immutable snapshot, including for mutable sources.
-// The source must be contiguous and remains rooted during the copy.
+// The source remains rooted throughout the copy, including logical element access.
 Arcadia_ByteArray*
 Arcadia_ByteArrayFactory_copyImmutable(Arcadia_Thread* thread, Arcadia_ByteArray* source);
 
