@@ -278,7 +278,12 @@ testNativeMutableBorrow(Arcadia_Thread* thread)
 // Reader cursor positions observe live backing changes. End-of-input access
 // must fail without advancing or corrupting the existing cursor.
 static void
-expectReaderEnd(Arcadia_Thread* thread, Arcadia_ByteReader* reader, Arcadia_BooleanValue advance)
+expectReaderEnd
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteReader* reader,
+    Arcadia_BooleanValue advance
+  )
 {
   Arcadia_JumpTarget target;
   Arcadia_Thread_pushJumpTarget(thread, &target);
@@ -300,7 +305,10 @@ expectReaderEnd(Arcadia_Thread* thread, Arcadia_ByteReader* reader, Arcadia_Bool
 }
 
 static void
-testReaderEndContracts(Arcadia_Thread* thread)
+testReaderEndContracts
+  (
+    Arcadia_Thread* thread
+  )
 {
   Arcadia_Natural8Value const bytes[] = { 7, 9 };
   Arcadia_RuntimeByteArray* value = Arcadia_RuntimeByteArray_create(thread, bytes, 2);
@@ -338,7 +346,11 @@ testReaderEndContracts(Arcadia_Thread* thread)
   Arcadia_Object_unlock(thread, (Arcadia_Object*)runtimeReader);
 }
 
-static int runReaderEndContracts(void)
+static int
+runReaderEndContracts
+  (
+    void
+  )
 { return Arcadia_Tests_safeExecute(&testReaderEndContracts) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
 static int runNativeMutableBorrow(void)
