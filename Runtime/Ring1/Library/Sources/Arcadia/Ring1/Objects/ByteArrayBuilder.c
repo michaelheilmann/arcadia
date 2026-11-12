@@ -153,11 +153,7 @@ Arcadia_ByteArrayBuilder_endsWith_pn
     Arcadia_SizeValue numberOfBytes
   )
 {
-  if (self->sz < numberOfBytes) {
-    return Arcadia_BooleanValue_False;
-  }
-  Arcadia_SizeValue d = self->sz - numberOfBytes;
-  return !Arcadia_Memory_compare(thread, self->p + d, bytes, numberOfBytes);
+  return Arcadia_Memory_endsWith(thread, self->p, self->sz, bytes, numberOfBytes);
 }
 
 Arcadia_BooleanValue
@@ -169,10 +165,7 @@ Arcadia_ByteArrayBuilder_startsWith_pn
     Arcadia_SizeValue numberOfBytes
   )
 {
-  if (self->sz < numberOfBytes) {
-    return Arcadia_BooleanValue_False;
-  }
-  return !Arcadia_Memory_compare(thread, self->p, bytes, numberOfBytes);
+  return Arcadia_Memory_startsWith(thread, self->p, self->sz, bytes, numberOfBytes);
 }
 
 void
@@ -224,7 +217,9 @@ Arcadia_ByteArrayBuilder_insertBytes
   if (!numberOfBytes) {
     return;
   }
-  if (numberOfBytes > SIZE_MAX - self->sz) {
+  Arcadia_SizeValue sumHigh, sumLow;
+  Arcadia_safeAddFullSizeValue(thread, self->sz, numberOfBytes, &sumHigh, &sumLow);
+  if (sumHigh) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
     Arcadia_Thread_jump(thread);
   }
@@ -242,7 +237,7 @@ Arcadia_ByteArrayBuilder_insertBytes
     }
   }
   Arcadia_SizeValue oldSize = self->sz;
-  Arcadia_ByteArray_resize(thread, self->storage, oldSize + numberOfBytes);
+  Arcadia_ByteArray_resize(thread, self->storage, sumLow);
   Arcadia_ByteArrayBuilder_syncStorage(thread, self);
   if (index < oldSize) {
     Arcadia_Memory_copy(thread, self->p + index + numberOfBytes, self->p + index, oldSize - index);
@@ -276,7 +271,7 @@ Arcadia_ByteArrayBuilder_isEqualTo
     return Arcadia_BooleanValue_True;
   }
   if (self->sz == other->sz) {
-    return !Arcadia_Memory_compare(thread, self->p, other->p, self->sz);
+    return self->sz == 0 || !Arcadia_Memory_compare(thread, self->p, other->p, self->sz);
   } else {
     return Arcadia_BooleanValue_False;
   }
@@ -296,7 +291,7 @@ Arcadia_ByteArrayBuilder_isEqualTo_pn
     Arcadia_Thread_jump(thread);
   }
   if (self->sz == numberOfBytes) {
-    return !Arcadia_Memory_compare(thread, self->p, bytes, numberOfBytes);
+    return numberOfBytes == 0 || !Arcadia_Memory_compare(thread, self->p, bytes, numberOfBytes);
   } else {
     return Arcadia_BooleanValue_False;
   }
