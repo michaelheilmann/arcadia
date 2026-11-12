@@ -19,6 +19,7 @@
 #include "Arcadia/Ring1/Objects/ByteArrayBorrowedImpl.h"
 #include "Arcadia/Ring1/Objects/ByteArrayDefaultImpl.h"
 #include "Arcadia/Ring1/Objects/ByteArrayNativeImpl.h"
+#include "Arcadia/Ring1/Objects/ByteArraySliceImpl.h"
 #include "Arcadia/Ring1/Include.h"
 
 Arcadia_ByteArray*
@@ -47,6 +48,11 @@ Arcadia_ByteArrayFactory_borrowMutable(Arcadia_Thread* thread,
 {
   return (Arcadia_ByteArray*)Arcadia_ByteArrayBorrowedImpl_create(thread, bytes, size, Arcadia_BooleanValue_True);
 }
+
+Arcadia_ByteArray*
+Arcadia_ByteArrayFactory_createSlice(Arcadia_Thread* thread, Arcadia_ByteArray* source,
+                                     Arcadia_SizeValue start, Arcadia_SizeValue size)
+{ return (Arcadia_ByteArray*)Arcadia_ByteArraySliceImpl_create(thread, source, start, size); }
 
 static Arcadia_ByteArray*
 copyNative(Arcadia_Thread* thread, Arcadia_ByteArray* source, Arcadia_BooleanValue resizable)

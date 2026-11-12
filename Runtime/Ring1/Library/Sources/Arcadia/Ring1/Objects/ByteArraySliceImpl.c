@@ -220,7 +220,9 @@ Arcadia_ByteArraySliceImpl_getBytes
   )
 {
   Arcadia_ByteArraySliceImpl_validateBacking(thread, self);
-  return Arcadia_ByteArray_getBytes(thread, self->byteArray) + self->start;
+  Arcadia_Natural8Value const* bytes = Arcadia_ByteArray_getBytes(thread, self->byteArray);
+  // Avoid undefined pointer arithmetic on NULL for empty borrowed backing arrays.
+  return bytes ? bytes + self->start : NULL;
 }
 
 static Arcadia_SizeValue

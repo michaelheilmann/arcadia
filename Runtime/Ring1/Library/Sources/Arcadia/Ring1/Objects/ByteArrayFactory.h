@@ -48,6 +48,12 @@ Arcadia_ByteArray*
 Arcadia_ByteArrayFactory_borrowMutable(Arcadia_Thread* thread,
                                        Arcadia_Natural8Value* bytes, Arcadia_SizeValue size);
 
+// Create an immutable fixed-size view retaining the original backing object.
+// The underlying range is validated on every read if backing storage shrinks.
+Arcadia_ByteArray*
+Arcadia_ByteArrayFactory_createSlice(Arcadia_Thread* thread, Arcadia_ByteArray* source,
+                                     Arcadia_SizeValue start, Arcadia_SizeValue size);
+
 // Copies always own independent storage, regardless of the source's capabilities.
 Arcadia_ByteArray*
 Arcadia_ByteArrayFactory_copyMutable(Arcadia_Thread* thread, Arcadia_ByteArray* source);

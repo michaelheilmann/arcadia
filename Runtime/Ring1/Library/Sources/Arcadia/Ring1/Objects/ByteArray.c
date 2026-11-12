@@ -18,7 +18,6 @@
 #include "Arcadia/Ring1/Objects/ByteArray.h"
 
 #include "Arcadia/Ring1/Objects/ByteArrayFactory.h"
-#include "Arcadia/Ring1/Objects/ByteArraySliceImpl.h"
 #include "Arcadia/Ring1/Include.h"
 
 // Default legacy ByteArray implementations are immutable, fixed and contiguous.
@@ -216,7 +215,7 @@ Arcadia_ByteArray_slice
     Arcadia_SizeValue start,
     Arcadia_SizeValue size
   )
-{ return (Arcadia_ByteArray*)Arcadia_ByteArraySliceImpl_create(thread, self, start, size); }
+{ return Arcadia_ByteArrayFactory_createSlice(thread, self, start, size); }
 
 Arcadia_ByteArray*
 Arcadia_ByteArray_createByteArray
