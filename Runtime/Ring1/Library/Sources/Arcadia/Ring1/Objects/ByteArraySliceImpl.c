@@ -85,6 +85,11 @@ Arcadia_ByteArraySliceImpl_isEmpty
     Arcadia_ByteArraySliceImpl const* self
   );
 
+// A slice inherits its backing storage's stable contiguity capability.
+static Arcadia_BooleanValue
+Arcadia_ByteArraySliceImpl_isContiguous(Arcadia_Thread* thread, Arcadia_ByteArraySliceImpl const* self)
+{ return Arcadia_ByteArray_isContiguous(thread, self->byteArray); }
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_ByteArraySliceImpl_constructImpl,
@@ -150,6 +155,7 @@ Arcadia_ByteArraySliceImpl_initializeDispatchImpl
   ((Arcadia_ByteArrayDispatch*)self)->getNumberOfBytes = (Arcadia_SizeValue (*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_getNumberOfBytes;
   ((Arcadia_ByteArrayDispatch*)self)->getSize = (Arcadia_SizeValue (*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_getSize;
   ((Arcadia_ByteArrayDispatch*)self)->isEmpty = (Arcadia_BooleanValue(*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_isEmpty;
+  ((Arcadia_ByteArrayDispatch*)self)->isContiguous = (Arcadia_BooleanValue(*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_isContiguous;
 }
 
 static void
@@ -219,6 +225,10 @@ Arcadia_ByteArraySliceImpl_getBytes
     Arcadia_ByteArraySliceImpl const* self
   )
 {
+  if (!Arcadia_ByteArray_isContiguous(thread, self->byteArray)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   Arcadia_ByteArraySliceImpl_validateBacking(thread, self);
   Arcadia_Natural8Value const* bytes = Arcadia_ByteArray_getBytes(thread, self->byteArray);
   // Avoid undefined pointer arithmetic on NULL for empty borrowed backing arrays.

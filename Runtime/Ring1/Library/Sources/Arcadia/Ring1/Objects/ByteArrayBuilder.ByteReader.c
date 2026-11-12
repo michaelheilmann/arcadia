@@ -138,7 +138,7 @@ Arcadia_ByteArrayBuilder_ByteReader_hasValueImpl
     Arcadia_ByteArrayBuilder_ByteReader* self
   )
 {
-  return self->index < Arcadia_ByteArrayBuilder_getSize(thread, self->source);
+  return self->index < Arcadia_ByteArray_getSize(thread, self->source->storage);
 }
 
 static Arcadia_BooleanValue
@@ -160,7 +160,7 @@ Arcadia_ByteArrayBuilder_ByteReader_getValueImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
     Arcadia_Thread_jump(thread);
   }
-  return Arcadia_ByteArrayBuilder_getAt(thread, self->source, self->index);
+  return Arcadia_ByteArray_getAt(thread, self->source->storage, self->index);
 }
 
 static void
