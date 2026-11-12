@@ -396,6 +396,13 @@ hitTestChild
     Arcadia_Integer32Value y
   )
 {
+  // Only the scroll content viewport receives child input. The rightmost
+  // ten pixels are reserved for the scrollbar, even when children extend
+  // behind it or beyond the panel's visible bounds.
+  Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)self;
+  if (x < widget->left || y < widget->bottom ||
+      x >= widget->left + widget->width || y >= widget->bottom + widget->height ||
+      x >= widget->left + widget->width - 10) return NULL;
   Arcadia_Integer32Value childX = x - ((Arcadia_Engine_UI_WidgetNode*)self)->left + self->scrollX;
   Arcadia_Integer32Value childY = y - ((Arcadia_Engine_UI_WidgetNode*)self)->bottom + self->scrollY;
   for (Arcadia_SizeValue i = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->children); i > 0; --i) {

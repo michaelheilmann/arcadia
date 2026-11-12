@@ -83,6 +83,23 @@ testNestedScrollAnchor
   Arcadia_Engine_UI_PointerInput_handleMouseButtonEvent(thread, (Arcadia_Object*)canvas, nestedPress);
   Arcadia_Tests_assertTrue(thread, outer->focusedChild == (Arcadia_Object*)inner &&
     inner->focusedChild == (Arcadia_Object*)anchor);
+  // A child spanning the full content width must not receive hover from the
+  // scrollbar gutter or a pointer outside the visible scroll viewport.
+  Arcadia_Engine_UI_LayoutPanelNode* oversized = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)oversized);
+  Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)oversized, 0, 0, 300, 240);
+  Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)outer, (Arcadia_Object*)oversized);
+  Arcadia_Engine_Input_MousePointerEvent* overGutter = Arcadia_Engine_Input_MousePointerEvent_create(thread,
+    2, Arcadia_Engine_Input_MousePointerAction_Moved, 185, 225);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)overGutter);
+  Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (Arcadia_Object*)outer, overGutter);
+  Arcadia_Tests_assertTrue(thread, outer->hoveredChild == NULL);
+  overGutter->x = 200;
+  Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (Arcadia_Object*)outer, overGutter);
+  Arcadia_Tests_assertTrue(thread, outer->hoveredChild == NULL);
+  overGutter->x = 100;
+  Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (Arcadia_Object*)outer, overGutter);
+  Arcadia_Tests_assertTrue(thread, outer->hoveredChild == (Arcadia_Object*)oversized);
   // Resize the canvas and retain normal edge-clamping behavior.
   Arcadia_Engine_UI_CanvasNode_setVisualsCanvasSize(thread, canvas, 100, 90);
   Arcadia_Engine_UI_CanvasNode_placePopup(thread, canvas, (Arcadia_Engine_UI_WidgetNode*)anchor,

@@ -18,6 +18,7 @@
 #define ARCADIA_PDLC_KEYWORDS_H_INCLUDED
 
 #include "Arcadia/PDLC/WordType.h"
+
 typedef struct Arcadia_PDLC_Context Arcadia_PDLC_Context;
 
 /// @code
