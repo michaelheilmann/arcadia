@@ -1317,7 +1317,7 @@ resizing or storage relocation. No raw memory addresses are transported through
       <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
     </div>
     <div>
-      <div>Arcadia_ByteArray* self</div>
+      <div>Arcadia_ByteArray const* self</div>
       <div>A pointer to this Byte array.</div>
     </div>
     <div>
@@ -1338,7 +1338,7 @@ resizing or storage relocation. No raw memory addresses are transported through
   <h1 id="Arcadia_ByteArray_getBytes">Arcadia_ByteArray_getBytes</h1>
 
   <my-signature><code>
-  void const*<br>
+  Arcadia_Natural8Value const*<br>
   Arcadia_ByteArray_getBytes<br>
   &nbsp;&nbsp;(<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
@@ -1358,7 +1358,7 @@ resizing or storage relocation. No raw memory addresses are transported through
       <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
     </div>
     <div>
-      <div>Arcadia_ByteArray* self</div>
+      <div>Arcadia_ByteArray const* self</div>
       <div>A pointer to this Byte array.</div>
     </div>
   </section>
@@ -1395,7 +1395,7 @@ resizing or storage relocation. No raw memory addresses are transported through
       <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
     </div>
     <div>
-      <div>Arcadia_ByteArray* self</div>
+      <div>Arcadia_ByteArray const* self</div>
       <div>A pointer to this Byte array.</div>
     </div>
   </section>
@@ -1434,7 +1434,7 @@ resizing or storage relocation. No raw memory addresses are transported through
       <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
     </div>
     <div>
-      <div>Arcadia_ByteArray* self</div>
+      <div>Arcadia_ByteArray const* self</div>
       <div>A pointer to this Byte array.</div>
     </div>
   </section>
@@ -1455,7 +1455,7 @@ resizing or storage relocation. No raw memory addresses are transported through
   Arcadia_ByteArray_isEmpty<br>
   &nbsp;&nbsp;(<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
   &nbsp;&nbsp;)
   </code></my-signature>
 
@@ -1468,7 +1468,7 @@ resizing or storage relocation. No raw memory addresses are transported through
       <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
     </div>
     <div>
-      <div>Arcadia_ByteArray* self</div>
+      <div>Arcadia_ByteArray const* self</div>
       <div>A pointer to this Byte array.</div>
     </div>
   </section>
@@ -1476,14 +1476,6 @@ resizing or storage relocation. No raw memory addresses are transported through
   <section class="cxx return-value">
     <h1>Return value</h1>
     <p><code>Arcadia_BooleanValue_True</code> if this Byte array is empty. <code>Arcadia_BooleanValue_False</code> otherwise.</p>
-  </section>
-
-  <section class="cxx errors">
-    <h1>Errors</h1>
-    <div>
-      <div>Arcadia_Status_ArgumentValueInvalid</div>
-      <div><code>self</code> is a null pointer.</div>
-    </div>
   </section>
 
 </section>
@@ -1496,7 +1488,7 @@ resizing or storage relocation. No raw memory addresses are transported through
   Arcadia_BooleanValue<br>
   Arcadia_ByteArray_isMutable<br>
   &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
   &nbsp;&nbsp;)
   </code></my-signature>
@@ -1535,7 +1527,7 @@ resizing or storage relocation. No raw memory addresses are transported through
   Arcadia_BooleanValue<br>
   Arcadia_ByteArray_isResizable<br>
   &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
   &nbsp;&nbsp;)
   </code></my-signature>
@@ -1574,7 +1566,7 @@ resizing or storage relocation. No raw memory addresses are transported through
   Arcadia_BooleanValue<br>
   Arcadia_ByteArray_isContiguous<br>
   &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
   &nbsp;&nbsp;)
   </code></my-signature>
@@ -1613,9 +1605,9 @@ resizing or storage relocation. No raw memory addresses are transported through
   void<br>
   Arcadia_ByteArray_setAt<br>
   &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value value<br>
   &nbsp;&nbsp;)
   </code></my-signature>
@@ -1662,8 +1654,8 @@ resizing or storage relocation. No raw memory addresses are transported through
   void<br>
   Arcadia_ByteArray_resize<br>
   &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue size<br>
   &nbsp;&nbsp;)
   </code></my-signature>
@@ -1706,7 +1698,7 @@ resizing or storage relocation. No raw memory addresses are transported through
   Arcadia_Natural8Value*<br>
   Arcadia_ByteArray_getMutableBytes<br>
   &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
   &nbsp;&nbsp;)
   </code></my-signature>
@@ -1738,6 +1730,99 @@ resizing or storage relocation. No raw memory addresses are transported through
   <section class="cxx errors">
     <h1>Errors</h1>
     <p>If writable contiguous storage is unavailable, <code>Arcadia_Status_OperationInvalid</code> is raised.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_slice">Arcadia_ByteArray_slice</h1>
+
+  <my-signature><code>
+  Arcadia_ByteArray*<br>
+  Arcadia_ByteArray_slice<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue start,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue size<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Creates a fixed-size, read-only view of a byte range.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray* self</code></div>
+      <div>The backing byte array.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_SizeValue start</code></div>
+      <div>The starting offset in the backing array.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_SizeValue size</code></div>
+      <div>The number of bytes in the slice.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A new <code>Arcadia_ByteArray*</code> retaining the backing array.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The range must fit within the backing array at construction. An empty slice beginning at the end of the backing array is valid. The slice remains read-only and fixed-size, even if its backing array is mutable or resizable. Its contiguity reflects that of its backing array. If the backing array shrinks so the slice range is no longer valid, subsequent indexed or borrowed-byte reads raise <code>Arcadia_Status_ArgumentValueInvalid</code>. The slice does not prevent the backing array from being resized.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <p>A null backing array or an out-of-range slice raises <code>Arcadia_Status_ArgumentValueInvalid</code>.</p>
+  </section>
+
+</section>
+
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_createByteArray">Arcadia_ByteArray_createByteArray</h1>
+
+  <my-signature><code>
+  Arcadia_ByteArray*<br>
+  Arcadia_ByteArray_createByteArray<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_RuntimeByteArray* runtimeByteArray<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Wraps an immutable runtime byte array in an object-level byte array.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_RuntimeByteArray* runtimeByteArray</code></div>
+      <div>The immutable runtime byte array to wrap.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>An immutable, fixed-size and contiguous <code>Arcadia_ByteArray*</code>.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>This compatibility function delegates to <code>Arcadia_ByteArrayFactory_createImmutable</code>. It does not copy the underlying bytes. The wrapper retains the runtime byte array through garbage-collector visitation.</p>
   </section>
 
 </section>
@@ -6227,6 +6312,8 @@ readers and all other byte-reader implementations remain available.</p>
 <li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_isContiguous">Arcadia_ByteArray_isContiguous</a></li>
 <li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_setAt">Arcadia_ByteArray_setAt</a></li>
 <li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_resize">Arcadia_ByteArray_resize</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_slice">Arcadia_ByteArray_slice</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_createByteArray">Arcadia_ByteArray_createByteArray</a></li>
 
         <li>Byte Array Builder</li>
 <li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArrayBuilder">Arcadia_ByteArrayBuilder</a></li>
