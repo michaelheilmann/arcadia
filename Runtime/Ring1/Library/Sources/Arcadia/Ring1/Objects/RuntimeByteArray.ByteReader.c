@@ -101,6 +101,10 @@ Arcadia_RuntimeByteArray_ByteReader_construct
     Arcadia_Thread_jump(thread);
   }
   self->source = Arcadia_ValueStack_getRuntimeByteArrayValue(thread, 1);
+  if (!self->source) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   self->index = 0;
   Arcadia_LeaveConstructor(Arcadia_RuntimeByteArray_ByteReader);
 }
