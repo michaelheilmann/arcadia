@@ -275,6 +275,72 @@ testNativeMutableBorrow(Arcadia_Thread* thread)
   Arcadia_Object_unlock(thread, (Arcadia_Object*)fixed);
 }
 
+// Reader cursor positions observe live backing changes. End-of-input access
+// must fail without advancing or corrupting the existing cursor.
+static void
+expectReaderEnd(Arcadia_Thread* thread, Arcadia_ByteReader* reader, Arcadia_BooleanValue advance)
+{
+  Arcadia_JumpTarget target;
+  Arcadia_Thread_pushJumpTarget(thread, &target);
+  if (Arcadia_JumpTarget_save(&target)) {
+    if (advance) {
+      Arcadia_ByteReader_nextValue(thread, reader);
+    } else {
+      (void)Arcadia_ByteReader_getValue(thread, reader);
+    }
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Status actual = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_OperationInvalid, actual);
+  }
+}
+
+static void
+testReaderEndContracts(Arcadia_Thread* thread)
+{
+  Arcadia_Natural8Value const bytes[] = { 7, 9 };
+  Arcadia_RuntimeByteArray* value = Arcadia_RuntimeByteArray_create(thread, bytes, 2);
+  Arcadia_ByteReader* runtimeReader = (Arcadia_ByteReader*)Arcadia_RuntimeByteArray_ByteReader_create(thread, value);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)runtimeReader);
+  Arcadia_ByteArray* array = Arcadia_ByteArrayFactory_createResizable(thread, 2);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)array);
+  Arcadia_ByteArray_setAt(thread, array, 0, 7);
+  Arcadia_ByteArray_setAt(thread, array, 1, 9);
+  Arcadia_ByteReader* arrayReader = (Arcadia_ByteReader*)Arcadia_ByteArray_ByteReader_create(thread, array);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)arrayReader);
+  Arcadia_ByteArrayBuilder* builder = Arcadia_ByteArrayBuilder_create(thread);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)builder);
+  Arcadia_ByteArrayBuilder_insertBackBytes(thread, builder, bytes, 2);
+  Arcadia_ByteReader* builderReader = (Arcadia_ByteReader*)Arcadia_ByteArrayBuilder_ByteReader_create(thread, builder);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)builderReader);
+
+  Arcadia_ByteReader* readers[] = { runtimeReader, arrayReader, builderReader };
+  for (Arcadia_SizeValue i = 0; i < 3; ++i) {
+    Arcadia_ByteReader* reader = readers[i];
+    Arcadia_Tests_assertEqualSize(thread, 7, Arcadia_ByteReader_getValue(thread, reader));
+    Arcadia_ByteReader_nextValue(thread, reader);
+    Arcadia_Tests_assertEqualSize(thread, 9, Arcadia_ByteReader_getValue(thread, reader));
+    Arcadia_ByteReader_nextValue(thread, reader);
+    Arcadia_Tests_assertFalse(thread, Arcadia_ByteReader_hasValue(thread, reader));
+    Arcadia_Tests_assertFalse(thread, Arcadia_ByteReader_hasError(thread, reader));
+    expectReaderEnd(thread, reader, Arcadia_BooleanValue_False);
+    expectReaderEnd(thread, reader, Arcadia_BooleanValue_True);
+    Arcadia_Tests_assertFalse(thread, Arcadia_ByteReader_hasValue(thread, reader));
+  }
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)builderReader);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)builder);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)arrayReader);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)array);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)runtimeReader);
+}
+
+static int runReaderEndContracts(void)
+{ return Arcadia_Tests_safeExecute(&testReaderEndContracts) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
 static int runNativeMutableBorrow(void)
 { return Arcadia_Tests_safeExecute(&testNativeMutableBorrow) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
@@ -296,6 +362,7 @@ int main(int argc, char** argv)
     { "NativeMutableBorrow", &runNativeMutableBorrow },
     { "ImmutableAndCopy", &runImmutable },
     { "ReaderMutationAndResize", &runReaders },
+    { "ReaderEndContracts", &runReaderEndContracts },
     { "SliceBackingResize", &runSliceResize },
     { "ReaderAndSliceGCLifetimes", &runReaderAndSliceGCLifetimes },
   };
