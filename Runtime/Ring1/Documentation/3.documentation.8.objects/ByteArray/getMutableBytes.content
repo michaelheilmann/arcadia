@@ -6,7 +6,7 @@
   Arcadia_Natural8Value*<br>
   Arcadia_ByteArray_getMutableBytes<br>
   &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
   &nbsp;&nbsp;)
   </code></my-signature>

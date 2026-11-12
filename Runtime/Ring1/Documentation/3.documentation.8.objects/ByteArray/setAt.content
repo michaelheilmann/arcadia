@@ -6,9 +6,9 @@
   void<br>
   Arcadia_ByteArray_setAt<br>
   &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value value<br>
   &nbsp;&nbsp;)
   </code></my-signature>

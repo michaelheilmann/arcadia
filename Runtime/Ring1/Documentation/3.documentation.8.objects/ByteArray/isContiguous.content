@@ -6,7 +6,7 @@
   Arcadia_BooleanValue<br>
   Arcadia_ByteArray_isContiguous<br>
   &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray const* self<br>
   &nbsp;&nbsp;)
   </code></my-signature>

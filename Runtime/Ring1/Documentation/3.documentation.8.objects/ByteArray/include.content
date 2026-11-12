@@ -34,4 +34,6 @@ resizing or storage relocation. No raw memory addresses are transported through
 @{include("./3.documentation.8.objects/ByteArray/setAt.content")}
 @{include("./3.documentation.8.objects/ByteArray/resize.content")}
 @{include("./3.documentation.8.objects/ByteArray/getMutableBytes.content")}
+@{include("./3.documentation.8.objects/ByteArray/slice.content")}
+@{include("./3.documentation.8.objects/ByteArray/createByteArray.content")}
 @{include("./3.documentation.8.objects/ByteArray/factory.content")}

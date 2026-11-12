@@ -11,3 +11,5 @@
 <li><a href="@{siteAddress}/Arcadia/Ring1/#Arcadia_ByteArray_isContiguous">Arcadia_ByteArray_isContiguous</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring1/#Arcadia_ByteArray_setAt">Arcadia_ByteArray_setAt</a></li>
 <li><a href="@{siteAddress}/Arcadia/Ring1/#Arcadia_ByteArray_resize">Arcadia_ByteArray_resize</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring1/#Arcadia_ByteArray_slice">Arcadia_ByteArray_slice</a></li>
+<li><a href="@{siteAddress}/Arcadia/Ring1/#Arcadia_ByteArray_createByteArray">Arcadia_ByteArray_createByteArray</a></li>

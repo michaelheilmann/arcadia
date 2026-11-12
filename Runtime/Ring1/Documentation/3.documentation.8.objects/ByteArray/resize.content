@@ -6,8 +6,8 @@
   void<br>
   Arcadia_ByteArray_resize<br>
   &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue size<br>
   &nbsp;&nbsp;)
   </code></my-signature>

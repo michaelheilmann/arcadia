@@ -107,6 +107,7 @@ Arcadia_ByteArray_getBytes
     Arcadia_ByteArray const* self
   );
 
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_getMutableBytes
 // Native C-only. Requires mutable and contiguous storage. The returned pointer
 // is borrowed and can be invalidated by resizing; root the owner while using it.
 // Unsupported calls raise Arcadia_Status_OperationInvalid.
@@ -184,6 +185,7 @@ Arcadia_ByteArray_resize
     Arcadia_SizeValue size
   );
 
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_slice
 Arcadia_ByteArray*
 Arcadia_ByteArray_slice
   (
