@@ -101,10 +101,6 @@ Arcadia_ByteArray_ByteReader_construct
     Arcadia_Thread_jump(thread);
   }
   self->source = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_ByteArray_getType(thread));
-  if (!self->source) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
-    Arcadia_Thread_jump(thread);
-  }
   self->index = 0;
   Arcadia_LeaveConstructor(Arcadia_ByteArray_ByteReader);
 }
@@ -141,7 +137,7 @@ Arcadia_ByteArray_ByteReader_hasValueImpl
     Arcadia_ByteArray_ByteReader* self
   )
 {
-  return self->index < Arcadia_ByteArray_getSize(thread,self->source);
+  return self->index < Arcadia_ByteArray_getSize(thread, self->source);
 }
 
 static Arcadia_BooleanValue
