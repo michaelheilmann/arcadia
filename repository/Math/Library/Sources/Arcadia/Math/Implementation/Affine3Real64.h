@@ -28,14 +28,72 @@ typedef struct Arcadia_Math_Affine3Real64 {
   Arcadia_Real64Value elements[3][4];
 } Arcadia_Math_Affine3Real64;
 
-void Arcadia_Math_Affine3Real64_setIdentity(Arcadia_Math_Affine3Real64* self);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real64_setValues(Arcadia_Math_Affine3Real64* self, const Arcadia_Real64Value values[12]);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real64_multiply(Arcadia_Math_Affine3Real64* result, const Arcadia_Math_Affine3Real64* left, const Arcadia_Math_Affine3Real64* right);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real64_inverse(Arcadia_Math_Affine3Real64* result, const Arcadia_Math_Affine3Real64* source);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real64_transformPoint(const Arcadia_Math_Affine3Real64* matrix, const Arcadia_Real64Value point[3], Arcadia_Real64Value result[3]);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real64_transformDirection(const Arcadia_Math_Affine3Real64* matrix, const Arcadia_Real64Value direction[3], Arcadia_Real64Value result[3]);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real64_transformPlane(const Arcadia_Math_Affine3Real64* matrix, const Arcadia_Math_Plane3Real64* plane, Arcadia_Math_Plane3Real64* result);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real64_transformRay(const Arcadia_Math_Affine3Real64* matrix, const Arcadia_Math_Ray3Real64* ray, Arcadia_Math_Ray3Real64* result);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real64_transformAABB(const Arcadia_Math_Affine3Real64* matrix, const Arcadia_Math_AABB3Real64* bounds, Arcadia_Math_AABB3Real64* result);
+void
+Arcadia_Math_Affine3Real64_setIdentity
+  (
+    Arcadia_Math_Affine3Real64* self
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real64_setValues
+  (
+    Arcadia_Math_Affine3Real64* self,
+    const Arcadia_Real64Value values[12]
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real64_multiply
+  (
+    Arcadia_Math_Affine3Real64* result,
+    const Arcadia_Math_Affine3Real64* left,
+    const Arcadia_Math_Affine3Real64* right
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real64_inverse
+  (
+    Arcadia_Math_Affine3Real64* result,
+    const Arcadia_Math_Affine3Real64* source
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real64_transformPoint
+  (
+    const Arcadia_Math_Affine3Real64* matrix,
+    const Arcadia_Real64Value point[3],
+    Arcadia_Real64Value result[3]
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real64_transformDirection
+  (
+    const Arcadia_Math_Affine3Real64* matrix,
+    const Arcadia_Real64Value direction[3],
+    Arcadia_Real64Value result[3]
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real64_transformPlane
+  (
+    const Arcadia_Math_Affine3Real64* matrix,
+    const Arcadia_Math_Plane3Real64* plane,
+    Arcadia_Math_Plane3Real64* result
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real64_transformRay
+  (
+    const Arcadia_Math_Affine3Real64* matrix,
+    const Arcadia_Math_Ray3Real64* ray,
+    Arcadia_Math_Ray3Real64* result
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real64_transformAABB
+  (
+    const Arcadia_Math_Affine3Real64* matrix,
+    const Arcadia_Math_AABB3Real64* bounds,
+    Arcadia_Math_AABB3Real64* result
+  );
 
 #endif // ARCADIA_MATH_IMPLEMENTATION_AFFINE3REAL64_H_INCLUDED

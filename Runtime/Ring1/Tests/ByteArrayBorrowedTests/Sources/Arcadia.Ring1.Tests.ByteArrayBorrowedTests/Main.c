@@ -110,13 +110,26 @@ testReadOnlyBorrow(Arcadia_Thread* thread)
   Arcadia_Object_unlock(thread, (Arcadia_Object*)borrowed);
 }
 
-static int runMutableBorrow(void)
+static int
+runMutableBorrow
+  (
+    void
+  )
 { return Arcadia_Tests_safeExecute(&testMutableBorrow) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
-static int runReadOnlyBorrow(void)
+static int
+runReadOnlyBorrow
+  (
+    void
+  )
 { return Arcadia_Tests_safeExecute(&testReadOnlyBorrow) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
-int main(int argc, char** argv)
+int
+main
+  (
+    int argc,
+    char** argv
+  )
 {
   static const Arcadia_Testing_Case cases[] = {
     { "MutableBorrow", &runMutableBorrow },

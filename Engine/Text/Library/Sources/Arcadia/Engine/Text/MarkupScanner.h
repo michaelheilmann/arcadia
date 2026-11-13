@@ -27,6 +27,10 @@
 Arcadia_declareObjectType(u8"Arcadia.Engine.Text.MarkupScanner", Arcadia_Engine_Text_MarkupScanner,
                           u8"Arcadia.Languages.Scanner");
 
-Arcadia_Engine_Text_MarkupScanner* Arcadia_Engine_Text_MarkupScanner_create(Arcadia_Thread* thread);
+Arcadia_Engine_Text_MarkupScanner*
+Arcadia_Engine_Text_MarkupScanner_create
+  (
+    Arcadia_Thread* thread
+  );
 
 #endif // ARCADIA_ENGINE_TEXT_MARKUPSCANNER_H_INCLUDED

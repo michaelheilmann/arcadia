@@ -54,11 +54,43 @@ static const char* SCHEMA =
   "  },\n"
   "}\n";
 
-static Arcadia_String* Arcadia_ADL_UI_ButtonReader_getTypeName(Arcadia_Thread* thread, Arcadia_ADL_UI_ButtonReader* self);
-static Arcadia_ADL_UI_ButtonDefinition* Arcadia_ADL_UI_ButtonReader_read(Arcadia_Thread* thread, Arcadia_ADL_UI_ButtonReader* self, Arcadia_ADL_Context* context, Arcadia_ADL_Definitions* definitions, Arcadia_DDL_Node* input);
-static void Arcadia_ADL_UI_ButtonReader_constructImpl(Arcadia_Thread* thread, Arcadia_ADL_UI_ButtonReader* self);
-static void Arcadia_ADL_UI_ButtonReader_initializeDispatchImpl(Arcadia_Thread* thread, Arcadia_ADL_UI_ButtonReaderDispatch* self);
-static void Arcadia_ADL_UI_ButtonReader_visitImpl(Arcadia_Thread* thread, Arcadia_ADL_UI_ButtonReader* self);
+static Arcadia_String*
+Arcadia_ADL_UI_ButtonReader_getTypeName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_UI_ButtonReader* self
+  );
+
+static Arcadia_ADL_UI_ButtonDefinition*
+Arcadia_ADL_UI_ButtonReader_read
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_UI_ButtonReader* self,
+    Arcadia_ADL_Context* context,
+    Arcadia_ADL_Definitions* definitions,
+    Arcadia_DDL_Node* input
+  );
+
+static void
+Arcadia_ADL_UI_ButtonReader_constructImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_UI_ButtonReader* self
+  );
+
+static void
+Arcadia_ADL_UI_ButtonReader_initializeDispatchImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_UI_ButtonReaderDispatch* self
+  );
+
+static void
+Arcadia_ADL_UI_ButtonReader_visitImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_UI_ButtonReader* self
+  );
 
 static Arcadia_DDL_Node*
 getColorEntryValue
@@ -111,8 +143,23 @@ getInlineColorOrNull
   return Arcadia_ADL_Reference_createForDefinition(thread, definitions, (Arcadia_ADL_Definition*)color);
 }
 
-static Arcadia_Natural8Value getNatural8ValueOptional(Arcadia_Thread* thread, Arcadia_DDL_MapNode* mapNode, Arcadia_String* key, Arcadia_Natural8Value defaultValue);
-static Arcadia_Natural32Value getNatural32ValueOptional(Arcadia_Thread* thread, Arcadia_DDL_MapNode* mapNode, Arcadia_String* key, Arcadia_Natural32Value defaultValue);
+static Arcadia_Natural8Value
+getNatural8ValueOptional
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_MapNode* mapNode,
+    Arcadia_String* key,
+    Arcadia_Natural8Value defaultValue
+  );
+
+static Arcadia_Natural32Value
+getNatural32ValueOptional
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDL_MapNode* mapNode,
+    Arcadia_String* key,
+    Arcadia_Natural32Value defaultValue
+  );
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,

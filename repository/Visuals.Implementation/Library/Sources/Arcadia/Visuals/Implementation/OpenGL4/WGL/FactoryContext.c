@@ -320,7 +320,14 @@ getIntegerAttribute
   return attributeValue;
 }
 
-static void add(Arcadia_Thread* thread, Arcadia_List* configurations, Arcadia_Visuals_Configuration* configuration) {
+static void
+add
+  (
+    Arcadia_Thread* thread,
+    Arcadia_List* configurations,
+    Arcadia_Visuals_Configuration* configuration
+  )
+{
   for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)configurations); i < n; ++i) {
     Arcadia_Visuals_Configuration* element = Arcadia_List_getObjectReferenceValueAt(thread, configurations, i);
     Arcadia_Value a, b;

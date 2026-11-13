@@ -1,7 +1,11 @@
 // Tests instantiated for Real32 and Real64 by NURBSValueTests/Main.c.
 #define NetCheck(value) do { if (!(value)) return EXIT_FAILURE; } while (0)
 
-static int Case(netCounts)(void)
+static int
+Case(netCounts)
+  (
+    void
+  )
 {
   Arcadia_SizeValue lines = 71, vertices = 72;
   NetCheck(Net(countCurve)(4, &lines, &vertices) && lines == 3 && vertices == 6);
@@ -16,7 +20,11 @@ static int Case(netCounts)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(netCurve)(void)
+static int
+Case(netCurve)
+  (
+    void
+  )
 {
   const Scalar points[3][3] = {{0,0,0},{1,2,3},{2,4,6}};
   Scalar output[4][3];
@@ -31,7 +39,11 @@ static int Case(netCurve)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(netSurface)(void)
+static int
+Case(netSurface)
+  (
+    void
+  )
 {
   const Scalar points[6][3] = {
     {0,0,0},{0,1,0},{0,2,0},
@@ -53,7 +65,11 @@ static int Case(netSurface)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(netDegenerate)(void)
+static int
+Case(netDegenerate)
+  (
+    void
+  )
 {
   const Scalar points[4][3] = {{2,2,2},{2,2,2},{2,2,2},{2,2,2}};
   Scalar out[8][3]; Arcadia_SizeValue pairs[4][2];
@@ -65,7 +81,11 @@ static int Case(netDegenerate)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(netInvalid)(void)
+static int
+Case(netInvalid)
+  (
+    void
+  )
 {
   Scalar points[4][3] = {{0,0,0},{1,0,0},{0,1,0},{1,1,0}};
   Scalar out[8][3] = {{0}}; Arcadia_SizeValue pairs[4][2] = {{0}};

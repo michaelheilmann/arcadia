@@ -2,7 +2,11 @@
 #define AFFCHECK(c) do { if (!(c)) return EXIT_FAILURE; } while (0)
 #define AFFNEAR(a,b) (fabs((double)(a)-(double)(b)) < 0.0001)
 
-static int Test(affineIdentityAndComposition)(void)
+static int
+Test(affineIdentityAndComposition)
+  (
+    void
+  )
 {
   AFFINE a, b, c;
   F(setIdentity)(&a);
@@ -22,7 +26,11 @@ static int Test(affineIdentityAndComposition)(void)
   return EXIT_SUCCESS;
 }
 
-static int Test(affineInverseAndPlane)(void)
+static int
+Test(affineInverseAndPlane)
+  (
+    void
+  )
 {
   const Scalar values[12] = {
     0,-2,0,3, 4,0,0,-1, 0,0,-3,7
@@ -48,7 +56,11 @@ static int Test(affineInverseAndPlane)(void)
   return EXIT_SUCCESS;
 }
 
-static int Test(affineRayAndAABB)(void)
+static int
+Test(affineRayAndAABB)
+  (
+    void
+  )
 {
   const Scalar values[12] = {0,-2,0,3, 4,0,0,-1, 0,0,-3,7};
   AFFINE matrix;
@@ -74,7 +86,11 @@ static int Test(affineRayAndAABB)(void)
   return EXIT_SUCCESS;
 }
 
-static int Test(affineInvalidAndAliasing)(void)
+static int
+Test(affineInvalidAndAliasing)
+  (
+    void
+  )
 {
   AFFINE matrix, unchanged;
   F(setIdentity)(&matrix);

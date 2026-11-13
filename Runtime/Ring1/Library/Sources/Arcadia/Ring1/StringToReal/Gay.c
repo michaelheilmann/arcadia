@@ -180,7 +180,14 @@ struct RoundInfo {
 #define Arcadia_Real64Value_HiddenBitMask (UINT64_C(0x0010000000000000))
 
 // this converts a native floating-point number to an extended-precision float.
-static void to_extended(Arcadia_Thread* thread, Arcadia_ToReal64_Result* result, Arcadia_Real64Value value) {
+static void
+to_extended
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ToReal64_Result* result,
+    Arcadia_Real64Value value
+  )
+{
   //using equiv_uint = equiv_uint_t<T>;
   uint64_t exponent_mask = Arcadia_Real64Value_ExponentBitsMask;
   uint64_t mantissa_mask = Arcadia_Real64Value_SignificandBitsMask;

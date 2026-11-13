@@ -4,7 +4,11 @@
 #error Control must refer to the active NURBS3ControlReal32/64 prefix
 #endif
 
-static int Case(controlBounds)(void)
+static int
+Case(controlBounds)
+  (
+    void
+  )
 {
   const Scalar pts[6][3] = {{-2,0,1},{2,3,-5},{1,1,0},{0,-4,2},{1,0,3},{3,2,0}};
   ControlAABB hull;
@@ -15,7 +19,11 @@ static int Case(controlBounds)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(controlNormalize)(void)
+static int
+Case(controlNormalize)
+  (
+    void
+  )
 {
   Scalar pts[2][3]={{2,4,6},{6,6,6}};
   Scalar dst[2][3]={{99,99,99},{99,99,99}};
@@ -33,7 +41,11 @@ static int Case(controlNormalize)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(controlTransform)(void)
+static int
+Case(controlTransform)
+  (
+    void
+  )
 {
   Scalar pts[2][3]={{1,2,3},{-1,0,1}};
   Scalar dst[2][3]={{99,99,99},{99,99,99}};
@@ -50,7 +62,11 @@ static int Case(controlTransform)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(controlPick)(void)
+static int
+Case(controlPick)
+  (
+    void
+  )
 {
   const Scalar pts[4][3]={{4,0,0},{2,0.1,0},{2,-0.1,0},{9,3,0}};
   ControlRay ray={{0,0,0},{2,0,0}};
@@ -65,7 +81,11 @@ static int Case(controlPick)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(controlInvalid)(void)
+static int
+Case(controlInvalid)
+  (
+    void
+  )
 {
   Scalar pts[2][3]={{1,2,3},{4,5,6}};
   Scalar dst[2][3]={{99,99,99},{99,99,99}};

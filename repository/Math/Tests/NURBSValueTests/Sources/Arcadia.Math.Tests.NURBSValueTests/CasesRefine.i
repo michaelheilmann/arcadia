@@ -1,7 +1,11 @@
 // Knot-refinement tests shared by native Real32/Real64 implementations.
 #define RefineCheck(x) do { if (!(x)) return EXIT_FAILURE; } while (0)
 
-static int Case(refineLinear)(void)
+static int
+Case(refineLinear)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = {{0,0,0},{4,2,6}};
   const Scalar knots[4] = {0,0,1,1};
@@ -23,7 +27,11 @@ static int Case(refineLinear)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(refineRational)(void)
+static int
+Case(refineRational)
+  (
+    void
+  )
 {
   const Scalar points[3][3]={{1,0,0},{1,1,0},{0,1,0}};
   const Scalar weights[3]={1,(Scalar)0.7071067811865475244,1};
@@ -41,7 +49,11 @@ static int Case(refineRational)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(refineRepeated)(void)
+static int
+Case(refineRepeated)
+  (
+    void
+  )
 {
   const Scalar points[5][3]={{0,0,0},{1,2,0},{2,0,0},{3,2,0},{4,0,0}};
   const Scalar knots[8]={0,0,0,(Scalar)0.5,(Scalar)0.5,1,1,1};
@@ -58,7 +70,11 @@ static int Case(refineRepeated)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(refineNonUniform)(void)
+static int
+Case(refineNonUniform)
+  (
+    void
+  )
 {
   const Scalar points[5][3]={{0,0,0},{1,1,0},{2,-1,0},{3,1,0},{4,0,0}};
   const Scalar knots[8]={0,0,0,(Scalar)0.2,(Scalar)0.7,1,1,1};
@@ -74,7 +90,11 @@ static int Case(refineNonUniform)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(refineInvalid)(void)
+static int
+Case(refineInvalid)
+  (
+    void
+  )
 {
   const Scalar points[3][3]={{0,0,0},{1,1,0},{2,0,0}};
   const Scalar knots[6]={0,0,0,1,1,1};
@@ -95,7 +115,11 @@ static int Case(refineInvalid)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(refineDegreeZero)(void)
+static int
+Case(refineDegreeZero)
+  (
+    void
+  )
 {
   const Scalar points[2][3]={{4,0,0},{9,0,0}};
   const Scalar knots[3]={0,(Scalar)0.5,1};

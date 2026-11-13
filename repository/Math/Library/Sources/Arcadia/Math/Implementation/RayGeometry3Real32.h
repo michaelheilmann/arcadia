@@ -38,40 +38,155 @@ typedef struct Arcadia_Math_Sphere3Real32 {
   Arcadia_Real32Value radius;
 } Arcadia_Math_Sphere3Real32;
 
-Arcadia_BooleanValue Arcadia_Math_Ray3Real32_set(Arcadia_Math_Ray3Real32* self, const Arcadia_Real32Value origin[3], const Arcadia_Real32Value direction[3]);
-void Arcadia_Math_Ray3Real32_pointAt(const Arcadia_Math_Ray3Real32* self, Arcadia_Real32Value t, Arcadia_Real32Value result[3]);
-void Arcadia_Math_Ray3Real32_translate(Arcadia_Math_Ray3Real32* self, const Arcadia_Real32Value delta[3]);
+Arcadia_BooleanValue
+Arcadia_Math_Ray3Real32_set
+  (
+    Arcadia_Math_Ray3Real32* self,
+    const Arcadia_Real32Value origin[3],
+    const Arcadia_Real32Value direction[3]
+  );
+
+void
+Arcadia_Math_Ray3Real32_pointAt
+  (
+    const Arcadia_Math_Ray3Real32* self,
+    Arcadia_Real32Value t,
+    Arcadia_Real32Value result[3]
+  );
+
+void
+Arcadia_Math_Ray3Real32_translate
+  (
+    Arcadia_Math_Ray3Real32* self,
+    const Arcadia_Real32Value delta[3]
+  );
 
 // Plane normals are deliberately not normalized. signedOffset is a signed
 // plane-equation value, not Euclidean distance unless the normal is unit length.
-Arcadia_BooleanValue Arcadia_Math_Plane3Real32_setFromPointNormal(Arcadia_Math_Plane3Real32* self, const Arcadia_Real32Value point[3], const Arcadia_Real32Value normal[3]);
-Arcadia_BooleanValue Arcadia_Math_Plane3Real32_setFromPoints(Arcadia_Math_Plane3Real32* self, const Arcadia_Real32Value a[3], const Arcadia_Real32Value b[3], const Arcadia_Real32Value c[3]);
-Arcadia_Real32Value Arcadia_Math_Plane3Real32_signedOffset(const Arcadia_Math_Plane3Real32* self, const Arcadia_Real32Value point[3]);
+Arcadia_BooleanValue
+Arcadia_Math_Plane3Real32_setFromPointNormal
+  (
+    Arcadia_Math_Plane3Real32* self,
+    const Arcadia_Real32Value point[3],
+    const Arcadia_Real32Value normal[3]
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Plane3Real32_setFromPoints
+  (
+    Arcadia_Math_Plane3Real32* self,
+    const Arcadia_Real32Value a[3],
+    const Arcadia_Real32Value b[3],
+    const Arcadia_Real32Value c[3]
+  );
+
+Arcadia_Real32Value
+Arcadia_Math_Plane3Real32_signedOffset
+  (
+    const Arcadia_Math_Plane3Real32* self,
+    const Arcadia_Real32Value point[3]
+  );
+
 // Unlike signedOffset, signedDistance uses a unit normal implicitly and
 // returns Euclidean distance. All helpers require a finite, nonzero normal.
 // They reject non-finite results; output buffers remain unchanged on failure.
 // A point and its projection may alias the caller's output array.
-Arcadia_BooleanValue Arcadia_Math_Plane3Real32_signedDistance(const Arcadia_Math_Plane3Real32* self, const Arcadia_Real32Value point[3], Arcadia_Real32Value* distance);
-Arcadia_BooleanValue Arcadia_Math_Plane3Real32_pointOnPlane(const Arcadia_Math_Plane3Real32* self, Arcadia_Real32Value result[3]);
-Arcadia_BooleanValue Arcadia_Math_Plane3Real32_projectPoint(const Arcadia_Math_Plane3Real32* self, const Arcadia_Real32Value point[3], Arcadia_Real32Value result[3]);
+Arcadia_BooleanValue
+Arcadia_Math_Plane3Real32_signedDistance
+  (
+    const Arcadia_Math_Plane3Real32* self,
+    const Arcadia_Real32Value point[3],
+    Arcadia_Real32Value* distance
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Plane3Real32_pointOnPlane
+  (
+    const Arcadia_Math_Plane3Real32* self,
+    Arcadia_Real32Value result[3]
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Plane3Real32_projectPoint
+  (
+    const Arcadia_Math_Plane3Real32* self,
+    const Arcadia_Real32Value point[3],
+    Arcadia_Real32Value result[3]
+  );
+
 // Translate the plane itself without moving a stored point or normal.
 // offset' = offset - dot(normal, displacement). Self is unchanged on failure.
-Arcadia_BooleanValue Arcadia_Math_Plane3Real32_translateChecked(Arcadia_Math_Plane3Real32* self, const Arcadia_Real32Value displacement[3]);
+Arcadia_BooleanValue
+Arcadia_Math_Plane3Real32_translateChecked
+  (
+    Arcadia_Math_Plane3Real32* self,
+    const Arcadia_Real32Value displacement[3]
+  );
 
 
-Arcadia_BooleanValue Arcadia_Math_Sphere3Real32_set(Arcadia_Math_Sphere3Real32* self, const Arcadia_Real32Value center[3], Arcadia_Real32Value radius);
-Arcadia_BooleanValue Arcadia_Math_Sphere3Real32_containsPoint(const Arcadia_Math_Sphere3Real32* self, const Arcadia_Real32Value point[3]);
-Arcadia_BooleanValue Arcadia_Math_Sphere3Real32_intersectsSphere(const Arcadia_Math_Sphere3Real32* self, const Arcadia_Math_Sphere3Real32* other);
+Arcadia_BooleanValue
+Arcadia_Math_Sphere3Real32_set
+  (
+    Arcadia_Math_Sphere3Real32* self,
+    const Arcadia_Real32Value center[3],
+    Arcadia_Real32Value radius
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Sphere3Real32_containsPoint
+  (
+    const Arcadia_Math_Sphere3Real32* self,
+    const Arcadia_Real32Value point[3]
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Sphere3Real32_intersectsSphere
+  (
+    const Arcadia_Math_Sphere3Real32* self,
+    const Arcadia_Math_Sphere3Real32* other
+  );
 
 // A hit always has t >= 0. A ray starting inside a solid hits at t == 0.
 // Tangencies and AABB boundary contacts count as hits. On a miss, all output
 // parameters remain unchanged. The optional output parameters may be NULL.
-Arcadia_BooleanValue Arcadia_Math_Ray3Real32_intersectPlane(const Arcadia_Math_Ray3Real32* ray, const Arcadia_Math_Plane3Real32* plane, Arcadia_Real32Value* t);
-Arcadia_BooleanValue Arcadia_Math_Ray3Real32_intersectSphere(const Arcadia_Math_Ray3Real32* ray, const Arcadia_Math_Sphere3Real32* sphere, Arcadia_Real32Value* t);
+Arcadia_BooleanValue
+Arcadia_Math_Ray3Real32_intersectPlane
+  (
+    const Arcadia_Math_Ray3Real32* ray,
+    const Arcadia_Math_Plane3Real32* plane,
+    Arcadia_Real32Value* t
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Ray3Real32_intersectSphere
+  (
+    const Arcadia_Math_Ray3Real32* ray,
+    const Arcadia_Math_Sphere3Real32* sphere,
+    Arcadia_Real32Value* t
+  );
+
 // tEnter is zero when the ray starts inside the bounds; tExit is the exit time.
-Arcadia_BooleanValue Arcadia_Math_Ray3Real32_intersectAABB(const Arcadia_Math_Ray3Real32* ray, const Arcadia_Math_AABB3Real32* bounds, Arcadia_Real32Value* tEnter, Arcadia_Real32Value* tExit);
+Arcadia_BooleanValue
+Arcadia_Math_Ray3Real32_intersectAABB
+  (
+    const Arcadia_Math_Ray3Real32* ray,
+    const Arcadia_Math_AABB3Real32* bounds,
+    Arcadia_Real32Value* tEnter,
+    Arcadia_Real32Value* tExit
+  );
+
 // Two-sided Moller-Trumbore. Degenerate and coplanar triangles do not hit.
 // u and v are barycentric coordinates for vertices b and c; a has 1-u-v.
-Arcadia_BooleanValue Arcadia_Math_Ray3Real32_intersectTriangle(const Arcadia_Math_Ray3Real32* ray, const Arcadia_Real32Value a[3], const Arcadia_Real32Value b[3], const Arcadia_Real32Value c[3], Arcadia_Real32Value* t, Arcadia_Real32Value* u, Arcadia_Real32Value* v);
+Arcadia_BooleanValue
+Arcadia_Math_Ray3Real32_intersectTriangle
+  (
+    const Arcadia_Math_Ray3Real32* ray,
+    const Arcadia_Real32Value a[3],
+    const Arcadia_Real32Value b[3],
+    const Arcadia_Real32Value c[3],
+    Arcadia_Real32Value* t,
+    Arcadia_Real32Value* u,
+    Arcadia_Real32Value* v
+  );
 
 #endif // ARCADIA_MATH_IMPLEMENTATION_RAYGEOMETRY3REAL32_H_INCLUDED

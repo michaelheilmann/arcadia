@@ -1,7 +1,11 @@
 // The same regression cases are instantiated with Scalar, N, Case, Epsilon.
 #define MeshCheck(x) do { if (!(x)) return EXIT_FAILURE; } while (0)
 
-static int Case(meshCounts)(void)
+static int
+Case(meshCounts)
+  (
+    void
+  )
 {
   Arcadia_SizeValue count = 99;
   MeshCheck(Mesh(getVertexCount)(2,2,&count) && count == 6);
@@ -14,7 +18,11 @@ static int Case(meshCounts)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(meshFlat)(void)
+static int
+Case(meshFlat)
+  (
+    void
+  )
 {
   const Scalar p[4][3]={{0,0,0},{0,2,0},{2,0,0},{2,2,0}};
   const Scalar knots[4]={0,0,1,1};
@@ -42,7 +50,11 @@ static int Case(meshFlat)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(meshRational)(void)
+static int
+Case(meshRational)
+  (
+    void
+  )
 {
   const Scalar p[4][3]={{0,0,0},{0,2,0},{2,0,0},{2,2,0}};
   const Scalar weights[4]={1,1,1,5};
@@ -56,7 +68,11 @@ static int Case(meshRational)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(meshDegenerate)(void)
+static int
+Case(meshDegenerate)
+  (
+    void
+  )
 {
   const Scalar p[4][3]={{1,2,3},{1,2,3},{1,2,3},{1,2,3}};
   const Scalar knots[4]={0,0,1,1};
@@ -71,7 +87,11 @@ static int Case(meshDegenerate)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(meshInvalid)(void)
+static int
+Case(meshInvalid)
+  (
+    void
+  )
 {
   const Scalar p[4][3]={{0,0,0},{0,2,0},{2,0,0},{2,2,0}};
   const Scalar knots[4]={0,0,1,1};

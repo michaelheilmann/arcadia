@@ -25,16 +25,74 @@ typedef struct Arcadia_Math_Matrix3Real64 {
   Arcadia_Real64Value elements[3][3];
 } Arcadia_Math_Matrix3Real64;
 
-void Arcadia_Math_Matrix3Real64_setIdentity(Arcadia_Math_Matrix3Real64* self);
-void Arcadia_Math_Matrix3Real64_setScaling(Arcadia_Math_Matrix3Real64* self, Arcadia_Real64Value x, Arcadia_Real64Value y, Arcadia_Real64Value z);
-void Arcadia_Math_Matrix3Real64_setValues(Arcadia_Math_Matrix3Real64* self, const Arcadia_Real64Value values[9]);
-void Arcadia_Math_Matrix3Real64_copyValues(const Arcadia_Math_Matrix3Real64* self, Arcadia_Real64Value result[9]);
+void
+Arcadia_Math_Matrix3Real64_setIdentity
+  (
+    Arcadia_Math_Matrix3Real64* self
+  );
+
+void
+Arcadia_Math_Matrix3Real64_setScaling
+  (
+    Arcadia_Math_Matrix3Real64* self,
+    Arcadia_Real64Value x,
+    Arcadia_Real64Value y,
+    Arcadia_Real64Value z
+  );
+
+void
+Arcadia_Math_Matrix3Real64_setValues
+  (
+    Arcadia_Math_Matrix3Real64* self,
+    const Arcadia_Real64Value values[9]
+  );
+
+void
+Arcadia_Math_Matrix3Real64_copyValues
+  (
+    const Arcadia_Math_Matrix3Real64* self,
+    Arcadia_Real64Value result[9]
+  );
+
 // All output functions permit aliasing of either operand (or both operands).
-void Arcadia_Math_Matrix3Real64_multiply(Arcadia_Math_Matrix3Real64* result, const Arcadia_Math_Matrix3Real64* a, const Arcadia_Math_Matrix3Real64* b);
-void Arcadia_Math_Matrix3Real64_add(Arcadia_Math_Matrix3Real64* result, const Arcadia_Math_Matrix3Real64* a, const Arcadia_Math_Matrix3Real64* b);
-void Arcadia_Math_Matrix3Real64_subtract(Arcadia_Math_Matrix3Real64* result, const Arcadia_Math_Matrix3Real64* a, const Arcadia_Math_Matrix3Real64* b);
-void Arcadia_Math_Matrix3Real64_transpose(Arcadia_Math_Matrix3Real64* result, const Arcadia_Math_Matrix3Real64* value);
+void
+Arcadia_Math_Matrix3Real64_multiply
+  (
+    Arcadia_Math_Matrix3Real64* result,
+    const Arcadia_Math_Matrix3Real64* a,
+    const Arcadia_Math_Matrix3Real64* b
+  );
+
+void
+Arcadia_Math_Matrix3Real64_add
+  (
+    Arcadia_Math_Matrix3Real64* result,
+    const Arcadia_Math_Matrix3Real64* a,
+    const Arcadia_Math_Matrix3Real64* b
+  );
+
+void
+Arcadia_Math_Matrix3Real64_subtract
+  (
+    Arcadia_Math_Matrix3Real64* result,
+    const Arcadia_Math_Matrix3Real64* a,
+    const Arcadia_Math_Matrix3Real64* b
+  );
+
+void
+Arcadia_Math_Matrix3Real64_transpose
+  (
+    Arcadia_Math_Matrix3Real64* result,
+    const Arcadia_Math_Matrix3Real64* value
+  );
+
 // input and result may designate the same array.
-void Arcadia_Math_Matrix3Real64_transformVector(const Arcadia_Math_Matrix3Real64* matrix, const Arcadia_Real64Value input[3], Arcadia_Real64Value result[3]);
+void
+Arcadia_Math_Matrix3Real64_transformVector
+  (
+    const Arcadia_Math_Matrix3Real64* matrix,
+    const Arcadia_Real64Value input[3],
+    Arcadia_Real64Value result[3]
+  );
 
 #endif // ARCADIA_MATH_IMPLEMENTATION_MATRIX3REAL64_H_INCLUDED

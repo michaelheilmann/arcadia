@@ -1,7 +1,11 @@
 // Native NURBS line stream tests, instantiated for both Real32 and Real64.
 #define CurveCheck(x) do { if (!(x)) return EXIT_FAILURE; } while (0)
 
-static int Case(curveLineCount)(void)
+static int
+Case(curveLineCount)
+  (
+    void
+  )
 {
   Arcadia_SizeValue n = 51;
   CurveCheck(Curve(getVertexCount)(2, &n) && n == 2);
@@ -12,7 +16,11 @@ static int Case(curveLineCount)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(curveLinesLinear)(void)
+static int
+Case(curveLinesLinear)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = {{1,2,3},{5,2,3}};
   const Scalar knots[4] = {0,0,1,1};
@@ -30,7 +38,11 @@ static int Case(curveLinesLinear)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(curveLinesRational)(void)
+static int
+Case(curveLinesRational)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = {{0,0,0},{2,0,0}};
   const Scalar weights[2] = {1,3};
@@ -44,7 +56,11 @@ static int Case(curveLinesRational)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(curveLinesInvalid)(void)
+static int
+Case(curveLinesInvalid)
+  (
+    void
+  )
 {
   const Scalar points[2][3] = {{0,0,0},{2,0,0}};
   const Scalar knots[4] = {0,0,1,1};
@@ -64,7 +80,11 @@ static int Case(curveLinesInvalid)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(curveLength)(void)
+static int
+Case(curveLength)
+  (
+    void
+  )
 {
   const Scalar samples[3][3] = {{0,0,0},{3,4,0},{6,8,0}};
   Scalar length = -1;

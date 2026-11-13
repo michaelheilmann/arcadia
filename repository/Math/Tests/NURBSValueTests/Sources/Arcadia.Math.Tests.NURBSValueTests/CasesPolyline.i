@@ -1,7 +1,11 @@
 // Polyline spatial tests included twice, with Real32 / Real64 substitutions.
 #define SpatialCheck(x) do { if (!(x)) return EXIT_FAILURE; } while (0)
 
-static int Case(polylineLengths)(void)
+static int
+Case(polylineLengths)
+  (
+    void
+  )
 {
   const Scalar points[4][3]={{0,0,0},{3,4,0},{3,4,0},{6,8,0}};
   Scalar lengths[4]={-1,-1,-1,-1};
@@ -16,7 +20,11 @@ static int Case(polylineLengths)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(polylineResample)(void)
+static int
+Case(polylineResample)
+  (
+    void
+  )
 {
   const Scalar points[4][3]={{0,0,0},{3,4,0},{3,4,0},{6,8,0}};
   const Scalar lengths[4]={0,5,5,10};
@@ -32,7 +40,11 @@ static int Case(polylineResample)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(polylineResampleInvalid)(void)
+static int
+Case(polylineResampleInvalid)
+  (
+    void
+  )
 {
   const Scalar points[3][3]={{0,0,0},{1,0,0},{2,0,0}};
   const Scalar bad[3]={0,2,1};
@@ -45,7 +57,11 @@ static int Case(polylineResampleInvalid)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(polylineClosest)(void)
+static int
+Case(polylineClosest)
+  (
+    void
+  )
 {
   const Scalar points[4][3]={{0,0,0},{2,0,0},{2,0,0},{2,2,0}};
   Scalar query[3]={1,1,0},out[3],fraction=-1,distance=-1;
@@ -63,7 +79,11 @@ static int Case(polylineClosest)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(polylineRayPick)(void)
+static int
+Case(polylineRayPick)
+  (
+    void
+  )
 {
   const Scalar points[4][3]={{0,0,0},{2,0,0},{2,2,0},{4,2,0}};
   SpatialRay ray;
@@ -82,7 +102,11 @@ static int Case(polylineRayPick)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(polylineRayPickInvalid)(void)
+static int
+Case(polylineRayPickInvalid)
+  (
+    void
+  )
 {
   const Scalar points[2][3]={{0,0,0},{1,0,0}};
   SpatialRay ray;

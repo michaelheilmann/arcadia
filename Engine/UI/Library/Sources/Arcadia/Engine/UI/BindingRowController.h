@@ -59,7 +59,26 @@ Arcadia_Engine_UI_BindingRowController_create
     Arcadia_Engine_UI_LabelNode* statusLabel,
     Arcadia_Engine_UI_InputBinding defaultBinding
   );
-void Arcadia_Engine_UI_BindingRowController_refresh(Arcadia_Thread*, Arcadia_Engine_UI_BindingRowController*);
-void Arcadia_Engine_UI_BindingRowController_setEnabled(Arcadia_Thread*, Arcadia_Engine_UI_BindingRowController*, Arcadia_BooleanValue);
-void Arcadia_Engine_UI_BindingRowController_reset(Arcadia_Thread*, Arcadia_Engine_UI_BindingRowController*);
+void
+Arcadia_Engine_UI_BindingRowController_refresh
+  (
+    Arcadia_Thread*,
+    Arcadia_Engine_UI_BindingRowController*
+  );
+
+void
+Arcadia_Engine_UI_BindingRowController_setEnabled
+  (
+    Arcadia_Thread*,
+    Arcadia_Engine_UI_BindingRowController*,
+    Arcadia_BooleanValue
+  );
+
+void
+Arcadia_Engine_UI_BindingRowController_reset
+  (
+    Arcadia_Thread*,
+    Arcadia_Engine_UI_BindingRowController*
+  );
+
 #endif // ARCADIA_ENGINE_UI_BINDINGROWCONTROLLER_H_INCLUDED

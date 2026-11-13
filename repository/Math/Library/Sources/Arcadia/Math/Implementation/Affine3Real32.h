@@ -28,14 +28,72 @@ typedef struct Arcadia_Math_Affine3Real32 {
   Arcadia_Real32Value elements[3][4];
 } Arcadia_Math_Affine3Real32;
 
-void Arcadia_Math_Affine3Real32_setIdentity(Arcadia_Math_Affine3Real32* self);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real32_setValues(Arcadia_Math_Affine3Real32* self, const Arcadia_Real32Value values[12]);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real32_multiply(Arcadia_Math_Affine3Real32* result, const Arcadia_Math_Affine3Real32* left, const Arcadia_Math_Affine3Real32* right);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real32_inverse(Arcadia_Math_Affine3Real32* result, const Arcadia_Math_Affine3Real32* source);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real32_transformPoint(const Arcadia_Math_Affine3Real32* matrix, const Arcadia_Real32Value point[3], Arcadia_Real32Value result[3]);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real32_transformDirection(const Arcadia_Math_Affine3Real32* matrix, const Arcadia_Real32Value direction[3], Arcadia_Real32Value result[3]);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real32_transformPlane(const Arcadia_Math_Affine3Real32* matrix, const Arcadia_Math_Plane3Real32* plane, Arcadia_Math_Plane3Real32* result);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real32_transformRay(const Arcadia_Math_Affine3Real32* matrix, const Arcadia_Math_Ray3Real32* ray, Arcadia_Math_Ray3Real32* result);
-Arcadia_BooleanValue Arcadia_Math_Affine3Real32_transformAABB(const Arcadia_Math_Affine3Real32* matrix, const Arcadia_Math_AABB3Real32* bounds, Arcadia_Math_AABB3Real32* result);
+void
+Arcadia_Math_Affine3Real32_setIdentity
+  (
+    Arcadia_Math_Affine3Real32* self
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real32_setValues
+  (
+    Arcadia_Math_Affine3Real32* self,
+    const Arcadia_Real32Value values[12]
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real32_multiply
+  (
+    Arcadia_Math_Affine3Real32* result,
+    const Arcadia_Math_Affine3Real32* left,
+    const Arcadia_Math_Affine3Real32* right
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real32_inverse
+  (
+    Arcadia_Math_Affine3Real32* result,
+    const Arcadia_Math_Affine3Real32* source
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real32_transformPoint
+  (
+    const Arcadia_Math_Affine3Real32* matrix,
+    const Arcadia_Real32Value point[3],
+    Arcadia_Real32Value result[3]
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real32_transformDirection
+  (
+    const Arcadia_Math_Affine3Real32* matrix,
+    const Arcadia_Real32Value direction[3],
+    Arcadia_Real32Value result[3]
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real32_transformPlane
+  (
+    const Arcadia_Math_Affine3Real32* matrix,
+    const Arcadia_Math_Plane3Real32* plane,
+    Arcadia_Math_Plane3Real32* result
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real32_transformRay
+  (
+    const Arcadia_Math_Affine3Real32* matrix,
+    const Arcadia_Math_Ray3Real32* ray,
+    Arcadia_Math_Ray3Real32* result
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_Affine3Real32_transformAABB
+  (
+    const Arcadia_Math_Affine3Real32* matrix,
+    const Arcadia_Math_AABB3Real32* bounds,
+    Arcadia_Math_AABB3Real32* result
+  );
 
 #endif // ARCADIA_MATH_IMPLEMENTATION_AFFINE3REAL32_H_INCLUDED

@@ -112,5 +112,9 @@ test(Arcadia_Thread* thread)
   Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
   Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
 }
-int Arcadia_Engine_UI_Tests_bindingRow(void)
+int
+Arcadia_Engine_UI_Tests_bindingRow
+  (
+    void
+  )
 { return Arcadia_Tests_safeExecute(&test) ? EXIT_SUCCESS : EXIT_FAILURE; }

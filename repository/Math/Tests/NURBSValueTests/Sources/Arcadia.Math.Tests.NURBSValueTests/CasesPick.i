@@ -1,7 +1,11 @@
 // Native NURBS surface mesh picking, instantiated for both precisions.
 #define PickCheck(x) do { if (!(x)) return EXIT_FAILURE; } while (0)
 
-static int Case(pickGridCenter)(void)
+static int
+Case(pickGridCenter)
+  (
+    void
+  )
 {
   const Scalar grid[4][3] = {{0,0,0},{0,1,0},{1,0,0},{1,1,0}};
   PickRay ray = {{(Scalar).25,(Scalar).25,2},{0,0,-2}};
@@ -20,7 +24,11 @@ static int Case(pickGridCenter)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(pickTrianglesNearest)(void)
+static int
+Case(pickTrianglesNearest)
+  (
+    void
+  )
 {
   const Scalar positions[9][3] = {
     {0,0,0},{1,0,0},{0,1,0},
@@ -44,7 +52,11 @@ static int Case(pickTrianglesNearest)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(pickGridRectangular)(void)
+static int
+Case(pickGridRectangular)
+  (
+    void
+  )
 {
   const Scalar grid[6][3] = {
     {0,0,0},{0,1,0},{0,2,0},
@@ -60,7 +72,11 @@ static int Case(pickGridRectangular)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(pickGridNoHit)(void)
+static int
+Case(pickGridNoHit)
+  (
+    void
+  )
 {
   const Scalar grid[4][3] = {{0,0,0},{0,1,0},{1,0,0},{1,1,0}};
   PickRay ray = {{2,2,1},{0,0,-1}};
@@ -75,7 +91,11 @@ static int Case(pickGridNoHit)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(pickInvalid)(void)
+static int
+Case(pickInvalid)
+  (
+    void
+  )
 {
   Scalar grid[4][3] = {{0,0,0},{0,1,0},{1,0,0},{1,1,0}};
   const Scalar uv[6][2] = {{0,0},{1,0},{0,1},{0,0},{1,0},{0,1}};
@@ -101,7 +121,11 @@ static int Case(pickInvalid)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(pickDegenerate)(void)
+static int
+Case(pickDegenerate)
+  (
+    void
+  )
 {
   const Scalar grid[4][3] = {{1,1,0},{1,1,0},{1,1,0},{1,1,0}};
   PickRay ray = {{1,1,2},{0,0,-1}};

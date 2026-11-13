@@ -40,12 +40,51 @@ static const char* SCHEMA =
   "  },\n"
   "}\n";
 
-static Arcadia_String* getTypeNameImpl(Arcadia_Thread*, Arcadia_ADL_DSPOperatorReader*);
-static Arcadia_ADL_Definition* readImpl(Arcadia_Thread*, Arcadia_ADL_DSPOperatorReader*, Arcadia_ADL_Context*, Arcadia_ADL_Definitions*, Arcadia_DDL_Node*);
-static Arcadia_DDL_Node* getOptionalNode(Arcadia_Thread*, Arcadia_DDL_MapNode*, Arcadia_String*);
-static void constructImpl(Arcadia_Thread*, Arcadia_ADL_DSPOperatorReader*);
-static void initializeDispatchImpl(Arcadia_Thread*, Arcadia_ADL_DSPOperatorReaderDispatch*);
-static void visitImpl(Arcadia_Thread*, Arcadia_ADL_DSPOperatorReader*);
+static Arcadia_String*
+getTypeNameImpl
+  (
+    Arcadia_Thread*,
+    Arcadia_ADL_DSPOperatorReader*
+  );
+
+static Arcadia_ADL_Definition*
+readImpl
+  (
+    Arcadia_Thread*,
+    Arcadia_ADL_DSPOperatorReader*,
+    Arcadia_ADL_Context*,
+    Arcadia_ADL_Definitions*,
+    Arcadia_DDL_Node*
+  );
+
+static Arcadia_DDL_Node*
+getOptionalNode
+  (
+    Arcadia_Thread*,
+    Arcadia_DDL_MapNode*,
+    Arcadia_String*
+  );
+
+static void
+constructImpl
+  (
+    Arcadia_Thread*,
+    Arcadia_ADL_DSPOperatorReader*
+  );
+
+static void
+initializeDispatchImpl
+  (
+    Arcadia_Thread*,
+    Arcadia_ADL_DSPOperatorReaderDispatch*
+  );
+
+static void
+visitImpl
+  (
+    Arcadia_Thread*,
+    Arcadia_ADL_DSPOperatorReader*
+  );
 
 static const Arcadia_ObjectType_Operations objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,

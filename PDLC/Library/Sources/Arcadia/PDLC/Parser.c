@@ -1094,7 +1094,12 @@ onUnexpectedWord
   Arcadia_Thread_jump(thread);
 }
 
-static Arcadia_PDLC_AST_FieldDefinitionNode* onFieldDefinition(Arcadia_Thread*, Arcadia_PDLC_Parser*);
+static Arcadia_PDLC_AST_FieldDefinitionNode*
+onFieldDefinition
+  (
+    Arcadia_Thread*,
+    Arcadia_PDLC_Parser*
+  );
 
 static Arcadia_BooleanValue
 isName

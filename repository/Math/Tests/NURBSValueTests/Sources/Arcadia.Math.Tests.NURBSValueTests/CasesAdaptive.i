@@ -1,7 +1,11 @@
 // Adaptive line sampling for both native scalar widths.
 #define AdaptiveCheck(x) do { if (!(x)) return EXIT_FAILURE; } while (0)
 
-static int Case(adaptiveStraight)(void)
+static int
+Case(adaptiveStraight)
+  (
+    void
+  )
 {
   const Scalar p[2][3]={{1,2,3},{5,2,3}};
   const Scalar knots[4]={0,0,1,1};
@@ -15,7 +19,11 @@ static int Case(adaptiveStraight)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(adaptiveCurvature)(void)
+static int
+Case(adaptiveCurvature)
+  (
+    void
+  )
 {
   const Scalar p[4][3]={{0,0,0},{0,3,0},{3,3,0},{3,0,0}};
   const Scalar knots[8]={0,0,0,0,1,1,1,1};
@@ -34,7 +42,11 @@ static int Case(adaptiveCurvature)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(adaptiveCapacity)(void)
+static int
+Case(adaptiveCapacity)
+  (
+    void
+  )
 {
   const Scalar p[4][3]={{0,0,0},{0,3,0},{3,3,0},{3,0,0}};
   const Scalar knots[8]={0,0,0,0,1,1,1,1};
@@ -50,7 +62,11 @@ static int Case(adaptiveCapacity)(void)
   return EXIT_SUCCESS;
 }
 
-static int Case(adaptiveInvalid)(void)
+static int
+Case(adaptiveInvalid)
+  (
+    void
+  )
 {
   const Scalar p[2][3]={{0,0,0},{2,0,0}};
   const Scalar knots[4]={0,0,1,1}, invalidKnots[4]={0,1,0,1};

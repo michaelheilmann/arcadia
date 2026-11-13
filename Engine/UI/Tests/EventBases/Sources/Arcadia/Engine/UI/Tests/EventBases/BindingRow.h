@@ -16,5 +16,10 @@
 
 #if !defined(ARCADIA_ENGINE_UI_TESTS_EVENTBASES_BINDINGROW_H_INCLUDED)
 #define ARCADIA_ENGINE_UI_TESTS_EVENTBASES_BINDINGROW_H_INCLUDED
-int Arcadia_Engine_UI_Tests_bindingRow(void);
+int
+Arcadia_Engine_UI_Tests_bindingRow
+  (
+    void
+  );
+
 #endif

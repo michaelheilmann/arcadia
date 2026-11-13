@@ -666,21 +666,50 @@ runReaderCompatibility
   )
 { return Arcadia_Tests_safeExecute(&testReaderCompatibility) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
-static int runNativeMutableBorrow(void)
+static int
+runNativeMutableBorrow
+  (
+    void
+  )
 { return Arcadia_Tests_safeExecute(&testNativeMutableBorrow) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
-static int runFactory(void)
+static int
+runFactory
+  (
+    void
+  )
 { return Arcadia_Tests_safeExecute(&testFactory) ? EXIT_SUCCESS : EXIT_FAILURE; }
-static int runImmutable(void)
+static int
+runImmutable
+  (
+    void
+  )
 { return Arcadia_Tests_safeExecute(&testImmutable) ? EXIT_SUCCESS : EXIT_FAILURE; }
-static int runReaders(void)
+static int
+runReaders
+  (
+    void
+  )
 { return Arcadia_Tests_safeExecute(&testReaders) ? EXIT_SUCCESS : EXIT_FAILURE; }
-static int runSliceResize(void)
+static int
+runSliceResize
+  (
+    void
+  )
 { return Arcadia_Tests_safeExecute(&testSliceResize) ? EXIT_SUCCESS : EXIT_FAILURE; }
-static int runReaderAndSliceGCLifetimes(void)
+static int
+runReaderAndSliceGCLifetimes
+  (
+    void
+  )
 { return Arcadia_Tests_safeExecute(&testReaderAndSliceGCLifetimes) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
-int main(int argc, char** argv)
+int
+main
+  (
+    int argc,
+    char** argv
+  )
 {
   static const Arcadia_Testing_Case cases[] = {
     { "FactoryAndResize", &runFactory },

@@ -27,15 +27,60 @@ typedef struct Arcadia_Math_AABB3Real32 {
   Arcadia_BooleanValue empty;
 } Arcadia_Math_AABB3Real32;
 
-void Arcadia_Math_AABB3Real32_setEmpty(Arcadia_Math_AABB3Real32* self);
+void
+Arcadia_Math_AABB3Real32_setEmpty
+  (
+    Arcadia_Math_AABB3Real32* self
+  );
+
 // Normalizes each min/max pair, so the result is always nonempty and ordered.
-void Arcadia_Math_AABB3Real32_setMinMax(Arcadia_Math_AABB3Real32* self, const Arcadia_Real32Value minimum[3], const Arcadia_Real32Value maximum[3]);
-void Arcadia_Math_AABB3Real32_includePoint(Arcadia_Math_AABB3Real32* self, const Arcadia_Real32Value point[3]);
+void
+Arcadia_Math_AABB3Real32_setMinMax
+  (
+    Arcadia_Math_AABB3Real32* self,
+    const Arcadia_Real32Value minimum[3],
+    const Arcadia_Real32Value maximum[3]
+  );
+
+void
+Arcadia_Math_AABB3Real32_includePoint
+  (
+    Arcadia_Math_AABB3Real32* self,
+    const Arcadia_Real32Value point[3]
+  );
+
 // All operations permit aliasing of result with either input box.
-void Arcadia_Math_AABB3Real32_union(Arcadia_Math_AABB3Real32* result, const Arcadia_Math_AABB3Real32* a, const Arcadia_Math_AABB3Real32* b);
+void
+Arcadia_Math_AABB3Real32_union
+  (
+    Arcadia_Math_AABB3Real32* result,
+    const Arcadia_Math_AABB3Real32* a,
+    const Arcadia_Math_AABB3Real32* b
+  );
+
 // Touching faces/edges/vertices count as a nonempty intersection.
-void Arcadia_Math_AABB3Real32_intersection(Arcadia_Math_AABB3Real32* result, const Arcadia_Math_AABB3Real32* a, const Arcadia_Math_AABB3Real32* b);
-Arcadia_BooleanValue Arcadia_Math_AABB3Real32_containsPoint(const Arcadia_Math_AABB3Real32* self, const Arcadia_Real32Value point[3]);
-void Arcadia_Math_AABB3Real32_translate(Arcadia_Math_AABB3Real32* self, Arcadia_Real32Value x, Arcadia_Real32Value y, Arcadia_Real32Value z);
+void
+Arcadia_Math_AABB3Real32_intersection
+  (
+    Arcadia_Math_AABB3Real32* result,
+    const Arcadia_Math_AABB3Real32* a,
+    const Arcadia_Math_AABB3Real32* b
+  );
+
+Arcadia_BooleanValue
+Arcadia_Math_AABB3Real32_containsPoint
+  (
+    const Arcadia_Math_AABB3Real32* self,
+    const Arcadia_Real32Value point[3]
+  );
+
+void
+Arcadia_Math_AABB3Real32_translate
+  (
+    Arcadia_Math_AABB3Real32* self,
+    Arcadia_Real32Value x,
+    Arcadia_Real32Value y,
+    Arcadia_Real32Value z
+  );
 
 #endif // ARCADIA_MATH_IMPLEMENTATION_AABB3REAL32_H_INCLUDED

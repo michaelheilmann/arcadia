@@ -211,7 +211,13 @@ onVisitVariableSymbol
 {
 }
 
-static void onVisitSymbol(Arcadia_Thread* thread, Arcadia_PDLC_TypeResolutionPhase* self, Arcadia_PDLC_Symbol* symbol);
+static void
+onVisitSymbol
+  (
+    Arcadia_Thread* thread,
+    Arcadia_PDLC_TypeResolutionPhase* self,
+    Arcadia_PDLC_Symbol* symbol
+  );
 
 /// Visit the symbols entered in the scope of @c symbol.
 /// @remark A null scope is tolerated: the built-in types and the built-in class type `Arcadia.Object`
