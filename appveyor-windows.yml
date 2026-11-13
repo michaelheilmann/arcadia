@@ -342,7 +342,7 @@ deploy:
   description: "Michael Heilmann's Arcadia $(APPVEYOR_REPO_BRANCH) branch v$(APPVEYOR_BUILD_VERSION)"
   provider: GitHub
   auth_token:
-    secure: iTg7jon0UCvoGT5y2flVxD+NxPVU7uUV5dGZYhUuaUmMZHW1Fa35A34q4ab1AH+26aSnKZMPggvjms206GEmcEF/ZkZbXhi9fniN2fHXjmwKe6zJhWBwBl+/7B+qwLPl
+    secure: iTg7jon0UCvoGT5y2flVxHVDq2bHz19PcpFm0yYxwcSJSJuZym9W/y75LAsrHvhXcfQ9sgus2NLpGZqk7F5c0ovDXtlISaNdXT8mght9RBiet/YZIRa68YvOCCtSGL97
   artifact: $(ARCHIVE_FILENAME)
   draft: true
   prerelease: false
