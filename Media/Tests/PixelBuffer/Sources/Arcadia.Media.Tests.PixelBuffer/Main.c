@@ -16,6 +16,7 @@
 
 #include "Arcadia/Testing/Include.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -135,6 +136,121 @@ testPixelStorageBounds(Arcadia_Thread* thread)
   Arcadia_Object_unlock(thread, (Arcadia_Object*)buffer);
 }
 
+static void
+expectPixelReadOutOfBounds
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_PixelBuffer* buffer,
+    Arcadia_Integer32Value column,
+    Arcadia_Integer32Value row
+  )
+{
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Natural8Value r, g, b, a;
+    Arcadia_Media_PixelBuffer_getPixelRGBA(thread, buffer, column, row, &r, &g, &b, &a);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_ArgumentValueInvalid, status);
+  }
+}
+
+static void
+testPixelReadBounds
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Media_PixelBuffer* buffer = Arcadia_Media_PixelBuffer_create(thread, 3, 2, 2,
+    Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)buffer);
+  Arcadia_Media_PixelBuffer_setPixelRGBA(thread, buffer, 1, 1, 11, 22, 33, 44);
+
+  Arcadia_Natural8Value r, g, b, a;
+  Arcadia_Media_PixelBuffer_getPixelRGBA(thread, buffer, 1, 1, &r, &g, &b, &a);
+  Arcadia_Tests_assertTrue(thread, r == 11 && g == 22 && b == 33 && a == 44);
+  expectPixelReadOutOfBounds(thread, buffer, 2, 0);
+  expectPixelReadOutOfBounds(thread, buffer, 0, 2);
+  expectPixelReadOutOfBounds(thread, buffer, -1, 0);
+  expectPixelReadOutOfBounds(thread, buffer, 0, -1);
+
+  Arcadia_Media_PixelBuffer* empty = Arcadia_Media_PixelBuffer_create(thread, 0, 0, 0,
+    Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)empty);
+  expectPixelReadOutOfBounds(thread, empty, 0, 0);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)empty);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)buffer);
+}
+
+static int
+runPixelReadBounds
+  (
+    void
+  )
+{ return Arcadia_Tests_safeExecute(&testPixelReadBounds) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
+static void
+expectUnrepresentableLineStride
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Integer32Value padding,
+    Arcadia_Integer32Value width
+  )
+{
+  // Zero height avoids allocating a large pixel image while testing the
+  // distinct signed 32-bit line-stride API boundary.
+  Arcadia_Media_PixelBuffer* buffer = Arcadia_Media_PixelBuffer_create(thread, padding, width, 0,
+    Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)buffer);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (Arcadia_JumpTarget_save(&jump)) {
+    (void)Arcadia_Media_PixelBuffer_getLineStride(thread, buffer);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_ArgumentValueInvalid, status);
+  }
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)buffer);
+}
+
+static void
+testLineStrideBounds
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue stackSize = Arcadia_ValueStack_getSize(thread);
+  expectUnrepresentableLineStride(thread, INT32_MAX, 1);
+  expectUnrepresentableLineStride(thread, 0, INT32_MAX / 4 + 1);
+  Arcadia_Tests_assertEqualSize(thread, stackSize, Arcadia_ValueStack_getSize(thread));
+
+  Arcadia_Media_PixelBuffer* normal = Arcadia_Media_PixelBuffer_create(thread, 3, 2, 1,
+    Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)normal);
+  Arcadia_Tests_assertEqualSize(thread, 11, Arcadia_Media_PixelBuffer_getLineStride(thread, normal));
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)normal);
+}
+
+static int
+runLineStrideBounds
+  (
+    void
+  )
+{ return Arcadia_Tests_safeExecute(&testLineStrideBounds) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
+
+
 static int
 runPixelStorageBounds(void)
 { return Arcadia_Tests_safeExecute(&testPixelStorageBounds) ? EXIT_SUCCESS : EXIT_FAILURE; }
@@ -191,6 +307,8 @@ main
   static const Arcadia_Testing_Case cases[] = {
     { "ByteArrayStorage", &runByteArrayStorage },
     { "PixelStorageBounds", &runPixelStorageBounds },
+    { "PixelReadBounds", &runPixelReadBounds },
+    { "LineStrideBounds", &runLineStrideBounds },
     { "PixelStorageReplacementStress", &runPixelStorageReplacementStress },
     { "Operations", &Arcadia_Media_Tests_PixelBuffer_operations },
     { "Fills", &Arcadia_Media_Tests_PixelBuffer_fills },

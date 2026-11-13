@@ -596,11 +596,11 @@ Arcadia_Media_PixelBuffer_getPixelRGBA
     Arcadia_Natural8Value* a
   )
 {
-  if (column < 0 || column > Arcadia_Media_PixelBuffer_getNumberOfColumns(thread, self)) {
+  if (column < 0 || column >= Arcadia_Media_PixelBuffer_getNumberOfColumns(thread, self)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  if (row < 0 || row > Arcadia_Media_PixelBuffer_getNumberOfRows(thread, self)) {
+  if (row < 0 || row >= Arcadia_Media_PixelBuffer_getNumberOfRows(thread, self)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
@@ -1037,9 +1037,24 @@ Arcadia_Media_PixelBuffer_getLineStride
     Arcadia_Thread* thread,
     Arcadia_Media_PixelBuffer* self
   )
-{ return Arcadia_Media_PixelBuffer_getNumberOfColumns(thread, self)
-       * Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, self)
-       + Arcadia_Media_PixelBuffer_getLinePadding(thread, self);
+{
+  Arcadia_Integer32Value rowBytes;
+  // Unlike safeAddInteger32Value, this multiply API returns true on overflow.
+  if (Arcadia_safeMultiplyInteger32Value(thread,
+                                        Arcadia_Media_PixelBuffer_getNumberOfColumns(thread, self),
+                                        Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, self),
+                                        NULL, &rowBytes)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Integer32Value stride;
+  if (!Arcadia_safeAddInteger32Value(rowBytes,
+                                    Arcadia_Media_PixelBuffer_getLinePadding(thread, self),
+                                    &stride)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  return stride;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
