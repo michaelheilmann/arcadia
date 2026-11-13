@@ -21,6 +21,7 @@
 #include "Arcadia/PDLC/AST/Include.h"
 #include "Arcadia/PDLC/Symbols/ModuleSymbol.h"
 #include "Arcadia/PDLC/Completer.h"
+
 typedef struct Arcadia_PDLC_VariableSymbol Arcadia_PDLC_VariableSymbol;
 
 /// @brief The type resolution phase.

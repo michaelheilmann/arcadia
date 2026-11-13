@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Ring2/Unicode/Encoder.h"
+
 typedef struct Arcadia_ByteArrayBuilder Arcadia_ByteArrayBuilder;
 
 Arcadia_declareObjectType(u8"Arcadia.Unicode.UTF8Encoder", Arcadia_Unicode_UTF8Encoder,

@@ -23,6 +23,7 @@
 
 #include "Arcadia/Ring1/TypeSystem/Type.h"
 #include "Arcadia/Ring1/Value.h"
+
 typedef struct Arcadia_Object Arcadia_Object;
 typedef struct Arcadia_ObjectDispatch Arcadia_ObjectDispatch;
 

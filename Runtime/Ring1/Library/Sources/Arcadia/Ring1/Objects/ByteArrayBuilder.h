@@ -23,6 +23,7 @@
 
 #include "Arcadia/Ring1/Object.h"
 #include "Arcadia/Ring1/swap.h"
+
 typedef struct Arcadia_ByteArray Arcadia_ByteArray;
 
 Arcadia_declareObjectType(u8"Arcadia.ByteArrayBuilder", Arcadia_ByteArrayBuilder,

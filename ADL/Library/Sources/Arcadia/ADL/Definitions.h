@@ -22,6 +22,7 @@
 #endif
 #include "Arcadia/Ring2/Include.h"
 #include "Arcadia/Collections/Include.h"
+
 typedef struct Arcadia_ADL_Definition Arcadia_ADL_Definition;
 
 // @brief A set of definitions.

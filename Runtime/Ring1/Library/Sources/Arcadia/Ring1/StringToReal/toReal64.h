@@ -24,6 +24,7 @@
 #include "Arcadia/Ring1/Natural8.h"
 #include "Arcadia/Ring1/Real64.h"
 #include "Arcadia/Ring1/Size.h"
+
 typedef struct Arcadia_BigInteger Arcadia_BigInteger;
 
 Arcadia_Real64Value

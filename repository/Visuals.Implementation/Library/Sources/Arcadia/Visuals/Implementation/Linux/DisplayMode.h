@@ -18,6 +18,7 @@
 #define ARCADIA_VISUALS_IMPLEMENTATION_LINUX_DISPLAYMODE_H_INCLUDED
 
 #include "Arcadia/Engine/Include.h"
+
 typedef struct Arcadia_Visuals_Linux_DisplayDevice Arcadia_Visuals_Linux_DisplayDevice;
 
 // https://www.x.org/releases/current/doc/index.html

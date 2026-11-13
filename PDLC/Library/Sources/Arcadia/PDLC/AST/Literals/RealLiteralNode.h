@@ -18,6 +18,7 @@
 #define ARCADIA_PDLC_AST_REALLITERALNODE_H_INCLUDED
 
 #include "Arcadia/PDLC/AST/Node.h"
+
 typedef struct Arcadia_PDLC_Symbol Arcadia_PDLC_Symbol;
 
 /// @code

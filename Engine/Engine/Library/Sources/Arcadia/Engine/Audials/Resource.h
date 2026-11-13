@@ -19,6 +19,7 @@
 
 #include "Arcadia/Ring2/Include.h"
 #include "Arcadia/Math/Include.h"
+
 typedef struct Arcadia_Engine_Audials_Implementation_SoundSourceResource Arcadia_Engine_Audials_Implementation_SoundSourceResource;
 typedef struct Arcadia_Engine_Audials_Implementation_BackendContext Arcadia_Engine_Audials_Implementation_BackendContext;
 

@@ -18,6 +18,7 @@
 #define ARCADIA_RING1_IMMUTABLEUTF8STRING_TOSIZE_H_INCLUDED
 
 #include "Arcadia/Ring1/Size.h"
+
 typedef struct Arcadia_RuntimeUTF8String Arcadia_RuntimeUTF8String;
 
 Arcadia_SizeValue

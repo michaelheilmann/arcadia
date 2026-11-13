@@ -18,6 +18,7 @@
 #define ARCADIA_PDLC_AST_DEFINITIONNODE_H_INCLUDED
 
 #include "Arcadia/PDLC/AST/Node.h"
+
 typedef struct Arcadia_PDLC_AST_CompilationUnitNode Arcadia_PDLC_AST_CompilationUnitNode;
 
 /// @code

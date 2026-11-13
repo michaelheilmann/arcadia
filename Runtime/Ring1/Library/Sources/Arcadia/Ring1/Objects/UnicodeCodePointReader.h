@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Ring1/Object.h"
+
 typedef struct Arcadia_ByteReader Arcadia_ByteReader;
 
 /// @brief

@@ -21,6 +21,7 @@
   #error("do not include directly, include `Arcadia/DDL/Nodes/Include.h` instead")
 #endif
 #include "Arcadia/DDL/Nodes/Node.h"
+
 typedef struct Arcadia_DDL_NameNode Arcadia_DDL_NameNode;
 
 Arcadia_declareObjectType(u8"Arcadia.DDL.MapEntryNode", Arcadia_DDL_MapEntryNode,

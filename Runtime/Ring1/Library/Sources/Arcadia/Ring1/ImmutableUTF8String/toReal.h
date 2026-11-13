@@ -19,6 +19,7 @@
 
 #include "Arcadia/Ring1/Real32.h"
 #include "Arcadia/Ring1/Real64.h"
+
 typedef struct Arcadia_RuntimeUTF8String Arcadia_RuntimeUTF8String;
 
 Arcadia_Real32Value

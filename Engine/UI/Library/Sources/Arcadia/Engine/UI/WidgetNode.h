@@ -21,6 +21,7 @@
   #error("do not include directly, include `Arcadia/Engine/UI/Include.h` instead")
 #endif
 #include "Arcadia/Engine/UI/Node.h"
+
 typedef struct Arcadia_Engine_UI_WidgetEvent Arcadia_Engine_UI_WidgetEvent;
 
 // A persistent sizing policy for widgets participating in layout.

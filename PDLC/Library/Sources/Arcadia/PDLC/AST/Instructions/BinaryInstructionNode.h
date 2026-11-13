@@ -19,6 +19,7 @@
 
 #include "Arcadia/PDLC/AST/InstructionNode.h"
 #include "Arcadia/PDLC/AST/Instructions/BinaryInstructionKind.h"
+
 typedef struct Arcadia_PDLC_AST_OperandNode Arcadia_PDLC_AST_OperandNode;
 
 /// @code

@@ -21,6 +21,7 @@
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
 #include "Arcadia/Ring2/Include.h"
+
 typedef struct Arcadia_ADL_Definitions Arcadia_ADL_Definitions;
 
 // @brief A definition.

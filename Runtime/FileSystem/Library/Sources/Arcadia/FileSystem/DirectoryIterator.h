@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Ring2/Include.h"
+
 typedef struct Arcadia_FilePath Arcadia_FilePath;
 
 Arcadia_declareObjectType(u8"Arcadia.DirectoryIterator", Arcadia_DirectoryIterator,

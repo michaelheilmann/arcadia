@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Ring1/Objects/ByteReader.h"
+
 typedef struct Arcadia_ByteArray Arcadia_ByteArray;
 
 Arcadia_declareObjectType(u8"Arcadia.ByteArray.ByteReader", Arcadia_ByteArray_ByteReader,

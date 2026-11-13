@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Ring1/Objects/UnicodeCodePointReader.h"
+
 typedef struct Arcadia_ByteReader Arcadia_ByteReader;
 
 /// @code

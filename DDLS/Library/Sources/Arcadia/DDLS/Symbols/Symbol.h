@@ -18,6 +18,7 @@
 #define ARCADIA_DDLS_SYMBOLS_SYMBOL_H_INCLUDED
 
 #include "Arcadia/Ring2/Include.h"
+
 typedef struct Arcadia_DDLS_Scope Arcadia_DDLS_Scope;
 
 /// A "schema" symbol.

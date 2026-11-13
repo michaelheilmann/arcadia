@@ -22,6 +22,7 @@
 #endif
 #include "Arcadia/ADL/Reader.h"
 #include "Arcadia/DDLS/Include.h"
+
 typedef struct Arcadia_ADL_ColorReader Arcadia_ADL_ColorReader;
 
 Arcadia_declareObjectType(u8"Arcadia.ADL.UI.ButtonReader", Arcadia_ADL_UI_ButtonReader,

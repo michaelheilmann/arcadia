@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Ring2/Include.h"
+
 typedef struct Arcadia_FilePath Arcadia_FilePath;
 typedef struct Arcadia_FileSystem Arcadia_FileSystem;
 

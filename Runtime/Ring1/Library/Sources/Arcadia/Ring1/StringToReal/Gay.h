@@ -23,6 +23,7 @@
 
 #include "Arcadia/Ring1/Boolean.h"
 #include "Arcadia/Ring1/StringToReal/Result.h"
+
 typedef struct Arcadia_BigInteger Arcadia_BigInteger;
 
 // Gay's method.

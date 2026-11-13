@@ -18,6 +18,7 @@
 #define ARCADIA_RING1__DECLARESCALARTYPE_H_INCLUDED
 
 #include "Arcadia/Ring1/Configure.h"
+
 typedef struct Arcadia_Thread Arcadia_Thread;
 
 typedef void Arcadia_Type;

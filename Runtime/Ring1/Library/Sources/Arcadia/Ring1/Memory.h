@@ -24,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+
 typedef struct Arcadia_Thread Arcadia_Thread; // Forward declaration.
 
 /// @brief

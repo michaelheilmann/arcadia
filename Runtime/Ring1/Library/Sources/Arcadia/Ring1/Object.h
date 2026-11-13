@@ -19,6 +19,7 @@
 
 #include "Arcadia/Ring1/TypeSystem/Include.h"
 #include "Arcadia/ARMS/Include.h"
+
 typedef struct Arcadia_Value Arcadia_Value;
 
 typedef struct Arcadia_Object Arcadia_Object;

@@ -20,6 +20,7 @@
 #include "Arcadia/PDLC/WordType.h"
 #include "Arcadia/Languages/Include.h"
 #include "Arcadia/FileSystem/Include.h"
+
 typedef struct Arcadia_PDLC_Context Arcadia_PDLC_Context;
 
 /// @brief A scanner for the MIL compiler.
