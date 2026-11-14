@@ -138,7 +138,9 @@ testConsumers
     Arcadia_ValueStack_pushObjectReferenceValue(thread, buffer);
     Arcadia_SizeValue bytes = (byteCounts[formats[i]] * 3 + 5) * 2;
     Arcadia_Tests_assertTrue(thread, Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, buffer) == byteCounts[formats[i]]);
-    memset(buffer->bytes, 0xa7, bytes);
+    Arcadia_Natural8Value* bufferBytes = Arcadia_ByteArray_getMutableBytes(thread,
+      Arcadia_Media_PixelBuffer_getPixelBytes(thread, buffer));
+    memset(bufferBytes, 0xa7, bytes);
     for (Arcadia_Integer32Value y = 0; y < 2; ++y) {
       for (Arcadia_Integer32Value x = 0; x < 3; ++x) Arcadia_Media_PixelBuffer_setPixelRGBA(thread, buffer, x, y, 17 + x, 53 + y, 101 + x + y, 149);
     }
@@ -147,7 +149,9 @@ testConsumers
     for (unsigned j = 0; j < sizeof(formats) / sizeof(formats[0]); ++j) {
       Arcadia_Media_PixelBuffer* clone = Arcadia_Media_PixelBuffer_createClone(thread, buffer);
       Arcadia_ValueStack_pushObjectReferenceValue(thread, clone);
-      Arcadia_Tests_assertTrue(thread, clone != buffer && clone->bytes != buffer->bytes && !memcmp(buffer->bytes, clone->bytes, bytes));
+      Arcadia_Natural8Value const* cloneBytes = Arcadia_ByteArray_getBytes(thread,
+        Arcadia_Media_PixelBuffer_getPixelBytes(thread, clone));
+      Arcadia_Tests_assertTrue(thread, clone != buffer && cloneBytes != bufferBytes && !memcmp(bufferBytes, cloneBytes, bytes));
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, clone, formats[j]);
       Arcadia_Tests_assertTrue(thread, Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, clone) == byteCounts[formats[j]]);
       Arcadia_Tests_assertTrue(thread, clone->linePadding == 5 && clone->width == 3 && clone->height == 2 && clone->pixelFormat == formats[j]);
@@ -186,17 +190,17 @@ testResize
     Arcadia_Media_PixelBuffer* buffer = Arcadia_Media_PixelBuffer_create(thread, 5, 3, 2, formats[i]);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, buffer);
     Arcadia_SizeValue oldStride = 3 * byteCounts[formats[i]] + 5;
-    // This is a borrowed pointer into ByteArray-owned storage. Never call
-    // reallocateUnmanaged on it: doing so corrupts the owner allocation.
     Arcadia_ByteArray* storage = Arcadia_Media_PixelBuffer_getPixelBytes(thread, buffer);
     Arcadia_Tests_assertEqualSize(thread, oldStride * 2, Arcadia_ByteArray_getSize(thread, storage));
-    Arcadia_Tests_assertTrue(thread, buffer->bytes == Arcadia_ByteArray_getMutableBytes(thread, storage));
-    memset(buffer->bytes, 0xa7, oldStride * 2);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isMutable(thread, storage) &&
+      Arcadia_ByteArray_isContiguous(thread, storage) && !Arcadia_ByteArray_isResizable(thread, storage));
+    Arcadia_Natural8Value* rawBytes = Arcadia_ByteArray_getMutableBytes(thread, storage);
+    memset(rawBytes, 0xa7, oldStride * 2);
     Arcadia_Media_PixelBuffer_fill(thread, buffer, 17, 53, 101, 149);
     // Ensure each pixel is written exactly once and row padding is untouched.
     for (Arcadia_SizeValue y = 0; y < 2; ++y) {
       for (Arcadia_SizeValue x = 3 * byteCounts[formats[i]]; x < oldStride; ++x) {
-        Arcadia_Tests_assertTrue(thread, buffer->bytes[y * oldStride + x] == 0xa7);
+        Arcadia_Tests_assertTrue(thread, rawBytes[y * oldStride + x] == 0xa7);
       }
     }
     Arcadia_Media_PixelBuffer_setWidth(thread, buffer, 7);
@@ -214,10 +218,13 @@ testResize
     }
     Arcadia_Media_PixelBuffer_setWidth(thread, buffer, 2);
     Arcadia_Media_PixelBuffer_setHeight(thread, buffer, 1);
-    Arcadia_Natural8Value* bytes = buffer->bytes;
+    Arcadia_Natural8Value* bytes = Arcadia_ByteArray_getMutableBytes(thread,
+      Arcadia_Media_PixelBuffer_getPixelBytes(thread, buffer));
     Arcadia_Media_PixelBuffer_setWidth(thread, buffer, 2);
     Arcadia_Media_PixelBuffer_setHeight(thread, buffer, 1);
-    Arcadia_Tests_assertTrue(thread, buffer->bytes == bytes && buffer->width == 2 && buffer->height == 1 && buffer->linePadding == 5 && buffer->pixelFormat == formats[i]);
+    Arcadia_Tests_assertTrue(thread,
+      Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_PixelBuffer_getPixelBytes(thread, buffer)) == bytes &&
+      buffer->width == 2 && buffer->height == 1 && buffer->linePadding == 5 && buffer->pixelFormat == formats[i]);
     for (Arcadia_Integer32Value x = 0; x < 2; ++x) {
       Arcadia_Natural8Value r, g, b, a;
       Arcadia_Media_PixelBuffer_getPixelRGBA(thread, buffer, x, 0, &r, &g, &b, &a);
@@ -241,9 +248,11 @@ testBulkResize
   Arcadia_Media_PixelBuffer_setWidth(thread, buffer, 512);
   Arcadia_Media_PixelBuffer_setHeight(thread, buffer, 256);
   Arcadia_SizeValue stride = 512 * 4 + 5;
+  Arcadia_Natural8Value const* pixelBytes = Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, buffer));
   for (Arcadia_SizeValue y = 0; y < 256; ++y) {
     for (Arcadia_SizeValue x = 0; x < 512; ++x) {
-      Arcadia_Natural8Value* pixel = buffer->bytes + y * stride + x * 4;
+      Arcadia_Natural8Value const* pixel = pixelBytes + y * stride + x * 4;
       Arcadia_BooleanValue original = x < 256 && y < 128;
       Arcadia_Tests_assertTrue(thread, pixel[0] == (original ? 17 : 0) && pixel[1] == (original ? 53 : 0) && pixel[2] == (original ? 101 : 0) && pixel[3] == (original ? 149 : 255));
     }

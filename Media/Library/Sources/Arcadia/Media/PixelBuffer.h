@@ -34,8 +34,6 @@ struct Arcadia_Media_PixelBufferDispatch {
 
 struct Arcadia_Media_PixelBuffer {
   Arcadia_Object _parent;
-  /// Compatibility pointer into storage; never free/reallocate this field directly.
-  Arcadia_Natural8Value* bytes;
   /// The pixel format of this pixel buffer.
   Arcadia_Media_PixelFormat pixelFormat;
   /// The height, in pixels, of this pixel buffer.
