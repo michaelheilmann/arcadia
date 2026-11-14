@@ -76,6 +76,9 @@ struct Arcadia_ByteArrayDispatch {
                 Arcadia_SizeValue index, Arcadia_Natural8Value value);
   void (*resize)(Arcadia_Thread* thread, Arcadia_ByteArray* self,
                  Arcadia_SizeValue size);
+  // Bulk insertion is supported by resizable native-backed implementations.
+  void (*insertBytes)(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                      Arcadia_SizeValue index, void const* bytes, Arcadia_SizeValue numberOfBytes);
 
   Arcadia_BooleanValue
   (*isEmpty)
@@ -184,6 +187,21 @@ Arcadia_ByteArray_resize
     Arcadia_ByteArray* self,
     Arcadia_SizeValue size
   );
+
+// Insert a native byte span into mutable, resizable storage.
+// Self-insertion is supported, even if resize relocates the allocation.
+// A nonzero source span must be valid; invalid operations raise a status.
+void
+Arcadia_ByteArray_insertBytes(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                              Arcadia_SizeValue index, void const* bytes, Arcadia_SizeValue numberOfBytes);
+
+void
+Arcadia_ByteArray_appendBytes(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                              void const* bytes, Arcadia_SizeValue numberOfBytes);
+
+void
+Arcadia_ByteArray_prependBytes(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                               void const* bytes, Arcadia_SizeValue numberOfBytes);
 
 // https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_slice
 Arcadia_ByteArray*

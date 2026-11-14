@@ -104,6 +104,66 @@ Arcadia_ByteArrayNativeImpl_resize(Arcadia_Thread* thread, Arcadia_ByteArrayNati
   self->size = size;
 }
 
+static void
+Arcadia_ByteArrayNativeImpl_insertBytes(Arcadia_Thread* thread, Arcadia_ByteArrayNativeImpl* self,
+                                       Arcadia_SizeValue index, void const* bytes, Arcadia_SizeValue numberOfBytes)
+{
+  if (!self->resizable) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (!bytes || index > self->size) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (!numberOfBytes) {
+    return;
+  }
+  Arcadia_SizeValue high, size;
+  Arcadia_safeAddFullSizeValue(thread, self->size, numberOfBytes, &high, &size);
+  if (high) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+
+  // Capture offsets before geometric growth possibly moves the allocation.
+  // Reject a pointer inside unused capacity, or a range crossing the allocation.
+  uintptr_t source = (uintptr_t)bytes;
+  uintptr_t base = (uintptr_t)self->bytes;
+  Arcadia_BooleanValue alias = source >= base && source - base < self->capacity;
+  Arcadia_SizeValue offset = 0;
+  if (alias) {
+    offset = (Arcadia_SizeValue)(source - base);
+    if (offset >= self->size || numberOfBytes > self->size - offset) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+      Arcadia_Thread_jump(thread);
+    }
+  } else if (source < base && numberOfBytes > base - source) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+
+  Arcadia_SizeValue oldSize = self->size;
+  Arcadia_ByteArrayNativeImpl_resize(thread, self, size);
+  if (index < oldSize) {
+    Arcadia_Memory_copy(thread, self->bytes + index + numberOfBytes,
+                        self->bytes + index, oldSize - index);
+  }
+  if (!alias) {
+    Arcadia_Memory_copy(thread, self->bytes + index, bytes, numberOfBytes);
+  } else if (offset + numberOfBytes <= index) {
+    Arcadia_Memory_copy(thread, self->bytes + index, self->bytes + offset, numberOfBytes);
+  } else if (offset >= index) {
+    Arcadia_Memory_copy(thread, self->bytes + index,
+                        self->bytes + offset + numberOfBytes, numberOfBytes);
+  } else {
+    Arcadia_SizeValue beforeGap = index - offset;
+    Arcadia_Memory_copy(thread, self->bytes + index, self->bytes + offset, beforeGap);
+    Arcadia_Memory_copy(thread, self->bytes + index + beforeGap,
+                        self->bytes + index + numberOfBytes, numberOfBytes - beforeGap);
+  }
+}
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_ByteArrayNativeImpl_construct,
@@ -168,6 +228,7 @@ Arcadia_ByteArrayNativeImpl_initializeDispatch(Arcadia_Thread* thread, Arcadia_B
   d->isResizable = (Arcadia_BooleanValue (*)(Arcadia_Thread*, Arcadia_ByteArray const*))&Arcadia_ByteArrayNativeImpl_isResizable;
   d->setAt = (void (*)(Arcadia_Thread*, Arcadia_ByteArray*, Arcadia_SizeValue, Arcadia_Natural8Value))&Arcadia_ByteArrayNativeImpl_setAt;
   d->resize = (void (*)(Arcadia_Thread*, Arcadia_ByteArray*, Arcadia_SizeValue))&Arcadia_ByteArrayNativeImpl_resize;
+  d->insertBytes = (void (*)(Arcadia_Thread*, Arcadia_ByteArray*, Arcadia_SizeValue, void const*, Arcadia_SizeValue))&Arcadia_ByteArrayNativeImpl_insertBytes;
 }
 
 Arcadia_ByteArrayNativeImpl*

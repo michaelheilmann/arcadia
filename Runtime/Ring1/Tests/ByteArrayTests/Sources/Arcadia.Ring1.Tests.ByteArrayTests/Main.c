@@ -17,6 +17,7 @@
 #include "Arcadia/Testing/Include.h"
 #include "Arcadia/Ring1/Include.h"
 #include <stdlib.h>
+#include <string.h>
 
 // Deliberately non-contiguous logical storage for factory-copy regressions.
 // The physical slots are separated by padding and expose no native byte span.
@@ -214,6 +215,43 @@ testFactory(Arcadia_Thread* thread)
   Arcadia_Object_unlock(thread, (Arcadia_Object*)grow);
   Arcadia_Object_unlock(thread, (Arcadia_Object*)fixed);
 }
+
+static void
+testBulkInsertion(Arcadia_Thread* thread)
+{
+  Arcadia_ByteArray* bytes = Arcadia_ByteArrayFactory_createResizable(thread, 0);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)bytes);
+  Arcadia_ByteArray_appendBytes(thread, bytes, "abc", 3);
+  Arcadia_ByteArray_prependBytes(thread, bytes, "X", 1);
+  Arcadia_Tests_assertEqualSize(thread, 4, Arcadia_ByteArray_getSize(thread, bytes));
+  Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_ByteArray_getBytes(thread, bytes), "Xabc", 4));
+  // Self-insertion from a span crossing the insertion position.
+  Arcadia_ByteArray_insertBytes(thread, bytes, 2,
+                                Arcadia_ByteArray_getBytes(thread, bytes) + 1, 3);
+  Arcadia_Tests_assertEqualSize(thread, 7, Arcadia_ByteArray_getSize(thread, bytes));
+  Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_ByteArray_getBytes(thread, bytes), "Xaabcbc", 7));
+  Arcadia_ByteArray* fixed = Arcadia_ByteArrayFactory_createMutable(thread, 1);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)fixed);
+  Arcadia_JumpTarget target;
+  Arcadia_Thread_pushJumpTarget(thread, &target);
+  if (Arcadia_JumpTarget_save(&target)) {
+    Arcadia_ByteArray_appendBytes(thread, fixed, "a", 1);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_OperationInvalid, status);
+  }
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)fixed);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)bytes);
+}
+
+static int
+runBulkInsertion(void)
+{ return Arcadia_Tests_safeExecute(&testBulkInsertion) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
 static void
 testImmutable(Arcadia_Thread* thread)
@@ -713,6 +751,7 @@ main
 {
   static const Arcadia_Testing_Case cases[] = {
     { "FactoryAndResize", &runFactory },
+    { "BulkInsertion", &runBulkInsertion },
     { "NativeMutableBorrow", &runNativeMutableBorrow },
     { "ImmutableAndCopy", &runImmutable },
     { "FactoryCopyViews", &runFactoryCopyViews },

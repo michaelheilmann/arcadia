@@ -58,6 +58,14 @@ Arcadia_ByteArray_resizeImpl(Arcadia_Thread* thread, Arcadia_ByteArray* self,
 }
 
 static void
+Arcadia_ByteArray_insertBytesImpl(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                                  Arcadia_SizeValue index, void const* bytes, Arcadia_SizeValue numberOfBytes)
+{
+  Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
+  Arcadia_Thread_jump(thread);
+}
+
+static void
 Arcadia_ByteArray_constructImpl
   (
     Arcadia_Thread* thread,
@@ -126,6 +134,7 @@ Arcadia_ByteArray_initializeDispatchImpl
   self->getMutableBytes = &Arcadia_ByteArray_getMutableBytesImpl;
   self->setAt = &Arcadia_ByteArray_setAtImpl;
   self->resize = &Arcadia_ByteArray_resizeImpl;
+  self->insertBytes = &Arcadia_ByteArray_insertBytesImpl;
 }
 
 static void
@@ -206,6 +215,25 @@ void
 Arcadia_ByteArray_resize(Arcadia_Thread* thread, Arcadia_ByteArray* self,
                         Arcadia_SizeValue size)
 { Arcadia_VirtualCall(Arcadia_ByteArray, resize, self, size); }
+
+void
+Arcadia_ByteArray_insertBytes(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                              Arcadia_SizeValue index, void const* bytes, Arcadia_SizeValue numberOfBytes)
+{ Arcadia_VirtualCall(Arcadia_ByteArray, insertBytes, self, index, bytes, numberOfBytes); }
+
+void
+Arcadia_ByteArray_appendBytes(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                              void const* bytes, Arcadia_SizeValue numberOfBytes)
+{
+  Arcadia_ByteArray_insertBytes(thread, self, Arcadia_ByteArray_getSize(thread, self), bytes, numberOfBytes);
+}
+
+void
+Arcadia_ByteArray_prependBytes(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                               void const* bytes, Arcadia_SizeValue numberOfBytes)
+{
+  Arcadia_ByteArray_insertBytes(thread, self, 0, bytes, numberOfBytes);
+}
 
 Arcadia_ByteArray*
 Arcadia_ByteArray_slice
