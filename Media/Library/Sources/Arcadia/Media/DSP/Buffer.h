@@ -37,7 +37,6 @@ struct Arcadia_Media_DSP_BufferDispatch {
 
 struct Arcadia_Media_DSP_Buffer {
   Arcadia_Object parent;
-  Arcadia_Real32Value* samples;
   Arcadia_Natural32Value sampleRate;
   Arcadia_SizeValue numberOfSamples;
   /// Fixed-size mutable storage owning the mono Real32 sample bytes.

@@ -75,7 +75,6 @@ Arcadia_Media_DSP_Buffer_constructImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  self->samples = NULL;
   self->sampleBytes = NULL;
   self->sampleRate = Arcadia_ValueStack_getNatural32Value(thread, 2);
   self->numberOfSamples = Arcadia_ValueStack_getSizeValue(thread, 1);
@@ -90,7 +89,6 @@ Arcadia_Media_DSP_Buffer_constructImpl
   // Factory memory is zero-filled and owned by the managed ByteArray.
   self->sampleBytes = Arcadia_ByteArrayFactory_createMutable(thread,
     self->numberOfSamples * sizeof(Arcadia_Real32Value));
-  self->samples = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, self->sampleBytes);
   Arcadia_LeaveConstructor(Arcadia_Media_DSP_Buffer);
 }
 
@@ -102,7 +100,6 @@ Arcadia_Media_DSP_Buffer_destructImpl
   )
 {
   // Storage is GC-managed; no native free here.
-  self->samples = NULL;
   self->sampleBytes = NULL;
 }
 
@@ -143,7 +140,9 @@ Arcadia_Media_DSP_Buffer_getSamples
     Arcadia_Thread* thread,
     Arcadia_Media_DSP_Buffer* self
   )
-{ return self->samples; }
+{
+  return (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, self->sampleBytes);
+}
 
 Arcadia_Natural32Value
 Arcadia_Media_DSP_Buffer_getSampleRate
