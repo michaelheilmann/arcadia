@@ -410,7 +410,8 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_TextureResource_loadImpl
                          0,
                          GL_RGBA,
                          GL_UNSIGNED_BYTE,
-                         self->pixelBuffer->bytes); // @todo Proper encapsulation.
+                         Arcadia_ByteArray_getBytes(thread,
+                           Arcadia_Media_PixelBuffer_getPixelBytes(thread, self->pixelBuffer)));
         if (gl->glGetError()) {
           Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
           Arcadia_Thread_jump(thread);

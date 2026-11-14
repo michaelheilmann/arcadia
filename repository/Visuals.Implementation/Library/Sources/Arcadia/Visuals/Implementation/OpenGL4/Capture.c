@@ -58,7 +58,8 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_readPixels
   // "glReadPixels" places the row at the lower edge of the region in the first row of the
   // destination, whereas a pixel buffer stores the first row at the top. The rows are
   // reflected after the read.
-  gl->glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuffer->bytes);
+  gl->glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
+    Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_PixelBuffer_getPixelBytes(thread, pixelBuffer)));
 
   gl->glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)previousFrameBufferID);
 

@@ -270,7 +270,8 @@ Arcadia_Imaging_Linux_PNGImageWriter_writePngToByteBufferImpl
   uint32_t height = Arcadia_Media_PixelBuffer_getHeight(thread, sourcePixelBuffer);
   uint32_t lineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, sourcePixelBuffer);
   //uint32_t pixelBytes = Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, sourcePixelBuffer);
-  uint8_t* pixels = sourcePixelBuffer->bytes;
+  uint8_t* pixels = Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, sourcePixelBuffer));
 
   state = LibPngState_create(thread);
   if (!setjmp(png_jmpbuf(state->png_struct))) {
@@ -363,7 +364,8 @@ Arcadia_Imaging_Linux_PNGImageWriter_writePngToPathImpl
   uint32_t height = Arcadia_Media_PixelBuffer_getHeight(thread, sourcePixelBuffer);
   uint32_t lineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, sourcePixelBuffer);
   //uint32_t pixelBytes = Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, sourcePixelBuffer);
-  uint8_t* pixels = sourcePixelBuffer->bytes;
+  uint8_t* pixels = Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, sourcePixelBuffer));
 
   state = LibPngState_create(thread);
   FILE* fp = NULL;

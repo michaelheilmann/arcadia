@@ -233,7 +233,8 @@ Arcadia_Imaging_Linux_BMPImageWriter_writeBmpToByteBufferImpl
                               Arcadia_Media_PixelBuffer_getWidth(thread, sourcePixelBuffer),
                               Arcadia_Media_PixelBuffer_getHeight(thread, sourcePixelBuffer),
                               components,
-                              sourcePixelBuffer->bytes)) {
+                              Arcadia_ByteArray_getBytes(thread,
+                                Arcadia_Media_PixelBuffer_getPixelBytes(thread, sourcePixelBuffer)))) {
     context.status = Arcadia_Status_EnvironmentFailed;
   }
   if (context.status) {
