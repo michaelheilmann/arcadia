@@ -437,6 +437,12 @@ rebuildOptionsContent
   else if (tab && stringEquals(thread, tab, u8"Anima.Tab.Accessibility")) category = 3;
   if (category != 0 && self->resolutionDropdown)
     Arcadia_Engine_UI_DropdownController_close(thread, self->resolutionDropdown);
+  // The viewport is defined declaratively; it is rooted by optionsRoot.
+  // Return to the top of each category on selection without storing another
+  // managed reference in MenuScene.
+  Arcadia_Object* optionsViewport = findWidget(thread, (Arcadia_Object*)self->optionsRoot, u8"Anima.Scroll.OptionsViewport");
+  if (optionsViewport)
+    Arcadia_Engine_UI_Scrollable_scrollTo(thread, optionsViewport, 0, 40);
   switch (category) {
     case 0: {
       Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->optionsContentRoot, (Arcadia_Object*)self->windowModeRow);

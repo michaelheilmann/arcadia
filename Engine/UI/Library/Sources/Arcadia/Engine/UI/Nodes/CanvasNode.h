@@ -62,6 +62,13 @@ struct Arcadia_Engine_UI_CanvasNode {
   // One canvas-owned modal popup, rendered above all normal children.
   Arcadia_Object* popup;
   Arcadia_Object* focusBeforePopup;
+  // Last requested popup placement. The canvas roots both managed widgets
+  // while the overlay is active, so scrolling can move the overlay with its
+  // trigger without requiring each application to forward scroll events.
+  Arcadia_Engine_UI_WidgetNode* popupPlacementAnchor;
+  Arcadia_Engine_UI_WidgetNode* popupPlacementPopup;
+  Arcadia_Integer32Value popupPlacementWidth;
+  Arcadia_Integer32Value popupPlacementHeight;
   // An outside press dismisses the popup but its release must not click through.
   Arcadia_BooleanValue consumePopupRelease;
   Arcadia_Object* popupKeyboardOwner;
@@ -164,6 +171,8 @@ Arcadia_Engine_UI_CanvasNode_suppressMouseButtonRelease
 /// @brief Place a popup beneath an anchor when possible, otherwise above it.
 /// @remarks Coordinates are in bottom-left canvas space. The popup is clamped
 ///          within the canvas; a caller may put a ScrollPanel inside it.
+///          The last anchor and requested size are remembered for automatic
+///          repositioning while this popup is open.
 void
 Arcadia_Engine_UI_CanvasNode_placePopup
   (
@@ -173,6 +182,17 @@ Arcadia_Engine_UI_CanvasNode_placePopup
     Arcadia_Engine_UI_WidgetNode* popup,
     Arcadia_Integer32Value requestedWidth,
     Arcadia_Integer32Value requestedHeight
+  );
+
+/// @brief Update the active popup after its anchor's ancestors scroll or move.
+/// @remarks Called by CanvasNode_updateVisuals before rendering an overlay.
+///          Closes the popup if an originally attached anchor was detached.
+///          Does nothing for popups opened without placePopup.
+void
+Arcadia_Engine_UI_CanvasNode_refreshPopupPlacement
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self
   );
 
 Arcadia_Engine_UI_CanvasNode*

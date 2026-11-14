@@ -165,6 +165,22 @@ testDeclarativePanels
     "layout: { type: \"UI.StackLayout\", orientation: \"Vertical\", unsupported: 7 } }");
   assertRecordRejected(thread, context, definitions,
     "{ type: \"UI.Panel\", name: \"Test.BadPanelMissing\", left: 0, bottom: 0, width: 10, height: 10, children: [] }");
+  // Exercise the generated ScrollPanelDefinition and the exact viewport sizes
+  // used by the Anima options composition, without requiring a visuals backend.
+  Arcadia_ADL_UI_ScrollPanelDefinition* viewport = (Arcadia_ADL_UI_ScrollPanelDefinition*)Arcadia_ADL_Context_readFromString(
+    thread, context, definitions, Arcadia_String_createFromCxxString(thread,
+    "{ type: \"UI.ScrollPanel\", name: \"Test.Declarative.OptionsViewport\", left: 0, bottom: 0, "
+    "width: 712, height: 280, contentWidth: 712, contentHeight: 320, "
+    "children: [ \"Test.Declarative.Root\" ] }"), false);
+  Arcadia_Tests_assertTrue(thread, viewport->width == 712 && viewport->height == 280 &&
+    viewport->contentWidth == 712 && viewport->contentHeight == 320 &&
+    Arcadia_Collection_getSize(thread, (Arcadia_Collection*)viewport->childReferences) == 1);
+  // Reader dimensions describe the enclosing viewport. The runtime subtracts
+  // the scrollbar gutter only while vertical scrolling is enabled.
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.ScrollPanel\", name: \"Test.Declarative.BadNarrowViewport\", left: 0, bottom: 0, "
+    "width: 712, height: 280, contentWidth: 700, contentHeight: 320, children: [] }");
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
   Arcadia_ValueStack_popValues(thread, 3);
   Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
 }

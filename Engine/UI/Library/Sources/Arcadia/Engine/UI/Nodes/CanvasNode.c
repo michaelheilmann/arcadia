@@ -178,6 +178,10 @@ Arcadia_Engine_UI_CanvasNode_constructImpl
   self->focusedChild = NULL;
   self->popup = NULL;
   self->focusBeforePopup = NULL;
+  self->popupPlacementAnchor = NULL;
+  self->popupPlacementPopup = NULL;
+  self->popupPlacementWidth = 0;
+  self->popupPlacementHeight = 0;
   self->consumePopupRelease = Arcadia_BooleanValue_False;
   self->popupKeyboardOwner = NULL;
   self->popupKeyboardHandler = NULL;
@@ -216,6 +220,8 @@ Arcadia_Engine_UI_CanvasNode_visitImpl
   }
   if (self->popup) Arcadia_Object_visit(thread, self->popup);
   if (self->focusBeforePopup) Arcadia_Object_visit(thread, self->focusBeforePopup);
+  if (self->popupPlacementAnchor) Arcadia_Object_visit(thread, (Arcadia_Object*)self->popupPlacementAnchor);
+  if (self->popupPlacementPopup) Arcadia_Object_visit(thread, (Arcadia_Object*)self->popupPlacementPopup);
   if (self->popupKeyboardOwner) Arcadia_Object_visit(thread, self->popupKeyboardOwner);
   if (self->captureOwner) Arcadia_Object_visit(thread, self->captureOwner);
 }
@@ -347,6 +353,14 @@ Arcadia_Engine_UI_CanvasNode_hidePopup
   Arcadia_ValueStack_pushObjectReferenceValue(thread, oldPopup);
   self->popup = NULL;
   self->focusBeforePopup = NULL;
+  // A replacement popup may already have been positioned before showPopup.
+  // Do not destroy that replacement's placement when closing the old one.
+  if ((Arcadia_Object*)self->popupPlacementPopup == oldPopup) {
+    self->popupPlacementAnchor = NULL;
+    self->popupPlacementPopup = NULL;
+    self->popupPlacementWidth = 0;
+    self->popupPlacementHeight = 0;
+  }
   self->popupKeyboardOwner = NULL;
   self->popupKeyboardHandler = NULL;
   if (self->focusedChild == oldPopup) focusChild(thread, self, previous);
@@ -377,6 +391,14 @@ Arcadia_Engine_UI_CanvasNode_showPopup
   }
   if (self->popup == popup) return;
   if (self->popup) Arcadia_Engine_UI_CanvasNode_hidePopup(thread, self);
+  // A newly opened popup does not inherit a prior overlay's anchor. Keep
+  // a placement established for this very popup before showPopup, though.
+  if (self->popupPlacementPopup != (Arcadia_Engine_UI_WidgetNode*)popup) {
+    self->popupPlacementAnchor = NULL;
+    self->popupPlacementPopup = NULL;
+    self->popupPlacementWidth = 0;
+    self->popupPlacementHeight = 0;
+  }
   self->popup = popup;
   self->focusBeforePopup = self->focusedChild;
   if (self->hoveredChild) setHovered(thread, self->hoveredChild, Arcadia_BooleanValue_False);
@@ -509,12 +531,23 @@ Arcadia_Engine_UI_CanvasNode_placePopup
   Arcadia_Integer32Value height = requestedHeight < self->visualsCanvasHeight ? requestedHeight : self->visualsCanvasHeight;
   Arcadia_Integer32Value anchorX = anchor->left;
   Arcadia_Integer32Value anchorY = anchor->bottom;
-  // Keep the old canvas-space behavior for detached anchors, but normalize
-  // anchors in the canvas tree through each enclosing scroll viewport.
+  // Keep detached-anchor placement compatible with existing callers; an
+  // attached anchor is translated through each enclosing scroll viewport.
+  Arcadia_BooleanValue attached = Arcadia_BooleanValue_False;
   Arcadia_Natural64Value count = Arcadia_Engine_UI_Container_getChildCount(thread, (Arcadia_Object*)self);
   for (Arcadia_Natural64Value i = 0; i < count; ++i) {
     Arcadia_Object* child = Arcadia_Engine_UI_Container_getChildAt(thread, (Arcadia_Object*)self, i);
-    if (findPopupAnchor(thread, child, anchor, 0, 0, &anchorX, &anchorY, 0)) break;
+    if (findPopupAnchor(thread, child, anchor, 0, 0, &anchorX, &anchorY, 0)) {
+      attached = Arcadia_BooleanValue_True;
+      break;
+    }
+  }
+  // Once an open popup's anchor is removed from the canvas, dismiss instead
+  // of jumping to the no-longer meaningful local coordinates of that anchor.
+  if (!attached && self->popup == (Arcadia_Object*)popup &&
+      self->popupPlacementPopup == popup && self->popupPlacementAnchor == anchor) {
+    Arcadia_Engine_UI_CanvasNode_hidePopup(thread, self);
+    return;
   }
   Arcadia_Integer32Value x = anchorX;
   if (x < 0) x = 0;
@@ -528,7 +561,28 @@ Arcadia_Engine_UI_CanvasNode_placePopup
   else y = anchorY + anchor->height;
   if (y < 0) y = 0;
   if (y > self->visualsCanvasHeight - height) y = self->visualsCanvasHeight - height;
-  Arcadia_Engine_UI_WidgetNode_setBounds(thread, popup, x, y, width, height);
+  // Avoid duplicate position/size signals on every frame when nothing moved.
+  if (popup->left != x || popup->bottom != y || popup->width != width || popup->height != height)
+    Arcadia_Engine_UI_WidgetNode_setBounds(thread, popup, x, y, width, height);
+  self->popupPlacementAnchor = anchor;
+  self->popupPlacementPopup = popup;
+  self->popupPlacementWidth = requestedWidth;
+  self->popupPlacementHeight = requestedHeight;
+}
+
+void
+Arcadia_Engine_UI_CanvasNode_refreshPopupPlacement
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_CanvasNode* self
+  )
+{
+  // A directly shown popup has no anchor. Only explicitly placed popups are
+  // repositioned; retained anchors are kept alive by CanvasNode_visitImpl.
+  if (!self->popup || self->popupPlacementPopup != (Arcadia_Engine_UI_WidgetNode*)self->popup ||
+      !self->popupPlacementAnchor) return;
+  Arcadia_Engine_UI_CanvasNode_placePopup(thread, self, self->popupPlacementAnchor,
+    self->popupPlacementPopup, self->popupPlacementWidth, self->popupPlacementHeight);
 }
 
 static Arcadia_Object*
@@ -903,6 +957,9 @@ Arcadia_Engine_UI_CanvasNode_updateVisuals
       Arcadia_Engine_UI_Renderable_render(thread, object, enterPassNode);
     }
   }
+  // Re-read the anchor after normal descendants have updated their layouts.
+  // This keeps a modal popup attached after scroll or canvas-size changes.
+  if (self->popup) Arcadia_Engine_UI_CanvasNode_refreshPopupPlacement(thread, self);
   if (self->popup) {
     // The popup is not a normal child; render it above all regular children.
     Arcadia_Engine_Visuals_EnterPassNode_setViewportNode(thread, enterPassNode, self->viewportNode);

@@ -106,6 +106,46 @@ testNestedScrollAnchor
     (Arcadia_Engine_UI_WidgetNode*)popup, 80, 45);
   Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)popup)->left == 20 &&
     ((Arcadia_Engine_UI_WidgetNode*)popup)->bottom == 19);
+  // A visible popup follows its anchor when either nested scroll offset changes.
+  Arcadia_Engine_UI_CanvasNode_setVisualsCanvasSize(thread, canvas, 400, 300);
+  Arcadia_Engine_UI_CanvasNode_placePopup(thread, canvas, (Arcadia_Engine_UI_WidgetNode*)anchor,
+    (Arcadia_Engine_UI_WidgetNode*)popup, 80, 45);
+  Arcadia_Engine_UI_CanvasNode_showPopup(thread, canvas, (Arcadia_Object*)popup);
+  Arcadia_Tests_assertTrue(thread, canvas->popupPlacementAnchor == (Arcadia_Engine_UI_WidgetNode*)anchor);
+  Arcadia_Engine_UI_Scrollable_scrollTo(thread, (Arcadia_Object*)inner, 4, 16);
+  Arcadia_Engine_UI_CanvasNode_refreshPopupPlacement(thread, canvas);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)popup)->left == 48 &&
+    ((Arcadia_Engine_UI_WidgetNode*)popup)->bottom == 9);
+  Arcadia_Engine_UI_Scrollable_scrollTo(thread, (Arcadia_Object*)outer, 25, 25);
+  Arcadia_Engine_UI_CanvasNode_refreshPopupPlacement(thread, canvas);
+  Arcadia_Tests_assertTrue(thread, ((Arcadia_Engine_UI_WidgetNode*)popup)->left == 33 &&
+    ((Arcadia_Engine_UI_WidgetNode*)popup)->bottom == 9);
+  // Losing the trigger dismisses the popup and releases anchor tracking.
+  Arcadia_Engine_UI_Container_removeChild(thread, (Arcadia_Object*)inner, (Arcadia_Object*)anchor);
+  Arcadia_Engine_UI_CanvasNode_refreshPopupPlacement(thread, canvas);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_CanvasNode_getPopup(thread, canvas) == NULL &&
+    canvas->popupPlacementAnchor == NULL && canvas->popupPlacementPopup == NULL);
+  // When only horizontal scrolling remains, the vertical gutter disappears
+  // and child input must use the entire viewport width.
+  Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, outer, 300, 90);
+  overGutter->x = 185;
+  Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (Arcadia_Object*)outer, overGutter);
+  Arcadia_Tests_assertTrue(thread, outer->hoveredChild == (Arcadia_Object*)oversized);
+  // Vertical content overflow restores the clipping/gutter invariant.
+  Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, outer, 300, 240);
+  Arcadia_Engine_UI_PointerInput_handleMousePointerEvent(thread, (Arcadia_Object*)outer, overGutter);
+  Arcadia_Tests_assertTrue(thread, outer->hoveredChild == NULL);
+  Arcadia_Engine_UI_Scrollable_scrollTo(thread, (Arcadia_Object*)outer, 9999, 9999);
+  Arcadia_Integer32Value scrollX = -1;
+  Arcadia_Integer32Value scrollY = -1;
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, outer, &scrollX, &scrollY);
+  Arcadia_Tests_assertTrue(thread, scrollX == 152 && scrollY == 150);
+  // A declaration that matches the outer width must not create an artificial
+  // twelve-pixel horizontal scroll range while the vertical bar is visible.
+  Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, outer, 160, 240);
+  Arcadia_Engine_UI_Scrollable_scrollTo(thread, (Arcadia_Object*)outer, 9999, 9999);
+  Arcadia_Engine_UI_ScrollPanelNode_getScrollOffset(thread, outer, &scrollX, &scrollY);
+  Arcadia_Tests_assertTrue(thread, outer->contentWidth == 148 && scrollX == 0 && scrollY == 150);
   Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
   Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
 }

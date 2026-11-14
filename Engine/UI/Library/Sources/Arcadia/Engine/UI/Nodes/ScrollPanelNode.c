@@ -219,6 +219,22 @@ scrollToImpl
     Arcadia_Integer32Value y
   );
 
+// The vertical scrollbar owns the rightmost twelve pixels of the viewport only
+// while vertical scrolling is possible. Content and pointer coordinates must
+// use the same width; horizontal scrolling can expose explicitly wider content.
+static Arcadia_Integer32Value
+getContentViewportWidth
+  (
+    Arcadia_Engine_UI_ScrollPanelNode* self
+  )
+{
+  Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)self;
+  Arcadia_Integer32Value width = widget->width;
+  if (self->contentHeight > (Arcadia_Natural32Value)widget->height && width > 12)
+    width -= 12;
+  return width;
+}
+
 static Arcadia_Integer32Value
 getMaxScrollY
   (
@@ -396,13 +412,12 @@ hitTestChild
     Arcadia_Integer32Value y
   )
 {
-  // Only the scroll content viewport receives child input. The rightmost
-  // ten pixels are reserved for the scrollbar, even when children extend
-  // behind it or beyond the panel's visible bounds.
+  // Hit testing uses the same content viewport width as rendering. Reserve
+  // the gutter only when the vertical scrollbar is actually visible.
   Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)self;
   if (x < widget->left || y < widget->bottom ||
-      x >= widget->left + widget->width || y >= widget->bottom + widget->height ||
-      x >= widget->left + widget->width - 10) return NULL;
+      x >= widget->left + getContentViewportWidth(self) ||
+      y >= widget->bottom + widget->height) return NULL;
   Arcadia_Integer32Value childX = x - ((Arcadia_Engine_UI_WidgetNode*)self)->left + self->scrollX;
   Arcadia_Integer32Value childY = y - ((Arcadia_Engine_UI_WidgetNode*)self)->bottom + self->scrollY;
   for (Arcadia_SizeValue i = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->children); i > 0; --i) {
@@ -907,10 +922,12 @@ renderImpl
   Arcadia_Engine_Visuals_ViewportNode_getCanvasSize(thread, enterPassNode->viewportNode, &canvasWidth, &canvasHeight);
   self->lastCanvasHeight = canvasHeight;
   Arcadia_Engine_Visuals_ViewportNode_setCanvasSize(thread, self->viewportNode, canvasWidth, canvasHeight);
+  // Clip children before the vertical scrollbar, never underneath its track.
+  Arcadia_Integer32Value contentViewportWidth = getContentViewportWidth(self);
   Arcadia_Engine_Visuals_ViewportNode_setRelativeViewportRectangle(thread, self->viewportNode,
                                                                    (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->left / canvasWidth,
                                                                    (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->bottom / canvasHeight,
-                                                                   (Arcadia_Real32Value)(((Arcadia_Engine_UI_WidgetNode*)self)->left + ((Arcadia_Engine_UI_WidgetNode*)self)->width) / canvasWidth,
+                                                                   (Arcadia_Real32Value)(((Arcadia_Engine_UI_WidgetNode*)self)->left + contentViewportWidth) / canvasWidth,
                                                                    (Arcadia_Real32Value)(((Arcadia_Engine_UI_WidgetNode*)self)->bottom + ((Arcadia_Engine_UI_WidgetNode*)self)->height) / canvasHeight);
   Arcadia_Engine_Visuals_ViewportNode_setClearColor(thread, self->viewportNode, Arcadia_Math_Color4Real32_create4(thread, self->focused ? 0.15f : 0.11f, self->focused ? 0.17f : 0.13f, self->focused ? 0.23f : 0.18f, 1.f));
   Arcadia_Engine_Visuals_ViewportNode_setClearColorBuffer(thread, self->viewportNode, Arcadia_BooleanValue_True);
@@ -919,7 +936,7 @@ renderImpl
   Arcadia_Math_Matrix4Real32* viewToProjectionMatrix = Arcadia_Math_Matrix4Real32_create(thread);
   Arcadia_Math_Matrix4x4Real32_setOrthographicProjection(thread, viewToProjectionMatrix,
                                                          (Arcadia_Real32Value)self->scrollX,
-                                                         (Arcadia_Real32Value)(self->scrollX + ((Arcadia_Engine_UI_WidgetNode*)self)->width),
+                                                         (Arcadia_Real32Value)(self->scrollX + contentViewportWidth),
                                                          (Arcadia_Real32Value)self->scrollY,
                                                          (Arcadia_Real32Value)(self->scrollY + ((Arcadia_Engine_UI_WidgetNode*)self)->height),
                                                          -1.f,
@@ -935,7 +952,22 @@ renderImpl
       Arcadia_Engine_UI_Renderable_render(thread, child, enterPassNode);
     }
   }
-  if (self->contentHeight > (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height || self->contentWidth > (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->width) {
+  // Restore the full panel viewport to draw the scrollbar track outside
+  // the content clip rectangle. Horizontal-only scrolling has no vertical bar.
+  if (self->contentHeight > (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height) {
+    Arcadia_Engine_Visuals_ViewportNode_setRelativeViewportRectangle(thread, self->viewportNode,
+                                                                     (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->left / canvasWidth,
+                                                                     (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->bottom / canvasHeight,
+                                                                     (Arcadia_Real32Value)(((Arcadia_Engine_UI_WidgetNode*)self)->left + ((Arcadia_Engine_UI_WidgetNode*)self)->width) / canvasWidth,
+                                                                     (Arcadia_Real32Value)(((Arcadia_Engine_UI_WidgetNode*)self)->bottom + ((Arcadia_Engine_UI_WidgetNode*)self)->height) / canvasHeight);
+    Arcadia_Math_Matrix4x4Real32_setOrthographicProjection(thread, viewToProjectionMatrix,
+                                                           (Arcadia_Real32Value)self->scrollX,
+                                                           (Arcadia_Real32Value)(self->scrollX + ((Arcadia_Engine_UI_WidgetNode*)self)->width),
+                                                           (Arcadia_Real32Value)self->scrollY,
+                                                           (Arcadia_Real32Value)(self->scrollY + ((Arcadia_Engine_UI_WidgetNode*)self)->height),
+                                                           -1.f, +1.f);
+    Arcadia_Engine_Visuals_CameraNode_setViewToProjectionMatrix(thread, self->cameraNode, viewToProjectionMatrix);
+    Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)enterPassNode, enterPassNode);
     updateScrollbarVertices(thread, self);
     Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)self->scrollbarMaterial, enterPassNode);
     Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)self->scrollbarMesh, enterPassNode);
@@ -974,7 +1006,8 @@ scrollToImpl
   )
 {
   Arcadia_Engine_UI_ScrollPanelNode* panel = (Arcadia_Engine_UI_ScrollPanelNode*)self;
-  Arcadia_Integer32Value maxX = panel->contentWidth > (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)panel)->width ? (Arcadia_Integer32Value)(panel->contentWidth - (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)panel)->width) : 0;
+  Arcadia_Integer32Value viewportWidth = getContentViewportWidth(panel);
+  Arcadia_Integer32Value maxX = panel->contentWidth > (Arcadia_Natural32Value)viewportWidth ? (Arcadia_Integer32Value)(panel->contentWidth - (Arcadia_Natural32Value)viewportWidth) : 0;
   Arcadia_Integer32Value maxY = getMaxScrollY(panel);
   panel->scrollX = x < 0 ? 0 : x > maxX ? maxX : x;
   panel->scrollY = y < 0 ? 0 : y > maxY ? maxY : y;
@@ -1037,8 +1070,15 @@ Arcadia_Engine_UI_ScrollPanelNode_setContentSize
     Arcadia_Natural32Value height
   )
 {
-  self->contentWidth = width < (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->width ? (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->width : width;
   self->contentHeight = height < (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height ? (Arcadia_Natural32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height : height;
+  Arcadia_Integer32Value viewportWidth = getContentViewportWidth(self);
+  Arcadia_Natural32Value requestedWidth = width;
+  // ADL requires contentWidth >= outer width. Matching that outer width means
+  // fill the available viewport; the visible scrollbar owns the final 12px.
+  // A larger explicit width still enables genuine horizontal scrolling.
+  if (requestedWidth == ((Arcadia_Engine_UI_WidgetNode*)self)->width)
+    requestedWidth = (Arcadia_Natural32Value)viewportWidth;
+  self->contentWidth = requestedWidth < (Arcadia_Natural32Value)viewportWidth ? (Arcadia_Natural32Value)viewportWidth : requestedWidth;
   scrollToImpl(thread, (Arcadia_Object*)self, self->scrollX, self->scrollY);
 }
 

@@ -138,7 +138,7 @@
     children : [
       "Anima.Label.OptionsTitle",
       "Anima.Panel.OptionsTabs",
-      "Anima.Panel.OptionsContent",
+      "Anima.Scroll.OptionsViewport",
       "Anima.Label.OptionsStatus",
       "Anima.Panel.OptionsFooter",
     ],
@@ -174,12 +174,18 @@
   { type : "UI.Button", name : "Anima.Tab.Accessibility", left : 0, bottom : 0, width : 166, height : 40, text : "Accessibility", horizontalAlignment : "Center", verticalAlignment : "Center", backgroundColor : "Anima.Button.Normal", hoveredBackgroundColor : "Anima.Button.Hovered", pressedBackgroundColor : "Anima.Button.Pressed", disabledBackgroundColor : "Anima.Button.Disabled", focusedBackgroundColor : "Anima.Button.Focused" },
   { type : "UI.Label", name : "Anima.Label.OptionsStatus", left : 0, bottom : 0, width : 712, height : 32, text : "Info: status", horizontalAlignment : "Left", verticalAlignment : "Center", red : 220, green : 228, blue : 240, alpha : 255, pixelSize : 14 },
   {
+    type : "UI.ScrollPanel", name : "Anima.Scroll.OptionsViewport",
+    left : 0, bottom : 0, width : 712, height : 280,
+    contentWidth : 712, contentHeight : 320,
+    children : [ "Anima.Panel.OptionsContent" ],
+  },
+  {
     type : "UI.Panel",
     name : "Anima.Panel.OptionsContent",
     left : 0,
     bottom : 0,
-    width : 712,
-    height : 280,
+    width : 700,
+    height : 320,
     sizePolicy : "Fixed",
     layout : {
       type : "UI.StackLayout",
@@ -192,7 +198,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.WindowMode",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -201,7 +207,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.VSync",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -210,7 +216,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.Resolution",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -227,7 +233,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.Brightness",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -236,7 +242,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.MasterVolume",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -245,7 +251,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.MusicVolume",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -254,7 +260,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.EffectsVolume",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -263,7 +269,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.UIVolume",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -272,7 +278,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.VoiceVolume",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -281,7 +287,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.MouseSensitivity",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -290,7 +296,7 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.Subtitles",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
@@ -299,14 +305,14 @@
   },
   {
     type : "UI.Panel", name : "Anima.Panel.OptionsRow.HighContrast",
-    left : 0, bottom : 0, width : 712, height : 44,
+    left : 0, bottom : 0, width : 700, height : 44,
     sizePolicy : "Fixed",
     layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 12,
                mainAlignment : "Start", crossAlignment : "Center" },
     childLayouts : [ { name : "Anima.Toggle.HighContrast", marginLeft : 384 } ],
     children : [ "Anima.Label.HighContrast", "Anima.Toggle.HighContrast" ],
   },
-  { type : "UI.Panel", name : "Anima.Panel.Binding.Jump", left : 0, bottom : 0, width : 712, height : 84,
+  { type : "UI.Panel", name : "Anima.Panel.Binding.Jump", left : 0, bottom : 0, width : 700, height : 84,
     sizePolicy : "Fixed", layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 8,
       mainAlignment : "Start", crossAlignment : "Center" },
     children : [ "Anima.Binding.Jump.Name", "Anima.Binding.Jump.Value", "Anima.Binding.Jump.Edit", "Anima.Binding.Jump.Reset", "Anima.Binding.Jump.Status" ] },
@@ -315,7 +321,7 @@
   { type : "UI.Button", name : "Anima.Binding.Jump.Edit", left : 0, bottom : 0, width : 75, height : 34, text : "Edit", horizontalAlignment : "Center", verticalAlignment : "Center", backgroundColor : "Anima.Button.Normal", hoveredBackgroundColor : "Anima.Button.Hovered", pressedBackgroundColor : "Anima.Button.Pressed", disabledBackgroundColor : "Anima.Button.Disabled", focusedBackgroundColor : "Anima.Button.Focused" },
   { type : "UI.Button", name : "Anima.Binding.Jump.Reset", left : 0, bottom : 0, width : 75, height : 34, text : "Reset", horizontalAlignment : "Center", verticalAlignment : "Center", backgroundColor : "Anima.Button.Normal", hoveredBackgroundColor : "Anima.Button.Hovered", pressedBackgroundColor : "Anima.Button.Pressed", disabledBackgroundColor : "Anima.Button.Disabled", focusedBackgroundColor : "Anima.Button.Focused" },
   { type : "UI.Label", name : "Anima.Binding.Jump.Status", left : 0, bottom : 0, width : 230, height : 44, text : "", horizontalAlignment : "Left", verticalAlignment : "Center", red : 220, green : 228, blue : 240, alpha : 255, pixelSize : 14 },
-  { type : "UI.Panel", name : "Anima.Panel.Binding.Sprint", left : 0, bottom : 0, width : 712, height : 84,
+  { type : "UI.Panel", name : "Anima.Panel.Binding.Sprint", left : 0, bottom : 0, width : 700, height : 84,
     sizePolicy : "Fixed", layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 8,
       mainAlignment : "Start", crossAlignment : "Center" },
     children : [ "Anima.Binding.Sprint.Name", "Anima.Binding.Sprint.Value", "Anima.Binding.Sprint.Edit", "Anima.Binding.Sprint.Reset", "Anima.Binding.Sprint.Status" ] },
