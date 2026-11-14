@@ -112,13 +112,17 @@ testConsumers
     Arcadia_Media_SampleBuffer* buffer = Arcadia_Media_SampleBuffer_create(thread, 1, 3, format);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, buffer);
     Arcadia_SizeValue bytes = 3 * Arcadia_Media_SampleFormat_getNumberOfBytes(thread, format);
-    for (Arcadia_SizeValue j = 0; j < bytes; ++j) buffer->bytes[j] = (Arcadia_Natural8Value)(17 + j);
+    Arcadia_Natural8Value* bufferBytes = Arcadia_ByteArray_getMutableBytes(thread,
+      Arcadia_Media_SampleBuffer_getSampleBytes(thread, buffer));
+    for (Arcadia_SizeValue j = 0; j < bytes; ++j) bufferBytes[j] = (Arcadia_Natural8Value)(17 + j);
     Arcadia_Media_SampleBuffer* clone = Arcadia_Media_SampleBuffer_createClone(thread, buffer);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, clone);
-    Arcadia_Tests_assertTrue(thread, clone != buffer && clone->bytes != buffer->bytes);
+    Arcadia_Natural8Value* cloneBytes = Arcadia_ByteArray_getMutableBytes(thread,
+      Arcadia_Media_SampleBuffer_getSampleBytes(thread, clone));
+    Arcadia_Tests_assertTrue(thread, clone != buffer && cloneBytes != bufferBytes);
     Arcadia_Tests_assertTrue(thread, clone->sampleFormat == format && clone->length == 1 && clone->sampleRate == 3);
     Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
-    Arcadia_Tests_assertTrue(thread, !memcmp(buffer->bytes, clone->bytes, bytes));
+    Arcadia_Tests_assertTrue(thread, !memcmp(bufferBytes, cloneBytes, bytes));
     Arcadia_ValueStack_popValues(thread, 2);
   }
   Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);

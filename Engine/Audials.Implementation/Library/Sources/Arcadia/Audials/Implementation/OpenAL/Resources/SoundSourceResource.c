@@ -310,7 +310,8 @@ Arcadia_Engine_Audials_Implementation_OpenAL_SoundSourceResource_loadImpl
         Arcadia_Thread_jump(thread);
       }
       ALsizei byteCount = (ALsizei)bytes;
-      alBufferData(self->alBufferID, AL_FORMAT_MONO16, self->sampleBuffer->bytes, byteCount, (ALsizei)rate);
+      alBufferData(self->alBufferID, AL_FORMAT_MONO16, Arcadia_ByteArray_getBytes(thread,
+        Arcadia_Media_SampleBuffer_getSampleBytes(thread, self->sampleBuffer)), byteCount, (ALsizei)rate);
       alSourcei(self->alSourceID, AL_BUFFER, self->alBufferID);
       if (alGetError()) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);

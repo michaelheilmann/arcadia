@@ -114,7 +114,6 @@ Arcadia_Media_SampleBuffer_constructImpl
       Arcadia_ValueStack_pushNatural8Value(thread, 0);
       Arcadia_superTypeConstructor(thread, _type, self);
     }
-    self->bytes = NULL;
     self->byteStorage = NULL;
     Arcadia_Media_SampleBuffer* other = (Arcadia_Media_SampleBuffer*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Media_SampleBuffer_getType(thread));
     self->length = Arcadia_Media_SampleBuffer_getLength(thread, other);
@@ -124,8 +123,11 @@ Arcadia_Media_SampleBuffer_constructImpl
     Arcadia_SizeValue samples = checkedNumberOfSamples(thread, self->length, self->sampleRate);
     Arcadia_SizeValue bytes = checkedNumberOfBytes(thread, samples, bytesPerSample);
     self->byteStorage = Arcadia_ByteArrayFactory_createMutable(thread, bytes);
-    self->bytes = Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage);
-    if (bytes) Arcadia_Memory_copy(thread, self->bytes, other->bytes, bytes);
+    if (bytes) {
+      Arcadia_Memory_copy(thread,
+                          Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage),
+                          Arcadia_ByteArray_getBytes(thread, other->byteStorage), bytes);
+    }
 
     Arcadia_LeaveConstructor(Arcadia_Media_SampleBuffer);
   } else if (3 == _numberOfArguments) {
@@ -133,7 +135,6 @@ Arcadia_Media_SampleBuffer_constructImpl
       Arcadia_ValueStack_pushNatural8Value(thread, 0);
       Arcadia_superTypeConstructor(thread, _type, self);
     }
-    self->bytes = NULL;
     self->byteStorage = NULL;
     self->length = Arcadia_ValueStack_getInteger32Value(thread, 3);
     self->sampleRate = Arcadia_ValueStack_getInteger32Value(thread, 2);
@@ -148,31 +149,31 @@ Arcadia_Media_SampleBuffer_constructImpl
     Arcadia_SizeValue samples = checkedNumberOfSamples(thread, self->length, self->sampleRate);
     Arcadia_SizeValue bytes = checkedNumberOfBytes(thread, samples, bytesPerSample);
     self->byteStorage = Arcadia_ByteArrayFactory_createMutable(thread, bytes);
-    self->bytes = Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage);
+    Arcadia_Natural8Value* pcmBytes = Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage);
     switch (self->sampleFormat) {
       case Arcadia_Media_SampleFormat_Integer16: {
         for (Arcadia_SizeValue i = 0; i < samples; ++i) {
-          Arcadia_Integer16Value* p = ((Arcadia_Integer16Value*)self->bytes) + i;
+          Arcadia_Integer16Value* p = ((Arcadia_Integer16Value*)pcmBytes) + i;
           *p = Arcadia_Integer16Value_Literal(0);
         }
       } break;
       case Arcadia_Media_SampleFormat_Integer8: {
         for (Arcadia_SizeValue i = 0; i < samples; ++i) {
-          Arcadia_Integer8Value* p = ((Arcadia_Integer8Value*)self->bytes) + i;
+          Arcadia_Integer8Value* p = ((Arcadia_Integer8Value*)pcmBytes) + i;
           *p = Arcadia_Integer8Value_Literal(0);
         }
       } break;
       case Arcadia_Media_SampleFormat_Natural16: {
         static const Arcadia_Natural16Value silence = Arcadia_Natural16Value_Literal(32768);
         for (Arcadia_SizeValue i = 0; i < samples; ++i) {
-          Arcadia_Natural16Value* p = ((Arcadia_Natural16Value*)self->bytes) + i;
+          Arcadia_Natural16Value* p = ((Arcadia_Natural16Value*)pcmBytes) + i;
           *p = silence;
         }
       } break;
       case Arcadia_Media_SampleFormat_Natural8: {
         static const Arcadia_Natural8Value silence = Arcadia_Natural8Value_Literal(128);
         for (Arcadia_SizeValue i = 0; i < samples; ++i) {
-          Arcadia_Natural8Value* p = ((Arcadia_Natural8Value*)self->bytes) + i;
+          Arcadia_Natural8Value* p = ((Arcadia_Natural8Value*)pcmBytes) + i;
           *p = silence;
         }
       } break;
@@ -203,11 +204,7 @@ Arcadia_Media_SampleBuffer_destruct
     Arcadia_Thread* thread,
     Arcadia_Media_SampleBuffer* self
   )
-{
-  // byteStorage owns and releases the allocation through its own destructor.
-  self->bytes = NULL;
-  self->byteStorage = NULL;
-}
+{/* ByteArray owns and releases its PCM allocation. */}
 
 static void
 Arcadia_Media_SampleBuffer_visit
@@ -308,11 +305,12 @@ Arcadia_Media_SampleBuffer_fill
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
     Arcadia_Media_DSP_render(thread, (Arcadia_Media_DSP*)dsp, temporary);
+    Arcadia_Natural8Value* pcmBytes = Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage);
 
     switch (Arcadia_Media_SampleBuffer_getSampleFormat(thread, self)) {
       case Arcadia_Media_SampleFormat_Integer16: {
         Arcadia_Real32Value* source = Arcadia_Media_DSP_Buffer_getSamples(thread, temporary);
-        Arcadia_Integer16Value* p = (Arcadia_Integer16Value*)self->bytes;
+        Arcadia_Integer16Value* p = (Arcadia_Integer16Value*)pcmBytes;
         for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
           Arcadia_Integer16Value sample = Arcadia_Media_quantizeInteger16(thread, source[i]);
           p[i] = sample;
@@ -320,7 +318,7 @@ Arcadia_Media_SampleBuffer_fill
       } break;
       case Arcadia_Media_SampleFormat_Integer8: {
         Arcadia_Real32Value* source = Arcadia_Media_DSP_Buffer_getSamples(thread, temporary);
-        Arcadia_Integer8Value* p = (Arcadia_Integer8Value*)self->bytes;
+        Arcadia_Integer8Value* p = (Arcadia_Integer8Value*)pcmBytes;
         for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
           Arcadia_Integer8Value sample = Arcadia_Media_quantizeInteger8(thread, source[i]);
           p[i] = sample;
@@ -328,7 +326,7 @@ Arcadia_Media_SampleBuffer_fill
       } break;
       case Arcadia_Media_SampleFormat_Natural16: {
         Arcadia_Real32Value* source = Arcadia_Media_DSP_Buffer_getSamples(thread, temporary);
-        Arcadia_Natural16Value* p = (Arcadia_Natural16Value*)self->bytes;
+        Arcadia_Natural16Value* p = (Arcadia_Natural16Value*)pcmBytes;
         for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
           Arcadia_Natural16Value sample = Arcadia_Media_quantizeNatural16(thread, source[i]);
           p[i] = sample;
@@ -336,7 +334,7 @@ Arcadia_Media_SampleBuffer_fill
       } break;
       case Arcadia_Media_SampleFormat_Natural8: {
         Arcadia_Real32Value* source = Arcadia_Media_DSP_Buffer_getSamples(thread, temporary);
-        Arcadia_Natural8Value* p = (Arcadia_Natural8Value*)self->bytes;
+        Arcadia_Natural8Value* p = (Arcadia_Natural8Value*)pcmBytes;
         for (Arcadia_SizeValue i = 0; i < NUMBEROFSAMPLES; ++i) {
           Arcadia_Natural8Value sample = Arcadia_Media_quantizeNatural8(thread, source[i]);
           p[i] = sample;

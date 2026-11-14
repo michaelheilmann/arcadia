@@ -91,7 +91,8 @@ testInteger8DspFill(Arcadia_Thread* thread)
   Arcadia_Media_DSP_SineWave* sine = Arcadia_Media_DSP_SineWave_create(thread, 1.0f);
   Arcadia_Object_lock(thread, (Arcadia_Object*)sine);
   Arcadia_Media_SampleBuffer_fill(thread, buffer, (Arcadia_Media_DSP*)sine);
-  Arcadia_Integer8Value* pcm = (Arcadia_Integer8Value*)buffer->bytes;
+  Arcadia_Integer8Value* pcm = (Arcadia_Integer8Value*)Arcadia_ByteArray_getMutableBytes(
+    thread, Arcadia_Media_SampleBuffer_getSampleBytes(thread, buffer));
   Arcadia_Tests_assertTrue(thread, pcm[0] == 0);
   Arcadia_Tests_assertTrue(thread, pcm[2] >= 126);
   Arcadia_Tests_assertTrue(thread, pcm[6] <= -126);
@@ -153,19 +154,21 @@ testPcmSilenceAndClone(Arcadia_Thread* thread)
     Arcadia_Object_lock(thread, (Arcadia_Object*)buffer);
     Arcadia_SizeValue bytesPerSample = Arcadia_Media_SampleFormat_getNumberOfBytes(thread, formats[i]);
     Arcadia_SizeValue byteCount = 8 * bytesPerSample;
+    Arcadia_Natural8Value* bufferBytes = Arcadia_ByteArray_getMutableBytes(
+      thread, Arcadia_Media_SampleBuffer_getSampleBytes(thread, buffer));
     for (Arcadia_SizeValue j = 0; j < 8; ++j) {
       switch (formats[i]) {
         case Arcadia_Media_SampleFormat_Integer16:
-          Arcadia_Tests_assertTrue(thread, ((Arcadia_Integer16Value*)buffer->bytes)[j] == 0);
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Integer16Value*)bufferBytes)[j] == 0);
           break;
         case Arcadia_Media_SampleFormat_Integer8:
-          Arcadia_Tests_assertTrue(thread, ((Arcadia_Integer8Value*)buffer->bytes)[j] == 0);
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Integer8Value*)bufferBytes)[j] == 0);
           break;
         case Arcadia_Media_SampleFormat_Natural16:
-          Arcadia_Tests_assertTrue(thread, ((Arcadia_Natural16Value*)buffer->bytes)[j] == 32768);
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Natural16Value*)bufferBytes)[j] == 32768);
           break;
         case Arcadia_Media_SampleFormat_Natural8:
-          Arcadia_Tests_assertTrue(thread, ((Arcadia_Natural8Value*)buffer->bytes)[j] == 128);
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Natural8Value*)bufferBytes)[j] == 128);
           break;
         default:
           Arcadia_Tests_assertTrue(thread, false);
@@ -174,13 +177,15 @@ testPcmSilenceAndClone(Arcadia_Thread* thread)
     }
     Arcadia_Media_SampleBuffer* clone = Arcadia_Media_SampleBuffer_createClone(thread, buffer);
     Arcadia_Object_lock(thread, (Arcadia_Object*)clone);
-    Arcadia_Tests_assertTrue(thread, clone->bytes != buffer->bytes);
-    Arcadia_Tests_assertTrue(thread, !memcmp(clone->bytes, buffer->bytes, byteCount));
-    Arcadia_Natural8Value firstByte = clone->bytes[0];
-    buffer->bytes[0] ^= 0x5a;
+    Arcadia_Natural8Value* cloneBytes = Arcadia_ByteArray_getMutableBytes(
+      thread, Arcadia_Media_SampleBuffer_getSampleBytes(thread, clone));
+    Arcadia_Tests_assertTrue(thread, cloneBytes != bufferBytes);
+    Arcadia_Tests_assertTrue(thread, !memcmp(cloneBytes, bufferBytes, byteCount));
+    Arcadia_Natural8Value firstByte = cloneBytes[0];
+    bufferBytes[0] ^= 0x5a;
     Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
-    Arcadia_Tests_assertTrue(thread, clone->bytes[0] == firstByte);
-    Arcadia_Tests_assertTrue(thread, clone->bytes[0] != buffer->bytes[0]);
+    Arcadia_Tests_assertTrue(thread, cloneBytes[0] == firstByte);
+    Arcadia_Tests_assertTrue(thread, cloneBytes[0] != bufferBytes[0]);
     Arcadia_Object_unlock(thread, (Arcadia_Object*)clone);
     Arcadia_Object_unlock(thread, (Arcadia_Object*)buffer);
   }
@@ -191,8 +196,7 @@ static int
 runPcmSilenceAndClone(void)
 { return Arcadia_Tests_safeExecute(&testPcmSilenceAndClone) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
-// Validate managed ownership without separately rooting the ByteArray.
-// The SampleBuffer's visitor must retain the backing object across collection.
+// Verify ByteArray ownership without rooting the storage independently.
 static void
 testManagedStorage
   (
@@ -216,7 +220,9 @@ testManagedStorage
     Arcadia_Tests_assertTrue(thread, !Arcadia_ByteArray_isResizable(thread, storage));
     Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isContiguous(thread, storage));
     Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getSize(thread, storage) == 8 * bytesPerSample);
-    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread, storage) == buffer->bytes);
+    Arcadia_Natural8Value* pcm = Arcadia_ByteArray_getMutableBytes(thread, storage);
+    Arcadia_Tests_assertTrue(thread, pcm == Arcadia_ByteArray_getMutableBytes(thread,
+      Arcadia_Media_SampleBuffer_getSampleBytes(thread, buffer)));
 
     Arcadia_WeakReference* observer = Arcadia_WeakReference_create(thread,
       Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)storage));
@@ -228,12 +234,14 @@ testManagedStorage
 
     Arcadia_Media_SampleBuffer* clone = Arcadia_Media_SampleBuffer_createClone(thread, buffer);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, clone);
-    Arcadia_Tests_assertTrue(thread, clone->byteStorage != storage && clone->bytes != buffer->bytes);
-    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getSize(thread, clone->byteStorage) == 8 * bytesPerSample);
-    Arcadia_Tests_assertTrue(thread, !memcmp(clone->bytes, buffer->bytes, 8 * bytesPerSample));
-    Arcadia_Natural8Value original = clone->bytes[0];
-    buffer->bytes[0] ^= 0x5a;
-    Arcadia_Tests_assertTrue(thread, clone->bytes[0] == original);
+    Arcadia_ByteArray* cloneStorage = Arcadia_Media_SampleBuffer_getSampleBytes(thread, clone);
+    Arcadia_Natural8Value* clonePcm = Arcadia_ByteArray_getMutableBytes(thread, cloneStorage);
+    Arcadia_Tests_assertTrue(thread, cloneStorage != storage && clonePcm != pcm);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getSize(thread, cloneStorage) == 8 * bytesPerSample);
+    Arcadia_Tests_assertTrue(thread, !memcmp(clonePcm, pcm, 8 * bytesPerSample));
+    Arcadia_Natural8Value original = clonePcm[0];
+    pcm[0] ^= 0x5a;
+    Arcadia_Tests_assertTrue(thread, clonePcm[0] == original);
     Arcadia_ValueStack_popValues(thread, 3);
 
     Arcadia_Media_SampleBuffer* empty = Arcadia_Media_SampleBuffer_create(thread, 0, 8, formats[i]);
