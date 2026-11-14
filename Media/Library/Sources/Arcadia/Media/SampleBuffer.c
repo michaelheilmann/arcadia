@@ -77,11 +77,19 @@ Arcadia_Media_SampleBuffer_destruct
     Arcadia_Media_SampleBuffer* self
   );
 
+static void
+Arcadia_Media_SampleBuffer_visit
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_SampleBuffer* self
+  );
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Media_SampleBuffer_constructImpl,
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&Arcadia_Media_SampleBuffer_destruct,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Media_SampleBuffer_initializeDispatchImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Media_SampleBuffer_visit,
 };
 
 static const Arcadia_Type_Operations _typeOperations = {
@@ -107,6 +115,7 @@ Arcadia_Media_SampleBuffer_constructImpl
       Arcadia_superTypeConstructor(thread, _type, self);
     }
     self->bytes = NULL;
+    self->byteStorage = NULL;
     Arcadia_Media_SampleBuffer* other = (Arcadia_Media_SampleBuffer*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Media_SampleBuffer_getType(thread));
     self->length = Arcadia_Media_SampleBuffer_getLength(thread, other);
     self->sampleRate = Arcadia_Media_SampleBuffer_getSampleRate(thread, other);
@@ -114,7 +123,8 @@ Arcadia_Media_SampleBuffer_constructImpl
     Arcadia_SizeValue bytesPerSample = Arcadia_Media_SampleFormat_getNumberOfBytes(thread, other->sampleFormat);
     Arcadia_SizeValue samples = checkedNumberOfSamples(thread, self->length, self->sampleRate);
     Arcadia_SizeValue bytes = checkedNumberOfBytes(thread, samples, bytesPerSample);
-    self->bytes = Arcadia_Memory_allocateUnmanaged(thread, bytes);
+    self->byteStorage = Arcadia_ByteArrayFactory_createMutable(thread, bytes);
+    self->bytes = Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage);
     if (bytes) Arcadia_Memory_copy(thread, self->bytes, other->bytes, bytes);
 
     Arcadia_LeaveConstructor(Arcadia_Media_SampleBuffer);
@@ -124,6 +134,7 @@ Arcadia_Media_SampleBuffer_constructImpl
       Arcadia_superTypeConstructor(thread, _type, self);
     }
     self->bytes = NULL;
+    self->byteStorage = NULL;
     self->length = Arcadia_ValueStack_getInteger32Value(thread, 3);
     self->sampleRate = Arcadia_ValueStack_getInteger32Value(thread, 2);
     Arcadia_EnumerationValue enumerationValue = Arcadia_ValueStack_getEnumerationValue(thread, 1);
@@ -136,7 +147,8 @@ Arcadia_Media_SampleBuffer_constructImpl
     Arcadia_SizeValue bytesPerSample = Arcadia_Media_SampleFormat_getNumberOfBytes(thread, self->sampleFormat);
     Arcadia_SizeValue samples = checkedNumberOfSamples(thread, self->length, self->sampleRate);
     Arcadia_SizeValue bytes = checkedNumberOfBytes(thread, samples, bytesPerSample);
-    self->bytes = Arcadia_Memory_allocateUnmanaged(thread, bytes);
+    self->byteStorage = Arcadia_ByteArrayFactory_createMutable(thread, bytes);
+    self->bytes = Arcadia_ByteArray_getMutableBytes(thread, self->byteStorage);
     switch (self->sampleFormat) {
       case Arcadia_Media_SampleFormat_Integer16: {
         for (Arcadia_SizeValue i = 0; i < samples; ++i) {
@@ -192,9 +204,20 @@ Arcadia_Media_SampleBuffer_destruct
     Arcadia_Media_SampleBuffer* self
   )
 {
-  if (self->bytes) {
-    Arcadia_Memory_deallocateUnmanaged(thread, self->bytes);
-    self->bytes = NULL;
+  // byteStorage owns and releases the allocation through its own destructor.
+  self->bytes = NULL;
+  self->byteStorage = NULL;
+}
+
+static void
+Arcadia_Media_SampleBuffer_visit
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_SampleBuffer* self
+  )
+{
+  if (self->byteStorage) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->byteStorage);
   }
 }
 
@@ -223,6 +246,14 @@ Arcadia_Media_SampleBuffer_getLength
     Arcadia_Media_SampleBuffer* self
   )
 { return self->length; }
+
+Arcadia_ByteArray*
+Arcadia_Media_SampleBuffer_getSampleBytes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_SampleBuffer* self
+  )
+{ return self->byteStorage; }
 
 Arcadia_Media_SampleBuffer*
 Arcadia_Media_SampleBuffer_create

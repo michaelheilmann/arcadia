@@ -191,6 +191,69 @@ static int
 runPcmSilenceAndClone(void)
 { return Arcadia_Tests_safeExecute(&testPcmSilenceAndClone) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
+// Validate managed ownership without separately rooting the ByteArray.
+// The SampleBuffer's visitor must retain the backing object across collection.
+static void
+testManagedStorage
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  const Arcadia_Media_SampleFormat formats[] = {
+    Arcadia_Media_SampleFormat_Integer16,
+    Arcadia_Media_SampleFormat_Integer8,
+    Arcadia_Media_SampleFormat_Natural16,
+    Arcadia_Media_SampleFormat_Natural8,
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i) {
+    Arcadia_SizeValue bytesPerSample = Arcadia_Media_SampleFormat_getNumberOfBytes(thread, formats[i]);
+    Arcadia_Media_SampleBuffer* buffer = Arcadia_Media_SampleBuffer_create(thread, 1, 8, formats[i]);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, buffer);
+    Arcadia_ByteArray* storage = Arcadia_Media_SampleBuffer_getSampleBytes(thread, buffer);
+    Arcadia_Tests_assertTrue(thread, storage != NULL && storage == buffer->byteStorage);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isMutable(thread, storage));
+    Arcadia_Tests_assertTrue(thread, !Arcadia_ByteArray_isResizable(thread, storage));
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isContiguous(thread, storage));
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getSize(thread, storage) == 8 * bytesPerSample);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getMutableBytes(thread, storage) == buffer->bytes);
+
+    Arcadia_WeakReference* observer = Arcadia_WeakReference_create(thread,
+      Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)storage));
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, observer);
+    Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+    Arcadia_Value retained = Arcadia_WeakReference_getValue(thread, observer);
+    Arcadia_Tests_assertTrue(thread, Arcadia_Value_isObjectReferenceValue(&retained));
+    Arcadia_Tests_assertTrue(thread, Arcadia_Value_getObjectReferenceValue(&retained) == (Arcadia_Object*)storage);
+
+    Arcadia_Media_SampleBuffer* clone = Arcadia_Media_SampleBuffer_createClone(thread, buffer);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, clone);
+    Arcadia_Tests_assertTrue(thread, clone->byteStorage != storage && clone->bytes != buffer->bytes);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getSize(thread, clone->byteStorage) == 8 * bytesPerSample);
+    Arcadia_Tests_assertTrue(thread, !memcmp(clone->bytes, buffer->bytes, 8 * bytesPerSample));
+    Arcadia_Natural8Value original = clone->bytes[0];
+    buffer->bytes[0] ^= 0x5a;
+    Arcadia_Tests_assertTrue(thread, clone->bytes[0] == original);
+    Arcadia_ValueStack_popValues(thread, 3);
+
+    Arcadia_Media_SampleBuffer* empty = Arcadia_Media_SampleBuffer_create(thread, 0, 8, formats[i]);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, empty);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getSize(thread,
+      Arcadia_Media_SampleBuffer_getSampleBytes(thread, empty)) == 0);
+    Arcadia_ValueStack_popValues(thread, 1);
+  }
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+static int
+runManagedStorage
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testManagedStorage) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -204,6 +267,7 @@ main
     { "Integer8DspFill", &runInteger8DspFill },
     { "Dimensions", &runDimensions },
     { "PcmSilenceAndClone", &runPcmSilenceAndClone },
+    { "ManagedStorage", &runManagedStorage },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

@@ -20,6 +20,7 @@
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
   #error("do not include directly, include `Arcadia/Media/Include.h` instead")
 #endif
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Ring2/Include.h"
 #include "Arcadia/Media/SampleFormat.h"
 
@@ -35,7 +36,8 @@ struct Arcadia_Media_SampleBufferDispatch {
 
 struct Arcadia_Media_SampleBuffer {
   Arcadia_Object _parent;
-  /// A pointer to the Bytes of this sample buffer.
+  /// A borrowed native PCM pointer into byteStorage; do not free or resize it.
+  /// Keep this SampleBuffer alive while consuming bytes (for example in OpenAL).
   Arcadia_Natural8Value* bytes;
   /// The sample format of this sample buffer.
   Arcadia_Media_SampleFormat sampleFormat;
@@ -43,6 +45,8 @@ struct Arcadia_Media_SampleBuffer {
   Arcadia_Integer32Value length;
   /// The sample rate, in Hz, of this sample buffer.
   Arcadia_Integer32Value sampleRate;
+  /// Fixed-size, mutable, contiguous ByteArray that owns the PCM allocation.
+  Arcadia_ByteArray* byteStorage;
 };
 
 /// @brief Get the sample format of this sample buffer.
@@ -70,6 +74,17 @@ Arcadia_Media_SampleBuffer_getSampleRate
 /// @return The length, in seconds, of this sample buffer.
 Arcadia_Integer32Value
 Arcadia_Media_SampleBuffer_getLength
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_SampleBuffer* self
+  );
+
+/// @brief Return the owning mutable, fixed-size contiguous PCM ByteArray.
+/// @details The old bytes field borrows this storage for native C consumers.
+/// Keep the SampleBuffer rooted while using the borrowed pointer. This API
+/// does not transport native addresses through PDL.
+Arcadia_ByteArray*
+Arcadia_Media_SampleBuffer_getSampleBytes
   (
     Arcadia_Thread* thread,
     Arcadia_Media_SampleBuffer* self

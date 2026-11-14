@@ -967,6 +967,9 @@ renderImpl
                                                            (Arcadia_Real32Value)(self->scrollY + ((Arcadia_Engine_UI_WidgetNode*)self)->height),
                                                            -1.f, +1.f);
     Arcadia_Engine_Visuals_CameraNode_setViewToProjectionMatrix(thread, self->cameraNode, viewToProjectionMatrix);
+    // The content pass has already cleared the viewport and drawn the child
+    // widgets. The scrollbar pass must preserve those pixels.
+    Arcadia_Engine_Visuals_ViewportNode_setClearColorBuffer(thread, self->viewportNode, Arcadia_BooleanValue_False);
     Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)enterPassNode, enterPassNode);
     updateScrollbarVertices(thread, self);
     Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)self->scrollbarMaterial, enterPassNode);
@@ -979,6 +982,8 @@ renderImpl
       Arcadia_Engine_Visuals_Resource_render(thread, (Arcadia_Engine_Visuals_Resource*)self->scrollbarModelResource, enterPassNode->enterPassResource);
     }
   }
+  // Restore the initial clear policy for the next content pass.
+  Arcadia_Engine_Visuals_ViewportNode_setClearColorBuffer(thread, self->viewportNode, Arcadia_BooleanValue_True);
   Arcadia_Engine_Visuals_EnterPassNode_setViewportNode(thread, enterPassNode, previousViewportNode);
   Arcadia_Engine_Visuals_EnterPassNode_setCameraNode(thread, enterPassNode, previousCameraNode);
   Arcadia_Engine_Visuals_Node_render(thread, (Arcadia_Engine_Visuals_Node*)enterPassNode, enterPassNode);
