@@ -4,7 +4,8 @@
 
 - AI agents may create dedicated working branches from `develop` for user-selected tasks. Never branch from another task branch.
 - AI agents may edit files, stage changes, create commits, amend commits, rebase their own working branches, and push those working branches to the remote.
-- Each working branch must contain exactly one task commit not present in `develop`. Amend or squash changes rather than leaving additional commits.
+- AI agents may create multiple intermediate commits on their dedicated working branches during development.
+- Before declaring a task complete or handing it over, squash all task commits into exactly one commit not present in `develop`.
 - Before handover, rebase the working branch onto the latest `develop`, then verify that exactly one task commit remains ahead of `develop`.
 - Push the working branch so that the result is recoverable from GitHub, and document its branch, commit, and verification results in the corresponding Arcadia ALM issue.
 
