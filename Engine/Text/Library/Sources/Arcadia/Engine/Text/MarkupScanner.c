@@ -121,7 +121,7 @@ getDiagnosticsImpl
   );
 
 static const Arcadia_ObjectType_Operations objectTypeOperations = { Arcadia_ObjectType_Operations_Initializer, .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructImpl, .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl, .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl };
-static const Arcadia_Type_Operations typeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objectTypeOperations };
+static const Arcadia_TypeDescriptor_Operations typeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &objectTypeOperations };
 Arcadia_defineObjectType(u8"Arcadia.Engine.Text.MarkupScanner", Arcadia_Engine_Text_MarkupScanner, u8"Arcadia.Languages.Scanner", Arcadia_Languages_Scanner, &typeOperations);
 
 static void

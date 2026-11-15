@@ -65,8 +65,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructImpl,
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objectOperations,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &objectOperations,
 };
 Arcadia_defineObjectType(u8"Arcadia.Engine.UI.BindingRowController", Arcadia_Engine_UI_BindingRowController,
                          u8"Arcadia.Object", Arcadia_Object, &typeOperations)
