@@ -195,6 +195,73 @@ runTifWriterSupportedTypesGc(void)
 { return Arcadia_Tests_safeExecute(&testTifWriterSupportedTypesGc) ? EXIT_SUCCESS : EXIT_FAILURE; }
 #endif
 
+
+#if Arcadia_Configuration_OperatingSystem_Linux == Arcadia_Configuration_OperatingSystem
+// Decode the actual 32-bit BMP V4 payload to catch incorrect RGBA input stride.
+static void
+testRgbaBmpPixels
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_String* extension = Arcadia_String_createFromCxxString(thread, u8"bmp");
+  Arcadia_Object_lock(thread, (Arcadia_Object*)extension);
+  Arcadia_Imaging_ImageManager* manager = Arcadia_Imaging_ImageManager_getOrCreate(thread);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)manager);
+  Arcadia_List* writers = Arcadia_Imaging_ImageManager_getWriters(thread, manager, extension);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)writers);
+  Arcadia_Imaging_ImageWriter* writer = (Arcadia_Imaging_ImageWriter*)Arcadia_List_getObjectReferenceValueAt(thread, writers, 0);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)writer);
+  Arcadia_Media_PixelBuffer* pixels = Arcadia_Media_PixelBuffer_create(thread, 3, 2, 2, Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)pixels);
+  Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 0, 0, 255, 0, 0, 255);
+  Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 1, 0, 0, 0, 255, 255);
+  Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 0, 1, 0, 255, 0, 255);
+  Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 1, 1, 255, 255, 0, 255);
+  Arcadia_List* sources = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)sources);
+  Arcadia_List_insertBackObjectReferenceValue(thread, sources, pixels);
+  Arcadia_ByteArrayBuilder* output = Arcadia_ByteArrayBuilder_create(thread);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)output);
+  Arcadia_Imaging_ImageWriterParameters* parameters = Arcadia_Imaging_ImageWriterParameters_createByteBuffer(thread, output, extension);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)parameters);
+  Arcadia_Imaging_ImageWriter_write(thread, writer, sources, parameters);
+  Arcadia_SizeValue length = Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, output);
+  Arcadia_Tests_assertTrue(thread, length >= 138);
+  unsigned char const* data = Arcadia_ByteArrayBuilder_getBytes(thread, output);
+  Arcadia_Tests_assertTrue(thread, data[0] == 'B' && data[1] == 'M');
+  Arcadia_SizeValue offset = (Arcadia_SizeValue)data[10] | ((Arcadia_SizeValue)data[11] << 8) |
+                             ((Arcadia_SizeValue)data[12] << 16) | ((Arcadia_SizeValue)data[13] << 24);
+  Arcadia_Tests_assertTrue(thread, data[28] == 32 && data[29] == 0);
+  Arcadia_Tests_assertTrue(thread, data[30] == 3 && data[31] == 0);
+  Arcadia_Tests_assertTrue(thread, offset == 122 && length - offset >= 16);
+  // Bottom-up BGRA, 8 bytes per row. Check both colors and alpha.
+  Arcadia_Tests_assertTrue(thread, data[offset + 0] == 0 && data[offset + 1] == 255 &&
+                                   data[offset + 2] == 0 && data[offset + 3] == 255);
+  Arcadia_Tests_assertTrue(thread, data[offset + 4] == 0 && data[offset + 5] == 255 &&
+                                   data[offset + 6] == 255 && data[offset + 7] == 255);
+  Arcadia_Tests_assertTrue(thread, data[offset + 8] == 0 && data[offset + 9] == 0 &&
+                                   data[offset + 10] == 255 && data[offset + 11] == 255);
+  Arcadia_Tests_assertTrue(thread, data[offset + 12] == 255 && data[offset + 13] == 0 &&
+                                   data[offset + 14] == 0 && data[offset + 15] == 255);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)parameters);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)output);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)sources);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)pixels);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)writer);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)writers);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)manager);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)extension);
+}
+
+static int
+runRgbaBmpPixels
+  (
+    void
+  )
+{ return Arcadia_Tests_safeExecute(&testRgbaBmpPixels) ? EXIT_SUCCESS : EXIT_FAILURE; }
+#endif
+
 static int
 runTests
   (
@@ -217,6 +284,9 @@ main
   static const Arcadia_Testing_Case cases[] = {
     { "WriteBMPTests", &runTests },
     { "ManagedPixelStorage", &runManagedPixelStorage },
+#if Arcadia_Configuration_OperatingSystem_Linux == Arcadia_Configuration_OperatingSystem
+    { "RgbaBmpPixels", &runRgbaBmpPixels },
+#endif
 #if Arcadia_Configuration_OperatingSystem_Windows == Arcadia_Configuration_OperatingSystem
     { "TifWriterSupportedTypesGc", &runTifWriterSupportedTypesGc },
 #endif

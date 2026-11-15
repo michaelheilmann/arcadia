@@ -48,12 +48,21 @@ writeCallback
     int size
   )
 {
+  // stb has no callback error channel. Preserve the first append error.
+  if (context->status != Arcadia_Status_Success) {
+    return;
+  }
   Arcadia_Process* process = context->process;
   Arcadia_Thread* thread = Arcadia_Process_getThread(process);
   Arcadia_JumpTarget jumpTarget;
   Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
   if (Arcadia_JumpTarget_save(&jumpTarget)) {
     Arcadia_ByteArrayBuilder_insertBackBytes(thread, context->byteArrayBuilder, data, size);
+  } else {
+    context->status = Arcadia_Thread_getStatus(thread);
+    if (context->status == Arcadia_Status_Success) {
+      context->status = Arcadia_Status_EnvironmentFailed;
+    }
   }
   Arcadia_Thread_popJumpTarget(thread);
 }
@@ -206,7 +215,7 @@ Arcadia_Imaging_Linux_BMPImageWriter_writeBmpToByteBufferImpl
       sourcePixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
       Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
       Arcadia_Media_PixelBuffer_setLinePadding(thread, sourcePixelBuffer, 0);
-      components = 3;
+      components = 4;
     } break;
 
     case Arcadia_Media_PixelFormat_BlueGreenRedNatural8: {
@@ -235,7 +244,9 @@ Arcadia_Imaging_Linux_BMPImageWriter_writeBmpToByteBufferImpl
                               components,
                               Arcadia_ByteArray_getBytes(thread,
                                 Arcadia_Media_PixelBuffer_getPixelBytes(thread, sourcePixelBuffer)))) {
-    context.status = Arcadia_Status_EnvironmentFailed;
+    if (context.status == Arcadia_Status_Success) {
+      context.status = Arcadia_Status_EnvironmentFailed;
+    }
   }
   if (context.status) {
     Arcadia_Thread_setStatus(thread, context.status);
