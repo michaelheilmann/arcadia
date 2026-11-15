@@ -34,9 +34,9 @@ _Static_assert(sizeof(Arcadia_Media_VertexElementSyntactics) == sizeof(Arcadia_I
 _Static_assert(_Alignof(Arcadia_Media_VertexElementSemantics) == _Alignof(Arcadia_Integer32Value), "semantics alignment");
 _Static_assert(_Alignof(Arcadia_Media_VertexElementSyntactics) == _Alignof(Arcadia_Integer32Value), "syntactics alignment");
 _Static_assert(_Generic(&_Arcadia_Media_VertexElementSemantics_getType,
-  Arcadia_TypeValue (*)(Arcadia_Thread*): 1, default: 0), "semantics descriptor signature");
+  Arcadia_TypeDescriptorValue (*)(Arcadia_Thread*): 1, default: 0), "semantics descriptor signature");
 _Static_assert(_Generic(&_Arcadia_Media_VertexElementSyntactics_getType,
-  Arcadia_TypeValue (*)(Arcadia_Thread*): 1, default: 0), "syntactics descriptor signature");
+  Arcadia_TypeDescriptorValue (*)(Arcadia_Thread*): 1, default: 0), "syntactics descriptor signature");
 _Static_assert(_Generic(&Arcadia_Media_VertexElementDescriptor_create,
   Arcadia_Media_VertexElementDescriptor* (*)(Arcadia_Thread*, Arcadia_Natural8Value,
     Arcadia_Media_VertexElementSemantics, Arcadia_Media_VertexElementSyntactics): 1, default: 0), "native element factory signature");
@@ -62,7 +62,7 @@ static void
 checkType
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     const char* expectedName
   )
 {
@@ -70,7 +70,7 @@ checkType
   Arcadia_Name* name = Arcadia_Type_getName(thread, type);
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == strlen(expectedName));
   Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_Name_getBytes(thread, name), expectedName, strlen(expectedName)));
-  Arcadia_Tests_assertTrue(thread, Arcadia_getType(thread, name) == type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, name) == type);
 }
 
 static void
@@ -156,12 +156,12 @@ test
 {
   Arcadia_SizeValue entry = Arcadia_ValueStack_getSize(thread);
   for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural64Value(thread, i);
-  Arcadia_TypeValue semanticsType = _Arcadia_Media_VertexElementSemantics_getType(thread);
+  Arcadia_TypeDescriptorValue semanticsType = _Arcadia_Media_VertexElementSemantics_getType(thread);
   for (Arcadia_SizeValue i = 0; i < 3; ++i) {
     Arcadia_Value value = Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(semanticsType, semantics[i]));
     Arcadia_ValueStack_pushValue(thread, &value);
   }
-  Arcadia_TypeValue syntacticsType = _Arcadia_Media_VertexElementSyntactics_getType(thread);
+  Arcadia_TypeDescriptorValue syntacticsType = _Arcadia_Media_VertexElementSyntactics_getType(thread);
   for (Arcadia_SizeValue i = 0; i < 4; ++i) {
     Arcadia_Value value = Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(syntacticsType, syntactics[i]));
     Arcadia_ValueStack_pushValue(thread, &value);

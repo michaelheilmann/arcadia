@@ -112,8 +112,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_MyObjectA_objectTypeOperatio
     (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_MyObjectA_initializeObjectDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_MyObjectA_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_MyObjectA_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_MyObjectA_objectTypeOperations,
 };
 
@@ -178,12 +178,12 @@ testInterfaceOperation
     Arcadia_Thread* thread
   )
 {
-  Arcadia_TypeValue interfaceType = _Arcadia_MyInterfaceA_getType(thread);
-  Arcadia_TypeValue objectType = _Arcadia_MyObjectA_getType(thread);
+  Arcadia_TypeDescriptorValue interfaceType = _Arcadia_MyInterfaceA_getType(thread);
+  Arcadia_TypeDescriptorValue objectType = _Arcadia_MyObjectA_getType(thread);
 
   // The object type derives from "Arcadia.Object" and implements the interface type.
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isInterfacelKind(thread, interfaceType));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isObjectKind(thread, objectType));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isInterfaceKind(thread, interfaceType));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isObjectKind(thread, objectType));
   Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectType, interfaceType));
 
   Arcadia_Object* object = (Arcadia_Object*)Arcadia_MyObjectA_create(thread);

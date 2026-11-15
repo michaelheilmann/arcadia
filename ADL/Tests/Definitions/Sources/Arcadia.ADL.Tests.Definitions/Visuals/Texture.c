@@ -36,15 +36,15 @@ _Static_assert(Arcadia_ADL_TextureAddressMode_Repeat == 3, "Repeat changed");
 _Static_assert(sizeof(Arcadia_ADL_TextureFilter) == sizeof(Arcadia_Integer32Value), "Filter ABI changed");
 _Static_assert(sizeof(Arcadia_ADL_TextureAddressMode) == sizeof(Arcadia_Integer32Value), "Address mode ABI changed");
 _Static_assert(_Generic(&_Arcadia_ADL_TextureFilter_getType,
-  Arcadia_TypeValue (*)(Arcadia_Thread*): 1, default: 0), "Filter descriptor signature changed");
+  Arcadia_TypeDescriptorValue (*)(Arcadia_Thread*): 1, default: 0), "Filter descriptor signature changed");
 _Static_assert(_Generic(&_Arcadia_ADL_TextureAddressMode_getType,
-  Arcadia_TypeValue (*)(Arcadia_Thread*): 1, default: 0), "Address mode descriptor signature changed");
+  Arcadia_TypeDescriptorValue (*)(Arcadia_Thread*): 1, default: 0), "Address mode descriptor signature changed");
 
 static void
 checkEnumeration
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     const char* expectedName,
     const Arcadia_Integer32Value* values,
     Arcadia_SizeValue count
@@ -55,13 +55,13 @@ checkEnumeration
   Arcadia_Name* name = Arcadia_Type_getName(thread, type);
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == strlen(expectedName));
   Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_Name_getBytes(thread, name), expectedName, strlen(expectedName)));
-  Arcadia_Tests_assertTrue(thread, Arcadia_getType(thread, name) == type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, name) == type);
   for (Arcadia_SizeValue i = 0; i < count; ++i) {
     Arcadia_Value value = Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(type, values[i]));
     Arcadia_ValueStack_pushValue(thread, &value);
   }
   Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
-  Arcadia_Tests_assertTrue(thread, Arcadia_getType(thread, name) == type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, name) == type);
   for (Arcadia_SizeValue i = 0; i < count; ++i) {
     Arcadia_Value value = Arcadia_ValueStack_getValue(thread, count - 1 - i);
     Arcadia_Tests_assertTrue(thread, Arcadia_Value_isEnumerationValue(&value));

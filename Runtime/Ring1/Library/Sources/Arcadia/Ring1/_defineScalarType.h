@@ -20,7 +20,7 @@
 #include "Arcadia/Ring1/Include.h"
 
 #define Arcadia_defineScalarType(cName, cilName, typeOperations) \
-  static Arcadia_Type* g_##cName##_type = NULL; \
+  static Arcadia_TypeDescriptor* g_##cName##_type = NULL; \
 \
   static void \
   _##cName##_typeDestructing \
@@ -29,7 +29,7 @@
     ) \
   { g_##cName##_type = NULL; } \
 \
-  Arcadia_TypeValue \
+  Arcadia_TypeDescriptorValue \
   _##cName##Value_getType \
     ( \
       Arcadia_Thread* thread \

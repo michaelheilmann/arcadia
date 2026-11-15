@@ -88,8 +88,8 @@ Arcadia_Value_visit
     case Arcadia_ValueTag_Size: {
       /* Intentionally empty. */
     } break;
-    case Arcadia_ValueTag_Type: {
-      Arcadia_Type_visit(thread, self->typeValue);
+    case Arcadia_ValueTag_TypeDescriptor: {
+      Arcadia_Type_visit(thread, self->typeDescriptorValue);
     } break;
     case Arcadia_ValueTag_Void: {
       /* Intentionally empty. */
@@ -105,7 +105,7 @@ Arcadia_Value_visit
 }
 
 Arcadia_TypeValue
-Arcadia_Value_getType
+Arcadia_Value_getTypeDescriptor
   (
     Arcadia_Thread* thread,
     Arcadia_Value const* self
@@ -166,8 +166,8 @@ Arcadia_Value_getType
     case Arcadia_ValueTag_Size: {
       return _Arcadia_SizeValue_getType(thread);
     } break;
-    case Arcadia_ValueTag_Type: {
-      return _Arcadia_Type_getType(thread);
+    case Arcadia_ValueTag_TypeDescriptor: {
+      return _Arcadia_TypeDescriptor_getType(thread);
     } break;
     case Arcadia_ValueTag_Void: {
       return _Arcadia_VoidValue_getType(thread);
@@ -236,11 +236,11 @@ Arcadia_Value_isEqualTo
     case Arcadia_ValueTag_ObjectReference: {
       return Arcadia_Object_isEqualTo(thread, self->objectReferenceValue, other);
     } break;
-    case Arcadia_ValueTag_Type: {
-      if (!Arcadia_Value_isTypeValue(other)) {
+    case Arcadia_ValueTag_TypeDescriptor: {
+      if (!Arcadia_Value_isTypeDescriptorValue(other)) {
         return Arcadia_BooleanValue_False;
       }
-      return self->typeValue == other->typeValue;
+      return self->typeDescriptorValue == other->typeDescriptorValue;
     } break;
     case Arcadia_ValueTag_Enumeration: {
       return self->enumerationValue.type == other->enumerationValue.type
@@ -305,7 +305,7 @@ Arcadia_Value_isLowerThan
       Arcadia_ValueStack_popValues(thread, 1);
       return v;
     } break;
-    case Arcadia_ValueTag_Type: {
+    case Arcadia_ValueTag_TypeDescriptor: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
       Arcadia_Thread_jump(thread);
     } break;
@@ -359,7 +359,7 @@ Arcadia_Value_isLowerThanOrEqualTo
       Arcadia_ValueStack_popValues(thread, 1);
       return v;
     } break;
-    case Arcadia_ValueTag_Type: {
+    case Arcadia_ValueTag_TypeDescriptor: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
       Arcadia_Thread_jump(thread);
     } break;
@@ -413,7 +413,7 @@ Arcadia_Value_isGreaterThan
       Arcadia_ValueStack_popValues(thread, 1);
       return v;
     } break;
-    case Arcadia_ValueTag_Type: {
+    case Arcadia_ValueTag_TypeDescriptor: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
       Arcadia_Thread_jump(thread);
     } break;
@@ -467,7 +467,7 @@ Arcadia_Value_isGreaterThanOrEqualTo
       Arcadia_ValueStack_popValues(thread, 1);
       return v;
     } break;
-    case Arcadia_ValueTag_Type: {
+    case Arcadia_ValueTag_TypeDescriptor: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
       Arcadia_Thread_jump(thread);
     } break;
@@ -529,8 +529,8 @@ Arcadia_Value_getHash
     case Arcadia_ValueTag_ObjectReference: {
       return Arcadia_Object_getHash(thread, self->objectReferenceValue);
     } break;
-    case Arcadia_ValueTag_Type: {
-      return Arcadia_Type_getHash(thread, self->typeValue);
+    case Arcadia_ValueTag_TypeDescriptor: {
+      return Arcadia_TypeDescriptor_getHash(thread, self->typeDescriptorValue);
     } break;
     case Arcadia_ValueTag_Enumeration: {
       return (Arcadia_SizeValue)self->enumerationValue.value ^ Arcadia_Type_getHash(thread, self->enumerationValue.type);
@@ -581,8 +581,8 @@ Arcadia_Value_isInstanceOf
     case Arcadia_ValueTag_ObjectReference: {
       return Arcadia_Object_isInstanceOf(thread, self->objectReferenceValue, type);
     } break;
-    case Arcadia_ValueTag_Type: {
-      return _Arcadia_Type_getType(thread) == type;
+    case Arcadia_ValueTag_TypeDescriptor: {
+      return _Arcadia_TypeDescriptor_getType(thread) == type;
     } break;
     case Arcadia_ValueTag_Enumeration: {
       return self->enumerationValue.type == type;

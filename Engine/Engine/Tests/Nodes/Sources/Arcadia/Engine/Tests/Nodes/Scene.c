@@ -259,8 +259,8 @@ static const Arcadia_ObjectType_Operations probeObjects = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeProbe,
 };
 
-static const Arcadia_Type_Operations probeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations probeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &probeObjects,
 };
 
@@ -272,7 +272,7 @@ static Arcadia_Engine_Scene*
 createScene
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Engine* engine,
     Arcadia_Engine_SceneManager* manager
   )
@@ -451,7 +451,7 @@ testConstructorErrors
     Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void), Arcadia_Value_makeBooleanValue(false),
     Arcadia_Value_makeInteger32Value(0), Arcadia_Value_makeNatural64Value(0),
     Arcadia_Value_makeSizeValue(0), Arcadia_Value_makeReal64Value(0.),
-    Arcadia_Value_makeObjectReferenceValue(wrong), Arcadia_Value_makeTypeValue(_Arcadia_Engine_getType(thread)),
+    Arcadia_Value_makeObjectReferenceValue(wrong), Arcadia_Value_makeTypeDescriptorValue(_Arcadia_Engine_getType(thread)),
   };
   for (unsigned parameter = 0; parameter < 2; ++parameter) {
     for (unsigned i = 0; i <= sizeof(bad) / sizeof(bad[0]); ++i) {

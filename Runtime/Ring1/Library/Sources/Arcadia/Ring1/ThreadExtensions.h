@@ -103,7 +103,7 @@ Define(Arcadia_Real32Value, Real32Value)
 Define(Arcadia_Real64Value, Real64Value)
 Define(Arcadia_ObjectReferenceValue, ObjectReferenceValue)
 Define(Arcadia_SizeValue, SizeValue)
-Define(Arcadia_TypeValue, TypeValue)
+Define(Arcadia_TypeDescriptorValue, TypeValue)
 Define(Arcadia_VoidValue, VoidValue)
 
 #undef Define
@@ -113,7 +113,7 @@ Arcadia_ValueStack_getObjectReferenceValueChecked
   (
     Arcadia_Thread* thread,
     Arcadia_SizeValue index,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   Arcadia_ObjectReferenceValue objectReferenceValue = Arcadia_ValueStack_getObjectReferenceValue(thread, index);

@@ -127,7 +127,7 @@ findTypeByName
     Arcadia_Value y
   )
 {
-  Arcadia_Type* yy = Arcadia_Value_getTypeValue(&y);
+  Arcadia_TypeDescriptor* yy = Arcadia_Value_getTypeDescriptorDescriptorValue(&y);
   Arcadia_Name* b = Arcadia_Type_getName(thread, yy);
   Arcadia_String* a = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&x);
   return Arcadia_String_getNumberOfBytes(thread, a) == Arcadia_Name_getNumberOfBytes(thread, b)
@@ -163,11 +163,11 @@ Arcadia_Engine_ApplicationHelper_startupVisuals
     if (Arcadia_JumpTarget_save(&jumpTarget)) {
       Arcadia_String* backendTypeName = Arcadia_Engine_ApplicationConfiguration_getString(thread, (Arcadia_DDL_Node*)configuration, path, 2);
       Arcadia_Value backendTypeValue = Arcadia_HashSet_findFirst(thread, (Arcadia_HashSet*)engine->visualsBackendTypes, Arcadia_Value_makeObjectReferenceValue(backendTypeName), &findTypeByName);
-      if (!Arcadia_Value_isTypeValue(&backendTypeValue)) {
+      if (!Arcadia_Value_isTypeDescriptorValue(&backendTypeValue)) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }
-      Arcadia_Type* backendType = Arcadia_Value_getTypeValue(&backendTypeValue);
+      Arcadia_TypeDescriptor* backendType = Arcadia_Value_getTypeDescriptorDescriptorValue(&backendTypeValue);
       if (!Arcadia_Type_isDescendantType(thread, backendType, _Arcadia_Engine_Visuals_Backend_getType(thread))) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
@@ -180,11 +180,11 @@ Arcadia_Engine_ApplicationHelper_startupVisuals
       Arcadia_String* backendTypeName = Arcadia_String_createFromCxxString(thread, u8"Arcadia.Visuals.Implementation.OpenGL4.Backend");
       Arcadia_Engine_ApplicationConfiguration_setString(thread, (Arcadia_DDL_Node*)configuration, path, 2, backendTypeName);
       Arcadia_Value backendTypeValue = Arcadia_HashSet_findFirst(thread, (Arcadia_HashSet*)engine->visualsBackendTypes, Arcadia_Value_makeObjectReferenceValue(backendTypeName), &findTypeByName);
-      if (!Arcadia_Value_isTypeValue(&backendTypeValue)) {
+      if (!Arcadia_Value_isTypeDescriptorValue(&backendTypeValue)) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }
-      Arcadia_Type* backendType = Arcadia_Value_getTypeValue(&backendTypeValue);
+      Arcadia_TypeDescriptor* backendType = Arcadia_Value_getTypeDescriptorDescriptorValue(&backendTypeValue);
       if (!Arcadia_Type_isDescendantType(thread, backendType, _Arcadia_Engine_Visuals_Backend_getType(thread))) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
@@ -390,11 +390,11 @@ Arcadia_Engine_ApplicationHelper_startupVisuals
       Arcadia_List* temporary = (Arcadia_List*)Arcadia_ArrayList_create(thread);
       Arcadia_Set_getAll(thread, engine->visualsNodeFactoryTypes, temporary);
       Arcadia_Value nodeFactoryTypeValue = Arcadia_List_getAt(thread, temporary, 0);
-      if (!Arcadia_Value_isTypeValue(&nodeFactoryTypeValue)) {
+      if (!Arcadia_Value_isTypeDescriptorValue(&nodeFactoryTypeValue)) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }
-      Arcadia_Type* nodeFactoryType = Arcadia_Value_getTypeValue(&nodeFactoryTypeValue);
+      Arcadia_TypeDescriptor* nodeFactoryType = Arcadia_Value_getTypeDescriptorDescriptorValue(&nodeFactoryTypeValue);
       if (!Arcadia_Type_isDescendantType(thread, nodeFactoryType, _Arcadia_Engine_Visuals_NodeFactory_getType(thread))) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);

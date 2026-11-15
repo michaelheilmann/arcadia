@@ -95,7 +95,7 @@ Arcadia_RuntimeByteArray_getNumberOfBytes
   );
 
 /// @return A pointer to an "foreign value" type of name "Arcadia.ImmutableByteArray".
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_RuntimeByteArrayValue_getType
   (
     Arcadia_Thread* thread

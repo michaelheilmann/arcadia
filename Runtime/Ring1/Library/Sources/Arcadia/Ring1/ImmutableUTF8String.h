@@ -464,7 +464,7 @@ Arcadia_RuntimeUTF8String_toVoid
   );
 
 /// @return A pointer to an "foreign value" type of name "Arcadia.RuntimeUTF8String".
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_RuntimeUTF8StringValue_getType
   (
     Arcadia_Thread* thread
