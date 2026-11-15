@@ -321,7 +321,7 @@ Arcadia_StringBuilder_insertAt
     Arcadia_Thread_jump(thread);
   }
   // byteIndex is the index at which to insert the elements
-  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
+  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptorDescriptor(thread, &value);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
   if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
@@ -375,7 +375,7 @@ Arcadia_StringBuilder_insertBack
     Arcadia_Value value
   )
 {
-  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
+  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptorDescriptor(thread, &value);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
   if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
@@ -426,7 +426,7 @@ Arcadia_StringBuilder_insertFront
     Arcadia_Value value
   )
 {
-  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
+  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptorDescriptor(thread, &value);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
   if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
@@ -522,7 +522,7 @@ Arcadia_StringBuilder_compareTo
     Arcadia_Value other
   )
 {
-  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &other);
+  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptorDescriptor(thread, &other);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
   if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
