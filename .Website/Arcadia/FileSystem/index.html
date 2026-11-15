@@ -1320,7 +1320,7 @@ On Windows, this operation identifies any reparse point, including junctions, ra
   <h1 id="Arcadia_FileSystem_getFileContents">Arcadia_FileSystem_getFileContents</h1>
 
   <my-signature><code>
-  Arcadia_ByteBuffer*<br>
+  Arcadia_ByteArrayBuilder*<br>
   Arcadia_FileSystem_getFileContents<br>
   &nbsp;&nbsp;(<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
@@ -1352,7 +1352,7 @@ On Windows, this operation identifies any reparse point, including junctions, ra
   <section class="cxx return-value">
     <h1>Return value</h1>
     <p>
-    A pointer to a <code>Arcadia_ByteBuffer</code> object with the file contents.
+    A pointer to a <code>Arcadia_ByteArrayBuilder</code> object with the file contents.
     </p>
   </section>
 
@@ -1866,7 +1866,7 @@ On Windows, this operation identifies any reparse point, including junctions, ra
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteBuffer* contents<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* contents<br>
   &nbsp;&nbsp;)
   </code></my-signature>
 
@@ -1889,8 +1889,8 @@ On Windows, this operation identifies any reparse point, including junctions, ra
       <div>The file path of the file.</div>
     </div>
     <div>
-      <div>Arcadia_ByteBuffer* contents</div>
-      <div>A poiner to the Byte buffer with the file contents.</div>
+      <div>Arcadia_ByteArrayBuilder* contents</div>
+      <div>A pointer to the <code>Arcadia_ByteArrayBuilder</code> object whose bytes are written to the file.</div>
     </div>
   </section>
 
@@ -2043,7 +2043,7 @@ The enumeration elements cannot be combined.
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 15 November 2026.</div>
+    <div>Last modified on 16 November 2026.</div>
     </div>
   </div>
   <div class="center-column">
