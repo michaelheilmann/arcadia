@@ -11,6 +11,12 @@ an instance's lifetime. They are independent of memory ownership.</p>
 <code>Arcadia_Status_OperationInvalid</code> when unsupported, before validating
 an index or requested size. Invalid indexes of supporting implementations
 must raise <code>Arcadia_Status_ArgumentValueInvalid</code>.</p>
+<p>Resizable native-backed instances also support checked bulk insertion via
+<code>Arcadia_ByteArray_insertBytes</code>,
+<code>Arcadia_ByteArray_appendBytes</code> and
+<code>Arcadia_ByteArray_prependBytes</code>. These operations preserve
+overlapping source bytes and can relocate backing storage. Unsupported
+instances raise <code>Arcadia_Status_OperationInvalid</code>.</p>
 <p>The existing <code>RuntimeByteArray</code> wrapper and legacy slice views
 are immutable, fixed-size and contiguous. A slice retains its backing object;
 its bounds are validated without arithmetic overflow. Slices remain read-only

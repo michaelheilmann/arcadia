@@ -9,7 +9,7 @@
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FileSystem* self,<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_FilePath* path,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteBuffer* contents<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArrayBuilder* contents<br>
   &nbsp;&nbsp;)
   </code></my-signature>
 
@@ -32,8 +32,8 @@
       <div>The file path of the file.</div>
     </div>
     <div>
-      <div>Arcadia_ByteBuffer* contents</div>
-      <div>A poiner to the Byte buffer with the file contents.</div>
+      <div>Arcadia_ByteArrayBuilder* contents</div>
+      <div>A pointer to the <code>Arcadia_ByteArrayBuilder</code> object whose bytes are written to the file.</div>
     </div>
   </section>
 
