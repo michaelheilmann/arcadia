@@ -3,6 +3,10 @@
 ## Working Branches And Commits
 
 - AI agents may create dedicated working branches from `develop` for user-selected tasks. Never branch from another task branch.
+- AI working branch names must begin with the primary Arcadia ALM issue number, followed by a concise lowercase, hyphen-separated task description: `<issue-number>-<description>` (for example, `185-standardize-ai-branch-commit-names`).
+- Each AI working branch must have exactly one primary Arcadia ALM issue. Arcadia ALM (`michaelheilmann/arcadia-alm`) is the canonical issue-number namespace across Arcadia repositories; the branch number and its task commit's issue number must match.
+- The task commit subject must begin with `[#<issue-number>] ` followed by a concise imperative description (for example, `[#185] Standardize AI branch and commit naming`). Intermediate task commits should also use this prefix.
+- Apply these conventions to newly created AI working branches. Do not automatically rename existing branches solely to satisfy these conventions.
 - AI agents may edit files, stage changes, create commits, amend commits, rebase their own working branches, and push those working branches to the remote.
 - AI agents may create multiple intermediate commits on their dedicated working branches during development.
 - Before declaring a task complete or handing it over, squash all task commits into exactly one commit not present in `develop`.
