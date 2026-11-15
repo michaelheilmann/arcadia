@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | PDLC SemanticalAnalysis | Compilation writes headers/bodies into module trees; `FileSystem` exercises FreshDirectories and blocked/missing paths. Diagnostic flags are process-local. | Each CTest case gets its own pristine copy of source Assets. No callback/error boundary or fixture loop is split. |
 | TemplateEngine AtAt, BuiltInProcedures, HelloWorld, RecursiveIncludes | Relative templates/includes, output text and dependency files. RecursiveIncludes retains grouped expected-error callbacks. | Copy source Assets into each private working directory. Never seed from previously generated build-tree outputs. |
-| PixelBufferIO WriteBMPTests / WritePNGTests | Six fixed image filenames per callback; image-manager state is process-local. | Private empty working directory; original grouped callback retained. |
+| PixelBufferIO WritePNGTests | Six fixed image filenames per callback; image-manager state is process-local. | Private empty working directory; original grouped callback retained. |
 | FileSystem FileContentsTests | Native temporary-file API, overwrite/read/delete sequence. | Private working directory and TMP/TEMP/TMPDIR; unsuccessful runs can leave only uniquely scoped build-tree files. |
 | Runtime Testing runner self-tests | Process-wide stdout/stderr redirection and callback counters; unique temporary captures deleted on close. | Retain one serial suite-level workload. Do not split the capture orchestration. |
 | Discovery infrastructure | CMake registration state, fixture generation, nested configure/build/test operations. | Serial orchestration; uniquely scoped disposable integration/unit-test roots. The isolated writer fixture itself supports parallel cases. |
@@ -84,10 +84,11 @@ T04 validates writing cases first with fresh copies and repetitions, then random
 and concurrent runs. No process/ARMS/GC/expected-error group is refactored, and no
 repository-wide parallel CI policy is enabled by this work.
 
-The eight isolated writer suites in the first four inventory rows explicitly opt
-in to parallel scheduling after their serial/randomized gates: SemanticalAnalysis,
-the four TemplateEngine suites, BMP/PNG and FileContentsTests. There were 25 cases
-at T04 close; T05's independent semantic-fixture callbacks bring this to 80 without
-changing the scheduling policy or enabling another suite.
+The seven remaining isolated test suites in the first four inventory rows retain their
+parallel scheduling opt-in after the original serial/randomized gates: SemanticalAnalysis,
+the four TemplateEngine suites, PNG and FileContentsTests. Historically, there were
+eight suites and 25 cases at T04 close (including the since-removed BMP suite);
+T05's independent semantic-fixture callbacks raised the historical total to 80.
+The BMP removal does not change the scheduling policy of the remaining suites.
 All remaining production test suites and infrastructure orchestration stay serial.
 Single-config builds without a build type use `Default` as the workspace partition.
