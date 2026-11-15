@@ -66,8 +66,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_Engine_FontCache_objectTypeO
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_FontCache_visit,
 };
 
-static const Arcadia_Type_Operations _Arcadia_Engine_FontCache_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_Engine_FontCache_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_Engine_FontCache_objectTypeOperations,
 };
 
