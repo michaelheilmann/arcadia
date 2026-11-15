@@ -457,7 +457,7 @@ setGlyphQuads
                                       hasClipRectangle, clipLeft, clipBottom, clipWidth, clipHeight,
                                       (Arcadia_Real32Value)run->fontAtlasWidth, (Arcadia_Real32Value)run->fontAtlasHeight,
                                       run->red, run->green, run->blue, run->alpha,
-                                      (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer),
+                                      (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer)),
                                       Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer), 9);
   Arcadia_Memory_deallocateUnmanaged(thread, glyphs);
   run->modelNode->mesh->dirtyFlags |= 1;

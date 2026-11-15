@@ -1,0 +1,53 @@
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_slice">Arcadia_ByteArray_slice</h1>
+
+  <my-signature><code>
+  Arcadia_ByteArray*<br>
+  Arcadia_ByteArray_slice<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue start,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue size<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Creates a fixed-size, read-only view of a byte range.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray* self</code></div>
+      <div>The backing byte array.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_SizeValue start</code></div>
+      <div>The starting offset in the backing array.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_SizeValue size</code></div>
+      <div>The number of bytes in the slice.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A new <code>Arcadia_ByteArray*</code> retaining the backing array.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The range must fit within the backing array at construction. An empty slice beginning at the end of the backing array is valid. The slice remains read-only and fixed-size, even if its backing array is mutable or resizable. Its contiguity reflects that of its backing array. If the backing array shrinks so the slice range is no longer valid, subsequent indexed or borrowed-byte reads raise <code>Arcadia_Status_ArgumentValueInvalid</code>. The slice does not prevent the backing array from being resized.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <p>A null backing array or an out-of-range slice raises <code>Arcadia_Status_ArgumentValueInvalid</code>.</p>
+  </section>
+
+</section>

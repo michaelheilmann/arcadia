@@ -1,0 +1,84 @@
+<section class="cxx entity object">
+<h2>ByteArrayFactory and storage</h2>
+<p><code>Arcadia_ByteArrayFactory_createImmutable</code> wraps an immutable
+<code>Arcadia_RuntimeByteArray</code> without copying and keeps the runtime value
+reachable through GC traversal. The immutable runtime value remains distinct
+from the object-level <code>Arcadia_ByteArray</code>.</p>
+<p><code>Arcadia_ByteArrayFactory_createMutable</code> creates mutable,
+fixed-size contiguous native storage; <code>createResizable</code> creates mutable,
+resizable contiguous native storage. Both zero-initialize their requested size.
+<code>copyMutable</code> and <code>copyResizable</code> make independent copies of
+contiguous ByteArray sources. <code>copyImmutable</code> creates a separate
+immutable runtime-value-backed snapshot; it never aliases the source, even if
+its capability queries report immutable. Copies use a single native bulk-copy
+for contiguous sources and logical <code>getAt</code> reads for non-contiguous
+sources. Non-contiguous copying may be slower, but requires no native pointer
+from the source. Both paths retain the source during copying; destination
+storage remains independently owned. Zero-length immutable snapshots are
+supported even when a source has no native byte pointer.</p>
+<p><code>Arcadia_ByteArrayFactory_borrowReadOnly</code> and
+<code>Arcadia_ByteArrayFactory_borrowMutable</code> create fixed-size contiguous
+views over existing native C memory without copying or allocating storage.
+They preserve the caller's pointer and never deallocate it. The caller MUST
+keep that memory alive and valid until the ByteArray object is no longer used.
+A managed ByteArray reference does not keep external memory alive. The mutable
+variant permits in-place writes, while the read-only variant rejects mutation;
+both reject resizing. A nonempty view requires a non-null pointer; an empty
+view may use null. Caller-owned memory must not be relocated while borrowed,
+and only native C callers may pass the pointer—never PDL or Arcadia.Value.</p>
+<p>The factory-owned writable storage is deallocated with its object.
+<code>Arcadia_ByteArray_getMutableBytes</code> is a native-C-only writable
+borrow for mutable contiguous storage; immutable wrappers and read-only slice
+views reject this request with <code>Arcadia_Status_OperationInvalid</code>.
+The caller may write any byte in the current logical range without per-byte
+virtual dispatch. The caller must not write beyond that range.
+A borrow from <code>Arcadia_ByteArray_getBytes</code> is native C-only and valid only while
+the underlying object and its storage are alive; resizing can relocate or
+invalidate a borrowed pointer. The returned pointer must not be stored in
+PDL values. Clients must root managed objects while borrowing their storage.
+A borrow is invalidated by any operation that may relocate storage; reacquire
+the pointer after resizing. Never cache mutable pointers across a resize.</p>
+<p>Fixed-size mutable storage supports <code>setAt</code> but rejects
+<code>resize</code> with <code>Arcadia_Status_OperationInvalid</code> even when
+the requested size equals the current size. Mutable writes outside the current
+bounds raise <code>Arcadia_Status_ArgumentValueInvalid</code>. Growable storage
+zeroes newly exposed elements, including after shrinking and regrowing.</p>
+<p><code>Arcadia_ByteArray</code> is the common capability-aware object
+abstraction. The concrete <code>ByteArrayNativeImpl</code> is the only
+factory-created owned mutable allocation, serving fixed-size and resizable
+variants. <code>ByteArrayBorrowedImpl</code> is the non-owning fixed-size
+adapter for external native memory; it never frees the caller's storage.
+<code>ByteArrayDefaultImpl</code> is retained as the zero-copy wrapper around
+a built-in immutable <code>RuntimeByteArray</code> value, which remains a
+distinct runtime value and retains its existing GC visitation.
+<code>ByteArraySliceImpl</code> is retained as a factory-created read-only
+view, not an independent allocation. Concrete type registration remains for
+compatibility, but general callers should construct arrays via the factory.</p>
+<p>A slice is fixed-size and immutable through its interface, regardless of
+its backing array's mutability. Its contiguity capability is inherited from
+the backing array; native <code>getBytes</code> on a non-contiguous slice
+raises <code>Arcadia_Status_OperationInvalid</code>, while indexed reads
+work. A slice keeps its backing object reachable through GC visitation.
+If the backing shrinks beyond the slice's original range, indexed and
+native-pointer reads fail with <code>Arcadia_Status_ArgumentValueInvalid</code>
+until the original range becomes valid again. Resizing a backing array
+invalidates any previously borrowed pointer, even when the slice remains
+logically valid.</p>
+<p><code>ByteArrayBuilder</code> remains a compatibility facade over a
+factory-created resizable native ByteArray; it has no second owned byte
+allocation. Its native size/capacity/pointer fields mirror the underlying
+storage, including after resizing and swapping. Bulk insertion permits
+self-insertion across its existing logical range, including the insertion
+point; pointers into unused reserved capacity are rejected before a possible
+reallocation.</p>
+<p><code>ByteArray.ByteReader</code>, <code>ByteArrayBuilder.ByteReader</code>
+and <code>RuntimeByteArray.ByteReader</code> remain registered because
+production text, filesystem, scanning and parsing consumers rely on their
+existing public identities. The builder reader accesses the same underlying
+ByteArray object as the builder facade. Each reader tracks an indexed cursor,
+reports <code>hasValue</code> against current source length, and raises
+<code>Arcadia_Status_OperationInvalid</code> when asked to read or advance
+at end-of-input. Resizable sources may re-expose an exhausted cursor when
+grown. Reader objects retain their source through GC visitation. This is
+intentional compatibility, not duplicate native storage.</p>
+</section>

@@ -19,6 +19,7 @@
 
 #include "Arcadia/Ring1/Natural8.h"
 #include "Arcadia/Ring1/Size.h"
+
 typedef struct Arcadia_RuntimeUTF8String Arcadia_RuntimeUTF8String;
 
 Arcadia_RuntimeUTF8String*

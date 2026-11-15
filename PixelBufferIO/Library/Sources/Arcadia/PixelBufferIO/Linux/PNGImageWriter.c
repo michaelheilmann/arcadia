@@ -228,12 +228,25 @@ Arcadia_Imaging_Linux_PNGImageWriter_writePngToByteBufferImpl
   int bitDepth;
   int colorType;
 
+  // The clone and its ByteArray may survive additional managed allocations
+  // while libpng retains native row pointers into those bytes.
+  Arcadia_SizeValue rootBase = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget rootJump;
+  Arcadia_Thread_pushJumpTarget(thread, &rootJump);
+  if (!Arcadia_JumpTarget_save(&rootJump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)targetByteArrayBuilder);
   switch (Arcadia_Media_PixelBuffer_getPixelFormat(thread, sourcePixelBuffer)) {
     case Arcadia_Media_PixelFormat_AlphaRedGreenBlueNatural8:
     case Arcadia_Media_PixelFormat_AlphaBlueGreenRedNatural8:
     case Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8:
     case Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8: {
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
       sourcePixelBuffer = pixelBuffer;
       bitDepth = 8;
@@ -242,6 +255,7 @@ Arcadia_Imaging_Linux_PNGImageWriter_writePngToByteBufferImpl
     case Arcadia_Media_PixelFormat_BlueGreenRedNatural8:
     case Arcadia_Media_PixelFormat_RedGreenBlueNatural8: {
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_RedGreenBlueNatural8);
       sourcePixelBuffer = pixelBuffer;
       bitDepth = 8;
@@ -256,7 +270,8 @@ Arcadia_Imaging_Linux_PNGImageWriter_writePngToByteBufferImpl
   uint32_t height = Arcadia_Media_PixelBuffer_getHeight(thread, sourcePixelBuffer);
   uint32_t lineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, sourcePixelBuffer);
   //uint32_t pixelBytes = Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, sourcePixelBuffer);
-  uint8_t* pixels = sourcePixelBuffer->bytes;
+  uint8_t* pixels = Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, sourcePixelBuffer));
 
   state = LibPngState_create(thread);
   if (!setjmp(png_jmpbuf(state->png_struct))) {
@@ -292,6 +307,8 @@ Arcadia_Imaging_Linux_PNGImageWriter_writePngToByteBufferImpl
   }
   LibPngState_destroy(thread, state);
   state = NULL;
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
 }
 
 static void
@@ -307,12 +324,23 @@ Arcadia_Imaging_Linux_PNGImageWriter_writePngToPathImpl
   int bitDepth;
   int colorType;
 
+  Arcadia_SizeValue rootBase = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget rootJump;
+  Arcadia_Thread_pushJumpTarget(thread, &rootJump);
+  if (!Arcadia_JumpTarget_save(&rootJump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sourcePixelBuffer);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)targetPath);
   switch (Arcadia_Media_PixelBuffer_getPixelFormat(thread, sourcePixelBuffer)) {
     case Arcadia_Media_PixelFormat_AlphaRedGreenBlueNatural8:
     case Arcadia_Media_PixelFormat_AlphaBlueGreenRedNatural8:
     case Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8:
     case Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8: {
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
       sourcePixelBuffer = pixelBuffer;
       bitDepth = 8;
@@ -321,6 +349,7 @@ Arcadia_Imaging_Linux_PNGImageWriter_writePngToPathImpl
     case Arcadia_Media_PixelFormat_BlueGreenRedNatural8:
     case Arcadia_Media_PixelFormat_RedGreenBlueNatural8: {
       Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_createClone(thread, sourcePixelBuffer);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)pixelBuffer);
       Arcadia_Media_PixelBuffer_setPixelFormat(thread, pixelBuffer, Arcadia_Media_PixelFormat_RedGreenBlueNatural8);
       sourcePixelBuffer = pixelBuffer;
       bitDepth = 8;
@@ -335,7 +364,8 @@ Arcadia_Imaging_Linux_PNGImageWriter_writePngToPathImpl
   uint32_t height = Arcadia_Media_PixelBuffer_getHeight(thread, sourcePixelBuffer);
   uint32_t lineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, sourcePixelBuffer);
   //uint32_t pixelBytes = Arcadia_Media_PixelBuffer_getBytesPerPixel(thread, sourcePixelBuffer);
-  uint8_t* pixels = sourcePixelBuffer->bytes;
+  uint8_t* pixels = Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, sourcePixelBuffer));
 
   state = LibPngState_create(thread);
   FILE* fp = NULL;
@@ -386,6 +416,8 @@ Arcadia_Imaging_Linux_PNGImageWriter_writePngToPathImpl
     fclose(fp);
     fp = NULL;
   }
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - rootBase);
 }
 
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {

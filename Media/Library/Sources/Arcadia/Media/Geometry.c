@@ -173,20 +173,7 @@ Arcadia_Media_Geometry_getVertexBuffer
   // unchanged; a text rendering node, for example, replaces the glyph quads of a run. The geometry therefore keeps its
   // vertex buffer to itself and hands out an independent copy, which the caller owns. The vertex descriptor is shared,
   // because it is not mutated.
-  Arcadia_Media_VertexBuffer* vertexBuffer = Arcadia_Media_VertexBuffer_create
-    (
-      thread,
-      self->vertexBuffer->vertexDescriptor,
-      self->vertexBuffer->numberOfVertices
-    );
-  Arcadia_Memory_copy
-    (
-      thread,
-      vertexBuffer->vertices,
-      self->vertexBuffer->vertices,
-      self->vertexBuffer->vertexDescriptor->stride * self->vertexBuffer->numberOfVertices
-    );
-  return vertexBuffer;
+  return Arcadia_Media_VertexBuffer_copy(thread, self->vertexBuffer);
 }
 
 typedef enum Arcadia_Media_Geometry_GeneratorKind {
@@ -438,7 +425,8 @@ Arcadia_Media_Geometry_fill
     Arcadia_Media_Geometry_GeneratorKind generatorKind
   )
 {
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)self->vertexBuffer->vertices;
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes
+    (thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, self->vertexBuffer));
   switch (generatorKind) {
     case Arcadia_Media_Geometry_GeneratorKind_BakedMesh: {
       Arcadia_Media_Geometry_fillBakedMesh(thread, vertices, (Arcadia_ADL_MeshDefinition*)meshGenerator);

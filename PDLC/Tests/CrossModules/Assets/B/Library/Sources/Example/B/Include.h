@@ -23,6 +23,7 @@
 #include "Example/B/Derived.h"
 #include "Example/B/Holder.h"
 #include "Example/B/Child.h"
+#include "Example/B/Provider.h"
 #include "Example/B/answer.h"
 #include "Example/B/defaultFlavor.h"
 #include "Example/B/answerFromA.h"

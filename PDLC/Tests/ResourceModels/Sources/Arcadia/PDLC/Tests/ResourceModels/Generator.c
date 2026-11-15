@@ -246,10 +246,22 @@ generate
   Arcadia_List* infos = Arcadia_Map_getValues(thread, Arcadia_PDLC_Backend_Implementation_getInstance(thread, context)->symbolInfos);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, infos);
   Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
-  Arcadia_SizeValue nativeCollections = 0, nativeADL = 0, nativeDescriptors = 0, generatedFactories = 0, generatedADL = 0;
+  Arcadia_SizeValue nativeCollections = 0, nativeADL = 0, nativeADLInterfaces = 0;
+  Arcadia_SizeValue nativeDescriptors = 0, generatedFactories = 0, generatedADL = 0;
   for (Arcadia_SizeValue i = 0; i < count(thread, infos); ++i) {
     Arcadia_PDLC_Backend_SymbolInfo* info = Arcadia_List_getObjectReferenceValueAt(thread, infos, i);
     Arcadia_PDLC_Symbol* symbol = info->symbol;
+    if (symbol->kind == Arcadia_PDLC_SymbolKind_Interface && symbol->enclosing &&
+        Arcadia_String_isEqualTo_pn(thread, symbol->name, "Arcadia.ADL.UI.ContainerDefinition", sizeof("Arcadia.ADL.UI.ContainerDefinition") - 1)) {
+      Arcadia_PDLC_InterfaceSymbol* interface = (Arcadia_PDLC_InterfaceSymbol*)symbol;
+      Arcadia_Tests_assertTrue(thread, interface->ast && interface->ast->isNative && count(thread, interface->operations) == 1);
+      Arcadia_PDLC_Symbol* operation = Arcadia_List_getObjectReferenceValueAt(thread, interface->operations, 0);
+      Arcadia_Tests_assertTrue(thread, Arcadia_String_isEqualTo_pn(thread, operation->name,
+        "getChildReferences", sizeof("getChildReferences") - 1));
+      Arcadia_Tests_assertTrue(thread, !Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFileAbsolutePath(thread, info)
+        && !Arcadia_PDLC_Backend_SymbolInfo_getCxxSourceFileAbsolutePath(thread, info));
+      ++nativeADLInterfaces;
+    }
     if (symbol->kind != Arcadia_PDLC_SymbolKind_Class || !symbol->enclosing) continue;
     if (Arcadia_String_isEqualTo_pn(thread, symbol->name, "Arcadia.Media.VertexDescriptor", sizeof("Arcadia.Media.VertexDescriptor") - 1)) {
       Arcadia_PDLC_ClassSymbol* c = (Arcadia_PDLC_ClassSymbol*)symbol;
@@ -269,7 +281,13 @@ generate
     Arcadia_BooleanValue adl = Arcadia_String_isEqualTo_pn(thread, symbol->enclosing->name, "Arcadia.ADL", sizeof("Arcadia.ADL") - 1);
     if (!collections && !adl) continue;
     if (adl && !((Arcadia_PDLC_ClassSymbol*)symbol)->isNative) {
-      const char* names[] = { "Arcadia.ADL.ColorDefinition", "Arcadia.ADL.WhiteNoiseDefinition", "Arcadia.ADL.ConstantDefinition", "Arcadia.ADL.SineWaveDefinition", "Arcadia.ADL.SawtoothWaveDefinition" };
+      const char* names[] = {
+        "Arcadia.ADL.ColorDefinition", "Arcadia.ADL.WhiteNoiseDefinition", "Arcadia.ADL.ConstantDefinition",
+        "Arcadia.ADL.SineWaveDefinition", "Arcadia.ADL.SawtoothWaveDefinition",
+        "Arcadia.ADL.UI.ToggleDefinition", "Arcadia.ADL.UI.SliderDefinition", "Arcadia.ADL.UI.LabelDefinition",
+        // These models are inputs to the migration gate; production still links their native C providers.
+        "Arcadia.ADL.UI.CanvasDefinition", "Arcadia.ADL.UI.ScrollPanelDefinition", "Arcadia.ADL.UI.ButtonDefinition"
+      };
       Arcadia_BooleanValue known = false;
       for (Arcadia_SizeValue j = 0; j < sizeof(names) / sizeof(names[0]); ++j) {
         if (Arcadia_String_isEqualTo_pn(thread, symbol->name, names[j], strlen(names[j]))) known = true;
@@ -286,7 +304,7 @@ generate
     if (collections) ++nativeCollections;
     else ++nativeADL;
   }
-  Arcadia_Tests_assertTrue(thread, nativeCollections == 8 && nativeADL == 11 && generatedADL == 5);
+  Arcadia_Tests_assertTrue(thread, nativeCollections == 8 && nativeADL == 12 && nativeADLInterfaces == 1 && generatedADL == 11);
   Arcadia_Tests_assertTrue(thread, nativeDescriptors == 1 && generatedFactories == 2);
   Arcadia_StringBuilder* output = Arcadia_StringBuilder_create(thread);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, output);
@@ -317,7 +335,8 @@ generate
       Arcadia_StringBuilder_insertBackCxxString(thread, calls, "_PDLCheck(thread);\n");
     }
   }
-  Arcadia_Tests_assertTrue(thread, found == 9 && w.fields == 27 && w.nested == 6 && w.constants == 10 && w.methods == 41 && w.virtuals == 39);
+  // EnterPassResource declares depthTestEnabled, DepthTestDirty and setDepthTestEnabled.
+  Arcadia_Tests_assertTrue(thread, found == 9 && w.fields == 28 && w.nested == 6 && w.constants == 11 && w.methods == 42 && w.virtuals == 40);
   Arcadia_Tests_assertTrue(thread, w.references == 4 && w.readonly == 4 && w.outputs == 2);
   Arcadia_Tests_assertTrue(thread, w.policies[Arcadia_PDLC_Ownership_Borrowed] == 1 && w.policies[Arcadia_PDLC_Ownership_Owned] == 1 && w.policies[Arcadia_PDLC_Ownership_Retained] == 5);
   Arcadia_BooleanValue foundEnum = Arcadia_BooleanValue_False;

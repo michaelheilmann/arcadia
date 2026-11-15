@@ -42,8 +42,22 @@ struct Arcadia_Engine_Demo_MainMenuScene {
   // A single context, re-update with the information for the respective viewport / model combination for rendering.
   Arcadia_Engine_Visuals_EnterPassNode* enterPassNode;
 
-  // The models, thee of them.
+  // The original menu model and the isolated procedural-geometry showcase.
   Arcadia_Engine_Visuals_ModelNode* modelNode;
+  Arcadia_Engine_Visuals_ModelNode* showcaseModels[3];
+  Arcadia_Engine_UI_CanvasNode* showcaseCanvasNode;
+  Arcadia_Engine_UI_SegmentedChoiceNode* showcaseChoiceNode;
+  Arcadia_Engine_UI_SliderNode* showcaseSizeNode;
+  Arcadia_Engine_UI_SliderNode* showcaseSegmentsNode;
+  Arcadia_Engine_UI_LabelNode* showcaseFpsLabel;
+  Arcadia_Natural32Value showcaseIndex;
+  Arcadia_BooleanValue showcaseMode;
+  Arcadia_BooleanValue showcaseLooking;
+  Arcadia_BooleanValue showcaseDirty[3];
+  Arcadia_Engine_FPSCounter fpsCounter;
+  Arcadia_Integer32Value showcaseLastFps;
+  Arcadia_Integer32Value showcaseFpsCanvasWidth;
+  Arcadia_Integer32Value showcaseFpsCanvasHeight;
 
   // The 'W' (index 0), 'A' (index 1), 'S' (index 2), and 'D' (index 3) latches.
   // The 'Q' (index 4) and 'E' (index 5) latches.

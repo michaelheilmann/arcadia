@@ -6,7 +6,7 @@ list of map-entry descriptions. Read each list element as a
 <code>MapEntry</code>, report <code>InvalidDefinitionError</code>. Two entries
 with the same <code>name</code> do not form a valid map definition.</p>
 
-<h4>Map entry</h4>
+<h4 id="map-entry">3.5.1 Map entry</h4>
 <p>Each map-entry description is a DDL map containing
 <code>kind: "MapEntry"</code>, a string <code>name</code>, and a
 <code>type</code> map that describes a DDLS definition. The entry may also

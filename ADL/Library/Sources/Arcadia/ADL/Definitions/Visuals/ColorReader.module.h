@@ -39,6 +39,7 @@ struct Arcadia_ADL_ColorReader {
   Arcadia_String* NAME;
   // The string `Color` cached here.
   Arcadia_String* SCHEMANAME;
+  Arcadia_String* INLINE_SCHEMANAME;
   // The string `Color` cached here.
   Arcadia_String* TYPENAME;
 
@@ -60,6 +61,18 @@ Arcadia_ADL_ColorReader*
 Arcadia_ADL_ColorReader_create
   (
     Arcadia_Thread* thread
+  );
+
+// Reads an anonymous Color definition. It is retained by the containing
+// definition and is never inserted into the global definition map.
+struct Arcadia_ADL_ColorDefinition;
+struct Arcadia_ADL_ColorDefinition*
+Arcadia_ADL_ColorReader_readInline
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_ColorReader* self,
+    Arcadia_ADL_Definitions* definitions,
+    Arcadia_DDL_Node* input
   );
 
 #endif  // ARCADIA_ADL_DEFINITIONS_VISUALS_COLORREADER_MODULE_H_INCLUDED

@@ -28,7 +28,7 @@ set(generatedRoot "${CMAKE_CURRENT_BINARY_DIR}/Sources/Generated/$<CONFIG>")
 set(generatedSources)
 set(generatedHeaders)
 set(generatedClasses
-  ColoredChild
+  ColoredChild CounterImpl CounterOverride AbstractCounter ConcreteCounter ClassVirtual ClassVirtualCounter NativeCounterImpl ResettableCounter
   AbstractBase AbstractMiddle AbstractConcrete AbstractInherited AbstractAgain AbstractFinal AbstractNativeBase AbstractNativeConcrete
   Base Derived Native Holder Colored Event EmptyEvent ConcreteEvent
   FieldNames MethodNames ValueBox DerivedBox OptionalContext DerivedContext
@@ -56,6 +56,10 @@ foreach(name IN LISTS generatedClasses)
   list(APPEND generatedSources "${generatedRoot}/Library/Sources/Test/${name}.c.g")
   list(APPEND generatedHeaders "${generatedRoot}/Library/Sources/Test/${name}.h")
 endforeach()
+list(APPEND generatedSources "${generatedRoot}/Library/Sources/Test/Counter.c")
+list(APPEND generatedHeaders "${generatedRoot}/Library/Sources/Test/Counter.h")
+list(APPEND generatedSources "${generatedRoot}/Library/Sources/Test/Resettable.c")
+list(APPEND generatedHeaders "${generatedRoot}/Library/Sources/Test/Resettable.h")
 foreach(name IN LISTS generatedProcedures)
   list(APPEND generatedSources "${generatedRoot}/Library/Sources/${name}.c.g")
   list(APPEND generatedHeaders "${generatedRoot}/Library/Sources/${name}.h")
@@ -96,6 +100,8 @@ SetFolder(${this} PDLC)
 OnSourceFile(${this} Arcadia/PDLC/Tests/Backend/Main.c)
 OnSourceFile(${this} NativeResources/External.c)
 OnHeaderFile(${this} NativeResources/External.h)
+OnSourceFile(${this} NativeResources/Counter.c)
+OnHeaderFile(${this} NativeResources/Counter.h)
 OnSourceFile(${this} NativeResources/Declared.c)
 foreach(source ${generatedSources})
   list(APPEND ${this}.SourceFiles "${source}")

@@ -19,6 +19,7 @@
 
 #include "Arcadia/PDLC/AST/InstructionNode.h"
 #include "Arcadia/Collections/Include.h"
+
 typedef struct Arcadia_PDLC_AST_OperandNode Arcadia_PDLC_AST_OperandNode;
 typedef struct Arcadia_PDLC_AST_VariableOperandNode Arcadia_PDLC_AST_VariableOperandNode;
 

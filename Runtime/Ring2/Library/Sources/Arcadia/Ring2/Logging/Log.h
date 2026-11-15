@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Ring1/Include.h"
+
 typedef struct Arcadia_String Arcadia_String;
 
 Arcadia_declareObjectType(u8"Arcadia.Log", Arcadia_Log,

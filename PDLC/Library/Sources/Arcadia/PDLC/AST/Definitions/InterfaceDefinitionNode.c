@@ -73,6 +73,8 @@ Arcadia_PDLC_AST_InterfaceDefinitionNode_constructImpl
     Arcadia_ValueStack_pushNatural8Value(thread, 1);
     Arcadia_superTypeConstructor(thread, _type, self);
   }
+  self->isNative = Arcadia_BooleanValue_False;
+  self->nativeHeaderPath = NULL;
   self->interfaceName = (Arcadia_PDLC_AST_IdentifierNode*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 3, _Arcadia_PDLC_AST_IdentifierNode_getType(thread));
   if (Arcadia_ValueStack_isObjectReferenceValue(thread, 2)) {
     self->extendedInterfaceNames = (Arcadia_List*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_List_getType(thread));
@@ -110,6 +112,9 @@ Arcadia_PDLC_AST_InterfaceDefinitionNode_visitImpl
 {
   if (self->interfaceName) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->interfaceName);
+  }
+  if (self->nativeHeaderPath) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->nativeHeaderPath);
   }
   if (self->extendedInterfaceNames) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->extendedInterfaceNames);

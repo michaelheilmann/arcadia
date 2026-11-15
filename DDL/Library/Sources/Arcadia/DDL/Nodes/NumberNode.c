@@ -54,7 +54,12 @@ Arcadia_defineObjectType(u8"Arcadia.DDL.NumberNode", Arcadia_DDL_NumberNode,
                          u8"Arcadia.DDL.Node", Arcadia_DDL_Node,
                          &_Arcadia_DDL_NumberNode_typeOperations);
 
-static inline bool isDigit(Arcadia_Natural8Value byte) {
+static inline bool
+isDigit
+  (
+    Arcadia_Natural8Value byte
+  )
+{
   return ('0' <= byte && byte <= '9');
 }
 

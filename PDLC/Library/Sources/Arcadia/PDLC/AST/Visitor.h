@@ -2,6 +2,7 @@
 #define ARCADIA_PDLC_AST_VISITOR_H_INCLUDED
 
 #include "Arcadia//Ring2/Include.h"
+
 typedef struct Arcadia_PDLC_AST_ModuleNode Arcadia_PDLC_AST_ModuleNode;
 typedef struct Arcadia_PDLC_AST_ModuleDefinitionNode Arcadia_PDLC_AST_ModuleDefinitionNode;
 typedef struct Arcadia_PDLC_AST_ProcedureDefinitionNode Arcadia_PDLC_AST_ProcedureDefinitionNode;

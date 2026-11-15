@@ -74,9 +74,23 @@ checkNativeHeader
   Arcadia_BooleanValue foundEnum = Arcadia_BooleanValue_False;
   Arcadia_BooleanValue foundOwned = Arcadia_BooleanValue_False;
   Arcadia_BooleanValue foundMappedEnum = Arcadia_BooleanValue_False;
+  Arcadia_BooleanValue foundNativeInterface = Arcadia_BooleanValue_False;
   for (Arcadia_SizeValue i = 0; i < Arcadia_Collection_getSize(thread, (Arcadia_Collection*)infos); ++i) {
     Arcadia_PDLC_Backend_SymbolInfo* info = Arcadia_List_getObjectReferenceValueAt(thread, infos, i);
     Arcadia_PDLC_Symbol* symbol = info->symbol;
+    if (Arcadia_String_isEqualTo_pn(thread, symbol->name, "Test.NativeCounter", sizeof("Test.NativeCounter") - 1)) {
+      Arcadia_PDLC_InterfaceSymbol* interface = (Arcadia_PDLC_InterfaceSymbol*)symbol;
+      Arcadia_Tests_assertTrue(thread, interface->ast && interface->ast->isNative && interface->ast->nativeHeaderPath);
+      Arcadia_Tests_assertTrue(thread, Arcadia_Collection_getSize(thread, (Arcadia_Collection*)interface->operations) == 2);
+      Arcadia_Tests_assertTrue(thread, !Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFileAbsolutePath(thread, info));
+      Arcadia_Tests_assertTrue(thread, !Arcadia_PDLC_Backend_SymbolInfo_getCxxSourceFileAbsolutePath(thread, info));
+      Arcadia_FilePath* path = Arcadia_PDLC_Backend_SymbolInfo_getCxxHeaderFilePath(thread, info);
+      Arcadia_ValueStack_pushObjectReferenceValue(thread, path);
+      Arcadia_Tests_assertTrue(thread, Arcadia_String_isEqualTo_pn(thread, Arcadia_FilePath_toGeneric(thread, path),
+        "NativeResources/Counter.h", sizeof("NativeResources/Counter.h") - 1));
+      Arcadia_ValueStack_popValues(thread, 1);
+      foundNativeInterface = Arcadia_BooleanValue_True;
+    }
     if (Arcadia_String_isEqualTo_pn(thread, symbol->name, "Test.Color", sizeof("Test.Color") - 1)) {
       Arcadia_PDLC_EnumerationSymbol* e = (void*)symbol;
       Arcadia_Tests_assertTrue(thread, !e->isNative && e->ast && e->ast->nativeHeaderPath);
@@ -135,7 +149,7 @@ checkNativeHeader
     Arcadia_ValueStack_popValues(thread, 1);
     found = Arcadia_BooleanValue_True;
   }
-  Arcadia_Tests_assertTrue(thread, found && foundEnum && foundOwned && foundMappedEnum);
+  Arcadia_Tests_assertTrue(thread, found && foundEnum && foundOwned && foundMappedEnum && foundNativeInterface);
   Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
 }
 

@@ -22,6 +22,7 @@
 #endif
 #include "Arcadia/ADL/Definition.h"
 #include "Arcadia/ADL/Reference.h"
+
 typedef struct Arcadia_ADL_ColorDefinition Arcadia_ADL_ColorDefinition;
 
 // A definition of a fill operation on a pixel buffer.

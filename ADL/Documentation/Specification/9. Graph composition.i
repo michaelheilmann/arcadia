@@ -6,6 +6,16 @@
       <code>Arcadia_ADL_Graphs_readFromNodes</code>, not an ordinary asset reader,
       to process the front-end forms below.
       </p>
+      <p>
+      The anonymous inline-definition feature in section 3 is distinct
+      from graph-local nodes, which have names and participate in graph expansion.
+      A named graph-local node is not an inline definition even though it is
+      written as a nested DDL map. This extension does not change generated-name
+      rules, <code>__graph</code>, parameter bindings, reference rewriting,
+      cycle checks or output publication. Graph-local fields do not acquire inline
+      support automatically; their accepted representations remain unchanged
+      until a separate specification explicitly extends them.
+      </p>
 
       <h3>Templates, instances and parameters</h3>
       <p>

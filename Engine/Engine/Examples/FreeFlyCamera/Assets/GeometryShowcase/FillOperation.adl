@@ -1,0 +1,8 @@
+{
+  type : "PixelBufferOperations.CheckerboardFillOperation",
+  name : "GeometryShowcase.FillOperation",
+  checkerWidth : 32,
+  checkerHeight : 32,
+  firstCheckerColor : "GeometryShowcase.FirstColor",
+  secondCheckerColor : "GeometryShowcase.SecondColor",
+}

@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/FileSystem/FileHandle.h"
+
 typedef struct Arcadia_ByteArrayBuilder Arcadia_ByteArrayBuilder;
 typedef struct Arcadia_String Arcadia_String;
 typedef struct Arcadia_StringBuilder Arcadia_StringBuilder;

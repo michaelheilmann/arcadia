@@ -19,6 +19,10 @@
 
 #include "Arcadia/Collections/Include.h"
 
-void Arcadia_Collections_Tests_ListTests_removeAt(Arcadia_Thread* thread);
+void
+Arcadia_Collections_Tests_ListTests_removeAt
+  (
+    Arcadia_Thread* thread
+  );
 
 #endif // ARCADIA_COLLECTIONS_TESTS_LISTTESTS_REMOVEAT_H_INCLUDED

@@ -107,7 +107,7 @@ Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_constructImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_LeaveConstructor(Arcadia_Math_Vector3Real32);
+  Arcadia_LeaveConstructor(Arcadia_Math_Vector@{dimensionality}@{scalarSuffix});
 }
 
 static void
@@ -243,7 +243,7 @@ Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_lerp
   } else {
     @{scalarType} s = @{oneScalarLiteral} - t;
     for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
-      self->elements[i] = s * self->elements[i] + t * self->elements[i];
+      self->elements[i] = s * self->elements[i] + t * other->elements[i];
     }
   }
 }
@@ -255,7 +255,7 @@ Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_normalize
     Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self
   )
 {
-  Arcadia_Real32Value l = Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_getLength(thread, self);
+  @{scalarType} l = Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_getLength(thread, self);
   if (@{zeroScalarLiteral} == l) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_DivisionByZero);
     Arcadia_Thread_jump(thread);
@@ -314,5 +314,47 @@ Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_multiplyScalar
 {
   for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
     self->elements[i] *= s;
+  }
+}
+
+void
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_copyValues
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self,
+    @{scalarType}* values
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+    values[i] = self->elements[i];
+  }
+}
+
+void
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_multiplyComponents
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* other
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+    self->elements[i] *= other->elements[i];
+  }
+}
+
+void
+Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_normalizeOrZero
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}* self
+  )
+{
+  @{scalarType} length = Arcadia_Math_Vector@{dimensionality}@{scalarSuffix}_getLength(thread, self);
+  if (@{zeroScalarLiteral} == length) {
+    return;
+  }
+  for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+    self->elements[i] /= length;
   }
 }

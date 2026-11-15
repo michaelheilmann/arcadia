@@ -21,6 +21,7 @@
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
 #include "Arcadia/ADL/Definition.h"
+
 typedef struct Arcadia_ADL_ColorDefinition Arcadia_ADL_ColorDefinition;
 typedef struct Arcadia_ADL_Reference Arcadia_ADL_Reference;
 

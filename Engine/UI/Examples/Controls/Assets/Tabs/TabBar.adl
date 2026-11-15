@@ -1,0 +1,14 @@
+{
+  type : "UI.Panel",
+  name : "Controls.Tabs",
+  left : 0,
+  bottom : 0,
+  width : 500,
+  height : 48,
+  sizePolicy : "Fixed",
+  behavior : "TabBar",
+  selectedChild : "Controls.Tabs.Display",
+  children : [ "Controls.Tabs.Display", "Controls.Tabs.Audio", "Controls.Tabs.Controls" ],
+  layout : { type : "UI.StackLayout", orientation : "Horizontal", gap : 8,
+             mainAlignment : "Start", crossAlignment : "Center" },
+}

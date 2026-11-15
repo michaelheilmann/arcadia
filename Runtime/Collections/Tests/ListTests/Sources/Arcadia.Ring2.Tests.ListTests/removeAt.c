@@ -16,7 +16,12 @@
 
 #include "Arcadia.Ring2.Tests.ListTests/removeAt.h"
 
-void Arcadia_Collections_Tests_ListTests_removeAt(Arcadia_Thread* thread) {
+void
+Arcadia_Collections_Tests_ListTests_removeAt
+  (
+    Arcadia_Thread* thread
+  )
+{
   {
     Arcadia_List* l = (Arcadia_List*)Arcadia_ArrayList_create(thread);
     Arcadia_List_insertBackInteger32Value(thread, l, 1);

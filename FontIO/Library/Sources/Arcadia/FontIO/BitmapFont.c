@@ -259,7 +259,8 @@ Arcadia_FontIO_BitmapFont_getGlyphBitmap
   Arcadia_Integer32Value bitmapHeight = bitmap->rows > 0 ? (Arcadia_Integer32Value)(bitmap->rows) : 1;
   Arcadia_Media_PixelBuffer* pixelBuffer = Arcadia_Media_PixelBuffer_create(thread, 0, bitmapWidth, bitmapHeight, g_pixelFormat);
   Arcadia_SizeValue lineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, pixelBuffer);
-  Arcadia_Natural8Value* bytes = pixelBuffer->bytes;
+  Arcadia_Natural8Value* bytes = Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, pixelBuffer));
   for (Arcadia_Integer32Value y = 0; y < bitmapHeight; ++y) {
     Arcadia_Natural8Value const* sourceRow = bitmap->buffer ? (bitmap->buffer + (size_t)y * (size_t)bitmap->pitch) : NULL;
     Arcadia_Natural8Value* targetRow = bytes + (size_t)y * lineStride;

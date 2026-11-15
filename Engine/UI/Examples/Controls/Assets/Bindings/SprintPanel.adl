@@ -1,0 +1,10 @@
+{
+  type: "UI.Panel",
+  name: "Controls.Bindings.Sprint.Panel",
+  left: 0, bottom: 0, width: 275, height: 164,
+  sizePolicy: "Fixed",
+  children: [ "Controls.Bindings.Sprint.Name", "Controls.Bindings.Sprint.Value", "Controls.Bindings.Sprint.Edit",
+              "Controls.Bindings.Sprint.Reset", "Controls.Bindings.Sprint.Status" ],
+  layout: { type: "UI.StackLayout", orientation: "Vertical", gap: 4,
+            mainAlignment: "Center", crossAlignment: "Center" },
+}

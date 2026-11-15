@@ -1,0 +1,7 @@
+{
+  type : "SphereMeshGenerator",
+  name : "GeometryShowcase.SphereMesh",
+  radius : 1.0,
+  segments : 32,
+  ambientColor : "GeometryShowcase.MeshColor",
+}

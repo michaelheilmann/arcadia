@@ -20,8 +20,10 @@
 #if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
+
 #include "Arcadia/ADL/Definition.h"
 #include "Arcadia/DDL/Include.h"
+
 typedef struct Arcadia_ADL_Context Arcadia_ADL_Context;
 
 /* The base of all readers. A reader reads ADL definitions of a type from a DDL node. */

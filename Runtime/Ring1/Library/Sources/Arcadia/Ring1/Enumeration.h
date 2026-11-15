@@ -19,6 +19,7 @@
 
 #include "Arcadia/Ring1/Configure.h"
 #include "Arcadia/Ring1/Integer32.h"
+
 typedef struct Arcadia_Thread Arcadia_Thread;
 typedef void Arcadia_Type;
 

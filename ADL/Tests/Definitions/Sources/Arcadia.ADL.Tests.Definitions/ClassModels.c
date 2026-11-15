@@ -22,6 +22,37 @@
 
 struct LegacyColorABI { Arcadia_ADL_Definition base; Arcadia_Natural8Value red, green, blue; };
 struct ColorABI { Arcadia_ADL_Definition base; Arcadia_Natural8Value red, green, blue, alpha; };
+_Static_assert(sizeof(Arcadia_ADL_UI_CanvasDefinitionDispatch) == sizeof(Arcadia_ADL_DefinitionDispatch), "canvas interface must not add a class dispatch slot");
+_Static_assert(sizeof(Arcadia_ADL_UI_ScrollPanelDefinitionDispatch) == sizeof(Arcadia_ADL_DefinitionDispatch), "scroll panel interface must not add a class dispatch slot");
+_Static_assert(sizeof(Arcadia_ADL_UI_ButtonDefinitionDispatch) == sizeof(Arcadia_ADL_DefinitionDispatch), "button link override must reuse its parent slot");
+struct ToggleABI { Arcadia_ADL_Definition base; Arcadia_Integer32Value left, bottom; Arcadia_Natural32Value width, height; Arcadia_BooleanValue checked; };
+struct SliderABI { Arcadia_ADL_Definition base; Arcadia_Integer32Value left, bottom; Arcadia_Natural32Value width, height; Arcadia_Real64Value minimum, maximum, value, step; };
+struct LabelABI { Arcadia_ADL_Definition base; Arcadia_Integer32Value left, bottom; Arcadia_Natural32Value width, height; Arcadia_String* text; Arcadia_String* horizontalAlignment; Arcadia_String* verticalAlignment; Arcadia_Natural8Value red, green, blue, alpha; Arcadia_Natural32Value pixelSize; };
+_Static_assert(sizeof(Arcadia_ADL_UI_SliderDefinition) == sizeof(struct SliderABI), "slider layout");
+_Static_assert(_Alignof(Arcadia_ADL_UI_SliderDefinition) == _Alignof(struct SliderABI), "slider alignment");
+_Static_assert(offsetof(Arcadia_ADL_UI_SliderDefinition, step) == offsetof(struct SliderABI, step), "slider last field");
+_Static_assert(sizeof(Arcadia_ADL_UI_SliderDefinitionDispatch) == sizeof(Arcadia_ADL_DefinitionDispatch), "slider dispatch");
+_Static_assert(_Generic(&Arcadia_ADL_UI_SliderDefinition_create,
+  Arcadia_ADL_UI_SliderDefinition* (*)(Arcadia_Thread*, Arcadia_ADL_Definitions*, Arcadia_String*, Arcadia_Integer32Value, Arcadia_Integer32Value, Arcadia_Natural32Value, Arcadia_Natural32Value, Arcadia_Real64Value, Arcadia_Real64Value, Arcadia_Real64Value, Arcadia_Real64Value): 1, default: 0), "slider factory");
+_Static_assert(sizeof(Arcadia_ADL_UI_LabelDefinition) == sizeof(struct LabelABI), "label layout");
+_Static_assert(_Alignof(Arcadia_ADL_UI_LabelDefinition) == _Alignof(struct LabelABI), "label alignment");
+_Static_assert(offsetof(Arcadia_ADL_UI_LabelDefinition, text) == offsetof(struct LabelABI, text), "label text");
+_Static_assert(offsetof(Arcadia_ADL_UI_LabelDefinition, horizontalAlignment) == offsetof(struct LabelABI, horizontalAlignment), "label horizontal");
+_Static_assert(offsetof(Arcadia_ADL_UI_LabelDefinition, verticalAlignment) == offsetof(struct LabelABI, verticalAlignment), "label vertical");
+_Static_assert(offsetof(Arcadia_ADL_UI_LabelDefinition, pixelSize) == offsetof(struct LabelABI, pixelSize), "label last field");
+_Static_assert(sizeof(Arcadia_ADL_UI_LabelDefinitionDispatch) == sizeof(Arcadia_ADL_DefinitionDispatch), "label dispatch");
+_Static_assert(_Generic(&Arcadia_ADL_UI_LabelDefinition_create,
+  Arcadia_ADL_UI_LabelDefinition* (*)(Arcadia_Thread*, Arcadia_ADL_Definitions*, Arcadia_String*, Arcadia_Integer32Value, Arcadia_Integer32Value, Arcadia_Natural32Value, Arcadia_Natural32Value, Arcadia_String*, Arcadia_String*, Arcadia_String*, Arcadia_Natural8Value, Arcadia_Natural8Value, Arcadia_Natural8Value, Arcadia_Natural8Value, Arcadia_Natural32Value): 1, default: 0), "label factory");
+_Static_assert(sizeof(Arcadia_ADL_UI_ToggleDefinition) == sizeof(struct ToggleABI), "toggle layout");
+_Static_assert(_Alignof(Arcadia_ADL_UI_ToggleDefinition) == _Alignof(struct ToggleABI), "toggle alignment");
+_Static_assert(offsetof(Arcadia_ADL_UI_ToggleDefinition, left) == offsetof(struct ToggleABI, left), "toggle left");
+_Static_assert(offsetof(Arcadia_ADL_UI_ToggleDefinition, bottom) == offsetof(struct ToggleABI, bottom), "toggle bottom");
+_Static_assert(offsetof(Arcadia_ADL_UI_ToggleDefinition, width) == offsetof(struct ToggleABI, width), "toggle width");
+_Static_assert(offsetof(Arcadia_ADL_UI_ToggleDefinition, height) == offsetof(struct ToggleABI, height), "toggle height");
+_Static_assert(offsetof(Arcadia_ADL_UI_ToggleDefinition, checked) == offsetof(struct ToggleABI, checked), "toggle checked");
+_Static_assert(sizeof(Arcadia_ADL_UI_ToggleDefinitionDispatch) == sizeof(Arcadia_ADL_DefinitionDispatch), "toggle dispatch");
+_Static_assert(_Generic(&Arcadia_ADL_UI_ToggleDefinition_create,
+  Arcadia_ADL_UI_ToggleDefinition* (*)(Arcadia_Thread*, Arcadia_ADL_Definitions*, Arcadia_String*, Arcadia_Integer32Value, Arcadia_Integer32Value, Arcadia_Natural32Value, Arcadia_Natural32Value, Arcadia_BooleanValue): 1, default: 0), "toggle factory");
 _Static_assert(sizeof(Arcadia_ADL_ColorDefinition) == sizeof(struct LegacyColorABI), "alpha fits legacy color padding");
 _Static_assert(_Alignof(Arcadia_ADL_ColorDefinition) == _Alignof(struct LegacyColorABI), "legacy color alignment");
 _Static_assert(sizeof(Arcadia_ADL_ColorDefinition) == sizeof(struct ColorABI), "color size");
@@ -141,6 +172,9 @@ DEFINE_MODEL_CHILD(ADLWhiteModelChild, Arcadia_ADL_WhiteNoiseDefinition, "Arcadi
 DEFINE_MODEL_CHILD(ADLConstantModelChild, Arcadia_ADL_ConstantDefinition, "Arcadia.ADL.ConstantDefinition", 3)
 DEFINE_MODEL_CHILD(ADLSineModelChild, Arcadia_ADL_SineWaveDefinition, "Arcadia.ADL.SineWaveDefinition", 3)
 DEFINE_MODEL_CHILD(ADLSawtoothModelChild, Arcadia_ADL_SawtoothWaveDefinition, "Arcadia.ADL.SawtoothWaveDefinition", 3)
+DEFINE_MODEL_CHILD(ADLToggleModelChild, Arcadia_ADL_UI_ToggleDefinition, "Arcadia.ADL.UI.ToggleDefinition", 7)
+DEFINE_MODEL_CHILD(ADLSliderModelChild, Arcadia_ADL_UI_SliderDefinition, "Arcadia.ADL.UI.SliderDefinition", 10)
+DEFINE_MODEL_CHILD(ADLLabelModelChild, Arcadia_ADL_UI_LabelDefinition, "Arcadia.ADL.UI.LabelDefinition", 14)
 #undef DEFINE_MODEL_CHILD
 
 static Arcadia_String*
@@ -156,6 +190,9 @@ getChildPayload
   if (type == _ADLConstantModelChild_getType(thread)) return ((ADLConstantModelChild*)object)->payload;
   if (type == _ADLSineModelChild_getType(thread)) return ((ADLSineModelChild*)object)->payload;
   if (type == _ADLSawtoothModelChild_getType(thread)) return ((ADLSawtoothModelChild*)object)->payload;
+  if (type == _ADLToggleModelChild_getType(thread)) return ((ADLToggleModelChild*)object)->payload;
+  if (type == _ADLSliderModelChild_getType(thread)) return ((ADLSliderModelChild*)object)->payload;
+  if (type == _ADLLabelModelChild_getType(thread)) return ((ADLLabelModelChild*)object)->payload;
   return NULL;
 }
 
@@ -208,7 +245,8 @@ checkConstructor
     Arcadia_TypeValue type,
     const char* expectedName,
     Arcadia_Value* valid,
-    Arcadia_SizeValue count
+    Arcadia_SizeValue count,
+    Arcadia_BooleanValue optionalColorNames
   )
 {
   Arcadia_Name* name = Arcadia_Type_getName(thread, type);
@@ -218,8 +256,14 @@ checkConstructor
   Arcadia_Tests_assertTrue(thread, Arcadia_getType(thread, name) == type);
   Arcadia_Value arguments[255];
   for (Arcadia_SizeValue i = 0; i < 255; ++i) arguments[i] = Arcadia_Value_makeBooleanValue(false);
-  for (Arcadia_SizeValue i = 0; i <= 255; ++i) {
-    if (i != count) expectError(thread, type, arguments, i, Arcadia_Status_NumberOfArgumentsInvalid);
+  if (count > 5) {
+    const Arcadia_SizeValue invalidCounts[] = { 0, 1, count - 1, count + 1, 255 };
+    for (Arcadia_SizeValue i = 0; i < sizeof(invalidCounts) / sizeof(invalidCounts[0]); ++i)
+      expectError(thread, type, arguments, invalidCounts[i], Arcadia_Status_NumberOfArgumentsInvalid);
+  } else {
+    for (Arcadia_SizeValue i = 0; i <= 255; ++i) {
+      if (i != count) expectError(thread, type, arguments, i, Arcadia_Status_NumberOfArgumentsInvalid);
+    }
   }
   Arcadia_Value bad[] = {
     Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void), Arcadia_Value_makeBooleanValue(false),
@@ -235,6 +279,7 @@ checkConstructor
   for (Arcadia_SizeValue parameter = 0; parameter < count; ++parameter) {
     for (Arcadia_SizeValue i = 0; i < sizeof(bad) / sizeof(bad[0]); ++i) {
       if ((parameter == 0 && i == 15) || (parameter == 1 && i == 16)
+        || (optionalColorNames && parameter >= 9 && parameter <= 13 && (i == 0 || i == 16))
         || (parameter >= 2 && valid[parameter].tag == bad[i].tag)) continue;
       for (Arcadia_SizeValue j = 0; j < count; ++j) arguments[j] = valid[j];
       arguments[parameter] = bad[i];
@@ -289,6 +334,37 @@ checkScalarState
     Arcadia_Tests_assertTrue(thread, Arcadia_ADL_SineWaveDefinition_getFrequency(thread, (Arcadia_ADL_SineWaveDefinition*)object) == Arcadia_Value_getInteger32Value(&values[2]));
   } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)object, _Arcadia_ADL_SawtoothWaveDefinition_getType(thread))) {
     Arcadia_Tests_assertTrue(thread, Arcadia_ADL_SawtoothWaveDefinition_getFrequency(thread, (Arcadia_ADL_SawtoothWaveDefinition*)object) == Arcadia_Value_getInteger32Value(&values[2]));
+  } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)object, _Arcadia_ADL_UI_ToggleDefinition_getType(thread))) {
+    Arcadia_ADL_UI_ToggleDefinition* toggle = (Arcadia_ADL_UI_ToggleDefinition*)object;
+    Arcadia_Tests_assertTrue(thread, toggle->left == Arcadia_Value_getInteger32Value(&values[2])
+      && toggle->bottom == Arcadia_Value_getInteger32Value(&values[3])
+      && toggle->width == Arcadia_Value_getNatural32Value(&values[4])
+      && toggle->height == Arcadia_Value_getNatural32Value(&values[5])
+      && toggle->checked == Arcadia_Value_getBooleanValue(&values[6]));
+  } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)object, _Arcadia_ADL_UI_SliderDefinition_getType(thread))) {
+    Arcadia_ADL_UI_SliderDefinition* slider = (Arcadia_ADL_UI_SliderDefinition*)object;
+    Arcadia_Tests_assertTrue(thread, slider->left == Arcadia_Value_getInteger32Value(&values[2])
+      && slider->bottom == Arcadia_Value_getInteger32Value(&values[3])
+      && slider->width == Arcadia_Value_getNatural32Value(&values[4])
+      && slider->height == Arcadia_Value_getNatural32Value(&values[5])
+      && slider->minimum == Arcadia_Value_getReal64Value(&values[6])
+      && slider->maximum == Arcadia_Value_getReal64Value(&values[7])
+      && slider->value == Arcadia_Value_getReal64Value(&values[8])
+      && slider->step == Arcadia_Value_getReal64Value(&values[9]));
+  } else if (Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)object, _Arcadia_ADL_UI_LabelDefinition_getType(thread))) {
+    Arcadia_ADL_UI_LabelDefinition* label = (Arcadia_ADL_UI_LabelDefinition*)object;
+    Arcadia_Tests_assertTrue(thread, label->left == Arcadia_Value_getInteger32Value(&values[2])
+      && label->bottom == Arcadia_Value_getInteger32Value(&values[3])
+      && label->width == Arcadia_Value_getNatural32Value(&values[4])
+      && label->height == Arcadia_Value_getNatural32Value(&values[5])
+      && label->text == Arcadia_Value_getObjectReferenceValue(&values[6])
+      && label->horizontalAlignment == Arcadia_Value_getObjectReferenceValue(&values[7])
+      && label->verticalAlignment == Arcadia_Value_getObjectReferenceValue(&values[8])
+      && label->red == Arcadia_Value_getNatural8Value(&values[9])
+      && label->green == Arcadia_Value_getNatural8Value(&values[10])
+      && label->blue == Arcadia_Value_getNatural8Value(&values[11])
+      && label->alpha == Arcadia_Value_getNatural8Value(&values[12])
+      && label->pixelSize == Arcadia_Value_getNatural32Value(&values[13]));
   }
 }
 
@@ -308,7 +384,7 @@ checkLifetime
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definitions);
   Arcadia_String* name = Arcadia_String_createFromCxxString(thread, "Tests.RetainedDefinition");
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)name);
-  Arcadia_Value values[5];
+  Arcadia_Value values[14];
   for (Arcadia_SizeValue i = 0; i < count; ++i) values[i] = arguments[i];
   values[0] = Arcadia_Value_makeObjectReferenceValue(definitions);
   values[1] = Arcadia_Value_makeObjectReferenceValue(name);
@@ -465,7 +541,7 @@ colorTest
   Arcadia_Value arguments[] = { Arcadia_Value_makeObjectReferenceValue(definitions), Arcadia_Value_makeObjectReferenceValue(name),
     Arcadia_Value_makeNatural8Value(0), Arcadia_Value_makeNatural8Value(73), Arcadia_Value_makeNatural8Value(255) };
   Arcadia_TypeValue type = _Arcadia_ADL_ColorDefinition_getType(thread);
-  checkConstructor(thread, type, "Arcadia.ADL.ColorDefinition", arguments, 5);
+  checkConstructor(thread, type, "Arcadia.ADL.ColorDefinition", arguments, 5, false);
   Arcadia_ADL_ColorDefinition* color = Arcadia_ADL_ColorDefinition_create(thread, definitions, name, 0, 73, 255);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)color);
   Arcadia_Tests_assertTrue(thread, color->red == 0 && color->green == 73 && color->blue == 255 && color->alpha == 255);
@@ -489,6 +565,157 @@ Arcadia_ADL_Tests_colorModel
 {
   return Arcadia_Tests_safeExecute(colorTest) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+
+static void
+toggleTest
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural64Value(thread, i);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definitions);
+  Arcadia_String* name = Arcadia_String_createFromCxxString(thread, "Tests.Toggle");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)name);
+  Arcadia_Value arguments[] = {
+    Arcadia_Value_makeObjectReferenceValue(definitions), Arcadia_Value_makeObjectReferenceValue(name),
+    Arcadia_Value_makeInteger32Value(-37), Arcadia_Value_makeInteger32Value(82),
+    Arcadia_Value_makeNatural32Value(3), Arcadia_Value_makeNatural32Value(407),
+    Arcadia_Value_makeBooleanValue(true)
+  };
+  Arcadia_TypeValue type = _Arcadia_ADL_UI_ToggleDefinition_getType(thread);
+  checkConstructor(thread, type, "Arcadia.ADL.UI.ToggleDefinition", arguments, 7, false);
+  for (Arcadia_SizeValue i = 0; i < 2; ++i) {
+    Arcadia_ADL_UI_ToggleDefinition* toggle = Arcadia_ADL_UI_ToggleDefinition_create(thread, definitions, name,
+      -37, 82, 3, 407, i == 0 ? Arcadia_BooleanValue_False : Arcadia_BooleanValue_True);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)toggle);
+    arguments[6] = Arcadia_Value_makeBooleanValue(i != 0);
+    Arcadia_Tests_assertTrue(thread, ((Arcadia_ADL_Definition*)toggle)->definitions == definitions
+      && ((Arcadia_ADL_Definition*)toggle)->name == name);
+    checkScalarState(thread, (Arcadia_ADL_Definition*)toggle, arguments);
+    Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)toggle);
+    Arcadia_ValueStack_popValues(thread, 1);
+  }
+  arguments[6] = Arcadia_Value_makeBooleanValue(true);
+  checkLifetime(thread, type, arguments, 7);
+  checkLifetime(thread, _ADLToggleModelChild_getType(thread), arguments, 7);
+  Arcadia_ValueStack_popValues(thread, 2);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getNatural64Value(thread, 299 - i) == i);
+  Arcadia_ValueStack_popValues(thread, 300);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+int
+Arcadia_ADL_Tests_toggleModel
+  (
+    void
+  )
+{ return Arcadia_Tests_safeExecute(toggleTest) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
+static void
+sliderTest
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural64Value(thread, i);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definitions);
+  Arcadia_String* name = Arcadia_String_createFromCxxString(thread, "Tests.Slider");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)name);
+  Arcadia_Value arguments[] = {
+    Arcadia_Value_makeObjectReferenceValue(definitions), Arcadia_Value_makeObjectReferenceValue(name),
+    Arcadia_Value_makeInteger32Value(INT32_MIN), Arcadia_Value_makeInteger32Value(91),
+    Arcadia_Value_makeNatural32Value(5), Arcadia_Value_makeNatural32Value(UINT32_MAX),
+    Arcadia_Value_makeReal64Value(-0.0), Arcadia_Value_makeReal64Value(19.5),
+    Arcadia_Value_makeReal64Value(-3.25), Arcadia_Value_makeReal64Value(0.125)
+  };
+  Arcadia_TypeValue type = _Arcadia_ADL_UI_SliderDefinition_getType(thread);
+  checkConstructor(thread, type, "Arcadia.ADL.UI.SliderDefinition", arguments, 10, false);
+  Arcadia_ADL_UI_SliderDefinition* slider = Arcadia_ADL_UI_SliderDefinition_create(thread, definitions, name,
+    INT32_MIN, 91, 5, UINT32_MAX, -0.0, 19.5, -3.25, 0.125);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)slider);
+  checkScalarState(thread, (Arcadia_ADL_Definition*)slider, arguments);
+  Arcadia_Tests_assertTrue(thread, signbit(slider->minimum));
+  Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)slider);
+  Arcadia_ValueStack_popValues(thread, 1);
+  checkLifetime(thread, type, arguments, 10);
+  checkLifetime(thread, _ADLSliderModelChild_getType(thread), arguments, 10);
+  Arcadia_ValueStack_popValues(thread, 2);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getNatural64Value(thread, 299 - i) == i);
+  Arcadia_ValueStack_popValues(thread, 300);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+int
+Arcadia_ADL_Tests_sliderModel
+  (
+    void
+  )
+{ return Arcadia_Tests_safeExecute(sliderTest) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
+static void
+labelTest
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural64Value(thread, i);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definitions);
+  Arcadia_String* name = Arcadia_String_createFromCxxString(thread, "Tests.Label");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)name);
+  Arcadia_String* text = Arcadia_String_createFromCxxString(thread, "label text");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)text);
+  Arcadia_String* horizontal = Arcadia_String_createFromCxxString(thread, "left");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)horizontal);
+  Arcadia_String* vertical = Arcadia_String_createFromCxxString(thread, "top");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)vertical);
+  Arcadia_Value arguments[] = {
+    Arcadia_Value_makeObjectReferenceValue(definitions), Arcadia_Value_makeObjectReferenceValue(name),
+    Arcadia_Value_makeInteger32Value(-11), Arcadia_Value_makeInteger32Value(32),
+    Arcadia_Value_makeNatural32Value(5), Arcadia_Value_makeNatural32Value(1024),
+    Arcadia_Value_makeObjectReferenceValue(text), Arcadia_Value_makeObjectReferenceValue(horizontal),
+    Arcadia_Value_makeObjectReferenceValue(vertical), Arcadia_Value_makeNatural8Value(7),
+    Arcadia_Value_makeNatural8Value(91), Arcadia_Value_makeNatural8Value(255),
+    Arcadia_Value_makeNatural8Value(0), Arcadia_Value_makeNatural32Value(17)
+  };
+  Arcadia_TypeValue type = _Arcadia_ADL_UI_LabelDefinition_getType(thread);
+  checkConstructor(thread, type, "Arcadia.ADL.UI.LabelDefinition", arguments, 14, false);
+  Arcadia_ADL_UI_LabelDefinition* label = Arcadia_ADL_UI_LabelDefinition_create(thread, definitions, name,
+    -11, 32, 5, 1024, text, horizontal, vertical, 7, 91, 255, 0, 17);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)label);
+  checkScalarState(thread, (Arcadia_ADL_Definition*)label, arguments);
+  Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)label);
+  checkLifetime(thread, type, arguments, 14);
+  checkLifetime(thread, _ADLLabelModelChild_getType(thread), arguments, 14);
+  static unsigned destroyed[3];
+  destroyed[0] = destroyed[1] = destroyed[2] = 0;
+  Arcadia_Object_addNotifyDestroyCallback(thread, (Arcadia_Object*)text, &destroyed[0], onDestroy);
+  Arcadia_Object_addNotifyDestroyCallback(thread, (Arcadia_Object*)horizontal, &destroyed[1], onDestroy);
+  Arcadia_Object_addNotifyDestroyCallback(thread, (Arcadia_Object*)vertical, &destroyed[2], onDestroy);
+  Arcadia_ValueStack_popValues(thread, 6);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)label);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+  Arcadia_Tests_assertTrue(thread, !destroyed[0] && !destroyed[1] && !destroyed[2]);
+  Arcadia_Tests_assertTrue(thread, label->text == text && label->horizontalAlignment == horizontal && label->verticalAlignment == vertical);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+  Arcadia_Tests_assertTrue(thread, destroyed[0] == 1 && destroyed[1] == 1 && destroyed[2] == 1);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getNatural64Value(thread, 299 - i) == i);
+  Arcadia_ValueStack_popValues(thread, 300);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+int
+Arcadia_ADL_Tests_labelModel
+  (
+    void
+  )
+{ return Arcadia_Tests_safeExecute(labelTest) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
 struct ConstantABI { Arcadia_ADL_Definition base; Arcadia_Real32Value value; };
 struct FrequencyABI { Arcadia_ADL_Definition base; Arcadia_Integer32Value frequency; };
@@ -543,7 +770,7 @@ dspDefinitionTest
     case 2: type = _Arcadia_ADL_SineWaveDefinition_getType(thread); expected = "Arcadia.ADL.SineWaveDefinition"; break;
     default: type = _Arcadia_ADL_SawtoothWaveDefinition_getType(thread); expected = "Arcadia.ADL.SawtoothWaveDefinition"; break;
   }
-  checkConstructor(thread, type, expected, arguments, kind ? 3 : 2);
+  checkConstructor(thread, type, expected, arguments, kind ? 3 : 2, false);
   if (kind == 0) {
     Arcadia_ADL_WhiteNoiseDefinition* object = Arcadia_ADL_WhiteNoiseDefinition_create(thread, definitions, name);
     Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)object);
@@ -637,3 +864,173 @@ Arcadia_ADL_Tests_sawtoothWaveModel
     void
   )
 { return Arcadia_Tests_safeExecute(sawtoothWaveTest) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
+static void
+containerModelsTest
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural64Value(thread, i);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, definitions);
+  Arcadia_String* name = Arcadia_String_createFromCxxString(thread, "Tests.Container");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, name);
+  Arcadia_Value values[] = {
+    Arcadia_Value_makeObjectReferenceValue(definitions), Arcadia_Value_makeObjectReferenceValue(name),
+    Arcadia_Value_makeInteger32Value(-23), Arcadia_Value_makeInteger32Value(41),
+    Arcadia_Value_makeNatural32Value(71), Arcadia_Value_makeNatural32Value(83),
+    Arcadia_Value_makeNatural32Value(97), Arcadia_Value_makeNatural32Value(109),
+  };
+  for (unsigned kind = 0; kind < 2; ++kind) {
+    Arcadia_TypeValue type = kind ? _Arcadia_ADL_UI_ScrollPanelDefinition_getType(thread) : _Arcadia_ADL_UI_CanvasDefinition_getType(thread);
+    Arcadia_SizeValue count = kind ? 8 : 4;
+    checkConstructor(thread, type, kind ? "Arcadia.ADL.UI.ScrollPanelDefinition" : "Arcadia.ADL.UI.CanvasDefinition", values, count, false);
+    Arcadia_Object* object = construct(thread, type, values, count);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, object);
+    Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, object, _Arcadia_ADL_UI_ContainerDefinition_getType(thread)));
+    Arcadia_List* children = Arcadia_ADL_UI_ContainerDefinition_getChildReferences(thread, object);
+    Arcadia_Tests_assertTrue(thread, children && !Arcadia_Collection_getSize(thread, (Arcadia_Collection*)children));
+    if (kind) {
+      Arcadia_ADL_UI_ScrollPanelDefinition* panel = (Arcadia_ADL_UI_ScrollPanelDefinition*)object;
+      Arcadia_Tests_assertTrue(thread, panel->left == -23 && panel->bottom == 41 && panel->width == 71 && panel->height == 83
+        && panel->contentWidth == 97 && panel->contentHeight == 109 && panel->childReferences == children);
+    } else {
+      Arcadia_ADL_UI_CanvasDefinition* canvas = (Arcadia_ADL_UI_CanvasDefinition*)object;
+      Arcadia_Tests_assertTrue(thread, canvas->width == -23 && canvas->height == 41 && canvas->childReferences == children);
+    }
+    Arcadia_String* childName = Arcadia_String_createFromCxxString(thread, "Tests.Child");
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, childName);
+    Arcadia_ADL_UI_ContainerDefinition_addChildReference(thread, object, childName);
+    Arcadia_ValueStack_popValues(thread, 1);
+    Arcadia_Tests_assertTrue(thread, Arcadia_Collection_getSize(thread, (Arcadia_Collection*)children) == 1);
+    Arcadia_ADL_Reference* child = (Arcadia_ADL_Reference*)Arcadia_List_getObjectReferenceValueAt(thread, children, 0);
+    Arcadia_Tests_assertTrue(thread, child->definitionName == childName && child->definitions == definitions);
+    unsigned destroyed = 0;
+    Arcadia_Object_addNotifyDestroyCallback(thread, (Arcadia_Object*)children, &destroyed, onDestroy);
+    Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+    Arcadia_Tests_assertTrue(thread, !destroyed && Arcadia_ADL_UI_ContainerDefinition_getChildReferences(thread, object) == children);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ADL_Reference_getDefinitionName(thread, child) == childName);
+    Arcadia_ValueStack_popValues(thread, 1);
+    Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+    Arcadia_Tests_assertTrue(thread, destroyed == 1);
+  }
+  Arcadia_ValueStack_popValues(thread, 2);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getNatural64Value(thread, 299 - i) == i);
+  Arcadia_ValueStack_popValues(thread, 300);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+int
+Arcadia_ADL_Tests_containerModels
+  (
+    void
+  )
+{ return Arcadia_Tests_safeExecute(containerModelsTest) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
+static void
+buttonModelTest
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural64Value(thread, i);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, definitions);
+  Arcadia_String* name = Arcadia_String_createFromCxxString(thread, "Tests.Button");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, name);
+  Arcadia_String* text = Arcadia_String_createFromCxxString(thread, "button text");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, text);
+  Arcadia_String* horizontal = Arcadia_String_createFromCxxString(thread, "Start");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, horizontal);
+  Arcadia_String* vertical = Arcadia_String_createFromCxxString(thread, "Center");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, vertical);
+  const char* colorNames[] = { "Tests.Background", "Tests.Hovered", "Tests.Pressed", "Tests.Disabled", "Tests.Focused" };
+  Arcadia_String* colors[5];
+  for (Arcadia_SizeValue i = 0; i < 5; ++i) {
+    colors[i] = Arcadia_String_createFromCxxString(thread, colorNames[i]);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, colors[i]);
+  }
+  Arcadia_Value values[] = {
+    Arcadia_Value_makeObjectReferenceValue(definitions), Arcadia_Value_makeObjectReferenceValue(name),
+    Arcadia_Value_makeInteger32Value(-11), Arcadia_Value_makeInteger32Value(29),
+    Arcadia_Value_makeNatural32Value(41), Arcadia_Value_makeNatural32Value(53),
+    Arcadia_Value_makeObjectReferenceValue(text), Arcadia_Value_makeObjectReferenceValue(horizontal),
+    Arcadia_Value_makeObjectReferenceValue(vertical),
+    Arcadia_Value_makeObjectReferenceValue(colors[0]), Arcadia_Value_makeObjectReferenceValue(colors[1]),
+    Arcadia_Value_makeObjectReferenceValue(colors[2]), Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void),
+    Arcadia_Value_makeObjectReferenceValue(colors[4]),
+    Arcadia_Value_makeNatural32Value(67), Arcadia_Value_makeNatural32Value(79),
+    Arcadia_Value_makeNatural8Value(13), Arcadia_Value_makeNatural8Value(17), Arcadia_Value_makeNatural8Value(19),
+  };
+  Arcadia_TypeValue type = _Arcadia_ADL_UI_ButtonDefinition_getType(thread);
+  checkConstructor(thread, type, "Arcadia.ADL.UI.ButtonDefinition", values, 19, true);
+  Arcadia_ADL_UI_ButtonDefinition* button = (Arcadia_ADL_UI_ButtonDefinition*)construct(thread, type, values, 19);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, button);
+  Arcadia_Tests_assertTrue(thread, button->left == -11 && button->bottom == 29 && button->width == 41 && button->height == 53
+    && button->text == text && button->horizontalAlignment == horizontal && button->verticalAlignment == vertical
+    && button->pixelSize == 67 && button->borderWidth == 79 && button->borderRed == 13 && button->borderGreen == 17
+    && button->borderBlue == 19 && !button->disabledBackgroundColor);
+  Arcadia_ADL_Reference* references[] = {
+    button->backgroundColor, button->hoveredBackgroundColor, button->pressedBackgroundColor, NULL, button->focusedBackgroundColor,
+  };
+  for (Arcadia_SizeValue i = 0; i < 5; ++i) {
+    if (i == 3) continue;
+    Arcadia_Tests_assertTrue(thread, references[i] && references[i]->definitionName == colors[i]
+      && references[i]->definitions == definitions && !references[i]->definition);
+  }
+  unsigned destroyed = 0;
+  Arcadia_Object_addNotifyDestroyCallback(thread, (Arcadia_Object*)references[0], &destroyed, onDestroy);
+  Arcadia_ADL_Definition* targets[5] = { NULL };
+  for (Arcadia_SizeValue i = 0; i < 5; ++i) {
+    if (i == 3) continue;
+    targets[i] = (Arcadia_ADL_Definition*)Arcadia_ADL_ColorDefinition_create(thread, definitions, colors[i], i + 1, i + 2, i + 3);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, targets[i]);
+    Arcadia_Map_set(thread, definitions->definitions, Arcadia_Value_makeObjectReferenceValue(colors[i]),
+      Arcadia_Value_makeObjectReferenceValue(targets[i]), NULL, NULL);
+    Arcadia_ValueStack_popValues(thread, 1);
+  }
+  Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)button);
+  for (Arcadia_SizeValue i = 0; i < 5; ++i) if (references[i]) Arcadia_Tests_assertTrue(thread, references[i]->definition == targets[i]);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+  Arcadia_Tests_assertTrue(thread, !destroyed && references[0]->definition == targets[0]);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+  Arcadia_Tests_assertTrue(thread, destroyed == 1);
+  Arcadia_ADL_Definition* wrong = (Arcadia_ADL_Definition*)Arcadia_ADL_WhiteNoiseDefinition_create(thread, definitions, colors[1]);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, wrong);
+  Arcadia_Map_set(thread, definitions->definitions, Arcadia_Value_makeObjectReferenceValue(colors[1]),
+    Arcadia_Value_makeObjectReferenceValue(wrong), NULL, NULL);
+  Arcadia_ValueStack_popValues(thread, 1);
+  button = (Arcadia_ADL_UI_ButtonDefinition*)construct(thread, type, values, 19);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, button);
+  Arcadia_SizeValue depth = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)button);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, false);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Status actual = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertTrue(thread, actual == Arcadia_Status_ArgumentTypeInvalid && Arcadia_ValueStack_getSize(thread) == depth);
+  }
+  Arcadia_Tests_assertTrue(thread, button->backgroundColor->definition == targets[0]
+    && button->hoveredBackgroundColor->definition == wrong && !button->pressedBackgroundColor->definition);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Arcadia_ValueStack_popValues(thread, 10);
+  for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getNatural64Value(thread, 299 - i) == i);
+  Arcadia_ValueStack_popValues(thread, 300);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+int
+Arcadia_ADL_Tests_buttonModel
+  (
+    void
+  )
+{ return Arcadia_Tests_safeExecute(buttonModelTest) ? EXIT_SUCCESS : EXIT_FAILURE; }

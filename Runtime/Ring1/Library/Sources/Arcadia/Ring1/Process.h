@@ -33,6 +33,7 @@
 #include <stdbool.h>
 #include <inttypes.h>
 #include <setjmp.h>
+
 typedef struct Arcadia_JumpTarget Arcadia_JumpTarget; // Forward declaration.
 typedef struct Arcadia_Thread Arcadia_Thread; // Forward declaration.
 

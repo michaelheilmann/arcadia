@@ -233,10 +233,14 @@ growAtlas
   // Copy the rows of the old atlas into the new atlas.
   Arcadia_SizeValue oldLineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, self->atlas);
   Arcadia_SizeValue newLineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, newAtlas);
+  Arcadia_Natural8Value* newBytes = Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, newAtlas));
+  Arcadia_Natural8Value const* oldBytes = Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, self->atlas));
   for (Arcadia_Integer32Value y = 0; y < oldHeight; ++y) {
     Arcadia_Memory_copy(thread,
-                        newAtlas->bytes + (size_t)y * newLineStride,
-                        self->atlas->bytes + (size_t)y * oldLineStride,
+                        newBytes + (size_t)y * newLineStride,
+                        oldBytes + (size_t)y * oldLineStride,
                         oldLineStride);
   }
   self->atlas = newAtlas;
@@ -341,11 +345,15 @@ Arcadia_FontIO_AtlasBitmapFont_getGlyphInformation
   Arcadia_SizeValue targetLineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, self->atlas);
   Arcadia_Integer32Value glyphImageHeight = Arcadia_Media_PixelBuffer_getNumberOfRows(thread, glyphImage);
   Arcadia_Integer32Value glyphImageWidth = Arcadia_Media_PixelBuffer_getNumberOfColumns(thread, glyphImage);
+  Arcadia_Natural8Value* atlasBytes = Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, self->atlas));
+  Arcadia_Natural8Value const* glyphBytes = Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, glyphImage));
   for (Arcadia_Integer32Value y = 0; y < glyphImageHeight; ++y) {
     Arcadia_Memory_copy(thread,
-                        self->atlas->bytes + (size_t)(atlasGlyphInformation.y + y) * targetLineStride
+                        atlasBytes + (size_t)(atlasGlyphInformation.y + y) * targetLineStride
                                            + (size_t)atlasGlyphInformation.x * 4,
-                        glyphImage->bytes + (size_t)y * sourceLineStride,
+                        glyphBytes + (size_t)y * sourceLineStride,
                         (size_t)glyphImageWidth * 4);
   }
 

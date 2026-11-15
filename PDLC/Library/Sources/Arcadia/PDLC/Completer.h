@@ -18,6 +18,7 @@
 #define ARCADIA_PDLC_COMPLETER_H_INCLUDED
 
 #include "Arcadia/Ring2/Include.h"
+
 typedef struct Arcadia_PDLC_Symbol Arcadia_PDLC_Symbol;
 typedef struct Arcadia_PDLC_Context Arcadia_PDLC_Context;
 

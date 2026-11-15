@@ -3,7 +3,7 @@
   <h1 id="Arcadia_ByteArray_getBytes">Arcadia_ByteArray_getBytes</h1>
 
   <my-signature><code>
-  void const*<br>
+  Arcadia_Natural8Value const*<br>
   Arcadia_ByteArray_getBytes<br>
   &nbsp;&nbsp;(<br>
   &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
@@ -23,7 +23,7 @@
       <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
     </div>
     <div>
-      <div>Arcadia_ByteArray* self</div>
+      <div>Arcadia_ByteArray const* self</div>
       <div>A pointer to this Byte array.</div>
     </div>
   </section>

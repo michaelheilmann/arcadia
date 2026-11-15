@@ -276,7 +276,9 @@ Arcadia_Imaging_ICOImageWriter_writeICOToByteBufferImpl
     Arcadia_Collection_clear(thread, (Arcadia_Collection*)pixelBuffers);
     Arcadia_List_insertBackObjectReferenceValue(thread, pixelBuffers, pixelBuffer);
     Arcadia_Imaging_ImageWriter_write(thread, pngImageWriter, pixelBuffers, pngParameters);
-    Arcadia_ByteArrayBuilder_insertBackBytes(thread, targetByteBuffer, temporary->p, temporary->sz);
+    Arcadia_ByteArrayBuilder_insertBackBytes(thread, targetByteBuffer,
+      Arcadia_ByteArrayBuilder_getBytes(thread, temporary),
+      Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, temporary));
     offset += Arcadia_ByteArrayBuilder_getSize(thread, temporary);
   }
 }

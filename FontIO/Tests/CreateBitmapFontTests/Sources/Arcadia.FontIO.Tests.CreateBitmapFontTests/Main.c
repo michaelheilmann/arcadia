@@ -65,7 +65,8 @@ test1
   // (3) The bitmap must contain at least one covered pixel.
   {
     Arcadia_SizeValue lineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, pixelBuffer);
-    Arcadia_Natural8Value* bytes = pixelBuffer->bytes;
+    Arcadia_Natural8Value const* bytes = Arcadia_ByteArray_getBytes(thread,
+      Arcadia_Media_PixelBuffer_getPixelBytes(thread, pixelBuffer));
     Arcadia_BooleanValue covered = Arcadia_BooleanValue_False;
     for (Arcadia_SizeValue y = 0; y < (Arcadia_SizeValue)Arcadia_Media_PixelBuffer_getNumberOfRows(thread, pixelBuffer); ++y) {
       for (Arcadia_SizeValue x = 0; x < (Arcadia_SizeValue)Arcadia_Media_PixelBuffer_getNumberOfColumns(thread, pixelBuffer); ++x) {

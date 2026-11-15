@@ -19,6 +19,11 @@ class Arcadia.Engine.Input.MousePointerEvent extends Arcadia.Engine.Event {
   variable action : Arcadia.Engine.Input.MousePointerAction
   variable x : Arcadia.Integer32
   variable y : Arcadia.Integer32
+  // Wheel deltas default to zero for regular pointer events.
+  // Positive vertical deltas scroll up; positive horizontal deltas scroll right.
+  // 120 units represent one traditional mouse-wheel notch.
+  variable wheelDeltaX : Arcadia.Integer32
+  variable wheelDeltaY : Arcadia.Integer32
 
   /// @brief Create a mouse pointer event.
   /// @param timestamp The event timestamp.

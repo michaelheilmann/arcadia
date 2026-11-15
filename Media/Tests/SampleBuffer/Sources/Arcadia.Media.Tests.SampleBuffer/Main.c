@@ -81,6 +81,187 @@ runConstruction
   return Arcadia_Tests_safeExecute(&test1) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+// Exercise signed 8-bit DSP output, including its final sample, after GC.
+static void
+testInteger8DspFill(Arcadia_Thread* thread)
+{
+  Arcadia_Media_SampleBuffer* buffer =
+    Arcadia_Media_SampleBuffer_create(thread, 1, 8, Arcadia_Media_SampleFormat_Integer8);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)buffer);
+  Arcadia_Media_DSP_SineWave* sine = Arcadia_Media_DSP_SineWave_create(thread, 1.0f);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)sine);
+  Arcadia_Media_SampleBuffer_fill(thread, buffer, (Arcadia_Media_DSP*)sine);
+  Arcadia_Integer8Value* pcm = (Arcadia_Integer8Value*)Arcadia_ByteArray_getMutableBytes(
+    thread, Arcadia_Media_SampleBuffer_getSampleBytes(thread, buffer));
+  Arcadia_Tests_assertTrue(thread, pcm[0] == 0);
+  Arcadia_Tests_assertTrue(thread, pcm[2] >= 126);
+  Arcadia_Tests_assertTrue(thread, pcm[6] <= -126);
+  Arcadia_Tests_assertTrue(thread, pcm[7] < 0);
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  Arcadia_Tests_assertTrue(thread, pcm[2] >= 126 && pcm[6] <= -126);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)sine);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)buffer);
+}
+
+static int
+runInteger8DspFill(void)
+{ return Arcadia_Tests_safeExecute(&testInteger8DspFill) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
+static void
+expectInvalidDimensions(Arcadia_Thread* thread, Arcadia_Integer32Value length,
+                        Arcadia_Integer32Value sampleRate)
+{
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Media_SampleBuffer_create(thread, length, sampleRate, Arcadia_Media_SampleFormat_Integer8);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, false);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, Arcadia_Thread_getStatus(thread) == Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_setStatus(thread, 0);
+  }
+}
+
+static void
+testDimensions(Arcadia_Thread* thread)
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  expectInvalidDimensions(thread, -1, 48000);
+  expectInvalidDimensions(thread, 1, 0);
+  expectInvalidDimensions(thread, 1, -1);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+static int
+runDimensions(void)
+{ return Arcadia_Tests_safeExecute(&testDimensions) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
+// Verify PCM silence values and independent clone storage across all four formats.
+static void
+testPcmSilenceAndClone(Arcadia_Thread* thread)
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  const Arcadia_Media_SampleFormat formats[] = {
+    Arcadia_Media_SampleFormat_Integer16,
+    Arcadia_Media_SampleFormat_Integer8,
+    Arcadia_Media_SampleFormat_Natural16,
+    Arcadia_Media_SampleFormat_Natural8,
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i) {
+    Arcadia_Media_SampleBuffer* buffer = Arcadia_Media_SampleBuffer_create(thread, 1, 8, formats[i]);
+    Arcadia_Object_lock(thread, (Arcadia_Object*)buffer);
+    Arcadia_SizeValue bytesPerSample = Arcadia_Media_SampleFormat_getNumberOfBytes(thread, formats[i]);
+    Arcadia_SizeValue byteCount = 8 * bytesPerSample;
+    Arcadia_Natural8Value* bufferBytes = Arcadia_ByteArray_getMutableBytes(
+      thread, Arcadia_Media_SampleBuffer_getSampleBytes(thread, buffer));
+    for (Arcadia_SizeValue j = 0; j < 8; ++j) {
+      switch (formats[i]) {
+        case Arcadia_Media_SampleFormat_Integer16:
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Integer16Value*)bufferBytes)[j] == 0);
+          break;
+        case Arcadia_Media_SampleFormat_Integer8:
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Integer8Value*)bufferBytes)[j] == 0);
+          break;
+        case Arcadia_Media_SampleFormat_Natural16:
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Natural16Value*)bufferBytes)[j] == 32768);
+          break;
+        case Arcadia_Media_SampleFormat_Natural8:
+          Arcadia_Tests_assertTrue(thread, ((Arcadia_Natural8Value*)bufferBytes)[j] == 128);
+          break;
+        default:
+          Arcadia_Tests_assertTrue(thread, false);
+          break;
+      }
+    }
+    Arcadia_Media_SampleBuffer* clone = Arcadia_Media_SampleBuffer_createClone(thread, buffer);
+    Arcadia_Object_lock(thread, (Arcadia_Object*)clone);
+    Arcadia_Natural8Value* cloneBytes = Arcadia_ByteArray_getMutableBytes(
+      thread, Arcadia_Media_SampleBuffer_getSampleBytes(thread, clone));
+    Arcadia_Tests_assertTrue(thread, cloneBytes != bufferBytes);
+    Arcadia_Tests_assertTrue(thread, !memcmp(cloneBytes, bufferBytes, byteCount));
+    Arcadia_Natural8Value firstByte = cloneBytes[0];
+    bufferBytes[0] ^= 0x5a;
+    Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+    Arcadia_Tests_assertTrue(thread, cloneBytes[0] == firstByte);
+    Arcadia_Tests_assertTrue(thread, cloneBytes[0] != bufferBytes[0]);
+    Arcadia_Object_unlock(thread, (Arcadia_Object*)clone);
+    Arcadia_Object_unlock(thread, (Arcadia_Object*)buffer);
+  }
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+static int
+runPcmSilenceAndClone(void)
+{ return Arcadia_Tests_safeExecute(&testPcmSilenceAndClone) ? EXIT_SUCCESS : EXIT_FAILURE; }
+
+// Verify ByteArray ownership without rooting the storage independently.
+static void
+testManagedStorage
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  const Arcadia_Media_SampleFormat formats[] = {
+    Arcadia_Media_SampleFormat_Integer16,
+    Arcadia_Media_SampleFormat_Integer8,
+    Arcadia_Media_SampleFormat_Natural16,
+    Arcadia_Media_SampleFormat_Natural8,
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i) {
+    Arcadia_SizeValue bytesPerSample = Arcadia_Media_SampleFormat_getNumberOfBytes(thread, formats[i]);
+    Arcadia_Media_SampleBuffer* buffer = Arcadia_Media_SampleBuffer_create(thread, 1, 8, formats[i]);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, buffer);
+    Arcadia_ByteArray* storage = Arcadia_Media_SampleBuffer_getSampleBytes(thread, buffer);
+    Arcadia_Tests_assertTrue(thread, storage != NULL && storage == buffer->byteStorage);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isMutable(thread, storage));
+    Arcadia_Tests_assertTrue(thread, !Arcadia_ByteArray_isResizable(thread, storage));
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_isContiguous(thread, storage));
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getSize(thread, storage) == 8 * bytesPerSample);
+    Arcadia_Natural8Value* pcm = Arcadia_ByteArray_getMutableBytes(thread, storage);
+    Arcadia_Tests_assertTrue(thread, pcm == Arcadia_ByteArray_getMutableBytes(thread,
+      Arcadia_Media_SampleBuffer_getSampleBytes(thread, buffer)));
+
+    Arcadia_WeakReference* observer = Arcadia_WeakReference_create(thread,
+      Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)storage));
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, observer);
+    Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
+    Arcadia_Value retained = Arcadia_WeakReference_getValue(thread, observer);
+    Arcadia_Tests_assertTrue(thread, Arcadia_Value_isObjectReferenceValue(&retained));
+    Arcadia_Tests_assertTrue(thread, Arcadia_Value_getObjectReferenceValue(&retained) == (Arcadia_Object*)storage);
+
+    Arcadia_Media_SampleBuffer* clone = Arcadia_Media_SampleBuffer_createClone(thread, buffer);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, clone);
+    Arcadia_ByteArray* cloneStorage = Arcadia_Media_SampleBuffer_getSampleBytes(thread, clone);
+    Arcadia_Natural8Value* clonePcm = Arcadia_ByteArray_getMutableBytes(thread, cloneStorage);
+    Arcadia_Tests_assertTrue(thread, cloneStorage != storage && clonePcm != pcm);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getSize(thread, cloneStorage) == 8 * bytesPerSample);
+    Arcadia_Tests_assertTrue(thread, !memcmp(clonePcm, pcm, 8 * bytesPerSample));
+    Arcadia_Natural8Value original = clonePcm[0];
+    pcm[0] ^= 0x5a;
+    Arcadia_Tests_assertTrue(thread, clonePcm[0] == original);
+    Arcadia_ValueStack_popValues(thread, 3);
+
+    Arcadia_Media_SampleBuffer* empty = Arcadia_Media_SampleBuffer_create(thread, 0, 8, formats[i]);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, empty);
+    Arcadia_Tests_assertTrue(thread, Arcadia_ByteArray_getSize(thread,
+      Arcadia_Media_SampleBuffer_getSampleBytes(thread, empty)) == 0);
+    Arcadia_ValueStack_popValues(thread, 1);
+  }
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+static int
+runManagedStorage
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testManagedStorage) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -91,6 +272,10 @@ main
   static const Arcadia_Testing_Case cases[] = {
     { "Construction", &runConstruction },
     { "Formats", &Arcadia_Media_Tests_SampleBuffer_formats },
+    { "Integer8DspFill", &runInteger8DspFill },
+    { "Dimensions", &runDimensions },
+    { "PcmSilenceAndClone", &runPcmSilenceAndClone },
+    { "ManagedStorage", &runManagedStorage },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

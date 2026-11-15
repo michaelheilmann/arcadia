@@ -29,4 +29,39 @@
   <code>&lt;number of columns&gt; * &lt;bytes per pixel&gt; + &lt;line padding&gt;</code>
   </li>
 </ul>
+<h2>ByteArray-backed pixel storage</h2>
+<p>A PixelBuffer owns exactly one fixed-size, mutable, contiguous
+<code>Arcadia_ByteArray</code>. The ByteArray owns the allocation; the
+PixelBuffer's legacy <code>bytes</code> field is only a native-C compatibility
+pointer into that storage. It must never be freed or reallocated independently.
+The PixelBuffer's GC visitor retains the ByteArray.</p>
+<p><code>Arcadia_Media_PixelBuffer_getPixelBytes(thread, buffer)</code> returns
+the owning <code>Arcadia_ByteArray*</code>. Its capabilities are mutable,
+non-resizable and contiguous. The allocated byte count is
+<code>(width * bytes per pixel + line padding) * height</code>, with
+non-negative dimensions/padding and checked allocation arithmetic.
+The line padding is included in each allocated row but is not itself a pixel.
+ByteArray access is native C only; raw pointers are never carried through
+PDL or Arcadia.Value. The legacy signed 32-bit
+<code>Arcadia_Media_PixelBuffer_getLineStride</code> API rejects strides
+whose multiplication or padding addition cannot be represented by
+<code>Arcadia_Integer32Value</code>, reporting
+<code>Arcadia_Status_ArgumentValueInvalid</code> instead of overflowing.</p>
+<p>The native <code>bytes</code> pointer is borrowed: its lifetime depends on
+the PixelBuffer/ByteArray remaining reachable, and its address can change
+when pixel format, line padding or dimensions change. Always reacquire it
+after these operations. Format conversion may replace ByteArray storage;
+swapping transfers storage ownership together with the legacy pointer.
+Cloning and assignment create independent storage. The native pixel and
+image-I/O hot loops continue to work on contiguous byte spans, not boxed
+per-pixel accesses.</p>
+<p>Changing width or height preserves only the retained pixel rectangle,
+copied by row spans; padding is not copied as pixels. Newly introduced
+pixels are initialized as opaque black. Changing the pixel format preserves
+logical RGBA components, with alpha set to 255 where the source has none.
+A pixel read or write requires
+<code>0 &lt;= column &lt; width</code> and
+<code>0 &lt;= row &lt; height</code>; a zero-sized buffer has no valid pixel
+coordinates. Native bulk consumers, including image writers and texture
+uploaders, must root the PixelBuffer during pointer use.</p>
 </section>

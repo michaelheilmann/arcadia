@@ -1,0 +1,43 @@
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_resize">Arcadia_ByteArray_resize</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_ByteArray_resize<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue size<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Changes the logical size of a resizable byte array.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray* self</code></div>
+      <div>A pointer to this byte array.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_SizeValue size</code></div>
+      <div>The requested logical number of bytes.</div>
+    </div>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>Newly exposed bytes are initialized to zero. A resize can relocate storage and invalidate previously borrowed native pointers; reacquire them after resizing.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <p>If the instance does not support resizing, <code>Arcadia_Status_OperationInvalid</code> is raised before inspecting the requested size.</p>
+  </section>
+
+</section>

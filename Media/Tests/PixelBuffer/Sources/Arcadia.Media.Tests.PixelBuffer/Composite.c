@@ -171,9 +171,11 @@ testClipAndPadding
     }
   }
   Arcadia_Integer32Value stride = Arcadia_Media_PixelBuffer_getLineStride(thread, destination);
+  Arcadia_Natural8Value* destinationBytes = Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, destination));
   for (Arcadia_Integer32Value y = 0; y < 3; ++y) {
     for (Arcadia_Integer32Value p = 0; p < 3; ++p) {
-      destination->bytes[(Arcadia_SizeValue)y * stride + 9 + p] = 0xA5;
+      destinationBytes[(Arcadia_SizeValue)y * stride + 9 + p] = 0xA5;
     }
   }
   Arcadia_Media_PixelBuffer_compositeRectangle(thread, destination, -1, 1, source, 0, 0, 3, 3, Arcadia_Media_PixelBufferCompositeMode_Copy);
@@ -187,9 +189,11 @@ testClipAndPadding
   expectPixel(thread, destination, 1, 0, 0, 0, 0, 255);
   Arcadia_Media_PixelBuffer_compositeRectangle(thread, destination, 0, 0, source, 0, 0, 0, 2, Arcadia_Media_PixelBufferCompositeMode_Copy);
   Arcadia_Media_PixelBuffer_compositeRectangle(thread, destination, 99, 99, source, 0, 0, 3, 3, Arcadia_Media_PixelBufferCompositeMode_Copy);
+  destinationBytes = Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_PixelBuffer_getPixelBytes(thread, destination));
   for (Arcadia_Integer32Value y = 0; y < 3; ++y) {
     for (Arcadia_Integer32Value p = 0; p < 3; ++p) {
-      Arcadia_Tests_assertTrue(thread, destination->bytes[(Arcadia_SizeValue)y * stride + 9 + p] == 0xA5);
+      Arcadia_Tests_assertTrue(thread, destinationBytes[(Arcadia_SizeValue)y * stride + 9 + p] == 0xA5);
     }
   }
   Arcadia_Object_unlock(thread, (Arcadia_Object*)source);

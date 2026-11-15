@@ -130,6 +130,30 @@ Arcadia_ADL_Reference_create
   _Arcadia_EndCreate(Arcadia_ADL_Reference);
 }
 
+Arcadia_ADL_Reference*
+Arcadia_ADL_Reference_createForDefinition
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_Definitions* definitions,
+    Arcadia_ADL_Definition* definition
+  )
+{
+  if (!definition) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  // The native Reference constructor validates a String name. This value is
+  // temporary and never inserted into the ADL name registry; a direct
+  // reference stores only its target after construction.
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)definition);
+  Arcadia_ADL_Reference* reference = Arcadia_ADL_Reference_create(thread, definitions,
+    Arcadia_String_createFromCxxString(thread, u8""));
+  reference->definition = definition;
+  reference->definitionName = NULL;
+  Arcadia_ValueStack_popValues(thread, 1);
+  return reference;
+}
+
 Arcadia_ADL_Definitions*
 Arcadia_ADL_References_getDefinitions
   (

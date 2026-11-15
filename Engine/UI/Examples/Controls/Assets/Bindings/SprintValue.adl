@@ -1,0 +1,7 @@
+{
+  type: "UI.Label",
+  name: "Controls.Bindings.Sprint.Value",
+  left: 0, bottom: 0, width: 265, height: 24,
+  text: "Ctrl+Shift+Alt+Some very long Keyboard Key Name", horizontalAlignment: "Left", verticalAlignment: "Center",
+  red: 220, green: 228, blue: 240, alpha: 255, pixelSize: 16,
+}

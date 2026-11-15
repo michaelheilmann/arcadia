@@ -185,8 +185,6 @@ Arcadia_Signal_connect
 // @code
 // [receiver, sender, arguments, numberOfArguments + 2]
 // @endcode
-// @todo
-// Guard against numeric overflows.
 static Arcadia_SizeValue
 pushArguments
   (
@@ -222,6 +220,13 @@ Arcadia_Signal_emit
     Arcadia_Object* sender
   )
 {
+  // Each receiver is passed before the sender and the user-supplied arguments.
+  // All callback arguments (including these two) are counted by Natural8.
+  Arcadia_SizeValue numberOfArguments = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (numberOfArguments > Arcadia_Natural8Value_Maximum - 2) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   Nodes* nodes = (Nodes*)self->pimpl;
   if (nodes->reentrancyCount == Arcadia_Natural32Value_Maximum) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);

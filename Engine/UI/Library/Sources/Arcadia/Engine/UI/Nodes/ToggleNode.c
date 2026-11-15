@@ -329,7 +329,7 @@ updateVertices
   Arcadia_Real32Value knobSize = (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height - 12.f;
   Arcadia_Real32Value knobLeft = self->checked ? right - knobSize - 6.f : left + 6.f;
   Arcadia_Real32Value knobBottom = bottom + 6.f;
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh));
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh)));
   writeQuad(vertices, 0, left, bottom, right, top, trackRed, trackGreen, trackBlue);
   writeQuad(vertices, 6, knobLeft, knobBottom, knobLeft + knobSize, knobBottom + knobSize, 0.92f, 0.94f, 0.96f);
   self->mesh->dirtyFlags |= VerticesDirty;
@@ -355,10 +355,15 @@ Arcadia_Engine_UI_ToggleNode_constructImpl
   self->bottom = Arcadia_ValueStack_getInteger32Value(thread, 4);
   self->width = Arcadia_ValueStack_getNatural32Value(thread, 3);
   self->height = Arcadia_ValueStack_getNatural32Value(thread, 2);
-  ((Arcadia_Engine_UI_WidgetNode*)self)->left = self->left;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->bottom = self->bottom;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->width = (Arcadia_Integer32Value)self->width;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->height = (Arcadia_Integer32Value)self->height;
+  Arcadia_Engine_UI_WidgetNode_setInitialBounds
+    (
+      thread,
+      (Arcadia_Engine_UI_WidgetNode*)self,
+      self->left,
+      self->bottom,
+      (Arcadia_Integer32Value)self->width,
+      (Arcadia_Integer32Value)self->height
+    );
   self->checked = Arcadia_ValueStack_getBooleanValue(thread, 1);
   self->enabled = Arcadia_BooleanValue_True;
   self->hovered = Arcadia_BooleanValue_False;

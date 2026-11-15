@@ -24,6 +24,7 @@
 #include "Arcadia/Ring1/Object.h"
 #include "Arcadia/Ring1/Objects/WeakReference.h"
 #include "Arcadia/Ring1/ForeignProcedure.h"
+
 typedef struct Arcadia_Signal Arcadia_Signal;
 
 Arcadia_declareObjectType(u8"Arcadia.Slot", Arcadia_Slot,

@@ -825,11 +825,12 @@ Arcadia_DefaultFileSystem_setFileContentsImpl
 {
   Arcadia_FileHandle* fileHandle = Arcadia_FileSystem_createFileHandle(thread, (Arcadia_FileSystem*)self);
   Arcadia_FileHandle_openForWriting(thread, fileHandle, path);
-  Arcadia_SizeValue bytesToWrite = contents->sz,
+  Arcadia_SizeValue bytesToWrite = Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, contents),
                     bytesWritten = 0;
   while (bytesToWrite > 0) {
     Arcadia_SizeValue bytesWrittenNow;
-    Arcadia_FileHandle_write(thread, fileHandle, contents->p + bytesWritten, bytesToWrite, &bytesWrittenNow);
+    Arcadia_FileHandle_write(thread, fileHandle,
+      Arcadia_ByteArrayBuilder_getBytes(thread, contents) + bytesWritten, bytesToWrite, &bytesWrittenNow);
     bytesWritten += bytesWrittenNow;
     bytesToWrite -= bytesWrittenNow;
   }

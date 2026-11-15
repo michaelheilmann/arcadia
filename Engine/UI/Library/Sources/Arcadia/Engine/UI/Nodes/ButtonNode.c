@@ -318,13 +318,18 @@ updateVertices
   computePlacement(thread, self, canvasWidth, canvasHeight, &left, &bottom);
   Arcadia_Real32Value const right = left + (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->width;
   Arcadia_Real32Value const top = bottom + (Arcadia_Real32Value)((Arcadia_Engine_UI_WidgetNode*)self)->height;
-  Arcadia_Natural8Value red = self->source->backgroundRed;
-  Arcadia_Natural8Value green = self->source->backgroundGreen;
-  Arcadia_Natural8Value blue = self->source->backgroundBlue;
-  getReferenceColor(self->source->backgroundColor, &red, &green, &blue);
+  Arcadia_ADL_ColorDefinition* baseColor = (Arcadia_ADL_ColorDefinition*)self->source->backgroundColor->definition;
+  Arcadia_Natural8Value red = baseColor->red;
+  Arcadia_Natural8Value green = baseColor->green;
+  Arcadia_Natural8Value blue = baseColor->blue;
   if (!self->enabled) {
     getReferenceColor(self->source->disabledBackgroundColor, &red, &green, &blue);
   } else if (self->pressed) {
+    getReferenceColor(self->source->pressedBackgroundColor, &red, &green, &blue);
+  } else if (self->selected) {
+    // Selection belongs to the composing control, not the focus or input state.
+    // Reuse the button's configured pressed palette until a separate style
+    // contract is demonstrably necessary.
     getReferenceColor(self->source->pressedBackgroundColor, &red, &green, &blue);
   } else if (self->hovered) {
     getReferenceColor(self->source->hoveredBackgroundColor, &red, &green, &blue);
@@ -334,11 +339,8 @@ updateVertices
   Arcadia_Real32Value const r = red / 255.f;
   Arcadia_Real32Value const g = green / 255.f;
   Arcadia_Real32Value const b = blue / 255.f;
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices
-    (
-      thread,
-      Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh)
-    );
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->mesh)));
   Arcadia_Real32Value borderWidth = (Arcadia_Real32Value)self->source->borderWidth;
   Arcadia_Real32Value maxBorderWidth = (Arcadia_Real32Value)
     (((Arcadia_Engine_UI_WidgetNode*)self)->width < ((Arcadia_Engine_UI_WidgetNode*)self)->height
@@ -415,7 +417,7 @@ updateLabelVertices
                                                            center, center, Arcadia_BooleanValue_True,
                                                            (Arcadia_Real32Value)self->labelFontAtlasWidth, (Arcadia_Real32Value)self->labelFontAtlasHeight,
                                                            1.f, 1.f, 1.f, 1.f,
-                                                           (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer),
+                                                           (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer)),
                                                            Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer), 9);
   Arcadia_ValueStack_popValues(thread, 1);
   self->labelModelNode->mesh->dirtyFlags |= VerticesDirty;
@@ -514,11 +516,20 @@ Arcadia_Engine_UI_ButtonNode_constructImpl
 
   self->source = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_ADL_UI_ButtonDefinition_getType(thread));
   Arcadia_ADL_Definition_link(thread, (Arcadia_ADL_Definition*)self->source);
+  if (!self->source->backgroundColor || !self->source->backgroundColor->definition) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+    Arcadia_Thread_jump(thread);
+  }
   ((Arcadia_Engine_UI_WidgetNode*)self)->name = ((Arcadia_ADL_Definition*)self->source)->name;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->left = self->source->left;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->bottom = self->source->bottom;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->width = (Arcadia_Integer32Value)self->source->width;
-  ((Arcadia_Engine_UI_WidgetNode*)self)->height = (Arcadia_Integer32Value)self->source->height;
+  Arcadia_Engine_UI_WidgetNode_setInitialBounds
+    (
+      thread,
+      (Arcadia_Engine_UI_WidgetNode*)self,
+      self->source->left,
+      self->source->bottom,
+      (Arcadia_Integer32Value)self->source->width,
+      (Arcadia_Integer32Value)self->source->height
+    );
   self->backendContext = Arcadia_ValueStack_isVoidValue(thread, 2) ? NULL : Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Engine_Visuals_BackendContext_getType(thread));
   if (self->backendContext) {
     Arcadia_Object_lock(thread, (Arcadia_Object*)self->backendContext);
@@ -540,7 +551,11 @@ Arcadia_Engine_UI_ButtonNode_constructImpl
   self->hovered = Arcadia_BooleanValue_False;
   self->pressed = Arcadia_BooleanValue_False;
   self->focused = Arcadia_BooleanValue_False;
+  self->selected = Arcadia_BooleanValue_False;
   self->activated = Arcadia_Signal_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)self->activated);
+  self->enabledChanged = Arcadia_Signal_create(thread);
+  Arcadia_ValueStack_popValues(thread, 1);
 
   Arcadia_String* colorName = Arcadia_String_createFromCxxString(thread, u8"UI.Button.Generated.Color");
   Arcadia_String* meshName = Arcadia_String_createFromCxxString(thread, u8"UI.Button.Generated.Mesh");
@@ -549,16 +564,17 @@ Arcadia_Engine_UI_ButtonNode_constructImpl
   Arcadia_String* pixelBufferName = Arcadia_String_createFromCxxString(thread, u8"UI.Button.Generated.PixelBuffer");
   Arcadia_String* fillName = Arcadia_String_createFromCxxString(thread, u8"UI.Button.Generated.Fill");
 
-  Arcadia_ADL_ColorDefinition* color = Arcadia_ADL_ColorDefinition_create(thread, self->generatedDefinitions, colorName, self->source->backgroundRed, self->source->backgroundGreen, self->source->backgroundBlue);
+  Arcadia_ADL_ColorDefinition* baseColor = (Arcadia_ADL_ColorDefinition*)self->source->backgroundColor->definition;
+  Arcadia_ADL_ColorDefinition* color = Arcadia_ADL_ColorDefinition_create(thread, self->generatedDefinitions, colorName, baseColor->red, baseColor->green, baseColor->blue);
   Arcadia_ADL_PixelBufferOperations_FillOperationDefinition* fill = Arcadia_ADL_PixelBufferOperations_FillOperationDefinition_create(thread, self->generatedDefinitions, fillName, colorName);
   Arcadia_ADL_PixelBufferDefinition* pixelBuffer = Arcadia_ADL_PixelBufferDefinition_create(thread, self->generatedDefinitions, pixelBufferName, 1, 1);
   Arcadia_List_insertBackObjectReferenceValue(thread, pixelBuffer->operations, (Arcadia_Object*)Arcadia_ADL_Reference_create(thread, self->generatedDefinitions, fillName));
   Arcadia_ADL_TextureDefinition* texture = Arcadia_ADL_TextureDefinition_create(thread, self->generatedDefinitions, textureName, pixelBufferName, Arcadia_ADL_TextureFilter_None, Arcadia_ADL_TextureFilter_None, Arcadia_ADL_TextureAddressMode_None, Arcadia_ADL_TextureAddressMode_None);
 
   Arcadia_Real32Value positions[90] = { 0.f };
-  Arcadia_Real32Value const r = self->source->backgroundRed / 255.f;
-  Arcadia_Real32Value const g = self->source->backgroundGreen / 255.f;
-  Arcadia_Real32Value const b = self->source->backgroundBlue / 255.f;
+  Arcadia_Real32Value const r = baseColor->red / 255.f;
+  Arcadia_Real32Value const g = baseColor->green / 255.f;
+  Arcadia_Real32Value const b = baseColor->blue / 255.f;
   Arcadia_Real32Value colors[120];
   Arcadia_Real32Value uvs[60] = { 0.f };
   for (Arcadia_SizeValue i = 0; i < 30; ++i) {
@@ -820,6 +836,7 @@ Arcadia_Engine_UI_ButtonNode_visitImpl
   if (self->material) Arcadia_Object_visit(thread, (Arcadia_Object*)self->material);
   if (self->labelModelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->labelModelNode);
   if (self->activated) Arcadia_Object_visit(thread, (Arcadia_Object*)self->activated);
+  if (self->enabledChanged) Arcadia_Object_visit(thread, (Arcadia_Object*)self->enabledChanged);
 }
 
 static void
@@ -892,12 +909,16 @@ Arcadia_Engine_UI_ButtonNode_setEnabled
     Arcadia_BooleanValue enabled
   )
 {
+  if (self->enabled == enabled) return;
   self->enabled = enabled;
   if (!enabled) {
     self->hovered = Arcadia_BooleanValue_False;
     self->pressed = Arcadia_BooleanValue_False;
     self->focused = Arcadia_BooleanValue_False;
   }
+  Arcadia_ValueStack_pushNatural8Value(thread, 0);
+  Arcadia_Signal_emit(thread, self->enabledChanged, (Arcadia_Object*)self);
+  Arcadia_ValueStack_popValues(thread, 1);
 }
 
 void
@@ -909,6 +930,23 @@ Arcadia_Engine_UI_ButtonNode_setHovered
   )
 { self->hovered = self->enabled && hovered; }
 
+void
+Arcadia_Engine_UI_ButtonNode_setSelected
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self,
+    Arcadia_BooleanValue selected
+  )
+{ self->selected = selected; }
+
+Arcadia_BooleanValue
+Arcadia_Engine_UI_ButtonNode_getSelected
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self
+  )
+{ return self->selected; }
+
 Arcadia_Signal*
 Arcadia_Engine_UI_ButtonNode_getActivatedSignal
   (
@@ -916,5 +954,13 @@ Arcadia_Engine_UI_ButtonNode_getActivatedSignal
     Arcadia_Engine_UI_ButtonNode* self
   )
 { return self->activated; }
+
+Arcadia_Signal*
+Arcadia_Engine_UI_ButtonNode_getEnabledChangedSignal
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self
+  )
+{ return self->enabledChanged; }
 
 #undef VerticesDirty

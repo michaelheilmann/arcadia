@@ -1,0 +1,43 @@
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_getMutableBytes">Arcadia_ByteArray_getMutableBytes</h1>
+
+  <my-signature><code>
+  Arcadia_Natural8Value*<br>
+  Arcadia_ByteArray_getMutableBytes<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Borrows a writable pointer to the contiguous bytes for native C use.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray* self</code></div>
+      <div>A pointer to this byte array.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>A borrowed pointer to the current logical byte range.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>Only mutable contiguous instances support this operation. The caller must keep the owning object reachable, must not write beyond the current size, and must reacquire the pointer after a resize or relocation. Never pass the address through PDL or <code>Arcadia.Value</code>.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <p>If writable contiguous storage is unavailable, <code>Arcadia_Status_OperationInvalid</code> is raised.</p>
+  </section>
+
+</section>

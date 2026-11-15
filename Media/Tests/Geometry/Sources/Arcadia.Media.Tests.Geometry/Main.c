@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "Arcadia/Media/Include.h"
@@ -193,7 +194,8 @@ test1
   // The mesh-wide ambient color is the red of the referenced `Arcadia.ADL.Color` definition, with an alpha of one.
   expectComponents(thread, "the mesh-wide ambient color of the plane is wrong.", Arcadia_Media_Geometry_getAmbientColor(thread, geometry), 1.f, 0.f, 0.f, 1.f);
   //
-  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   // All vertices of the plane lie in the XZ plane, hence their y coordinate is zero.
   for (Arcadia_SizeValue i = 0; i < 6; ++i) {
     expectFloat(thread, "a vertex of the plane does not lie in the XZ plane.", vertices[i * componentsInVertex + 1], 0.f);
@@ -264,7 +266,8 @@ test2
   expectSize(thread, "the box does not have 36 vertices.", Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer), 36);
   expectComponents(thread, "the mesh-wide ambient color of the box is wrong.", Arcadia_Media_Geometry_getAmbientColor(thread, geometry), 1.f, 1.f, 1.f, 1.f);
   //
-  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   // The box spans the given dimensions, centered at the origin.
   {
     Arcadia_Real32Value minimumX = vertices[0], maximumX = vertices[0];
@@ -330,7 +333,8 @@ test3
   expectSize(thread, "the sphere does not have the expected number of vertices.", Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer), 8 * 4 * 6);
   expectComponents(thread, "the mesh-wide ambient color of the sphere is wrong.", Arcadia_Media_Geometry_getAmbientColor(thread, geometry), 1.f, 1.f, 1.f, 1.f);
   //
-  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   Arcadia_SizeValue numberOfVertices = Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer);
   for (Arcadia_SizeValue i = 0; i < numberOfVertices; ++i) {
     Arcadia_Real32Value x = vertices[i * componentsInVertex + 0];
@@ -397,7 +401,8 @@ test4
   expectSize(thread, "the baked mesh does not have 3 vertices.", Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer), 3);
   expectComponents(thread, "the mesh-wide ambient color of the baked mesh is wrong.", Arcadia_Media_Geometry_getAmbientColor(thread, geometry), 1.f, 0.f, 0.f, 1.f);
   //
-  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value const* vertices = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   // The positions of the baked mesh are copied as is.
   expectFloat(thread, "the first vertex of the baked mesh is wrong.", vertices[0 * componentsInVertex + 0], 0.f);
   expectFloat(thread, "the second vertex of the baked mesh is wrong.", vertices[1 * componentsInVertex + 0], 1.f);
@@ -530,9 +535,12 @@ test8
   Arcadia_ADL_Definitions_link(thread, definitions);
   //
   Arcadia_Media_Geometry* geometry = Arcadia_Media_Geometry_createFromMeshGenerator(thread, getMeshGenerator(thread, definitions, "MyGame.Meshes.MyPlane"));
-  //
+  Arcadia_Object_lock(thread, (Arcadia_Object*)geometry);
+  // Root each copy before obtaining the next: constructing a ByteArray may trigger GC.
   Arcadia_Media_VertexBuffer* vertexBuffer1 = Arcadia_Media_Geometry_getVertexBuffer(thread, geometry);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer1);
   Arcadia_Media_VertexBuffer* vertexBuffer2 = Arcadia_Media_Geometry_getVertexBuffer(thread, geometry);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer2);
   // Both copies describe the same geometry.
   expectSize(thread, "the first vertex buffer of the plane does not have 6 vertices.", Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer1), 6);
   expectSize(thread, "the second vertex buffer of the plane does not have 6 vertices.", Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, vertexBuffer2), 6);
@@ -543,8 +551,24 @@ test8
   if (vertexBuffer1 == vertexBuffer2) {
     testFailure(thread, "the geometry returned the same vertex buffer twice.");
   }
-  Arcadia_Real32Value* vertices1 = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer1);
-  Arcadia_Real32Value* vertices2 = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer2);
+  Arcadia_ByteArray* bytes1 = Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer1);
+  Arcadia_ByteArray* bytes2 = Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer2);
+  if (!Arcadia_ByteArray_isMutable(thread, bytes1) ||
+       Arcadia_ByteArray_isResizable(thread, bytes1) ||
+      !Arcadia_ByteArray_isContiguous(thread, bytes1)) {
+    testFailure(thread, "vertex storage does not have fixed mutable contiguous capabilities.");
+  }
+  expectSize(thread, "vertex byte size is not the descriptor stride times the vertex count.",
+             Arcadia_ByteArray_getSize(thread, bytes1),
+             6 * componentsInVertex * sizeof(Arcadia_Real32Value));
+  if (Arcadia_ByteArray_getBytes(thread, bytes1) != Arcadia_ByteArray_getMutableBytes(thread, bytes1)) {
+    testFailure(thread, "mutable and readonly borrows refer to different vertex storage.");
+  }
+  expectSize(thread, "the vertex byte-count API disagrees with ByteArray storage.",
+             Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, vertexBuffer1),
+             Arcadia_ByteArray_getSize(thread, bytes1));
+  Arcadia_Real32Value* vertices1 = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, bytes1);
+  Arcadia_Real32Value* vertices2 = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, bytes2);
   if (vertices1 == vertices2) {
     testFailure(thread, "both vertex buffers of the plane share their vertex data.");
   }
@@ -556,9 +580,127 @@ test8
               vertices2[0], reference);
   // ... nor the geometry.
   Arcadia_Media_VertexBuffer* vertexBuffer3 = Arcadia_Media_Geometry_getVertexBuffer(thread, geometry);
-  Arcadia_Real32Value const* vertices3 = (Arcadia_Real32Value const*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer3);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)vertexBuffer3);
+  Arcadia_Real32Value const* vertices3 = (Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+    Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer3));
   expectFloat(thread, "changing the vertex data of a vertex buffer of the plane changed the vertex data of the plane.",
               vertices3[0], reference);
+
+  // A new copy owns independent bytes and retains the exact descriptor.
+  Arcadia_Media_VertexBuffer* copy = Arcadia_Media_VertexBuffer_copy(thread, vertexBuffer1);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)copy);
+  if (Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, copy) !=
+      Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, vertexBuffer1)) {
+    testFailure(thread, "copy changed the descriptor.");
+  }
+  expectSize(thread, "copy changed the vertex count.",
+             Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, copy), 6);
+  Arcadia_ByteArray* copyBytes = Arcadia_Media_VertexBuffer_getVertexBytes(thread, copy);
+  expectSize(thread, "copy changed the byte count.",
+             Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, copy),
+             Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, vertexBuffer1));
+  if (Arcadia_ByteArray_getBytes(thread, copyBytes) == Arcadia_ByteArray_getBytes(thread, bytes1)) {
+    testFailure(thread, "copy aliases its source bytes.");
+  }
+  Arcadia_Real32Value copiedFirst = ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread, copyBytes))[0];
+  vertices1[0] += 2.f;
+  expectFloat(thread, "copy was changed with its source.",
+              ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread, copyBytes))[0], copiedFirst);
+
+  // Copying into an existing buffer replaces bytes without reallocating it.
+  Arcadia_Media_VertexBuffer_copyInto(thread, vertexBuffer2, copy);
+  expectFloat(thread, "copyInto did not copy vertex bytes.",
+              ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread, bytes2))[0], copiedFirst);
+  Arcadia_Media_VertexBuffer_copyInto(thread, copy, copy); // self-copy is permitted
+
+  // The vertex buffer must retain its managed ByteArray through garbage collection.
+  Arcadia_Real32Value expectedAfterGC = vertices1[0];
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  expectFloat(thread, "vertex storage was lost during GC.",
+              ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+                Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer1)))[0], expectedAfterGC);
+
+  // A vertex count that would overflow stride multiplication must be rejected.
+  Arcadia_JumpTarget target;
+  Arcadia_Thread_pushJumpTarget(thread, &target);
+  if (Arcadia_JumpTarget_save(&target)) {
+    (void)Arcadia_Media_VertexBuffer_create(thread,
+      Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, vertexBuffer1), SIZE_MAX);
+    Arcadia_Thread_popJumpTarget(thread);
+    testFailure(thread, "vertex stride multiplication overflow was not rejected.");
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_AllocationFailed, status);
+  }
+  // A live VertexBuffer roots its ByteArray, including after its source changes.
+  Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+  expectFloat(thread, "independent copy storage lost after GC.",
+              ((Arcadia_Real32Value const*)Arcadia_ByteArray_getBytes(thread,
+                Arcadia_Media_VertexBuffer_getVertexBytes(thread, copy)))[0], copiedFirst);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)copy);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)vertexBuffer3);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)vertexBuffer2);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)vertexBuffer1);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)geometry);
+}
+
+static void
+testVertexBufferEmptyAndCopyMismatch(Arcadia_Thread* thread)
+{
+  Arcadia_ADL_Context* context = Arcadia_ADL_Context_getOrCreate(thread);
+  Arcadia_ADL_Definitions* definitions = Arcadia_ADL_Definitions_create(thread);
+  defineCommonDefinitions(thread, context, definitions);
+  readDefinition(thread, context, definitions,
+    "{\n"
+    "  type : \"PlaneMeshGenerator\",\n"
+    "  name : \"MyGame.Meshes.MyPlane\",\n"
+    "  width : 2.0,\n"
+    "  height : 4.0,\n"
+    "  ambientColor : \"MyGame.Colors.MyWhite\",\n"
+    "}\n");
+  Arcadia_ADL_Definitions_link(thread, definitions);
+  Arcadia_Media_Geometry* geometry = Arcadia_Media_Geometry_createFromMeshGenerator(thread,
+    getMeshGenerator(thread, definitions, "MyGame.Meshes.MyPlane"));
+  Arcadia_Object_lock(thread, (Arcadia_Object*)geometry);
+  Arcadia_Media_VertexBuffer* populated = Arcadia_Media_Geometry_getVertexBuffer(thread, geometry);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)populated);
+  Arcadia_Media_VertexBuffer* empty = Arcadia_Media_VertexBuffer_create(thread,
+    Arcadia_Media_VertexBuffer_getVertexDescriptor(thread, populated), 0);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)empty);
+  expectSize(thread, "empty vertex buffer has nonzero byte length.",
+             Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, empty), 0);
+  Arcadia_Media_VertexBuffer* duplicate = Arcadia_Media_VertexBuffer_copy(thread, empty);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)duplicate);
+  expectSize(thread, "empty vertex copy has nonzero vertices.",
+             Arcadia_Media_VertexBuffer_getNumberOfVertices(thread, duplicate), 0);
+  Arcadia_Media_VertexBuffer_copyInto(thread, empty, duplicate);
+
+  Arcadia_JumpTarget target;
+  Arcadia_Thread_pushJumpTarget(thread, &target);
+  if (Arcadia_JumpTarget_save(&target)) {
+    Arcadia_Media_VertexBuffer_copyInto(thread, empty, populated);
+    Arcadia_Thread_popJumpTarget(thread);
+    testFailure(thread, "copyInto accepted mismatched vertex counts.");
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_ArgumentValueInvalid, status);
+  }
+  expectSize(thread, "mismatched copy changed target length.",
+             Arcadia_Media_VertexBuffer_getNumberOfBytes(thread, empty), 0);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)duplicate);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)empty);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)populated);
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)geometry);
+}
+
+static int
+runVertexBufferEmptyAndCopyMismatch(void)
+{
+  return Arcadia_Tests_safeExecute(&testVertexBufferEmptyAndCopyMismatch) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static int
@@ -649,6 +791,7 @@ main
     { "UnsupportedGeneratorConstruction", &runUnsupportedGeneratorConstruction },
     { "UnsupportedGeneratorRejection", &runUnsupportedGeneratorRejection },
     { "VertexBufferCopies", &runVertexBufferCopies },
+    { "VertexBufferEmptyAndCopyMismatch", &runVertexBufferEmptyAndCopyMismatch },
     { "VertexBuilder", &Arcadia_Media_Tests_Geometry_vertexBuilder },
     { "VertexEnums", &Arcadia_Media_Tests_Geometry_vertexEnums },
   };

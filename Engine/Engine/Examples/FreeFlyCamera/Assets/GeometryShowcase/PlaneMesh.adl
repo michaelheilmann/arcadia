@@ -1,0 +1,7 @@
+{
+  type : "PlaneMeshGenerator",
+  name : "GeometryShowcase.PlaneMesh",
+  width : 2.0,
+  height : 2.0,
+  ambientColor : "GeometryShowcase.MeshColor",
+}

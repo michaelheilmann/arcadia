@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Collections/Collection.h"
+
 typedef struct Arcadia_List Arcadia_List;
 
 Arcadia_declareObjectType(u8"Arcadia.Set", Arcadia_Set,

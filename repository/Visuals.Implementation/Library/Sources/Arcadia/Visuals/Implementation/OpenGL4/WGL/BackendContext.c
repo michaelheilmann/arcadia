@@ -518,6 +518,32 @@ Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_BackendContext_windowCallbackP
       return 0;
     } break;
 
+    case WM_MOUSEWHEEL:
+    case WM_MOUSEHWHEEL: {
+      Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_WindowBackend* windowBackend =
+        (Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_WindowBackend*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+      if (!windowBackend) return 0;
+      // Unlike WM_MOUSEMOVE, wheel messages contain screen-space coordinates.
+      POINT location = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+      ScreenToClient(hWnd, &location);
+      Arcadia_JumpTarget jumpTarget;
+      Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+      if (Arcadia_JumpTarget_save(&jumpTarget)) {
+        Arcadia_Engine_Input_MousePointerEvent* event = Arcadia_Engine_Input_MousePointerEvent_createScrolled
+          (
+            thread, Arcadia_getTickCount(thread), (Arcadia_Integer32Value)location.x,
+            (Arcadia_Integer32Value)location.y,
+            uMsg == WM_MOUSEHWHEEL ? GET_WHEEL_DELTA_WPARAM(wParam) : 0,
+            uMsg == WM_MOUSEWHEEL ? GET_WHEEL_DELTA_WPARAM(wParam) : 0
+          );
+        Arcadia_Engine_enqueEvent(thread, Arcadia_Engine_getOrCreate(thread), (Arcadia_Engine_Event*)event);
+        Arcadia_Thread_popJumpTarget(thread);
+      } else {
+        Arcadia_Thread_popJumpTarget(thread);
+      }
+      return 0;
+    } break;
+
     case WM_LBUTTONUP: {
       Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_WindowBackend* windowBackend = (Arcadia_Engine_Visuals_Implementation_OpenGL4_WGL_WindowBackend*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
       if (!windowBackend) {

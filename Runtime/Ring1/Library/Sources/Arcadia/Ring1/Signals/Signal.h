@@ -62,6 +62,9 @@ Arcadia_Signal_connect
 // [arguments] ++ [#numberOfArguments]
 // `numberOfArguments` is a Natural8 value indicating the number of arguments passed to the function.
 // `arguments` is a sequence of `numberOfArguments` values.
+// At most 253 user arguments are supported: receiver and sender are prepended
+// for each slot callback. Larger counts raise NumberOfArgumentsInvalid before
+// any callback is invoked, leaving the caller-owned argument frame untouched.
 void
 Arcadia_Signal_emit
   (

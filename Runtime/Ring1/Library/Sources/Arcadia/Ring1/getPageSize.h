@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Ring1/Natural64.h"
+
 typedef struct Arcadia_Thread Arcadia_Thread;
 
 // https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_getPageSize

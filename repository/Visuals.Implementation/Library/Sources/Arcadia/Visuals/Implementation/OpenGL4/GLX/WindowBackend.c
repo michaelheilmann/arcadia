@@ -595,7 +595,7 @@ getFullscreenImpl
     Arcadia_Thread* thread,
     Arcadia_Engine_Visuals_Implementation_OpenGL4_GLX_WindowBackend* self
   )
-{ return ((Arcadia_Engine_Visuals_Window*)self)->fullscreen; }
+{ return ((Arcadia_Engine_Visuals_WindowBackend*)self)->fullscreen; }
 
 static void
 setFullscreenImpl
@@ -608,32 +608,36 @@ setFullscreenImpl
   if (self->window) {
     if (((Arcadia_Engine_Visuals_WindowBackend*)self)->fullscreen != fullscreen) {
 
-      struct {
-        unsigned long   flags;
-        unsigned long   functions;
-        unsigned long   decorations;
-        long            inputMode;
-        unsigned long   status;
-      } hints = {
-        .flags = 2, // indicate that we change the decorations
-        .functions = 0, // ignored
-        .decorations = fullscreen ? 0 : 1, // 0 means disables decorations, 1 enables decorations
-        .inputMode = 0, // ignored
-        .status = 0, // ingored
-      };
+      // Fullscreen is a window-manager state, not just a change of decorations.
+      // EWMH requests are asynchronous; the WM applies the final geometry.
+      Atom wmState = XInternAtom(self->backendContext->display, "_NET_WM_STATE", False);
+      Atom wmStateFullscreen = XInternAtom(self->backendContext->display, "_NET_WM_STATE_FULLSCREEN", False);
+      if (wmState == None || wmStateFullscreen == None) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
+        Arcadia_Thread_jump(thread);
+      }
+      XEvent event = { 0 };
+      event.xclient.type = ClientMessage;
+      event.xclient.window = self->window;
+      event.xclient.message_type = wmState;
+      event.xclient.format = 32;
+      event.xclient.data.l[0] = fullscreen ? 1 : 0; // _NET_WM_STATE_ADD / _NET_WM_STATE_REMOVE
+      event.xclient.data.l[1] = (long)wmStateFullscreen;
+      event.xclient.data.l[2] = 0;
+      event.xclient.data.l[3] = 1; // Source indication: application
+      if (!XSendEvent(self->backendContext->display, RootWindowOfScreen(self->screen), False,
+                      SubstructureRedirectMask | SubstructureNotifyMask, &event)) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
+        Arcadia_Thread_jump(thread);
+      }
       XSync(self->backendContext->display, False);
-      XSync(self->backendContext->display, False);
-      XChangeProperty(self->backendContext->display, self->window, self->backendContext->_MOTIF_WM_HINTS,
-                                                   self->backendContext->_MOTIF_WM_HINTS,
-                                                   32, PropModeReplace, (unsigned char *)&hints,
-                                                   5);
-      XSync(self->backendContext->display, False);
-      ((Arcadia_Engine_Visuals_WindowBackend*)self)->fullscreen = fullscreen;
       if (Arcadia_Visuals_Implementation_Linux_hasX11Error(thread)) {
         Arcadia_Visuals_Implementation_Linux_clearX11Error(thread);
         Arcadia_Thread_setStatus(thread, Arcadia_Status_EnvironmentFailed);
         Arcadia_Thread_jump(thread);
       }
+      // This records the requested state. The window manager may reject it.
+      ((Arcadia_Engine_Visuals_WindowBackend*)self)->fullscreen = fullscreen;
     }
   } else {
     ((Arcadia_Engine_Visuals_WindowBackend*)self)->fullscreen = fullscreen;

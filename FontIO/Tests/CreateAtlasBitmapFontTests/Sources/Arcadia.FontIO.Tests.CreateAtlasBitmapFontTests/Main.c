@@ -87,7 +87,8 @@ test1
   // (4) Each glyph image within the atlas must contain at least one covered pixel.
   {
     Arcadia_SizeValue lineStride = Arcadia_Media_PixelBuffer_getLineStride(thread, atlas);
-    Arcadia_Natural8Value* bytes = atlas->bytes;
+    Arcadia_Natural8Value const* bytes = Arcadia_ByteArray_getBytes(thread,
+      Arcadia_Media_PixelBuffer_getPixelBytes(thread, atlas));
     for (Arcadia_SizeValue i = 0; i < g_numberOfCodePoints; ++i) {
       Arcadia_BooleanValue covered = Arcadia_BooleanValue_False;
       for (Arcadia_Integer32Value y = 0; y < glyphInformations[i].glyphInformation.height && !covered; ++y) {

@@ -1,0 +1,55 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// A scroll panel definition. Child references remain in insertion order and
+// are returned through the native ContainerDefinition interface.
+class "Arcadia/ADL/Definitions/UI/ScrollPanelDefinition.h" Arcadia.ADL.UI.ScrollPanelDefinition extends Arcadia.ADL.Definition implements Arcadia.ADL.UI.ContainerDefinition {
+  variable left : Arcadia.Integer32
+  variable bottom : Arcadia.Integer32
+  variable width : Arcadia.Natural32
+  variable height : Arcadia.Natural32
+  variable contentWidth : Arcadia.Natural32
+  variable contentHeight : Arcadia.Natural32
+  variable childReferences : Arcadia.List
+
+  constructor
+    (
+      variable definitions : Arcadia.ADL.Definitions,
+      variable name : Arcadia.String,
+      variable left : Arcadia.Integer32,
+      variable bottom : Arcadia.Integer32,
+      variable width : Arcadia.Natural32,
+      variable height : Arcadia.Natural32,
+      variable contentWidth : Arcadia.Natural32,
+      variable contentHeight : Arcadia.Natural32
+    )
+  {
+    construct $0 Arcadia.ADL.Definition self definitions name
+    storeField self left left
+    storeField self bottom bottom
+    storeField self width width
+    storeField self height height
+    storeField self contentWidth contentWidth
+    storeField self contentHeight contentHeight
+    call $1 Arcadia.ADL.UI.createChildReferences
+    storeField self childReferences $1
+  }
+
+  method getChildReferences : Arcadia.List {
+    loadField $0 self childReferences
+    return $0
+  }
+}

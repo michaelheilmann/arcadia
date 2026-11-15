@@ -112,7 +112,7 @@ addChild
   PopulateProbe* self = (PopulateProbe*)object;
   addCalls++;
   collect(thread);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_StackPanelNode_getType(thread)));
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, child, _Arcadia_Engine_UI_LayoutPanelNode_getType(thread)));
   if (failAt == addCalls) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationFailed);
     Arcadia_Thread_jump(thread);
@@ -183,11 +183,18 @@ createReference
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   Arcadia_String* name = Arcadia_String_createFromCxxString(thread, text);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, name);
-  Arcadia_String* alignment = Arcadia_String_createFromCxxString(thread, "Start");
-  Arcadia_ValueStack_pushObjectReferenceValue(thread, alignment);
-  Arcadia_ADL_UI_StackPanelDefinition* definition = Arcadia_ADL_UI_StackPanelDefinition_create(thread, definitions, name,
-    left, 23, 100, 40, false, 3, 1, 2, 3, 4, alignment, alignment, NULL, 0);
+  Arcadia_ADL_UI_PanelDefinition* definition = Arcadia_ADL_UI_PanelDefinition_create(thread, definitions, name, left, 23, 100, 40);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, definition);
+  definition->layoutType = Arcadia_String_createFromCxxString(thread, "UI.StackLayout");
+  definition->sizePolicy = Arcadia_String_createFromCxxString(thread, "Fixed");
+  definition->vertical = Arcadia_BooleanValue_False;
+  definition->gap = 3;
+  definition->paddingLeft = 1;
+  definition->paddingBottom = 2;
+  definition->paddingRight = 3;
+  definition->paddingTop = 4;
+  definition->mainAlignment = Arcadia_String_createFromCxxString(thread, "Start");
+  definition->crossAlignment = Arcadia_String_createFromCxxString(thread, "Start");
   Arcadia_Map_set(thread, definitions->definitions, Arcadia_Value_makeObjectReferenceValue(name), Arcadia_Value_makeObjectReferenceValue(definition), NULL, NULL);
   Arcadia_ADL_Reference* reference = Arcadia_ADL_Reference_create(thread, definitions, name);
   Arcadia_List_insertBackObjectReferenceValue(thread, source->references, (Arcadia_Object*)reference);
@@ -274,7 +281,7 @@ testNested
   fixture(thread, &source, &target);
   Arcadia_ADL_Reference* first = (void*)Arcadia_List_getObjectReferenceValueAt(thread, source->references, 0);
   Arcadia_ADL_Reference_resolve(thread, first);
-  Arcadia_ADL_UI_StackPanelDefinition* definition = (void*)first->definition;
+  Arcadia_ADL_UI_PanelDefinition* definition = (void*)first->definition;
   Arcadia_List_insertBackObjectReferenceValue(thread, definition->childReferences,
     Arcadia_List_getObjectReferenceValueAt(thread, source->references, 1));
   Arcadia_Engine_UI_populateContainerFromDefinition(thread, NULL, (void*)target, (void*)source);
@@ -284,7 +291,7 @@ testNested
     Arcadia_Tests_assertTrue(thread, Arcadia_Engine_UI_Container_getChildCount(thread, child) == (i == 1 ? 0 : 1));
     if (i != 1) {
       Arcadia_Object* grandchild = Arcadia_Engine_UI_Container_getChildAt(thread, child, 0);
-      Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, grandchild, _Arcadia_Engine_UI_StackPanelNode_getType(thread)));
+      Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, grandchild, _Arcadia_Engine_UI_LayoutPanelNode_getType(thread)));
       Arcadia_String* name = Arcadia_Engine_UI_WidgetNode_getName(thread, (void*)grandchild);
       Arcadia_Tests_assertTrue(thread, Arcadia_String_isEqualTo_pn(thread, name, "Tests.Populate.Second", sizeof("Tests.Populate.Second") - 1));
     }

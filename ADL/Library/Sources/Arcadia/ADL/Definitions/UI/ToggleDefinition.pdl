@@ -1,0 +1,44 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// A toggle definition. The inherited Definitions and name retain their native
+// Definition storage and visitor; the five UI properties are scalar values.
+class "Arcadia/ADL/Definitions/UI/ToggleDefinition.h" Arcadia.ADL.UI.ToggleDefinition extends Arcadia.ADL.Definition {
+  variable left : Arcadia.Integer32
+  variable bottom : Arcadia.Integer32
+  variable width : Arcadia.Natural32
+  variable height : Arcadia.Natural32
+  variable checked : Arcadia.Boolean
+
+  constructor
+    (
+      variable definitions : Arcadia.ADL.Definitions,
+      variable name : Arcadia.String,
+      variable left : Arcadia.Integer32,
+      variable bottom : Arcadia.Integer32,
+      variable width : Arcadia.Natural32,
+      variable height : Arcadia.Natural32,
+      variable checked : Arcadia.Boolean
+    )
+  {
+    construct $0 Arcadia.ADL.Definition self definitions name
+    storeField self left left
+    storeField self bottom bottom
+    storeField self width width
+    storeField self height height
+    storeField self checked checked
+  }
+}

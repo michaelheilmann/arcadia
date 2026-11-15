@@ -23,6 +23,7 @@
 
 #include "Arcadia/Ring1/Object.h"
 #include "Arcadia/Ring1/swap.h"
+
 typedef struct Arcadia_ByteArray Arcadia_ByteArray;
 
 Arcadia_declareObjectType(u8"Arcadia.ByteArrayBuilder", Arcadia_ByteArrayBuilder,
@@ -34,9 +35,8 @@ struct Arcadia_ByteArrayBuilderDispatch {
 
 struct Arcadia_ByteArrayBuilder {
   Arcadia_Object _parent;
-  char* p;
-  Arcadia_SizeValue sz;
-  Arcadia_SizeValue cp;
+  // Authoritative resizable byte storage; no mirrored native pointers or sizes.
+  Arcadia_ByteArray* storage;
 };
 
 // https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArrayBuilder_create
@@ -166,9 +166,7 @@ Arcadia_ByteArrayBuilder_swap
     Arcadia_ByteArrayBuilder* other
   )
 {
-  Arcadia_swapPointer(thread, (void**)&self->p, (void**)&other->p);
-  Arcadia_swapSize(thread, &self->sz, &other->sz);
-  Arcadia_swapSize(thread, &self->cp, &other->cp);
+  Arcadia_swapPointer(thread, (void**)&self->storage, (void**)&other->storage);
 }
 
 Arcadia_ByteArray*

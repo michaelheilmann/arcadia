@@ -90,6 +90,14 @@ Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBufferImpl
   );
 
 static void
+Arcadia_Engine_Visuals_EnterPassResource_setDepthTestEnabledImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
+    Arcadia_BooleanValue enabled
+  );
+
+static void
 Arcadia_Engine_Visuals_EnterPassResource_setClearDepthImpl
   (
     Arcadia_Thread* thread,
@@ -177,6 +185,7 @@ Arcadia_Engine_Visuals_EnterPassResource_constructImpl
 
   self->clearDepthBuffer = Arcadia_BooleanValue_True;
   self->clearDepth = 1.f;
+  self->depthTestEnabled = Arcadia_BooleanValue_True;
 
   Arcadia_Engine_Visuals_BackendContext* backendContext = (Arcadia_Engine_Visuals_BackendContext*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_Visuals_BackendContext_getType(thread));
   // Until LeaveConstructor publishes this type, GC only sees Resource's visitor.
@@ -216,6 +225,7 @@ Arcadia_Engine_Visuals_EnterPassResource_initializeDispatchImpl
   self->setClearColorBuffer = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_BooleanValue)) & Arcadia_Engine_Visuals_EnterPassResource_setClearColorBufferImpl;
   self->setClearColor = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Math_Color4Real32*)) & Arcadia_Engine_Visuals_EnterPassResource_setClearColorImpl;
   self->setClearDepthBuffer = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_BooleanValue)) & Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBufferImpl;
+  self->setDepthTestEnabled = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_BooleanValue)) & Arcadia_Engine_Visuals_EnterPassResource_setDepthTestEnabledImpl;
   self->setClearDepth = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Real32Value)) & Arcadia_Engine_Visuals_EnterPassResource_setClearDepthImpl;
   self->setRelativeViewportRectangle = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_EnterPassResource*, Arcadia_Real32Value, Arcadia_Real32Value, Arcadia_Real32Value, Arcadia_Real32Value)) & Arcadia_Engine_Visuals_EnterPassResource_setRelativeViewportRectangleImpl;
 }
@@ -320,6 +330,20 @@ Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBufferImpl
   self->clearDepthBuffer = clearDepthBuffer;
   if (changed) {
     self->dirty |= Arcadia_Engine_Visuals_EnterPassResource_ClearDepthDirty;
+  }
+}
+
+static void
+Arcadia_Engine_Visuals_EnterPassResource_setDepthTestEnabledImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
+    Arcadia_BooleanValue enabled
+  )
+{
+  if (self->depthTestEnabled != enabled) {
+    self->depthTestEnabled = enabled;
+    self->dirty |= Arcadia_Engine_Visuals_EnterPassResource_DepthTestDirty;
   }
 }
 
@@ -433,6 +457,15 @@ Arcadia_Engine_Visuals_EnterPassResource_setClearDepthBuffer
     Arcadia_BooleanValue clearDepthBuffer
   )
 { Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setClearDepthBuffer, self, clearDepthBuffer); }
+
+void
+Arcadia_Engine_Visuals_EnterPassResource_setDepthTestEnabled
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_EnterPassResource* self,
+    Arcadia_BooleanValue enabled
+  )
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_EnterPassResource, setDepthTestEnabled, self, enabled); }
 
 void
 Arcadia_Engine_Visuals_EnterPassResource_setClearDepth

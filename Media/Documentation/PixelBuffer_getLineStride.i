@@ -27,9 +27,19 @@
     </div>
   </section>
 
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <div>
+      <div>Arcadia_Status_ArgumentValueInvalid</div>
+      <div>The row-byte multiplication or line-padding addition exceeds the
+      range of <code>Arcadia_Integer32Value</code>.</div>
+    </div>
+  </section>
+
   <section class="cxx return-value">
     <h1>Return value</h1>
-    <p>The line stride of this pixel buffer.</p>
+    <p>The line stride in bytes, including per-row padding, represented as
+    <code>Arcadia_Integer32Value</code>.</p>
   </section>
 
 </section>

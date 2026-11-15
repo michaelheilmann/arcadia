@@ -9,6 +9,7 @@
 
 #include "Arcadia/FileSystem/FileType.h"
 #include "Arcadia/FileSystem/FilePath.h"
+
 typedef struct Arcadia_DefaultFileSystem Arcadia_DefaultFileSystem;
 
 /// @brief Get the type of a file.

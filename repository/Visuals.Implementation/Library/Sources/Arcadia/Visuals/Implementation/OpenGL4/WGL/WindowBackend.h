@@ -19,6 +19,7 @@
 
 #include "Arcadia/Visuals/Implementation/OpenGL4/WGL/BackendContext.h"
 #include "Arcadia/Visuals/Implementation/Windows/Icon.h"
+
 typedef struct Arcadia_Engine_Visuals_Windows_DisplayDevice Arcadia_Engine_Visuals_Windows_DisplayDevice;
 
 #if !defined(WIN32_LEAN_AND_MEAN)

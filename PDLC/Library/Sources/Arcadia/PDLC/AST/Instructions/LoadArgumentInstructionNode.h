@@ -18,6 +18,7 @@
 #define ARCADIA_PDLC_AST_LOADARGUMENTINSTRUCTIONNODE_H_INCLUDED
 
 #include "Arcadia/PDLC/AST/InstructionNode.h"
+
 typedef struct Arcadia_PDLC_AST_OperandNode Arcadia_PDLC_AST_OperandNode;
 
 /// @code

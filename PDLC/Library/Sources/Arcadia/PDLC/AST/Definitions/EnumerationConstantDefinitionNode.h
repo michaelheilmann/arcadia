@@ -18,6 +18,7 @@
 #define ARCADIA_PDLC_AST_ENUMERATIONCONSTANTDEFINITIONNODE_H_INCLUDED
 
 #include "Arcadia/PDLC/AST/DefinitionNode.h"
+
 typedef struct Arcadia_PDLC_AST_IntegerLiteralNode Arcadia_PDLC_AST_IntegerLiteralNode;
 
 /// The definition of an enumeration constant.

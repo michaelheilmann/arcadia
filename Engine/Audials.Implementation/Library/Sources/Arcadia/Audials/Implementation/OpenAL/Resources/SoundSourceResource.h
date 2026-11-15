@@ -18,6 +18,7 @@
 #define ARCADIA_ENGINE_AUDIALS_IMPLEMENTATION_OPENAL_RESOURCES_SOUNDSOURCERESOURCE_H_INCLUDED
 
 #include "Arcadia/Engine/Include.h"
+
 typedef struct Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext Arcadia_Engine_Audials_Implementation_OpenAL_BackendContext;
 
 #define AL_LIBTYPE_STATIC

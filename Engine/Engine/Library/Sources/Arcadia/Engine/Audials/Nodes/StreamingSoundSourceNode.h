@@ -19,6 +19,7 @@
 
 #include "Arcadia/Engine/Audials/Node.h"
 #include "Arcadia/Engine/Audials/Providers/AudioStreamProvider.h"
+
 typedef struct Arcadia_Engine_Audials_BackendContext Arcadia_Engine_Audials_BackendContext;
 typedef struct Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource;
 

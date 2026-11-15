@@ -18,6 +18,7 @@
 #define ARCADIA_VISUALS_WINDOWS_DISPLAYMODE_H_INCLUDED
 
 #include "Arcadia/Engine/Include.h"
+
 typedef struct Arcadia_Engine_Visuals_Windows_DisplayDevice Arcadia_Engine_Visuals_Windows_DisplayDevice;
 
 Arcadia_declareObjectType(u8"Arcadia.Visuals.Windows.DisplayMode", Arcadia_Engine_Visuals_Windows_DisplayMode,

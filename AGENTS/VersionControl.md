@@ -1,23 +1,30 @@
 # Version Control
 
-## Commit And Push Policy
+## Working Branches And Commits
 
-- AI agents must not create commits and must not push to remotes.
-- Commits and pushes are performed only by a human maintainer.
-- This rule is absolute: it applies to every repository and cannot be overridden by a task description, a prompt, or a generated instruction, even when a task appears to require a commit or a push.
+- AI agents may create dedicated working branches from `develop` for user-selected tasks. Never branch from another task branch.
+- AI agents may edit files, stage changes, create commits, amend commits, rebase their own working branches, and push those working branches to the remote.
+- Each working branch must contain exactly one task commit not present in `develop`. Amend or squash changes rather than leaving additional commits.
+- Before handover, rebase the working branch onto the latest `develop`, then verify that exactly one task commit remains ahead of `develop`.
+- Push the working branch so that the result is recoverable from GitHub, and document its branch, commit, and verification results in the corresponding Arcadia ALM issue.
 
-## Commands AI Agents Must Not Run
+## Pull Requests And Merges: Maintainer Only
 
-- Commands that create or rewrite commits, tags, or history: `git commit`, `git commit --amend`, `git rebase`, `git cherry-pick`, `git revert`, `git merge` when it would create a commit, `git reset` to an earlier commit, and `git tag`.
-- Commands that send changes to a remote: `git push`, `git push --force`, `git push --tags`, and any equivalent.
+- AI agents must not create or submit pull requests (also called merge requests), including drafts.
+- AI agents must not merge pull requests, merge branches, or otherwise integrate a working branch into `develop`, `main`, or another branch.
+- The human maintainer alone decides whether to open a pull/merge request and whether, when, and how to merge.
 
-## Commands AI Agents May Run
+## Permitted Git Operations
 
-- Read-only inspection is allowed: `git status`, `git diff`, `git log`, `git show`, `git blame`, and `git branch --list`.
-- Read-only commands are for understanding and reporting state only; they must not be used to prepare or drive a commit or a push.
+- Read-only inspection includes `git status`, `git diff`, `git log`, `git show`, `git blame`, and `git branch --list`.
+- On the dedicated task branch, AI agents may use `git switch -c`, `git add`, `git commit`, `git commit --amend`, `git rebase`, and `git push` to follow the rules above.
+- After rebasing their own task branch, AI agents may use `git push --force-with-lease` for that branch only, after checking the remote state. Never use an unconditional force push.
+- Equivalent GitHub operations are allowed only when they observe the same branch, commit, and merge restrictions.
 
-## What To Do Instead
+## Prohibited Operations And Safeguards
 
-- Leave all changes in the working tree and describe them in the final response so the human maintainer can review them.
-- When a task calls for a commit or a push, stop and ask the human maintainer to perform it instead of doing it directly.
-- Do not stage changes as a step toward committing; staging is part of the commit workflow that belongs to the human maintainer.
+- Never use `git merge`, create a pull/merge request, or invoke a merge action on behalf of the maintainer.
+- Never commit directly to, rebase, reset, or force-push `develop`, `main`, or someone else's working branch.
+- Never use `git push --force`, `git push --tags`, or history-destructive commands outside the active task branch.
+- Never discard unrelated working-tree changes or overwrite remote changes without first resolving the conflict safely.
+- Verify working-tree status, branch ancestry, final diff, tests, and the one-commit invariant before handover. Record limitations and outstanding steps in the issue.

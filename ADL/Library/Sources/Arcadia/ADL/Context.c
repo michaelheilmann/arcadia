@@ -226,7 +226,8 @@ Arcadia_ADL_Context_constructImpl
     Arcadia_ADL_Reader* reader = (Arcadia_ADL_Reader*)Arcadia_ADL_UI_TreeReader_create(thread);
     Arcadia_String* typeNames[] = {
       Arcadia_String_createFromCxxString(thread, u8"UI.Label"),
-      Arcadia_String_createFromCxxString(thread, u8"UI.StackPanel"),
+      Arcadia_String_createFromCxxString(thread, u8"UI.Panel"),
+      Arcadia_String_createFromCxxString(thread, u8"UI.ScrollPanel"),
       Arcadia_String_createFromCxxString(thread, u8"UI.SegmentedChoice"),
       Arcadia_String_createFromCxxString(thread, u8"UI.Slider"),
       Arcadia_String_createFromCxxString(thread, u8"UI.Toggle"),

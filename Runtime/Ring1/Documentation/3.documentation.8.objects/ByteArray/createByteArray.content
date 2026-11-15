@@ -1,0 +1,38 @@
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_createByteArray">Arcadia_ByteArray_createByteArray</h1>
+
+  <my-signature><code>
+  Arcadia_ByteArray*<br>
+  Arcadia_ByteArray_createByteArray<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_RuntimeByteArray* runtimeByteArray<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Wraps an immutable runtime byte array in an object-level byte array.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_RuntimeByteArray* runtimeByteArray</code></div>
+      <div>The immutable runtime byte array to wrap.</div>
+    </div>
+  </section>
+
+  <section class="cxx return-value">
+    <h1>Return value</h1>
+    <p>An immutable, fixed-size and contiguous <code>Arcadia_ByteArray*</code>.</p>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>This compatibility function delegates to <code>Arcadia_ByteArrayFactory_createImmutable</code>. It does not copy the underlying bytes. The wrapper retains the runtime byte array through garbage-collector visitation.</p>
+  </section>
+
+</section>

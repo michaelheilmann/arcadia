@@ -27,6 +27,7 @@
 #include "Arcadia/Ring1/Real64.h"
 #include "Arcadia/Ring1/Size.h"
 #include "Arcadia/Ring1/StringToReal/Result.h"
+
 typedef struct Arcadia_BigInteger Arcadia_BigInteger;
 
 // For q in (0,350), we have that

@@ -39,6 +39,9 @@ struct Arcadia_Engine_Input_MousePointerEvent {
   Arcadia_Engine_Input_MousePointerAction action;
   Arcadia_Integer32Value x;
   Arcadia_Integer32Value y;
+  // 120 units per notch. Positive deltaY is wheel-up; positive deltaX is right.
+  Arcadia_Integer32Value wheelDeltaX;
+  Arcadia_Integer32Value wheelDeltaY;
 };
 
 Arcadia_Engine_Input_MousePointerEvent*
@@ -50,5 +53,24 @@ Arcadia_Engine_Input_MousePointerEvent_create
     Arcadia_Integer32Value x,
     Arcadia_Integer32Value y
   );
+
+// Portable wheel factory; existing four-argument pointer event constructor stays intact.
+static inline Arcadia_Engine_Input_MousePointerEvent*
+Arcadia_Engine_Input_MousePointerEvent_createScrolled
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Natural64Value timestamp,
+    Arcadia_Integer32Value x,
+    Arcadia_Integer32Value y,
+    Arcadia_Integer32Value wheelDeltaX,
+    Arcadia_Integer32Value wheelDeltaY
+  )
+{
+  Arcadia_Engine_Input_MousePointerEvent* event = Arcadia_Engine_Input_MousePointerEvent_create
+    (thread, timestamp, Arcadia_Engine_Input_MousePointerAction_Scrolled, x, y);
+  event->wheelDeltaX = wheelDeltaX;
+  event->wheelDeltaY = wheelDeltaY;
+  return event;
+}
 
 #endif // ARCADIA_ENGINE_INPUT_MOUSEPOINTEREVENT_H_INCLUDED

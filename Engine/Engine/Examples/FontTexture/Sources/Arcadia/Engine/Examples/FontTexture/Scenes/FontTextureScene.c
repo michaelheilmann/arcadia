@@ -225,7 +225,7 @@ setFontQuad
   Arcadia_Real32Value const v0 = 0.5f / (Arcadia_Real32Value)atlasHeight;
   Arcadia_Real32Value const v1 = ((Arcadia_Real32Value)atlasHeight - 0.5f) / (Arcadia_Real32Value)atlasHeight;
   Arcadia_Media_VertexBuffer* vertexBuffer = Arcadia_Engine_Visuals_MeshNode_getVertexBuffer(thread, self->modelNode->mesh);
-  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_Media_VertexBuffer_getVertices(thread, vertexBuffer);
+  Arcadia_Real32Value* vertices = (Arcadia_Real32Value*)Arcadia_ByteArray_getMutableBytes(thread, Arcadia_Media_VertexBuffer_getVertexBytes(thread, vertexBuffer));
   Arcadia_Real32Value const vertexData[6][5] = {
     { (Arcadia_Real32Value)x0, (Arcadia_Real32Value)y0, 0.f, u0, v1 },
     { (Arcadia_Real32Value)x1, (Arcadia_Real32Value)y0, 0.f, u1, v1 },

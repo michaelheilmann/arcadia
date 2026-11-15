@@ -30,12 +30,13 @@
     <p>The optional class <code>abstract</code> modifier precedes <code>native</code>, when both are present. An abstract class may contain ordinary constructors, fields, concrete methods, and explicit abstract method declarations. A method is declared abstract with <code>method abstract name parameters? : ReturnType</code>, without a body or native-target clause. Merely omitting an ordinary method body does not make that method abstract.</p>
     <p>For a native class, an optional string literal after <code>native</code> or <code>native implementation</code> specifies its C header, for example <code>native "Arcadia/Engine/Visuals/Resources/TextureResource.h" class Arcadia.Engine.Visuals.TextureResource extends Arcadia.Engine.Visuals.Resource { }</code>. This class header clause is distinct from a callable's native-target clause. A native class without the string retains the default header path derived from its qualified type name.</p>
     <p><code>native implementation</code> distinguishes a class whose declarations belong to PDL but whose executable implementation is supplied natively. For example, <code>native implementation "Arcadia/Engine/Visuals/Resource.h" class Arcadia.Engine.Visuals.Resource extends Arcadia.Object { ... }</code> generates declarations at the mapped header path while retaining the native implementation. <code>implementation</code> is contextual here and is not accepted on enumeration declarations.</p>
-    <p><em>Not yet reflected by the C backend:</em> the <code>implements</code> clause is parsed and semantically checked, but the current backend writer does not yet emit an implemented interface type set or the corresponding interface dispatch initializers. Classes are still written with <code>Arcadia_defineObjectType</code>.</p>
+    <p>The C backend registers listed interface types and checks that class methods supply their operation signatures. Classes with no <code>implements</code> clause retain ordinary object-type registration.</p>
 
     <h3>Interfaces</h3>
     <p>An interface definition names an interface, may name the interface types it extends, and must contain operation definitions. The body of an interface definition is mandatory.</p>
     <p><code>
     interfaceDefinition : 'interface' identifier ('extends' interfaceNames)? interfaceBody<br>
+                        | 'native' stringLiteral 'interface' identifier ('extends' interfaceNames)? interfaceBody<br>
     interfaceBody : '{' interfaceMemberDefinition* '}'<br>
     interfaceMemberDefinition : operationDefinition<br>
     operationDefinition : 'method' 'abstract'? nativeClause? name parameters? ':' identifier methodBody?<br>
@@ -43,6 +44,7 @@
     </code></p>
     <p>An interface type may extend one or more interface types. Every extended interface type must be an interface type; the semantic analysis rejects any other symbol. The inheritance graph of interface types is acyclic, and an interface type may extend the same interface type at most once, transitively. The semantic analysis rejects a cyclic interface inheritance graph.</p>
     <p>Each interface type has its own operation table. An interface type does not inherit the operations of the interface types it extends.</p>
+    <p>A native interface declaration must provide a safe relative header path and its operation signatures. Native interface operations must not have a PDL body or a native-target clause. The declaration imports an externally owned C interface descriptor, dispatch and call wrappers; the C backend must not generate or overwrite that header or an implementation source. The declared signatures, including the names and types of parameters and results, supply the information required to check implementing classes. <code>native implementation</code> is not accepted for interfaces.</p>
 
     <h3>Enumerations</h3>
     <p>An enumeration definition names an enumeration and may contain named constants. A constant may have an integer initializer.</p>

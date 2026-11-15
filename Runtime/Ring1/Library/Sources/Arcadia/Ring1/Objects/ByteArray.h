@@ -49,6 +49,10 @@ struct Arcadia_ByteArrayDispatch {
       Arcadia_ByteArray const* self
     );
 
+  // Native C-only borrowed mutable pointer; implementations without writable
+  // contiguous storage raise OperationInvalid rather than returning a pointer.
+  Arcadia_Natural8Value* (*getMutableBytes)(Arcadia_Thread* thread, Arcadia_ByteArray* self);
+
   Arcadia_SizeValue
   (*getNumberOfBytes)
     (
@@ -62,6 +66,19 @@ struct Arcadia_ByteArrayDispatch {
       Arcadia_Thread* thread,
       Arcadia_ByteArray const* self
     );
+
+  // Capability queries are side-effect-free and stable for each instance.
+  Arcadia_BooleanValue (*isMutable)(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
+  Arcadia_BooleanValue (*isResizable)(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
+  Arcadia_BooleanValue (*isContiguous)(Arcadia_Thread* thread, Arcadia_ByteArray const* self);
+
+  void (*setAt)(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                Arcadia_SizeValue index, Arcadia_Natural8Value value);
+  void (*resize)(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                 Arcadia_SizeValue size);
+  // Bulk insertion is supported by resizable native-backed implementations.
+  void (*insertBytes)(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                      Arcadia_SizeValue index, void const* bytes, Arcadia_SizeValue numberOfBytes);
 
   Arcadia_BooleanValue
   (*isEmpty)
@@ -93,6 +110,17 @@ Arcadia_ByteArray_getBytes
     Arcadia_ByteArray const* self
   );
 
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_getMutableBytes
+// Native C-only. Requires mutable and contiguous storage. The returned pointer
+// is borrowed and can be invalidated by resizing; root the owner while using it.
+// Unsupported calls raise Arcadia_Status_OperationInvalid.
+Arcadia_Natural8Value*
+Arcadia_ByteArray_getMutableBytes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray* self
+  );
+
 // https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_getNumberOfBytes
 Arcadia_SizeValue
 Arcadia_ByteArray_getNumberOfBytes
@@ -117,6 +145,65 @@ Arcadia_ByteArray_isEmpty
     Arcadia_ByteArray const* self
   );
 
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_isMutable
+Arcadia_BooleanValue
+Arcadia_ByteArray_isMutable
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray const* self
+  );
+
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_isResizable
+Arcadia_BooleanValue
+Arcadia_ByteArray_isResizable
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray const* self
+  );
+
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_isContiguous
+Arcadia_BooleanValue
+Arcadia_ByteArray_isContiguous
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray const* self
+  );
+
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_setAt
+void
+Arcadia_ByteArray_setAt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray* self,
+    Arcadia_SizeValue index,
+    Arcadia_Natural8Value value
+  );
+
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_resize
+void
+Arcadia_ByteArray_resize
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArray* self,
+    Arcadia_SizeValue size
+  );
+
+// Insert a native byte span into mutable, resizable storage.
+// Self-insertion is supported, even if resize relocates the allocation.
+// A nonzero source span must be valid; invalid operations raise a status.
+void
+Arcadia_ByteArray_insertBytes(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                              Arcadia_SizeValue index, void const* bytes, Arcadia_SizeValue numberOfBytes);
+
+void
+Arcadia_ByteArray_appendBytes(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                              void const* bytes, Arcadia_SizeValue numberOfBytes);
+
+void
+Arcadia_ByteArray_prependBytes(Arcadia_Thread* thread, Arcadia_ByteArray* self,
+                               void const* bytes, Arcadia_SizeValue numberOfBytes);
+
+// https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_ByteArray_slice
 Arcadia_ByteArray*
 Arcadia_ByteArray_slice
   (

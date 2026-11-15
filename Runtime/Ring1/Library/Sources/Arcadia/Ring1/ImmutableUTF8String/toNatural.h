@@ -21,6 +21,7 @@
 #include "Arcadia/Ring1/Natural32.h"
 #include "Arcadia/Ring1/Natural64.h"
 #include "Arcadia/Ring1/Natural8.h"
+
 typedef struct Arcadia_RuntimeUTF8String Arcadia_RuntimeUTF8String;
 
 Arcadia_Natural16Value

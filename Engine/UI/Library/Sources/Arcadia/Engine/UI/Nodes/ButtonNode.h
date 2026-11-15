@@ -54,7 +54,9 @@ struct Arcadia_Engine_UI_ButtonNode {
   Arcadia_BooleanValue hovered;
   Arcadia_BooleanValue pressed;
   Arcadia_BooleanValue focused;
+  Arcadia_BooleanValue selected;
   Arcadia_Signal* activated;
+  Arcadia_Signal* enabledChanged;
 };
 
 Arcadia_Engine_UI_ButtonNode*
@@ -81,8 +83,40 @@ Arcadia_Engine_UI_ButtonNode_setHovered
     Arcadia_BooleanValue hovered
   );
 
+/// @brief Set the persistent selected visual state of an ordinary button.
+/// @remarks Selection is independent of focus, hover, press and enabled state.
+///          The selected appearance uses the existing pressedBackgroundColor
+///          (falling back to backgroundColor) while no dedicated selected
+///          palette is configured. Selection never activates the button.
+///          A composing controller (e.g. a tab bar) owns exclusivity and events.
+void
+Arcadia_Engine_UI_ButtonNode_setSelected
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self,
+    Arcadia_BooleanValue selected
+  );
+
+/// @brief Read the persistent selected visual state of an ordinary button.
+Arcadia_BooleanValue
+Arcadia_Engine_UI_ButtonNode_getSelected
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self
+  );
+
 Arcadia_Signal*
 Arcadia_Engine_UI_ButtonNode_getActivatedSignal
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_ButtonNode* self
+  );
+
+/// @brief Fired after a button's enabled state changes (sender: button).
+/// @remarks Emitted only on a state transition, after clearing transient
+///          hover, press and focus state when disabling. Selection is separate.
+Arcadia_Signal*
+Arcadia_Engine_UI_ButtonNode_getEnabledChangedSignal
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_ButtonNode* self

@@ -18,6 +18,7 @@
 #define ARCADIA_RING1_OBJECTS_INCLUDE_H_INCLUDED
 
 #include "Arcadia/Ring1/Objects/ByteArray.h"
+#include "Arcadia/Ring1/Objects/ByteArrayFactory.h"
 #include "Arcadia/Ring1/Objects/ByteArray.ByteReader.h"
 #include "Arcadia/Ring1/Objects/ByteArrayBuilder.h"
 #include "Arcadia/Ring1/Objects/ByteArrayBuilder.ByteReader.h"

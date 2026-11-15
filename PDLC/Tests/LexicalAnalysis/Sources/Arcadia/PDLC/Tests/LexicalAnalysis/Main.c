@@ -343,6 +343,35 @@ testScanner1
   expectAndNext(thread, scanner, Arcadia_PDLC_WordType_EndOfInput, u8"<end of input>", sizeof(u8"<end of input>") - 1);
 }
 
+// Exercise comments next to tokens, CRLF inside comments and a trailing comment at EOF.
+static void
+testScannerCommentBoundaries
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const char* input =
+    u8"/* first\r\nsecond */name// line\r\n"
+    u8"/* left *//* right */$0// at end";
+  Arcadia_PDLC_Context* context = Arcadia_PDLC_Context_create(thread);
+  Arcadia_PDLC_Scanner* scanner = Arcadia_PDLC_Scanner_getInstance(thread, context);
+  Arcadia_Languages_Scanner_setInput(thread, (Arcadia_Languages_Scanner*)scanner,
+    (Arcadia_UnicodeCodePointReader*)Arcadia_ByteReader_UnicodeCodePointReader_create(thread,
+      (Arcadia_ByteReader*)Arcadia_ByteArray_ByteReader_create(thread,
+        Arcadia_ByteArray_createByteArray(thread, Arcadia_RuntimeByteArray_create(thread, input, strlen(input))))));
+
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_StartOfInput, u8"<start of input>", sizeof(u8"<start of input>") - 1);
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_MultiLineComment, u8"/* first\r\nsecond */", sizeof(u8"/* first\r\nsecond */") - 1);
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_Name, u8"name", sizeof(u8"name") - 1);
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_SingleLineComment, u8"// line", sizeof(u8"// line") - 1);
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_LineTerminator, u8"<line terminator>", sizeof(u8"<line terminator>") - 1);
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_MultiLineComment, u8"/* left */", sizeof(u8"/* left */") - 1);
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_MultiLineComment, u8"/* right */", sizeof(u8"/* right */") - 1);
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_Register, u8"$0", sizeof(u8"$0") - 1);
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_SingleLineComment, u8"// at end", sizeof(u8"// at end") - 1);
+  expectAndNext(thread, scanner, Arcadia_PDLC_WordType_EndOfInput, u8"<end of input>", sizeof(u8"<end of input>") - 1);
+}
+
 static int
 runEmptyInput
   (
@@ -388,6 +417,15 @@ runLineContinuations
   return Arcadia_Tests_safeExecute(&testScanner5) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static int
+runScannerCommentBoundaries
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testScannerCommentBoundaries) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -401,6 +439,7 @@ main
     { "Keywords", &runKeywords },
     { "Registers", &runRegisters },
     { "LineContinuations", &runLineContinuations },
+    { "ScannerCommentBoundaries", &runScannerCommentBoundaries },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

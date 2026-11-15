@@ -109,6 +109,10 @@ Arcadia_ADL_MaterialDefinition_constructImpl
   )
 {
   Arcadia_EnterConstructor(Arcadia_ADL_MaterialDefinition);
+  if (7 != _numberOfArguments) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   {
     Arcadia_Value definitions, name;
     definitions = Arcadia_ValueStack_getValue(thread, 7);
@@ -117,10 +121,6 @@ Arcadia_ADL_MaterialDefinition_constructImpl
     Arcadia_ValueStack_pushValue(thread, &name);
     Arcadia_ValueStack_pushNatural8Value(thread, 2);
     Arcadia_superTypeConstructor(thread, _type, self);
-  }
-  if (7 != _numberOfArguments) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
-    Arcadia_Thread_jump(thread);
   }
   Arcadia_EnumerationValue materialType = Arcadia_ValueStack_getEnumerationValue(thread, 5),
                            ambientColorSource = Arcadia_ValueStack_getEnumerationValue(thread, 4),

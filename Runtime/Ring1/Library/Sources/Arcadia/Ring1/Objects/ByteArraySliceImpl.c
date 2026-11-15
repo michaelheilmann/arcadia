@@ -85,6 +85,11 @@ Arcadia_ByteArraySliceImpl_isEmpty
     Arcadia_ByteArraySliceImpl const* self
   );
 
+// A slice inherits its backing storage's stable contiguity capability.
+static Arcadia_BooleanValue
+Arcadia_ByteArraySliceImpl_isContiguous(Arcadia_Thread* thread, Arcadia_ByteArraySliceImpl const* self)
+{ return Arcadia_ByteArray_isContiguous(thread, self->byteArray); }
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_ByteArraySliceImpl_constructImpl,
@@ -122,7 +127,8 @@ Arcadia_ByteArraySliceImpl_constructImpl
   self->start = Arcadia_ValueStack_getSizeValue(thread, 2);
   self->size = Arcadia_ValueStack_getSizeValue(thread, 1);
   // Example:We have and array [0,1,2,4,5]. Then the slices (4,1) and (5,0) are both valid.
-  if (self->start + self->size > Arcadia_ByteArray_getSize(thread, self->byteArray)) {
+  Arcadia_SizeValue backingSize = Arcadia_ByteArray_getSize(thread, self->byteArray);
+  if (self->start > backingSize || self->size > backingSize - self->start) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
@@ -149,6 +155,7 @@ Arcadia_ByteArraySliceImpl_initializeDispatchImpl
   ((Arcadia_ByteArrayDispatch*)self)->getNumberOfBytes = (Arcadia_SizeValue (*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_getNumberOfBytes;
   ((Arcadia_ByteArrayDispatch*)self)->getSize = (Arcadia_SizeValue (*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_getSize;
   ((Arcadia_ByteArrayDispatch*)self)->isEmpty = (Arcadia_BooleanValue(*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_isEmpty;
+  ((Arcadia_ByteArrayDispatch*)self)->isContiguous = (Arcadia_BooleanValue(*)(Arcadia_Thread*, const Arcadia_ByteArray*)) & Arcadia_ByteArraySliceImpl_isContiguous;
 }
 
 static void
@@ -180,6 +187,21 @@ Arcadia_ByteArraySliceImpl_create
   _Arcadia_EndCreate(Arcadia_ByteArraySliceImpl);
 }
 
+// A slice's fixed logical range must remain inside its resizable backing.
+static void
+Arcadia_ByteArraySliceImpl_validateBacking
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ByteArraySliceImpl const* self
+  )
+{
+  Arcadia_SizeValue backingSize = Arcadia_ByteArray_getSize(thread, self->byteArray);
+  if (self->start > backingSize || self->size > backingSize - self->start) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+}
+
 static Arcadia_Natural8Value
 Arcadia_ByteArraySliceImpl_getAt
   (
@@ -192,6 +214,7 @@ Arcadia_ByteArraySliceImpl_getAt
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
+  Arcadia_ByteArraySliceImpl_validateBacking(thread, self);
   return Arcadia_ByteArray_getAt(thread, self->byteArray, self->start + index);
 }
 
@@ -201,7 +224,16 @@ Arcadia_ByteArraySliceImpl_getBytes
     Arcadia_Thread* thread,
     Arcadia_ByteArraySliceImpl const* self
   )
-{ return Arcadia_ByteArray_getBytes(thread, self->byteArray) + self->start; }
+{
+  if (!Arcadia_ByteArray_isContiguous(thread, self->byteArray)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_ByteArraySliceImpl_validateBacking(thread, self);
+  Arcadia_Natural8Value const* bytes = Arcadia_ByteArray_getBytes(thread, self->byteArray);
+  // Avoid undefined pointer arithmetic on NULL for empty borrowed backing arrays.
+  return bytes ? bytes + self->start : NULL;
+}
 
 static Arcadia_SizeValue
 Arcadia_ByteArraySliceImpl_getNumberOfBytes

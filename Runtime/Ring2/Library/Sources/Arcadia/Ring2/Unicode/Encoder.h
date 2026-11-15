@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Ring1/Include.h"
+
 typedef struct Arcadia_ByteArrayBuilder Arcadia_ByteArrayBuilder;
 typedef struct Arcadia_String Arcadia_String;
 

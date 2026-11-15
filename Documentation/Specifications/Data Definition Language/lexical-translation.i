@@ -1,4 +1,4 @@
-<h2 id="lexical-translation">Lexical translation</h2>
+<h2 id="lexical-translation">5 Lexical translation</h2>
 <p>Lexical translation turns the input sequence of Unicode code points into words (tokens).</p>
 <p>The lexical translation of the <em>Data Definition Language</em> is based on
 <a href="@{siteAddress}/specifications/common-lexical-translations/index.html">Common Lexical Translations</a>.</p>

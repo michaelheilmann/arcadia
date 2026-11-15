@@ -29,6 +29,13 @@ interface Example.B.Child extends Example.A.Root {
   method choose(variable value : Example.A.Flavor) : Example.A.Flavor
 }
 
+// Interface declarations come from A's aggregate, not B's private headers.
+class Example.B.Provider implements Example.A.Root {
+  method getValue : Arcadia.Natural64 {
+    return 87
+  }
+}
+
 procedure Example.B.answer : Arcadia.Natural64 {
   return 42
 }

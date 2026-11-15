@@ -32,7 +32,7 @@
 
     <div>
       <div><a href="#">Arcadia_Integer32Value</a> sampleRate</div>
-      <div>The sample rate, in Hertz, of the sample buffer. Must be non-negative.</div>
+      <div>The sample rate, in Hertz, of the sample buffer. Must be positive.</div>
     </div>
 
     <div>
@@ -50,7 +50,8 @@
     </div>
     <div>
       <div>Arcadia_Status_ArgumentValueInvalid</div>
-      <div>At least one of <code>length</code>, <code>sampleRate</code> is negative.</div>
+      <div><code>length</code> is negative or <code>sampleRate</code>
+      is non-positive; invalid sample formats are also rejected.</div>
     </div>
   </section>
 

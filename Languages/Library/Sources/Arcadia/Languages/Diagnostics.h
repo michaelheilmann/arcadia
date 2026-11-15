@@ -19,6 +19,7 @@
 
 #include "Arcadia/Ring2/Include.h"
 #include "Arcadia/Collections/Include.h"
+
 typedef struct Arcadia_Languages_Diagnostic Arcadia_Languages_Diagnostic;
 
 Arcadia_declareObjectType(u8"Arcadia.Languages.Diagnostics", Arcadia_Languages_Diagnostics,

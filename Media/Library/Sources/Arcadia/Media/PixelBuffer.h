@@ -20,6 +20,7 @@
 #if !defined(ARCADIA_MEDIA_PRIVATE) || 1 != ARCADIA_MEDIA_PRIVATE
   #error("do not include directly, include `Arcadia/Media/Include.h` instead")
 #endif
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/Ring2/Include.h"
 #include "Arcadia/Media/PixelFormat.h"
 
@@ -33,8 +34,6 @@ struct Arcadia_Media_PixelBufferDispatch {
 
 struct Arcadia_Media_PixelBuffer {
   Arcadia_Object _parent;
-  /// A pointer to the Bytes of this pixel buffer.
-  Arcadia_Natural8Value* bytes;
   /// The pixel format of this pixel buffer.
   Arcadia_Media_PixelFormat pixelFormat;
   /// The height, in pixels, of this pixel buffer.
@@ -43,6 +42,8 @@ struct Arcadia_Media_PixelBuffer {
   Arcadia_Integer32Value width;
   /// The line padding of this pixel buffer.
   Arcadia_Integer32Value linePadding;
+  /// Fixed-size, mutable, contiguous storage that owns the pixel bytes.
+  Arcadia_ByteArray* byteStorage;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -99,9 +100,9 @@ Arcadia_Media_PixelBuffer_setLinePadding
 /// @brief Get component values of a pixel at the specified position in this pixel buffer.
 /// @param self A pointer to this pixel buffer.
 /// @param column The column index of the pixel.
-/// Must be non-negative. Must be smaller than or equal to the number of columns.
+/// Must be non-negative and strictly smaller than the number of columns.
 /// @param row The row of the pixel.
-/// Must be non-negative. Must be smaller than or equal to the number of rows.
+/// Must be non-negative and strictly smaller than the number of rows.
 /// @param r A pointer to a <code>Arcadia_Natural8Value</code> variable.
 /// @param g A pointer to a <code>Arcadia_Natural8Value</code> variable.
 /// @param b A pointer to a <code>Arcadia_Natural8Value</code> variable.
@@ -132,9 +133,9 @@ Arcadia_Media_PixelBuffer_getPixelRGBA
 /// @brief Set component values of a pixel at the specified position in this pixel buffer.
 /// @param self A pointer to this pixel buffer.
 /// @param column The column index of the pixel.
-/// Must be non-negative. Must be smaller than or equal to the number of columns.
+/// Must be non-negative and strictly smaller than the number of columns.
 /// @param row The row of the pixel.
-/// Must be non-negative. Must be smaller than or equal to the number of rows.
+/// Must be non-negative and strictly smaller than the number of rows.
 /// @param r The red component value.
 /// @param g The green component value.
 /// @param b The blue component value.
@@ -325,6 +326,8 @@ Arcadia_Media_PixelBuffer_setNumberOfRows
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 // https://michaelheilmann.com/Arcadia/Media/#Arcadia_Media_PixelBuffer_getLineStride
+// Raises Arcadia_Status_ArgumentValueInvalid if the calculated line stride
+// cannot be represented in Arcadia_Integer32Value.
 Arcadia_Integer32Value
 Arcadia_Media_PixelBuffer_getLineStride
   (
@@ -429,5 +432,13 @@ Arcadia_Media_PixelBuffer_assign
     Arcadia_Media_PixelBuffer* self,
     Arcadia_Media_PixelBuffer* other
   );
+
+/// @brief Obtain the fixed-size mutable contiguous ByteArray owning all pixel bytes.
+/// @details The view includes row padding; width/height, format and padding changes
+///          can replace this storage object, invalidating earlier byte borrows.
+///          Keep the PixelBuffer alive while using its storage. Native-only pointers
+///          never cross an Arcadia.Value/PDL boundary.
+Arcadia_ByteArray*
+Arcadia_Media_PixelBuffer_getPixelBytes(Arcadia_Thread* thread, Arcadia_Media_PixelBuffer* self);
 
 #endif // ARCADIA_MEDIA_PIXELBUFFER_H_INCLUDED

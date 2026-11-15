@@ -1,0 +1,12 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+#if !defined(ARCADIA_ENGINE_UI_TESTS_EVENTBASES_CANVASPOPUP_H_INCLUDED)
+#define ARCADIA_ENGINE_UI_TESTS_EVENTBASES_CANVASPOPUP_H_INCLUDED
+
+int
+Arcadia_Engine_UI_Tests_canvasPopup
+  (
+    void
+  );
+
+#endif // ARCADIA_ENGINE_UI_TESTS_EVENTBASES_CANVASPOPUP_H_INCLUDED

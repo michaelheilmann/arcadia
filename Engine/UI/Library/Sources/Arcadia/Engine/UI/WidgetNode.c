@@ -60,6 +60,26 @@ Arcadia_Engine_UI_WidgetNode_getSizeImpl
   );
 
 static void
+Arcadia_Engine_UI_WidgetNode_measureImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value availableWidth,
+    Arcadia_Integer32Value availableHeight
+  );
+
+static void
+Arcadia_Engine_UI_WidgetNode_arrangeImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value left,
+    Arcadia_Integer32Value bottom,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  );
+
+static void
 Arcadia_Engine_UI_WidgetNode_setPositionImpl
   (
     Arcadia_Thread* thread,
@@ -70,6 +90,23 @@ Arcadia_Engine_UI_WidgetNode_setPositionImpl
 
 static void
 Arcadia_Engine_UI_WidgetNode_setSizeImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  );
+
+static void
+validateSize
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  );
+
+static void
+setActualSize
   (
     Arcadia_Thread* thread,
     Arcadia_Engine_UI_WidgetNode* self,
@@ -121,6 +158,11 @@ Arcadia_Engine_UI_WidgetNode_constructImpl
   self->bottom = 0;
   self->width = 0;
   self->height = 0;
+  self->requestedWidth = 0;
+  self->requestedHeight = 0;
+  self->desiredWidth = 0;
+  self->desiredHeight = 0;
+  self->sizePolicy = Arcadia_Engine_UI_WidgetNodeSizePolicy_Fixed;
   self->propertyChanged = Arcadia_Signal_create(thread);
   self->name = NULL;
   Arcadia_LeaveConstructor(Arcadia_Engine_UI_WidgetNode);
@@ -153,6 +195,8 @@ Arcadia_Engine_UI_WidgetNode_initializeDispatchImpl
   self->setPosition = &Arcadia_Engine_UI_WidgetNode_setPositionImpl;
   self->setSize = &Arcadia_Engine_UI_WidgetNode_setSizeImpl;
   self->raiseSignal = &Arcadia_Engine_UI_WidgetNode_raiseSignalImpl;
+  self->measure = &Arcadia_Engine_UI_WidgetNode_measureImpl;
+  self->arrange = &Arcadia_Engine_UI_WidgetNode_arrangeImpl;
 }
 
 static void
@@ -179,6 +223,36 @@ Arcadia_Engine_UI_WidgetNode_getSizeImpl
 {
   if (width) *width = self->width;
   if (height) *height = self->height;
+}
+
+static void
+Arcadia_Engine_UI_WidgetNode_measureImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value availableWidth,
+    Arcadia_Integer32Value availableHeight
+  )
+{
+  // A fixed-size widget does not shrink to the available space.
+  self->desiredWidth = self->requestedWidth;
+  self->desiredHeight = self->requestedHeight;
+}
+
+static void
+Arcadia_Engine_UI_WidgetNode_arrangeImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value left,
+    Arcadia_Integer32Value bottom,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  )
+{
+  validateSize(thread, width, height);
+  Arcadia_Engine_UI_WidgetNode_setPosition(thread, self, left, bottom);
+  setActualSize(thread, self, width, height);
 }
 
 static void
@@ -218,14 +292,36 @@ Arcadia_Engine_UI_WidgetNode_setSizeImpl
     Arcadia_Integer32Value height
   )
 {
-  if (width < 0 || width > Arcadia_Integer32Value_Maximum / 2) {
+  validateSize(thread, width, height);
+  self->requestedWidth = width;
+  self->requestedHeight = height;
+  setActualSize(thread, self, width, height);
+}
+
+static void
+validateSize
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  )
+{
+  if (width < 0 || width > Arcadia_Integer32Value_Maximum / 2 ||
+      height < 0 || height > Arcadia_Integer32Value_Maximum / 2) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  if (height < 0 || height > Arcadia_Integer32Value_Maximum / 2) {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
-    Arcadia_Thread_jump(thread);
-  }
+}
+
+static void
+setActualSize
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  )
+{
   Arcadia_BooleanValue changed = Arcadia_BooleanValue_False;
   changed |= self->width != width;
   changed |= self->height != height;
@@ -312,6 +408,60 @@ Arcadia_Engine_UI_WidgetNode_setSize
 { Arcadia_VirtualCall(Arcadia_Engine_UI_WidgetNode, setSize, self, width, height); }
 
 void
+Arcadia_Engine_UI_WidgetNode_measure
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value availableWidth,
+    Arcadia_Integer32Value availableHeight
+  )
+{
+  validateSize(thread, availableWidth, availableHeight);
+  Arcadia_VirtualCall(Arcadia_Engine_UI_WidgetNode, measure, self, availableWidth, availableHeight);
+}
+
+void
+Arcadia_Engine_UI_WidgetNode_getRequestedSize
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value* width,
+    Arcadia_Integer32Value* height
+  )
+{
+  if (width) *width = self->requestedWidth;
+  if (height) *height = self->requestedHeight;
+}
+
+void
+Arcadia_Engine_UI_WidgetNode_getDesiredSize
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value* width,
+    Arcadia_Integer32Value* height
+  )
+{
+  if (width) *width = self->desiredWidth;
+  if (height) *height = self->desiredHeight;
+}
+
+void
+Arcadia_Engine_UI_WidgetNode_arrange
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value left,
+    Arcadia_Integer32Value bottom,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  )
+{
+  validateSize(thread, width, height);
+  Arcadia_VirtualCall(Arcadia_Engine_UI_WidgetNode, arrange, self, left, bottom, width, height);
+}
+
+void
 Arcadia_Engine_UI_WidgetNode_raiseSignal
   (
     Arcadia_Thread* thread,
@@ -348,6 +498,31 @@ Arcadia_Engine_UI_WidgetNode_setBounds
 {
   Arcadia_Engine_UI_WidgetNode_setPosition(thread, self, left, bottom);
   Arcadia_Engine_UI_WidgetNode_setSize(thread, self, width, height);
+}
+
+void
+Arcadia_Engine_UI_WidgetNode_setInitialBounds
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_UI_WidgetNode* self,
+    Arcadia_Integer32Value left,
+    Arcadia_Integer32Value bottom,
+    Arcadia_Integer32Value width,
+    Arcadia_Integer32Value height
+  )
+{
+  if (left < Arcadia_Integer32Value_Minimum / 2 || left > Arcadia_Integer32Value_Maximum / 2 ||
+      bottom < Arcadia_Integer32Value_Minimum / 2 || bottom > Arcadia_Integer32Value_Maximum / 2) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  validateSize(thread, width, height);
+  self->left = left;
+  self->bottom = bottom;
+  self->width = width;
+  self->height = height;
+  self->requestedWidth = width;
+  self->requestedHeight = height;
 }
 
 Arcadia_Signal*

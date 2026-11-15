@@ -78,8 +78,23 @@
 #include "abstractMethodRun.h"
 #include "Test/Namespaced/nativeIdentity.h"
 #include "Test/Namespaced/roundTrip.h"
+#include "Test/Counter.h"
+#include "Test/CounterImpl.h"
+#include "Test/CounterOverride.h"
+#include "Test/AbstractCounter.h"
+#include "Test/ConcreteCounter.h"
+#include "Test/ClassVirtual.h"
+#include "Test/ClassVirtualCounter.h"
+#include "Test/NativeCounterImpl.h"
+#include "Test/Resettable.h"
+#include "Test/ResettableCounter.h"
 
 _Static_assert(sizeof(Test_NonvirtualDispatch) == sizeof(Arcadia_ObjectDispatch), "nonvirtual methods must not add dispatch slots");
+_Static_assert(sizeof(Test_CounterImplDispatch) == sizeof(Arcadia_ObjectDispatch), "interface operations must not add class slots");
+_Static_assert(sizeof(Test_NativeCounterImplDispatch) == sizeof(Arcadia_ObjectDispatch), "native interface operations must not add class slots");
+_Static_assert(sizeof(Test_AbstractCounterDispatch) == sizeof(Arcadia_ObjectDispatch), "abstract interface operations must not add class slots");
+_Static_assert(sizeof(Test_ClassVirtualDispatch) > sizeof(Arcadia_ObjectDispatch), "class virtual roots retain their class slots");
+_Static_assert(sizeof(Test_ClassVirtualCounterDispatch) == sizeof(Test_ClassVirtualDispatch), "implementing an interface does not duplicate inherited class slots");
 #include "sizeIdentity.h"
 #include "sizeFromAny.h"
 #include <stddef.h>
@@ -721,6 +736,62 @@ testQualifiedProcedures
   Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
 }
 
+static void
+testInterfaces
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Test_CounterImpl* counter = Test_CounterImpl_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, counter);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)counter, _Test_Counter_getType(thread)));
+  Test_Counter_write(thread, (Arcadia_Object*)counter, 73);
+  Arcadia_Tests_assertTrue(thread, Test_Counter_read(thread, (Arcadia_Object*)counter) == 73);
+  Arcadia_Tests_assertTrue(thread, Test_CounterImpl_read(thread, counter) == 73);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base + 1);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Test_CounterOverride* override = Test_CounterOverride_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, override);
+  Arcadia_Tests_assertTrue(thread, Test_Counter_read(thread, (Arcadia_Object*)override) == 99);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Test_ConcreteCounter* concrete = Test_ConcreteCounter_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, concrete);
+  Test_Counter_write(thread, (Arcadia_Object*)concrete, 42);
+  Arcadia_Tests_assertTrue(thread, Test_Counter_read(thread, (Arcadia_Object*)concrete) == 42);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Test_ClassVirtualCounter* classVirtual = Test_ClassVirtualCounter_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, classVirtual);
+  Arcadia_Tests_assertTrue(thread, Test_Counter_read(thread, (Arcadia_Object*)classVirtual) == 18);
+  Arcadia_Tests_assertTrue(thread, Test_ClassVirtual_read(thread, (Test_ClassVirtual*)classVirtual) == 18);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Test_NativeCounterImpl* native = Test_NativeCounterImpl_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, native);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)native, _Test_NativeCounter_getType(thread)));
+  Test_NativeCounter_write(thread, (Arcadia_Object*)native, 47);
+  Arcadia_Tests_assertTrue(thread, Test_NativeCounter_read(thread, (Arcadia_Object*)native) == 47);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Test_ResettableCounter* derived = Test_ResettableCounter_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, derived);
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)derived, _Test_Counter_getType(thread)));
+  Arcadia_Tests_assertTrue(thread, Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)derived, _Test_Resettable_getType(thread)));
+  Test_Counter_write(thread, (Arcadia_Object*)derived, 91);
+  Arcadia_Tests_assertTrue(thread, Test_Counter_read(thread, (Arcadia_Object*)derived) == 91);
+  Test_Resettable_reset(thread, (Arcadia_Object*)derived);
+  Arcadia_Tests_assertTrue(thread, Test_Counter_read(thread, (Arcadia_Object*)derived) == 0);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+static int
+runInterfaces
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testInterfaces) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 static int
 runExecution
   (
@@ -828,6 +899,7 @@ main
   )
 {
   static const Arcadia_Testing_Case cases[] = {
+    { "Interfaces", &runInterfaces },
     { "Execution", &runExecution },
     { "Nullable", &runNullable },
     { "NativeHeaderMapping", &runNativeHeaderMapping },

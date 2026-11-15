@@ -31,6 +31,12 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_initializeDispatchImpl
   );
 
 static void
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_clone
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
 Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_isEqualTo
   (
     Arcadia_Thread* thread
@@ -78,6 +84,21 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_createWithValues
 }
 
 void
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_copyValues
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* self,
+    @{scalarType}* values
+  )
+{
+  for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+    for (Arcadia_SizeValue j = 0; j < @{dimensionality}; ++j) {
+      values[i * @{dimensionality} + j] = self->elements[i][j];
+    }
+  }
+}
+
+void
 Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_setIdentity
   (
     Arcadia_Thread* thread,
@@ -122,6 +143,14 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_constructImpl
         self->elements[i][j] = @{zeroScalarLiteral};
       }
     }
+  } else if (@{dimensionality} * @{dimensionality} == _numberOfArguments) {
+    // createWithValues pushes components in row-major order; the value stack
+    // is read in reverse order, just as for the generated vector constructors.
+    for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
+      for (Arcadia_SizeValue j = 0; j < @{dimensionality}; ++j) {
+        self->elements[i][j] = Arcadia_ValueStack_get@{scalarSuffix}Value(thread, @{dimensionality} * @{dimensionality} - (i * @{dimensionality} + j));
+      }
+    }
   } else {
     Arcadia_Thread_setStatus(thread,  Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
@@ -136,7 +165,27 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_initializeDispatchImpl
     Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}Dispatch* self
   )
 {
+  ((Arcadia_ObjectDispatch*)self)->clone = &Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_clone;
   ((Arcadia_ObjectDispatch*)self)->isEqualTo = &Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_isEqualTo;
+}
+
+// The receiver remains rooted on the value stack until its copy is complete.
+static void
+Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_clone
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Natural8Value numberOfArguments = Arcadia_ValueStack_getNatural8Value(thread, 0);
+  if (1 != numberOfArguments) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_getType(thread));
+  Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}* clone = Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_create(thread);
+  Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_assign(thread, clone, self);
+  Arcadia_ValueStack_popValues(thread, 2);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)clone);
 }
 
 static void
@@ -255,7 +304,7 @@ Arcadia_Math_Matrix@{dimensionality}@{scalarSuffix}_lerp
     @{scalarType} s = @{oneScalarLiteral} - t;
     for (Arcadia_SizeValue i = 0; i < @{dimensionality}; ++i) {
       for (Arcadia_SizeValue j = 0; j < @{dimensionality}; ++j) {
-        self->elements[i][j] = s * self->elements[i][j] + t * self->elements[i][j];
+        self->elements[i][j] = s * self->elements[i][j] + t * other->elements[i][j];
       }
     }
   }

@@ -160,19 +160,37 @@ Arcadia_Unicode_encodeCodePointsUTF8
   }
 }
 
-static inline Arcadia_Natural8Value Arcadia_swapEndianessNatural8Value(Arcadia_Thread* thread, Arcadia_Natural8Value x) {
+static inline Arcadia_Natural8Value
+Arcadia_swapEndianessNatural8Value
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Natural8Value x
+  )
+{
   return x;
 }
 
 
-static inline Arcadia_Natural16Value Arcadia_swapEndianessNatural16Value(Arcadia_Thread* thread, Arcadia_Natural16Value x) {
+static inline Arcadia_Natural16Value
+Arcadia_swapEndianessNatural16Value
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Natural16Value x
+  )
+{
   return
     ((x & 0xff00) >> 8) |
     ((x & 0x00ff) << 8)
     ;
 }
 
-static inline Arcadia_Natural32Value Arcadia_swapEndianessNatural32Value(Arcadia_Thread* thread, Arcadia_Natural32Value x) {
+static inline Arcadia_Natural32Value
+Arcadia_swapEndianessNatural32Value
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Natural32Value x
+  )
+{
   return
     ((x & 0xff000000) >> 24) |
     ((x & 0x000000ff) << 24) |
@@ -181,7 +199,13 @@ static inline Arcadia_Natural32Value Arcadia_swapEndianessNatural32Value(Arcadia
     ;
 }
 
-static inline Arcadia_Natural64Value Arcadia_swapEndianessNatural64Value(Arcadia_Thread* thread, Arcadia_Natural64Value x) {
+static inline Arcadia_Natural64Value
+Arcadia_swapEndianessNatural64Value
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Natural64Value x
+  )
+{
   return
     ((x & 0xff00000000000000) >> 56) |
     ((x & 0x00000000000000ff) << 56) |

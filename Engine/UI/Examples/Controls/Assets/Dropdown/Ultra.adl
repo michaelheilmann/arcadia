@@ -1,0 +1,16 @@
+{
+  type : "UI.Button",
+  name : "Controls.Dropdown.Ultra",
+  left : 0,
+  bottom : 132,
+  width : 228,
+  height : 40,
+  text : "Ultra",
+  horizontalAlignment : "Center",
+  verticalAlignment : "Center",
+  backgroundColor : "Button.Primary.Color.Normal",
+  hoveredBackgroundColor : "Button.Primary.Color.Hovered",
+  pressedBackgroundColor : "Button.Primary.Color.Pressed",
+  disabledBackgroundColor : "Button.Primary.Color.Disabled",
+  focusedBackgroundColor : "Button.Primary.Color.Focused",
+}

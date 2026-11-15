@@ -1094,7 +1094,12 @@ onUnexpectedWord
   Arcadia_Thread_jump(thread);
 }
 
-static Arcadia_PDLC_AST_FieldDefinitionNode* onFieldDefinition(Arcadia_Thread*, Arcadia_PDLC_Parser*);
+static Arcadia_PDLC_AST_FieldDefinitionNode*
+onFieldDefinition
+  (
+    Arcadia_Thread*,
+    Arcadia_PDLC_Parser*
+  );
 
 static Arcadia_BooleanValue
 isName
@@ -1938,6 +1943,12 @@ onNativeDefinition
     e->isNative = Arcadia_BooleanValue_True;
     e->nativeHeaderPath = header;
     result = (Arcadia_PDLC_AST_DefinitionNode*)e;
+  } else if (is(thread, self, Arcadia_PDLC_WordType_Interface)) {
+    if (nativeImplementation || !header) onUnexpectedWord(thread, self);
+    Arcadia_PDLC_AST_InterfaceDefinitionNode* interface = onInterfaceDefinition(thread, self);
+    interface->isNative = Arcadia_BooleanValue_True;
+    interface->nativeHeaderPath = header;
+    result = (Arcadia_PDLC_AST_DefinitionNode*)interface;
   } else {
     onUnexpectedWord(thread, self);
   }

@@ -24,6 +24,7 @@
 #include "Arcadia/Ring1/Thread.h"
 #include "Arcadia/Ring1/ThreadExtensions.h"
 #include "Arcadia/Ring1/Objects/WeakReference.h"
+
 typedef struct Arcadia_Slot Arcadia_Slot;
 
 typedef struct Nodes Nodes;

@@ -19,6 +19,7 @@
 
 #include "Arcadia/Languages/Include.h"
 #include "Arcadia/PDLC/Symbols/Symbol.h"
+
 typedef struct Arcadia_PDLC_AST_ModuleDefinitionNode Arcadia_PDLC_AST_ModuleDefinitionNode;
 
 /// @code

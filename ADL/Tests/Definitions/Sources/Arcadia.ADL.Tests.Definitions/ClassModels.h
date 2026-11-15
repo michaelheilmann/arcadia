@@ -24,6 +24,36 @@ Arcadia_ADL_Tests_colorModel
   );
 
 int
+Arcadia_ADL_Tests_toggleModel
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_sliderModel
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_labelModel
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_containerModels
+  (
+    void
+  );
+
+int
+Arcadia_ADL_Tests_buttonModel
+  (
+    void
+  );
+
+int
 Arcadia_ADL_Tests_whiteNoiseModel
   (
     void

@@ -21,6 +21,7 @@
   #error("do not include directly, include `Arcadia/Engine/Include.h` instead")
 #endif
 #include "Arcadia/Ring2/Include.h"
+
 typedef struct Arcadia_Engine_Visuals_BackendContext Arcadia_Engine_Visuals_BackendContext; // FIXME
 
 void

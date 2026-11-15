@@ -18,9 +18,14 @@
 #define ARCADIA_ADL_DEFINITIONS_UI_LABELDEFINITION_H_INCLUDED
 
 #if !defined(ARCADIA_ADL_PRIVATE) || 1 != ARCADIA_ADL_PRIVATE
-  #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
+  #error("do not include `Arcadia/ADL/Definitions/UI/LabelDefinition.h` directly, include `Arcadia/ADL/Include.h` instead")
 #endif
+
+#include "Arcadia/Ring1/Include.h"
 #include "Arcadia/ADL/Definition.h"
+
+typedef struct Arcadia_ADL_Definitions Arcadia_ADL_Definitions;
+typedef struct Arcadia_ADL_UI_LabelDefinition Arcadia_ADL_UI_LabelDefinition;
 
 Arcadia_declareObjectType(u8"Arcadia.ADL.UI.LabelDefinition", Arcadia_ADL_UI_LabelDefinition,
                           u8"Arcadia.ADL.Definition");

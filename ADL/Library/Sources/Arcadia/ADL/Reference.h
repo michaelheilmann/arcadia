@@ -21,6 +21,7 @@
   #error("do not include directly, include `Arcadia/ADL/Include.h` instead")
 #endif
 #include "Arcadia/Ring2/Include.h"
+
 typedef struct Arcadia_ADL_Definition Arcadia_ADL_Definition;
 typedef struct Arcadia_ADL_Definitions Arcadia_ADL_Definitions;
 
@@ -64,6 +65,16 @@ Arcadia_ADL_Reference_create
     Arcadia_Thread* thread,
     Arcadia_ADL_Definitions* definitions,
     Arcadia_String* definitionName
+  );
+
+// Construct an internal reference directly to a contained definition. Such a
+// reference has no addressable name and does not register its target globally.
+Arcadia_ADL_Reference*
+Arcadia_ADL_Reference_createForDefinition
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_Definitions* definitions,
+    Arcadia_ADL_Definition* definition
   );
 
 Arcadia_ADL_Definitions*

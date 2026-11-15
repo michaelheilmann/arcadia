@@ -1,0 +1,6 @@
+{
+  type : "Model",
+  name : "GeometryShowcase.SphereModel",
+  mesh : "GeometryShowcase.SphereMesh",
+  material : "GeometryShowcase.Material",
+}

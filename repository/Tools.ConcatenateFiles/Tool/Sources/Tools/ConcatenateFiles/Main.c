@@ -53,7 +53,9 @@ main1
   Arcadia_FilePath* filePath = Arcadia_FilePath_parseNative(thread, filePathString);
   Arcadia_FileHandle_openForWriting(thread, fileHandle, filePath);
   Arcadia_SizeValue bytesWritten;
-  Arcadia_FileHandle_write(thread, fileHandle, byteBuffer->p, byteBuffer->sz, &bytesWritten);
+  Arcadia_FileHandle_write(thread, fileHandle,
+    Arcadia_ByteArrayBuilder_getBytes(thread, byteBuffer),
+    Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, byteBuffer), &bytesWritten);
   Arcadia_FileHandle_close(thread, fileHandle);
 }
 

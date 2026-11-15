@@ -91,6 +91,10 @@ NEGATIVE(NativeAggregateHeader, "Arcadia.PDLC.CallableDiagnostic", "Assets/Nativ
   "a generated declaration cannot replace its module aggregate header")
 NEGATIVE(OpaqueNativeHeader, "Arcadia.PDLC.CallableDiagnostic", "Assets/OpaqueNativeHeader/Library/Sources/Types.pdl", 0,
   "a generated header cannot replace an opaque native definition")
+NEGATIVE(NativeInterfaceSignature, "Arcadia.PDLC.CallableDiagnostic", "Assets/NativeInterfaceSignature/Library/Sources/Types.pdl", 281,
+  "interface operation has no compatible class method")
+NEGATIVE(NativeInterfaceHeaderCollision, "Arcadia.PDLC.CallableDiagnostic", "Assets/NativeInterfaceHeaderCollision/Library/Sources/Types.pdl", 0,
+  "a generated header cannot replace an opaque native definition")
 NEGATIVE(NativeHeaderExtension, "Arcadia.PDLC.CallableDiagnostic", "Assets/NativeHeaderExtension/Library/Sources/Types.pdl", 0,
   "native implementation declarations require an .h output path")
 NEGATIVE(AbstractMethodConcreteOwner, "Arcadia.PDLC.CallableDiagnostic", "Assets/AbstractMethodConcreteOwner/Library/Sources/Types.pdl", 0,

@@ -1,4 +1,4 @@
-<h2 id="first-document">Your first DDL document</h2>
+<h2 id="first-document">2 Your first DDL document</h2>
 <p>This fictional Stone Lantern record is a complete DDL document, verified by the
 <code>FirstDocument</code> reader fixture. It is an example of DDL structure, not an ADL asset or a DDLS schema.</p>
 <pre id="first-document-code" tabindex="0" aria-label="Complete Stone Lantern DDL document"><code>{
@@ -13,7 +13,7 @@
 <code>note</code> has the value <code>void</code>. The commas before closing brackets are permitted.
 Map names are not quoted strings, and the keywords <code>true</code>, <code>false</code> and <code>void</code> cannot be used as names.</p>
 
-<h2 id="type-reference">Six-type quick reference</h2>
+<h2 id="type-reference">3 Six-type quick reference</h2>
 <p>Examples below are covered by <code>DocumentationContract</code> and the existing semantic fixtures.
 Each invalid example is a complete input, not just a value of a different type.</p>
 <div class="ddl-table specification-scroll" role="region" aria-label="DDL value types" tabindex="0">

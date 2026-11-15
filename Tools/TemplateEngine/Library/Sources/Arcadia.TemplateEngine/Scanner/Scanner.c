@@ -296,7 +296,11 @@ Arcadia_TemplateEngine_Scanner_getWordTextImpl
     Arcadia_Thread* thread,
     Arcadia_TemplateEngine_Scanner* self
   )
-{ return Arcadia_String_create_pn(thread, Arcadia_RuntimeByteArray_create(thread, self->temporaryBuffer->p, self->temporaryBuffer->sz)); }
+{
+  return Arcadia_String_create_pn(thread, Arcadia_RuntimeByteArray_create(thread,
+    Arcadia_ByteArrayBuilder_getBytes(thread, self->temporaryBuffer),
+    Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, self->temporaryBuffer)));
+}
 
 static Arcadia_Integer32Value
 Arcadia_TemplateEngine_Scanner_getWordTypeImpl

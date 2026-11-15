@@ -4,6 +4,7 @@
 #include "Arcadia/ARMS/Internal/Common.h"
 #include <stdbool.h> // bool, true, false
 #include <inttypes.h> // uint8_t
+
 typedef struct ARMS_Type ARMS_Type; // Forward declaration.
 
 #define Arcadia_ARMS_TagFlags_White (1)

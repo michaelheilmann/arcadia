@@ -19,6 +19,7 @@
 
 #include "Arcadia/Engine/Include.h"
 #include "Arcadia/Visuals/Implementation/OpenGL4/BackendIncludes.h"
+
 typedef struct Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext Arcadia_Engine_Visuals_Implementation_OpenGL4_BackendContext;
 
 Arcadia_declareObjectType(u8"Arcadia.Visuals.Implementation.OpenGL4.ConstantBufferResource", Arcadia_Engine_Visuals_Implementation_OpenGL4_ConstantBufferResource,

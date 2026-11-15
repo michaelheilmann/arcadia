@@ -76,17 +76,7 @@ macro(EndTemplateEngine)
 
   list(LENGTH ${target}.templateEngine.sources l)
   math(EXPR l "${l} - 1")
-
-  add_custom_target(${target} ALL)
-
-  # Add this page target to the aggregate target, if one was designated for this directory subtree.
-  # A subdirectory inherits `g_templateEngineAggregateTarget` from its parent directory, so a page
-  # target added in a subdirectory aggregates without further wiring.
-  if (g_templateEngineAggregateTarget AND NOT "${g_templateEngineAggregateTarget}" STREQUAL "${target}")
-    if (TARGET ${g_templateEngineAggregateTarget})
-      add_dependencies(${g_templateEngineAggregateTarget} ${target})
-    endif()
-  endif()
+  set(templateEngineOutputs "")
 
   if (l GREATER -1)
     foreach (i RANGE ${l})
@@ -121,9 +111,7 @@ macro(EndTemplateEngine)
       endif()
       message(STATUS "dependencies file = ${dependenciesFile}")
 
-      #message(STATUS " - ${target} copy file `${sourceFile}` to `${targetFile}")
-
-      # Add custom command and custom target.
+      # One custom command per output preserves independent incremental rebuilds.
       add_custom_command(OUTPUT ${targetFile}
                          COMMAND $<TARGET_FILE:${MyProjectName}.TemplateEngine.CLI> --source="${sourceFile}" --target="${targetFile}" --environment="${environmentFile}" --dependencies="${dependenciesFile}"
                          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -132,19 +120,26 @@ macro(EndTemplateEngine)
                          COMMENT "${sourceFile} / ${environmentFile} => ${targetFile} / ${dependenciesFile}"
                          DEPENDS ${MyProjectName}.TemplateEngine.CLI ${sourceFile} ${environmentFile})
       set_source_files_properties(${targetFile} PROPERTIES GENERATED 1)
-      string(RANDOM LENGTH 64 randomLength)
-      string(UUID generatedTarget NAMESPACE "15340915-a7be-4950-9d26-b789c0eaf106" NAME ${randomLength} TYPE SHA1)
-      set(generatedTarget template-engine-${generatedTarget})
-
-      add_custom_target(${generatedTarget} DEPENDS ${targetFile})
-      # Add the custom target to the enclosing target.
-      add_dependencies(${target} ${generatedTarget})
-      # Set the folder.
-      if (${target}.folder)
-        set_target_properties(${generatedTarget} PROPERTIES FOLDER ${${target}.folder})
-        set_target_properties(${target} PROPERTIES FOLDER ${${target}.folder})
-      endif()
+      list(APPEND templateEngineOutputs "${targetFile}")
     endforeach()
+  endif()
+
+  # One parent target owns every output rather than generating a Visual Studio
+  # project for each file. DEPFILE remains attached to the custom command.
+  if (templateEngineOutputs)
+    add_custom_target(${target} ALL DEPENDS ${templateEngineOutputs})
+  else()
+    add_custom_target(${target} ALL)
+  endif()
+  if (${target}.folder)
+    set_target_properties(${target} PROPERTIES FOLDER ${${target}.folder})
+  endif()
+
+  # Subdirectory page groups remain dependencies of the designated aggregate.
+  if (g_templateEngineAggregateTarget AND NOT "${g_templateEngineAggregateTarget}" STREQUAL "${target}")
+    if (TARGET ${g_templateEngineAggregateTarget})
+      add_dependencies(${g_templateEngineAggregateTarget} ${target})
+    endif()
   endif()
 
   EndFileCopy()

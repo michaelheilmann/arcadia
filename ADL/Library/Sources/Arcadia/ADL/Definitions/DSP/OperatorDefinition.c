@@ -17,10 +17,33 @@
 #define ARCADIA_ADL_PRIVATE (1)
 #include "Arcadia/ADL/Definitions/DSP/OperatorDefinition.h"
 
-static void linkImpl(Arcadia_Thread* thread, Arcadia_ADL_DSPOperatorDefinition* self);
-static void visitImpl(Arcadia_Thread* thread, Arcadia_ADL_DSPOperatorDefinition* self);
-static void constructImpl(Arcadia_Thread* thread, Arcadia_ADL_DSPOperatorDefinition* self);
-static void initializeDispatchImpl(Arcadia_Thread* thread, Arcadia_ADL_DSPOperatorDefinitionDispatch* self);
+static void
+linkImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_DSPOperatorDefinition* self
+  );
+
+static void
+visitImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_DSPOperatorDefinition* self
+  );
+
+static void
+constructImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_DSPOperatorDefinition* self
+  );
+
+static void
+initializeDispatchImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ADL_DSPOperatorDefinitionDispatch* self
+  );
 
 static const Arcadia_ObjectType_Operations objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,

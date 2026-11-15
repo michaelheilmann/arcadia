@@ -22,6 +22,7 @@
 #endif
 #include "Arcadia/PixelBufferIO/Include.h"
 #include "Arcadia/Engine/Visuals/Icon.h"
+
 typedef struct Arcadia_Engine_Visuals_Window Arcadia_Engine_Visuals_Window;
 
 // "Arcadia.Engine.Visuals.WindowBackend" is the ancestor class of all window backends.

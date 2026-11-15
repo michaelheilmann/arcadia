@@ -1,4 +1,4 @@
-<h2 id="errors">Errors</h2>
+<h2 id="errors">8 Errors</h2>
 <p>Failure categories describe where translation stops; they do not prescribe diagnostic wording.</p>
 <dl>
   <dt>Lexical error</dt><dd>The input cannot be read as words: for example <code>+</code>, <code>-</code>, <code>+e2</code>, <code>1e</code>, <code>"\q"</code>,
@@ -11,7 +11,7 @@
   Explicit semantic analysis reports <code>SemanticalError</code>; parsing alone does not reject this sentence.</dd>
 </dl>
 
-<h2 id="conformance">Conformance and reader edges</h2>
+<h2 id="conformance">9 Conformance and reader edges</h2>
 <p>The regression fixtures exercise the scanner/parser and explicit semantic analysis separately.
 These observations apply to the current implementation, not to every possible DDL implementation.
 The approved DDL-specific rules and reader boundaries are summarized below.</p>

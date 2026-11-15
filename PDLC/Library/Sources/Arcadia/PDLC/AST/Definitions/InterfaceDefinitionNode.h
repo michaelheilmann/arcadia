@@ -19,6 +19,7 @@
 
 #include "Arcadia/PDLC/AST/DefinitionNode.h"
 #include "Arcadia/Collections/Include.h"
+
 typedef struct Arcadia_PDLC_AST_IdentifierNode Arcadia_PDLC_AST_IdentifierNode;
 
 /// @code
@@ -42,6 +43,9 @@ struct Arcadia_PDLC_AST_InterfaceDefinitionNodeDispatch {
 
 struct Arcadia_PDLC_AST_InterfaceDefinitionNode {
   Arcadia_PDLC_AST_DefinitionNode _parent;
+  /// Opaque native interfaces provide signatures but retain their C header and body.
+  Arcadia_BooleanValue isNative;
+  Arcadia_String* nativeHeaderPath;
   Arcadia_PDLC_AST_IdentifierNode* interfaceName;
   /// The identifiers of the extended interface types in order of appearance.
   /// A null pointer if the interface type extends no interface type.

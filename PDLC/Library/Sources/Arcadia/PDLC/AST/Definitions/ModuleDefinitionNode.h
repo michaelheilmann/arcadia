@@ -19,6 +19,7 @@
 
 #include "Arcadia/PDLC/AST/DefinitionNode.h"
 #include "Arcadia/Collections/Include.h"
+
 typedef struct Arcadia_PDLC_AST_IdentifierNode Arcadia_PDLC_AST_IdentifierNode;
 
 /// @code

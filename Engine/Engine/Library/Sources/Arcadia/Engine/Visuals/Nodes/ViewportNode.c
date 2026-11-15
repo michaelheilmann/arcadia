@@ -120,6 +120,21 @@ Arcadia_Engine_Visuals_ViewportNode_getClearDepthBufferImpl
     Arcadia_Engine_Visuals_ViewportNode* self
   );
 
+static Arcadia_BooleanValue
+Arcadia_Engine_Visuals_ViewportNode_getDepthTestEnabledImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_ViewportNode* self
+  );
+
+static void
+Arcadia_Engine_Visuals_ViewportNode_setDepthTestEnabledImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_ViewportNode* self,
+    Arcadia_BooleanValue enabled
+  );
+
 static Arcadia_Real32Value
 Arcadia_Engine_Visuals_ViewportNode_getClearDepthImpl
   (
@@ -222,6 +237,7 @@ Arcadia_Engine_Visuals_ViewportNode_constructImpl
 
   self->clearDepthBuffer = Arcadia_BooleanValue_True;
   self->clearDepth = 1.f;
+  self->depthTestEnabled = Arcadia_BooleanValue_True;
 
   self->relativeViewportRectangle.left = 0.f;
   self->relativeViewportRectangle.bottom = 0.f;
@@ -265,6 +281,8 @@ Arcadia_Engine_Visuals_ViewportNode_initializeDispatchImpl
 
   ((Arcadia_Engine_Visuals_ViewportNodeDispatch*)self)->getClearDepthBuffer = (Arcadia_BooleanValue(*)(Arcadia_Thread*, Arcadia_Engine_Visuals_ViewportNode*)) & Arcadia_Engine_Visuals_ViewportNode_getClearDepthBufferImpl;
   ((Arcadia_Engine_Visuals_ViewportNodeDispatch*)self)->setClearDepthBuffer = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_ViewportNode*, Arcadia_BooleanValue)) & Arcadia_Engine_Visuals_ViewportNode_setClearDepthBufferImpl;
+  ((Arcadia_Engine_Visuals_ViewportNodeDispatch*)self)->getDepthTestEnabled = (Arcadia_BooleanValue(*)(Arcadia_Thread*, Arcadia_Engine_Visuals_ViewportNode*)) & Arcadia_Engine_Visuals_ViewportNode_getDepthTestEnabledImpl;
+  ((Arcadia_Engine_Visuals_ViewportNodeDispatch*)self)->setDepthTestEnabled = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_ViewportNode*, Arcadia_BooleanValue)) & Arcadia_Engine_Visuals_ViewportNode_setDepthTestEnabledImpl;
 
   ((Arcadia_Engine_Visuals_ViewportNodeDispatch*)self)->getClearDepth = (Arcadia_Real32Value(*)(Arcadia_Thread*, Arcadia_Engine_Visuals_ViewportNode*)) & Arcadia_Engine_Visuals_ViewportNode_getClearDepthImpl;
   ((Arcadia_Engine_Visuals_ViewportNodeDispatch*)self)->setClearDepth = (void (*)(Arcadia_Thread*, Arcadia_Engine_Visuals_ViewportNode*, Arcadia_Real32Value)) & Arcadia_Engine_Visuals_ViewportNode_setClearDepthImpl;
@@ -394,6 +412,26 @@ Arcadia_Engine_Visuals_ViewportNode_setClearDepthBufferImpl
 {
   self->clearDepthBuffer = clearDepthBuffer;
   self->dirtyBits |= ClearDepthBufferDirty;
+}
+
+static Arcadia_BooleanValue
+Arcadia_Engine_Visuals_ViewportNode_getDepthTestEnabledImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_ViewportNode* self
+  )
+{ return self->depthTestEnabled; }
+
+static void
+Arcadia_Engine_Visuals_ViewportNode_setDepthTestEnabledImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_ViewportNode* self,
+    Arcadia_BooleanValue enabled
+  )
+{
+  // EnterPassNode forwards this state every pass, regardless of dirty bits.
+  self->depthTestEnabled = enabled;
 }
 
 static Arcadia_Real32Value
@@ -543,6 +581,23 @@ Arcadia_Engine_Visuals_ViewportNode_setClearDepthBuffer
     Arcadia_BooleanValue clearDepthBuffer
   )
 { Arcadia_VirtualCall(Arcadia_Engine_Visuals_ViewportNode, setClearDepthBuffer, self, clearDepthBuffer); }
+
+Arcadia_BooleanValue
+Arcadia_Engine_Visuals_ViewportNode_getDepthTestEnabled
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_ViewportNode* self
+  )
+{ Arcadia_VirtualCallWithReturn(Arcadia_Engine_Visuals_ViewportNode, getDepthTestEnabled, self); }
+
+void
+Arcadia_Engine_Visuals_ViewportNode_setDepthTestEnabled
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Visuals_ViewportNode* self,
+    Arcadia_BooleanValue enabled
+  )
+{ Arcadia_VirtualCall(Arcadia_Engine_Visuals_ViewportNode, setDepthTestEnabled, self, enabled); }
 
 Arcadia_Real32Value
 Arcadia_Engine_Visuals_ViewportNode_getClearDepth

@@ -18,6 +18,7 @@
 #define ARCADIA_PDLC_SYMBOLS_SYMBOL_H_INCLUDED
 
 #include "Arcadia/PDLC/Symbols/SymbolKind.h"
+
 typedef struct Arcadia_PDLC_Completer Arcadia_PDLC_Completer;
 
 /// @code

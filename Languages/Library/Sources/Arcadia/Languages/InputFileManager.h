@@ -19,6 +19,7 @@
 
 #include "Arcadia/FileSystem/Include.h"
 #include "Arcadia/Languages/Diagnostics.h"
+
 typedef struct Arcadia_Languages_InputFile Arcadia_Languages_InputFile;
 
 /// Input files are accessed via this input file manager.

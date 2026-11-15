@@ -26,6 +26,7 @@
   #define NOCOMM
 #endif
 #include <Windows.h>
+
 typedef struct Arcadia_Engine_Visuals_Windows_DisplayMode Arcadia_Engine_Visuals_Windows_DisplayMode;
 
 

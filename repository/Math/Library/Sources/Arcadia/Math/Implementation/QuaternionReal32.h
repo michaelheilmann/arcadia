@@ -18,6 +18,7 @@
 #define ARCADIA_MATH_QUATERNIONREAL32_H_INCLUDED
 
 #include "Arcadia/Ring2/Include.h"
+
 typedef struct Arcadia_Math_Matrix4Real32 Arcadia_Math_Matrix4Real32;
 typedef struct Arcadia_Math_Vector3Real32 Arcadia_Math_Vector3Real32;
 

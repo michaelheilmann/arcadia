@@ -5,7 +5,13 @@
 
 /// @error Arcadia.Status.AllocationFailed
 /// @error Arcadia.Status.ArgumentTypeInvalid
-static inline Arcadia_FileHandle* getFileHandle(Arcadia_Thread* thread, Arcadia_SizeValue index) {
+static inline Arcadia_FileHandle*
+getFileHandle
+  (
+    Arcadia_Thread* thread,
+    Arcadia_SizeValue index
+  )
+{
   Arcadia_Value value = Arcadia_ValueStack_getValue(thread, index);
   if (!Arcadia_Value_isObjectReferenceValue(&value)) {
     //Arcadia_Diagnostics_logValueStackElement(thread, Arcadia_LogFlags_Debug, index);
@@ -23,7 +29,13 @@ static inline Arcadia_FileHandle* getFileHandle(Arcadia_Thread* thread, Arcadia_
 
 /// @error Arcadia.Status.AllocationFailed
 /// @error Arcadia.Status.ArgumentTypeInvalid
-static inline Arcadia_String* getString(Arcadia_Thread* thread, Arcadia_SizeValue index) {
+static inline Arcadia_String*
+getString
+  (
+    Arcadia_Thread* thread,
+    Arcadia_SizeValue index
+  )
+{
   Arcadia_Value value = Arcadia_ValueStack_getValue(thread, index);
   if (!Arcadia_Value_isObjectReferenceValue(&value)) {
     //Arcadia_Diagnostics_logValueStackElement(thread, Arcadia_LogFlags_Debug, index);

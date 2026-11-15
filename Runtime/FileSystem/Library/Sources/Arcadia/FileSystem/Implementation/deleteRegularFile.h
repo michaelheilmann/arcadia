@@ -8,6 +8,7 @@
 #endif
 
 #include "Arcadia/FileSystem/FilePath.h"
+
 typedef struct Arcadia_DefaultFileSystem Arcadia_DefaultFileSystem;
 
 /// @brief Delete a regular file.

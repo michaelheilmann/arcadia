@@ -70,6 +70,30 @@
   Verify runnable examples against the relevant implementation when claiming support;
   label draft-only examples without implying current tool acceptance.
 
+## Semantic Completeness And Conformance
+
+- Specify observable language behavior independently of a particular parser,
+  validator, runtime representation or implementation algorithm. Explain any
+  deliberate dependency on another specification through a precise cross-reference.
+- For each new construct, define its allowed contexts, required and optional parts,
+  interpretation, name and type rules, and interactions with existing constructs.
+  Where applicable, also define evaluation or translation order, reference resolution,
+  cycle behavior and the stage at which invalid inputs are rejected. State intentional
+  omissions instead of silently choosing an implementation-dependent interpretation.
+- Distinguish a general language facility from its explicitly enabled applications.
+  For example, permitting a representation form in principle does not enable it in
+  every field or production; each consuming context specifies its accepted forms.
+- Pair normative rules with positive, negative and boundary conformance cases.
+  Make each case's expected acceptance, rejection or observable outcome clear.
+  Conformance cases need not prescribe exact diagnostic text or internal error codes.
+- Review semantic changes separately from editorial and presentation changes. Keep
+  proposals, maintainer decisions, verified implementation support and test evidence
+  distinct. An accepted specification is the contract for subsequent implementation;
+  a documentation draft is not evidence that a feature already works.
+- Keep one authoritative set of shared editorial conventions in this file. Language-
+  specific exceptions and details belong with the owning specification, not in a
+  competing general style guide.
+
 ## References And Stable Navigation
 
 - Cite the owning specification/section for reused definitions. Give enough author,

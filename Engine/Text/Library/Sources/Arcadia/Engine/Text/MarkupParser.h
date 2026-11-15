@@ -27,6 +27,10 @@
 Arcadia_declareObjectType(u8"Arcadia.Engine.Text.MarkupParser", Arcadia_Engine_Text_MarkupParser,
                           u8"Arcadia.Languages.Parser");
 
-Arcadia_Engine_Text_MarkupParser* Arcadia_Engine_Text_MarkupParser_create(Arcadia_Thread* thread);
+Arcadia_Engine_Text_MarkupParser*
+Arcadia_Engine_Text_MarkupParser_create
+  (
+    Arcadia_Thread* thread
+  );
 
 #endif // ARCADIA_ENGINE_TEXT_MARKUPPARSER_H_INCLUDED

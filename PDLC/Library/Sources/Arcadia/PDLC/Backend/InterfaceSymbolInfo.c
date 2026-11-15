@@ -166,13 +166,18 @@ constructImpl
     Arcadia_PDLC_Backend_ModuleSymbolInfo* moduleSymbolInfo =
       (Arcadia_PDLC_Backend_ModuleSymbolInfo*)Arcadia_PDLC_Backend_Implementation_getOrCreateInfo(thread, implementation, moduleSymbol);
 
-    self->cxxHeaderFilePath = Arcadia_PDLC_Backend_Implementation_makeCxxHeaderFilePath(thread, implementation, self->symbol);
-    self->cxxHeaderFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
-    Arcadia_FilePath_append(thread, self->cxxHeaderFileAbsolutePath, self->cxxHeaderFilePath);
-
-    self->cxxSourceFilePath = Arcadia_PDLC_Backend_Implementation_makeCxxSourceFilePath(thread, implementation, self->symbol);
-    self->cxxSourceFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
-    Arcadia_FilePath_append(thread, self->cxxSourceFileAbsolutePath, self->cxxSourceFilePath);
+    Arcadia_PDLC_InterfaceSymbol* interface = (Arcadia_PDLC_InterfaceSymbol*)self->symbol;
+    Arcadia_String* nativeHeader = interface->ast ? interface->ast->nativeHeaderPath : NULL;
+    self->cxxHeaderFilePath = nativeHeader
+      ? Arcadia_FilePath_parseGeneric(thread, nativeHeader)
+      : Arcadia_PDLC_Backend_Implementation_makeCxxHeaderFilePath(thread, implementation, self->symbol);
+    if (!interface->ast || !interface->ast->isNative) {
+      self->cxxHeaderFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
+      Arcadia_FilePath_append(thread, self->cxxHeaderFileAbsolutePath, self->cxxHeaderFilePath);
+      self->cxxSourceFilePath = Arcadia_PDLC_Backend_Implementation_makeCxxSourceFilePath(thread, implementation, self->symbol);
+      self->cxxSourceFileAbsolutePath = Arcadia_FilePath_clone(thread, moduleSymbolInfo->cxxFilesPath);
+      Arcadia_FilePath_append(thread, self->cxxSourceFileAbsolutePath, self->cxxSourceFilePath);
+    }
   }
 
   Arcadia_LeaveConstructor(Arcadia_PDLC_Backend_InterfaceSymbolInfo);

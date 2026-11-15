@@ -1,0 +1,48 @@
+<section class="cxx entity method">
+
+  <h1 id="Arcadia_ByteArray_setAt">Arcadia_ByteArray_setAt</h1>
+
+  <my-signature><code>
+  void<br>
+  Arcadia_ByteArray_setAt<br>
+  &nbsp;&nbsp;(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_ByteArray* self,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Natural8Value value<br>
+  &nbsp;&nbsp;)
+  </code></my-signature>
+
+  <my-summary>Replaces the byte at the given index.</my-summary>
+
+  <section class="cxx parameters">
+    <h1>Parameters</h1>
+    <div>
+      <div><code>Arcadia_Thread* thread</code></div>
+      <div>A pointer to the calling thread.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_ByteArray* self</code></div>
+      <div>A pointer to this byte array.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_SizeValue index</code></div>
+      <div>The zero-based index of the byte to replace.</div>
+    </div>
+    <div>
+      <div><code>Arcadia_Natural8Value value</code></div>
+      <div>The new byte value.</div>
+    </div>
+  </section>
+
+  <section class="cxx remarks">
+    <h1>Remarks</h1>
+    <p>The index must be in the range <code>[0, getSize())</code>.</p>
+  </section>
+
+  <section class="cxx errors">
+    <h1>Errors</h1>
+    <p>If the instance does not support mutation, <code>Arcadia_Status_OperationInvalid</code> is raised before checking the index. For a mutable instance, an invalid index raises <code>Arcadia_Status_ArgumentValueInvalid</code>.</p>
+  </section>
+
+</section>

@@ -22,6 +22,7 @@
 #endif
 
 #include "Arcadia/Ring1/BigInteger/BigInteger.h"
+
 typedef struct Arcadia_RuntimeUTF8String Arcadia_RuntimeUTF8String;
 
 // Convert this BigInteger into a decimal string.

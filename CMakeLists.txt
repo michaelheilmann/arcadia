@@ -60,6 +60,15 @@ if (operatingSystem STREQUAL Arcadia_OperatingSystem_Windows)
   set(MyDependenciesDirectory "${CMAKE_CURRENT_BINARY_DIR}/.Dependencies")
   set(MyDependenciesGitHubReleasePrefix "https://github.com/michaelheilmann/arcadia-dependencies/releases/download/arcadia-dependencies-v1.0.67")
 
+  # Install only the prebuilt dependencies for the configured target architecture.
+  if(instructionSetArchitecture STREQUAL Arcadia_InstructionSetArchitecture_X64)
+    set(MyDependenciesArchitecture "x64")
+  elseif(instructionSetArchitecture STREQUAL Arcadia_InstructionSetArchitecture_X86)
+    set(MyDependenciesArchitecture "x86")
+  else()
+    message(FATAL_ERROR "Unsupported instruction set architecture for Arcadia dependencies")
+  endif()
+
   # Custom target that downloads and extracts the prebuilt dependencies.
   # Takes over the job of the `install-dependencies.ps1` script.
   # Build it explicitly, e.g. `cmake --target Arcadia.InstallDependencies`.
@@ -67,6 +76,7 @@ if (operatingSystem STREQUAL Arcadia_OperatingSystem_Windows)
     COMMAND ${CMAKE_COMMAND}
             -D "MyDependenciesDirectory=${MyDependenciesDirectory}"
             -D "MyDependenciesGitHubReleasePrefix=${MyDependenciesGitHubReleasePrefix}"
+            -D "MyDependenciesArchitecture=${MyDependenciesArchitecture}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/CMake/download-dependencies.cmake"
     COMMENT "Downloading and extracting the Arcadia dependencies ..."
     VERBATIM)
@@ -81,6 +91,9 @@ add_subdirectory(Runtime/Collections)
 add_subdirectory(Runtime/FileSystem)
 add_subdirectory(Runtime/Print)
 add_subdirectory(Runtime/Logging)
+
+# Reusable networking infrastructure.
+add_subdirectory(Network)
 
 # The languages.
 add_subdirectory(Languages)

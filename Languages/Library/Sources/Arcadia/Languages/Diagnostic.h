@@ -19,6 +19,7 @@
 
 #include "Arcadia/Ring2/Include.h"
 #include "Arcadia/Languages/DiagnosticType.h"
+
 typedef struct Arcadia_Languages_InputFile Arcadia_Languages_InputFile;
 
 /// @brief A diagnostic message of the compiler.

@@ -23,6 +23,7 @@
 
 #include "Arcadia/Ring1/_declareScalarType.h"
 #include "Arcadia/Ring1/Size.h"
+
 typedef struct Arcadia_Value Arcadia_Value;
 
 /// The foreign procedure has the following calling convention:

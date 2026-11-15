@@ -191,10 +191,18 @@ Arcadia_Imaging_Windows_TIFImageWriter_initializeDispatchImpl
     Arcadia_Imaging_Windows_TIFImageWriterDispatch* self
   );
 
+static void
+Arcadia_Imaging_Windows_TIFImageWriter_visit
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Imaging_Windows_TIFImageWriter* self
+  );
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&Arcadia_Imaging_Windows_TIFImageWriter_constructImpl,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Imaging_Windows_TIFImageWriter_initializeDispatchImpl,
+  .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Imaging_Windows_TIFImageWriter_visit,
 };
 
 static const Arcadia_Type_Operations _typeOperations = {
@@ -226,10 +234,25 @@ Arcadia_Imaging_Windows_TIFImageWriter_constructImpl
   //
   self->supportedTypes = NULL;
   Arcadia_List* supportedTypes = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  // The mutable construction list is not yet owned by self.
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)supportedTypes);
   Arcadia_List_insertBackObjectReferenceValue(thread, supportedTypes, Arcadia_String_create(thread, Arcadia_Value_makeRuntimeUTF8StringValue(Arcadia_RuntimeUTF8String_create(thread, u8"tif", sizeof(u8"tif") - 1))));
   self->supportedTypes = Arcadia_ImmutableList_create(thread, Arcadia_Value_makeObjectReferenceValue(supportedTypes));
+  Arcadia_ValueStack_popValues(thread, 1);
   //
   Arcadia_LeaveConstructor(Arcadia_Imaging_Windows_TIFImageWriter);
+}
+
+static void
+Arcadia_Imaging_Windows_TIFImageWriter_visit
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Imaging_Windows_TIFImageWriter* self
+  )
+{
+  if (self->supportedTypes) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->supportedTypes);
+  }
 }
 
 static void

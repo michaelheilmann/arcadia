@@ -21,6 +21,7 @@
 #include "Arcadia/Visuals/Implementation/OpenGL4/WGL/SystemWindow.h"
 #include "Arcadia/Visuals/Implementation/OpenGL4/Functions.h"
 #include "Arcadia/Visuals/Implementation/OpenGL4/WGL/Functions.h"
+
 typedef struct Arcadia_Engine_Visuals_Implementation_NodeFactory Arcadia_Engine_Visuals_Implementation_NodeFactory;
 
 #if !defined(WIN32_LEAN_AND_MEAN)

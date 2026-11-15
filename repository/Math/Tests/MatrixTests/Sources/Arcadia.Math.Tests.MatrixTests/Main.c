@@ -27,6 +27,7 @@
 #define M(name) Arcadia_Math_Matrix4Real32_##name
 #define V(name) Arcadia_Math_Vector3Real32_##name
 #define G(name) Arcadia_Math_Matrix4x4Real32_##name
+#define GValue(name) Arcadia_Math_Matrix4x4Real32Value_##name
 #define Test(name) real32_##name
 #define Tolerance 1.e-5
 #include "Cases.i"
@@ -36,6 +37,7 @@
 #undef M
 #undef V
 #undef G
+#undef GValue
 #undef Test
 #undef Tolerance
 
@@ -45,6 +47,7 @@
 #define M(name) Arcadia_Math_Matrix4Real64_##name
 #define V(name) Arcadia_Math_Vector3Real64_##name
 #define G(name) Arcadia_Math_Matrix4x4Real64_##name
+#define GValue(name) Arcadia_Math_Matrix4x4Real64Value_##name
 #define Test(name) real64_##name
 #define Tolerance 1.e-12
 #include "Cases.i"
@@ -54,6 +57,7 @@
 #undef M
 #undef V
 #undef G
+#undef GValue
 #undef Test
 #undef Tolerance
 
@@ -75,6 +79,60 @@ runReal64
   return Arcadia_Tests_safeExecute(&real64_run) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static int
+runFactoryAndInterpolationReal32
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&real32_factoryAndInterpolation) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runFactoryAndInterpolationReal64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&real64_factoryAndInterpolation) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNativeValuesReal32
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&real32_nativeValues) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runNativeValuesReal64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&real64_nativeValues) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runLegacyRotationYReal32
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&real32_rotationYLegacy) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
+runLegacyRotationYReal64
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&real64_rotationYLegacy) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -85,6 +143,12 @@ main
   static const Arcadia_Testing_Case cases[] = {
     { "Real32", &runReal32 },
     { "Real64", &runReal64 },
+    { "FactoryAndInterpolationReal32", &runFactoryAndInterpolationReal32 },
+    { "FactoryAndInterpolationReal64", &runFactoryAndInterpolationReal64 },
+    { "NativeValuesReal32", &runNativeValuesReal32 },
+    { "NativeValuesReal64", &runNativeValuesReal64 },
+    { "LegacyRotationYReal32", &runLegacyRotationYReal32 },
+    { "LegacyRotationYReal64", &runLegacyRotationYReal64 },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }

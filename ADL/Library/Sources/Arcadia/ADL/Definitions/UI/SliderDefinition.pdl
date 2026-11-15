@@ -1,0 +1,52 @@
+// Arcadia
+// Copyright (C) 2024-2026 Michael Heilmann
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// A slider definition. Bounds, value and step are stored without clamping.
+class "Arcadia/ADL/Definitions/UI/SliderDefinition.h" Arcadia.ADL.UI.SliderDefinition extends Arcadia.ADL.Definition {
+  variable left : Arcadia.Integer32
+  variable bottom : Arcadia.Integer32
+  variable width : Arcadia.Natural32
+  variable height : Arcadia.Natural32
+  variable minimum : Arcadia.Real64
+  variable maximum : Arcadia.Real64
+  variable value : Arcadia.Real64
+  variable step : Arcadia.Real64
+
+  constructor
+    (
+      variable definitions : Arcadia.ADL.Definitions,
+      variable name : Arcadia.String,
+      variable left : Arcadia.Integer32,
+      variable bottom : Arcadia.Integer32,
+      variable width : Arcadia.Natural32,
+      variable height : Arcadia.Natural32,
+      variable minimum : Arcadia.Real64,
+      variable maximum : Arcadia.Real64,
+      variable value : Arcadia.Real64,
+      variable step : Arcadia.Real64
+    )
+  {
+    construct $0 Arcadia.ADL.Definition self definitions name
+    storeField self left left
+    storeField self bottom bottom
+    storeField self width width
+    storeField self height height
+    storeField self minimum minimum
+    storeField self maximum maximum
+    storeField self value value
+    storeField self step step
+  }
+}

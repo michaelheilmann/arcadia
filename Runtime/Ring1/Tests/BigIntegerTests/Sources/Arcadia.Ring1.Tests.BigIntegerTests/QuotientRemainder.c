@@ -64,7 +64,16 @@ typedef struct Range {
   Arcadia_BooleanValue done;
 } Range;
 
-void Range_init(Arcadia_Thread* thread, Range* range, Arcadia_Natural64Value start, Arcadia_Natural64Value end, Arcadia_Natural64Value step) {
+void
+Range_init
+  (
+    Arcadia_Thread* thread,
+    Range* range,
+    Arcadia_Natural64Value start,
+    Arcadia_Natural64Value end,
+    Arcadia_Natural64Value step
+  )
+{
   range->start = start;
   range->end = end;
   range->current = start;
@@ -89,7 +98,13 @@ void Range_init(Arcadia_Thread* thread, Range* range, Arcadia_Natural64Value sta
   }
 }
 
-Arcadia_Natural64Value Range_get(Arcadia_Thread* thread, Range* range) {
+Arcadia_Natural64Value
+Range_get
+  (
+    Arcadia_Thread* thread,
+    Range* range
+  )
+{
   if (range->done) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
     Arcadia_Thread_jump(thread);
@@ -97,7 +112,13 @@ Arcadia_Natural64Value Range_get(Arcadia_Thread* thread, Range* range) {
   return range->current;
 }
 
-void Range_next(Arcadia_Thread* thread, Range* range) {
+void
+Range_next
+  (
+    Arcadia_Thread* thread,
+    Range* range
+  )
+{
   if (range->done) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
     Arcadia_Thread_jump(thread);

@@ -29,20 +29,74 @@ struct Arcadia_Engine_Text_MarkupParser {
   Arcadia_Languages_Diagnostics* diagnostics;
 };
 
-static void constructImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParser* self);
-static void initializeDispatchImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParserDispatch* self);
-static void visitImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParser* self);
-static Arcadia_Languages_Diagnostics* getDiagnosticsImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParser* self);
-static Arcadia_UnicodeCodePointReader* getInputImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParser* self);
-static Arcadia_Languages_StringTable* getStringTableImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParser* self);
-static Arcadia_Value runImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParser* self);
-static void setInputImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParser* self, Arcadia_UnicodeCodePointReader* input);
+static void
+constructImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParser* self
+  );
+
+static void
+initializeDispatchImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParserDispatch* self
+  );
+
+static void
+visitImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParser* self
+  );
+
+static Arcadia_Languages_Diagnostics*
+getDiagnosticsImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParser* self
+  );
+
+static Arcadia_UnicodeCodePointReader*
+getInputImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParser* self
+  );
+
+static Arcadia_Languages_StringTable*
+getStringTableImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParser* self
+  );
+
+static Arcadia_Value
+runImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParser* self
+  );
+
+static void
+setInputImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParser* self,
+    Arcadia_UnicodeCodePointReader* input
+  );
 
 static const Arcadia_ObjectType_Operations objectTypeOperations = { Arcadia_ObjectType_Operations_Initializer, .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructImpl, .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl, .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl };
 static const Arcadia_Type_Operations typeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objectTypeOperations };
 Arcadia_defineObjectType(u8"Arcadia.Engine.Text.MarkupParser", Arcadia_Engine_Text_MarkupParser, u8"Arcadia.Languages.Parser", Arcadia_Languages_Parser, &typeOperations);
 
-static void constructImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParser* self) {
+static void
+constructImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParser* self
+  )
+{
   Arcadia_EnterConstructor(Arcadia_Engine_Text_MarkupParser);
   { Arcadia_ValueStack_pushNatural8Value(thread, 0); Arcadia_superTypeConstructor(thread, _type, self); }
   if (0 != _numberOfArguments) { Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid); Arcadia_Thread_jump(thread); }
@@ -52,7 +106,13 @@ static void constructImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupPars
   Arcadia_LeaveConstructor(Arcadia_Engine_Text_MarkupParser);
 }
 
-static void initializeDispatchImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParserDispatch* self) {
+static void
+initializeDispatchImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParserDispatch* self
+  )
+{
   ((Arcadia_Languages_ParserDispatch*)self)->getDiagnostics = (Arcadia_Languages_Diagnostics* (*)(Arcadia_Thread*, Arcadia_Languages_Parser*))&getDiagnosticsImpl;
   ((Arcadia_Languages_ParserDispatch*)self)->getInput = (Arcadia_UnicodeCodePointReader* (*)(Arcadia_Thread*, Arcadia_Languages_Parser*))&getInputImpl;
   ((Arcadia_Languages_ParserDispatch*)self)->getStringTable = (Arcadia_Languages_StringTable* (*)(Arcadia_Thread*, Arcadia_Languages_Parser*))&getStringTableImpl;
@@ -70,7 +130,13 @@ static Arcadia_Natural32Value parseNatural32(Arcadia_Thread* thread, Arcadia_Str
 static Arcadia_Integer32Value parseInteger32(Arcadia_Thread* thread, Arcadia_String* s) { return (Arcadia_Integer32Value)Arcadia_String_toInteger64(thread, s); }
 static void setRectangle(Arcadia_Engine_Text_MarkupTextRun* run, Arcadia_BooleanValue hasRectangle, Arcadia_Integer32Value rectangleLeft, Arcadia_Integer32Value rectangleBottom, Arcadia_Integer32Value rectangleWidth, Arcadia_Integer32Value rectangleHeight) { run->hasRectangle = hasRectangle; run->rectangleLeft = rectangleLeft; run->rectangleBottom = rectangleBottom; run->rectangleWidth = rectangleWidth; run->rectangleHeight = rectangleHeight; }
 
-static Arcadia_Value runImpl(Arcadia_Thread* thread, Arcadia_Engine_Text_MarkupParser* self) {
+static Arcadia_Value
+runImpl
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Engine_Text_MarkupParser* self
+  )
+{
   Arcadia_List* runs = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   Arcadia_String* color = Arcadia_String_createFromCxxString(thread, "Colors.White");
   Arcadia_Natural32Value pixelSize = 16;
