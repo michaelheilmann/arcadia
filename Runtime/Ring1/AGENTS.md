@@ -76,8 +76,8 @@
 
 - `Arcadia_RuntimeUTF8String` is a value type declared in `ImmutableByteArray.h`, created with `Arcadia_RuntimeUTF8String_create(thread, u8"...", sizeof(u8"...")-1)` and boxed with `Arcadia_Value_makeRuntimeUTF8StringValue`. It is a common interface operation return type.
 - `Arcadia_String` is a separate *object* type in `Objects/String.h`, declared with `Arcadia_declareObjectType` and with constructors from the boolean, integer, and natural scalar types.
-- `Arcadia_ImmutableUTF8String` (with `ImmutableUTF8StringExtensions.{h,c}`) and `Objects/ByteArray.h` are the immutable buffer types. `Objects/ByteReader.h` and the `*.ByteReader` types are separate object types wrapping a buffer plus a read cursor.
-- Note the naming trap: `Arcadia_ImmutableByteArray` is declared in the plain file `ImmutableByteArray.h`, and the `RuntimeUTF8String` family lives alongside it in that same header (the misleading empty `ImmutableByteArray` folder is gone after the `Implementation/` flattening).
+- `Arcadia_ImmutableUTF8String` (with `ImmutableUTF8StringExtensions.{h,c}`) represents immutable UTF-8 text. `Objects/ByteArray.h` declares the capability-aware `Arcadia_ByteArray` object: implementations can be immutable or mutable, fixed-size or resizable, and contiguous or non-contiguous. Native byte pointers are borrowed and must not outlive their backing storage. `Objects/ByteArrayBuilder.h` retains a compatibility facade backed by one resizable `Arcadia_ByteArray`. The `Objects/ByteReader.h` and `*.ByteReader` object types wrap byte sources with read cursors.
+- `ImmutableByteArray.h` declares the separate, immutable runtime **value** type `Arcadia_RuntimeByteArray` / `Arcadia_RuntimeByteArrayValue`, not a C type named `Arcadia_ImmutableByteArray`. Its runtime type name is still `Arcadia.ImmutableByteArray`. The `RuntimeUTF8String` family lives in `ImmutableUTF8String.h`.
 
 ## Tests
 
