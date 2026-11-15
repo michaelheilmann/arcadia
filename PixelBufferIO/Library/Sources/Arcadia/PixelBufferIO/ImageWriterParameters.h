@@ -25,7 +25,7 @@
 ///   construct(byteBuffer:ByteBuffer,format:String)
 /// }
 /// @endcode
-/// where @ format is one of "bmp", "ico", "png", "tiff".
+/// where @ format is one of "ico", "png", "tif" (Windows only).
 Arcadia_declareObjectType(u8"Arcadia.Imagging.ImageWriterParameters", Arcadia_Imaging_ImageWriterParameters,
                           u8"Arcadia.Object");
 
