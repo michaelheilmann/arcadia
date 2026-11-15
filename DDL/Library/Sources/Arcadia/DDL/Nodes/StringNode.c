@@ -45,8 +45,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_DDL_StringNode_objectTypeOpe
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_DDL_StringNode_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_DDL_StringNode_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_DDL_StringNode_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_DDL_StringNode_objectTypeOperations,
 };
 
