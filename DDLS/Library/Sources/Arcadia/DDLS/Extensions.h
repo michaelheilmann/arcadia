@@ -288,7 +288,7 @@ Arcadia_DDLS_isVoid
 {
   if (!Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)ddlsNode, _Arcadia_DDLS_ScalarNode_getType(thread)))
   { return Arcadia_BooleanValue_False; }
-  return Arcadia_String_isEqualTo_pn(thread, ((Arcadia_DDLS_ScalarNode*)ddlsNode)->name, u8"Boolean", sizeof(u8"Boolean") - 1);
+  return Arcadia_String_isEqualTo_pn(thread, ((Arcadia_DDLS_ScalarNode*)ddlsNode)->name, u8"Void", sizeof(u8"Void") - 1);
 }
 
 static inline Arcadia_BooleanValue

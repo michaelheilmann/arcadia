@@ -328,7 +328,7 @@ Arcadia_DDLS_Tests_Validation_optionalAccept1
     "      {\n"
     "        kind : \"MapEntry\",\n"
     "        name : \"optionalEntry\",\n"
-    "        optional : \"true\",\n"
+    "        optional : true,\n"
     "        type : {\n"
     "          kind : \"String\",\n"
     "        },\n"
@@ -382,7 +382,7 @@ Arcadia_DDLS_Tests_Validation_optionalReject1
     "      {\n"
     "        kind : \"MapEntry\",\n"
     "        name : \"optionalEntry\",\n"
-    "        optional : \"true\",\n"
+    "        optional : true,\n"
     "        type : {\n"
     "          kind : \"String\",\n"
     "        },\n"
@@ -417,6 +417,73 @@ Arcadia_DDLS_Tests_Validation_optionalReject1
       Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
     }
   }
+}
+
+
+#define OPTIONAL_VALIDATION_SCHEMA(field) \
+  "{ kind : \"Schema\", name : \"MySchema\", definition : { kind : \"Map\", entries : [" \
+  "{ kind : \"MapEntry\", name : \"label\", type : { kind : \"String\" }, " field " }," \
+  "{ kind : \"MapEntry\", name : \"present\", type : { kind : \"Void\" } } ] } }"
+
+static void
+testOptionalBooleanValidation
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const struct {
+    const char* schema;
+    const char* value;
+    Arcadia_BooleanValue accepted;
+  } cases[] = {
+    { OPTIONAL_VALIDATION_SCHEMA("optional : true,"), "{ present : void }", Arcadia_BooleanValue_True },
+    { OPTIONAL_VALIDATION_SCHEMA("optional : true,"), "{ label : \"x\", present : void }", Arcadia_BooleanValue_True },
+    { OPTIONAL_VALIDATION_SCHEMA("optional : true,"), "{ label : void, present : void }", Arcadia_BooleanValue_False },
+    { OPTIONAL_VALIDATION_SCHEMA("optional : true,"), "{ present : \"x\" }", Arcadia_BooleanValue_False },
+    { OPTIONAL_VALIDATION_SCHEMA("optional : true,"), "{ present : void, extra : 1 }", Arcadia_BooleanValue_False },
+    { OPTIONAL_VALIDATION_SCHEMA("optional : true,"), "{}", Arcadia_BooleanValue_False },
+    { OPTIONAL_VALIDATION_SCHEMA("optional : false,"), "{ label : \"x\", present : void }", Arcadia_BooleanValue_True },
+    { OPTIONAL_VALIDATION_SCHEMA("optional : false,"), "{ present : void }", Arcadia_BooleanValue_False },
+    { OPTIONAL_VALIDATION_SCHEMA(""), "{ label : \"x\", present : void }", Arcadia_BooleanValue_True },
+    { OPTIONAL_VALIDATION_SCHEMA(""), "{ present : void }", Arcadia_BooleanValue_False },
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    Arcadia_DDLS_SchemaNode* schema = readDDLS(thread, cases[i].schema);
+    Arcadia_DDL_Node* value = readDDL(thread, cases[i].value);
+    Arcadia_DDLS_ValidationContext* context = Arcadia_DDLS_ValidationContext_create(thread);
+    Arcadia_DDLS_ValidationContext_addSchema(thread, context, schema);
+    if (Arcadia_BooleanValue_True == cases[i].accepted) {
+      Arcadia_DDLS_ValidationContext_run(thread, context, Arcadia_String_createFromCxxString(thread, u8"MySchema"), value);
+    } else {
+      Arcadia_JumpTarget target;
+      Arcadia_Thread_pushJumpTarget(thread, &target);
+      if (Arcadia_JumpTarget_save(&target)) {
+        Arcadia_DDLS_ValidationContext_run(thread, context, Arcadia_String_createFromCxxString(thread, u8"MySchema"), value);
+        Arcadia_Thread_popJumpTarget(thread);
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+        Arcadia_Thread_jump(thread);
+      } else {
+        Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+        Arcadia_Thread_popJumpTarget(thread);
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+        if (status != Arcadia_Status_SemanticalError) {
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+          Arcadia_Thread_jump(thread);
+        }
+      }
+    }
+  }
+}
+
+#undef OPTIONAL_VALIDATION_SCHEMA
+
+static int
+runOptionalBooleanValidation
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testOptionalBooleanValidation) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static int
@@ -599,6 +666,7 @@ main
 {
   static const Arcadia_Testing_Case cases[] = {
     { "AcceptColor", &runAcceptColor },
+    { "OptionalBooleanValidation", &runOptionalBooleanValidation },
     { "RejectTypeNotDefined", &runRejectTypeNotDefined },
     { "RejectRedNotDefined", &runRejectRedNotDefined },
     { "RejectGreenNotDefined", &runRejectGreenNotDefined },
