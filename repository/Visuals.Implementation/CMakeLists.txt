@@ -17,3 +17,7 @@
 cmake_minimum_required(VERSION 3.29)
 
 add_subdirectory(Library)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  add_subdirectory(Tests)
+endif()
