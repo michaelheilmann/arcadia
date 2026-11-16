@@ -178,8 +178,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_DDLS_SymbolReader_objectType
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_DDLS_SymbolReader_initializeDispatchImpl,
 };
 
-static const Arcadia_TypeDescriptor_Operations _Arcadia_DDLS_SymbolReader_typeOperations = {
-  Arcadia_TypeDescriptor_Operations_Initializer,
+static const Arcadia_Type_Operations _Arcadia_DDLS_SymbolReader_typeOperations = {
+  Arcadia_Type_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_DDLS_SymbolReader_objectTypeOperations,
 };
 
@@ -567,12 +567,12 @@ readMapEntrySymbol
   Arcadia_BooleanValue optional = Arcadia_BooleanValue_False;
   Arcadia_Value ov = Arcadia_Map_get(thread, self->scope->symbols, self->OPTIONAL);
   if (!Arcadia_Value_isVoidValue(&ov)) {
-    if (!Arcadia_Value_isInstanceOf(thread, &ov, _Arcadia_DDL_StringNode_getType(thread))) {
-      Arcadia_logf(Arcadia_LogFlags_Error, u8"`optional` is not a string\n");
+    if (!Arcadia_Value_isInstanceOf(thread, &ov, _Arcadia_DDL_BooleanNode_getType(thread))) {
+      Arcadia_logf(Arcadia_LogFlags_Error, u8"`optional` is not a boolean\n");
       Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
       Arcadia_Thread_jump(thread);
     }
-    Arcadia_DDL_StringNode* optionalNode = (Arcadia_DDL_StringNode*)Arcadia_Value_getObjectReferenceValue(&ov);
+    Arcadia_DDL_BooleanNode* optionalNode = (Arcadia_DDL_BooleanNode*)Arcadia_Value_getObjectReferenceValue(&ov);
     Arcadia_Value sv = Arcadia_Value_makeObjectReferenceValue(optionalNode->value);
     if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)Arcadia_Value_getObjectReferenceValue(&self->TRUE), &sv)) {
       optional = Arcadia_BooleanValue_True;

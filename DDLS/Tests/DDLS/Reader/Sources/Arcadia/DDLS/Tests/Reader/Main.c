@@ -135,6 +135,71 @@ testRejectEmptyChoice
   }
 }
 
+
+#define OPTIONAL_SCHEMA(field) \
+  "{ kind : \"Schema\", name : \"Optional\", definition : { kind : \"Map\", entries : [" \
+  "{ kind : \"MapEntry\", name : \"value\", type : { kind : \"String\" }, " field " } ] } }"
+
+static void
+testOptionalBooleanSchemas
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const struct {
+    const char* source;
+    Arcadia_BooleanValue accepted;
+  } cases[] = {
+    { OPTIONAL_SCHEMA("optional : true,"), Arcadia_BooleanValue_True },
+    { OPTIONAL_SCHEMA("optional : false,"), Arcadia_BooleanValue_True },
+    { OPTIONAL_SCHEMA(""), Arcadia_BooleanValue_True },
+    { OPTIONAL_SCHEMA("optional : \"true\","), Arcadia_BooleanValue_False },
+    { OPTIONAL_SCHEMA("optional : \"false\","), Arcadia_BooleanValue_False },
+    { OPTIONAL_SCHEMA("optional : 1,"), Arcadia_BooleanValue_False },
+    { OPTIONAL_SCHEMA("optional : void,"), Arcadia_BooleanValue_False },
+    { OPTIONAL_SCHEMA("optional : [],"), Arcadia_BooleanValue_False },
+    { OPTIONAL_SCHEMA("optional : {},"), Arcadia_BooleanValue_False },
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    Arcadia_DDLS_DefaultReader* reader = Arcadia_DDLS_DefaultReader_create(thread);
+    if (Arcadia_BooleanValue_True == cases[i].accepted) {
+      Arcadia_DDLS_DefaultReader_run(thread, reader,
+        Arcadia_ByteArray_createByteArray(thread,
+          Arcadia_RuntimeByteArray_create(thread, cases[i].source, strlen(cases[i].source))));
+    } else {
+      Arcadia_JumpTarget target;
+      Arcadia_Thread_pushJumpTarget(thread, &target);
+      if (Arcadia_JumpTarget_save(&target)) {
+        Arcadia_DDLS_DefaultReader_run(thread, reader,
+          Arcadia_ByteArray_createByteArray(thread,
+            Arcadia_RuntimeByteArray_create(thread, cases[i].source, strlen(cases[i].source))));
+        Arcadia_Thread_popJumpTarget(thread);
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+        Arcadia_Thread_jump(thread);
+      } else {
+        Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+        Arcadia_Thread_popJumpTarget(thread);
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+        if (status != Arcadia_Status_SemanticalError) {
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+          Arcadia_Thread_jump(thread);
+        }
+      }
+    }
+  }
+}
+
+#undef OPTIONAL_SCHEMA
+
+static int
+runOptionalBooleanSchemas
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testOptionalBooleanSchemas) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 static int
 runAcceptMap
   (
@@ -243,6 +308,7 @@ main
 {
   static const Arcadia_Testing_Case cases[] = {
     { "AcceptMap", &runAcceptMap },
+    { "OptionalBooleanSchemas", &runOptionalBooleanSchemas },
     { "AcceptSchemaReferences", &runAcceptSchemaReferences },
     { "RejectMissingKind", &runRejectMissingKind },
     { "RejectMissingEntries", &runRejectMissingEntries },

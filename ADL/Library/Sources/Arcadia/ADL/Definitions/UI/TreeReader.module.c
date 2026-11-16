@@ -33,9 +33,9 @@
 #define LIST_FIELD(name) \
   "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"List\", elements : { kind : \"String\" } } },"
 #define OPTIONAL_NUMBER_FIELD(name) \
-  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\" }, optional : \"true\" },"
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\" }, optional : true },"
 #define OPTIONAL_STRING_FIELD(name) \
-  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"String\" }, optional : \"true\" },"
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"String\" }, optional : true },"
 
 static const char* LABEL_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.Label")
@@ -62,7 +62,7 @@ static const char* PANEL_SCHEMA =
     OPTIONAL_STRING_FIELD("crossAlignment")
   "] } },"
   // Named child overrides are optional and independent of child order.
-  "{ kind : \"MapEntry\", name : \"childLayouts\", optional : \"true\", "
+  "{ kind : \"MapEntry\", name : \"childLayouts\", optional : true, "
     "type : { kind : \"List\", elements : { kind : \"Map\", entries : ["
       STRING_FIELD("name")
       OPTIONAL_NUMBER_FIELD("marginLeft") OPTIONAL_NUMBER_FIELD("marginBottom")
@@ -276,7 +276,7 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
 
-static const Arcadia_TypeDescriptor_Operations _typeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &_objectTypeOperations };
+static const Arcadia_Type_Operations _typeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &_objectTypeOperations };
 
 Arcadia_defineObjectType(u8"Arcadia.ADL.UI.TreeReader", Arcadia_ADL_UI_TreeReader,
                          u8"Arcadia.ADL.Reader", Arcadia_ADL_Reader, &_typeOperations);
