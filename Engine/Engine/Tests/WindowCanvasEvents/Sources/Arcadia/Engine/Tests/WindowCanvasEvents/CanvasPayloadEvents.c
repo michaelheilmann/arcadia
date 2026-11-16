@@ -83,8 +83,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectOperations,
 };
 
@@ -96,7 +96,7 @@ static void
 expectFailure
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* arguments,
     Arcadia_Natural8Value count,
     Arcadia_Status expected
@@ -154,7 +154,7 @@ test
       Arcadia_ValueStack_popValues(thread, 1);
     }
   }
-  Arcadia_TypeValue types[] = { _Arcadia_Engine_Visuals_CanvasSizeChangedEvent_getType(thread), _Arcadia_Engine_Visuals_CanvasDPIChangedEvent_getType(thread) };
+  Arcadia_TypeDescriptorValue types[] = { _Arcadia_Engine_Visuals_CanvasSizeChangedEvent_getType(thread), _Arcadia_Engine_Visuals_CanvasDPIChangedEvent_getType(thread) };
   for (size_t i = 0; i < sizeof(types) / sizeof(types[0]); ++i) {
     Arcadia_Value args[] = { Arcadia_Value_makeNatural64Value(timestamps[2]), Arcadia_Value_makeInteger32Value(-3), Arcadia_Value_makeInteger32Value(17), Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void) };
     expectFailure(thread, types[i], args, 0, Arcadia_Status_NumberOfArgumentsInvalid);
@@ -170,7 +170,7 @@ test
     }
   }
   Arcadia_Value args[] = { Arcadia_Value_makeNatural64Value(timestamps[2]), Arcadia_Value_makeBooleanValue(Arcadia_BooleanValue_True), Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void) };
-  Arcadia_TypeValue activation = _Arcadia_Engine_Visuals_CanvasActivationStateChangedEvent_getType(thread);
+  Arcadia_TypeDescriptorValue activation = _Arcadia_Engine_Visuals_CanvasActivationStateChangedEvent_getType(thread);
   expectFailure(thread, activation, args, 0, Arcadia_Status_NumberOfArgumentsInvalid);
   expectFailure(thread, activation, args, 1, Arcadia_Status_NumberOfArgumentsInvalid);
   expectFailure(thread, activation, args, 3, Arcadia_Status_NumberOfArgumentsInvalid);

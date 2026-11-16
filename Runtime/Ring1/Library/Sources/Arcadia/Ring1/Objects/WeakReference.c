@@ -58,8 +58,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_WeakReference_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -113,7 +113,7 @@ Arcadia_WeakReference_destruct
     case Arcadia_ValueTag_Real32:
     case Arcadia_ValueTag_Real64:
     case Arcadia_ValueTag_Size:
-    case Arcadia_ValueTag_Type:
+    case Arcadia_ValueTag_TypeDescriptor:
     case Arcadia_ValueTag_Void: {
     } break;
     default: {
@@ -188,7 +188,7 @@ Arcadia_WeakReference_constructImpl
       case Arcadia_ValueTag_Real32:
       case Arcadia_ValueTag_Real64:
       case Arcadia_ValueTag_Size:
-      case Arcadia_ValueTag_Type:
+      case Arcadia_ValueTag_TypeDescriptor:
       case Arcadia_ValueTag_Void: {
       } break;
       default: {
@@ -296,7 +296,7 @@ Arcadia_WeakReference_setValue
     case Arcadia_ValueTag_Real32:
     case Arcadia_ValueTag_Real64:
     case Arcadia_ValueTag_Size:
-    case Arcadia_ValueTag_Type:
+    case Arcadia_ValueTag_TypeDescriptor:
     case Arcadia_ValueTag_Void: {
     } break;
     default: {
@@ -335,7 +335,7 @@ Arcadia_WeakReference_setValue
     case Arcadia_ValueTag_Real32:
     case Arcadia_ValueTag_Real64:
     case Arcadia_ValueTag_Size:
-    case Arcadia_ValueTag_Type:
+    case Arcadia_ValueTag_TypeDescriptor:
     case Arcadia_ValueTag_Void: {
     } break;
     default: {

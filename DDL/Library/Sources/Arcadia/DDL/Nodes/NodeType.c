@@ -17,8 +17,8 @@
 #define ARCADIA_DDL_NODES_PRIVATE (1)
 #include "Arcadia/DDL/Nodes/NodeType.h"
 
-static const Arcadia_Type_Operations _Arcadia_DDL_NodeType_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_DDL_NodeType_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
 };
 
 Arcadia_defineEnumerationType("Arcadia.DDL.NodeType", Arcadia_DDL_NodeType,

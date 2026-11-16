@@ -126,7 +126,7 @@ Arcadia_BigInteger_ensureGray
 #endif
 
 /// @return A pointer to an "foreign value" type of name "Arcadia.ImmutableByteArray".
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_BigIntegerValue_getType
   (
     Arcadia_Thread* thread

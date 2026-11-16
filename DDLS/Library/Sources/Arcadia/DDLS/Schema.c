@@ -36,8 +36,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_DDLS_Type_objectTypeOperatio
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_DDLS_Type_visitImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_DDLS_Type_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_DDLS_Type_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_DDLS_Type_objectTypeOperations,
 };
 
@@ -94,8 +94,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_DDLS_ListType_objectTypeOper
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_DDLS_ListType_visitImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_DDLS_ListType_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_DDLS_ListType_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_DDLS_ListType_objectTypeOperations,
 };
 
@@ -171,8 +171,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_DDLS_MapType_objectTypeOpera
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_DDLS_MapType_visitImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_DDLS_MapType_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_DDLS_MapType_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_DDLS_MapType_objectTypeOperations,
 };
 
@@ -246,8 +246,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_DDLS_ScalarType_objectTypeOp
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_DDLS_ScalarType_visitImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_DDLS_ScalarType_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_DDLS_ScalarType_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_DDLS_ScalarType_objectTypeOperations,
 };
 

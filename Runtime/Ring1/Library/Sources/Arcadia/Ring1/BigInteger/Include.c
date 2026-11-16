@@ -191,8 +191,8 @@ isNotEqualTo
     Arcadia_Thread* thread
   );
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .isEqualTo = &isEqualTo,
   .isGreaterThan = &isGreaterThan,
   .isGreaterThanOrEqualTo = &isGreaterThanOrEqualTo,
@@ -325,7 +325,7 @@ isNotEqualTo
   }
 }
 
-static Arcadia_TypeValue g_type = NULL;
+static Arcadia_TypeDescriptorValue g_type = NULL;
 
 static void
 typeDestructing
@@ -336,7 +336,7 @@ typeDestructing
   g_type = NULL;
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_BigIntegerValue_getType
   (
     Arcadia_Thread* thread

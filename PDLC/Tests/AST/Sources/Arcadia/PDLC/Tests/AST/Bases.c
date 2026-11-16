@@ -124,14 +124,14 @@ static const Arcadia_ObjectType_Operations operandObjects = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitOperandProbe,
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructOperandProbe,
 };
-static const Arcadia_Type_Operations operandOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &operandObjects };
+static const Arcadia_TypeDescriptor_Operations operandOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &operandObjects };
 static const Arcadia_ObjectType_Operations statementObjects = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructStatementProbe,
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitStatementProbe,
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructStatementProbe,
 };
-static const Arcadia_Type_Operations statementOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &statementObjects };
+static const Arcadia_TypeDescriptor_Operations statementOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &statementObjects };
 
 Arcadia_defineObjectType(u8"Tests.OperandBaseProbe", OperandBaseProbe,
                          u8"Arcadia.PDLC.AST.OperandNode", Arcadia_PDLC_AST_OperandNode,
@@ -144,7 +144,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value const* arguments,
     Arcadia_Natural8Value count
   )
@@ -159,7 +159,7 @@ static void
 expectFailure
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value const* arguments,
     Arcadia_Natural8Value count,
     Arcadia_Status status
@@ -188,8 +188,8 @@ testConstructors
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   for (unsigned i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural8Value(thread, 77);
-  Arcadia_TypeValue operandType = _Arcadia_PDLC_AST_OperandNode_getType(thread);
-  Arcadia_TypeValue statementType = _Arcadia_PDLC_AST_StatementNode_getType(thread);
+  Arcadia_TypeDescriptorValue operandType = _Arcadia_PDLC_AST_OperandNode_getType(thread);
+  Arcadia_TypeDescriptorValue statementType = _Arcadia_PDLC_AST_StatementNode_getType(thread);
   Arcadia_Name* operandName = Arcadia_Type_getName(thread, operandType);
   Arcadia_Name* statementName = Arcadia_Type_getName(thread, statementType);
   const char operandText[] = "Arcadia.PDLC.AST.OperandNode";
@@ -198,7 +198,7 @@ testConstructors
     !memcmp(Arcadia_Name_getBytes(thread, operandName), operandText, sizeof(operandText) - 1));
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, statementName) == sizeof(statementText) - 1 &&
     !memcmp(Arcadia_Name_getBytes(thread, statementName), statementText, sizeof(statementText) - 1));
-  Arcadia_Tests_assertTrue(thread, Arcadia_getType(thread, operandName) == operandType && Arcadia_getType(thread, statementName) == statementType);
+  Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, operandName) == operandType && Arcadia_getTypeDescriptorByName(thread, statementName) == statementType);
   Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, operandType) == Arcadia_TypeKind_Object && Arcadia_Type_getKind(thread, statementType) == Arcadia_TypeKind_Object);
   Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, operandType, _Arcadia_PDLC_AST_Node_getType(thread)));
   Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, statementType, _Arcadia_PDLC_AST_Node_getType(thread)));
@@ -229,7 +229,7 @@ testConstructors
     Arcadia_Value_makeInteger8Value(0), Arcadia_Value_makeInteger16Value(0),
     Arcadia_Value_makeInteger32Value(0), Arcadia_Value_makeInteger64Value(0),
     Arcadia_Value_makeReal32Value(0), Arcadia_Value_makeReal64Value(0),
-    Arcadia_Value_makeTypeValue(operandType), Arcadia_Value_makeObjectReferenceValue(string),
+    Arcadia_Value_makeTypeDescriptorValue(operandType), Arcadia_Value_makeObjectReferenceValue(string),
   };
   for (unsigned i = 0; i < sizeof(invalid) / sizeof(invalid[0]); ++i) expectFailure(thread, operandType, &invalid[i], 1, Arcadia_Status_ArgumentTypeInvalid);
   Arcadia_ValueStack_popValues(thread, 1);

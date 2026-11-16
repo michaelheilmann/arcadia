@@ -124,8 +124,8 @@ static const Arcadia_ObjectType_Operations probeObjects = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeProbe,
 };
 
-static const Arcadia_Type_Operations probeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations probeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &probeObjects,
 };
 
@@ -172,7 +172,7 @@ testDispatch
   for (unsigned i = 0; i < 3; ++i) destroyed[i] = 0;
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   for (unsigned i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural8Value(thread, 77);
-  Arcadia_TypeValue type = _Arcadia_Media_PixelBufferOperation_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Media_PixelBufferOperation_getType(thread);
   Arcadia_Tests_assertTrue(thread, !((Arcadia_Media_PixelBufferOperationDispatch*)Arcadia_ObjectType_getDispatch(type))->apply);
   MediaPixelOperationProbe* self = createProbe(thread);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, self);

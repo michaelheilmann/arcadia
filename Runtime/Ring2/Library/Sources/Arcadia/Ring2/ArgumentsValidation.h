@@ -28,7 +28,7 @@ Arcadia_ArgumentsValidation_getObjectReferenceValue
   (
     Arcadia_Thread* thread,
     Arcadia_Value const* value,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   if (!Arcadia_Value_isObjectReferenceValue(value)) {
@@ -48,7 +48,7 @@ Arcadia_ArgumentsValidation_getObjectReferenceValueOrNull
   (
     Arcadia_Thread* thread,
     Arcadia_Value const* value,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   if (Arcadia_Value_isVoidValue(value)) {

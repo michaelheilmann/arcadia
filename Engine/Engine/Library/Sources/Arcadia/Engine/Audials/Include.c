@@ -26,5 +26,5 @@ Arcadia_Engine_Audials_registerNodeFactories
     Arcadia_Set* types
   )
 {
-  Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeValue(_Arcadia_Engine_Audials_NodeFactory_getType(thread)), NULL);
+  Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeDescriptorValue(_Arcadia_Engine_Audials_NodeFactory_getType(thread)), NULL);
 }

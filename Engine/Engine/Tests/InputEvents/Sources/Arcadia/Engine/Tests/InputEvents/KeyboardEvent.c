@@ -92,7 +92,7 @@ test
     Arcadia_Value_makeInteger32Value(Arcadia_Engine_Input_KeyboardKey_F12),
     Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void)
   };
-  Arcadia_TypeValue enums[] = { _Arcadia_Engine_Input_KeyboardKeyAction_getType(thread), _Arcadia_Engine_Input_KeyboardKey_getType(thread) };
+  Arcadia_TypeDescriptorValue enums[] = { _Arcadia_Engine_Input_KeyboardKeyAction_getType(thread), _Arcadia_Engine_Input_KeyboardKey_getType(thread) };
   for (unsigned representations = 0; representations < 4; ++representations) {
     args[1] = representations & 1 ? Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(enums[0], Arcadia_Engine_Input_KeyboardKeyAction_Released)) : Arcadia_Value_makeInteger32Value(Arcadia_Engine_Input_KeyboardKeyAction_Released);
     args[2] = representations & 2 ? Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(enums[1], Arcadia_Engine_Input_KeyboardKey_F12)) : Arcadia_Value_makeInteger32Value(Arcadia_Engine_Input_KeyboardKey_F12);

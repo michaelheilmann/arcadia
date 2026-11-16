@@ -18,8 +18,8 @@
 
 #include "Arcadia/PDLC/AST/Include.h"
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
 };
 
 Arcadia_defineEnumerationType(u8"Arcadia.PDLC.AST.UnaryInstructionKind", Arcadia_PDLC_AST_UnaryInstructionKind,

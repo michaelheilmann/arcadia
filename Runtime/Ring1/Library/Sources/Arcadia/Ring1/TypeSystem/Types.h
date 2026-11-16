@@ -80,7 +80,7 @@ typedef struct Arcadia_ObjectType_Operations {
   .initializeDispatch = NULL
 
 /// Type operations for all types.
-typedef struct Arcadia_Type_Operations {
+typedef struct Arcadia_TypeDescriptor_Operations {
 
   /// Pointer to the object type operations if the type is an object type.
   /// The null pointer otherwise.
@@ -93,9 +93,12 @@ typedef struct Arcadia_Type_Operations {
 
 #undef Operation
 
-} Arcadia_Type_Operations;
+} Arcadia_TypeDescriptor_Operations;
 
-#define Arcadia_Type_Operations_Initializer \
+/// @brief Compatibility alias for older users of the type operations API.
+typedef Arcadia_TypeDescriptor_Operations Arcadia_Type_Operations;
+
+#define Arcadia_TypeDescriptor_Operations_Initializer \
   .objectTypeOperations = NULL, \
   .add = NULL, \
   .and = NULL, \
@@ -115,6 +118,8 @@ typedef struct Arcadia_Type_Operations {
   .or = NULL, \
   .subtract = NULL, \
   .toString = NULL
+
+#define Arcadia_Type_Operations_Initializer Arcadia_TypeDescriptor_Operations_Initializer
 
 /// @brief Type of a type destructing callback function.
 /// Invoked when the type is destructing.
@@ -378,11 +383,19 @@ Arcadia_ObjectType_getDispatch
     Arcadia_ObjectType* type
   );
 
-Arcadia_Type_Operations const*
+Arcadia_TypeDescriptor_Operations const*
+Arcadia_TypeDescriptor_getOperations
+  (
+    Arcadia_TypeDescriptorValue type
+  );
+
+/// @brief Temporary compatibility spelling.
+static inline Arcadia_TypeDescriptor_Operations const*
 Arcadia_Type_getOperations
   (
-    Arcadia_TypeValue type
-  );
+    Arcadia_TypeDescriptorValue type
+  )
+{ return Arcadia_TypeDescriptor_getOperations(type); }
 
 /// @brief Get the "Arcadia.Memory" type.
 /// @param thread A pointer to the Arcadia_Thread object.
@@ -393,14 +406,22 @@ _Arcadia_Memory_getType
     Arcadia_Thread* thread
   );
 
-/// @brief Get the "Arcadia.Type" type.
+/// @brief Get the "Arcadia.TypeDescriptor" type.
 /// @param thread A pointer to the Arcadia_Thread object.
-/// @return The "Arcadia.Type" type.
+/// @return The "Arcadia.TypeDescriptor" type.
 Arcadia_TypeValue
-_Arcadia_Type_getType
+_Arcadia_TypeDescriptor_getType
   (
     Arcadia_Thread* thread
   );
+
+/// @brief Temporary compatibility spelling for the descriptor's own type.
+static inline Arcadia_TypeDescriptorValue
+_Arcadia_Type_getType
+  (
+    Arcadia_Thread* thread
+  )
+{ return _Arcadia_TypeDescriptor_getType(thread); }
 
 /// @brief Get the "Arcadia.Atom" type.
 /// @param thread A pointer to the Arcadia_Thread object.

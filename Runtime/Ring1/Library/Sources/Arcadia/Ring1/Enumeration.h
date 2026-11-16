@@ -21,14 +21,14 @@
 #include "Arcadia/Ring1/Integer32.h"
 
 typedef struct Arcadia_Thread Arcadia_Thread;
-typedef void Arcadia_Type;
+typedef void Arcadia_TypeDescriptor;
 
 /// R(untime) ex(tension) macro.
 /// @param _cilName UTF-8 string literal for the Machine Interface Language type name of the type.
 /// @param _cName C name of the type.
 #define Arcadia_declareEnumerationType(_cilName, _cName) \
   typedef enum _cName _cName; \
-  Arcadia_TypeValue \
+  Arcadia_TypeDescriptorValue \
   _##_cName##_getType \
     ( \
       Arcadia_Thread* thread \
@@ -38,7 +38,7 @@ typedef void Arcadia_Type;
 /// @param _cilName UTF-8 string literal for the Machine Interface Language type name of the type.
 /// @param _cName C name of the type.
 #define Arcadia_defineEnumerationType(_cilName, _cName, _cTypeOperations) \
-  static Arcadia_TypeValue g_##_cName##_type = NULL; \
+  static Arcadia_TypeDescriptorValue g_##_cName##_type = NULL; \
   \
   static void \
   _##_cName##_typeDestructing \
@@ -49,7 +49,7 @@ typedef void Arcadia_Type;
     g_##_cName##_type = NULL; \
   } \
   \
-  Arcadia_TypeValue \
+  Arcadia_TypeDescriptorValue \
   _##_cName##_getType \
     ( \
       Arcadia_Thread* thread \
@@ -62,14 +62,14 @@ typedef void Arcadia_Type;
   }
 
 typedef struct Arcadia_EnumerationValue {
-  Arcadia_Type* type;
+  Arcadia_TypeDescriptor* type;
   Arcadia_Integer32Value value;
 } Arcadia_EnumerationValue;
 
 static inline Arcadia_EnumerationValue
 Arcadia_EnumerationValue_make
   (
-    Arcadia_Type* type,
+    Arcadia_TypeDescriptor* type,
     Arcadia_Integer32Value value
   )
 {

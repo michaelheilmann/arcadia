@@ -123,8 +123,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_MyObjectY_objectTypeOperatio
     (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_MyObjectY_initializeObjectDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_MyObjectY_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_MyObjectY_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_MyObjectY_objectTypeOperations,
 };
 
@@ -229,8 +229,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_MyObjectX_objectTypeOperatio
     (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_MyObjectX_initializeObjectDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_MyObjectX_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_MyObjectX_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_MyObjectX_objectTypeOperations,
 };
 
@@ -327,9 +327,9 @@ testInterfaceOperationOverride
     Arcadia_Thread* thread
   )
 {
-  Arcadia_TypeValue interfaceType = _Arcadia_MyInterfaceB_getType(thread);
-  Arcadia_TypeValue objectYType = _Arcadia_MyObjectY_getType(thread);
-  Arcadia_TypeValue objectXType = _Arcadia_MyObjectX_getType(thread);
+  Arcadia_TypeDescriptorValue interfaceType = _Arcadia_MyInterfaceB_getType(thread);
+  Arcadia_TypeDescriptorValue objectYType = _Arcadia_MyObjectY_getType(thread);
+  Arcadia_TypeDescriptorValue objectXType = _Arcadia_MyObjectX_getType(thread);
 
   // "Arcadia.MyObjectY" is the parent object type of "Arcadia.MyObjectX", and both object types are
   // descendants of the interface type.

@@ -43,7 +43,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* arguments,
     Arcadia_Natural8Value count
   )
@@ -137,8 +137,8 @@ static const Arcadia_ObjectType_Operations contextObjectOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeContext,
 };
 
-static const Arcadia_Type_Operations contextOperations = {
-  Arcadia_Type_Operations_Initializer, .objectTypeOperations = &contextObjectOperations,
+static const Arcadia_TypeDescriptor_Operations contextOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &contextObjectOperations,
 };
 
 Arcadia_defineObjectType(u8"Tests.ResourceLifecycleContext", ResourceLifecycleContext,
@@ -182,8 +182,8 @@ static const Arcadia_ObjectType_Operations modelProbeObjectOperations = {
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructModelProbe,
 };
 
-static const Arcadia_Type_Operations modelProbeOperations = {
-  Arcadia_Type_Operations_Initializer, .objectTypeOperations = &modelProbeObjectOperations,
+static const Arcadia_TypeDescriptor_Operations modelProbeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &modelProbeObjectOperations,
 };
 
 Arcadia_defineObjectType(u8"Tests.ModelConstructionProbe", ModelConstructionProbe,
@@ -297,7 +297,7 @@ createFixture
   ResourceLifecycleContext* context = (void*)create(thread, _ResourceLifecycleContext_getType(thread), NULL, 0);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)context);
   Arcadia_Value argument = Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)context);
-  Arcadia_TypeValue types[] = { _Arcadia_Engine_Visuals_ConstantBufferResource_getType(thread),
+  Arcadia_TypeDescriptorValue types[] = { _Arcadia_Engine_Visuals_ConstantBufferResource_getType(thread),
     _Arcadia_Engine_Visuals_ConstantBufferResource_getType(thread), _Arcadia_Engine_Visuals_VertexBufferResource_getType(thread) };
   for (size_t i = 0; i < 3; ++i) context->resources[i] = (void*)create(thread, types[i], &argument, 1);
   Arcadia_Value materialArguments[] = { argument, Arcadia_Value_makeBooleanValue(false),

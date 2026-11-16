@@ -64,8 +64,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectOperations,
 };
 
@@ -77,7 +77,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* args,
     Arcadia_Natural8Value count
   )
@@ -92,7 +92,7 @@ static void
 expectFailure
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* args,
     Arcadia_Natural8Value count,
     Arcadia_Status status
@@ -121,7 +121,7 @@ testApplicationEvents
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   Arcadia_Natural64Value timestamps[] = { 0, 1, Arcadia_Natural64Value_Maximum };
-  Arcadia_TypeValue types[] = {
+  Arcadia_TypeDescriptorValue types[] = {
     _Arcadia_Engine_Visuals_ApplicationEvent_getType(thread),
     _Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent_getType(thread)
   };
@@ -159,7 +159,7 @@ testWindowEvents
     { Arcadia_Integer32Value_Minimum, Arcadia_Integer32Value_Maximum },
     { Arcadia_Integer32Value_Maximum, Arcadia_Integer32Value_Minimum }
   };
-  Arcadia_TypeValue types[] = {
+  Arcadia_TypeDescriptorValue types[] = {
     _Arcadia_Engine_Visuals_WindowClosedEvent_getType(thread),
     _Arcadia_Engine_Visuals_WindowPositionChangedEvent_getType(thread),
     _Arcadia_Engine_Visuals_WindowSizeChangedEvent_getType(thread)

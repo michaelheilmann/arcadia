@@ -52,7 +52,7 @@ static Arcadia_Object*
 create0
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
@@ -218,8 +218,8 @@ static const Arcadia_ObjectType_Operations audialsOperations = {
   .destruct = &destructProbe,
 };
 
-static const Arcadia_Type_Operations audialsTypeOperations = {
-  Arcadia_Type_Operations_Initializer, .objectTypeOperations = &audialsOperations,
+static const Arcadia_TypeDescriptor_Operations audialsTypeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &audialsOperations,
 };
 
 static const Arcadia_ObjectType_Operations visualsOperations = {
@@ -230,8 +230,8 @@ static const Arcadia_ObjectType_Operations visualsOperations = {
   .destruct = &destructProbe,
 };
 
-static const Arcadia_Type_Operations visualsTypeOperations = {
-  Arcadia_Type_Operations_Initializer, .objectTypeOperations = &visualsOperations,
+static const Arcadia_TypeDescriptor_Operations visualsTypeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &visualsOperations,
 };
 
 Arcadia_defineObjectType(u8"Tests.RenderAudialsProbe", AudialsProbe,
@@ -273,7 +273,7 @@ test
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   for (size_t i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural8Value(thread, 0);
-  Arcadia_TypeValue types[] = { _Arcadia_Engine_Audials_Node_getType(thread), _Arcadia_Engine_Visuals_Node_getType(thread) };
+  Arcadia_TypeDescriptorValue types[] = { _Arcadia_Engine_Audials_Node_getType(thread), _Arcadia_Engine_Visuals_Node_getType(thread) };
   for (size_t k = 0; k < 2; ++k) {
     Arcadia_Engine_NodeDispatch* dispatch = (void*)Arcadia_ObjectType_getDispatch(types[k]);
     Arcadia_Tests_assertTrue(thread, !dispatch->setAudialsBackendContext && !dispatch->setVisualsBackendContext);

@@ -230,8 +230,8 @@ static const Arcadia_ObjectType_Operations probeObjects = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeProbe,
 };
 
-static const Arcadia_Type_Operations probeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations probeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &probeObjects,
 };
 
@@ -243,7 +243,7 @@ static Arcadia_Engine_Application*
 create0
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);

@@ -56,8 +56,8 @@ static const Arcadia_ObjectType_Operations nodeObjectOperations = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&nodeVisit,
 };
 
-static const Arcadia_Type_Operations nodeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations nodeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &nodeObjectOperations,
 };
 
@@ -125,8 +125,8 @@ static const Arcadia_ObjectType_Operations contextObjectOperations = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&contextVisit,
 };
 
-static const Arcadia_Type_Operations contextOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations contextOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &contextObjectOperations,
 };
 

@@ -35,7 +35,7 @@ typedef Arcadia_Natural32Value Test_External_UnsignedKind;
 #define Test_External_UnsignedKind_First (Arcadia_Natural32Value_Literal(0))
 #define Test_External_UnsignedKind_OutsideValueRange (Arcadia_Natural32Value_Maximum)
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Test_External_UnsignedKind_getType
   (
     Arcadia_Thread* thread

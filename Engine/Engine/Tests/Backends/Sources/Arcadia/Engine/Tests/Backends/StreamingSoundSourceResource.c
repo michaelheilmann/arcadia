@@ -36,7 +36,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* args,
     Arcadia_Natural8Value count
   )
@@ -148,7 +148,7 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl,
 };
-static const Arcadia_Type_Operations typeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objectOperations };
+static const Arcadia_TypeDescriptor_Operations typeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &objectOperations };
 Arcadia_defineObjectType(u8"Tests.StreamingResourceProbe", StreamingResourceProbe, u8"Arcadia.Engine.Audials.Implementation.StreamingSoundSourceResource", Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource, &typeOperations);
 
 static void
@@ -180,7 +180,7 @@ test
   Arcadia_Object* context = create(thread, _Arcadia_Engine_Audials_BackendContext_getType(thread), NULL, 0);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, context);
   Arcadia_Value args[] = { Arcadia_Value_makeObjectReferenceValue(context), Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void) };
-  Arcadia_TypeValue type = _Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Engine_Audials_Implementation_StreamingSoundSourceResource_getType(thread);
   // Reject bad arity before reading/forwarding any argument.
   for (unsigned variant = 0; variant < 5; ++variant) {
     Arcadia_Value bad[] = { args[0], args[1] };

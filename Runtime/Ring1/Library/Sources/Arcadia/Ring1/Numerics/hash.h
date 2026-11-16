@@ -59,7 +59,7 @@ Arcadia_SizeValue
 Arcadia_hashTypeValue
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue x
+    Arcadia_TypeDescriptorValue x
   );
 
 #endif // ARCADIA_RING1_NUMERICS_HASH_H_INCLUDED

@@ -122,8 +122,8 @@ static const Arcadia_ObjectType_Operations diagnosticObjectOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)diagnosticDispatch,
 };
 
-static const Arcadia_Type_Operations diagnosticOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations diagnosticOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &diagnosticObjectOperations,
 };
 
@@ -829,7 +829,7 @@ helpers
     "  (\n"
     "    Arcadia_Thread* thread,\n"
     "    Arcadia_Value v,\n"
-    "    Arcadia_Type* type\n"
+    "    Arcadia_TypeDescriptor* type\n"
     "  )\n"
     "{\n"
     "  if (Arcadia_Value_isVoidValue(&v)) return NULL;\n"
@@ -841,7 +841,7 @@ helpers
     "pdlBoxNativeEnumeration\n"
     "  (\n"
     "    Arcadia_Thread* thread,\n"
-    "    Arcadia_Type* type,\n"
+    "    Arcadia_TypeDescriptor* type,\n"
     "    Arcadia_Integer64Value value\n"
     "  )\n"
     "{\n"
@@ -854,7 +854,7 @@ helpers
     "  (\n"
     "    Arcadia_Thread* t,\n"
     "    Arcadia_Value v,\n"
-    "    Arcadia_Type* type\n"
+    "    Arcadia_TypeDescriptor* type\n"
     "  )\n"
     "{\n"
     "  pdlRequire(t, Arcadia_Value_isEnumerationValue(&v) && Arcadia_Value_getEnumerationValue(&v).type == type);\n"
@@ -877,7 +877,7 @@ operation
   )
 {
   text(w, "  { Arcadia_Value a = "); get(w, 1);
-  text(w, ";\n    Arcadia_ForeignProcedure* op = Arcadia_Type_getOperations(Arcadia_Value_getType(thread, &a))->"); text(w, name);
+  text(w, ";\n    Arcadia_ForeignProcedure* op = Arcadia_TypeDescriptor_getOperations(Arcadia_Value_getTypeDescriptor(thread, &a))->"); text(w, name);
   text(w, ";\n");
   Arcadia_BooleanValue enumerationEquality = count == 2 && (!strcmp(name, "isEqualTo") || !strcmp(name, "isNotEqualTo"));
   if (enumerationEquality) {
@@ -1106,7 +1106,7 @@ construct
       }
       text(w, "    Arcadia_ValueStack_pushValue(thread, &args["); number(w, i - 1); text(w, "]);\n");
     }
-    text(w, "    Arcadia_ValueStack_pushNatural8Value(thread, "); number(w, size(w, n->operands) - 1); text(w, ");\n    Arcadia_Type_getOperations(_"); string(w, cname(w, (void*)c)); text(w, "_getType(thread))->objectTypeOperations->construct(thread, (Arcadia_Object*)self);\n");
+    text(w, "    Arcadia_ValueStack_pushNatural8Value(thread, "); number(w, size(w, n->operands) - 1); text(w, ");\n    Arcadia_TypeDescriptor_getOperations(_"); string(w, cname(w, (void*)c)); text(w, "_getType(thread))->objectTypeOperations->construct(thread, (Arcadia_Object*)self);\n");
     text(w, "    Arcadia_Object_setType(thread, (Arcadia_Object*)self, _"); string(w, cname(w, w->symbol->enclosing)); text(w, "_getType(thread));\n");
     put(w, 0); text(w, "receiver);\n");
   } else {
@@ -1755,7 +1755,7 @@ classSource
     if (((Arcadia_PDLC_MethodSymbol*)s)->isAbstract) text(w, "NULL;\n");
     else { string(w, cname(w, s)); text(w, ((Arcadia_PDLC_MethodSymbol*)s)->overrideOf ? "_dispatchImpl;\n" : "_impl;\n"); }
   }
-  text(w, "}\n\nstatic const Arcadia_ObjectType_Operations objectOperations = {\n  Arcadia_ObjectType_Operations_Initializer,\n  .construct = (Arcadia_Object_ConstructCallbackFunction*)constructImpl,\n  .visit = (Arcadia_Object_VisitCallbackFunction*)visitImpl,\n  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)initializeDispatchImpl,\n};\n\nstatic const Arcadia_Type_Operations typeOperations = {\n  Arcadia_Type_Operations_Initializer,\n  .objectTypeOperations = &objectOperations,\n};\n\n");
+  text(w, "}\n\nstatic const Arcadia_ObjectType_Operations objectOperations = {\n  Arcadia_ObjectType_Operations_Initializer,\n  .construct = (Arcadia_Object_ConstructCallbackFunction*)constructImpl,\n  .visit = (Arcadia_Object_VisitCallbackFunction*)visitImpl,\n  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)initializeDispatchImpl,\n};\n\nstatic const Arcadia_TypeDescriptor_Operations typeOperations = {\n  Arcadia_TypeDescriptor_Operations_Initializer,\n  .objectTypeOperations = &objectOperations,\n};\n\n");
   for (Arcadia_SizeValue i = 0; i < size(w, interfaces); ++i) {
     Arcadia_PDLC_InterfaceSymbol* interface = at(w, interfaces, i);
     for (Arcadia_SizeValue j = 0; j < size(w, interface->operations); ++j) {

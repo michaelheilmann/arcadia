@@ -879,7 +879,7 @@ Arcadia_Type_isDescendantType
 }
 
 Arcadia_TypeValue
-Arcadia_getType
+Arcadia_getTypeDescriptorByName
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name
@@ -909,8 +909,8 @@ Arcadia_ObjectType_getDispatch
   return typeNode->dispatch;
 }
 
-Arcadia_Type_Operations const*
-Arcadia_Type_getOperations
+Arcadia_TypeDescriptor_Operations const*
+Arcadia_TypeDescriptor_getOperations
   (
     Arcadia_TypeValue type
   )
@@ -956,13 +956,13 @@ typeTypeDestructing
 }
 
 Arcadia_TypeValue
-_Arcadia_Type_getType
+_Arcadia_TypeDescriptor_getType
   (
     Arcadia_Thread* thread
   )
 {
   if (!g_typeType) {
-    g_typeType = Arcadia_registerInternalType(thread, Arcadia_Names_getOrCreateName(thread, u8"Arcadia.Type", sizeof(u8"Arcadia.Type") - 1), NULL, &typeTypeDestructing);
+    g_typeType = Arcadia_registerInternalType(thread, Arcadia_Names_getOrCreateName(thread, u8"Arcadia.TypeDescriptor", sizeof(u8"Arcadia.TypeDescriptor") - 1), NULL, &typeTypeDestructing);
   }
   return g_typeType;
 }

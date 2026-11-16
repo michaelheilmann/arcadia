@@ -34,7 +34,7 @@ testInterfaceImplementationMustBeClosedUnderAncestors
     Arcadia_Thread* thread
   )
 {
-  Arcadia_TypeValue ancestor =
+  Arcadia_TypeDescriptorValue ancestor =
     Arcadia_registerInterfaceType
       (
         thread,
@@ -44,8 +44,8 @@ testInterfaceImplementationMustBeClosedUnderAncestors
         NULL,
         &Helper_typeDestructing
       );
-  Arcadia_TypeValue derivedExtends[] = { ancestor };
-  Arcadia_TypeValue derived =
+  Arcadia_TypeDescriptorValue derivedExtends[] = { ancestor };
+  Arcadia_TypeDescriptorValue derived =
     Arcadia_registerInterfaceType
       (
         thread,
@@ -60,7 +60,7 @@ testInterfaceImplementationMustBeClosedUnderAncestors
   Arcadia_ObjectType_InterfaceSpecification interfaces[] = {
     { .interfaceType = derived, .dispatchSize = sizeof(Arcadia_InterfaceDispatch), .initializeDispatch = NULL }
   };
-  Arcadia_TypeValue object =
+  Arcadia_TypeDescriptorValue object =
     Arcadia_registerObjectTypeWithInterfaces
       (
         thread,

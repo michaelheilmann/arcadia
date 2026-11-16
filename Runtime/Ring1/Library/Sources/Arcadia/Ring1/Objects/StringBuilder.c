@@ -103,8 +103,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_StringBuilder_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -321,7 +321,7 @@ Arcadia_StringBuilder_insertAt
     Arcadia_Thread_jump(thread);
   }
   // byteIndex is the index at which to insert the elements
-  Arcadia_Type* type = Arcadia_Value_getType(thread, &value);
+  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
   if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
@@ -375,7 +375,7 @@ Arcadia_StringBuilder_insertBack
     Arcadia_Value value
   )
 {
-  Arcadia_Type* type = Arcadia_Value_getType(thread, &value);
+  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
   if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
@@ -426,7 +426,7 @@ Arcadia_StringBuilder_insertFront
     Arcadia_Value value
   )
 {
-  Arcadia_Type* type = Arcadia_Value_getType(thread, &value);
+  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
   if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
@@ -522,7 +522,7 @@ Arcadia_StringBuilder_compareTo
     Arcadia_Value other
   )
 {
-  Arcadia_Type* type = Arcadia_Value_getType(thread, &other);
+  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &other);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
   if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
