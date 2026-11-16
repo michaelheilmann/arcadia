@@ -49,8 +49,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_PDLC_AST_RaiseInstructionNod
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_PDLC_AST_RaiseInstructionNode_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_PDLC_AST_RaiseInstructionNode_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_PDLC_AST_RaiseInstructionNode_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_PDLC_AST_RaiseInstructionNode_objectTypeOperations,
 };
 

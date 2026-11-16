@@ -131,8 +131,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_DDLS_DefaultReader_objectTyp
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_DDLS_DefaultReader_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _Arcadia_DDLS_DefaultReader_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_DDLS_DefaultReader_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_DDLS_DefaultReader_objectTypeOperations,
 };
 

@@ -181,13 +181,13 @@ static const Arcadia_ObjectType_Operations widgetObjects = {
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructWidget,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeWidget,
 };
-static const Arcadia_Type_Operations widgetOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &widgetObjects };
+static const Arcadia_TypeDescriptor_Operations widgetOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &widgetObjects };
 static const Arcadia_ObjectType_Operations branchObjects = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructBranch,
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitBranch,
 };
-static const Arcadia_Type_Operations branchOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &branchObjects };
+static const Arcadia_TypeDescriptor_Operations branchOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &branchObjects };
 
 Arcadia_defineObjectType(u8"Tests.NodeSearchWidget", NodeSearchWidget,
                          u8"Arcadia.Engine.UI.WidgetNode", Arcadia_Engine_UI_WidgetNode,
@@ -294,7 +294,7 @@ testNodeConstructor
     Arcadia_Thread* thread
   )
 {
-  Arcadia_TypeValue type = _Arcadia_Engine_UI_Node_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Engine_UI_Node_getType(thread);
   Arcadia_Engine_NodeDispatch* dispatch = (void*)Arcadia_ObjectType_getDispatch(type);
   Arcadia_Tests_assertTrue(thread, !dispatch->setAudialsBackendContext && !dispatch->setVisualsBackendContext);
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);

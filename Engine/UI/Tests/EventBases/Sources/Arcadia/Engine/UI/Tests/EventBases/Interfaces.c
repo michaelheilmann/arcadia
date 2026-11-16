@@ -207,7 +207,7 @@ static Arcadia_Object*
 create0
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
@@ -595,11 +595,11 @@ static const Arcadia_ObjectType_Operations probeObjects = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitProbe,
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructProbe,
 };
-static const Arcadia_Type_Operations probeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &probeObjects };
+static const Arcadia_TypeDescriptor_Operations probeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &probeObjects };
 static const Arcadia_ObjectType_Operations partialObjects = { Arcadia_ObjectType_Operations_Initializer, .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructPartial };
-static const Arcadia_Type_Operations partialOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &partialObjects };
+static const Arcadia_TypeDescriptor_Operations partialOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &partialObjects };
 static const Arcadia_ObjectType_Operations unboundObjects = { Arcadia_ObjectType_Operations_Initializer, .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructUnbound };
-static const Arcadia_Type_Operations unboundOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &unboundObjects };
+static const Arcadia_TypeDescriptor_Operations unboundOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &unboundObjects };
 
 #define SPEC(Name, Initialize) { .interfaceType = _Arcadia_Engine_UI_##Name##_getType(thread), .dispatchSize = sizeof(Arcadia_Engine_UI_##Name##Dispatch), .initializeDispatch = (Arcadia_InterfaceDispatch_InitializeCallbackFunction*)Initialize }
 Arcadia_defineObjectTypeWithInterfaces(u8"Tests.UICapabilitiesProbe", UICapabilitiesProbe, u8"Arcadia.Object", Arcadia_Object, &probeOperations,
@@ -774,7 +774,7 @@ testPointerContainerValue
     Arcadia_Value_makeNatural8Value(UINT8_MAX), Arcadia_Value_makeNatural16Value(UINT16_MAX),
     Arcadia_Value_makeNatural32Value(UINT32_MAX), Arcadia_Value_makeNatural64Value(UINT64_MAX),
     Arcadia_Value_makeSizeValue(SIZE_MAX), Arcadia_Value_makeReal32Value(-17.5f), Arcadia_Value_makeReal64Value(23.5),
-    Arcadia_Value_makeTypeValue(_UICapabilitiesProbe_getType(thread)),
+    Arcadia_Value_makeTypeDescriptorValue(_UICapabilitiesProbe_getType(thread)),
   };
   for (unsigned i = 0; i < sizeof(values) / sizeof(values[0]); ++i) {
     Arcadia_ValueStack_pushValue(thread, &values[i]);

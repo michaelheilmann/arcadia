@@ -82,7 +82,7 @@ Arcadia_declareObjectType(u8"Tests.NativeCheckerProbe", NativeCheckerProbe,
   { if (self->payload) Arcadia_Object_visit(thread, (void*)self->payload); } \
   static const Arcadia_ObjectType_Operations objects##Name = { Arcadia_ObjectType_Operations_Initializer, \
     .construct = (Arcadia_Object_ConstructCallbackFunction*)&construct##Name, .visit = (Arcadia_Object_VisitCallbackFunction*)&visit##Name }; \
-  static const Arcadia_Type_Operations operations##Name = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objects##Name }; \
+  static const Arcadia_TypeDescriptor_Operations operations##Name = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &objects##Name }; \
   Arcadia_defineObjectType(u8"Tests." #Name, Name, u8"Arcadia.Media.PixelBufferOperations." #Parent, Arcadia_Media_PixelBufferOperations_##Parent, &operations##Name);
 PROBE(NativeFillProbe, Fill)
 PROBE(NativeCheckerProbe, CheckerboardFill)
@@ -172,7 +172,7 @@ testPixels
   Arcadia_Object* operations[] = { (void*)f.fill, (void*)f.checker };
   const char* names[] = { "Arcadia.Media.PixelBufferOperations.Fill", "Arcadia.Media.PixelBufferOperations.CheckerboardFill" };
   for (unsigned i = 0; i < 2; ++i) {
-    Arcadia_TypeValue type = Arcadia_Object_getType(thread, operations[i]);
+    Arcadia_TypeDescriptorValue type = Arcadia_Object_getType(thread, operations[i]);
     Arcadia_Name* name = Arcadia_Type_getName(thread, type);
     Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == strlen(names[i]) && !memcmp(Arcadia_Name_getBytes(thread, name), names[i], strlen(names[i])));
     Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, type, _Arcadia_Media_PixelBufferOperation_getType(thread)));
@@ -252,7 +252,7 @@ testConstructors
     Arcadia_Value_makeObjectReferenceValue(f.first),
   };
   for (unsigned checker = 0; checker < 2; ++checker) {
-    Arcadia_TypeValue type = checker ? _Arcadia_Media_PixelBufferOperations_CheckerboardFill_getType(thread) : _Arcadia_Media_PixelBufferOperations_Fill_getType(thread);
+    Arcadia_TypeDescriptorValue type = checker ? _Arcadia_Media_PixelBufferOperations_CheckerboardFill_getType(thread) : _Arcadia_Media_PixelBufferOperations_Fill_getType(thread);
     for (unsigned failure = 0; failure < sizeof(wrong) / sizeof(wrong[0]) + 2; ++failure) {
       Arcadia_SizeValue depth = Arcadia_ValueStack_getSize(thread);
       Arcadia_JumpTarget jump;

@@ -70,7 +70,7 @@ requireDefinition
     Arcadia_Thread* thread,
     Arcadia_ADL_Definitions* definitions,
     const char* name,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   Arcadia_ADL_Definition* definition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions, Arcadia_String_createFromCxxString(thread, name));

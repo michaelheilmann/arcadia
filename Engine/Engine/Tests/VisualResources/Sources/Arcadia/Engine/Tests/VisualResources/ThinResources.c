@@ -92,7 +92,7 @@ initProgram
     .destruct = (Arcadia_Object_DestructCallbackFunction*)&Name##_destruct, \
     .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)Initialize, \
   }; \
-  static const Arcadia_Type_Operations Name##_operations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &Name##_objectOperations }; \
+  static const Arcadia_TypeDescriptor_Operations Name##_operations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &Name##_objectOperations }; \
   Arcadia_defineObjectType(RuntimeName, Name, ParentName, Parent, &Name##_operations);
 
 DEFINE_PROBE(BufferProbe, Arcadia_Engine_Visuals_ConstantBufferResource,
@@ -109,7 +109,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* args,
     Arcadia_Natural8Value count
   )
@@ -452,7 +452,7 @@ test
   pixelArgument = Arcadia_Media_PixelBuffer_create(thread, 0, 2, 3, Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, pixelArgument);
   void* probes[] = { buffer, frame, texture, program };
-  Arcadia_TypeValue types[] = { _Arcadia_Engine_Visuals_ConstantBufferResource_getType(thread), _Arcadia_Engine_Visuals_FrameBufferResource_getType(thread), _Arcadia_Engine_Visuals_TextureResource_getType(thread), _Arcadia_Engine_Visuals_ProgramResource_getType(thread) };
+  Arcadia_TypeDescriptorValue types[] = { _Arcadia_Engine_Visuals_ConstantBufferResource_getType(thread), _Arcadia_Engine_Visuals_FrameBufferResource_getType(thread), _Arcadia_Engine_Visuals_TextureResource_getType(thread), _Arcadia_Engine_Visuals_ProgramResource_getType(thread) };
   Arcadia_Engine_Visuals_ResourceDispatch* programBase = (void*)Arcadia_ObjectType_getDispatch(types[3]);
   Arcadia_Tests_assertTrue(thread, !programBase->load && !programBase->unload && !programBase->unlink && !programBase->render);
   for (size_t i = 0; i < sizeof(probes) / sizeof(probes[0]); ++i) {

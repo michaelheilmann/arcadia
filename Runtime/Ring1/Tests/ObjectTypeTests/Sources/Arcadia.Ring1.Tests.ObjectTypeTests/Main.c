@@ -30,10 +30,29 @@ test
     Arcadia_Thread* thread
   )
 {
+  // Register the descriptor's own type before creating the object.
+  Arcadia_TypeDescriptorValue descriptorType = _Arcadia_TypeDescriptor_getType(thread);
   Arcadia_MyObjectB* o = Arcadia_MyObjectB_create(thread);
-  Arcadia_Type const* t = Arcadia_Object_getType(thread, (Arcadia_Object*)o);
-  if (t != _Arcadia_MyObjectB_getType(thread)) {
+  Arcadia_TypeDescriptorValue t = Arcadia_Object_getType(thread, (Arcadia_Object*)o);
+  if (t != _Arcadia_MyObjectB_getType(thread) ||
+      Arcadia_TypeDescriptor_getKind(thread, t) != Arcadia_TypeKind_Object) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    return;
+  }
+
+  Arcadia_Value objectValue = Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)o);
+  if (Arcadia_Value_getTypeDescriptor(thread, &objectValue) != t) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    return;
+  }
+
+  Arcadia_Value descriptorValue = Arcadia_Value_makeTypeDescriptorValue(t);
+  if (Arcadia_Value_getTag(&descriptorValue) != Arcadia_ValueTag_TypeDescriptor ||
+      !Arcadia_Value_isTypeDescriptorValue(&descriptorValue) ||
+      Arcadia_Value_getTypeDescriptorValue(&descriptorValue) != t ||
+      Arcadia_Value_getTypeDescriptor(thread, &descriptorValue) != descriptorType) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    return;
   }
 }
 

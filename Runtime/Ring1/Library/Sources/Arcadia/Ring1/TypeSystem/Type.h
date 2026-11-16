@@ -25,7 +25,10 @@
 
 /// @brief The opaque C type representing a type.
 /// Types are not garbage collected. Once a type was added, it remains there until the process terminates.
-typedef void Arcadia_Type;
+typedef void Arcadia_TypeDescriptor;
+
+/// @brief Temporary source-compatibility alias during the type descriptor migration.
+typedef Arcadia_TypeDescriptor Arcadia_Type;
 
 /// @brief The opaque C type representing an enumeration type.
 typedef void Arcadia_EnumerationType;
@@ -43,7 +46,10 @@ typedef void Arcadia_ObjectType;
 typedef void Arcadia_ScalarType;
 
 /// @brief A pointer to a type or the null pointer.
-typedef Arcadia_Type* Arcadia_TypeValue;
+typedef Arcadia_TypeDescriptor* Arcadia_TypeDescriptorValue;
+
+/// @brief Temporary source-compatibility alias during the type descriptor migration.
+typedef Arcadia_TypeDescriptorValue Arcadia_TypeValue;
 
 /// @brief Get the type of a specified name.
 /// @param thread A pointer to this thread.
@@ -51,22 +57,31 @@ typedef Arcadia_Type* Arcadia_TypeValue;
 /// @return A pointer to the type.
 /// @error #Arcadia_Status_ArgumentValueInvalid @a name is a null pointer
 /// @error Arcadia_Status_TypeNotExists no type of the specified name was found
-Arcadia_TypeValue
-Arcadia_getType
+Arcadia_TypeDescriptorValue
+Arcadia_getTypeDescriptorByName
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name
   );
+
+/// @brief Temporary compatibility spelling for named descriptor lookup.
+static inline Arcadia_TypeDescriptorValue
+Arcadia_getType
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Name* name
+  )
+{ return Arcadia_getTypeDescriptorByName(thread, name); }
 
 /// @brief Get the name of this type.
 /// @param thread A pointer to this thread.
 /// @param self A pointer to this type.
 /// @return A pointer to the name off this type.
 Arcadia_Name*
-Arcadia_Type_getName
+Arcadia_TypeDescriptor_getName
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   );
 
 /// @brief Get the hash of this type.
@@ -74,10 +89,10 @@ Arcadia_Type_getName
 /// @param self A pointer to this type.
 /// @return The hash of this type.
 size_t
-Arcadia_Type_getHash
+Arcadia_TypeDescriptor_getHash
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   );
 
 /// @brief Get the type kind of this type.
@@ -85,65 +100,127 @@ Arcadia_Type_getHash
 /// @param self A pointer to this type.
 /// @return The kind of this type.
 Arcadia_TypeKind
+Arcadia_TypeDescriptor_getKind
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue self
+  );
+
+/// @brief Temporary compatibility spelling.
+static inline Arcadia_Name*
+Arcadia_Type_getName
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue self
+  )
+{ return Arcadia_TypeDescriptor_getName(thread, self); }
+
+/// @brief Temporary compatibility spelling.
+static inline size_t
+Arcadia_Type_getHash
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue self
+  )
+{ return Arcadia_TypeDescriptor_getHash(thread, self); }
+
+/// @brief Temporary compatibility spelling.
+static inline Arcadia_TypeKind
 Arcadia_Type_getKind
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
-  );
+    Arcadia_TypeDescriptorValue self
+  )
+{ return Arcadia_TypeDescriptor_getKind(thread, self); }
 
-/// @brief Get if this type is of the kind of type "enumeration".
-/// @param self A pointer to this type.
-/// @return #Arcadia_BooleanValue_True if the type is of the kind of type "enumeration". #Arcadia_BooleanValue_False otherwise.
+/// @brief Check whether a descriptor is a enumeration type.
+static inline bool
+Arcadia_TypeDescriptor_isEnumerationKind
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue self
+  )
+{ return Arcadia_TypeKind_Enumeration == Arcadia_TypeDescriptor_getKind(thread, self); }
+
+/// @brief Temporary compatibility spelling.
 static inline bool
 Arcadia_Type_isEnumerationtKind
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
-{ return Arcadia_TypeKind_Enumeration == Arcadia_Type_getKind(thread, self); }
+{ return Arcadia_TypeDescriptor_isEnumerationKind(thread, self); }
 
-/// @brief Get if this type is of the kind of type "interface".
-/// @param self A pointer to this type.
-/// @return #Arcadia_BooleanValue_True if the type is of the kind of type "interface". #Arcadia_BooleanValue_False otherwise.
+/// @brief Check whether a descriptor is a interface type.
+static inline bool
+Arcadia_TypeDescriptor_isInterfaceKind
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue self
+  )
+{ return Arcadia_TypeKind_Interface == Arcadia_TypeDescriptor_getKind(thread, self); }
+
+/// @brief Temporary compatibility spelling.
 static inline bool
 Arcadia_Type_isInterfacelKind
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
-{ return Arcadia_TypeKind_Interface == Arcadia_Type_getKind(thread, self); }
+{ return Arcadia_TypeDescriptor_isInterfaceKind(thread, self); }
 
-/// @brief Get if this type is of the kind of type "internal".
-/// @param self A pointer to this type.
-/// @return #Arcadia_BooleanValue_True if the type is of the kind of type "internal". #Arcadia_BooleanValue_False otherwise.
+/// @brief Check whether a descriptor is a internal type.
+static inline bool
+Arcadia_TypeDescriptor_isInternalKind
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue self
+  )
+{ return Arcadia_TypeKind_Internal == Arcadia_TypeDescriptor_getKind(thread, self); }
+
+/// @brief Temporary compatibility spelling.
 static inline bool
 Arcadia_Type_isInternalKind
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
-{ return Arcadia_TypeKind_Internal == Arcadia_Type_getKind(thread, self); }
+{ return Arcadia_TypeDescriptor_isInternalKind(thread, self); }
 
-/// @brief Get if this type is of the kind of type "object".
-/// @param self A pointer to this type.
-/// @return #Arcadia_BooleanValue_True if the type is of the kind of type "object". #Arcadia_BooleanValue_False otherwise.
+/// @brief Check whether a descriptor is a object type.
+static inline bool
+Arcadia_TypeDescriptor_isObjectKind
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue self
+  )
+{ return Arcadia_TypeKind_Object == Arcadia_TypeDescriptor_getKind(thread, self); }
+
+/// @brief Temporary compatibility spelling.
 static inline bool
 Arcadia_Type_isObjectKind
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
-{ return Arcadia_TypeKind_Object == Arcadia_Type_getKind(thread, self); }
+{ return Arcadia_TypeDescriptor_isObjectKind(thread, self); }
 
-/// @brief Get if this type is of the kind of type "scalar".
-/// @param self A pointer to this type.
-/// @return #Arcadia_BooleanValue_True if the type is of the kind of type "scalar". #Arcadia_BooleanValue_False otherwise.
+/// @brief Check whether a descriptor is a scalar type.
+static inline bool
+Arcadia_TypeDescriptor_isScalarKind
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue self
+  )
+{ return Arcadia_TypeKind_Scalar == Arcadia_TypeDescriptor_getKind(thread, self); }
+
+/// @brief Temporary compatibility spelling.
 static inline bool
 Arcadia_Type_isScalarKind
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
-{ return Arcadia_TypeKind_Scalar == Arcadia_Type_getKind(thread, self); }
+{ return Arcadia_TypeDescriptor_isScalarKind(thread, self); }
 
 #endif // ARCADIA_RING1_TYPESYSTEM_TYPE_H_INCLUDED

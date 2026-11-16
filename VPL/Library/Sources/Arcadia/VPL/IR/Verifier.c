@@ -40,8 +40,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -158,7 +158,7 @@ requireObject
     Arcadia_Thread* thread,
     Arcadia_VPL_IR_Verifier* self,
     Arcadia_Object* object,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   if (!object || !Arcadia_Object_isInstanceOf(thread, object, type)) fail(thread, self, object, "verification error: missing object or incorrect object class\n");
@@ -181,7 +181,7 @@ at
     Arcadia_VPL_IR_Verifier* self,
     Arcadia_List* list,
     Arcadia_SizeValue index,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   Arcadia_Value value = Arcadia_List_getAt(thread, list, index);

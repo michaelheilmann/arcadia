@@ -21,11 +21,11 @@
 
 typedef struct Arcadia_Thread Arcadia_Thread;
 
-typedef void Arcadia_Type;
-typedef Arcadia_Type* Arcadia_TypeValue;
+typedef void Arcadia_TypeDescriptor;
+typedef Arcadia_TypeDescriptor* Arcadia_TypeDescriptorValue;
 
 #define Arcadia_declareScalarType(cName) \
-  Arcadia_TypeValue \
+  Arcadia_TypeDescriptorValue \
   _##cName##Value_getType \
     ( \
       Arcadia_Thread* thread \

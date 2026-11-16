@@ -53,7 +53,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Object* context
   )
 {
@@ -306,8 +306,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objectOperations,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &objectOperations,
 };
 
 Arcadia_defineObjectType(u8"Tests.VisualsContextProbe", VisualsContextProbe,
@@ -346,8 +346,8 @@ static const Arcadia_ObjectType_Operations passObjectOperations = {
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructPass,
 };
 
-static const Arcadia_Type_Operations passTypeOperations = {
-  Arcadia_Type_Operations_Initializer, .objectTypeOperations = &passObjectOperations,
+static const Arcadia_TypeDescriptor_Operations passTypeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &passObjectOperations,
 };
 
 Arcadia_defineObjectType(u8"Tests.EnterPassConstructionProbe", EnterPassConstructionProbe,
@@ -488,7 +488,7 @@ test
   self->results[0] = create(thread, _Arcadia_Engine_Visuals_Icon_getType(thread), NULL);
   self->results[1] = create(thread, _Arcadia_Engine_Visuals_Window_getType(thread), NULL);
   self->results[2] = (void*)windows;
-  Arcadia_TypeValue resources[] = {
+  Arcadia_TypeDescriptorValue resources[] = {
     _Arcadia_Engine_Visuals_ConstantBufferResource_getType(thread), _Arcadia_Engine_Visuals_FrameBufferResource_getType(thread),
     _Arcadia_Engine_Visuals_EnterPassResource_getType(thread), _Arcadia_Engine_Visuals_MaterialResource_getType(thread),
     _Arcadia_Engine_Visuals_ProgramResource_getType(thread), _Arcadia_Engine_Visuals_TextureResource_getType(thread),

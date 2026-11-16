@@ -36,7 +36,7 @@ static Arcadia_Object*
 create
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type,
+    Arcadia_TypeDescriptorValue type,
     Arcadia_Value* args,
     Arcadia_Natural8Value count
   )
@@ -165,7 +165,7 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl,
 };
-static const Arcadia_Type_Operations typeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objectOperations };
+static const Arcadia_TypeDescriptor_Operations typeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &objectOperations };
 Arcadia_defineObjectType(u8"Tests.SoundResourceProbe", SoundResourceProbe, u8"Arcadia.Engine.Audials.Implementation.SoundSourceResource", Arcadia_Engine_Audials_Implementation_SoundSourceResource, &typeOperations);
 
 static void
@@ -222,7 +222,7 @@ test
     Arcadia_Tests_assertTrue(thread, isnan(volumes[i]) ? isnan(actual) : actual == volumes[i]);
     if (actual == 0.f) Arcadia_Tests_assertTrue(thread, !!signbit(actual) == !!signbit(volumes[i]));
   }
-  Arcadia_TypeValue type = _Arcadia_Engine_Audials_Implementation_SoundSourceResource_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Engine_Audials_Implementation_SoundSourceResource_getType(thread);
   Arcadia_Object* unbound = create(thread, type, args, 1);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, unbound);
   for (unsigned operation = 0; operation < 8; ++operation) {

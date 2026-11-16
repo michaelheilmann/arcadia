@@ -127,8 +127,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -146,8 +146,8 @@ onWriteEnumerationSourceFile
     Arcadia_StringBuilder* stringBuilder
   )
 {
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "static const Arcadia_Type_Operations _typeOperations = {\n");
-  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "  Arcadia_Type_Operations_Initializer,\n");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "static const Arcadia_TypeDescriptor_Operations _typeOperations = {\n");
+  Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "  Arcadia_TypeDescriptor_Operations_Initializer,\n");
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "};\n");
 
   Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, "\n");

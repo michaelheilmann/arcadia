@@ -36,12 +36,12 @@ Arcadia_Engine_Visuals_Implementation_registerBackends
   )
 {
 #if Arcadia_Engine_Visuals_Implementation_Configuration_Direct3D12_Backend_Enabled
-  Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeValue(_Arcadia_Engine_Visuals_Implementation_Direct3D12_Backend_getType(thread)), NULL);
+  Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeDescriptorValue(_Arcadia_Engine_Visuals_Implementation_Direct3D12_Backend_getType(thread)), NULL);
 #endif
 #if Arcadia_Engine_Visuals_Implementation_Configuration_OpenGL4_Backend_Enabled
-  Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeValue(_Arcadia_Engine_Visuals_Implementation_OpenGL4_Backend_getType(thread)), NULL);
+  Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeDescriptorValue(_Arcadia_Engine_Visuals_Implementation_OpenGL4_Backend_getType(thread)), NULL);
 #endif
 #if Arcadia_Engine_Visuals_Implementation_Configuration_Vulkan_Backend_Enabled
-  Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeValue(_Arcadia_Engine_Visuals_Implementation_Vulkan_Backend_getType(thread)), NULL);
+  Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeDescriptorValue(_Arcadia_Engine_Visuals_Implementation_Vulkan_Backend_getType(thread)), NULL);
 #endif
 }

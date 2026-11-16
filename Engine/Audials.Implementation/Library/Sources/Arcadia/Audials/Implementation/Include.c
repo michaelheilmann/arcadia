@@ -29,6 +29,6 @@ Arcadia_Engine_Audials_Implementation_registerBackends
   )
 {
 #if Arcadia_Engine_Audials_Implementation_Configuration_OpenAL_Backend_Enabled
-  Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeValue(_Arcadia_Engine_Audials_Implementation_OpenAL_Backend_getType(thread)), NULL);
+  Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeDescriptorValue(_Arcadia_Engine_Audials_Implementation_OpenAL_Backend_getType(thread)), NULL);
 #endif
 }

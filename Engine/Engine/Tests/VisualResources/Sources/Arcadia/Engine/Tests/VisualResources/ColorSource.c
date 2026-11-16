@@ -23,7 +23,7 @@ _Static_assert(Arcadia_Engine_Visuals_ColorSource_Vertex == 1, "Vertex C API val
 _Static_assert(Arcadia_Engine_Visuals_ColorSource_Texture == 2, "Texture C API value changed");
 _Static_assert(sizeof(Arcadia_Engine_Visuals_ColorSource) == sizeof(Arcadia_Integer32Value), "ColorSource C ABI changed");
 _Static_assert(_Generic(&_Arcadia_Engine_Visuals_ColorSource_getType,
-  Arcadia_TypeValue (*)(Arcadia_Thread*): 1, default: 0), "ColorSource descriptor signature changed");
+  Arcadia_TypeDescriptorValue (*)(Arcadia_Thread*): 1, default: 0), "ColorSource descriptor signature changed");
 
 typedef Arcadia_Engine_Visuals_MaterialResource*
 CreateMaterialFunction
@@ -56,13 +56,13 @@ test
     Arcadia_Engine_Visuals_ColorSource_Texture,
   };
   const Arcadia_SizeValue count = sizeof(values) / sizeof(values[0]);
-  Arcadia_TypeValue type = _Arcadia_Engine_Visuals_ColorSource_getType(thread);
+  Arcadia_TypeDescriptorValue type = _Arcadia_Engine_Visuals_ColorSource_getType(thread);
   Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
   Arcadia_Name* name = Arcadia_Type_getName(thread, type);
   const char expected[] = "Arcadia.Engine.Visuals.ColorSource";
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == sizeof(expected) - 1);
   Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_Name_getBytes(thread, name), expected, sizeof(expected) - 1));
-  Arcadia_Tests_assertTrue(thread, Arcadia_getType(thread, name) == type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, name) == type);
   for (Arcadia_SizeValue i = 0; i < count; ++i) {
     Arcadia_Value value = Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(type, values[i]));
     Arcadia_ValueStack_pushValue(thread, &value);

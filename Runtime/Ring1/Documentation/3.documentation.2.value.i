@@ -33,7 +33,7 @@
 
     <tr><td>Arcadia_ValueTag_Size           </td><td>Arcadia_SizeValue           </td></tr>
 
-    <tr><td>Arcadia_ValueTag_Type           </td><td>Arcadia_TypeValue           </td></tr>
+    <tr><td>Arcadia_ValueTag_TypeDescriptor           </td><td>Arcadia_TypeDescriptorValue           </td></tr>
 
     <tr><td>Arcadia_ValueTag_Void           </td><td>Arcadia_VoidValue           </td></tr>
   </table>

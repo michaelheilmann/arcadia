@@ -64,8 +64,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_Imaging_ImageWriterParameters_initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -185,7 +185,7 @@ Arcadia_Imaging_ImageWriterParameters_hasPath
     Arcadia_Imaging_ImageWriterParameters* self
   )
 {
-  Arcadia_TypeValue type = Arcadia_Object_getType(thread, self->object);
+  Arcadia_TypeDescriptorValue type = Arcadia_Object_getType(thread, self->object);
   return Arcadia_Type_isDescendantType(thread, type, _Arcadia_String_getType(thread));
 }
 
@@ -210,7 +210,7 @@ Arcadia_Imaging_ImageWriterParameters_hasByteBuffer
     Arcadia_Imaging_ImageWriterParameters* self
   )
 {
-  Arcadia_TypeValue type = Arcadia_Object_getType(thread, self->object);
+  Arcadia_TypeDescriptorValue type = Arcadia_Object_getType(thread, self->object);
   return Arcadia_Type_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread));
 }
 

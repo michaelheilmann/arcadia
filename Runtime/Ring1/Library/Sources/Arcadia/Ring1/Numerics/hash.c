@@ -31,9 +31,9 @@ Arcadia_SizeValue
 Arcadia_hashTypeValue
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue x
+    Arcadia_TypeDescriptorValue x
   )
 {
-  return Arcadia_Type_getHash(thread, x);
+  return Arcadia_TypeDescriptor_getHash(thread, x);
 }
 

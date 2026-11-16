@@ -55,7 +55,7 @@ static Arcadia_Object*
 create0
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
@@ -134,7 +134,7 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl,
 };
-static const Arcadia_Type_Operations typeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &objectOperations };
+static const Arcadia_TypeDescriptor_Operations typeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &objectOperations };
 Arcadia_defineObjectType(u8"Tests.StreamProviderProbe", StreamProviderProbe, u8"Arcadia.Engine.Audials.AudioStreamProvider", Arcadia_Engine_Audials_AudioStreamProvider, &typeOperations);
 
 static void

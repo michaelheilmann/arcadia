@@ -25,4 +25,4 @@ Arcadia_Engine_Visuals_registerNodeFactories
     Arcadia_Thread* thread,
     Arcadia_Set* types
   )
-{ Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeValue(_Arcadia_Engine_Visuals_NodeFactory_getType(thread)), NULL); }
+{ Arcadia_Set_add(thread, types, Arcadia_Value_makeTypeDescriptorValue(_Arcadia_Engine_Visuals_NodeFactory_getType(thread)), NULL); }
