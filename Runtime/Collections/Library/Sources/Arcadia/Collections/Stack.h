@@ -126,7 +126,7 @@ Arcadia_Stack_popObjectReferenceValueChecked
   (
     Arcadia_Thread* thread,
     Arcadia_Stack* self,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   Arcadia_ObjectReferenceValue v = Arcadia_Stack_peekObjectReferenceValue(thread, self);

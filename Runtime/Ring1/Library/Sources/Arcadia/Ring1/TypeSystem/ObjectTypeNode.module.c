@@ -95,10 +95,10 @@ visitCallback
   )
 {
   if (typeNode->parentObjectType) {
-    Arcadia_Type_visit(Arcadia_Process_getThread(process), typeNode->parentObjectType);
+    Arcadia_TypeDescriptor_visit(Arcadia_Process_getThread(process), typeNode->parentObjectType);
   }
   for (Arcadia_SizeValue i = 0, n = typeNode->interfaceImplementations.size; i < n; ++i) {
-    Arcadia_Type_visit(Arcadia_Process_getThread(process), typeNode->interfaceImplementations.elements[i].interfaceType);
+    Arcadia_TypeDescriptor_visit(Arcadia_Process_getThread(process), typeNode->interfaceImplementations.elements[i].interfaceType);
   }
   Arcadia_Name_visit(Arcadia_Process_getThread(process), ((TypeNode*)typeNode)->name);
 }

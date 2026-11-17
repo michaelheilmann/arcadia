@@ -53,7 +53,7 @@ InterfaceSpecifications_contains
   (
     Arcadia_ObjectType_InterfaceSpecification const* interfaceSpecifications,
     Arcadia_SizeValue numberOfInterfaceSpecifications,
-    Arcadia_TypeValue interfaceType
+    Arcadia_TypeDescriptorValue interfaceType
   );
 static void
 InterfaceSpecifications_append
@@ -62,7 +62,7 @@ InterfaceSpecifications_append
     Arcadia_ObjectType_InterfaceSpecification** interfaceSpecifications,
     Arcadia_SizeValue* numberOfInterfaceSpecifications,
     Arcadia_SizeValue* capacityOfInterfaceSpecifications,
-    Arcadia_TypeValue interfaceType
+    Arcadia_TypeDescriptorValue interfaceType
   );
 static void
 InterfaceSpecifications_appendAncestors
@@ -119,7 +119,7 @@ InterfaceSpecifications_contains
   (
     Arcadia_ObjectType_InterfaceSpecification const* interfaceSpecifications,
     Arcadia_SizeValue numberOfInterfaceSpecifications,
-    Arcadia_TypeValue interfaceType
+    Arcadia_TypeDescriptorValue interfaceType
   )
 {
   for (Arcadia_SizeValue i = 0; i < numberOfInterfaceSpecifications; ++i) {
@@ -137,7 +137,7 @@ InterfaceSpecifications_append
     Arcadia_ObjectType_InterfaceSpecification** interfaceSpecifications,
     Arcadia_SizeValue* numberOfInterfaceSpecifications,
     Arcadia_SizeValue* capacityOfInterfaceSpecifications,
-    Arcadia_TypeValue interfaceType
+    Arcadia_TypeDescriptorValue interfaceType
   )
 {
   if (InterfaceSpecifications_contains(*interfaceSpecifications, *numberOfInterfaceSpecifications, interfaceType)) {
@@ -182,7 +182,7 @@ InterfaceSpecifications_appendAncestors
         interfaceSpecifications,
         numberOfInterfaceSpecifications,
         capacityOfInterfaceSpecifications,
-        (Arcadia_TypeValue)ancestorInterfaceTypeNode
+        (Arcadia_TypeDescriptorValue)ancestorInterfaceTypeNode
       );
     InterfaceSpecifications_appendAncestors
       (
@@ -203,7 +203,7 @@ Arcadia_ObjectType_getInterfaceDispatch
     Arcadia_InterfaceType* interfaceType
   )
 {
-  if (!Arcadia_Type_isInterfacelKind(thread, interfaceType)) {
+  if (!Arcadia_TypeDescriptor_isInterfaceKind(thread, interfaceType)) {
     return NULL;
   }
   InterfaceTypeNode* requested = (InterfaceTypeNode*)interfaceType;
@@ -263,7 +263,7 @@ TypeNodes_destroy
       TypeNode** previous = &typeNodes->buckets[i];
       TypeNode* current = typeNodes->buckets[i];
       while (current) {
-        if (!Arcadia_Type_hasChildren(Arcadia_Process_getThread(process), current)) {
+        if (!Arcadia_TypeDescriptor_hasChildren(Arcadia_Process_getThread(process), current)) {
           TypeNode* node = current;
           *previous = current->next;
           current = current->next;
@@ -298,7 +298,7 @@ Arcadia_ObjectType_getValueSize
   )
 { return ((ObjectTypeNode*)self)->valueSize; }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_ObjectType_getParentObjectType
   (
     Arcadia_Thread* thread,
@@ -307,9 +307,9 @@ Arcadia_ObjectType_getParentObjectType
 { return ((ObjectTypeNode*)self)->parentObjectType; }
 
 Arcadia_Object_VisitCallbackFunction*
-Arcadia_Type_getVisitObjectCallbackFunction
+Arcadia_TypeDescriptor_getVisitObjectCallbackFunction
   (
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
 {
   TypeNode const* typeNode = (TypeNode const*)self;
@@ -320,9 +320,9 @@ Arcadia_Type_getVisitObjectCallbackFunction
 }
 
 Arcadia_Object_DestructCallbackFunction*
-Arcadia_Type_getDestructObjectCallbackFunction
+Arcadia_TypeDescriptor_getDestructObjectCallbackFunction
   (
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
 {
   TypeNode const* typeNode = (TypeNode const*)self;
@@ -333,31 +333,31 @@ Arcadia_Type_getDestructObjectCallbackFunction
 }
 
 Arcadia_BooleanValue
-Arcadia_Type_hasChildren
+Arcadia_TypeDescriptor_hasChildren
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
 {
   for (size_t i = 0, n = g_typeNodes->capacity; i < n; ++i) {
     TypeNode* typeNode = g_typeNodes->buckets[i];
     while (typeNode) {
-      if (Arcadia_Type_isObjectKind(thread, self)) {
-        if (Arcadia_Type_isObjectKind(thread, typeNode)) {
+      if (Arcadia_TypeDescriptor_isObjectKind(thread, self)) {
+        if (Arcadia_TypeDescriptor_isObjectKind(thread, typeNode)) {
           ObjectTypeNode* objectTypeNode = (ObjectTypeNode*)typeNode;
           if (Arcadia_ObjectType_getParentObjectType(thread, objectTypeNode) == (TypeNode const*)self) {
             return Arcadia_BooleanValue_True;
           }
         }
-      } else if (Arcadia_Type_isInterfacelKind(thread, self)) {
-        if (Arcadia_Type_isInterfacelKind(thread, typeNode)) {
+      } else if (Arcadia_TypeDescriptor_isInterfaceKind(thread, self)) {
+        if (Arcadia_TypeDescriptor_isInterfaceKind(thread, typeNode)) {
           InterfaceTypeNode* interfaceTypeNode = (InterfaceTypeNode*)typeNode;
           for (Arcadia_SizeValue j = 0, m = interfaceTypeNode->extends.size; j < m; ++j) {
             if (interfaceTypeNode->extends.elements[j] == self) {
               return Arcadia_BooleanValue_True;
             }
           }
-        } else if (Arcadia_Type_isObjectKind(thread, typeNode)) {
+        } else if (Arcadia_TypeDescriptor_isObjectKind(thread, typeNode)) {
           // An object type which implements this interface type holds a lock on it.
           // It must be destructed before this interface type is destructed.
           if (ObjectTypeNode_implementsInterface((ObjectTypeNode*)typeNode, (InterfaceTypeNode*)self)) {
@@ -371,14 +371,14 @@ Arcadia_Type_hasChildren
   return Arcadia_BooleanValue_False;
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerEnumerationType
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
     size_t valueSize,
-    Arcadia_Type_Operations const* typeOperations,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptor_Operations const* typeOperations,
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   )
 {
   size_t hash = Arcadia_Name_getHash(thread, name);
@@ -407,15 +407,15 @@ Arcadia_registerEnumerationType
   return typeNode;
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerInterfaceType
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
     size_t dispatchSize,
     size_t numberOfExtendedInterfaces,
-    Arcadia_TypeValue const* extendedInterfaces,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptorValue const* extendedInterfaces,
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   )
 {
   size_t hash = Arcadia_Name_getHash(thread, name);
@@ -448,7 +448,7 @@ Arcadia_registerInterfaceType
       Arcadia_Thread_jump(thread);
     }
     for (Arcadia_SizeValue i = 0; i < numberOfExtendedInterfaces; ++i) {
-      if (!extendedInterfaces[i] || !Arcadia_Type_isInterfacelKind(thread, extendedInterfaces[i])) {
+      if (!extendedInterfaces[i] || !Arcadia_TypeDescriptor_isInterfaceKind(thread, extendedInterfaces[i])) {
         for (Arcadia_SizeValue j = 0, m = ((InterfaceTypeNode*)typeNode)->extends.size; j < m; ++j) {
           Arcadia_ARMS_unlock(((InterfaceTypeNode*)typeNode)->extends.elements[j]);
         }
@@ -482,13 +482,13 @@ Arcadia_registerInterfaceType
   return typeNode;
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerInternalType
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
-    Arcadia_Type_Operations const* typeOperations,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptor_Operations const* typeOperations,
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   )
 {
   size_t hash = Arcadia_Name_getHash(thread, name);
@@ -519,16 +519,16 @@ Arcadia_registerInternalType
   return typeNode;
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerObjectType
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
     size_t valueSize,
-    Arcadia_TypeValue parentObjectType,
+    Arcadia_TypeDescriptorValue parentObjectType,
     size_t dispatchSize,
-    Arcadia_Type_Operations const* typeOperations,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptor_Operations const* typeOperations,
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   )
 {
   return Arcadia_registerObjectTypeWithInterfaces
@@ -545,18 +545,18 @@ Arcadia_registerObjectType
     );
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerObjectTypeWithInterfaces
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
     size_t valueSize,
-    Arcadia_TypeValue parentObjectType,
+    Arcadia_TypeDescriptorValue parentObjectType,
     size_t dispatchSize,
-    Arcadia_Type_Operations const* typeOperations,
+    Arcadia_TypeDescriptor_Operations const* typeOperations,
     Arcadia_ObjectType_InterfaceSpecification const* interfaceSpecifications,
     size_t numberOfInterfaceSpecifications,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   )
 {
   size_t hash = Arcadia_Name_getHash(thread, name);
@@ -571,7 +571,7 @@ Arcadia_registerObjectTypeWithInterfaces
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid); /*@tood Add Arcadia_Status_NoObjectType.*/
     Arcadia_Thread_jump(thread);
   }
-  if (parentObjectType && !Arcadia_Type_isObjectKind(thread, parentObjectType)) {
+  if (parentObjectType && !Arcadia_TypeDescriptor_isObjectKind(thread, parentObjectType)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid); /*@tood Add Arcadia_Status_NoObjectType.*/
     Arcadia_Thread_jump(thread);
   }
@@ -591,8 +591,8 @@ Arcadia_registerObjectTypeWithInterfaces
     }
     memcpy(expandedInterfaceSpecifications, interfaceSpecifications, sizeof(Arcadia_ObjectType_InterfaceSpecification) * numberOfInterfaceSpecifications);
     for (Arcadia_SizeValue i = 0; i < numberOfInterfaceSpecifications; ++i) {
-      Arcadia_TypeValue interfaceType = expandedInterfaceSpecifications[i].interfaceType;
-      if (!interfaceType || !Arcadia_Type_isInterfacelKind(thread, interfaceType)) {
+      Arcadia_TypeDescriptorValue interfaceType = expandedInterfaceSpecifications[i].interfaceType;
+      if (!interfaceType || !Arcadia_TypeDescriptor_isInterfaceKind(thread, interfaceType)) {
         free(expandedInterfaceSpecifications);
         Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
         Arcadia_Thread_jump(thread);
@@ -659,8 +659,8 @@ Arcadia_registerObjectTypeWithInterfaces
       Arcadia_Thread_jump(thread);
     }
     for (Arcadia_SizeValue i = 0; i < numberOfEffectiveInterfaceSpecifications; ++i) {
-      Arcadia_TypeValue interfaceType = effectiveInterfaceSpecifications[i].interfaceType;
-      if (!interfaceType || !Arcadia_Type_isInterfacelKind(thread, interfaceType)) {
+      Arcadia_TypeDescriptorValue interfaceType = effectiveInterfaceSpecifications[i].interfaceType;
+      if (!interfaceType || !Arcadia_TypeDescriptor_isInterfaceKind(thread, interfaceType)) {
         for (Arcadia_SizeValue j = 0, m = objectTypeNode->interfaceImplementations.size; j < m; ++j) {
           Arcadia_ARMS_unlock(objectTypeNode->interfaceImplementations.elements[j].interfaceType);
           if (objectTypeNode->interfaceImplementations.elements[j].dispatch) {
@@ -785,7 +785,7 @@ Arcadia_registerObjectTypeWithInterfaces
   // A dispatch of a size less than the size of "Arcadia_ObjectDispatch" has no room for the
   // dispatch the initializer writes into it. Such a type has no virtual functions, and the
   // initializer is not invoked: the dispatch was zeroed or inherited above, and the members
-  // which fit (the leading "Arcadia_Type" below) are assigned independently of the initializer.
+  // which fit (the leading "Arcadia_TypeDescriptor" below) are assigned independently of the initializer.
   if (typeOperations->objectTypeOperations->initializeDispatch && dispatchSize >= sizeof(Arcadia_ObjectDispatch)) {
     (*typeOperations->objectTypeOperations->initializeDispatch)(thread, objectTypeNode->dispatch);
   }
@@ -809,13 +809,13 @@ Arcadia_registerObjectTypeWithInterfaces
   return typeNode;
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerScalarType
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
-    Arcadia_Type_Operations const* typeOperations,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptor_Operations const* typeOperations,
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   )
 {
   size_t hash = Arcadia_Name_getHash(thread, name);
@@ -846,11 +846,11 @@ Arcadia_registerScalarType
 }
 
 Arcadia_BooleanValue
-Arcadia_Type_isDescendantType
+Arcadia_TypeDescriptor_isDescendantType
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self,
-    Arcadia_TypeValue other
+    Arcadia_TypeDescriptorValue self,
+    Arcadia_TypeDescriptorValue other
   )
 {
   TypeNode* a = (TypeNode*)self;
@@ -878,7 +878,7 @@ Arcadia_Type_isDescendantType
   }
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_getTypeDescriptorByName
   (
     Arcadia_Thread* thread,
@@ -912,7 +912,7 @@ Arcadia_ObjectType_getDispatch
 Arcadia_TypeDescriptor_Operations const*
 Arcadia_TypeDescriptor_getOperations
   (
-    Arcadia_TypeValue type
+    Arcadia_TypeDescriptorValue type
   )
 {
   TypeNode* typeNode = (TypeNode*)type;
@@ -930,7 +930,7 @@ memoryTypeDestructing
   )
 { g_memoryType = NULL; }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_Memory_getType
   (
     Arcadia_Thread* thread
@@ -955,7 +955,7 @@ typeTypeDestructing
   g_typeType = NULL;
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_TypeDescriptor_getType
   (
     Arcadia_Thread* thread
@@ -980,7 +980,7 @@ atomTypeDestructing
   g_atomType = NULL;
 }
 
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_AtomValue_getType
   (
     Arcadia_Thread* thread

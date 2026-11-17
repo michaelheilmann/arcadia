@@ -46,11 +46,35 @@ test
     return;
   }
 
+  // The numeric tag is part of the stable first-class value representation.
+  if (Arcadia_ValueTag_TypeDescriptor != 19) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    return;
+  }
+
+  Arcadia_Value selfDescriptorValue = Arcadia_Value_makeTypeDescriptorValue(descriptorType);
+  if (Arcadia_Value_getTypeDescriptor(thread, &selfDescriptorValue) != descriptorType ||
+      Arcadia_Value_getTypeDescriptorValue(&selfDescriptorValue) != descriptorType) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    return;
+  }
+
   Arcadia_Value descriptorValue = Arcadia_Value_makeTypeDescriptorValue(t);
   if (Arcadia_Value_getTag(&descriptorValue) != Arcadia_ValueTag_TypeDescriptor ||
       !Arcadia_Value_isTypeDescriptorValue(&descriptorValue) ||
       Arcadia_Value_getTypeDescriptorValue(&descriptorValue) != t ||
       Arcadia_Value_getTypeDescriptor(thread, &descriptorValue) != descriptorType) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    return;
+  }
+
+  // Boxing preserves the identity-based equality and hash contract.
+  Arcadia_Value sameDescriptorValue = Arcadia_Value_makeTypeDescriptorValue(t);
+  Arcadia_Value differentDescriptorValue = Arcadia_Value_makeTypeDescriptorValue(descriptorType);
+  if (!Arcadia_Value_isEqualTo(thread, &descriptorValue, &sameDescriptorValue) ||
+      Arcadia_Value_isEqualTo(thread, &descriptorValue, &differentDescriptorValue) ||
+      Arcadia_Value_getHash(thread, &descriptorValue) != Arcadia_Value_getHash(thread, &sameDescriptorValue) ||
+      !Arcadia_Value_isInstanceOf(thread, &descriptorValue, descriptorType)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
     return;
   }

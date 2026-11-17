@@ -69,7 +69,7 @@ findTypeByName
   )
 {
   Arcadia_TypeDescriptor* yy = Arcadia_Value_getTypeDescriptorValue(&y);
-  Arcadia_Name* b = Arcadia_Type_getName(thread, yy);
+  Arcadia_Name* b = Arcadia_TypeDescriptor_getName(thread, yy);
   Arcadia_String* a = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&x);
   return Arcadia_String_getNumberOfBytes(thread, a) == Arcadia_Name_getNumberOfBytes(thread, b)
       && !Arcadia_Memory_compare(thread, Arcadia_String_getBytes(thread, a), Arcadia_Name_getBytes(thread, b), Arcadia_String_getNumberOfBytes(thread, a));
@@ -104,7 +104,7 @@ Arcadia_Engine_ApplicationHelper_startupAudials
         Arcadia_Thread_jump(thread);
       }
       Arcadia_TypeDescriptor* backendType = Arcadia_Value_getTypeDescriptorValue(&backendTypeValue);
-      if (!Arcadia_Type_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
+      if (!Arcadia_TypeDescriptor_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }
@@ -121,7 +121,7 @@ Arcadia_Engine_ApplicationHelper_startupAudials
         Arcadia_Thread_jump(thread);
       }
       Arcadia_TypeDescriptor* backendType = Arcadia_Value_getTypeDescriptorValue(&backendTypeValue);
-      if (!Arcadia_Type_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
+      if (!Arcadia_TypeDescriptor_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }
@@ -165,7 +165,7 @@ Arcadia_Engine_ApplicationHelper_startupAudials
         Arcadia_Thread_jump(thread);
       }
       Arcadia_TypeDescriptor* scneNodeFactoryType = Arcadia_Value_getTypeDescriptorValue(&scneNodeFactoryTypeValue);
-      if (!Arcadia_Type_isDescendantType(thread, scneNodeFactoryType, _Arcadia_Engine_Audials_NodeFactory_getType(thread))) {
+      if (!Arcadia_TypeDescriptor_isDescendantType(thread, scneNodeFactoryType, _Arcadia_Engine_Audials_NodeFactory_getType(thread))) {
         Arcadia_Thread_setStatus(thread, Arcadia_Status_NotFound);
         Arcadia_Thread_jump(thread);
       }

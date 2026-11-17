@@ -58,7 +58,7 @@ createAudialsBackendContext
       Arcadia_Thread_jump(thread);
     }
     Arcadia_TypeDescriptor* backendType = Arcadia_Value_getTypeDescriptorValue(&backendTypeValue);
-    if (!Arcadia_Type_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
+    if (!Arcadia_TypeDescriptor_isDescendantType(thread, backendType, _Arcadia_Engine_Audials_Backend_getType(thread))) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
       Arcadia_Thread_jump(thread);
     }

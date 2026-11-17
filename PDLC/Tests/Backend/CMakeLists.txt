@@ -89,7 +89,10 @@ add_custom_command(
   COMMAND $<TARGET_FILE:${generator}> "${generatedRoot}"
   COMMAND ${CMAKE_COMMAND} "-DSOURCE_ROOT=${generatedRoot}/Library/Sources" -DMODULE_PATH=Test/Namespaced -DPROCEDURE=roundTrip
           -P "${CMAKE_CURRENT_SOURCE_DIR}/../VerifyProcedurePaths.cmake"
+  COMMAND ${CMAKE_COMMAND} "-DSOURCE_ROOT=${generatedRoot}/Library/Sources"
+          -P "${CMAKE_CURRENT_SOURCE_DIR}/VerifyTypeDescriptorApi.cmake"
   DEPENDS ${generator} "${CMAKE_CURRENT_SOURCE_DIR}/Assets/Module.pdl" "${CMAKE_CURRENT_SOURCE_DIR}/../VerifyProcedurePaths.cmake"
+          "${CMAKE_CURRENT_SOURCE_DIR}/VerifyTypeDescriptorApi.cmake"
   VERBATIM
 )
 Arcadia_markGeneratedTestSources(${generatedSources})

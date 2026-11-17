@@ -161,8 +161,8 @@ testAlignment
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   Arcadia_TypeDescriptorValue type = _Arcadia_Engine_Text_TextAlignment_getType(thread);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
   const char expected[] = "Arcadia.Engine.Text.TextAlignment";
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == sizeof(expected) - 1);
   Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_Name_getBytes(thread, name), expected, sizeof(expected) - 1));

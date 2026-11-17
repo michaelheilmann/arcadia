@@ -57,8 +57,8 @@ test
   };
   const Arcadia_SizeValue count = sizeof(values) / sizeof(values[0]);
   Arcadia_TypeDescriptorValue type = _Arcadia_Engine_Visuals_ColorSource_getType(thread);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
   const char expected[] = "Arcadia.Engine.Visuals.ColorSource";
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == sizeof(expected) - 1);
   Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_Name_getBytes(thread, name), expected, sizeof(expected) - 1));
@@ -68,7 +68,7 @@ test
     Arcadia_ValueStack_pushValue(thread, &value);
   }
   Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
-  Arcadia_Tests_assertTrue(thread, _Arcadia_Engine_Visuals_ColorSource_getType(thread) == type && Arcadia_Type_getName(thread, type) == name);
+  Arcadia_Tests_assertTrue(thread, _Arcadia_Engine_Visuals_ColorSource_getType(thread) == type && Arcadia_TypeDescriptor_getName(thread, type) == name);
   for (Arcadia_SizeValue i = 0; i < count; ++i) {
     Arcadia_Value value = Arcadia_ValueStack_getValue(thread, count - 1 - i);
     Arcadia_Tests_assertTrue(thread, Arcadia_Value_isEnumerationValue(&value));

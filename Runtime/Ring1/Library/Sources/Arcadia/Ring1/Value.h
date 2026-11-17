@@ -335,7 +335,7 @@ Arcadia_Value_isInstanceOf
   (
     Arcadia_Thread* thread,
     Arcadia_Value const* self,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   );
 
 /**
@@ -356,7 +356,7 @@ Arcadia_Value_getObjectReferenceValueChecked
   (
     Arcadia_Thread* thread,
     Arcadia_Value self,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   );
 
 #endif // ARCADIA_RING1_VALUE_H_INCLUDED

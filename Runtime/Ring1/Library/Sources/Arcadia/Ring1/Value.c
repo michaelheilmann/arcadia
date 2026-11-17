@@ -89,13 +89,13 @@ Arcadia_Value_visit
       /* Intentionally empty. */
     } break;
     case Arcadia_ValueTag_TypeDescriptor: {
-      Arcadia_Type_visit(thread, self->typeDescriptorValue);
+      Arcadia_TypeDescriptor_visit(thread, self->typeDescriptorValue);
     } break;
     case Arcadia_ValueTag_Void: {
       /* Intentionally empty. */
     } break;
     case Arcadia_ValueTag_Enumeration: {
-      Arcadia_Type_visit(thread, self->enumerationValue.type);
+      Arcadia_TypeDescriptor_visit(thread, self->enumerationValue.type);
     } break;
     default: {
       Arcadia_logf(Arcadia_LogFlags_Error, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
@@ -533,7 +533,7 @@ Arcadia_Value_getHash
       return Arcadia_TypeDescriptor_getHash(thread, self->typeDescriptorValue);
     } break;
     case Arcadia_ValueTag_Enumeration: {
-      return (Arcadia_SizeValue)self->enumerationValue.value ^ Arcadia_Type_getHash(thread, self->enumerationValue.type);
+      return (Arcadia_SizeValue)self->enumerationValue.value ^ Arcadia_TypeDescriptor_getHash(thread, self->enumerationValue.type);
     } break;
     default: {
       Arcadia_logf(Arcadia_LogFlags_Error, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);

@@ -102,7 +102,7 @@ constructImpl
     Arcadia_superTypeConstructor(thread, _type, self);
   }
   Arcadia_EnumerationValue enumerationValue = Arcadia_ValueStack_getEnumerationValue(thread, 1);
-  if (!Arcadia_Type_isDescendantType(thread, enumerationValue.type, _Arcadia_PDLC_WordType_getType(thread))) {
+  if (!Arcadia_TypeDescriptor_isDescendantType(thread, enumerationValue.type, _Arcadia_PDLC_WordType_getType(thread))) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
     Arcadia_Thread_jump(thread);
   }

@@ -45,8 +45,8 @@ testMetadata
 {
   Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
   Arcadia_TypeDescriptorValue type = _Arcadia_Media_PixelFormat_getType(thread);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
   const char expected[] = "Arcadia.Media.PixelFormat";
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == sizeof(expected) - 1 && !memcmp(Arcadia_Name_getBytes(thread, name), expected, sizeof(expected) - 1));
   Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, name) == type);

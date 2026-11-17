@@ -53,12 +53,12 @@ typedef void (Arcadia_ObjectDispatch_InitializeCallbackFunction)(Arcadia_Thread*
 /// @note This is part of the dispatch size of every interface type.
 typedef struct Arcadia_InterfaceDispatch {
   /// The type of the object the operation is invoked on.
-  Arcadia_Type* objectType;
+  Arcadia_TypeDescriptor* objectType;
 
   /// The interface type this dispatch was registered for.
   /// This is the interface type a dispatch is obtained for.
   /// @see Arcadia_ObjectType_getInterfaceDispatch
-  Arcadia_Type* interfaceType;
+  Arcadia_TypeDescriptor* interfaceType;
 } Arcadia_InterfaceDispatch;
 
 /// @brief The type of a dispatch initializer for an interface type.
@@ -123,13 +123,13 @@ typedef Arcadia_TypeDescriptor_Operations Arcadia_Type_Operations;
 
 /// @brief Type of a type destructing callback function.
 /// Invoked when the type is destructing.
-typedef void (Arcadia_Type_TypeDestructingCallbackFunction)(void* context);
+typedef void (Arcadia_TypeDescriptor_DestructingCallbackFunction)(void* context);
 
 static inline void
-Arcadia_Type_visit
+Arcadia_TypeDescriptor_visit
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
 {/*Intentionally empty.*/}
 
@@ -156,7 +156,7 @@ Arcadia_ObjectType_getValueSize
 /// @brief Get the parent object type of this type.
 /// @param self A pointer to this type.
 /// @return A pointer to the parent object type of this type if any. The null pointer otherwise.
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_ObjectType_getParentObjectType
   (
     Arcadia_Thread* thread,
@@ -167,18 +167,18 @@ Arcadia_ObjectType_getParentObjectType
 /// @param self A pointer to this type.
 /// @return A pointer to the visit callback function of this type if any. The null pointer otherwise.
 Arcadia_Object_VisitCallbackFunction*
-Arcadia_Type_getVisitObjectCallbackFunction
+Arcadia_TypeDescriptor_getVisitObjectCallbackFunction
   (
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   );
 
 /// @brief Get the destruct object callback function of this type.
 /// @param self A pointer to this type.
 /// @return A pointer to the destruct callback function of this type if any. The null pointer otherwise.
 Arcadia_Object_DestructCallbackFunction*
-Arcadia_Type_getDestructObjectCallbackFunction
+Arcadia_TypeDescriptor_getDestructObjectCallbackFunction
   (
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   );
 
 /// @brief Get if this type has child types.
@@ -195,10 +195,10 @@ Arcadia_Type_getDestructObjectCallbackFunction
 /// This is used to destruct type nodes in dependency order, so that a type never is destructed
 /// before a type it depends on. A type depending on another type is a child of that other type.
 Arcadia_BooleanValue
-Arcadia_Type_hasChildren
+Arcadia_TypeDescriptor_hasChildren
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   );
 
 /// @brief Get if this type is a descendant type of another type.
@@ -223,22 +223,22 @@ Arcadia_Type_hasChildren
 /// object types. If @a other is an interface type, the result states that this type implements
 /// @a other, and an interface dispatch must be used to invoke operations on it.
 Arcadia_BooleanValue
-Arcadia_Type_isDescendantType
+Arcadia_TypeDescriptor_isDescendantType
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self,
-    Arcadia_TypeValue other
+    Arcadia_TypeDescriptorValue self,
+    Arcadia_TypeDescriptorValue other
   );
 
 /* Arcadia_Status_ArgumentValueInvalid, Arcadia_Status_AllocationFailed, Arcadia_Status_TypeExists */
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerEnumerationType
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
     size_t valueSize,
-    Arcadia_Type_Operations const* typeOperations,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptor_Operations const* typeOperations,
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   );
 
 /* Arcadia_Status_ArgumentValueInvalid, Arcadia_Status_AllocationFailed, Arcadia_Status_TypeExists */
@@ -254,25 +254,25 @@ Arcadia_registerEnumerationType
 ///       interface implementation records are added automatically when they are not specified
 ///       explicitly.
 ///       @see Arcadia_ObjectType_getInterfaceDispatch
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerInterfaceType
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
     size_t dispatchSize,
     size_t numberOfExtendedInterfaces,
-    Arcadia_TypeValue const* extendedInterfaces,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptorValue const* extendedInterfaces,
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   );
 
 /* Arcadia_Status_ArgumentValueInvalid, Arcadia_Status_AllocationFailed, Arcadia_Status_TypeExists */
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerInternalType
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
-    Arcadia_Type_Operations const* typeOperations,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptor_Operations const* typeOperations,
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   );
 
 /// @brief A specification of an interface type implemented by an object type.
@@ -286,7 +286,7 @@ Arcadia_registerInternalType
 /// @see Arcadia_registerObjectTypeWithInterfaces
 typedef struct Arcadia_ObjectType_InterfaceSpecification {
   /// The implemented interface type.
-  Arcadia_TypeValue interfaceType;
+  Arcadia_TypeDescriptorValue interfaceType;
 
   /// The size, in Bytes, of the dispatch for @a interfaceType.
   /// Must be greater than or equal to the dispatch size of @a interfaceType.
@@ -330,16 +330,16 @@ Arcadia_ObjectType_getInterfaceDispatch
 /* Arcadia_Status_ArgumentValueInvalid, Arcadia_Status_AllocationFailed, Arcadia_Status_TypeExists */
 /// @brief Register an object type.
 /// @note This is equivalent to <code>Arcadia_registerObjectTypeWithInterfaces</code> with no implemented interface types.
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerObjectType
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
     size_t valueSize,
-    Arcadia_TypeValue parentObjectType,
+    Arcadia_TypeDescriptorValue parentObjectType,
     size_t dispatchSize,
-    Arcadia_Type_Operations const* typeOperations,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptor_Operations const* typeOperations,
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   );
 
 /// @brief Register an object type which implements interface types.
@@ -353,28 +353,28 @@ Arcadia_registerObjectType
 ///       inherited is initialized with all zero members, and the dispatch initializer has to set
 ///       every operation.
 /* Arcadia_Status_ArgumentValueInvalid, Arcadia_Status_AllocationFailed, Arcadia_Status_TypeExists */
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerObjectTypeWithInterfaces
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
     size_t valueSize,
-    Arcadia_TypeValue parentObjectType,
+    Arcadia_TypeDescriptorValue parentObjectType,
     size_t dispatchSize,
-    Arcadia_Type_Operations const* typeOperations,
+    Arcadia_TypeDescriptor_Operations const* typeOperations,
     Arcadia_ObjectType_InterfaceSpecification const* interfaceSpecifications,
     size_t numberOfInterfaceSpecifications,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   );
 
 /* Arcadia_Status_ArgumentValueInvalid, Arcadia_Status_AllocationFailed, Arcadia_Status_TypeExists */
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 Arcadia_registerScalarType
   (
     Arcadia_Thread* thread,
     Arcadia_Name* name,
-    Arcadia_Type_Operations const* typeOperations,
-    Arcadia_Type_TypeDestructingCallbackFunction* typeDestructing
+    Arcadia_TypeDescriptor_Operations const* typeOperations,
+    Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing
   );
 
 Arcadia_ObjectDispatch*
@@ -400,7 +400,7 @@ Arcadia_Type_getOperations
 /// @brief Get the "Arcadia.Memory" type.
 /// @param thread A pointer to the Arcadia_Thread object.
 /// @return The "Arcadia.Memory" type.
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_Memory_getType
   (
     Arcadia_Thread* thread
@@ -409,24 +409,17 @@ _Arcadia_Memory_getType
 /// @brief Get the "Arcadia.TypeDescriptor" type.
 /// @param thread A pointer to the Arcadia_Thread object.
 /// @return The "Arcadia.TypeDescriptor" type.
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_TypeDescriptor_getType
   (
     Arcadia_Thread* thread
   );
 
-/// @brief Temporary compatibility spelling for the descriptor's own type.
-static inline Arcadia_TypeDescriptorValue
-_Arcadia_Type_getType
-  (
-    Arcadia_Thread* thread
-  )
-{ return _Arcadia_TypeDescriptor_getType(thread); }
 
 /// @brief Get the "Arcadia.Atom" type.
 /// @param thread A pointer to the Arcadia_Thread object.
 /// @return The "Arcadia.Atom" type.
-Arcadia_TypeValue
+Arcadia_TypeDescriptorValue
 _Arcadia_AtomValue_getType
   (
     Arcadia_Thread* thread
@@ -440,7 +433,7 @@ _Arcadia_AtomValue_getType
 ///       of the interface type, which must have a leading @c Arcadia.InterfaceDispatch.
 #define Arcadia_declareInterfaceType(_cilName, _cName) \
   typedef struct _cName##Dispatch _cName##Dispatch; \
-  Arcadia_TypeValue \
+  Arcadia_TypeDescriptorValue \
   _##_cName##_getType \
     ( \
       Arcadia_Thread* thread \
@@ -455,7 +448,7 @@ _Arcadia_AtomValue_getType
 /// @note The dispatch size of the interface type is the size of the dispatch structure of the
 ///       interface type.
 #define Arcadia_defineInterfaceType(_cilName, _cName, ...) \
-  static Arcadia_TypeValue g_##_cName##_type = NULL; \
+  static Arcadia_TypeDescriptorValue g_##_cName##_type = NULL; \
   \
   static void \
   _##_cName##_typeDestructing \
@@ -466,14 +459,14 @@ _Arcadia_AtomValue_getType
     g_##_cName##_type = NULL; \
   } \
   \
-  Arcadia_TypeValue \
+  Arcadia_TypeDescriptorValue \
   _##_cName##_getType \
     ( \
       Arcadia_Thread* thread \
     ) \
   { \
     if (!g_##_cName##_type) { \
-      Arcadia_TypeValue extends[] = { __VA_ARGS__ }; \
+      Arcadia_TypeDescriptorValue extends[] = { __VA_ARGS__ }; \
       size_t numberOfExtends = 0; \
       while (extends[numberOfExtends]) { \
         ++numberOfExtends; \
@@ -511,7 +504,7 @@ _Arcadia_AtomValue_getType
 ///       records are added automatically when an implemented interface type extends other interface
 ///       types.
 #define Arcadia_defineObjectTypeWithInterfaces(_cilName, _cName, _cilParentName, _cParentName, _cTypeOperations, ...) \
-  static Arcadia_TypeValue g_##_cName##_type = NULL; \
+  static Arcadia_TypeDescriptorValue g_##_cName##_type = NULL; \
   \
   static void \
   _##_cName##_typeDestructing \
@@ -522,14 +515,14 @@ _Arcadia_AtomValue_getType
     g_##_cName##_type = NULL; \
   } \
   \
-  Arcadia_TypeValue \
+  Arcadia_TypeDescriptorValue \
   _##_cName##_getType \
     ( \
       Arcadia_Thread* thread \
     ) \
   { \
     if (!g_##_cName##_type) { \
-      Arcadia_TypeValue parentType = _##_cParentName##_getType(thread); \
+      Arcadia_TypeDescriptorValue parentType = _##_cParentName##_getType(thread); \
       Arcadia_ObjectType_InterfaceSpecification interfaceSpecifications[] = { \
         __VA_ARGS__, \
         { NULL, 0, NULL } \

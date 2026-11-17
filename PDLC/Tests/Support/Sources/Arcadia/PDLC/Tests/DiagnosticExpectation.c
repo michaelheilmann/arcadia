@@ -26,7 +26,7 @@ hasTypeName
     const char* expected
   )
 {
-  Arcadia_Name* name = Arcadia_Type_getName(thread, Arcadia_Object_getType(thread, object));
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, Arcadia_Object_getType(thread, object));
   size_t size = strlen(expected);
   return Arcadia_Name_getNumberOfBytes(thread, name) == size
       && !memcmp(Arcadia_Name_getBytes(thread, name), expected, size);
@@ -103,7 +103,7 @@ Arcadia_PDLC_Tests_assertDiagnostic
     // wrong file is itself a possible mismatch, not a secondary I/O exception.
     for (Arcadia_SizeValue i = 0; i < Arcadia_Collection_getSize(thread, (Arcadia_Collection*)diagnostics->diagnostics); ++i) {
       Arcadia_Languages_Diagnostic* diagnostic = (void*)Arcadia_List_getObjectReferenceValueAt(thread, diagnostics->diagnostics, i);
-      Arcadia_Name* typeName = Arcadia_Type_getName(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)diagnostic));
+      Arcadia_Name* typeName = Arcadia_TypeDescriptor_getName(thread, Arcadia_Object_getType(thread, (Arcadia_Object*)diagnostic));
       fprintf(stderr, "Actual diagnostic[%zu]: type=%.*s severity=%u ", i,
         (int)Arcadia_Name_getNumberOfBytes(thread, typeName), Arcadia_Name_getBytes(thread, typeName), (unsigned)diagnostic->type);
       Arcadia_FilePath* path = diagnostic->inputFile ? Arcadia_Languages_InputFile_getPath(thread, diagnostic->inputFile) : NULL;

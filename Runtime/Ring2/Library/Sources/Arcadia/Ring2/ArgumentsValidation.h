@@ -36,7 +36,7 @@ Arcadia_ArgumentsValidation_getObjectReferenceValue
     Arcadia_Thread_jump(thread);
   }
   Arcadia_ObjectReferenceValue objectReferenceValue = Arcadia_Value_getObjectReferenceValue(value);
-  if (!Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, objectReferenceValue), type)) {
+  if (!Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, objectReferenceValue), type)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
     Arcadia_Thread_jump(thread);
   }
@@ -59,7 +59,7 @@ Arcadia_ArgumentsValidation_getObjectReferenceValueOrNull
     Arcadia_Thread_jump(thread);
   }
   Arcadia_ObjectReferenceValue objectReferenceValue = Arcadia_Value_getObjectReferenceValue(value);
-  if (!Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, objectReferenceValue), type)) {
+  if (!Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, objectReferenceValue), type)) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
     Arcadia_Thread_jump(thread);
   }

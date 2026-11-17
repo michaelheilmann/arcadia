@@ -190,8 +190,8 @@ testConstructors
   for (unsigned i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural8Value(thread, 77);
   Arcadia_TypeDescriptorValue operandType = _Arcadia_PDLC_AST_OperandNode_getType(thread);
   Arcadia_TypeDescriptorValue statementType = _Arcadia_PDLC_AST_StatementNode_getType(thread);
-  Arcadia_Name* operandName = Arcadia_Type_getName(thread, operandType);
-  Arcadia_Name* statementName = Arcadia_Type_getName(thread, statementType);
+  Arcadia_Name* operandName = Arcadia_TypeDescriptor_getName(thread, operandType);
+  Arcadia_Name* statementName = Arcadia_TypeDescriptor_getName(thread, statementType);
   const char operandText[] = "Arcadia.PDLC.AST.OperandNode";
   const char statementText[] = "Arcadia.PDLC.AST.StatementNode";
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, operandName) == sizeof(operandText) - 1 &&
@@ -199,9 +199,9 @@ testConstructors
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, statementName) == sizeof(statementText) - 1 &&
     !memcmp(Arcadia_Name_getBytes(thread, statementName), statementText, sizeof(statementText) - 1));
   Arcadia_Tests_assertTrue(thread, Arcadia_getTypeDescriptorByName(thread, operandName) == operandType && Arcadia_getTypeDescriptorByName(thread, statementName) == statementType);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, operandType) == Arcadia_TypeKind_Object && Arcadia_Type_getKind(thread, statementType) == Arcadia_TypeKind_Object);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, operandType, _Arcadia_PDLC_AST_Node_getType(thread)));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, statementType, _Arcadia_PDLC_AST_Node_getType(thread)));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_getKind(thread, operandType) == Arcadia_TypeKind_Object && Arcadia_TypeDescriptor_getKind(thread, statementType) == Arcadia_TypeKind_Object);
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, operandType, _Arcadia_PDLC_AST_Node_getType(thread)));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, statementType, _Arcadia_PDLC_AST_Node_getType(thread)));
   Arcadia_SizeValue offsets[] = { 0, 1, 255, 256, Arcadia_SizeValue_Maximum };
   for (unsigned i = 0; i < sizeof(offsets) / sizeof(offsets[0]); ++i) {
     Arcadia_Value argument = Arcadia_Value_makeSizeValue(offsets[i]);

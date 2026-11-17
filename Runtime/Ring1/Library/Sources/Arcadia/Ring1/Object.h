@@ -250,7 +250,7 @@ Arcadia_Object_isInstanceOf
     Arcadia_Object* object,
     Arcadia_TypeDescriptor* type
   )
-{ return Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, object), type); }
+{ return Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, object), type); }
 
 // "clone"
 Arcadia_Object*

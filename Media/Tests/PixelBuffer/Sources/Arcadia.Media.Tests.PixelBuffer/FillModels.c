@@ -173,9 +173,9 @@ testPixels
   const char* names[] = { "Arcadia.Media.PixelBufferOperations.Fill", "Arcadia.Media.PixelBufferOperations.CheckerboardFill" };
   for (unsigned i = 0; i < 2; ++i) {
     Arcadia_TypeDescriptorValue type = Arcadia_Object_getType(thread, operations[i]);
-    Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+    Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
     Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == strlen(names[i]) && !memcmp(Arcadia_Name_getBytes(thread, name), names[i], strlen(names[i])));
-    Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, type, _Arcadia_Media_PixelBufferOperation_getType(thread)));
+    Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_Media_PixelBufferOperation_getType(thread)));
     Arcadia_Tests_assertTrue(thread, ((Arcadia_Media_PixelBufferOperationDispatch*)Arcadia_ObjectType_getDispatch(type))->apply != NULL);
   }
   const Arcadia_Natural8Value formats[] = {
