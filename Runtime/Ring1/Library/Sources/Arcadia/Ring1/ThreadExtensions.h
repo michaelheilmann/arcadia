@@ -103,7 +103,7 @@ Define(Arcadia_Real32Value, Real32Value)
 Define(Arcadia_Real64Value, Real64Value)
 Define(Arcadia_ObjectReferenceValue, ObjectReferenceValue)
 Define(Arcadia_SizeValue, SizeValue)
-Define(Arcadia_TypeDescriptorValue, TypeValue)
+Define(Arcadia_TypeDescriptorValue, TypeDescriptorValue)
 Define(Arcadia_VoidValue, VoidValue)
 
 #undef Define

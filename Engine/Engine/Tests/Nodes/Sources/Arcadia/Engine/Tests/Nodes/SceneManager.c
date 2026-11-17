@@ -92,8 +92,8 @@ static const Arcadia_ObjectType_Operations managerObjects = {
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructManagerProbe,
 };
 
-static const Arcadia_Type_Operations managerOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations managerOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &managerObjects,
 };
 
@@ -153,8 +153,8 @@ static const Arcadia_ObjectType_Operations identityObjects = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeIdentityProbe,
 };
 
-static const Arcadia_Type_Operations identityOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations identityOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &identityObjects,
 };
 

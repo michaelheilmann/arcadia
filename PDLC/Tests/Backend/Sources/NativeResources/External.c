@@ -19,8 +19,8 @@
 #include "Test/NativeEnumBox.h"
 #undef TEST_PRIVATE
 
-static const Arcadia_Type_Operations enumOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations enumOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
 };
 
 Arcadia_defineEnumerationType(u8"Test.External.Kind", Test_External_Kind,
@@ -62,8 +62,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectOperations,
 };
 

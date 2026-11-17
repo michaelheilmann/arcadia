@@ -17,8 +17,8 @@
 #define ARCADIA_FILESYSTEM_MODULE (1)
 #include "Arcadia/FileSystem/FileType.h"
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
 };
 
 Arcadia_defineEnumerationType("Arcadia.FileType", Arcadia_FileType,

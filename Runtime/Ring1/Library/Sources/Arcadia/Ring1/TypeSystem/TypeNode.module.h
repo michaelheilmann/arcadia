@@ -39,7 +39,7 @@ struct TypeNode {
   Arcadia_Name* name;
 
 
-  Arcadia_Type_Operations const* typeOperations;
+  Arcadia_TypeDescriptor_Operations const* typeOperations;
   Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing;
 
 };
