@@ -119,7 +119,7 @@ Arcadia_Engine_Visuals_CanvasSizeChangedEvent_construct
     pdlRequire(thread, Arcadia_Value_isObjectReferenceValue(&receiver) && Arcadia_Value_getObjectReferenceValue(&receiver) == (Arcadia_Object*)self);
     Arcadia_ValueStack_pushValue(thread, &args[0]);
     Arcadia_ValueStack_pushNatural8Value(thread, 1);
-    Arcadia_Type_getOperations(_Arcadia_Engine_Visuals_CanvasEvent_getType(thread))->objectTypeOperations->construct(thread, (Arcadia_Object*)self);
+    Arcadia_TypeDescriptor_getOperations(_Arcadia_Engine_Visuals_CanvasEvent_getType(thread))->objectTypeOperations->construct(thread, (Arcadia_Object*)self);
     Arcadia_Object_setType(thread, (Arcadia_Object*)self, _Arcadia_Engine_Visuals_CanvasSizeChangedEvent_getType(thread));
   pdlPut(thread, base, 0, receiver);
     Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - argumentsBase);
@@ -194,8 +194,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)initializeDispatchImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectOperations,
 };
 

@@ -67,7 +67,7 @@ pdlAsEnumeration
   (
     Arcadia_Thread* t,
     Arcadia_Value v,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   pdlRequire(t, Arcadia_Value_isEnumerationValue(&v) && Arcadia_Value_getEnumerationValue(&v).type == type);

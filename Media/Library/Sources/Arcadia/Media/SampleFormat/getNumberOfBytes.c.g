@@ -67,7 +67,7 @@ pdlAsEnumeration
   (
     Arcadia_Thread* t,
     Arcadia_Value v,
-    Arcadia_Type* type
+    Arcadia_TypeDescriptor* type
   )
 {
   pdlRequire(t, Arcadia_Value_isEnumerationValue(&v) && Arcadia_Value_getEnumerationValue(&v).type == type);
@@ -128,7 +128,7 @@ Arcadia_Media_SampleFormat_getNumberOfBytes
   pdlPut(thread, base, 1, pdlGet(thread, base, 4));
   pdlPut(thread, base, 2, Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(_Arcadia_Media_SampleFormat_getType(thread), Arcadia_Media_SampleFormat_Natural8)));
   { Arcadia_Value a = pdlGet(thread, base, 1);
-    Arcadia_ForeignProcedure* op = Arcadia_Type_getOperations(Arcadia_Value_getType(thread, &a))->isEqualTo;
+    Arcadia_ForeignProcedure* op = Arcadia_TypeDescriptor_getOperations(Arcadia_Value_getTypeDescriptor(thread, &a))->isEqualTo;
     if (!op && Arcadia_Value_isEnumerationValue(&a)) {
       Arcadia_Value b = pdlGet(thread, base, 2);
       Arcadia_BooleanValue equal = Arcadia_Value_isEnumerationValue(&b) && Arcadia_Value_isEqualTo(thread, &a, &b);
@@ -149,7 +149,7 @@ Arcadia_Media_SampleFormat_getNumberOfBytes
   pdlPut(thread, base, 1, pdlGet(thread, base, 4));
   pdlPut(thread, base, 2, Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(_Arcadia_Media_SampleFormat_getType(thread), Arcadia_Media_SampleFormat_Integer8)));
   { Arcadia_Value a = pdlGet(thread, base, 1);
-    Arcadia_ForeignProcedure* op = Arcadia_Type_getOperations(Arcadia_Value_getType(thread, &a))->isEqualTo;
+    Arcadia_ForeignProcedure* op = Arcadia_TypeDescriptor_getOperations(Arcadia_Value_getTypeDescriptor(thread, &a))->isEqualTo;
     if (!op && Arcadia_Value_isEnumerationValue(&a)) {
       Arcadia_Value b = pdlGet(thread, base, 2);
       Arcadia_BooleanValue equal = Arcadia_Value_isEnumerationValue(&b) && Arcadia_Value_isEqualTo(thread, &a, &b);
@@ -170,7 +170,7 @@ Arcadia_Media_SampleFormat_getNumberOfBytes
   pdlPut(thread, base, 1, pdlGet(thread, base, 4));
   pdlPut(thread, base, 2, Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(_Arcadia_Media_SampleFormat_getType(thread), Arcadia_Media_SampleFormat_Natural16)));
   { Arcadia_Value a = pdlGet(thread, base, 1);
-    Arcadia_ForeignProcedure* op = Arcadia_Type_getOperations(Arcadia_Value_getType(thread, &a))->isEqualTo;
+    Arcadia_ForeignProcedure* op = Arcadia_TypeDescriptor_getOperations(Arcadia_Value_getTypeDescriptor(thread, &a))->isEqualTo;
     if (!op && Arcadia_Value_isEnumerationValue(&a)) {
       Arcadia_Value b = pdlGet(thread, base, 2);
       Arcadia_BooleanValue equal = Arcadia_Value_isEnumerationValue(&b) && Arcadia_Value_isEqualTo(thread, &a, &b);
@@ -191,7 +191,7 @@ Arcadia_Media_SampleFormat_getNumberOfBytes
   pdlPut(thread, base, 1, pdlGet(thread, base, 4));
   pdlPut(thread, base, 2, Arcadia_Value_makeEnumerationValue(Arcadia_EnumerationValue_make(_Arcadia_Media_SampleFormat_getType(thread), Arcadia_Media_SampleFormat_Integer16)));
   { Arcadia_Value a = pdlGet(thread, base, 1);
-    Arcadia_ForeignProcedure* op = Arcadia_Type_getOperations(Arcadia_Value_getType(thread, &a))->isEqualTo;
+    Arcadia_ForeignProcedure* op = Arcadia_TypeDescriptor_getOperations(Arcadia_Value_getTypeDescriptor(thread, &a))->isEqualTo;
     if (!op && Arcadia_Value_isEnumerationValue(&a)) {
       Arcadia_Value b = pdlGet(thread, base, 2);
       Arcadia_BooleanValue equal = Arcadia_Value_isEnumerationValue(&b) && Arcadia_Value_isEqualTo(thread, &a, &b);
