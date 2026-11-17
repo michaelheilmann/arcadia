@@ -81,9 +81,6 @@
 
 #define Arcadia_ValueTag_TypeDescriptor (19)
 
-/// @brief Temporary compatibility alias for the boxed descriptor tag.
-#define Arcadia_ValueTag_Type Arcadia_ValueTag_TypeDescriptor
-
 #define Arcadia_ValueTag_Enumeration (20)
 
 // The tag for type "Void" must be 0.
@@ -125,9 +122,6 @@ typedef struct Arcadia_Value {
     Define(Arcadia, Size, size)
 
     Define(Arcadia, TypeDescriptor, typeDescriptor)
-
-    /// @brief Temporary alias of the descriptor pointer union member.
-    Arcadia_TypeDescriptorValue typeValue;
 
     Define(Arcadia, Void, void)
 
@@ -233,47 +227,6 @@ Arcadia_Value_getTypeDescriptor
     Arcadia_Value const* self
   );
 
-/// @brief Temporary compatibility spelling for querying the descriptor of a value.
-static inline Arcadia_TypeDescriptorValue
-Arcadia_Value_getType
-  (
-    Arcadia_Thread* thread,
-    Arcadia_Value const* self
-  )
-{ return Arcadia_Value_getTypeDescriptor(thread, self); }
-
-/// @brief Temporary spelling for extracting a boxed descriptor.
-static inline Arcadia_TypeDescriptorValue
-Arcadia_Value_getTypeValue
-  (
-    Arcadia_Value const* self
-  )
-{ return Arcadia_Value_getTypeDescriptorValue(self); }
-
-/// @brief Temporary spelling for testing a boxed descriptor.
-static inline bool
-Arcadia_Value_isTypeValue
-  (
-    Arcadia_Value const* self
-  )
-{ return Arcadia_Value_isTypeDescriptorValue(self); }
-
-/// @brief Temporary spelling for setting a boxed descriptor.
-static inline void
-Arcadia_Value_setTypeValue
-  (
-    Arcadia_Value* self,
-    Arcadia_TypeDescriptorValue descriptor
-  )
-{ Arcadia_Value_setTypeDescriptorValue(self, descriptor); }
-
-/// @brief Temporary spelling for constructing a boxed descriptor.
-static inline Arcadia_Value
-Arcadia_Value_makeTypeValue
-  (
-    Arcadia_TypeDescriptorValue descriptor
-  )
-{ return Arcadia_Value_makeTypeDescriptorValue(descriptor); }
 
 Arcadia_BooleanValue
 Arcadia_Value_isEqualTo

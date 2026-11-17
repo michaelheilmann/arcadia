@@ -27,9 +27,6 @@
 /// Types are not garbage collected. Once a type was added, it remains there until the process terminates.
 typedef void Arcadia_TypeDescriptor;
 
-/// @brief Temporary source-compatibility alias during the type descriptor migration.
-typedef Arcadia_TypeDescriptor Arcadia_Type;
-
 /// @brief The opaque C type representing an enumeration type.
 typedef void Arcadia_EnumerationType;
 
@@ -47,9 +44,6 @@ typedef void Arcadia_ScalarType;
 
 /// @brief A pointer to a type or the null pointer.
 typedef Arcadia_TypeDescriptor* Arcadia_TypeDescriptorValue;
-
-/// @brief Temporary source-compatibility alias during the type descriptor migration.
-typedef Arcadia_TypeDescriptorValue Arcadia_TypeValue;
 
 /// @brief Get the type of a specified name.
 /// @param thread A pointer to this thread.
