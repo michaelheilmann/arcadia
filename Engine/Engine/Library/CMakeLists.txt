@@ -261,6 +261,7 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Engine/Input/MousePointerAction.pdl)
   OnSourceFile(${this} Arcadia/Engine/Input/MousePointerEvent.c.g)
   OnHeaderFile(${this} Arcadia/Engine/Input/MousePointerEvent.h)
+  OnHeaderFile(${this} Arcadia/Engine/Input/MousePointerEventExtensions.h)
   OnSourceFile(${this} Arcadia/Engine/Input/MousePointerEvent.pdl)
 
   OnSourceFile(${this} Arcadia/Engine/Visuals/Diagnostics.c)
