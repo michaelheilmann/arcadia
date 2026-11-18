@@ -29,6 +29,7 @@ struct Arcadia_Imaging_ImageManagerDispatch {
 struct Arcadia_Imaging_ImageManager {
   Arcadia_Object _parent;
   Arcadia_List* writers;
+  Arcadia_List* readers;
 };
 
 /// @brief Get or create the image manager singleton object.
@@ -46,6 +47,15 @@ Arcadia_Imaging_ImageManager_getOrCreate
 /// @return A pointer to a list of image writers.
 Arcadia_List*
 Arcadia_Imaging_ImageManager_getWriters
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Imaging_ImageManager* self,
+    Arcadia_String* extension
+  );
+
+/// @brief Get all readers supporting an extension ("png" or "ico").
+Arcadia_List*
+Arcadia_Imaging_ImageManager_getReaders
   (
     Arcadia_Thread* thread,
     Arcadia_Imaging_ImageManager* self,
