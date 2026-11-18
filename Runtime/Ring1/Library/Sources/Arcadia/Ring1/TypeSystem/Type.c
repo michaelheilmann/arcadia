@@ -24,7 +24,7 @@ Arcadia_Name*
 Arcadia_TypeDescriptor_getName
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
 {
   assert(NULL != self);
@@ -36,7 +36,7 @@ size_t
 Arcadia_TypeDescriptor_getHash
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
 {
   assert(NULL != self);
@@ -48,7 +48,7 @@ Arcadia_TypeKind
 Arcadia_TypeDescriptor_getKind
   (
     Arcadia_Thread* thread,
-    Arcadia_TypeValue self
+    Arcadia_TypeDescriptorValue self
   )
 {
   assert(NULL != self);

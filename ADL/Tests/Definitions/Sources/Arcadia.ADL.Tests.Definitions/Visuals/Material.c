@@ -78,8 +78,8 @@ checkMaterialEnum
 {
   Arcadia_SizeValue entry = Arcadia_ValueStack_getSize(thread);
   Arcadia_TypeDescriptorValue type = getType(thread);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_getKind(thread, type) == Arcadia_TypeKind_Enumeration);
   Arcadia_Tests_assertTrue(thread, Arcadia_Name_getNumberOfBytes(thread, name) == strlen(expectedName));
   Arcadia_Tests_assertTrue(thread, !memcmp(Arcadia_Name_getBytes(thread, name), expectedName, strlen(expectedName)));
   for (Arcadia_SizeValue i = 0; i < count; ++i) {

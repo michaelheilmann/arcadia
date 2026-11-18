@@ -53,7 +53,7 @@ Arcadia_Diagnostics_logValueStack
   for (Arcadia_SizeValue index = 0; index < size; ++index) {
     Arcadia_Value value = Arcadia_ValueStack_getValue(thread, index);
     Arcadia_TypeDescriptorValue type = Arcadia_Value_getTypeDescriptor(thread, &value);
-    Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+    Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
     Arcadia_logf(Arcadia_LogFlags_Debug,
                  "%zu) %.*s\n",
                  index,
@@ -73,7 +73,7 @@ Arcadia_Diagnostics_logValueStackElement
 {
   Arcadia_Value value = Arcadia_ValueStack_getValue(thread, index);
   Arcadia_TypeDescriptorValue type = Arcadia_Value_getTypeDescriptor(thread, &value);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
   Arcadia_logf(logFlags,
                "%zu) %.*s\n",
                index,
@@ -91,7 +91,7 @@ Arcadia_Diagnostics_logValue
   )
 {
   Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
   Arcadia_logf(logFlags, u8"%.*s\n", Arcadia_Name_getNumberOfBytes(thread, name) > INT_MAX ? INT_MAX : Arcadia_Name_getNumberOfBytes(thread, name),
                                      Arcadia_Name_getBytes(thread, name));
 }
@@ -106,7 +106,7 @@ Arcadia_Diagnostics_logObjectType
   )
 {
   Arcadia_TypeDescriptor* type = Arcadia_Object_getType(thread, object);
-  Arcadia_Name* name = Arcadia_Type_getName(thread, type);
+  Arcadia_Name* name = Arcadia_TypeDescriptor_getName(thread, type);
   Arcadia_logf(logFlags, u8"%.*s\n", Arcadia_Name_getNumberOfBytes(thread, name) > INT_MAX ? INT_MAX : Arcadia_Name_getNumberOfBytes(thread, name),
                                      Arcadia_Name_getBytes(thread, name));
 }

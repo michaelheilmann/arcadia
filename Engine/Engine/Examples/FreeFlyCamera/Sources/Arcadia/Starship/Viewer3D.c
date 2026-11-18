@@ -44,8 +44,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_Starship_Viewer3D_objectType
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Starship_Viewer3D_visit,
 };
 
-static const Arcadia_Type_Operations _Arcadia_Starship_Viewer3D_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_Starship_Viewer3D_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_Starship_Viewer3D_objectTypeOperations,
 };
 

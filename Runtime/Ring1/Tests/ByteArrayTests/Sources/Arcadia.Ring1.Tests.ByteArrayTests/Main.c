@@ -136,8 +136,8 @@ static const Arcadia_ObjectType_Operations _stridedObjectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&Arcadia_TestStridedByteArray_initializeDispatch,
 };
 
-static const Arcadia_Type_Operations _stridedTypeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _stridedTypeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_stridedObjectTypeOperations,
 };
 

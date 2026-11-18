@@ -660,7 +660,7 @@ assertConstructorRejects
   (
     Arcadia_Thread* thread,
     Arcadia_Object* object,
-    Arcadia_Type* type,
+    Arcadia_TypeDescriptor* type,
     Arcadia_Value* arguments,
     Arcadia_Natural8Value count,
     Arcadia_Status expected
@@ -674,7 +674,7 @@ assertConstructorRejects
     for (Arcadia_Natural8Value i = 0; i < count; ++i) Arcadia_ValueStack_pushValue(thread, &arguments[i]);
     Arcadia_ValueStack_pushNatural8Value(thread, count);
     // Check the callback's diagnostic rather than create's failed-stack-frame status.
-    Arcadia_Type_getOperations(type)->objectTypeOperations->construct(thread, object);
+    Arcadia_TypeDescriptor_getOperations(type)->objectTypeOperations->construct(thread, object);
   } else raised = Arcadia_BooleanValue_True;
   Arcadia_Thread_popJumpTarget(thread);
   Arcadia_Status status = Arcadia_Thread_getStatus(thread);
@@ -702,7 +702,7 @@ testReferenceConstructors
     root(thread, (Arcadia_Object*)Arcadia_VPL_IR_MemberReferenceValue_create(thread, recordRef, fieldName, f.integer)),
     root(thread, (Arcadia_Object*)Arcadia_VPL_IR_IndexReferenceValue_create(thread, arrayRef, (Arcadia_VPL_IR_Value*)f.one, f.integer))
   };
-  Arcadia_Type* types[] = { _Arcadia_VPL_IR_MemberReferenceValue_getType(thread), _Arcadia_VPL_IR_IndexReferenceValue_getType(thread) };
+  Arcadia_TypeDescriptor* types[] = { _Arcadia_VPL_IR_MemberReferenceValue_getType(thread), _Arcadia_VPL_IR_IndexReferenceValue_getType(thread) };
   Arcadia_Value arguments[][3] = {
     { Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)recordRef), Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)fieldName), Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)f.integer) },
     { Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)arrayRef), Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)f.one), Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)f.integer) }

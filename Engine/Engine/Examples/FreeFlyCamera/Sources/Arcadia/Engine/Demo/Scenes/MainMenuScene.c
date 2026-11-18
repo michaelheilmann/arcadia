@@ -190,8 +190,8 @@ static const Arcadia_ObjectType_Operations _Arcadia_Engine_Demo_MainMenuScene_ob
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Engine_Demo_MainMenuScene_visit,
 };
 
-static const Arcadia_Type_Operations _Arcadia_Engine_Demo_MainMenuScene_typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _Arcadia_Engine_Demo_MainMenuScene_typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_Arcadia_Engine_Demo_MainMenuScene_objectTypeOperations,
 };
 

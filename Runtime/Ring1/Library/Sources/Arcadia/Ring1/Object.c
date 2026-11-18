@@ -257,7 +257,7 @@ _Arcadia_Object_onFinalizeObject
     return;
   }
   while (type) {
-    Arcadia_Object_DestructCallbackFunction* destruct = Arcadia_Type_getDestructObjectCallbackFunction(type);
+    Arcadia_Object_DestructCallbackFunction* destruct = Arcadia_TypeDescriptor_getDestructObjectCallbackFunction(type);
     if (destruct) {
       destruct(Arcadia_Process_getThread(process), (Arcadia_Object*)(((ObjectTag*)object) + 1));
     }
@@ -280,7 +280,7 @@ _Arcadia_Object_onVisitObject
     return;
   }
   while (type) {
-    Arcadia_Object_VisitCallbackFunction* visit = Arcadia_Type_getVisitObjectCallbackFunction(type);
+    Arcadia_Object_VisitCallbackFunction* visit = Arcadia_TypeDescriptor_getVisitObjectCallbackFunction(type);
     if (visit) {
       visit(Arcadia_Process_getThread(process), (Arcadia_Object*)(((ObjectTag*)object) + 1));
     }

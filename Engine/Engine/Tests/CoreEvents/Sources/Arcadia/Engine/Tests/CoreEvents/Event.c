@@ -79,8 +79,8 @@ static const Arcadia_ObjectType_Operations objectOperations = {
   .destruct = (Arcadia_Object_DestructCallbackFunction*)&destructImpl,
 };
 
-static const Arcadia_Type_Operations typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &objectOperations,
 };
 

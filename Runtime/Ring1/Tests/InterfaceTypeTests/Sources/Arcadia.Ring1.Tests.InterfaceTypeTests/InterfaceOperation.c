@@ -184,7 +184,7 @@ testInterfaceOperation
   // The object type derives from "Arcadia.Object" and implements the interface type.
   Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isInterfaceKind(thread, interfaceType));
   Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isObjectKind(thread, objectType));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectType, interfaceType));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectType, interfaceType));
 
   Arcadia_Object* object = (Arcadia_Object*)Arcadia_MyObjectA_create(thread);
   Arcadia_Tests_assertTrue(thread, NULL != object);

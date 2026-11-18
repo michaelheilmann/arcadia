@@ -70,8 +70,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 
@@ -98,7 +98,7 @@ constructImpl
     Arcadia_superTypeConstructor(thread, _type, self);
   }
   Arcadia_EnumerationValue enumerationValue = Arcadia_ValueStack_getEnumerationValue(thread, 1);
-  if (!Arcadia_Type_isDescendantType(thread, enumerationValue.type, _Arcadia_TemplateEngine_WordType_getType(thread))) {
+  if (!Arcadia_TypeDescriptor_isDescendantType(thread, enumerationValue.type, _Arcadia_TemplateEngine_WordType_getType(thread))) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
     Arcadia_Thread_jump(thread);
   }

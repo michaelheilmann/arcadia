@@ -35,9 +35,9 @@
   - `Arcadia_declareEnumerationType` / `Arcadia_defineEnumerationType` in `Enumeration.h`.
 - `Arcadia_declareInterfaceType(_cilName, _cName)` and `Arcadia_defineInterfaceType(_cilName, _cName, ...)` are variadic; `Arcadia_defineInterfaceType` requires a `NULL` `extends` terminator and a parent interface type is mandatory for a derived interface.
 - `Arcadia_defineObjectTypeWithInterfaces` is variadic and requires a parent object type. The interface specifications are passed as bare braced specifiers, one per implemented interface, without an extra outer list.
-- `Arcadia_TypeKind` (`TypeSystem/TypeKind.h`) has exactly the kinds `Enumeration`, `Interface`, `Internal`, `Object`, `Scalar`. The kind accessor is spelled `Arcadia_Type_isInterfacelKind` (with the trailing `l`) - that typo is in the real API.
+- `Arcadia_TypeKind` (`TypeSystem/TypeKind.h`) has exactly the kinds `Enumeration`, `Interface`, `Internal`, `Object`, `Scalar`. The interface-kind accessor is `Arcadia_TypeDescriptor_isInterfaceKind`; the obsolete misspelling `Arcadia_Type_isInterfacelKind` was retired by #179.
 - Per-type storage: `ObjectTypeNode.module.{h,c}` holds an object's per-interface implementation records; `InterfaceTypeNode.module.{h,c}` holds interface dispatch sizes and ancestor interfaces; `TypeNode.module.{h,c}` is the shared base.
-- Scalar Type_Operations must leave objectTypeOperations null, even when an object-operations table would be empty. Natural16 previously violated this registrar invariant; NaturalToStringTests now exercises its real descriptor registration and equality/inequality at zero/one/maximum values. UI ValueControl's general-value round trips also cover Natural16.
+- Scalar `Arcadia_TypeDescriptor_Operations` must leave `objectTypeOperations` null, even when an object-operations table would be empty. Natural16 previously violated this registrar invariant; NaturalToStringTests now exercises its real descriptor registration and equality/inequality at zero/one/maximum values. UI ValueControl's general-value round trips also cover Natural16.
 
 ## Interface Dispatch Semantics
 

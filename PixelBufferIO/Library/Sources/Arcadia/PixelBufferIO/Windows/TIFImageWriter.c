@@ -169,7 +169,7 @@ Arcadia_Imaging_Windows_TIFImageWriter_write
     Arcadia_Thread_jump(thread);
   }
   Arcadia_ObjectReferenceValue sourceObject = Arcadia_List_getObjectReferenceValueAt(thread, source, 0);
-  if (!Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, sourceObject), _Arcadia_Media_PixelBuffer_getType(thread))) {
+  if (!Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, sourceObject), _Arcadia_Media_PixelBuffer_getType(thread))) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
@@ -205,8 +205,8 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&Arcadia_Imaging_Windows_TIFImageWriter_visit,
 };
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
   .objectTypeOperations = &_objectTypeOperations,
 };
 

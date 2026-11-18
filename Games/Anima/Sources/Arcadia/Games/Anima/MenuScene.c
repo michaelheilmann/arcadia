@@ -204,7 +204,7 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)&initializeDispatchImpl,
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
-static const Arcadia_Type_Operations _typeOperations = { Arcadia_Type_Operations_Initializer, .objectTypeOperations = &_objectTypeOperations };
+static const Arcadia_TypeDescriptor_Operations _typeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &_objectTypeOperations };
 
 Arcadia_defineObjectType(u8"Arcadia.Games.Anima.MenuScene", Arcadia_Games_Anima_MenuScene,
                          u8"Arcadia.Engine.Scene", Arcadia_Engine_Scene, &_typeOperations);

@@ -17,8 +17,8 @@
 #define ARCADIA_RING1_MODULE (1)
 #include "Arcadia/Ring1/Objects/UnicodeCodePointReader.State.h"
 
-static const Arcadia_Type_Operations _typeOperations = {
-  Arcadia_Type_Operations_Initializer,
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
 };
 
 Arcadia_defineEnumerationType(u8"Arcadia.UnicodeCodePointReader.State", Arcadia_UnicodeCodePointReader_State,

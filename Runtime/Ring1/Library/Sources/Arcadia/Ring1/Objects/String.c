@@ -189,7 +189,7 @@ Arcadia_String_constructImpl
     fromRuntimeUTF8String(thread, &self->immutableUTF8String, Arcadia_Value_getRuntimeUTF8StringValue(&x));
   } else if (Arcadia_Value_isObjectReferenceValue(&x)) {
     Arcadia_ObjectReferenceValue referenceValue = Arcadia_Value_getObjectReferenceValue(&x);
-    if (Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, referenceValue), _Arcadia_ByteArrayBuilder_getType(thread))) {
+    if (Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, referenceValue), _Arcadia_ByteArrayBuilder_getType(thread))) {
       Arcadia_ByteArrayBuilder* object = (Arcadia_ByteArrayBuilder*)referenceValue;
       self->immutableUTF8String =
         Arcadia_RuntimeUTF8String_create
@@ -198,10 +198,10 @@ Arcadia_String_constructImpl
             Arcadia_ByteArrayBuilder_getBytes(thread, object),
             Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, object)
           );
-    } else if (Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, referenceValue), _Arcadia_String_getType(thread))) {
+    } else if (Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, referenceValue), _Arcadia_String_getType(thread))) {
       Arcadia_String* object = (Arcadia_String*)referenceValue;
       self->immutableUTF8String = object->immutableUTF8String;
-    } else if (Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, referenceValue), _Arcadia_StringBuilder_getType(thread))) {
+    } else if (Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, referenceValue), _Arcadia_StringBuilder_getType(thread))) {
       Arcadia_StringBuilder* object = (Arcadia_StringBuilder*)referenceValue;
       self->immutableUTF8String = Arcadia_RuntimeUTF8String_create(thread, Arcadia_StringBuilder_getBytes(thread, object), Arcadia_StringBuilder_getNumberOfBytes(thread, object));
     } else {
@@ -247,7 +247,7 @@ isEqualToImpl
   }
   assert(NULL != b0);
   assert(Arcadia_Object_isInstanceOf(thread, b0, _Arcadia_Object_getType(thread)));
-  if (!Arcadia_Type_isDescendantType(thread, Arcadia_Object_getType(thread, b0), _Arcadia_String_getType(thread))) {
+  if (!Arcadia_TypeDescriptor_isDescendantType(thread, Arcadia_Object_getType(thread, b0), _Arcadia_String_getType(thread))) {
     Arcadia_ValueStack_pushBooleanValue(thread, Arcadia_BooleanValue_False);
     return;
   }

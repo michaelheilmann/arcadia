@@ -75,8 +75,8 @@ testInterfaceImplementationMustBeClosedUnderAncestors
       );
   g_closedObject_type = object;
 
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, object, derived));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, object, ancestor));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, object, derived));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, object, ancestor));
 
   Arcadia_InterfaceDispatch* derivedDispatch =
     (Arcadia_InterfaceDispatch*)Arcadia_ObjectType_getInterfaceDispatch(thread, (Arcadia_ObjectType*)object, (Arcadia_InterfaceType*)derived);

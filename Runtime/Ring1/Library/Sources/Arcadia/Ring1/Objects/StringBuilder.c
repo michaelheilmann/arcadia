@@ -324,12 +324,12 @@ Arcadia_StringBuilder_insertAt
   Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
-  if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
+  if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
     // The Byte sequence of Arcadia.RuntimeUTF8String is guaranteed to be an UTF8 Byte sequence.
     Arcadia_RuntimeUTF8String* object = (Arcadia_RuntimeUTF8String*)Arcadia_Value_getRuntimeUTF8StringValue(&value);
     n = Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, object);
     p = Arcadia_RuntimeUTF8String_getBytes(thread, object);
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeByteArrayValue_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeByteArrayValue_getType(thread))) {
     Arcadia_RuntimeByteArray* object = (Arcadia_RuntimeByteArray*)Arcadia_Value_getRuntimeByteArrayValue(&value);
     if (!Arcadia_Unicode_isUTF8(thread, p, n, NULL)) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
@@ -337,7 +337,7 @@ Arcadia_StringBuilder_insertAt
     }
     n = Arcadia_RuntimeByteArray_getNumberOfBytes(thread, object);
     p = Arcadia_RuntimeByteArray_getBytes(thread, object);
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread))) {
     Arcadia_ByteArrayBuilder* object = (Arcadia_ByteArrayBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
     n = Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, object);
     p = Arcadia_ByteArrayBuilder_getBytes(thread, object);
@@ -345,12 +345,12 @@ Arcadia_StringBuilder_insertAt
       Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
       Arcadia_Thread_jump(thread);
     }
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
     // The Byte sequence of Arcadia.String is guaranteed to be an UTF8 Byte sequence.
     Arcadia_String* object = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&value);
     n = Arcadia_String_getNumberOfBytes(thread, object);
     p = Arcadia_String_getBytes(thread, object);
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
     // The Byte sequence of Arcadia.StringBuilder is guaranteed to be an UTF8 Byte sequence.
     Arcadia_StringBuilder* object = (Arcadia_StringBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
     n = Arcadia_StringBuilder_getNumberOfBytes(thread, object);
@@ -378,12 +378,12 @@ Arcadia_StringBuilder_insertBack
   Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
-  if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
+  if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
     // The Byte sequence of Arcadia.RuntimeUTF8String is guaranteed to be an UTF8 Byte sequence.
     Arcadia_RuntimeUTF8String* object = (Arcadia_RuntimeUTF8String*)Arcadia_Value_getRuntimeUTF8StringValue(&value);
     n = Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, object);
     p = Arcadia_RuntimeUTF8String_getBytes(thread, object);
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeByteArrayValue_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeByteArrayValue_getType(thread))) {
     Arcadia_RuntimeByteArray* object = (Arcadia_RuntimeByteArray*)Arcadia_Value_getRuntimeByteArrayValue(&value);
     n = Arcadia_RuntimeByteArray_getNumberOfBytes(thread, object);
     p = Arcadia_RuntimeByteArray_getBytes(thread, object);
@@ -391,7 +391,7 @@ Arcadia_StringBuilder_insertBack
       Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
       Arcadia_Thread_jump(thread);
     }
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread))) {
     Arcadia_ByteArrayBuilder* object = (Arcadia_ByteArrayBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
     n = Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, object);
     p = Arcadia_ByteArrayBuilder_getBytes(thread, object);
@@ -399,12 +399,12 @@ Arcadia_StringBuilder_insertBack
       Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
       Arcadia_Thread_jump(thread);
     }
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
     // The Byte sequence of Arcadia.String is guaranteed to be an UTF8 Byte sequence.
     Arcadia_String* object = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&value);
     n = Arcadia_String_getNumberOfBytes(thread, object);
     p = Arcadia_String_getBytes(thread, object);
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
     // The Byte sequence of Arcadia.StringBuilder is guaranteed to be an UTF8 Byte sequence.
     Arcadia_StringBuilder* object = (Arcadia_StringBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
     n = Arcadia_StringBuilder_getNumberOfBytes(thread, object);
@@ -429,12 +429,12 @@ Arcadia_StringBuilder_insertFront
   Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
-  if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
+  if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
     // The Byte sequence of Arcadia.RuntimeUTF8String is guaranteed to be an UTF8 Byte sequence.
     Arcadia_RuntimeUTF8String* object = (Arcadia_RuntimeUTF8String*)Arcadia_Value_getRuntimeUTF8StringValue(&value);
     n = Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, object);
     p = Arcadia_RuntimeUTF8String_getBytes(thread, object);
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeByteArrayValue_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeByteArrayValue_getType(thread))) {
     Arcadia_RuntimeByteArray* object = (Arcadia_RuntimeByteArray*)Arcadia_Value_getRuntimeByteArrayValue(&value);
     if (!Arcadia_Unicode_isUTF8(thread, p, n, NULL)) {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
@@ -442,7 +442,7 @@ Arcadia_StringBuilder_insertFront
     }
     n = Arcadia_RuntimeByteArray_getNumberOfBytes(thread, object);
     p = Arcadia_RuntimeByteArray_getBytes(thread, object);
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread))) {
     Arcadia_ByteArrayBuilder* object = (Arcadia_ByteArrayBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
     n = Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, object);
     p = Arcadia_ByteArrayBuilder_getBytes(thread, object);
@@ -450,12 +450,12 @@ Arcadia_StringBuilder_insertFront
       Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
       Arcadia_Thread_jump(thread);
     }
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
     // The Byte sequence of Arcadia.String is guaranteed to be an UTF8 Byte sequence.
     Arcadia_String* object = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&value);
     n = Arcadia_String_getNumberOfBytes(thread, object);
     p = Arcadia_String_getBytes(thread, object);
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
     // The Byte sequence of Arcadia.StringBuilder is guaranteed to be an UTF8 Byte sequence.
     Arcadia_StringBuilder* object = (Arcadia_StringBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
     n = Arcadia_StringBuilder_getNumberOfBytes(thread, object);
@@ -525,17 +525,17 @@ Arcadia_StringBuilder_compareTo
   Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &other);
   Arcadia_Natural8Value const* p = NULL;
   Arcadia_SizeValue n = 0;
-  if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
+  if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
     // The Byte sequence of Arcadia.RuntimeUTF8String is guaranteed to be an UTF8 Byte sequence.
     Arcadia_RuntimeUTF8String* object = (Arcadia_RuntimeUTF8String*)Arcadia_Value_getRuntimeUTF8StringValue(&other);
     n = Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, object);
     p = Arcadia_RuntimeUTF8String_getBytes(thread, object);
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
     // The Byte sequence of Arcadia.String is guaranteed to be an UTF8 Byte sequence.
     Arcadia_String* object = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&other);
     n = Arcadia_String_getNumberOfBytes(thread, object);
     p = Arcadia_String_getBytes(thread, object);
-  } else if (Arcadia_Type_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
     // The Byte sequence of Arcadia.StringBuilder is guaranteed to be an UTF8 Byte sequence.
     Arcadia_StringBuilder* object = (Arcadia_StringBuilder*)Arcadia_Value_getObjectReferenceValue(&other);
     n = Arcadia_StringBuilder_getNumberOfBytes(thread, object);

@@ -334,8 +334,8 @@ testInterfaceOperationOverride
   // "Arcadia.MyObjectY" is the parent object type of "Arcadia.MyObjectX", and both object types are
   // descendants of the interface type.
   Arcadia_Tests_assertTrue(thread, objectYType == Arcadia_ObjectType_getParentObjectType(thread, (Arcadia_ObjectType*)objectXType));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectYType, interfaceType));
-  Arcadia_Tests_assertTrue(thread, Arcadia_Type_isDescendantType(thread, objectXType, interfaceType));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectYType, interfaceType));
+  Arcadia_Tests_assertTrue(thread, Arcadia_TypeDescriptor_isDescendantType(thread, objectXType, interfaceType));
 
   Arcadia_Object* objectY = (Arcadia_Object*)Arcadia_MyObjectY_create(thread);
   Arcadia_Object* objectX = (Arcadia_Object*)Arcadia_MyObjectX_create(thread);

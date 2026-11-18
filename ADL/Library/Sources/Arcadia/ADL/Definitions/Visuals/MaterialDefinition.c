@@ -77,7 +77,7 @@ Arcadia_ADL_MaterialDefinition_linkImpl
   Arcadia_ADL_Reference_resolve(thread, self->ambientColorTexture);
   if (!Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)self->ambientColorTexture->definition, _Arcadia_ADL_TextureDefinition_getType(thread))) {
     Arcadia_TypeDescriptor* type = Arcadia_Object_getType(thread, (Arcadia_Object*)self->ambientColorTexture->definition);
-    Arcadia_Name* typeName = Arcadia_Type_getName(thread, type);
+    Arcadia_Name* typeName = Arcadia_TypeDescriptor_getName(thread, type);
     Arcadia_StringBuilder* stringBuilder = Arcadia_StringBuilder_create(thread);
     Arcadia_StringBuilder_insertBackCxxString(thread, stringBuilder, u8"expected Arcadia.ADL.TextureDefinition, received ");
     Arcadia_StringBuilder_insertBackString(thread, stringBuilder, Arcadia_String_create(thread, Arcadia_Value_makeRuntimeUTF8StringValue(Arcadia_RuntimeUTF8String_create(thread, Arcadia_Name_getBytes(thread, typeName), Arcadia_Name_getNumberOfBytes(thread, typeName)))));
