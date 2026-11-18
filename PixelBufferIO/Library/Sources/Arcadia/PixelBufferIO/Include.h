@@ -19,6 +19,8 @@
 
 #include "Arcadia/PixelBufferIO/ImageManager.h"
 #include "Arcadia/PixelBufferIO/ImageWriter.h"
+#include "Arcadia/PixelBufferIO/ImageReader.h"
+#include "Arcadia/PixelBufferIO/ImageReaderParameters.h"
 
 #include "Arcadia/Media/Include.h"
 

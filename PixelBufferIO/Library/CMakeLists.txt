@@ -77,6 +77,17 @@ if (NOT TARGET ${this})
 
   OnConfigurationFile(${this} ${CMAKE_CURRENT_BINARY_DIR}/Sources/Arcadia/PixelBufferIO/Configure.h ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Arcadia/PixelBufferIO/Configure.h.i)
 
+  OnSourceFile(${this} Arcadia/PixelBufferIO/ImageReaderParameters.c)
+  OnHeaderFile(${this} Arcadia/PixelBufferIO/ImageReaderParameters.h)
+  OnSourceFile(${this} Arcadia/PixelBufferIO/ImageReader.c)
+  OnHeaderFile(${this} Arcadia/PixelBufferIO/ImageReader.h)
+  OnSourceFile(${this} Arcadia/PixelBufferIO/ImageReaderInput.c)
+  OnHeaderFile(${this} Arcadia/PixelBufferIO/ImageReaderInput.h)
+  OnSourceFile(${this} Arcadia/PixelBufferIO/PNGImageReader.c)
+  OnHeaderFile(${this} Arcadia/PixelBufferIO/PNGImageReader.h)
+  OnSourceFile(${this} Arcadia/PixelBufferIO/ICOImageReader.c)
+  OnHeaderFile(${this} Arcadia/PixelBufferIO/ICOImageReader.h)
+
   OnSourceFile(${this} Arcadia/PixelBufferIO/ImageWriterParameters.c)
   OnHeaderFile(${this} Arcadia/PixelBufferIO/ImageWriterParameters.h)
   OnSourceFile(${this} Arcadia/PixelBufferIO/ImageWriter.c)
