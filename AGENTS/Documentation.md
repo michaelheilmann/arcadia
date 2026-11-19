@@ -32,6 +32,14 @@
 - Rely on the template engine dependency file support for included fragments. If an included file is not tracked after a build, inspect the template include path rather than adding generated files manually.
 - Each template depfile must describe the generated page as depending on every transitively included template. Input-to-input rules are not separate generated outputs and Ninja rejects them with "inputs may not also have inputs". Keep the real CLI/CMake Depfile regression's cold build, depfile reload, escaped-path and deepest-include incremental checks; rendering correct text alone does not validate dependency metadata.
 
+## Documentation Diagrams And Static Assets
+
+- Prefer separately maintained SVG source files for documentation diagrams instead of embedding large inline SVG blocks in HTML or template fragments.
+- Register each SVG as a documentation resource with the existing CMake file-copy mechanism (`MyCopyFile` within the relevant `BeginTemplateEngine` / `EndTemplateEngine` group); do not invent an independent copier.
+- Copy static assets alongside the generated HTML page, under its `.Website` subtree. Reference them with relative `<img src="...">` paths so locally generated pages and published pages resolve the same resources.
+- Supply informative `alt` text and surrounding explanatory prose or a caption. Keep diagrams scalable and their source editable.
+- Verify source-to-copy-to-HTML paths and the rendered page when a runnable documentation build is available.
+
 ## Tool Documentation Code Presentation
 
 - Tool documentation pages use the `my-tool-documentation` class on the `<body>` element. Shared styling lives in `Documentation/tool-documentation-css.i` and is included by `Documentation/index.css.te`.

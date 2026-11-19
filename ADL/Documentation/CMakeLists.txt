@@ -35,4 +35,24 @@ BeginTemplateEngine(${MyProjectName}.ADL.BuildDocs "ADL")
                     "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/ADL/Specification/index.html"
                    "${CMAKE_CURRENT_SOURCE_DIR}/website.env")
 
+  # Copy standalone diagrams referenced by the ADL specification.
+  MyCopyFile(${MyProjectName}.ADL.BuildDocs
+             "${CMAKE_CURRENT_SOURCE_DIR}/Specification/images/stack-orientation.svg"
+             "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/ADL/Specification/images/stack-orientation.svg")
+  MyCopyFile(${MyProjectName}.ADL.BuildDocs
+             "${CMAKE_CURRENT_SOURCE_DIR}/Specification/images/cross-alignment.svg"
+             "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/ADL/Specification/images/cross-alignment.svg")
+  MyCopyFile(${MyProjectName}.ADL.BuildDocs
+             "${CMAKE_CURRENT_SOURCE_DIR}/Specification/images/panel-size-policy.svg"
+             "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/ADL/Specification/images/panel-size-policy.svg")
+  MyCopyFile(${MyProjectName}.ADL.BuildDocs
+             "${CMAKE_CURRENT_SOURCE_DIR}/Specification/images/slot-visibility.svg"
+             "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/ADL/Specification/images/slot-visibility.svg")
+  MyCopyFile(${MyProjectName}.ADL.BuildDocs
+             "${CMAKE_CURRENT_SOURCE_DIR}/Specification/images/weighted-sizing.svg"
+             "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/ADL/Specification/images/weighted-sizing.svg")
+  MyCopyFile(${MyProjectName}.ADL.BuildDocs
+             "${CMAKE_CURRENT_SOURCE_DIR}/Specification/images/stack-spacing.svg"
+             "${REPOSITORY_SOURCE_DIR}/.Website/Arcadia/ADL/Specification/images/stack-spacing.svg")
+
 EndTemplateEngine()

@@ -34,10 +34,26 @@ typedef enum Arcadia_ADL_UI_PanelChildCrossAlignment {
   Arcadia_ADL_UI_PanelChildCrossAlignment_Stretch,
 } Arcadia_ADL_UI_PanelChildCrossAlignment;
 
+typedef enum Arcadia_ADL_UI_PanelChildVisibility {
+  Arcadia_ADL_UI_PanelChildVisibility_Visible = 0,
+  Arcadia_ADL_UI_PanelChildVisibility_Hidden = 1,
+  Arcadia_ADL_UI_PanelChildVisibility_Collapsed = 2,
+} Arcadia_ADL_UI_PanelChildVisibility;
+
+typedef enum Arcadia_ADL_UI_PanelChildMainAxisPolicy {
+  Arcadia_ADL_UI_PanelChildMainAxisPolicy_Content = 0,
+  Arcadia_ADL_UI_PanelChildMainAxisPolicy_Fixed = 1,
+  Arcadia_ADL_UI_PanelChildMainAxisPolicy_Weight = 2,
+} Arcadia_ADL_UI_PanelChildMainAxisPolicy;
+
 typedef struct Arcadia_ADL_UI_PanelChildLayout {
   Arcadia_Integer32Value marginLeft, marginBottom, marginRight, marginTop;
   Arcadia_ADL_UI_PanelChildCrossAlignment crossAlignment;
   Arcadia_BooleanValue hasCrossAlignment;
+  Arcadia_ADL_UI_PanelChildVisibility visibility;
+  Arcadia_ADL_UI_PanelChildMainAxisPolicy mainAxisPolicy;
+  Arcadia_Integer32Value mainAxisExtent;
+  Arcadia_Integer32Value weight;
   Arcadia_BooleanValue configured;
 } Arcadia_ADL_UI_PanelChildLayout;
 Arcadia_declareObjectType(u8"Arcadia.ADL.UI.PanelDefinition", Arcadia_ADL_UI_PanelDefinition,

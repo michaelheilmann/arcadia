@@ -2,8 +2,9 @@
 
 This is a design decision record for [#103](https://github.com/michaelheilmann/arcadia-alm/issues/103).
 The implementation is tracked separately in [#104](https://github.com/michaelheilmann/arcadia-alm/issues/104).
-**These proposed fields are not yet part of the C or ADL public interface.** Existing APIs and assets retain their
-current behavior until #104 is implemented and verified.
+This is an accepted design contract, not a verification report. The #104 task branch implements the
+slot APIs and ADL properties; these changes are not part of `develop` until the maintainer merges them.
+Check the actual target revision, focused tests and platform results before claiming implementation acceptance.
 
 ## Existing contract and ownership
 
@@ -12,8 +13,9 @@ are inserted/removed. `StackLayout` owns the stack-wide settings and borrows the
 `WidgetNode` owns requested, desired and arranged geometry, with `Content` and `Fixed` size policies; the panel's
 own size policy must remain independent of a child's slot.
 
-Currently each slot contains nonnegative margins and an optional cross-axis alignment override. `UI.Panel.childLayouts`
-selects a child by a unique name and validates those fields. Keep these contracts and the existing default behavior.
+Before #104, each slot contained nonnegative margins and an optional cross-axis alignment override.
+`UI.Panel.childLayouts` selected a child by a unique name and validated those fields. The extended slot
+contract preserves these established fields and their existing default behavior.
 
 ## Visibility: three separate states
 
@@ -37,9 +39,9 @@ is not the same as `Hidden`.
 
 ## Main-axis sizing
 
-Propose an independent per-slot **main-axis sizing policy**, distinct from `WidgetNodeSizePolicy`:
+The agreed design adds an independent per-slot **main-axis sizing policy**, distinct from `WidgetNodeSizePolicy`:
 
-| Policy | Proposed data | Measurement | Arrangement |
+| Policy | Data | Measurement | Arrangement |
 | --- | --- | --- | --- |
 | `Content` (default) | No extra data | Child desired main extent plus margins | Use desired extent |
 | `Fixed` | Nonnegative `mainAxisExtent` | Explicit extent plus margins | Use explicit extent |
