@@ -822,8 +822,8 @@ backgroundColor: { type: "Color", red: 255, green: 0, blue: 0 }
       algorithm independently of the child list. The current implementation
       supports a nested <code>UI.StackLayout</code> map; other layout types are
       rejected. The layout is initially measured and arranged after the children
-      have been instantiated. Subsequent invalidation and input routing will be
-      added as part of the UI layout migration.
+      have been instantiated. Geometry changes invalidate layout, while child
+      visibility controls both rendering and input routing.
       </p>
       <pre>
 "type"                   : "UI.Panel"
@@ -862,6 +862,46 @@ backgroundColor: { type: "Color", red: 255, green: 0, blue: 0 }
       <code>Start</code>, <code>Center</code>, <code>End</code>, or
       <code>Stretch</code>. A stack layout does not own its children.
       </p>
+
+      <h4 id="ui-panel-stack-orientation">Stack orientation</h4>
+      <p>
+      A <code>Vertical</code> stack places children from top to bottom. A
+      <code>Horizontal</code> stack places children from left to right.
+      The main axis follows this direction; the cross axis is perpendicular
+      to it. Children retain the order of their <code>children</code> list.
+      The diagrams omit margins and padding for clarity.
+      </p>
+      <figure>
+        <img src="images/stack-orientation.svg" alt="Vertical versus horizontal StackLayout child arrangement" width="720" style="max-width: 100%; height: auto">
+        <figcaption>Orientation determines the stacking direction, not the order of definitions elsewhere in the asset.</figcaption>
+      </figure>
+
+      <h4 id="ui-panel-cross-alignment">Cross-axis alignment</h4>
+      <p>
+      In a vertical stack, <code>crossAlignment</code> acts horizontally.
+      <code>Start</code>, <code>Center</code>, and <code>End</code> position a
+      child within the available cross-axis space. <code>Stretch</code> sizes
+      the arranged child to fill that space; it does not change the child's
+      requested size. The horizontal case follows the same rule with the
+      axes exchanged.
+      </p>
+      <figure>
+        <img src="images/cross-alignment.svg" alt="Start, Center, End and Stretch cross-axis alignment" width="720" style="max-width: 100%; height: auto">
+        <figcaption>Alignment positions or stretches the child inside the space left after margins and padding.</figcaption>
+      </figure>
+
+      <h4 id="ui-panel-size-policy-illustration">Panel size policy</h4>
+      <p>
+      <code>sizePolicy: "Content"</code> derives the panel's desired size
+      from its children and layout spacing. <code>sizePolicy: "Fixed"</code>
+      keeps the panel's specified width and height as its desired size,
+      even when the children change. This is a policy of the panel itself,
+      not a per-child sizing rule.
+      </p>
+      <figure>
+        <img src="images/panel-size-policy.svg" alt="Content-sized versus fixed-sized UI panels" width="720" style="max-width: 100%; height: auto">
+        <figcaption>Schematic desired-size behavior; drawings do not imply any particular pixel dimensions.</figcaption>
+      </figure>
       <p>
       <code>backgroundModel</code> optionally refers to a model definition used
       to render the panel background before its children. The optional
@@ -875,12 +915,14 @@ backgroundColor: { type: "Color", red: 255, green: 0, blue: 0 }
       <code>children</code> and may not be repeated in <code>childLayouts</code>.
       Unspecified margins default to zero; an unspecified cross-axis alignment
       inherits the layout's <code>crossAlignment</code>. Negative margins,
-      unknown names, and unknown properties are invalid.
+      unknown names, and unknown properties are invalid. Child visibility and
+      main-axis sizing can also be configured.
       </p>
       <pre>
 "childLayouts" : [ // optional
   { "name" : "Options.Toggle.VSync", "marginLeft" : 384 },
-  { "name" : "Options.Button.Apply", "marginRight" : 120, "crossAlignment" : "End" }
+  { "name" : "Options.Button.Apply", "marginRight" : 120, "crossAlignment" : "End", "mainAxisPolicy" : "Fixed", "mainAxisExtent" : 120 },
+  { "name" : "Options.Slider.Volume", "mainAxisPolicy" : "Weight", "weight" : 2, "visibility" : "Hidden" }
 ]
       </pre>
       <p>
@@ -890,6 +932,57 @@ backgroundColor: { type: "Color", red: 255, green: 0, blue: 0 }
       string). Runtime changes to child collections use the same container slot
       mechanism, while these ADL overrides apply at initial construction.
       </p>
+      <p>
+      The optional <code>visibility</code> is <code>"Visible"</code> (default),
+      <code>"Hidden"</code>, or <code>"Collapsed"</code>. Visible children
+      participate in layout, rendering, and input. Hidden children retain
+      measured size, margins, and inter-child gaps, but are not rendered or
+      interactive. Collapsed children remain owned by the container, but
+      contribute no measured size or gap and are not rendered or interactive.
+      </p>
+      <figure>
+        <img src="images/slot-visibility.svg" alt="Visible, Hidden and Collapsed child layout slots" width="720" style="max-width: 100%; height: auto">
+        <figcaption>The dashed region indicates layout space retained by Hidden; it is not a rendered widget.</figcaption>
+      </figure>
+      <p>
+      The optional <code>mainAxisPolicy</code> is <code>"Content"</code>
+      (default), <code>"Fixed"</code>, or <code>"Weight"</code>. The main axis
+      is height in Vertical stacks and width in Horizontal stacks.
+      Content uses the child's desired extent and accepts neither
+      <code>mainAxisExtent</code> nor <code>weight</code>. Fixed requires a
+      nonnegative Integer32 <code>mainAxisExtent</code> and no weight.
+      Weight requires a positive Integer32 <code>weight</code> and no
+      mainAxisExtent. An extent or weight without its corresponding policy,
+      an unknown string, or an incompatible combination is invalid.
+      </p>
+      <p>
+      Weighted children retain their intrinsic desired main-axis size as a
+      minimum and share only positive surplus after reserving content/fixed
+      extents, margins, and gaps. Remainder pixels are distributed
+      deterministically in child order. When space is insufficient, weighted
+      children are not shrunk below their intrinsic size.
+      </p>
+      <figure>
+        <img src="images/weighted-sizing.svg" alt="Content, Fixed and Weight allocation of horizontal space" width="720" style="max-width: 100%; height: auto">
+        <figcaption>Weighted expansion preserves intrinsic sizes.</figcaption>
+      </figure>
+      <p>
+      </p>
+
+
+      <h4 id="ui-panel-spacing-illustration">Padding, margins, and gaps</h4>
+      <p>
+      Padding separates the stack's content area from the panel border.
+      Per-child margins reserve space outside the corresponding child.
+      The <code>gap</code> separates adjacent participating children along
+      the main axis. In this horizontal example, the three kinds of spacing
+      are shown independently; the drawing is illustrative rather than a
+      declaration of exact pixel values.
+      </p>
+      <figure>
+        <img src="images/stack-spacing.svg" alt="Panel padding, per-child margins and inter-child gap" width="720" style="max-width: 100%; height: auto">
+        <figcaption>Padding belongs to the layout; margins belong to child slots; the gap belongs to the stack-wide settings.</figcaption>
+      </figure>
 
       <h3>UI.SegmentedChoice</h3>
       <p>Type name: <code>"UI.SegmentedChoice"</code>. A user-interface control that offers a choice among labeled segments.</p>
@@ -1229,7 +1322,7 @@ backgroundColor: { type: "Color", red: 255, green: 0, blue: 0 }
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 18 November 2026.</div>
+    <div>Last modified on 19 November 2026.</div>
     </div>
   </div>
   <div class="center-column">
