@@ -24,7 +24,7 @@ matched by name, regardless of their order in the DDL map.</p>
   <tbody>
     <tr><td>Absent or <code>false</code></td><td>A required entry with the given <code>name</code> and <code>type</code>.</td></tr>
     <tr><td><code>true</code></td><td>An optional entry with the given <code>name</code> and <code>type</code>.</td></tr>
-    <tr><td>Any non-Boolean value, including <code>"true"</code> and <code>"false"</code></td><td>The entry description is invalid; report <code>InvalidDefinitionError</code> during schema translation.</td></tr>
+    <tr><td>Any non-Boolean value</td><td>The entry description is invalid; report <code>InvalidDefinitionError</code> during schema translation.</td></tr>
   </tbody>
 </table>
 </div>
@@ -43,16 +43,6 @@ to reject unknown entries and missing required entries.</p>
 <pre><code>{ kind: "MapEntry", name: "label", type: { kind: "String" }, optional: true }
 { kind: "MapEntry", name: "label", type: { kind: "String" }, optional: false }
 { kind: "MapEntry", name: "label", type: { kind: "String" } }</code></pre>
-<p><strong>Examples (invalid schema descriptions):</strong> Each of the
-following <code>optional</code> fields makes its containing
-<code>MapEntry</code> invalid during schema translation, not a data
-validation failure:</p>
-<pre><code>optional: "true"
-optional: "false"
-optional: 1
-optional: void
-optional: []
-optional: {}</code></pre>
 <p><strong>Examples (validation):</strong> Consider the following
 <code>Map</code> definition:</p>
 <pre><code>{
@@ -72,10 +62,3 @@ optional: {}</code></pre>
 <code>{ present: "x" }</code> are rejected because present entries must
 match their declared types. The value <code>{ present: void, extra: 1 }</code>
 is rejected because unknown map entries are not permitted.</p>
-<p><strong>Draft v0.2 compatibility correction:</strong> Schema descriptions
-that encoded <code>optional</code> as the strings <code>"true"</code>
-or <code>"false"</code> must be migrated to the corresponding unquoted
-Boolean values. This is an intentional breaking correction of draft v0.2
-schema syntax. A conforming DDLS reader must not accept those strings as
-compatibility aliases. No change to the DDLS draft/version designation or
-to other schema constructs is implied.</p>
