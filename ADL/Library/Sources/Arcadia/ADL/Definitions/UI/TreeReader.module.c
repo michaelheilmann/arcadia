@@ -33,9 +33,9 @@
 #define LIST_FIELD(name) \
   "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"List\", elements : { kind : \"String\" } } },"
 #define OPTIONAL_NUMBER_FIELD(name) \
-  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\" }, optional : \"true\" },"
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\" }, optional : true },"
 #define OPTIONAL_STRING_FIELD(name) \
-  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"String\" }, optional : \"true\" },"
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"String\" }, optional : true },"
 
 static const char* LABEL_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.Label")
