@@ -33,9 +33,9 @@
 #define LIST_FIELD(name) \
   "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"List\", elements : { kind : \"String\" } } },"
 #define OPTIONAL_NUMBER_FIELD(name) \
-  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\" }, optional : true },"
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\" }, optional : \"true\" },"
 #define OPTIONAL_STRING_FIELD(name) \
-  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"String\" }, optional : true },"
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"String\" }, optional : \"true\" },"
 
 static const char* LABEL_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.Label")
@@ -68,6 +68,8 @@ static const char* PANEL_SCHEMA =
       OPTIONAL_NUMBER_FIELD("marginLeft") OPTIONAL_NUMBER_FIELD("marginBottom")
       OPTIONAL_NUMBER_FIELD("marginRight") OPTIONAL_NUMBER_FIELD("marginTop")
       OPTIONAL_STRING_FIELD("crossAlignment")
+      OPTIONAL_STRING_FIELD("visibility") OPTIONAL_STRING_FIELD("mainAxisPolicy")
+      OPTIONAL_NUMBER_FIELD("mainAxisExtent") OPTIONAL_NUMBER_FIELD("weight")
     "] } } },"
   MAP_SCHEMA_END;
 
@@ -276,7 +278,10 @@ static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   .visit = (Arcadia_Object_VisitCallbackFunction*)&visitImpl,
 };
 
-static const Arcadia_TypeDescriptor_Operations _typeOperations = { Arcadia_TypeDescriptor_Operations_Initializer, .objectTypeOperations = &_objectTypeOperations };
+static const Arcadia_TypeDescriptor_Operations _typeOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
+  .objectTypeOperations = &_objectTypeOperations,
+};
 
 Arcadia_defineObjectType(u8"Arcadia.ADL.UI.TreeReader", Arcadia_ADL_UI_TreeReader,
                          u8"Arcadia.ADL.Reader", Arcadia_ADL_Reader, &_typeOperations);
@@ -464,6 +469,51 @@ read
         if (alignment) {
           slot->crossAlignment = parseChildAlignment(thread, alignment);
           slot->hasCrossAlignment = Arcadia_BooleanValue_True;
+        }
+        Arcadia_String* visibility = Arcadia_ADL_Reader_getStringValueOptional(thread, record,
+          Arcadia_String_createFromCxxString(thread, u8"visibility"));
+        if (visibility) {
+          if (Arcadia_String_isEqualTo_pn(thread, visibility, "Visible", 7))
+            slot->visibility = Arcadia_ADL_UI_PanelChildVisibility_Visible;
+          else if (Arcadia_String_isEqualTo_pn(thread, visibility, "Hidden", 6))
+            slot->visibility = Arcadia_ADL_UI_PanelChildVisibility_Hidden;
+          else if (Arcadia_String_isEqualTo_pn(thread, visibility, "Collapsed", 9))
+            slot->visibility = Arcadia_ADL_UI_PanelChildVisibility_Collapsed;
+          else {
+            Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+            Arcadia_Thread_jump(thread);
+          }
+        }
+        Arcadia_String* policy = Arcadia_ADL_Reader_getStringValueOptional(thread, record,
+          Arcadia_String_createFromCxxString(thread, u8"mainAxisPolicy"));
+        Arcadia_BooleanValue hasExtent = getNumberNodeOptional(thread, record,
+          Arcadia_String_createFromCxxString(thread, u8"mainAxisExtent")) != NULL;
+        Arcadia_BooleanValue hasWeight = getNumberNodeOptional(thread, record,
+          Arcadia_String_createFromCxxString(thread, u8"weight")) != NULL;
+        if (policy) {
+          if (Arcadia_String_isEqualTo_pn(thread, policy, "Content", 7))
+            slot->mainAxisPolicy = Arcadia_ADL_UI_PanelChildMainAxisPolicy_Content;
+          else if (Arcadia_String_isEqualTo_pn(thread, policy, "Fixed", 5))
+            slot->mainAxisPolicy = Arcadia_ADL_UI_PanelChildMainAxisPolicy_Fixed;
+          else if (Arcadia_String_isEqualTo_pn(thread, policy, "Weight", 6))
+            slot->mainAxisPolicy = Arcadia_ADL_UI_PanelChildMainAxisPolicy_Weight;
+          else {
+            Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+            Arcadia_Thread_jump(thread);
+          }
+        }
+        if ((slot->mainAxisPolicy == Arcadia_ADL_UI_PanelChildMainAxisPolicy_Content && (hasExtent || hasWeight)) ||
+            (slot->mainAxisPolicy == Arcadia_ADL_UI_PanelChildMainAxisPolicy_Fixed && (!hasExtent || hasWeight)) ||
+            (slot->mainAxisPolicy == Arcadia_ADL_UI_PanelChildMainAxisPolicy_Weight && (hasExtent || !hasWeight))) {
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+          Arcadia_Thread_jump(thread);
+        }
+        slot->mainAxisExtent = getInteger32ValueOptional(thread, record, u8"mainAxisExtent", 0);
+        slot->weight = getInteger32ValueOptional(thread, record, u8"weight", 0);
+        if (slot->mainAxisExtent < 0 ||
+            (slot->mainAxisPolicy == Arcadia_ADL_UI_PanelChildMainAxisPolicy_Weight && slot->weight <= 0)) {
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+          Arcadia_Thread_jump(thread);
         }
         slot->configured = Arcadia_BooleanValue_True;
       }
