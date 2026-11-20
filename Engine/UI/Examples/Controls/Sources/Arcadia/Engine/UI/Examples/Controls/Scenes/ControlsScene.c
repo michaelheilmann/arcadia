@@ -122,6 +122,12 @@ onTabSelectionChanged
   );
 
 static void
+onSlotVisibilityActivated
+  (
+    Arcadia_Thread* thread
+  );
+
+static void
 layoutControls
   (
     Arcadia_Thread* thread,
@@ -163,6 +169,18 @@ layoutControls
 
   if (self->helpLabelNode) Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)self->helpLabelNode, left, bottom + 560, 760, 40);
   if (self->rootPanelNode) Arcadia_Engine_UI_WidgetNode_setBounds(thread, (Arcadia_Engine_UI_WidgetNode*)self->rootPanelNode, left, bottom, designWidth, designHeight);
+  if (self->slotDemoPanelNode) {
+    // Resize only the slot demo; leave the existing gallery geometry unchanged.
+    Arcadia_Integer32Value const extraWidth = width > designWidth ? width - designWidth : 0;
+    Arcadia_Integer32Value const slotWidth = 420 + (extraWidth > 80 ? 80 : extraWidth);
+    Arcadia_Engine_UI_WidgetNode* widget = (Arcadia_Engine_UI_WidgetNode*)self->slotDemoPanelNode;
+    Arcadia_Integer32Value requestedWidth, requestedHeight;
+    Arcadia_Engine_UI_WidgetNode_getRequestedSize(thread, widget, &requestedWidth, &requestedHeight);
+    if (requestedWidth != slotWidth) {
+      Arcadia_Engine_UI_WidgetNode_setSize(thread, widget, slotWidth, 56);
+      Arcadia_Engine_UI_LayoutPanelNode_invalidateLayout(thread, self->slotDemoPanelNode);
+    }
+  }
   if (self->scrollPanelNode) {
     Arcadia_Engine_UI_ScrollPanelNode_setContentSize(thread, self->scrollPanelNode, 240, 140);
   }
@@ -278,6 +296,41 @@ onTabSelectionChanged
 }
 
 static void
+onSlotVisibilityActivated
+  (
+    Arcadia_Thread* thread
+  )
+{
+  if (Arcadia_ValueStack_getNatural8Value(thread, 0) != 2) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Engine_UI_Examples_Controls_ControlsScene* self =
+    (Arcadia_Engine_UI_Examples_Controls_ControlsScene*)Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2,
+      _Arcadia_Engine_UI_Examples_Controls_ControlsScene_getType(thread));
+  Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_ButtonNode_getType(thread));
+  Arcadia_Engine_UI_StackLayoutSlotVisibility next;
+  char const* status;
+  if (self->slotDemoVisibility == Arcadia_Engine_UI_StackLayoutSlotVisibility_Visible) {
+    next = Arcadia_Engine_UI_StackLayoutSlotVisibility_Hidden;
+    status = u8"Slot Fixed: Hidden (space retained)";
+  } else if (self->slotDemoVisibility == Arcadia_Engine_UI_StackLayoutSlotVisibility_Hidden) {
+    next = Arcadia_Engine_UI_StackLayoutSlotVisibility_Collapsed;
+    status = u8"Slot Fixed: Collapsed (space reclaimed)";
+  } else {
+    next = Arcadia_Engine_UI_StackLayoutSlotVisibility_Visible;
+    status = u8"Slot Fixed: Visible";
+  }
+  Arcadia_Engine_UI_LayoutPanelNode_setChildVisibility(thread, self->slotDemoPanelNode,
+    (Arcadia_Object*)self->slotDemoFixedButtonNode, next);
+  self->slotDemoVisibility = next;
+  if (self->helpLabelNode) {
+    Arcadia_Engine_UI_LabelNode_setText(thread, self->helpLabelNode,
+      Arcadia_String_createFromCxxString(thread, status));
+  }
+}
+
+static void
 onDropdownSelectionChanged
   (
     Arcadia_Thread* thread
@@ -329,6 +382,10 @@ Arcadia_Engine_UI_Examples_Controls_ControlsScene_constructImpl
   self->sliderRowPanelNode = NULL;
   self->choiceRowPanelNode = NULL;
   self->tabBarNode = NULL;
+  self->slotDemoPanelNode = NULL;
+  self->slotDemoModeButtonNode = NULL;
+  self->slotDemoFixedButtonNode = NULL;
+  self->slotDemoVisibility = Arcadia_Engine_UI_StackLayoutSlotVisibility_Visible;
   self->scrollColumnPanelNode = NULL;
   self->helpLabelNode = NULL;
   self->buttonNode = NULL;
@@ -392,6 +449,9 @@ Arcadia_Engine_UI_Examples_Controls_ControlsScene_visit
   if (self->sliderRowPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->sliderRowPanelNode);
   if (self->choiceRowPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->choiceRowPanelNode);
   if (self->tabBarNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->tabBarNode);
+  if (self->slotDemoPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->slotDemoPanelNode);
+  if (self->slotDemoModeButtonNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->slotDemoModeButtonNode);
+  if (self->slotDemoFixedButtonNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->slotDemoFixedButtonNode);
   if (self->scrollColumnPanelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->scrollColumnPanelNode);
   if (self->helpLabelNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->helpLabelNode);
   if (self->buttonNode) Arcadia_Object_visit(thread, (Arcadia_Object*)self->buttonNode);
@@ -459,6 +519,7 @@ load
     Arcadia_List* files = (Arcadia_List*)Arcadia_ArrayList_create(thread);
     Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Button")), files);
     Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Tabs")), files);
+    Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Layout")), files);
     Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Dropdown")), files);
     Arcadia_Engine_UI_Examples_Controls_AssetUtilities_enumerateFiles(thread, Arcadia_FilePath_parseGeneric(thread, Arcadia_String_createFromCxxString(thread, "Assets/Bindings")), files);
     for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)files); i < n; ++i) {
@@ -530,6 +591,25 @@ load
     Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->tabBarNode);
     Arcadia_Signal_connect(thread, Arcadia_Engine_UI_TabBarNode_getSelectionChangedSignal(thread, self->tabBarNode),
       (Arcadia_Object*)self, &onTabSelectionChanged);
+  }
+  if (!self->slotDemoPanelNode) {
+    Arcadia_ADL_Definition* definition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, self->definitions,
+      Arcadia_String_createFromCxxString(thread, u8"Controls.Layout.Slots"));
+    if (!definition || !Arcadia_Object_isInstanceOf(thread, (Arcadia_Object*)definition, _Arcadia_ADL_UI_PanelDefinition_getType(thread))) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    self->slotDemoPanelNode = (Arcadia_Engine_UI_LayoutPanelNode*)Arcadia_Engine_UI_createNodeFromDefinition(thread,
+      (Arcadia_Engine_Visuals_BackendContext*)engine->visualsBackendContext, definition);
+    Arcadia_Engine_UI_Container_addChild(thread, (Arcadia_Object*)self->leftColumnPanelNode, (Arcadia_Object*)self->slotDemoPanelNode);
+    Arcadia_Engine_UI_LayoutPanelNode_setChildCrossAlignment(thread, self->leftColumnPanelNode,
+      (Arcadia_Object*)self->slotDemoPanelNode, Arcadia_Engine_UI_LayoutAlignment_Start);
+    self->slotDemoModeButtonNode = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread,
+      (Arcadia_Object*)self->slotDemoPanelNode, 0);
+    self->slotDemoFixedButtonNode = (Arcadia_Engine_UI_ButtonNode*)Arcadia_Engine_UI_Container_getChildAt(thread,
+      (Arcadia_Object*)self->slotDemoPanelNode, 2);
+    Arcadia_Signal_connect(thread, Arcadia_Engine_UI_ButtonNode_getActivatedSignal(thread, self->slotDemoModeButtonNode),
+      (Arcadia_Object*)self, &onSlotVisibilityActivated);
   }
   if (!self->dropdownController) {
     Arcadia_ADL_Definition* triggerDefinition = Arcadia_ADL_Definitions_getDefinitionOrNull(thread, self->definitions,
