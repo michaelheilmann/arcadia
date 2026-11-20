@@ -332,6 +332,65 @@ testMainAxisSizing
 }
 
 static void
+testControlsSlotResize
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_Engine_UI_LayoutPanelNode* panel = Arcadia_Engine_UI_LayoutPanelNode_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)panel);
+  Arcadia_Engine_UI_StackLayout* layout = Arcadia_Engine_UI_StackLayout_create(thread, Arcadia_BooleanValue_False, 8);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)layout);
+  Arcadia_Engine_UI_StackLayout_setAlignment(thread, layout,
+    Arcadia_Engine_UI_LayoutAlignment_Start, Arcadia_Engine_UI_LayoutAlignment_Center);
+  Arcadia_Engine_UI_LayoutPanelNode_setLayout(thread, panel, (Arcadia_Object*)layout);
+  Arcadia_ValueStack_popValues(thread, 1);
+
+  Arcadia_Engine_UI_WidgetNode* mode = addWidget(thread, panel, 128, 40);
+  Arcadia_Engine_UI_WidgetNode* content = addWidget(thread, panel, 90, 40);
+  Arcadia_Engine_UI_WidgetNode* fixed = addWidget(thread, panel, 96, 40);
+  Arcadia_Engine_UI_WidgetNode* weighted = addWidget(thread, panel, 64, 40);
+  Arcadia_Engine_UI_LayoutPanelNode_setChildMainAxisSizing(thread, panel, (Arcadia_Object*)mode,
+    Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Fixed, 128, 0);
+  Arcadia_Engine_UI_LayoutPanelNode_setChildMainAxisSizing(thread, panel, (Arcadia_Object*)fixed,
+    Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Fixed, 96, 0);
+  Arcadia_Engine_UI_LayoutPanelNode_setChildMainAxisSizing(thread, panel, (Arcadia_Object*)weighted,
+    Arcadia_Engine_UI_StackLayoutSlotMainAxisPolicy_Weight, 0, 1);
+
+  Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 420, 56);
+  Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 0, 0, 420, 56);
+  Arcadia_Tests_assertTrue(thread, mode->width == 128 && content->width == 90);
+  Arcadia_Tests_assertTrue(thread, fixed->left == 234 && fixed->width == 96);
+  Arcadia_Tests_assertTrue(thread, weighted->left == 338 && weighted->width == 82);
+
+  Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 500, 56);
+  Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 0, 0, 500, 56);
+  Arcadia_Tests_assertTrue(thread, fixed->left == 234 && fixed->width == 96);
+  Arcadia_Tests_assertTrue(thread, weighted->left == 338 && weighted->width == 162);
+
+  Arcadia_Engine_UI_LayoutPanelNode_setChildVisibility(thread, panel, (Arcadia_Object*)fixed,
+    Arcadia_Engine_UI_StackLayoutSlotVisibility_Hidden);
+  Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 420, 56);
+  Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 0, 0, 420, 56);
+  Arcadia_Tests_assertTrue(thread, weighted->left == 338 && weighted->width == 82);
+
+  Arcadia_Engine_UI_LayoutPanelNode_setChildVisibility(thread, panel, (Arcadia_Object*)fixed,
+    Arcadia_Engine_UI_StackLayoutSlotVisibility_Collapsed);
+  Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 420, 56);
+  Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 0, 0, 420, 56);
+  Arcadia_Tests_assertTrue(thread, weighted->left == 234 && weighted->width == 186);
+
+  Arcadia_Engine_UI_LayoutPanelNode_setChildVisibility(thread, panel, (Arcadia_Object*)fixed,
+    Arcadia_Engine_UI_StackLayoutSlotVisibility_Visible);
+  Arcadia_Engine_UI_WidgetNode_measure(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 420, 56);
+  Arcadia_Engine_UI_WidgetNode_arrange(thread, (Arcadia_Engine_UI_WidgetNode*)panel, 0, 0, 420, 56);
+  Arcadia_Tests_assertTrue(thread, weighted->left == 338 && weighted->width == 82);
+  Arcadia_ValueStack_popValues(thread, 1);
+  Arcadia_Tests_assertTrue(thread, Arcadia_ValueStack_getSize(thread) == base);
+}
+
+static void
 testInvalidConfiguration
   (
     Arcadia_Thread* thread
@@ -539,6 +598,7 @@ Arcadia_Engine_UI_Tests_stackLayout
   if (!Arcadia_Tests_safeExecute(testVertical)) return EXIT_FAILURE;
   if (!Arcadia_Tests_safeExecute(testHorizontal)) return EXIT_FAILURE;
   if (!Arcadia_Tests_safeExecute(testMainAxisSizing)) return EXIT_FAILURE;
+  if (!Arcadia_Tests_safeExecute(testControlsSlotResize)) return EXIT_FAILURE;
   if (!Arcadia_Tests_safeExecute(testAnimaStartMenuGeometry)) return EXIT_FAILURE;
   if (!Arcadia_Tests_safeExecute(testLayoutPanelChildSlots)) return EXIT_FAILURE;
   if (!Arcadia_Tests_safeExecute(testButtonExamplePanelGeometry)) return EXIT_FAILURE;
