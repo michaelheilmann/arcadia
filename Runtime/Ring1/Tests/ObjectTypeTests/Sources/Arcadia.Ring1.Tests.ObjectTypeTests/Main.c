@@ -80,6 +80,95 @@ test
   }
 }
 
+static void
+registrationConstruct
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* self
+  )
+{/* Not invoked by this registration-only test. */}
+
+static void
+registrationDestruct
+  (
+    void* context
+  )
+{/* The test keeps no descriptor cache. */}
+
+static void
+registrationFailDispatch
+  (
+    Arcadia_Thread* thread,
+    Arcadia_ObjectDispatch* dispatch
+  )
+{
+  Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationFailed);
+  Arcadia_Thread_jump(thread);
+}
+
+static const Arcadia_ObjectType_Operations failingObjectOperations = {
+  Arcadia_ObjectType_Operations_Initializer,
+  .construct = &registrationConstruct,
+  .initializeDispatch = &registrationFailDispatch,
+};
+
+static const Arcadia_ObjectType_Operations workingObjectOperations = {
+  Arcadia_ObjectType_Operations_Initializer,
+  .construct = &registrationConstruct,
+};
+
+static const Arcadia_TypeDescriptor_Operations failingRegistrationOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
+  .objectTypeOperations = &failingObjectOperations,
+};
+
+static const Arcadia_TypeDescriptor_Operations workingRegistrationOperations = {
+  Arcadia_TypeDescriptor_Operations_Initializer,
+  .objectTypeOperations = &workingObjectOperations,
+};
+
+static void
+testRegistrationRollback
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Name* name = Arcadia_Names_getOrCreateName
+    (
+      thread,
+      u8"Arcadia.Tests.ObjectTypeTests.Rollback",
+      sizeof(u8"Arcadia.Tests.ObjectTypeTests.Rollback") - 1
+    );
+  Arcadia_TypeDescriptorValue parent = _Arcadia_Object_getType(thread);
+  Arcadia_JumpTarget jumpTarget;
+  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);
+  if (Arcadia_JumpTarget_save(&jumpTarget)) {
+    Arcadia_registerObjectType
+      (
+        thread, name, sizeof(Arcadia_Object), parent,
+        sizeof(Arcadia_ObjectDispatch), &failingRegistrationOperations,
+        &registrationDestruct
+      );
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+    Arcadia_Thread_jump(thread);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_OperationFailed, status);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+  }
+
+  // A failed initializer must not publish the name or retain a dangling entry.
+  Arcadia_TypeDescriptorValue type = Arcadia_registerObjectType
+    (
+      thread, name, sizeof(Arcadia_Object), parent,
+      sizeof(Arcadia_ObjectDispatch), &workingRegistrationOperations,
+      &registrationDestruct
+    );
+  Arcadia_Tests_assertTrue(thread, type == Arcadia_getTypeDescriptorByName(thread, name));
+}
+
 static int
 runTests
   (
@@ -87,6 +176,9 @@ runTests
   )
 {
   if (!Arcadia_Tests_safeExecute(&test)) {
+    return EXIT_FAILURE;
+  }
+  if (!Arcadia_Tests_safeExecute(&testRegistrationRollback)) {
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
