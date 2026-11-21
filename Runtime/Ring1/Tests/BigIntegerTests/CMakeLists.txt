@@ -44,6 +44,8 @@ OnSourceFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/Shift.c)
 OnHeaderFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/Shift.h)
 OnSourceFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/TwosComplement.c)
 OnHeaderFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/TwosComplement.h)
+OnSourceFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/BigReal.c)
+OnHeaderFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/BigReal.h)
 OnSourceFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/DecimalString.c)
 OnHeaderFile(${this} Arcadia.Ring1.Tests.BigIntegerTests/DecimalString.h)
 

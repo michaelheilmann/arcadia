@@ -96,8 +96,8 @@ Arcadia_Test_BigInteger_assertRelational
       }
     } break;
     case Test_Op_isNotEqualTo: {
-      Arcadia_Tests_assertTrue(thread, expectedResult == Arcadia_Value_isLowerThanOrEqualTo(thread, &leftOperandValue, &rightOperandValue));
-      Arcadia_Tests_assertTrue(thread, expectedResult == !Arcadia_Value_isLowerThanOrEqualTo(thread, &leftOperandValue, &rightOperandValue));
+      Arcadia_Tests_assertTrue(thread, expectedResult == Arcadia_Value_isNotEqualTo(thread, &leftOperandValue, &rightOperandValue));
+      Arcadia_Tests_assertTrue(thread, expectedResult == !Arcadia_Value_isEqualTo(thread, &leftOperandValue, &rightOperandValue));
     } break;
     default: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
@@ -133,6 +133,11 @@ Arcadia_Ring1_Tests_BigInteger_relationalOperations
 
     { .result = Arcadia_BooleanValue_True, Test_Op_isLowerThanOrEqualTo, 1, 2 },
     { .result = Arcadia_BooleanValue_True, Test_Op_isLowerThanOrEqualTo, 2, 2 },
+
+    /* inequality, including operands with different signs */
+    { .result = Arcadia_BooleanValue_False, Test_Op_isNotEqualTo, 2, 2 },
+    { .result = Arcadia_BooleanValue_True, Test_Op_isNotEqualTo, 2, -2 },
+    { .result = Arcadia_BooleanValue_True, Test_Op_isNotEqualTo, -2, 2 },
 
     /* two negative numbers */
     { .result = Arcadia_BooleanValue_True, Test_Op_isEqualTo, -2, -2 }, // 9
