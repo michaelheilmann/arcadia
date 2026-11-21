@@ -29,6 +29,37 @@
   recommendations and "may" for permission. Do not mechanically reinterpret older
   wording or claim RFC requirement-keyword conformance without an explicit decision.
 
+## Authoritative And Time-Independent Specification Prose
+
+- Every normative specification describes its subject **authoritatively in the
+  present tense**. State what the language, formal system or protocol is and
+  what its constructs mean; do not narrate what it used to do, might do later,
+  or whether a particular implementation already supports it.
+- **Never reference previous or future versions within the specification's
+  normative contract.** Avoid terms such as "new", "old", "previously",
+  "formerly", "upcoming", "planned", "future", "in vX.Y", "this extension",
+  "this proposal", "backward compatible" or "migration" when describing
+  language behavior. Specify the rule directly, including behavior when an
+  optional construct is absent. Use ordinary technical terms such as
+  "forward reference" for name resolution when those terms describe semantics;
+  they are not version-history references.
+- Do not put work-item IDs, branch/commit references, approval requests,
+  implementation status, conformance-test status, release plans, rollout notes
+  or API/implementation limitations into normative specification prose.
+  Record these in Arcadia ALM issues, development handoffs, release notes or
+  clearly separate non-normative material outside the specification.
+- A document's title/header may identify its authorized edition or draft
+  designation as **document metadata**; that is not license to compare
+  editions or implementation milestones in its normative sections. Do not
+  change an authorized designation as part of editorial cleanup.
+- A specification states required behavior independently of whether runtime
+  code implements it yet. Record implementation mismatches in issue tracking,
+  not by weakening the specification into a historical account.
+- When editing any specification, inspect the complete affected document,
+  including template includes, for violations of these rules; ensure the
+  validation table, examples and surrounding semantic sections all describe
+  the same timeless contract.
+
 ## Scope, Status And Compatibility
 
 - State what a document defines and what it does not define. Shared lexical rules

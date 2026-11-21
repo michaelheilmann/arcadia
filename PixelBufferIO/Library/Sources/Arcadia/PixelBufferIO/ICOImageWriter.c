@@ -256,7 +256,7 @@ Arcadia_Imaging_ICOImageWriter_writeICOToByteBufferImpl
       width = 0;
     }
     if (height == 256) {
-      height = 256;
+      height = 0;
     }
 
     ICONDIRENTRY ICOnDirEntry = { .width = width,

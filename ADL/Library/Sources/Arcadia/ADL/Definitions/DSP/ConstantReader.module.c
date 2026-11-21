@@ -35,6 +35,7 @@ static const char* SCHEMA =
   "        name : \"type\",\n"
   "        type : {\n"
   "          kind : \"String\",\n"
+  "          enum : [\"DSP.Constant\"],\n"
   "        },\n"
   "      },\n"
   "      {\n"

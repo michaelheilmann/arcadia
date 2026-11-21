@@ -79,22 +79,26 @@ Arcadia_Ring1_Tests_BigInteger_additiveOperations
   )
 {
   typedef struct Test {
-    Arcadia_Integer32Value result;
+    Arcadia_Integer64Value result;
     int operation;
-    Arcadia_Integer32Value a, b;
+    Arcadia_Integer64Value a, b;
   } Test;
   static const Test tests[] = {
     { 0, Test_Op_add, 0, 0 },
     { 0, Test_Op_subtract, 0, 0 },
 
-    { 12, Test_Op_add, 5, 7 }, // also tests 7 + 5
+    { 12, Test_Op_add, 5, 7 },
     { -2, Test_Op_subtract, 5, 7 },
-
-    { 12, Test_Op_add, 5, 7 }, // also tests 7 + 5
-    { -2, Test_Op_subtract, 5, 7 },
+    { 12, Test_Op_add, 7, 5 },
+    { 2, Test_Op_subtract, 7, 5 },
+    { -12, Test_Op_add, -5, -7 },
+    { -2, Test_Op_add, 5, -7 },
+    { -12, Test_Op_subtract, -5, 7 },
+    { INT64_C(4294967296), Test_Op_add, INT64_C(4294967295), 1 },
+    { INT64_C(4294967295), Test_Op_subtract, INT64_C(4294967296), 1 },
+    { INT64_C(4294967294), Test_Op_subtract, INT64_C(4294967301), 7 },
   };
   static const Arcadia_SizeValue numberOfTests = sizeof(tests) / sizeof(Test);
-  Arcadia_Test_BigInteger_assertAdditive(thread, -2, Test_Op_subtract, 5, 7);
   for (Arcadia_SizeValue i = 0, n = numberOfTests; i < n; ++i) {
     const Test* test = &(tests[i]);
     Arcadia_Test_BigInteger_assertAdditive(thread, test->result, test->operation, test->a, test->b);

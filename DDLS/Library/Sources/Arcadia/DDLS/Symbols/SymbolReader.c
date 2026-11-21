@@ -310,8 +310,17 @@ Arcadia_DDLS_SymbolReader_constructImpl
   Define(ELEMENT, u8"element");
   Define(ELEMENTS, u8"elements");
   Define(ENTRIES, u8"entries");
+  Define(ENUM, u8"enum");
   Define(KIND, u8"kind");
   Define(OPTIONAL, u8"optional");
+  Define(MINIMUM, u8"minimum");
+  Define(EXCLUSIVEMINIMUM, u8"exclusiveMinimum");
+  Define(MAXIMUM, u8"maximum");
+  Define(EXCLUSIVEMAXIMUM, u8"exclusiveMaximum");
+  Define(MINIMUM, u8"minimum");
+  Define(EXCLUSIVEMINIMUM, u8"exclusiveMinimum");
+  Define(MAXIMUM, u8"maximum");
+  Define(EXCLUSIVEMAXIMUM, u8"exclusiveMaximum");
   Define(TRUE, u8"true");
   Define(FALSE, u8"false");
 
@@ -524,15 +533,52 @@ readStringSymbol
     Arcadia_DDL_MapNode* source
   )
 {
-  // (1) Remove the `kind` element.
   Arcadia_Map_remove(thread, self->scope->symbols, self->KIND, NULL, NULL);
+  Arcadia_DDLS_ScalarSymbol* scalarSymbol = Arcadia_DDLS_ScalarSymbol_create(thread);
+  scalarSymbol->name = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&self->STRING);
+
+  Arcadia_Value enumeration = Arcadia_Map_get(thread, self->scope->symbols, self->ENUM);
+  if (!Arcadia_Value_isVoidValue(&enumeration)) {
+    if (!Arcadia_Value_isInstanceOf(thread, &enumeration, _Arcadia_DDL_ListNode_getType(thread))) {
+      Arcadia_logf(Arcadia_LogFlags_Error, u8"`enum` must be a list\n");
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_DDL_ListNode* listNode = (Arcadia_DDL_ListNode*)Arcadia_Value_getObjectReferenceValue(&enumeration);
+    Arcadia_SizeValue n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)listNode->elements);
+    if (!n) {
+      Arcadia_logf(Arcadia_LogFlags_Error, u8"`enum` must not be empty\n");
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    scalarSymbol->enumeration = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+    for (Arcadia_SizeValue i = 0; i < n; ++i) {
+      Arcadia_Value item = Arcadia_List_getAt(thread, listNode->elements, i);
+      if (!Arcadia_Value_isInstanceOf(thread, &item, _Arcadia_DDL_StringNode_getType(thread))) {
+        Arcadia_logf(Arcadia_LogFlags_Error, u8"`enum` members must be strings\n");
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      Arcadia_DDL_StringNode* member = (Arcadia_DDL_StringNode*)Arcadia_Value_getObjectReferenceValue(&item);
+      for (Arcadia_SizeValue j = 0; j < Arcadia_Collection_getSize(thread, (Arcadia_Collection*)scalarSymbol->enumeration); ++j) {
+        Arcadia_String* prior = (Arcadia_String*)Arcadia_List_getObjectReferenceValueCheckedAt(
+          thread, scalarSymbol->enumeration, j, _Arcadia_String_getType(thread));
+        Arcadia_Value candidate = Arcadia_Value_makeObjectReferenceValue(member->value);
+        if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)prior, &candidate)) {
+          Arcadia_logf(Arcadia_LogFlags_Error, u8"duplicate `enum` member\n");
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+          Arcadia_Thread_jump(thread);
+        }
+      }
+      Arcadia_List_insertBackObjectReferenceValue(thread, scalarSymbol->enumeration, (Arcadia_Object*)member->value);
+    }
+    Arcadia_Map_remove(thread, self->scope->symbols, self->ENUM, NULL, NULL);
+  }
   if (Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->scope->symbols) > 0) {
     Arcadia_logf(Arcadia_LogFlags_Error, u8"unsupported entries\n");
     Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_DDLS_ScalarSymbol* scalarSymbol = Arcadia_DDLS_ScalarSymbol_create(thread);
-  scalarSymbol->name = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&self->STRING);
   return scalarSymbol;
 }
 
@@ -652,6 +698,42 @@ readMapSymbol
   return mapSymbol;
 }
 
+static Arcadia_String*
+readNumberBound
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDLS_SymbolReader* self,
+    Arcadia_Value key
+  )
+{
+  Arcadia_Value value = Arcadia_Map_get(thread, self->scope->symbols, key);
+  if (Arcadia_Value_isVoidValue(&value)) {
+    return NULL;
+  }
+  if (!Arcadia_Value_isInstanceOf(thread, &value, _Arcadia_DDL_NumberNode_getType(thread))) {
+    Arcadia_logf(Arcadia_LogFlags_Error, u8"numeric bound must be a Number\n");
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Map_remove(thread, self->scope->symbols, key, NULL, NULL);
+  return ((Arcadia_DDL_NumberNode*)Arcadia_Value_getObjectReferenceValue(&value))->value;
+}
+
+static Arcadia_Integer8Value
+compareNumberBoundTexts
+  (
+    Arcadia_Thread* thread,
+    Arcadia_String* a,
+    Arcadia_String* b
+  )
+{
+  Arcadia_BigReal* left = Arcadia_BigReal_create(thread);
+  Arcadia_BigReal_fromDecimalString(thread, left, Arcadia_String_getBytes(thread, a), Arcadia_String_getNumberOfBytes(thread, a));
+  Arcadia_BigReal* right = Arcadia_BigReal_create(thread);
+  Arcadia_BigReal_fromDecimalString(thread, right, Arcadia_String_getBytes(thread, b), Arcadia_String_getNumberOfBytes(thread, b));
+  return Arcadia_BigReal_compareTo(thread, left, right);
+}
+
 static Arcadia_DDLS_ScalarSymbol*
 readNumberSymbol
   (
@@ -660,15 +742,34 @@ readNumberSymbol
     Arcadia_DDL_MapNode* source
   )
 {
-  // (1) Remove the `kind` element.
   Arcadia_Map_remove(thread, self->scope->symbols, self->KIND, NULL, NULL);
+  Arcadia_DDLS_ScalarSymbol* scalarSymbol = Arcadia_DDLS_ScalarSymbol_create(thread);
+  scalarSymbol->name = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&self->NUMBER);
+  scalarSymbol->minimum = readNumberBound(thread, self, self->MINIMUM);
+  scalarSymbol->exclusiveMinimum = readNumberBound(thread, self, self->EXCLUSIVEMINIMUM);
+  scalarSymbol->maximum = readNumberBound(thread, self, self->MAXIMUM);
+  scalarSymbol->exclusiveMaximum = readNumberBound(thread, self, self->EXCLUSIVEMAXIMUM);
+
   if (Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->scope->symbols) > 0) {
     Arcadia_logf(Arcadia_LogFlags_Error, u8"unsupported entries\n");
     Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_DDLS_ScalarSymbol* scalarSymbol = Arcadia_DDLS_ScalarSymbol_create(thread);
-  scalarSymbol->name = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&self->NUMBER);
+  // Every lower bound must be compatible with every upper bound.
+  Arcadia_String* lowers[2] = { scalarSymbol->minimum, scalarSymbol->exclusiveMinimum };
+  Arcadia_String* uppers[2] = { scalarSymbol->maximum, scalarSymbol->exclusiveMaximum };
+  for (Arcadia_SizeValue i = 0; i < 2; ++i) {
+    for (Arcadia_SizeValue j = 0; j < 2; ++j) {
+      if (lowers[i] && uppers[j]) {
+        Arcadia_Integer8Value order = compareNumberBoundTexts(thread, lowers[i], uppers[j]);
+        if (order > 0 || (order == 0 && (i == 1 || j == 1))) {
+          Arcadia_logf(Arcadia_LogFlags_Error, u8"empty numeric bound interval\n");
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+          Arcadia_Thread_jump(thread);
+        }
+      }
+    }
+  }
   return scalarSymbol;
 }
 

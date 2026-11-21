@@ -4173,434 +4173,263 @@ intentional compatibility, not duplicate native storage.</p>
 
 <section class="cxx entity object">
 <h1 id="Arcadia_StringBuilder">Arcadia_StringBuilder</h1>
-<p><code>Arcadia_StringBuilder</code> extends <code>Arcadia_Object</code>.</p>
-<p>
-<code>Arcadia_StringBuilder</code> represents a mutable sequence of code points in UTF8 encoding.
-</p>
+<p>Mutable, valid UTF-8 text, including embedded U+0000. Codepoint indices are zero-based and are not byte offsets or grapheme indices. Keep the builder rooted while using borrowed storage; callers must not modify its fields or borrowed bytes. Invalid ranges, invalid types, malformed UTF-8 and allocation failures are rejected before changing contents. Self-insertion and self-replacement use pre-mutation contents. Codepoint arrays must contain Unicode scalar values; a zero count permits NULL. Prefix and suffix queries compare raw bytes. Create an independent immutable snapshot with <code>Arcadia_String_create(thread, Arcadia_Value_makeObjectReferenceValue((Arcadia_Object*)builder))</code>.</p>
 </section>
 
-<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
 <section class="cxx entity method">
-
-  <h1 id="Arcadia_StringBuilder_clear">Arcadia_StringBuilder_clear</h1>
-
-  <my-signature><code>
-  void<br>
-  Arcadia_StringBuilder_clear<br>
-  &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self<br>
-  &nbsp;&nbsp;)
-  </code></my-signature>
-
-  <my-summary>
-  Clear this string buffer.
-  </my-summary>
-
-  <section class="cxx parameters">
-    <h1>Parameters</h1>
-    <div>
-      <div><a href="#">Arcadia_Thread</a>* thread</div>
-      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
-    </div>
-    <div>
-      <div>Arcadia_StringBuilder self</div>
-      <div>A pointer to this string buffer.</div>
-    </div>
-  </section>
-
+<h1 id="Arcadia_StringBuilder_create">Arcadia_StringBuilder_create</h1>
+<pre><code>Arcadia_StringBuilder*
+Arcadia_StringBuilder_create
+  (
+    Arcadia_Thread* thread
+  );</code></pre>
+<p>Create an empty builder.</p>
 </section>
 
-<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
 <section class="cxx entity method">
-
-  <h1 id="Arcadia_StringBuilder_create">Arcadia_StringBuilder_create</h1>
-
-  <my-signature><code>
-  Arcadia_StringBuilder*<br>
-  Arcadia_StringBuilder_create<br>
-  &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread<br>
-  &nbsp;&nbsp;)
-  </code></my-signature>
-
-  <my-summary>
-  Create a string buffer.
-  </my-summary>
-
-
-  <section class="cxx parameters">
-    <h1>Parameters</h1>
-    <div>
-      <div><a href="#">Arcadia_Thread</a>* thread</div>
-      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
-    </div>
-  </section>
-
-  <section class="cxx errors">
-    <h1>Errors</h1>
-    <div>
-      <div>Arcadia_Status_AllocationFailed</div>
-      <div>An allocation failed.</div>
-    </div>
-  </section>
-
-  <section class="cxx return-value">
-    <h1>Return value</h1>
-    <p>A pointer to the <code>Arcadia_StringBuilder</code> value.</p>
-  </section>
-
+<h1 id="Arcadia_StringBuilder_insertAt">Arcadia_StringBuilder_insertAt</h1>
+<pre><code>void
+Arcadia_StringBuilder_insertAt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_SizeValue codePointIndex,
+    Arcadia_Value value
+  );</code></pre>
+<p>Insert at a zero-based codepoint boundary, including the end. Accepts RuntimeUTF8String, RuntimeByteArray, ByteArrayBuilder, String and StringBuilder values.</p>
 </section>
 
-<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 <section class="cxx entity method">
-
-  <h1 id="Arcadia_StringBuilder_compareTo">Arcadia_StringBuilder_compareTo</h1>
-
-  <my-signature><code>
-  Arcadia_Integer32Value*<br>
-  Arcadia_StringBuilder_compareTo<br>
-  &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value other<br>
-  &nbsp;&nbsp;)
-  </code></my-signature>
-
-  <my-summary>
-  Compare the string in this string buffer with another string lexicographically.
-  </my-summary>
-
-  <section class="cxx parameters">
-    
-    <h1>Parameters</h1>
-    
-    <div>
-      <div><a href="#">Arcadia_Thread</a>* thread</div>
-      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
-    </div>
-
-    <div>
-      <div>Arcadia_StringBuilder* self</div>
-      <div>A pointer to this string buffer.</div>
-    </div>
-    
-    <div>
-      <div>Arcadia_Value other</div>
-      <div>
-      The value to compare the UTF-8 string in this string buffer to.
-      The value must be one of <code>Arcadia.ImmutableUtf8String</code>, <code>Arcadia.StringBuilder</code>, or <code>Arcadia.String</code>.
-      </div>
-    </div>
-    
-  </section>
-
-  <section class="cxx errors">
-    <h1>Errors</h1>
-    <div>
-      <div>Arcadia_Status_AllocationFailed</div>
-      <div>An allocation failed.</div>
-    </div>
-  </section>
-
-  <section class="cxx return-value">
-    <h1>Return value</h1>
-    <ul>
-      <li>A negative value is returned if the string in this string buffer is lexicographically less than the other string.</li>
-      <li>A positive value is returned if the string in this string buffer is lexicographically greater than the other string.</li>
-      <li>If both strings are lexicographically equal, then zero is returned.</li>
-    </ul>
-    <p>
-  </section>
-  
-  <section class="cxx remarks">
-    <h1>Remarks</h1>
-    Let <code>a</code> and <code>b</code> be UTF-8 strings of n and m Bytes, respectively.
-    Denote the <code>i</code>-th Byte of a by <code>a[i]</code> (given <code>a</code> is not empty) and the <code>i</code>-th Byte of <code>b</code> by <code>b[i]</code> (given that <code>b</code> is not empty), respectively.
-    Then comparing <code>a</code> and <code>b</code> lexicographically means:
-    Let <code>l := min(n,m)</code>.
-    If <code>l</code> is <code>0</code> or <code>a[i] = b[i]</code> for all <code>i in [0, l-1]</code>, then
-    </p>
-    <ul>
-      <li><code>a</code> is lexicographically less than <code>b</code> if <code>n &lt; m</code></li>
-      <li><code>a</code> is lexicographically greater than <code>b</code> if <code>n &gt; m</code></li>
-      <li><code>a</code> and <code>b</code> are lexicographically equal if <code>n = m</code></li>
-    </ul>
-    <p>
-    Otherwise there exists an <code>i in [0, l - 1]</code> such that for all <code>a[j] = b[j]</code> for all <code>j &lt; i</code> holds and <code>a[i] != b[i]</code>.
-    In that case:
-    </p> 
-    <ul>
-      <li><code>a</code> is lexicographically less than <code>b</code> if <code>a[i] &lt; b[i]</code></li>
-      <li><code>a</code> is lexicographically greater than <code>b</code> if <code>a[i] &gt; b[i]</code></li>
-    </ul>  
-  </section>
-
+<h1 id="Arcadia_StringBuilder_insertBack">Arcadia_StringBuilder_insertBack</h1>
+<pre><code>void
+Arcadia_StringBuilder_insertBack
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_Value value
+  );</code></pre>
+<p>Append a value accepted by insertAt.</p>
 </section>
 
-<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
 <section class="cxx entity method">
-
-  <h1 id="Arcadia_StringBuilder_getNumberOfBytes">Arcadia_StringBuilder_getNumberOfBytes</h1>
-
-  <my-signature><code>
-  Arcadia_SizeValue<br>
-  Arcadia_StringBuilder_getNumberOfBytes<br>
-  &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder self<br>
-  &nbsp;&nbsp;)
-  </code></my-signature>
-
-  <my-summary>
-  Get the number of Bytes in this string buffer.
-  </my-summary>
-
-  <section class="cxx parameters">
-    <h1>Parameters</h1>
-    <div>
-      <div><a href="#">Arcadia_Thread</a>* thread</div>
-      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
-    </div>
-    <div>
-      <div>Arcadia_StringBuilder* self</div>
-      <div>A pointer to this string buffer.</div>
-    </div>
-  </section>
-
-  <section class="cxx return-value">
-    <h1>Return value</h1>
-    <p>The number of Bytes in this string buffer.</p>
-  </section>
-
+<h1 id="Arcadia_StringBuilder_insertFront">Arcadia_StringBuilder_insertFront</h1>
+<pre><code>void
+Arcadia_StringBuilder_insertFront
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_Value value
+  );</code></pre>
+<p>Prepend a value accepted by insertAt.</p>
 </section>
 
-<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
 <section class="cxx entity method">
-
-  <h1 id="Arcadia_StringBuilder_insertAt">Arcadia_StringBuilder_insertAt</h1>
-
-  <my-signature><code>
-  void<br>
-  Arcadia_StringBuilder_insertAt<br>
-  &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_SizeValue index,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
-  &nbsp;&nbsp;)
-  </code></my-signature>
-
-  <my-summary>
-  Insert a value at a code point index of string buffer.
-  </my-summary>
-
-  <section class="cxx parameters">
-    <h1>Parameters</h1>
-    <div>
-      <div><a href="#">Arcadia_Thread</a>* thread</div>
-      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
-    </div>
-    <div>
-      <div>Arcadia_StringBuilder* self</div>
-      <div>A pointer to this string buffer.</div>
-    </div>
-    <div>
-      <div>Arcadia_SizeValue index</div>
-      <div>
-      The code point index at which to insert the value.
-      Must be within the bounds of [0,n] where n is the number of code points in this string buffer.
-      If index is 0, then this call is equivalent to a call to Arcadia_StringBuilder_insertFront.
-      If index is n, then this call is equivalent to a call to Arcadia_StringBuilder_insertBack.
-      </div>
-    </div>
-    <div>
-      <div>Arcadia_Value value</div>
-      <div>
-      The value to insert at the code point index.
-      The value must be of one of the following types:
-      <code>Arcadia.ImmutableByteArray</code>, <code>Arcadia.ImmutableUtf8String</code>,
-      <code>Arcadia.ByteBuffer</code>, <code>Arcadia.StringBuilder</code>, or <code>Arcadia.String</code>.
-      </div>
-    </div>
-  </<section>
-  
-  <section class="cxx errors">
-    <h1>Errors</h1>
-    <div>
-      <div>Arcadia_Status_ArgumentTypeInvalid</div>
-      <div><code>value</code> is not of an accepted type.</div>
-    </div>
-    <div>
-      <div>Arcadia_Status_ArgumentValueInvalid</div>
-      <div><code>index</code> is not within the bounds of [0,n] where n is the number of code points in this string buffer.</div>
-    </div>
-    <div>
-      <div>Arcadia_Status_EncodingInvalid</div>
-      <div><code>value</code> is of type <code>Arcadia.ImmutableByteArray</code> or <code>Arcadia.ByteBuffer</code> and the Bytes are not a valid UTF-8 Byte sequence.</div>
-    </div>
-  </section>
-
+<h1 id="Arcadia_StringBuilder_compareTo">Arcadia_StringBuilder_compareTo</h1>
+<pre><code>Arcadia_Integer32Value
+Arcadia_StringBuilder_compareTo
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_Value other
+  );</code></pre>
+<p>Compare unsigned UTF-8 bytes lexicographically. A proper prefix sorts first. Accepts RuntimeUTF8String, String and StringBuilder.</p>
 </section>
 
-<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
 <section class="cxx entity method">
-
-  <h1 id="Arcadia_StringBuilder_insertBack">Arcadia_StringBuilder_insertBack</h1>
-
-  <my-signature><code>
-  void<br>
-  Arcadia_StringBuilder_insertFront<br>
-  &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
-  &nbsp;&nbsp;)
-  </code></my-signature>
-
-  <my-summary>
-  Insert a value at the back of this string buffer.
-  </my-summary>
-
-  <section class="cxx parameters">
-    <h1>Parameters</h1>
-    <div>
-      <div><a href="#">Arcadia_Thread</a>* thread</div>
-      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
-    </div>
-    <div>
-      <div>Arcadia_StringBuilder* self</div>
-      <div>A pointer to this string buffer.</div>
-    </div>
-    <div>
-      <div>Arcadia_Value value</div>
-      <div>
-      The value to insert at the back.
-      The value must be of one of the following types:
-      <code>Arcadia.ImmutableByteArray</code>, <code>Arcadia.ImmutableUtf8String</code>,
-      <code>Arcadia.ByteBuffer</code>, <code>Arcadia.StringBuilder</code>, or <code>Arcadia.String</code>.
-      </div>
-    </div>
-  </<section>
-  
-  <section class="cxx errors">
-    <h1>Errors</h1>
-    <div>
-      <div>Arcadia_Status_ArgumentTypeInvalid</div>
-      <div><code>value</code> is not of an accepted type.</div>
-    </div>
-    <div>
-      <div>Arcadia_Status_EncodingInvalid</div>
-      <div><code>value</code> is of type <code>Arcadia.ImmutableByteArray</code> or <code>Arcadia.ByteBuffer</code> and the Bytes are not a valid UTF-8 Byte sequence.</div>
-    </div>
-  </section>
-
+<h1 id="Arcadia_StringBuilder_clear">Arcadia_StringBuilder_clear</h1>
+<pre><code>void
+Arcadia_StringBuilder_clear
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self
+  );</code></pre>
+<p>Remove all contents, retaining capacity.</p>
 </section>
 
-<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
 <section class="cxx entity method">
-
-  <h1 id="Arcadia_StringBuilder_insertFront">Arcadia_StringBuilder_insertFront</h1>
-
-  <my-signature><code>
-  void<br>
-  Arcadia_StringBuilder_insertFront<br>
-  &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Value value<br>
-  &nbsp;&nbsp;)
-  </code></my-signature>
-
-  <my-summary>
-  Insert a value at the front of this string buffer.
-  </my-summary>
-
-  <section class="cxx parameters">
-    <h1>Parameters</h1>
-    <div>
-      <div><a href="#">Arcadia_Thread</a>* thread</div>
-      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
-    </div>
-    <div>
-      <div>Arcadia_StringBuilder* self</div>
-      <div>A pointer to this string buffer.</div>
-    </div>
-    <div>
-      <div>Arcadia_Value value</div>
-      <div>
-      The value to insert at the front.
-      The value must be of one of the following types:
-      <code>Arcadia.ImmutableByteArray</code>, <code>Arcadia.ImmutableUtf8String</code>,
-      <code>Arcadia.ByteBuffer</code>, <code>Arcadia.StringBuilder</code>, or <code>Arcadia.String</code>.
-      </div>
-    </div>
-  </<section>
-
-  <section class="cxx errors">
-    <h1>Errors</h1>
-    <div>
-      <div>Arcadia_Status_ArgumentTypeInvalid</div>
-      <div><code>value</code> is not of an accepted type.</div>
-    </div>
-    <div>
-      <div>Arcadia_Status_EncodingInvalid</div>
-      <div><code>value</code> is of type <code>Arcadia.ImmutableByteArray</code> or <code>Arcadia.ByteBuffer</code> and the Bytes are not a valid UTF-8 Byte sequence.</div>
-    </div>
-  </section>
-
+<h1 id="Arcadia_StringBuilder_getNumberOfBytes">Arcadia_StringBuilder_getNumberOfBytes</h1>
+<pre><code>Arcadia_SizeValue
+Arcadia_StringBuilder_getNumberOfBytes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder const* self
+  );</code></pre>
+<p>Return the number of stored bytes, including embedded NUL.</p>
 </section>
 
-<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_getNumberOfCodePoints">Arcadia_StringBuilder_getNumberOfCodePoints</h1>
+<pre><code>Arcadia_SizeValue
+Arcadia_StringBuilder_getNumberOfCodePoints
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self
+  );</code></pre>
+<p>Return the number of Unicode scalar values.</p>
+</section>
 
 <section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_toUpperASCII">Arcadia_StringBuilder_toUpperASCII</h1>
+<pre><code>void
+Arcadia_StringBuilder_toUpperASCII
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_SizeValue* index,
+    Arcadia_SizeValue* length
+  );</code></pre>
+<p>Convert ASCII lowercase letters within the specified codepoint range. Null index means zero; null length means through the end.</p>
+</section>
 
-  <h1 id="Arcadia_StringBuilder_isEmpty">Arcadia_StringBuilder_isEmpty</h1>
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_toLowerASCII">Arcadia_StringBuilder_toLowerASCII</h1>
+<pre><code>void
+Arcadia_StringBuilder_toLowerASCII
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_SizeValue* index,
+    Arcadia_SizeValue* length
+  );</code></pre>
+<p>Convert ASCII uppercase letters within the specified codepoint range. Null index means zero; null length means through the end.</p>
+</section>
 
-  <my-signature><code>
-  Arcadia_BooleanValue<br>
-  Arcadia_StringBuilder_isEmpty<br>
-  &nbsp;&nbsp;(<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_Thread* thread,<br>
-  &nbsp;&nbsp;&nbsp;&nbsp;Arcadia_StringBuilder* self<br>
-  &nbsp;&nbsp;)
-  </code></my-signature>
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_removeCodePointsAt">Arcadia_StringBuilder_removeCodePointsAt</h1>
+<pre><code>void
+Arcadia_StringBuilder_removeCodePointsAt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_SizeValue codePointIndex,
+    Arcadia_SizeValue numberOfCodePoints
+  );</code></pre>
+<p>Remove a half-open codepoint range. A zero count at the end is valid.</p>
+</section>
 
-  <my-summary>
-  Get if this string buffer is empty.
-  </my-summary>
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_replaceCodePointsAt">Arcadia_StringBuilder_replaceCodePointsAt</h1>
+<pre><code>void
+Arcadia_StringBuilder_replaceCodePointsAt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_SizeValue codePointIndex,
+    Arcadia_SizeValue numberOfCodePoints,
+    Arcadia_Value value
+  );</code></pre>
+<p>Atomically replace a half-open codepoint range with a value accepted by insertAt. Self-replacement uses the original contents. An empty replacement deletes the range.</p>
+</section>
 
-  <section class="cxx parameters">
-    <h1>Parameters</h1>
-    <div>
-      <div><a href="#">Arcadia_Thread</a>* thread</div>
-      <div>A pointer to the <code>Arcadia_Thread</code> object.</div>
-    </div>
-    <div>
-      <div>Arcadia_StringBuilder* self</div>
-      <div>A pointer to this string buffer.</div>
-    </div>
-  </section>
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_removeCodePointsFront">Arcadia_StringBuilder_removeCodePointsFront</h1>
+<pre><code>void
+Arcadia_StringBuilder_removeCodePointsFront
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_SizeValue numberOfCodePoints
+  );</code></pre>
+<p>Remove the specified number of codepoints from the front.</p>
+</section>
 
-  <section class="cxx return-value">
-    <h1>Return value</h1>
-    <p><code>Arcadia_BooleanValue_True</code> if this string buffer is empty. <code>Arcadia_BooleanValue_False</code> otherwise.</p>
-  </section>
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_removeCodePointsBack">Arcadia_StringBuilder_removeCodePointsBack</h1>
+<pre><code>void
+Arcadia_StringBuilder_removeCodePointsBack
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_SizeValue numberOfCodePoints
+  );</code></pre>
+<p>Remove the specified number of codepoints from the back.</p>
+</section>
 
-  <section class="cxx errors">
-    <h1>Errors</h1>
-    <div>
-      <div>Arcadia_Status_ArgumentValueInvalid</div>
-      <div><code>self</code> is a null pointer.</div>
-    </div>
-  </section>
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_endsWith_pn">Arcadia_StringBuilder_endsWith_pn</h1>
+<pre><code>Arcadia_BooleanValue
+Arcadia_StringBuilder_endsWith_pn
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    void const* bytes,
+    Arcadia_SizeValue numberOfBytes
+  );</code></pre>
+<p>Test whether the stored bytes end with the given byte sequence. A zero byte count always returns true, including when <code>bytes</code> is NULL. A nonzero byte count with a NULL pointer raises <code>Arcadia_Status_ArgumentValueInvalid</code>.</p>
+</section>
 
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_startsWith_pn">Arcadia_StringBuilder_startsWith_pn</h1>
+<pre><code>Arcadia_BooleanValue
+Arcadia_StringBuilder_startsWith_pn
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    void const* bytes,
+    Arcadia_SizeValue numberOfBytes
+  );</code></pre>
+<p>Test whether the stored bytes start with the given byte sequence. A zero byte count always returns true, including when <code>bytes</code> is NULL. A nonzero byte count with a NULL pointer raises <code>Arcadia_Status_ArgumentValueInvalid</code>.</p>
+</section>
+
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_insertBackCodePoint">Arcadia_StringBuilder_insertBackCodePoint</h1>
+<pre><code>void
+Arcadia_StringBuilder_insertBackCodePoint
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_Natural32Value codePoint
+  );</code></pre>
+<p>Append one Unicode scalar value.</p>
+</section>
+
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_insertBackCodePoints">Arcadia_StringBuilder_insertBackCodePoints</h1>
+<pre><code>void
+Arcadia_StringBuilder_insertBackCodePoints
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_Natural32Value const* codePoints,
+    Arcadia_SizeValue numberOfCodePoints
+  );</code></pre>
+<p>Append an array of Unicode scalar values in array order.</p>
+</section>
+
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_insertFrontCodePoint">Arcadia_StringBuilder_insertFrontCodePoint</h1>
+<pre><code>void
+Arcadia_StringBuilder_insertFrontCodePoint
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_Natural32Value codePoint
+  );</code></pre>
+<p>Prepend one Unicode scalar value.</p>
+</section>
+
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_insertFrontCodePoints">Arcadia_StringBuilder_insertFrontCodePoints</h1>
+<pre><code>void
+Arcadia_StringBuilder_insertFrontCodePoints
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_Natural32Value const* codePoints,
+    Arcadia_SizeValue numberOfCodePoints
+  );</code></pre>
+<p>Prepend an array of Unicode scalar values in array order.</p>
+</section>
+
+<section class="cxx entity method">
+<h1 id="Arcadia_StringBuilder_getBytes">Arcadia_StringBuilder_getBytes</h1>
+<pre><code>Arcadia_Natural8Value const*
+Arcadia_StringBuilder_getBytes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder const* self
+  );</code></pre>
+<p>Borrow the stored bytes until mutation or destruction. There is no implicit NUL terminator.</p>
 </section>
 
 
@@ -6416,14 +6245,27 @@ intentional compatibility, not duplicate native storage.</p>
 
         <li>String Builder</li>
 <li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder">Arcadia_StringBuilder</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_clear">Arcadia_StringBuilder_clear</a></li>
 <li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_create">Arcadia_StringBuilder_create</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_compareTo">Arcadia_StringBuilder_compareTo</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_getNumberOfBytes">Arcadia_StringBuilder_getNumberOfBytes</a></li>
 <li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_insertAt">Arcadia_StringBuilder_insertAt</a></li>
 <li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_insertBack">Arcadia_StringBuilder_insertBack</a></li>
 <li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_insertFront">Arcadia_StringBuilder_insertFront</a></li>
-<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_isEmpty">Arcadia_StringBuilder_isEmpty</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_compareTo">Arcadia_StringBuilder_compareTo</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_clear">Arcadia_StringBuilder_clear</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_getNumberOfBytes">Arcadia_StringBuilder_getNumberOfBytes</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_getNumberOfCodePoints">Arcadia_StringBuilder_getNumberOfCodePoints</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_toUpperASCII">Arcadia_StringBuilder_toUpperASCII</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_toLowerASCII">Arcadia_StringBuilder_toLowerASCII</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_removeCodePointsAt">Arcadia_StringBuilder_removeCodePointsAt</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_replaceCodePointsAt">Arcadia_StringBuilder_replaceCodePointsAt</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_removeCodePointsFront">Arcadia_StringBuilder_removeCodePointsFront</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_removeCodePointsBack">Arcadia_StringBuilder_removeCodePointsBack</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_endsWith_pn">Arcadia_StringBuilder_endsWith_pn</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_startsWith_pn">Arcadia_StringBuilder_startsWith_pn</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_insertBackCodePoint">Arcadia_StringBuilder_insertBackCodePoint</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_insertBackCodePoints">Arcadia_StringBuilder_insertBackCodePoints</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_insertFrontCodePoint">Arcadia_StringBuilder_insertFrontCodePoint</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_insertFrontCodePoints">Arcadia_StringBuilder_insertFrontCodePoints</a></li>
+<li><a href="https://michaelheilmann.com/Arcadia/Ring1/#Arcadia_StringBuilder_getBytes">Arcadia_StringBuilder_getBytes</a></li>
 
 
         <li>Numeric functions</li>
@@ -6505,7 +6347,7 @@ intentional compatibility, not duplicate native storage.</p>
   <div class="left-column">
     <div>
     <div>Website maintained by Michael Heilmann.</div>
-    <div>Last modified on 20 November 2026.</div>
+    <div>Last modified on 25 November 2026.</div>
     </div>
   </div>
   <div class="center-column">

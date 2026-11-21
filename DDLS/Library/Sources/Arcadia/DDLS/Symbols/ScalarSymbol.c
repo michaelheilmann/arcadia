@@ -74,6 +74,11 @@ Arcadia_DDLS_ScalarSymbol_constructImpl
   }
   //
   self->name = NULL;
+  self->enumeration = NULL;
+  self->minimum = NULL;
+  self->exclusiveMinimum = NULL;
+  self->maximum = NULL;
+  self->exclusiveMaximum = NULL;
   //
   Arcadia_LeaveConstructor(Arcadia_DDLS_ScalarSymbol);
 }
@@ -95,6 +100,21 @@ Arcadia_DDLS_ScalarSymbol_visitImpl
 {
   if (self->name) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->name);
+  }
+  if (self->enumeration) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->enumeration);
+  }
+  if (self->minimum) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->minimum);
+  }
+  if (self->exclusiveMinimum) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->exclusiveMinimum);
+  }
+  if (self->maximum) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->maximum);
+  }
+  if (self->exclusiveMaximum) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->exclusiveMaximum);
   }
 }
 

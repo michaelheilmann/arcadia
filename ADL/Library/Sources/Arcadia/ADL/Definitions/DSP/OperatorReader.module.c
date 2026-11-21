@@ -30,7 +30,7 @@ static const char* SCHEMA =
   "  definition : {\n"
   "    kind : \"Map\",\n"
   "    entries : [\n"
-  "      { kind : \"MapEntry\", name : \"type\", type : { kind : \"String\" } },\n"
+  "      { kind : \"MapEntry\", name : \"type\", type : { kind : \"String\", enum : [\"DSP.Gain\", \"DSP.LowPass\", \"DSP.Mix\"] } },\n"
   "      { kind : \"MapEntry\", name : \"name\", type : { kind : \"String\" } },\n"
   "      { kind : \"MapEntry\", name : \"input\", type : { kind : \"String\" }, optional : true },\n"
   "      { kind : \"MapEntry\", name : \"inputs\", type : { kind : \"List\", elements : { kind : \"String\" } }, optional : true },\n"

@@ -387,9 +387,48 @@ onValidate
   } else if (Arcadia_DDLS_isMap(thread, ddlsNode) && Arcadia_DDL_Node_isMap(thread, node)) {
     return onValidateMap(thread, self, ddlsNode, node, reportMismatch);
   } else if (Arcadia_DDLS_isNumber(thread, ddlsNode) && Arcadia_DDL_Node_isNumber(thread, node)) {
+    Arcadia_DDLS_ScalarNode* scalar = (Arcadia_DDLS_ScalarNode*)ddlsNode;
+    Arcadia_String* text = ((Arcadia_DDL_NumberNode*)node)->value;
+    Arcadia_BigReal* value = Arcadia_BigReal_create(thread);
+    Arcadia_BigReal_fromDecimalString(thread, value, Arcadia_String_getBytes(thread, text), Arcadia_String_getNumberOfBytes(thread, text));
+    Arcadia_String* bounds[4] = { scalar->minimum, scalar->exclusiveMinimum, scalar->maximum, scalar->exclusiveMaximum };
+    for (Arcadia_SizeValue i = 0; i < 4; ++i) {
+      if (bounds[i]) {
+        Arcadia_BigReal* bound = Arcadia_BigReal_create(thread);
+        Arcadia_BigReal_fromDecimalString(thread, bound, Arcadia_String_getBytes(thread, bounds[i]), Arcadia_String_getNumberOfBytes(thread, bounds[i]));
+        Arcadia_Integer8Value order = Arcadia_BigReal_compareTo(thread, value, bound);
+        if ((i == 0 && order < 0) || (i == 1 && order <= 0) ||
+            (i == 2 && order > 0) || (i == 3 && order >= 0)) {
+          if (reportMismatch) {
+            Arcadia_DDLS_Diagnostics_numberBoundsError(thread, self->diagnostics);
+            Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+            Arcadia_Thread_jump(thread);
+          }
+          return Arcadia_BooleanValue_False;
+        }
+      }
+    }
     return Arcadia_BooleanValue_True;
   } else if (Arcadia_DDLS_isString(thread, ddlsNode) && Arcadia_DDL_Node_isString(thread, node)) {
-    return Arcadia_BooleanValue_True;
+    Arcadia_DDLS_ScalarNode* scalar = (Arcadia_DDLS_ScalarNode*)ddlsNode;
+    if (!scalar->enumeration) {
+      return Arcadia_BooleanValue_True;
+    }
+    Arcadia_String* value = ((Arcadia_DDL_StringNode*)node)->value;
+    Arcadia_Value candidate = Arcadia_Value_makeObjectReferenceValue(value);
+    for (Arcadia_SizeValue i = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)scalar->enumeration); i < n; ++i) {
+      Arcadia_String* member = (Arcadia_String*)Arcadia_List_getObjectReferenceValueCheckedAt(
+        thread, scalar->enumeration, i, _Arcadia_String_getType(thread));
+      if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)member, &candidate)) {
+        return Arcadia_BooleanValue_True;
+      }
+    }
+    if (reportMismatch) {
+      Arcadia_DDLS_Diagnostics_stringNotEnumeratedError(thread, self->diagnostics);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    return Arcadia_BooleanValue_False;
   } else if (Arcadia_DDLS_isVoid(thread, ddlsNode) && Arcadia_DDL_Node_isVoid(thread, node)) {
     return Arcadia_BooleanValue_True;
   } else {

@@ -30,6 +30,15 @@
   "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"String\" } },"
 #define NUMBER_FIELD(name) \
   "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\" } },"
+#define ENUM_FIELD(name, values) \
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"String\", enum : [" values "] } },"
+#define OPTIONAL_ENUM_FIELD(name, values) \
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"String\", enum : [" values "] }, optional : true },"
+#define BOUNDED_NUMBER_FIELD(name, minimum, maximum) \
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\", minimum : " #minimum ", maximum : " #maximum " } },"
+#define OPTIONAL_BOUNDED_NUMBER_FIELD(name, minimum, maximum) \
+  "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"Number\", minimum : " #minimum ", maximum : " #maximum " }, optional : true },"
+
 #define LIST_FIELD(name) \
   "{ kind : \"MapEntry\", name : \"" name "\", type : { kind : \"List\", elements : { kind : \"String\" } } },"
 #define OPTIONAL_NUMBER_FIELD(name) \
@@ -39,37 +48,37 @@
 
 static const char* LABEL_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.Label")
-  STRING_FIELD("type") STRING_FIELD("name") NUMBER_FIELD("left") NUMBER_FIELD("bottom")
-  NUMBER_FIELD("width") NUMBER_FIELD("height") STRING_FIELD("text")
+  ENUM_FIELD("type", "\"UI.Label\"") STRING_FIELD("name") BOUNDED_NUMBER_FIELD("left", -2147483648, 2147483647) BOUNDED_NUMBER_FIELD("bottom", -2147483648, 2147483647)
+  BOUNDED_NUMBER_FIELD("width", 0, 4294967295) BOUNDED_NUMBER_FIELD("height", 0, 4294967295) STRING_FIELD("text")
   STRING_FIELD("horizontalAlignment") STRING_FIELD("verticalAlignment")
-  NUMBER_FIELD("red") NUMBER_FIELD("green") NUMBER_FIELD("blue") NUMBER_FIELD("alpha")
-  NUMBER_FIELD("pixelSize") MAP_SCHEMA_END;
+  BOUNDED_NUMBER_FIELD("red", 0, 255) BOUNDED_NUMBER_FIELD("green", 0, 255) BOUNDED_NUMBER_FIELD("blue", 0, 255) BOUNDED_NUMBER_FIELD("alpha", 0, 255)
+  BOUNDED_NUMBER_FIELD("pixelSize", 0, 4294967295) MAP_SCHEMA_END;
 
 // A panel contains children, while its layout map chooses their arrangement.
 // This schema supports StackLayout; other strategies will gain their own maps.
 static const char* PANEL_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.Panel")
-  STRING_FIELD("type") STRING_FIELD("name") NUMBER_FIELD("left") NUMBER_FIELD("bottom")
-  NUMBER_FIELD("width") NUMBER_FIELD("height") LIST_FIELD("children")
-  OPTIONAL_STRING_FIELD("sizePolicy")
-  OPTIONAL_STRING_FIELD("behavior") OPTIONAL_STRING_FIELD("selectedChild")
-  OPTIONAL_STRING_FIELD("backgroundModel") OPTIONAL_NUMBER_FIELD("backgroundBorderWidth")
+  ENUM_FIELD("type", "\"UI.Panel\"") STRING_FIELD("name") BOUNDED_NUMBER_FIELD("left", -2147483648, 2147483647) BOUNDED_NUMBER_FIELD("bottom", -2147483648, 2147483647)
+  BOUNDED_NUMBER_FIELD("width", 0, 4294967295) BOUNDED_NUMBER_FIELD("height", 0, 4294967295) LIST_FIELD("children")
+  OPTIONAL_ENUM_FIELD("sizePolicy", "\"Content\", \"Fixed\"")
+  OPTIONAL_ENUM_FIELD("behavior", "\"TabBar\"") OPTIONAL_STRING_FIELD("selectedChild")
+  OPTIONAL_STRING_FIELD("backgroundModel") OPTIONAL_BOUNDED_NUMBER_FIELD("backgroundBorderWidth", 0, 4294967295)
   "{ kind : \"MapEntry\", name : \"layout\", type : { kind : \"Map\", entries : ["
-    STRING_FIELD("type") STRING_FIELD("orientation")
-    OPTIONAL_NUMBER_FIELD("gap") OPTIONAL_NUMBER_FIELD("paddingLeft")
-    OPTIONAL_NUMBER_FIELD("paddingBottom") OPTIONAL_NUMBER_FIELD("paddingRight")
-    OPTIONAL_NUMBER_FIELD("paddingTop") OPTIONAL_STRING_FIELD("mainAlignment")
-    OPTIONAL_STRING_FIELD("crossAlignment")
+    ENUM_FIELD("type", "\"UI.StackLayout\"") ENUM_FIELD("orientation", "\"Vertical\", \"Horizontal\"")
+    OPTIONAL_BOUNDED_NUMBER_FIELD("gap", 0, 2147483647) OPTIONAL_BOUNDED_NUMBER_FIELD("paddingLeft", 0, 2147483647)
+    OPTIONAL_BOUNDED_NUMBER_FIELD("paddingBottom", 0, 2147483647) OPTIONAL_BOUNDED_NUMBER_FIELD("paddingRight", 0, 2147483647)
+    OPTIONAL_BOUNDED_NUMBER_FIELD("paddingTop", 0, 2147483647) OPTIONAL_ENUM_FIELD("mainAlignment", "\"Start\", \"Center\", \"End\", \"Stretch\"")
+    OPTIONAL_ENUM_FIELD("crossAlignment", "\"Start\", \"Center\", \"End\", \"Stretch\"")
   "] } },"
   // Named child overrides are optional and independent of child order.
   "{ kind : \"MapEntry\", name : \"childLayouts\", optional : true, "
     "type : { kind : \"List\", elements : { kind : \"Map\", entries : ["
       STRING_FIELD("name")
-      OPTIONAL_NUMBER_FIELD("marginLeft") OPTIONAL_NUMBER_FIELD("marginBottom")
-      OPTIONAL_NUMBER_FIELD("marginRight") OPTIONAL_NUMBER_FIELD("marginTop")
-      OPTIONAL_STRING_FIELD("crossAlignment")
-      OPTIONAL_STRING_FIELD("visibility") OPTIONAL_STRING_FIELD("mainAxisPolicy")
-      OPTIONAL_NUMBER_FIELD("mainAxisExtent") OPTIONAL_NUMBER_FIELD("weight")
+      OPTIONAL_BOUNDED_NUMBER_FIELD("marginLeft", 0, 2147483647) OPTIONAL_BOUNDED_NUMBER_FIELD("marginBottom", 0, 2147483647)
+      OPTIONAL_BOUNDED_NUMBER_FIELD("marginRight", 0, 2147483647) OPTIONAL_BOUNDED_NUMBER_FIELD("marginTop", 0, 2147483647)
+      OPTIONAL_ENUM_FIELD("crossAlignment", "\"Start\", \"Center\", \"End\", \"Stretch\"")
+      OPTIONAL_ENUM_FIELD("visibility", "\"Visible\", \"Hidden\", \"Collapsed\"") OPTIONAL_ENUM_FIELD("mainAxisPolicy", "\"Content\", \"Fixed\", \"Weight\"")
+      OPTIONAL_BOUNDED_NUMBER_FIELD("mainAxisExtent", 0, 2147483647) OPTIONAL_BOUNDED_NUMBER_FIELD("weight", 1, 2147483647)
     "] } } },"
   MAP_SCHEMA_END;
 
@@ -77,29 +86,29 @@ static const char* PANEL_SCHEMA =
 // The read contract is strict and rejects unrecognized or malformed fields.
 static const char* SCROLL_PANEL_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.ScrollPanel")
-  STRING_FIELD("type") STRING_FIELD("name") NUMBER_FIELD("left") NUMBER_FIELD("bottom")
-  NUMBER_FIELD("width") NUMBER_FIELD("height") NUMBER_FIELD("contentWidth")
-  NUMBER_FIELD("contentHeight") LIST_FIELD("children")
+  ENUM_FIELD("type", "\"UI.ScrollPanel\"") STRING_FIELD("name") BOUNDED_NUMBER_FIELD("left", -2147483648, 2147483647) BOUNDED_NUMBER_FIELD("bottom", -2147483648, 2147483647)
+  BOUNDED_NUMBER_FIELD("width", 1, 4294967295) BOUNDED_NUMBER_FIELD("height", 1, 4294967295) BOUNDED_NUMBER_FIELD("contentWidth", 1, 4294967295)
+  BOUNDED_NUMBER_FIELD("contentHeight", 1, 4294967295) LIST_FIELD("children")
   MAP_SCHEMA_END;
 
 static const char* SEGMENTED_CHOICE_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.SegmentedChoice")
-  STRING_FIELD("type") STRING_FIELD("name") NUMBER_FIELD("left") NUMBER_FIELD("bottom")
-  NUMBER_FIELD("width") NUMBER_FIELD("height") NUMBER_FIELD("selectedIndex") LIST_FIELD("labels")
-  OPTIONAL_NUMBER_FIELD("pixelSize") OPTIONAL_NUMBER_FIELD("borderWidth")
-  OPTIONAL_NUMBER_FIELD("borderRed") OPTIONAL_NUMBER_FIELD("borderGreen") OPTIONAL_NUMBER_FIELD("borderBlue")
+  ENUM_FIELD("type", "\"UI.SegmentedChoice\"") STRING_FIELD("name") BOUNDED_NUMBER_FIELD("left", -2147483648, 2147483647) BOUNDED_NUMBER_FIELD("bottom", -2147483648, 2147483647)
+  BOUNDED_NUMBER_FIELD("width", 0, 4294967295) BOUNDED_NUMBER_FIELD("height", 0, 4294967295) BOUNDED_NUMBER_FIELD("selectedIndex", 0, 4294967295) LIST_FIELD("labels")
+  OPTIONAL_BOUNDED_NUMBER_FIELD("pixelSize", 0, 4294967295) OPTIONAL_BOUNDED_NUMBER_FIELD("borderWidth", 0, 4294967295)
+  OPTIONAL_BOUNDED_NUMBER_FIELD("borderRed", 0, 255) OPTIONAL_BOUNDED_NUMBER_FIELD("borderGreen", 0, 255) OPTIONAL_BOUNDED_NUMBER_FIELD("borderBlue", 0, 255)
   MAP_SCHEMA_END;
 
 static const char* SLIDER_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.Slider")
-  STRING_FIELD("type") STRING_FIELD("name") NUMBER_FIELD("left") NUMBER_FIELD("bottom")
-  NUMBER_FIELD("width") NUMBER_FIELD("height") NUMBER_FIELD("minimum") NUMBER_FIELD("maximum")
+  ENUM_FIELD("type", "\"UI.Slider\"") STRING_FIELD("name") BOUNDED_NUMBER_FIELD("left", -2147483648, 2147483647) BOUNDED_NUMBER_FIELD("bottom", -2147483648, 2147483647)
+  BOUNDED_NUMBER_FIELD("width", 0, 4294967295) BOUNDED_NUMBER_FIELD("height", 0, 4294967295) NUMBER_FIELD("minimum") NUMBER_FIELD("maximum")
   NUMBER_FIELD("value") NUMBER_FIELD("step") MAP_SCHEMA_END;
 
 static const char* TOGGLE_SCHEMA =
   MAP_SCHEMA_BEGIN("UI.Toggle")
-  STRING_FIELD("type") STRING_FIELD("name") NUMBER_FIELD("left") NUMBER_FIELD("bottom")
-  NUMBER_FIELD("width") NUMBER_FIELD("height") STRING_FIELD("checked") MAP_SCHEMA_END;
+  ENUM_FIELD("type", "\"UI.Toggle\"") STRING_FIELD("name") BOUNDED_NUMBER_FIELD("left", -2147483648, 2147483647) BOUNDED_NUMBER_FIELD("bottom", -2147483648, 2147483647)
+  BOUNDED_NUMBER_FIELD("width", 0, 4294967295) BOUNDED_NUMBER_FIELD("height", 0, 4294967295) STRING_FIELD("checked") MAP_SCHEMA_END;
 
 #undef MAP_SCHEMA_BEGIN
 #undef MAP_SCHEMA_END
@@ -108,6 +117,10 @@ static const char* TOGGLE_SCHEMA =
 #undef LIST_FIELD
 #undef OPTIONAL_NUMBER_FIELD
 #undef OPTIONAL_STRING_FIELD
+#undef ENUM_FIELD
+#undef OPTIONAL_ENUM_FIELD
+#undef BOUNDED_NUMBER_FIELD
+#undef OPTIONAL_BOUNDED_NUMBER_FIELD
 
 static Arcadia_String*
 getTypeName

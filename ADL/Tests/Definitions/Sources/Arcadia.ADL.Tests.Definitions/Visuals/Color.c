@@ -138,8 +138,8 @@ testColorAlphaInvalid
   Arcadia_SizeValue entry = Arcadia_ValueStack_getSize(thread);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)Arcadia_ADL_Context_getOrCreate(thread));
   for (Arcadia_SizeValue i = 0; i < 300; ++i) Arcadia_ValueStack_pushNatural64Value(thread, i);
-  static const char* const values[] = { "-1", "256", "0.5", "\"0\"", "false", "void" };
-  for (unsigned i = 0; i < 6; ++i) {
+  static const char* const values[] = { "-1", "256", "0.5", "\"0\"", "false", "void", "-0.5", "255.5" };
+  for (unsigned i = 0; i < sizeof(values) / sizeof(values[0]); ++i) {
     Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
     Arcadia_StringBuilder* text = Arcadia_StringBuilder_create(thread);
     Arcadia_StringBuilder_insertBackCxxString(thread, text, "{ type: \"Color\", name: \"Invalid\", red: 13, green: 79, blue: 227, alpha: ");
@@ -158,7 +158,7 @@ testColorAlphaInvalid
       Arcadia_Status status = Arcadia_Thread_getStatus(thread);
       Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
       Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
-      Arcadia_Tests_assertEqualStatus(thread, i < 3 ? Arcadia_Status_ConversionFailed : Arcadia_Status_SemanticalError, status);
+      Arcadia_Tests_assertEqualStatus(thread, i == 2 ? Arcadia_Status_ConversionFailed : Arcadia_Status_SemanticalError, status);
     }
     Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
     Arcadia_Tests_assertTrue(thread, !Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false));
