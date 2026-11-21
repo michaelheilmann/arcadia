@@ -27,10 +27,17 @@
 #include "Arcadia/Ring1/TypeSystem/Names.h"
 #include "Arcadia/Ring1/TypeSystem/Types.h"
 
+struct Arcadia_Descriptor {
+  Arcadia_DescriptorKind kind;
+};
+
+typedef struct Arcadia_MemberMetadata Arcadia_MemberMetadata;
+
 #define TypeNodeName u8"Arcadia.DynamicTypeSystem.TypeNode"
 typedef struct TypeNode TypeNode;
 
 struct TypeNode {
+  Arcadia_Descriptor descriptor;
   /// Pointer to the successor in the bucket list or the null pointer.
   TypeNode* next;
   /// The kind of this type.
@@ -41,6 +48,8 @@ struct TypeNode {
 
   Arcadia_TypeDescriptor_Operations const* typeOperations;
   Arcadia_TypeDescriptor_DestructingCallbackFunction* typeDestructing;
+  /// Owned immutable member metadata (NULL until publication).
+  Arcadia_MemberMetadata* members;
 
 };
 
