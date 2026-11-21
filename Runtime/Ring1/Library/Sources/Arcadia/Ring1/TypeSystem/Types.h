@@ -65,6 +65,109 @@ typedef struct Arcadia_InterfaceDispatch {
 typedef void (Arcadia_InterfaceDispatch_InitializeCallbackFunction)(Arcadia_Thread* thread, Arcadia_InterfaceDispatch* self);
 
 
+/// The descriptor family is native and independent of Arcadia_Object.
+typedef struct Arcadia_Descriptor Arcadia_Descriptor;
+typedef struct Arcadia_FieldDescriptor Arcadia_FieldDescriptor;
+typedef struct Arcadia_MethodDescriptor Arcadia_MethodDescriptor;
+
+typedef enum Arcadia_DescriptorKind {
+  Arcadia_DescriptorKind_Type = 0,
+  Arcadia_DescriptorKind_Field = 1,
+  Arcadia_DescriptorKind_Method = 2
+} Arcadia_DescriptorKind;
+
+/// All three descriptor kinds share this native representation prefix.
+Arcadia_DescriptorKind
+Arcadia_Descriptor_getKind
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Descriptor const* self
+  );
+
+/// The caller must register referenced type identities before publishing members.
+/// Names are interned Arcadia_Name values; the publisher retains their lifetime.
+typedef struct Arcadia_FieldSpecification {
+  Arcadia_Name* name;
+  Arcadia_TypeDescriptorValue valueType;
+  size_t offset;
+} Arcadia_FieldSpecification;
+
+typedef struct Arcadia_MethodSpecification {
+  Arcadia_Name* name;
+  Arcadia_TypeDescriptorValue returnType;
+  size_t numberOfParameters;
+  Arcadia_TypeDescriptorValue const* parameterTypes;
+} Arcadia_MethodSpecification;
+
+/// Publish both immutable declared-member collections in one transaction.
+/// A type can publish at most once. All input records are copied.
+/// This initial interface provides metadata lookup, not field access or invocation.
+void
+Arcadia_TypeDescriptor_publishMembers
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_FieldSpecification const* fields,
+    size_t numberOfFields,
+    Arcadia_MethodSpecification const* methods,
+    size_t numberOfMethods
+  );
+
+/// Declared-only lookup. Returns NULL for absent members.
+/// Raises NotInitialized when the owner has not published metadata.
+Arcadia_FieldDescriptor const*
+Arcadia_TypeDescriptor_getDeclaredField
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  );
+
+Arcadia_MethodDescriptor const*
+Arcadia_TypeDescriptor_getDeclaredMethod
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  );
+
+/// Object inheritance lookup returns the descriptor from its declaring owner.
+Arcadia_FieldDescriptor const*
+Arcadia_TypeDescriptor_getField
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  );
+
+Arcadia_MethodDescriptor const*
+Arcadia_TypeDescriptor_getMethod
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  );
+
+Arcadia_Name*
+Arcadia_FieldDescriptor_getName(Arcadia_FieldDescriptor const* self);
+Arcadia_TypeDescriptorValue
+Arcadia_FieldDescriptor_getDeclaringType(Arcadia_FieldDescriptor const* self);
+Arcadia_TypeDescriptorValue
+Arcadia_FieldDescriptor_getValueType(Arcadia_FieldDescriptor const* self);
+size_t
+Arcadia_FieldDescriptor_getOffset(Arcadia_FieldDescriptor const* self);
+
+Arcadia_Name*
+Arcadia_MethodDescriptor_getName(Arcadia_MethodDescriptor const* self);
+Arcadia_TypeDescriptorValue
+Arcadia_MethodDescriptor_getDeclaringType(Arcadia_MethodDescriptor const* self);
+Arcadia_TypeDescriptorValue
+Arcadia_MethodDescriptor_getReturnType(Arcadia_MethodDescriptor const* self);
+size_t
+Arcadia_MethodDescriptor_getNumberOfParameters(Arcadia_MethodDescriptor const* self);
+Arcadia_TypeDescriptorValue
+Arcadia_MethodDescriptor_getParameterType(Arcadia_MethodDescriptor const* self, size_t index);
+
 /// Type operations for object types.
 typedef struct Arcadia_ObjectType_Operations {
   Arcadia_Object_ConstructCallbackFunction* construct;

@@ -28,6 +28,7 @@ struct Arcadia_MyObjectADispatch {
 
 struct Arcadia_MyObjectA {
   Arcadia_Object parent;
+  Arcadia_SizeValue member;
 };
 
 Arcadia_MyObjectA*

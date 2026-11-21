@@ -36,6 +36,437 @@
 static uint32_t g_referenceCount = 0;
 static TypeNodes* g_typeNodes = NULL;
 
+// Descriptor storage is independent of the managed Arcadia_Object hierarchy.
+// Member descriptors are address-stable for the declaring type's lifetime.
+struct Arcadia_FieldDescriptor {
+  Arcadia_Descriptor descriptor;
+  Arcadia_Name* name;
+  Arcadia_TypeDescriptorValue declaringType;
+  Arcadia_TypeDescriptorValue valueType;
+  size_t offset;
+};
+
+struct Arcadia_MethodDescriptor {
+  Arcadia_Descriptor descriptor;
+  Arcadia_Name* name;
+  Arcadia_TypeDescriptorValue declaringType;
+  Arcadia_TypeDescriptorValue returnType;
+  size_t numberOfParameters;
+  Arcadia_TypeDescriptorValue* parameterTypes;
+};
+
+struct Arcadia_MemberMetadata {
+  size_t numberOfFields;
+  Arcadia_FieldDescriptor* fields;
+  size_t numberOfMethods;
+  Arcadia_MethodDescriptor* methods;
+};
+
+static void
+destroyMemberMetadata
+  (
+    Arcadia_Process* process,
+    Arcadia_MemberMetadata* metadata
+  )
+{
+  if (!metadata) {
+    return;
+  }
+  for (size_t i = 0; metadata->fields && i < metadata->numberOfFields; ++i) {
+    if (metadata->fields[i].name) {
+      Arcadia_Process_unlockObject(process, metadata->fields[i].name);
+    }
+  }
+  for (size_t i = 0; metadata->methods && i < metadata->numberOfMethods; ++i) {
+    if (metadata->methods[i].name) {
+      Arcadia_Process_unlockObject(process, metadata->methods[i].name);
+    }
+    free(metadata->methods[i].parameterTypes);
+  }
+  free(metadata->fields);
+  free(metadata->methods);
+  free(metadata);
+}
+
+static void
+raiseInvalidMemberSpecification
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+  Arcadia_Thread_jump(thread);
+}
+
+Arcadia_DescriptorKind
+Arcadia_Descriptor_getKind
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Descriptor const* self
+  )
+{
+  if (!self) {
+    raiseInvalidMemberSpecification(thread);
+  }
+  return self->kind;
+}
+
+Arcadia_Name*
+Arcadia_FieldDescriptor_getName(Arcadia_FieldDescriptor const* self)
+{ return self->name; }
+
+Arcadia_TypeDescriptorValue
+Arcadia_FieldDescriptor_getDeclaringType(Arcadia_FieldDescriptor const* self)
+{ return self->declaringType; }
+
+Arcadia_TypeDescriptorValue
+Arcadia_FieldDescriptor_getValueType(Arcadia_FieldDescriptor const* self)
+{ return self->valueType; }
+
+size_t
+Arcadia_FieldDescriptor_getOffset(Arcadia_FieldDescriptor const* self)
+{ return self->offset; }
+
+Arcadia_Name*
+Arcadia_MethodDescriptor_getName(Arcadia_MethodDescriptor const* self)
+{ return self->name; }
+
+Arcadia_TypeDescriptorValue
+Arcadia_MethodDescriptor_getDeclaringType(Arcadia_MethodDescriptor const* self)
+{ return self->declaringType; }
+
+Arcadia_TypeDescriptorValue
+Arcadia_MethodDescriptor_getReturnType(Arcadia_MethodDescriptor const* self)
+{ return self->returnType; }
+
+size_t
+Arcadia_MethodDescriptor_getNumberOfParameters(Arcadia_MethodDescriptor const* self)
+{ return self->numberOfParameters; }
+
+Arcadia_TypeDescriptorValue
+Arcadia_MethodDescriptor_getParameterType(Arcadia_MethodDescriptor const* self, size_t index)
+{ return index < self->numberOfParameters ? self->parameterTypes[index] : NULL; }
+
+static Arcadia_BooleanValue
+hasMatchingMethodSignature
+  (
+    Arcadia_MethodDescriptor const* existing,
+    Arcadia_MethodSpecification const* specification
+  )
+{
+  if (existing->returnType != specification->returnType ||
+      existing->numberOfParameters != specification->numberOfParameters) {
+    return Arcadia_BooleanValue_False;
+  }
+  for (size_t i = 0; i < existing->numberOfParameters; ++i) {
+    if (existing->parameterTypes[i] != specification->parameterTypes[i]) {
+      return Arcadia_BooleanValue_False;
+    }
+  }
+  return Arcadia_BooleanValue_True;
+}
+
+static Arcadia_FieldDescriptor const*
+findDeclaredField
+  (
+    TypeNode const* node,
+    Arcadia_Name* name
+  )
+{
+  if (!node->members) {
+    return NULL;
+  }
+  for (size_t i = 0; i < node->members->numberOfFields; ++i) {
+    if (node->members->fields[i].name == name) {
+      return &node->members->fields[i];
+    }
+  }
+  return NULL;
+}
+
+static Arcadia_MethodDescriptor const*
+findDeclaredMethod
+  (
+    TypeNode const* node,
+    Arcadia_Name* name
+  )
+{
+  if (!node->members) {
+    return NULL;
+  }
+  for (size_t i = 0; i < node->members->numberOfMethods; ++i) {
+    if (node->members->methods[i].name == name) {
+      return &node->members->methods[i];
+    }
+  }
+  return NULL;
+}
+
+static Arcadia_BooleanValue
+isRegisteredTypeNode
+  (
+    TypeNode const* needle
+  );
+
+static void
+validateMemberLookup
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  )
+{
+  if (!owner || !name) {
+    raiseInvalidMemberSpecification(thread);
+  }
+  if (!isRegisteredTypeNode((TypeNode*)owner)) {
+    raiseInvalidMemberSpecification(thread);
+  }
+  if (!((TypeNode*)owner)->members) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_NotInitialized);
+    Arcadia_Thread_jump(thread);
+  }
+}
+
+Arcadia_FieldDescriptor const*
+Arcadia_TypeDescriptor_getDeclaredField
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  )
+{
+  validateMemberLookup(thread, owner, name);
+  return findDeclaredField((TypeNode*)owner, name);
+}
+
+Arcadia_MethodDescriptor const*
+Arcadia_TypeDescriptor_getDeclaredMethod
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  )
+{
+  validateMemberLookup(thread, owner, name);
+  return findDeclaredMethod((TypeNode*)owner, name);
+}
+
+Arcadia_FieldDescriptor const*
+Arcadia_TypeDescriptor_getField
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  )
+{
+  validateMemberLookup(thread, owner, name);
+  for (TypeNode* node = (TypeNode*)owner; node; ) {
+    Arcadia_FieldDescriptor const* result = findDeclaredField(node, name);
+    if (result) {
+      return result;
+    }
+    if (node->kind != Arcadia_TypeKind_Object) {
+      break;
+    }
+    node = ((ObjectTypeNode*)node)->parentObjectType;
+  }
+  return NULL;
+}
+
+Arcadia_MethodDescriptor const*
+Arcadia_TypeDescriptor_getMethod
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  )
+{
+  validateMemberLookup(thread, owner, name);
+  for (TypeNode* node = (TypeNode*)owner; node; ) {
+    Arcadia_MethodDescriptor const* result = findDeclaredMethod(node, name);
+    if (result) {
+      return result;
+    }
+    if (node->kind != Arcadia_TypeKind_Object) {
+      break;
+    }
+    node = ((ObjectTypeNode*)node)->parentObjectType;
+  }
+  return NULL;
+}
+
+static Arcadia_BooleanValue
+isRegisteredTypeNode
+  (
+    TypeNode const* needle
+  )
+{
+  if (!g_typeNodes) {
+    return Arcadia_BooleanValue_False;
+  }
+  for (size_t i = 0; i < g_typeNodes->capacity; ++i) {
+    for (TypeNode* node = g_typeNodes->buckets[i]; node; node = node->next) {
+      if (node == needle) {
+        return Arcadia_BooleanValue_True;
+      }
+    }
+  }
+  return Arcadia_BooleanValue_False;
+}
+
+void
+Arcadia_TypeDescriptor_publishMembers
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_FieldSpecification const* fields,
+    size_t numberOfFields,
+    Arcadia_MethodSpecification const* methods,
+    size_t numberOfMethods
+  )
+{
+  if (!owner || !isRegisteredTypeNode((TypeNode*)owner) ||
+      ((TypeNode*)owner)->kind != Arcadia_TypeKind_Object ||
+      (numberOfFields && !fields) || (numberOfMethods && !methods) ||
+      numberOfFields > SIZE_MAX / sizeof(Arcadia_FieldDescriptor) ||
+      numberOfMethods > SIZE_MAX / sizeof(Arcadia_MethodDescriptor)) {
+    raiseInvalidMemberSpecification(thread);
+  }
+  TypeNode* node = (TypeNode*)owner;
+  if (node->members) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Exists);
+    Arcadia_Thread_jump(thread);
+  }
+  ObjectTypeNode* objectNode = (ObjectTypeNode*)node;
+  // Validate every specification before any resource acquisition.
+  for (size_t i = 0; i < numberOfFields; ++i) {
+    if (!fields[i].name || !isRegisteredTypeNode((TypeNode*)fields[i].valueType) ||
+        fields[i].offset >= objectNode->valueSize) {
+      raiseInvalidMemberSpecification(thread);
+    }
+    for (size_t j = 0; j < i; ++j) {
+      if (fields[i].name == fields[j].name) {
+        raiseInvalidMemberSpecification(thread);
+      }
+    }
+    for (ObjectTypeNode* parent = (ObjectTypeNode*)objectNode->parentObjectType;
+         parent; parent = (ObjectTypeNode*)parent->parentObjectType) {
+      if (findDeclaredField((TypeNode*)parent, fields[i].name)) {
+        raiseInvalidMemberSpecification(thread);
+      }
+    }
+    // Parents can publish after their children. Reject that order's shadowing, too.
+    for (size_t bucket = 0; bucket < g_typeNodes->capacity; ++bucket) {
+      for (TypeNode* descendant = g_typeNodes->buckets[bucket]; descendant; descendant = descendant->next) {
+        if (descendant != node && descendant->kind == Arcadia_TypeKind_Object &&
+            findDeclaredField(descendant, fields[i].name) &&
+            Arcadia_TypeDescriptor_isDescendantType(thread, descendant, owner)) {
+          raiseInvalidMemberSpecification(thread);
+        }
+      }
+    }
+  }
+  for (size_t i = 0; i < numberOfMethods; ++i) {
+    if (!methods[i].name || !isRegisteredTypeNode((TypeNode*)methods[i].returnType) ||
+        (methods[i].numberOfParameters && !methods[i].parameterTypes) ||
+        methods[i].numberOfParameters > SIZE_MAX / sizeof(Arcadia_TypeDescriptorValue)) {
+      raiseInvalidMemberSpecification(thread);
+    }
+    for (size_t j = 0; j < i; ++j) {
+      if (methods[i].name == methods[j].name) {
+        // Overload identity will require signature-qualified lookup.
+        raiseInvalidMemberSpecification(thread);
+      }
+    }
+    for (size_t j = 0; j < methods[i].numberOfParameters; ++j) {
+      if (!isRegisteredTypeNode((TypeNode*)methods[i].parameterTypes[j])) {
+        raiseInvalidMemberSpecification(thread);
+      }
+    }
+    // An override must preserve the complete signature, including its return type.
+    // Check both orders: an ancestor may publish before or after a descendant.
+    for (ObjectTypeNode* parent = (ObjectTypeNode*)objectNode->parentObjectType;
+         parent; parent = (ObjectTypeNode*)parent->parentObjectType) {
+      Arcadia_MethodDescriptor const* inherited = findDeclaredMethod((TypeNode*)parent, methods[i].name);
+      if (inherited && !hasMatchingMethodSignature(inherited, &methods[i])) {
+        raiseInvalidMemberSpecification(thread);
+      }
+    }
+    for (size_t bucket = 0; bucket < g_typeNodes->capacity; ++bucket) {
+      for (TypeNode* descendant = g_typeNodes->buckets[bucket]; descendant; descendant = descendant->next) {
+        if (descendant != node && descendant->kind == Arcadia_TypeKind_Object &&
+            Arcadia_TypeDescriptor_isDescendantType(thread, descendant, owner)) {
+          Arcadia_MethodDescriptor const* existing = findDeclaredMethod(descendant, methods[i].name);
+          if (existing && !hasMatchingMethodSignature(existing, &methods[i])) {
+            raiseInvalidMemberSpecification(thread);
+          }
+        }
+      }
+    }
+  }
+
+  Arcadia_MemberMetadata* metadata = calloc(1, sizeof(*metadata));
+  if (!metadata) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+  metadata->numberOfFields = numberOfFields;
+  metadata->numberOfMethods = numberOfMethods;
+  if (numberOfFields) {
+    metadata->fields = calloc(numberOfFields, sizeof(*metadata->fields));
+  }
+  if (numberOfMethods) {
+    metadata->methods = calloc(numberOfMethods, sizeof(*metadata->methods));
+  }
+  if ((numberOfFields && !metadata->fields) || (numberOfMethods && !metadata->methods)) {
+    destroyMemberMetadata(Arcadia_Thread_getProcess(thread), metadata);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+    Arcadia_Thread_jump(thread);
+  }
+
+  Arcadia_Process* process = Arcadia_Thread_getProcess(thread);
+  // No descriptor is observable while constructing the temporary metadata.
+  for (size_t i = 0; i < numberOfFields; ++i) {
+    Arcadia_FieldDescriptor* field = &metadata->fields[i];
+    field->descriptor.kind = Arcadia_DescriptorKind_Field;
+    field->declaringType = owner;
+    field->valueType = fields[i].valueType;
+    field->offset = fields[i].offset;
+    if (Arcadia_Process_lockObject(process, fields[i].name)) {
+      destroyMemberMetadata(process, metadata);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+      Arcadia_Thread_jump(thread);
+    }
+    field->name = fields[i].name;
+  }
+  for (size_t i = 0; i < numberOfMethods; ++i) {
+    Arcadia_MethodDescriptor* method = &metadata->methods[i];
+    method->descriptor.kind = Arcadia_DescriptorKind_Method;
+    method->declaringType = owner;
+    method->returnType = methods[i].returnType;
+    method->numberOfParameters = methods[i].numberOfParameters;
+    if (method->numberOfParameters) {
+      method->parameterTypes = malloc(method->numberOfParameters * sizeof(*method->parameterTypes));
+      if (!method->parameterTypes) {
+        destroyMemberMetadata(process, metadata);
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+        Arcadia_Thread_jump(thread);
+      }
+      memcpy(method->parameterTypes, methods[i].parameterTypes,
+             method->numberOfParameters * sizeof(*method->parameterTypes));
+    }
+    if (Arcadia_Process_lockObject(process, methods[i].name)) {
+      destroyMemberMetadata(process, metadata);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+      Arcadia_Thread_jump(thread);
+    }
+    method->name = methods[i].name;
+  }
+  // The sole publication store: all descriptors are fully validated and initialized.
+  node->members = metadata;
+}
+
 static Arcadia_BooleanValue
 InterfaceTypeNode_isDescendantOf
   (
@@ -272,6 +703,8 @@ TypeNodes_destroy
           TypeNode* node = current;
           *previous = current->next;
           current = current->next;
+          destroyMemberMetadata(process, node->members);
+          node->members = NULL;
           node->typeDestructing(NULL);
           Arcadia_Process_unlockObject(process, node);
           typeNodes->size--;
@@ -395,6 +828,7 @@ Arcadia_registerEnumerationType
     }
   }
   TypeNode* typeNode = (TypeNode*)EnumerationTypeNode_allocate(thread);
+  typeNode->descriptor.kind = Arcadia_DescriptorKind_Type;
   typeNode->kind = Arcadia_TypeKind_Enumeration;
   typeNode->name = name;
   typeNode->typeOperations = typeOperations;
@@ -461,6 +895,7 @@ Arcadia_registerInterfaceType
 
   TypeNode* typeNode = (TypeNode*)InterfaceTypeNode_allocate(thread);
   InterfaceTypeNode* node = (InterfaceTypeNode*)typeNode;
+  typeNode->descriptor.kind = Arcadia_DescriptorKind_Type;
   typeNode->kind = Arcadia_TypeKind_Interface;
   typeNode->name = name;
   typeNode->typeOperations = NULL;
@@ -530,6 +965,7 @@ Arcadia_registerInternalType
     }
   }
   TypeNode* typeNode = (TypeNode*)InternalTypeNode_allocate(thread);
+  typeNode->descriptor.kind = Arcadia_DescriptorKind_Type;
   typeNode->kind = Arcadia_TypeKind_Internal;
   typeNode->name = name;
   typeNode->typeOperations = typeOperations;
@@ -694,6 +1130,7 @@ Arcadia_registerObjectTypeWithInterfaces
     transaction->node = ObjectTypeNode_allocate(thread);
     ObjectTypeNode* node = transaction->node;
     TypeNode* typeNode = (TypeNode*)node;
+    typeNode->descriptor.kind = Arcadia_DescriptorKind_Type;
     typeNode->kind = Arcadia_TypeKind_Object;
     typeNode->name = name;
     typeNode->typeOperations = typeOperations;
@@ -822,6 +1259,7 @@ Arcadia_registerScalarType
     }
   }
   TypeNode* typeNode = (TypeNode*)ScalarTypeNode_allocate(thread);
+  typeNode->descriptor.kind = Arcadia_DescriptorKind_Type;
   typeNode->kind = Arcadia_TypeKind_Scalar;
   typeNode->name = name;
   typeNode->typeOperations = typeOperations;
