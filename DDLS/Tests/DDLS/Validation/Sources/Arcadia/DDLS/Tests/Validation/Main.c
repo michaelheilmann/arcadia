@@ -657,6 +657,67 @@ runRejectOptional
   return Arcadia_Tests_safeExecute(&Arcadia_DDLS_Tests_Validation_optionalReject1) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static void
+testStringEnumerationValidation
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const struct {
+    const char* schema;
+    const char* value;
+    Arcadia_BooleanValue valid;
+  } cases[] = {
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"String\", enum : [\"Nearest\", \"Linear\"] } }", "\"Nearest\"", Arcadia_BooleanValue_True },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"String\", enum : [\"Nearest\", \"Linear\"] } }", "\"nearest\"", Arcadia_BooleanValue_False },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"String\", enum : [\"Nearest\", \"Linear\"] } }", "\"Other\"", Arcadia_BooleanValue_False },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"String\", enum : [\"Nearest\", \"Linear\"] } }", "1", Arcadia_BooleanValue_False },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"String\", enum : [\"\", \"Other\"] } }", "\"\"", Arcadia_BooleanValue_True },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"String\", enum : [\"A\"] } }", "\"\\u{41}\"", Arcadia_BooleanValue_True },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"String\", enum : [\"\\u{E9}\"] } }", "\"e\\u{301}\"", Arcadia_BooleanValue_False },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"String\" } }", "\"Unlisted\"", Arcadia_BooleanValue_True },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"Choice\", choices : [{kind:\"String\",enum:[\"Nearest\"]}, {kind:\"Any\"}] } }", "\"Other\"", Arcadia_BooleanValue_True },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"Choice\", choices : [{kind:\"Number\"}, {kind:\"String\",enum:[\"Nearest\"]}] } }", "\"Nearest\"", Arcadia_BooleanValue_True },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"List\", elements : {kind:\"String\",enum:[\"Nearest\"]} } }", "[\"Nearest\"]", Arcadia_BooleanValue_True },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"List\", elements : {kind:\"String\",enum:[\"Nearest\"]} } }", "[\"Other\"]", Arcadia_BooleanValue_False },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"Map\", entries : [{kind:\"MapEntry\",name:\"filter\",type:{kind:\"String\",enum:[\"Linear\"]}}] } }", "{filter:\"Linear\"}", Arcadia_BooleanValue_True },
+    { "{ kind : \"Schema\", name : \"Enum\", definition : { kind : \"Map\", entries : [{kind:\"MapEntry\",name:\"filter\",type:{kind:\"String\",enum:[\"Linear\"]}}] } }", "{filter:\"Other\"}", Arcadia_BooleanValue_False },
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    Arcadia_DDLS_SchemaNode* schema = readDDLS(thread, cases[i].schema);
+    Arcadia_DDL_Node* value = readDDL(thread, cases[i].value);
+    Arcadia_DDLS_ValidationContext* context = Arcadia_DDLS_ValidationContext_create(thread);
+    Arcadia_DDLS_ValidationContext_addSchema(thread, context, schema);
+    Arcadia_JumpTarget target;
+    Arcadia_Thread_pushJumpTarget(thread, &target);
+    if (Arcadia_JumpTarget_save(&target)) {
+      Arcadia_DDLS_ValidationContext_run(thread, context, Arcadia_String_createFromCxxString(thread, u8"Enum"), value);
+      Arcadia_Thread_popJumpTarget(thread);
+      if (Arcadia_BooleanValue_False == cases[i].valid) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+        Arcadia_Thread_jump(thread);
+      }
+    } else {
+      Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+      if (Arcadia_BooleanValue_True == cases[i].valid || Arcadia_Status_SemanticalError != status) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+        Arcadia_Thread_jump(thread);
+      }
+    }
+  }
+}
+
+static int
+runStringEnumerationValidation
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testStringEnumerationValidation) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -666,6 +727,7 @@ main
 {
   static const Arcadia_Testing_Case cases[] = {
     { "AcceptColor", &runAcceptColor },
+    { "StringEnumerationValidation", &runStringEnumerationValidation },
     { "OptionalBooleanValidation", &runOptionalBooleanValidation },
     { "RejectTypeNotDefined", &runRejectTypeNotDefined },
     { "RejectRedNotDefined", &runRejectRedNotDefined },

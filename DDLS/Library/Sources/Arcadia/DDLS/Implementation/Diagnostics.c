@@ -223,6 +223,23 @@ Arcadia_DDLS_Diagnostics_create
 }
 
 void
+Arcadia_DDLS_Diagnostics_stringNotEnumeratedError
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDLS_Diagnostics* self
+  )
+{
+  Arcadia_StringBuilder_clear(thread, self->stringBuffer);
+  Arcadia_StringBuilder_insertBackCxxString(thread, self->stringBuffer, u8"string value is not an enumerated member\n");
+  Arcadia_FileSystem* fs = Arcadia_FileSystem_getOrCreate(thread);
+  Arcadia_FileHandle* fd = Arcadia_FileSystem_createFileHandle(thread, fs);
+  Arcadia_FileHandle_openStandardOutput(thread, fd);
+  Arcadia_SizeValue bytesWritten;
+  Arcadia_FileHandle_write(thread, fd, Arcadia_StringBuilder_getBytes(thread, self->stringBuffer),
+                                       Arcadia_StringBuilder_getNumberOfBytes(thread, self->stringBuffer), &bytesWritten);
+}
+
+void
 Arcadia_DDLS_Diagnostics_unexpectedTypeError
   (
     Arcadia_Thread* thread,
