@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include "Arcadia/Ring1/Include.h"
+#include "Arcadia.Ring1.Tests.BigIntegerTests/BigReal.h"
 #include "Arcadia.Ring1.Tests.BigIntegerTests/DecimalString.h"
 #include "Arcadia.Ring1.Tests.BigIntegerTests/Additive.h"
 #include "Arcadia.Ring1.Tests.BigIntegerTests/And.h"
@@ -486,6 +487,15 @@ runNatural64Maximum
 }
 
 static int
+runBigRealOperations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&Arcadia_Ring1_Tests_BigInteger_bigRealOperations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
 runDecimalStringOperations
   (
     void
@@ -608,6 +618,7 @@ main
     { "Natural32Maximum", &runNatural32Maximum },
     { "Natural64Maximum", &runNatural64Maximum },
     { "DecimalStringOperations", &runDecimalStringOperations },
+    { "BigRealOperations", &runBigRealOperations },
     { "SetIntegerOperations", &runSetIntegerOperations },
     { "AdditiveOperations", &runAdditiveOperations },
     { "AndOperations", &runAndOperations },
