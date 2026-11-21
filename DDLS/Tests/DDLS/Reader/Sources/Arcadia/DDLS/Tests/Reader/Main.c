@@ -299,6 +299,70 @@ runRejectEmptyChoice
   return Arcadia_Tests_safeExecute(&testRejectEmptyChoice) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+#define ENUM_SCHEMA(definition) "{ kind : \"Schema\", name : \"Enum\", definition : " definition " }"
+
+static void
+testStringEnumerations
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static const struct {
+    const char* schema;
+    Arcadia_BooleanValue valid;
+  } cases[] = {
+    { ENUM_SCHEMA("{ kind : \"String\" }"), Arcadia_BooleanValue_True },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : [\"Nearest\", \"Linear\", \"Cubic\"] }"), Arcadia_BooleanValue_True },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : [\"\", \"Other\"] }"), Arcadia_BooleanValue_True },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : [\"\\u{E9}\", \"e\\u{301}\"] }"), Arcadia_BooleanValue_True },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : [] }"), Arcadia_BooleanValue_False },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : \"Nearest\" }"), Arcadia_BooleanValue_False },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : void }"), Arcadia_BooleanValue_False },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : [1] }"), Arcadia_BooleanValue_False },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : [\"A\", 1] }"), Arcadia_BooleanValue_False },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : [\"Nearest\", \"Nearest\"] }"), Arcadia_BooleanValue_False },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : [\"A\", \"\\u{41}\"] }"), Arcadia_BooleanValue_False },
+    { ENUM_SCHEMA("{ kind : \"String\", enum : [\"\", \"\"] }"), Arcadia_BooleanValue_False },
+    { ENUM_SCHEMA("{ kind : \"Choice\", choices : [{ kind : \"Any\" }, { kind : \"String\", enum : [] }] }"), Arcadia_BooleanValue_False },
+    { ENUM_SCHEMA("{ kind : \"List\", elements : { kind : \"String\", enum : [\"A\", \"A\"] } }"), Arcadia_BooleanValue_False },
+    { ENUM_SCHEMA("{ kind : \"Map\", entries : [{kind:\"MapEntry\", name:\"filter\", type:{kind:\"String\", enum:[\"Linear\",\"Linear\"]}}] }"), Arcadia_BooleanValue_False },
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+    Arcadia_DDLS_DefaultReader* reader = Arcadia_DDLS_DefaultReader_create(thread);
+    Arcadia_JumpTarget target;
+    Arcadia_Thread_pushJumpTarget(thread, &target);
+    if (Arcadia_JumpTarget_save(&target)) {
+      Arcadia_DDLS_DefaultReader_run(thread, reader,
+        Arcadia_ByteArray_createByteArray(thread,
+          Arcadia_RuntimeByteArray_create(thread, cases[i].schema, strlen(cases[i].schema))));
+      Arcadia_Thread_popJumpTarget(thread);
+      if (Arcadia_BooleanValue_False == cases[i].valid) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+        Arcadia_Thread_jump(thread);
+      }
+    } else {
+      Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+      Arcadia_Thread_popJumpTarget(thread);
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+      if (Arcadia_BooleanValue_True == cases[i].valid || Arcadia_Status_SemanticalError != status) {
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_TestFailed);
+        Arcadia_Thread_jump(thread);
+      }
+    }
+  }
+}
+
+#undef ENUM_SCHEMA
+
+static int
+runStringEnumerations
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testStringEnumerations) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -308,6 +372,7 @@ main
 {
   static const Arcadia_Testing_Case cases[] = {
     { "AcceptMap", &runAcceptMap },
+    { "StringEnumerations", &runStringEnumerations },
     { "OptionalBooleanSchemas", &runOptionalBooleanSchemas },
     { "AcceptSchemaReferences", &runAcceptSchemaReferences },
     { "RejectMissingKind", &runRejectMissingKind },

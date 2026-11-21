@@ -272,6 +272,7 @@ readScalarNode
   } else if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)source->name, &self->STRING)) {
     Arcadia_DDLS_ScalarNode* target = Arcadia_DDLS_ScalarNode_create(thread);
     target->name = source->name;
+    target->enumeration = source->enumeration;
     return target;
   } else if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)source->name, &self->VOID)) {
     Arcadia_DDLS_ScalarNode* target = Arcadia_DDLS_ScalarNode_create(thread);

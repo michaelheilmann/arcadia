@@ -18,6 +18,7 @@
 #define ARCADIA_DDLS_SYMBOLS_SCALARSYMBOL_H_INCLUDED
 
 #include "Arcadia/DDLS/Symbols/Symbol.h"
+#include "Arcadia/Collections/Include.h"
 
 Arcadia_declareObjectType(u8"Arcadia.DDLS.ScalarSymbol", Arcadia_DDLS_ScalarSymbol,
                           u8"Arcadia.DDLS.Symbol");
@@ -29,6 +30,8 @@ struct Arcadia_DDLS_ScalarSymbolDispatch {
 struct Arcadia_DDLS_ScalarSymbol {
   Arcadia_DDLS_Symbol parent;
   Arcadia_String* name;
+  // NULL means unrestricted; a non-NULL list contains the allowed decoded String values.
+  Arcadia_List* enumeration;
 };
 
 Arcadia_DDLS_ScalarSymbol*
