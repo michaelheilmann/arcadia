@@ -4,11 +4,6 @@
 accepts every DDL string value. The optional <code>enum</code> entry
 restricts acceptance to an explicitly enumerated set of DDL strings.</p>
 
-<p><strong>v0.3 String enumeration contract (issue #184; implementation on the
-working branch, verification pending).</strong>
-This subsection specifies an extension to the existing draft v0.2
-language. It does not change the draft/version designation of this page.</p>
-
 <h4 id="string-enumeration">3.9.1 String enumeration</h4>
 <p>If present, <code>enum</code> must be a non-empty DDL list whose every
 element is a DDL string. A malformed <code>enum</code> entry makes the
@@ -41,20 +36,16 @@ definition occurs in a <code>Choice</code> alternative that would not
 be selected for a particular input. An enumerated String definition
 nested within a <code>List</code>, <code>MapEntry</code> type or named
 schema, including a target reached through <code>SchemaReference</code>,
-has the same rules. The existing rules for resolving references and
-rejecting cyclic definitions are unchanged.</p>
+has the same rules. Schema reference resolution and cycle checks apply
+to those definitions.</p>
 
-<p><strong>Compatibility:</strong> Existing valid
-<code>{ kind: "String" }</code> definitions remain unconstrained.
-Adding <code>enum</code> opt-in narrows the accepted values. An
-<code>enum</code> entry previously ignored by an implementation is
-not evidence that it already supported enumerations; such schemas must
-be reviewed on migration. This proposal does not specify patterns,
-length limits, string conversion, or extra constraints.</p>
+<p>A <code>String</code> definition without an <code>enum</code> entry
+accepts every DDL String value. When <code>enum</code> is present, it
+restricts the accepted values to its members. A <code>String</code>
+definition imposes no pattern, length, or other restriction.</p>
 
 <h4 id="string-enumeration-cases">3.9.2 Conformance cases</h4>
-<p>The following cases specify the required language behavior.
-Runtime conformance remains subject to build and test verification.</p>
+<p>The following cases define acceptance and rejection.</p>
 <pre><code>// Valid schema definition: accept "Nearest", "Linear", "Cubic" only.
 { kind: "Schema", name: "Filter", definition: {
   kind: "String", enum: ["Nearest", "Linear", "Cubic"]
@@ -85,7 +76,7 @@ fails validation.</p>
 { kind: "String", enum: void }
 </code></pre>
 <p>Invalid DDL lexical or syntactical input remains an error of the DDL
-reader before DDLS schema translation; the extension does not redefine
-DDL string escape syntax. Exact diagnostic message wording and the
-representation of language-level errors in a C API are not specified
-by this proposal.</p>
+reader before DDLS schema translation. The
+<a href="@{siteAddress}/specifications/data-definition-language/index.html#type-string">DDL String definition</a>
+governs escape syntax. DDLS error categories do not prescribe exact
+diagnostic message text or C API representations.</p>

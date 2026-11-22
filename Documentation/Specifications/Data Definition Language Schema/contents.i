@@ -1,7 +1,7 @@
 <h2 id="introduction" tabindex="-1">1 Introduction</h2>
 
 <p>
-This draft specifies the Data Definition Language Schema (DDLS), a declarative way to describe constraints on
+This specification defines the Data Definition Language Schema (DDLS), a declarative way to describe constraints on
 values written in the <a href="@{siteAddress}/specifications/data-definition-language/index.html">Data Definition Language (DDL)</a>.
 It is intended for readers of DDL who need to describe or validate structured data.
 </p>
@@ -39,9 +39,7 @@ within a map definition. Neither is itself a definition kind.</p>
 
 <p>The following sections describe how a DDL map is interpreted as a DDLS schema
 or definition. If a required field is missing, has the wrong kind, or a nested
-definition cannot be read, translation fails. The draft names these error categories;
-they describe language outcomes, not a promise that the current C API returns a
-structured error value.</p>
+definition cannot be read, translation fails. The following error categories describe language outcomes.</p>
 
 <div class="specification-scroll" tabindex="0" role="region" aria-labelledby="semantics">
 <table class="syntax-directed-translation">
@@ -95,7 +93,7 @@ is accepted by <code>Any</code>:</p>
 <p><strong>Example (invalid schema):</strong> Replacing the definition with
 <code>{ kind: "Choice", choices: [] }</code> makes the schema description invalid
 during reading; it is not a rejected DDL value. This is an
-<code>InvalidDefinitionError</code> in the draft's language-level categories.</p>
+<code>InvalidDefinitionError</code>.</p>
 
 <h3 id="validation-value">4.2 DDLS value validation</h3>
 <p>Check the DDLS definition against the DDL value as follows. When a check
@@ -160,6 +158,5 @@ each reference against its named schema's <code>definition</code>.</p>
 <code>ValidationError</code> rejects the value. An unavailable, duplicate, invalid,
 or cyclic schema is an error in the validation context or schema description;
 it does not produce an acceptance verdict.</p>
-<p><strong>Implementation note:</strong> These errors are language-level categories,
-not C API return types. The current validator signals failures with a
-semantic-error status and diagnostics rather than returning DDLS error values.</p>
+<p>The error categories specify language-level outcomes without prescribing
+an implementation interface or diagnostic wording.</p>
