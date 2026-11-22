@@ -20,16 +20,55 @@
 static void
 testRoundTrip
   (
-    Arcadia_Thread* thread
+    Arcadia_Thread* thread,
+    Arcadia_Natural8Value const* bytes,
+    Arcadia_SizeValue numberOfBytes
   )
 {
-  static const Arcadia_Natural8Value* bytes = u8"1982";
-  static const Arcadia_SizeValue numberOfBytes = sizeof(u8"1982") - 1;
   Arcadia_BigInteger* x = Arcadia_BigInteger_create(thread);
   Arcadia_BigInteger_fromDecimalString(thread, x, bytes, numberOfBytes);
   Arcadia_RuntimeUTF8String* s = Arcadia_BigInteger_toDecimalString(thread, x);
   Arcadia_Tests_assertTrue(thread, numberOfBytes == s->numberOfBytes);
   Arcadia_Tests_assertTrue(thread, Arcadia_Integer32Value_Literal(0) == Arcadia_Memory_compare(thread, bytes, s->bytes, numberOfBytes));
+}
+
+static void
+testNormalized
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Natural8Value const* bytes,
+    Arcadia_SizeValue numberOfBytes,
+    Arcadia_Natural8Value const* expected,
+    Arcadia_SizeValue expectedNumberOfBytes
+  )
+{
+  Arcadia_BigInteger* value = Arcadia_BigInteger_create(thread);
+  Arcadia_BigInteger_fromDecimalString(thread, value, bytes, numberOfBytes);
+  Arcadia_RuntimeUTF8String* actual = Arcadia_BigInteger_toDecimalString(thread, value);
+  Arcadia_Tests_assertEqualBytes(thread, expected, expectedNumberOfBytes, actual->bytes, actual->numberOfBytes);
+}
+
+static void
+testRejected
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Natural8Value const* bytes,
+    Arcadia_SizeValue numberOfBytes
+  )
+{
+  Arcadia_BigInteger* value = Arcadia_BigInteger_create(thread);
+  Arcadia_JumpTarget target;
+  Arcadia_Thread_pushJumpTarget(thread, &target);
+  if (Arcadia_JumpTarget_save(&target)) {
+    Arcadia_BigInteger_fromDecimalString(thread, value, bytes, numberOfBytes);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, false);
+  } else {
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_ArgumentValueInvalid, status);
+  }
 }
 
 static void
@@ -58,5 +97,22 @@ Arcadia_Ring1_Tests_BigInteger_decimalStringOperations
   testFixture(thread, 1, Arcadia_RuntimeUTF8String_create(thread, u8"1", sizeof(u8"1") - 1));
   testFixture(thread, 12, Arcadia_RuntimeUTF8String_create(thread, u8"12", sizeof(u8"12") - 1));
   testFixture(thread, 123, Arcadia_RuntimeUTF8String_create(thread, u8"123", sizeof(u8"123") - 1));
-  testRoundTrip(thread);
+  testRoundTrip(thread, u8"1982", sizeof(u8"1982") - 1);
+  // Exercise the decimal chunk boundaries, including repeated 64-bit chunks.
+  testRoundTrip(thread, u8"123456789012345678", sizeof(u8"123456789012345678") - 1);
+  testRoundTrip(thread, u8"1234567890123456789", sizeof(u8"1234567890123456789") - 1);
+  testRoundTrip(thread, u8"12345678901234567890", sizeof(u8"12345678901234567890") - 1);
+  testRoundTrip(thread, u8"12345678901234567890123456789012345678", sizeof(u8"12345678901234567890123456789012345678") - 1);
+  // Canonical text for equivalent signed and zero representations.
+  testNormalized(thread, u8"-0", sizeof(u8"-0") - 1, u8"0", sizeof(u8"0") - 1);
+  testNormalized(thread, u8"+000", sizeof(u8"+000") - 1, u8"0", sizeof(u8"0") - 1);
+  testNormalized(thread, u8"-00123", sizeof(u8"-00123") - 1, u8"-123", sizeof(u8"-123") - 1);
+
+  // Parser status contract: no digits, sign-only, or non-decimal characters.
+  testRejected(thread, NULL, 0);
+  testRejected(thread, u8"", 0);
+  testRejected(thread, u8"+", sizeof(u8"+") - 1);
+  testRejected(thread, u8"-", sizeof(u8"-") - 1);
+  testRejected(thread, u8"12x", sizeof(u8"12x") - 1);
+  testRejected(thread, u8"1.2", sizeof(u8"1.2") - 1);
 }

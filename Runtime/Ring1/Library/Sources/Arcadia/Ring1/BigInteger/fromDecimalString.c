@@ -69,8 +69,7 @@ Arcadia_BigInteger_fromDecimalString
     Arcadia_Natural64Value value = 0;
     for (Arcadia_SizeValue i = 0; i < Arcadia_Natural64Value_MaximumNumberOfDecimalDigits; ++i) {
       Arcadia_Natural8Value j = codePointToDigit(thread, *current);
-      j -= '0';
-      value = value * 10 +j;
+      value = value * 10 + j;
       current++;
     }
     // Given a decimal string ('+'|'-')? u v w and assuming we have ready u already
@@ -125,9 +124,9 @@ Arcadia_BigInteger_fromDecimalString
     Arcadia_BigInteger_multiply(thread, result, powerOfTen);
     Arcadia_BigInteger_addNatural8(thread, result, value);
   }
-  // The last remaining digits (cannot be more than 7).
+  // The last remaining digits (at most three).
   if ((end - current)) {
-    Arcadia_Natural8Value value = 0;
+    Arcadia_Natural16Value value = 0;
     Arcadia_SizeValue numberOfDigits = end - current;
     for (Arcadia_SizeValue i = 0; i < numberOfDigits; ++i) {
       Arcadia_Natural8Value j = codePointToDigit(thread, *current);
@@ -139,7 +138,7 @@ Arcadia_BigInteger_fromDecimalString
     // result by 10^|v| and add v to result.
     Arcadia_BigInteger_setPowerOfTenNatural32(thread, powerOfTen, numberOfDigits);
     Arcadia_BigInteger_multiply(thread, result, powerOfTen);
-    Arcadia_BigInteger_addNatural8(thread, result, value);
+    Arcadia_BigInteger_addNatural16(thread, result, value);
   }
   if (negative) {
     Arcadia_BigInteger_multiplyInteger8(thread, result, Arcadia_Integer8Value_Literal(-1));

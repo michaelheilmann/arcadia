@@ -121,7 +121,7 @@ Arcadia_BigInteger_add3
       Arcadia_BigInteger_DoubleLimp x = large->limps[index];
       Arcadia_BigInteger_DoubleLimp y = small->limps[index] + borrow; // This never overflows.
       borrow = (x < y);
-      temporary->limps[index] = x < y ? (Arcadia_BigInteger_Limp_Maximum - y) + y : x - y; // In base ten, this would be x < y ? 10 + x - y : x - y.
+      temporary->limps[index] = x < y ? (Arcadia_BigInteger_Limp_Maximum - y) + x + 1 : x - y; // In base ten, this would be x < y ? 10 + x - y : x - y.
       index++;
     }
     // Diference over the limps that only exist in the large operands and if borrow is non-zero.
@@ -129,7 +129,7 @@ Arcadia_BigInteger_add3
       Arcadia_BigInteger_DoubleLimp x = large->limps[index];
       Arcadia_BigInteger_DoubleLimp y = borrow;
       borrow = (x < y);
-      temporary->limps[index] = x < y ? (Arcadia_BigInteger_Limp_Maximum - y) + y : x - y; // In base ten, this would be x < y ? 10 + x - y : x - y.
+      temporary->limps[index] = x < y ? (Arcadia_BigInteger_Limp_Maximum - y) + x + 1 : x - y; // In base ten, this would be x < y ? 10 + x - y : x - y.
       index++;
     }
     // Difference over the limps that only exist in the large operand and if borrow is 0.
