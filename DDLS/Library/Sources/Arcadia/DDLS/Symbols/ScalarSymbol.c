@@ -74,6 +74,7 @@ Arcadia_DDLS_ScalarSymbol_constructImpl
   }
   //
   self->name = NULL;
+  self->enumeration = NULL;
   //
   Arcadia_LeaveConstructor(Arcadia_DDLS_ScalarSymbol);
 }
@@ -95,6 +96,9 @@ Arcadia_DDLS_ScalarSymbol_visitImpl
 {
   if (self->name) {
     Arcadia_Object_visit(thread, (Arcadia_Object*)self->name);
+  }
+  if (self->enumeration) {
+    Arcadia_Object_visit(thread, (Arcadia_Object*)self->enumeration);
   }
 }
 

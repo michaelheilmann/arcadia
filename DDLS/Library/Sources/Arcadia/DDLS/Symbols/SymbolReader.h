@@ -52,6 +52,7 @@ struct Arcadia_DDLS_SymbolReader {
   Arcadia_Value ELEMENT;
   Arcadia_Value ELEMENTS;
   Arcadia_Value ENTRIES;
+  Arcadia_Value ENUM;
   Arcadia_Value KIND;
   Arcadia_Value OPTIONAL;
   Arcadia_Value TRUE;

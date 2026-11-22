@@ -107,7 +107,8 @@ applies.</p>
   <thead><tr><th scope="col">DDLS definition</th><th scope="col">When the DDL value satisfies it</th></tr></thead>
   <tbody>
     <tr><td><code>Any</code></td><td>Any DDL value satisfies it.</td></tr>
-    <tr><td><code>Boolean</code>, <code>Number</code>, <code>String</code>, <code>Void</code></td><td>The DDL value has the corresponding kind.</td></tr>
+    <tr><td><code>Boolean</code>, <code>Number</code>, <code>Void</code></td><td>The DDL value has the corresponding kind.</td></tr>
+    <tr><td><code>String</code></td><td>The DDL value is a String and, if an <code>enum</code> is present, its decoded text equals one of the <a href="#string-enumeration">enumerated members</a>.</td></tr>
     <tr><td><code>List</code></td><td>It is a DDL list and its elements satisfy the <a href="#validation-list">list rule</a>.</td></tr>
     <tr><td><code>Map</code></td><td>It is a DDL map and its entries satisfy the <a href="#validation-map">map rule</a>.</td></tr>
     <tr><td><code>Choice</code></td><td>At least one alternative satisfies the DDL value.</td></tr>

@@ -310,6 +310,7 @@ Arcadia_DDLS_SymbolReader_constructImpl
   Define(ELEMENT, u8"element");
   Define(ELEMENTS, u8"elements");
   Define(ENTRIES, u8"entries");
+  Define(ENUM, u8"enum");
   Define(KIND, u8"kind");
   Define(OPTIONAL, u8"optional");
   Define(TRUE, u8"true");
@@ -524,15 +525,52 @@ readStringSymbol
     Arcadia_DDL_MapNode* source
   )
 {
-  // (1) Remove the `kind` element.
   Arcadia_Map_remove(thread, self->scope->symbols, self->KIND, NULL, NULL);
+  Arcadia_DDLS_ScalarSymbol* scalarSymbol = Arcadia_DDLS_ScalarSymbol_create(thread);
+  scalarSymbol->name = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&self->STRING);
+
+  Arcadia_Value enumeration = Arcadia_Map_get(thread, self->scope->symbols, self->ENUM);
+  if (!Arcadia_Value_isVoidValue(&enumeration)) {
+    if (!Arcadia_Value_isInstanceOf(thread, &enumeration, _Arcadia_DDL_ListNode_getType(thread))) {
+      Arcadia_logf(Arcadia_LogFlags_Error, u8"`enum` must be a list\n");
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_DDL_ListNode* listNode = (Arcadia_DDL_ListNode*)Arcadia_Value_getObjectReferenceValue(&enumeration);
+    Arcadia_SizeValue n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)listNode->elements);
+    if (!n) {
+      Arcadia_logf(Arcadia_LogFlags_Error, u8"`enum` must not be empty\n");
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+      Arcadia_Thread_jump(thread);
+    }
+    scalarSymbol->enumeration = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+    for (Arcadia_SizeValue i = 0; i < n; ++i) {
+      Arcadia_Value item = Arcadia_List_getAt(thread, listNode->elements, i);
+      if (!Arcadia_Value_isInstanceOf(thread, &item, _Arcadia_DDL_StringNode_getType(thread))) {
+        Arcadia_logf(Arcadia_LogFlags_Error, u8"`enum` members must be strings\n");
+        Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+        Arcadia_Thread_jump(thread);
+      }
+      Arcadia_DDL_StringNode* member = (Arcadia_DDL_StringNode*)Arcadia_Value_getObjectReferenceValue(&item);
+      for (Arcadia_SizeValue j = 0; j < Arcadia_Collection_getSize(thread, (Arcadia_Collection*)scalarSymbol->enumeration); ++j) {
+        Arcadia_String* prior = (Arcadia_String*)Arcadia_List_getObjectReferenceValueCheckedAt(
+          thread, scalarSymbol->enumeration, j, _Arcadia_String_getType(thread));
+        Arcadia_Value candidate = Arcadia_Value_makeObjectReferenceValue(member->value);
+        if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)prior, &candidate)) {
+          Arcadia_logf(Arcadia_LogFlags_Error, u8"duplicate `enum` member\n");
+          Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+          Arcadia_Thread_jump(thread);
+        }
+      }
+      Arcadia_List_insertBackObjectReferenceValue(thread, scalarSymbol->enumeration, (Arcadia_Object*)member->value);
+    }
+    Arcadia_Map_remove(thread, self->scope->symbols, self->ENUM, NULL, NULL);
+  }
   if (Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->scope->symbols) > 0) {
     Arcadia_logf(Arcadia_LogFlags_Error, u8"unsupported entries\n");
     Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
     Arcadia_Thread_jump(thread);
   }
-  Arcadia_DDLS_ScalarSymbol* scalarSymbol = Arcadia_DDLS_ScalarSymbol_create(thread);
-  scalarSymbol->name = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&self->STRING);
   return scalarSymbol;
 }
 
