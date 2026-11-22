@@ -32,6 +32,11 @@ struct Arcadia_DDLS_ScalarSymbol {
   Arcadia_String* name;
   // NULL means unrestricted; a non-NULL list contains the allowed decoded String values.
   Arcadia_List* enumeration;
+  // NULL denotes an absent Number bound. Bound text preserves DDL spelling.
+  Arcadia_String* minimum;
+  Arcadia_String* exclusiveMinimum;
+  Arcadia_String* maximum;
+  Arcadia_String* exclusiveMaximum;
 };
 
 Arcadia_DDLS_ScalarSymbol*

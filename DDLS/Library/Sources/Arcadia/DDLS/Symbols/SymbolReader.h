@@ -55,6 +55,10 @@ struct Arcadia_DDLS_SymbolReader {
   Arcadia_Value ENUM;
   Arcadia_Value KIND;
   Arcadia_Value OPTIONAL;
+  Arcadia_Value MINIMUM;
+  Arcadia_Value EXCLUSIVEMINIMUM;
+  Arcadia_Value MAXIMUM;
+  Arcadia_Value EXCLUSIVEMAXIMUM;
   Arcadia_Value TRUE;
   Arcadia_Value FALSE;
 

@@ -246,7 +246,7 @@ body.my-content-page-1.specification {
     <h2 id="introduction" tabindex="-1">1 Introduction</h2>
 
 <p>
-This draft specifies the Data Definition Language Schema (DDLS), a declarative way to describe constraints on
+This specification defines the Data Definition Language Schema (DDLS), a declarative way to describe constraints on
 values written in the <a href="https://michaelheilmann.com/specifications/data-definition-language/index.html">Data Definition Language (DDL)</a>.
 It is intended for readers of DDL who need to describe or validate structured data.
 </p>
@@ -284,9 +284,7 @@ within a map definition. Neither is itself a definition kind.</p>
 
 <p>The following sections describe how a DDL map is interpreted as a DDLS schema
 or definition. If a required field is missing, has the wrong kind, or a nested
-definition cannot be read, translation fails. The draft names these error categories;
-they describe language outcomes, not a promise that the current C API returns a
-structured error value.</p>
+definition cannot be read, translation fails. The following error categories describe language outcomes.</p>
 
 <div class="specification-scroll" tabindex="0" role="region" aria-labelledby="semantics">
 <table class="syntax-directed-translation">
@@ -391,8 +389,87 @@ match their declared types. The value <code>{ present: void, extra: 1 }</code>
 is rejected because unknown map entries are not permitted.</p>
 
 <h3 id="number-type">3.6 Number type</h3>
-<p>A DDL map with the single entry <code>kind: "Number"</code> describes the DDLS
-<code>Number</code> definition. It accepts DDL number values.</p>
+<p>A DDL map with the required entry <code>kind: "Number"</code> describes the DDLS
+<code>Number</code> definition. It accepts DDL number values that satisfy every
+specified numeric bound.</p>
+
+<h4 id="number-bounds">3.6.1 Numeric bounds</h4>
+<p>A <code>Number</code> definition is a DDL map with required
+<code>kind: "Number"</code> and at most one entry of each of these optional fields:
+<code>minimum</code>, <code>exclusiveMinimum</code>, <code>maximum</code> and
+<code>exclusiveMaximum</code>. Every present bound must be a DDL
+<code>Number</code> value. DDL's existing duplicate-map-name restriction applies.
+The handling of unrelated definition fields is unchanged.</p>
+<pre><code>{ kind: "Number", minimum: 0, exclusiveMinimum: 5, maximum: 10, exclusiveMaximum: 10 }</code></pre>
+
+<p>For numeric comparison, let <code>N(x)</code> be the exact mathematical finite
+decimal denoted by the DDL Number spelling <code>x</code>, equivalently its signed
+integral significand multiplied by a power of ten. DDL Number values retain
+their original text, according to
+<a href="https://michaelheilmann.com/specifications/data-definition-language/index.html#type-number">DDL Number semantical translation</a>.
+Numeric order must be exact, with no lexical string ordering or loss of digits
+through conversion to machine floating point. Consequently
+<code>N(+01) = N(1.0) = N(1e0)</code> and
+<code>N(-0) = N(0)</code>. Values of other DDL kinds are never coerced to Number.</p>
+
+<p>A DDL value satisfies a bounded <code>Number</code> definition exactly when
+it is of DDL Number kind and <em>all</em> present bound conditions hold:</p>
+<ul>
+  <li><code>minimum: a</code>: <code>N(value) &gt;= N(a)</code>.</li>
+  <li><code>exclusiveMinimum: a</code>: <code>N(value) &gt; N(a)</code>.</li>
+  <li><code>maximum: b</code>: <code>N(value) &lt;= N(b)</code>.</li>
+  <li><code>exclusiveMaximum: b</code>: <code>N(value) &lt; N(b)</code>.</li>
+</ul>
+<p>Inclusive and exclusive bounds may coexist on the same side and remain
+conjunctive. An absent bound imposes no condition. The
+<code>{ kind: "Number" }</code> form accepts every DDL Number value. A DDL
+value outside a valid bound intersection fails with <code>ValidationError</code>.</p>
+
+<p>During schema translation, report <code>InvalidDefinitionError</code> if any bound
+is not a DDL Number or if the conjunction of bounds defines an empty interval.
+For example, <code>minimum: 2, maximum: 1</code> and
+<code>minimum: 1, exclusiveMaximum: 1</code> are invalid; the single-point
+inclusive interval <code>minimum: 1, maximum: 1</code> is valid.
+All supplied bounds must participate in the emptiness check.</p>
+
+<p><strong>Conformance examples:</strong></p>
+<div class="specification-scroll" tabindex="0" role="region" aria-labelledby="number-bounds">
+<table class="syntax-directed-translation">
+  <caption>Number bounds acceptance<span class="specification-scroll-hint">Scroll horizontally if needed.</span></caption>
+  <thead><tr><th scope="col">Definition</th><th scope="col">Accepted values</th><th scope="col">Rejected values</th></tr></thead>
+  <tbody>
+    <tr><td><code>{ kind: "Number" }</code></td><td><code>-1</code>, <code>1e1000</code></td><td><code>"1"</code>, <code>true</code></td></tr>
+    <tr><td><code>{ kind: "Number", minimum: 0 }</code></td><td><code>0</code>, <code>+00.0</code></td><td><code>-0.1</code></td></tr>
+    <tr><td><code>{ kind: "Number", exclusiveMinimum: 0 }</code></td><td><code>0.0001</code></td><td><code>0</code>, <code>-0</code></td></tr>
+    <tr><td><code>{ kind: "Number", maximum: 10 }</code></td><td><code>10</code>, <code>-3</code></td><td><code>10.0001</code></td></tr>
+    <tr><td><code>{ kind: "Number", exclusiveMaximum: 10 }</code></td><td><code>9.999</code></td><td><code>10</code></td></tr>
+    <tr><td><code>{ kind: "Number", minimum: 0, exclusiveMinimum: 5, maximum: 10, exclusiveMaximum: 10 }</code></td><td><code>6</code>, <code>9.999</code></td><td><code>5</code>, <code>10</code></td></tr>
+    <tr><td><code>{ kind: "Number", minimum: 1, maximum: 1 }</code></td><td><code>+01.00e0</code></td><td><code>1.0001</code></td></tr>
+    <tr><td><code>{ kind: "Number", minimum: 9007199254740993 }</code></td><td><code>9007199254740993</code></td><td><code>9007199254740992</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><strong>Invalid-schema examples:</strong>
+<code>{ kind: "Number", minimum: "0" }</code>,
+<code>{ kind: "Number", maximum: false }</code>,
+<code>{ kind: "Number", minimum: 2, maximum: 1 }</code>, and
+<code>{ kind: "Number", exclusiveMinimum: 1, maximum: 1 }</code>.
+An illegal DDL number spelling is rejected at the DDL lexical/syntactical
+stage, not reclassified as a DDLS range violation.</p>
+
+<p>The same rule applies to bounded Number definitions nested in
+<code>Schema.definition</code>, <code>List.elements</code>,
+<code>MapEntry.type</code>, or <code>Choice.choices</code>, and through
+<code>SchemaReference</code>. It does not otherwise alter containing-construct,
+choice or reference-resolution semantics.</p>
+
+<p>A <code>Number</code> definition imposes no integer-only rule,
+<code>multipleOf</code> condition, or other numerical restriction unless specified
+by its four numeric bounds. The DDL Number grammar does not admit NaN or Infinity
+as numeric literals. Numeric magnitude and exponent have no fixed machine-width
+limits. Resource exhaustion produces an implementation resource error rather than
+an approximate or incorrect comparison.</p>
 
 <h3 id="schema-type">3.7 Schema type</h3>
 <p>A DDL map with <code>kind: "Schema"</code>, a string <code>name</code>, and
@@ -413,11 +490,6 @@ the referenced schema's definition.</p>
 <code>String</code> definition. Without an <code>enum</code> entry, it
 accepts every DDL string value. The optional <code>enum</code> entry
 restricts acceptance to an explicitly enumerated set of DDL strings.</p>
-
-<p><strong>v0.3 String enumeration contract (issue #184; implementation on the
-working branch, verification pending).</strong>
-This subsection specifies an extension to the existing draft v0.2
-language. It does not change the draft/version designation of this page.</p>
 
 <h4 id="string-enumeration">3.9.1 String enumeration</h4>
 <p>If present, <code>enum</code> must be a non-empty DDL list whose every
@@ -451,20 +523,16 @@ definition occurs in a <code>Choice</code> alternative that would not
 be selected for a particular input. An enumerated String definition
 nested within a <code>List</code>, <code>MapEntry</code> type or named
 schema, including a target reached through <code>SchemaReference</code>,
-has the same rules. The existing rules for resolving references and
-rejecting cyclic definitions are unchanged.</p>
+has the same rules. Schema reference resolution and cycle checks apply
+to those definitions.</p>
 
-<p><strong>Compatibility:</strong> Existing valid
-<code>{ kind: "String" }</code> definitions remain unconstrained.
-Adding <code>enum</code> opt-in narrows the accepted values. An
-<code>enum</code> entry previously ignored by an implementation is
-not evidence that it already supported enumerations; such schemas must
-be reviewed on migration. This proposal does not specify patterns,
-length limits, string conversion, or extra constraints.</p>
+<p>A <code>String</code> definition without an <code>enum</code> entry
+accepts every DDL String value. When <code>enum</code> is present, it
+restricts the accepted values to its members. A <code>String</code>
+definition imposes no pattern, length, or other restriction.</p>
 
 <h4 id="string-enumeration-cases">3.9.2 Conformance cases</h4>
-<p>The following cases specify the required language behavior.
-Runtime conformance remains subject to build and test verification.</p>
+<p>The following cases define acceptance and rejection.</p>
 <pre><code>// Valid schema definition: accept "Nearest", "Linear", "Cubic" only.
 { kind: "Schema", name: "Filter", definition: {
   kind: "String", enum: ["Nearest", "Linear", "Cubic"]
@@ -495,10 +563,10 @@ fails validation.</p>
 { kind: "String", enum: void }
 </code></pre>
 <p>Invalid DDL lexical or syntactical input remains an error of the DDL
-reader before DDLS schema translation; the extension does not redefine
-DDL string escape syntax. Exact diagnostic message wording and the
-representation of language-level errors in a C API are not specified
-by this proposal.</p>
+reader before DDLS schema translation. The
+<a href="https://michaelheilmann.com/specifications/data-definition-language/index.html#type-string">DDL String definition</a>
+governs escape syntax. DDLS error categories do not prescribe exact
+diagnostic message text or C API representations.</p>
 
 <h3 id="void-type">3.10 Void type</h3>
 <p>A DDL map with the single entry <code>kind: "Void"</code> describes the DDLS
@@ -532,7 +600,7 @@ is accepted by <code>Any</code>:</p>
 <p><strong>Example (invalid schema):</strong> Replacing the definition with
 <code>{ kind: "Choice", choices: [] }</code> makes the schema description invalid
 during reading; it is not a rejected DDL value. This is an
-<code>InvalidDefinitionError</code> in the draft's language-level categories.</p>
+<code>InvalidDefinitionError</code>.</p>
 
 <h3 id="validation-value">4.2 DDLS value validation</h3>
 <p>Check the DDLS definition against the DDL value as follows. When a check
@@ -544,7 +612,8 @@ applies.</p>
   <thead><tr><th scope="col">DDLS definition</th><th scope="col">When the DDL value satisfies it</th></tr></thead>
   <tbody>
     <tr><td><code>Any</code></td><td>Any DDL value satisfies it.</td></tr>
-    <tr><td><code>Boolean</code>, <code>Number</code>, <code>Void</code></td><td>The DDL value has the corresponding kind.</td></tr>
+    <tr><td><code>Boolean</code>, <code>Void</code></td><td>The DDL value has the corresponding kind.</td></tr>
+    <tr><td><code>Number</code></td><td>The DDL value is a Number and satisfies every present <a href="#number-bounds">numeric bound</a>.</td></tr>
     <tr><td><code>String</code></td><td>The DDL value is a String and, if an <code>enum</code> is present, its decoded text equals one of the <a href="#string-enumeration">enumerated members</a>.</td></tr>
     <tr><td><code>List</code></td><td>It is a DDL list and its elements satisfy the <a href="#validation-list">list rule</a>.</td></tr>
     <tr><td><code>Map</code></td><td>It is a DDL map and its entries satisfy the <a href="#validation-map">map rule</a>.</td></tr>
@@ -597,9 +666,8 @@ each reference against its named schema's <code>definition</code>.</p>
 <code>ValidationError</code> rejects the value. An unavailable, duplicate, invalid,
 or cyclic schema is an error in the validation context or schema description;
 it does not produce an acceptance verdict.</p>
-<p><strong>Implementation note:</strong> These errors are language-level categories,
-not C API return types. The current validator signals failures with a
-semantic-error status and diagnostics rather than returning DDLS error values.</p>
+<p>The error categories specify language-level outcomes without prescribing
+an implementation interface or diagnostic wording.</p>
 
   </div>
   </main>

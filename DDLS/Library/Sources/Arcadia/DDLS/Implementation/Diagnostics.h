@@ -51,6 +51,13 @@ Arcadia_DDLS_Diagnostics_create
   );
 
 void
+Arcadia_DDLS_Diagnostics_numberBoundsError
+  (
+    Arcadia_Thread* thread,
+    Arcadia_DDLS_Diagnostics* self
+  );
+
+void
 Arcadia_DDLS_Diagnostics_stringNotEnumeratedError
   (
     Arcadia_Thread* thread,
