@@ -30,6 +30,7 @@
 #include "Arcadia/Ring1/Atoms.h"
 
 #include "Arcadia/Ring1/BigInteger/Include.h"
+#include "Arcadia/Ring1/BigReal/Include.h"
 
 #include "Arcadia/Ring1/Boolean.h"
 

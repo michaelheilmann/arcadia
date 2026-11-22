@@ -29,6 +29,9 @@ if (NOT TARGET ${this})
   OnSourceFile(${this} Arcadia/Ring1/Random.c)
   OnHeaderFile(${this} Arcadia/Ring1/Random.h)
 
+  OnSourceFile(${this} Arcadia/Ring1/BigReal/Include.c)
+  OnHeaderFile(${this} Arcadia/Ring1/BigReal/Include.h)
+
   OnSourceFile(${this} Arcadia/Ring1/BigInteger/Include.c)
   OnHeaderFile(${this} Arcadia/Ring1/BigInteger/Include.h)
   OnSourceFile(${this} Arcadia/Ring1/BigInteger/add.c)
