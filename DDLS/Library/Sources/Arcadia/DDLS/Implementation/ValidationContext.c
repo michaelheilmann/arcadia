@@ -387,6 +387,27 @@ onValidate
   } else if (Arcadia_DDLS_isMap(thread, ddlsNode) && Arcadia_DDL_Node_isMap(thread, node)) {
     return onValidateMap(thread, self, ddlsNode, node, reportMismatch);
   } else if (Arcadia_DDLS_isNumber(thread, ddlsNode) && Arcadia_DDL_Node_isNumber(thread, node)) {
+    Arcadia_DDLS_ScalarNode* scalar = (Arcadia_DDLS_ScalarNode*)ddlsNode;
+    Arcadia_String* text = ((Arcadia_DDL_NumberNode*)node)->value;
+    Arcadia_BigReal* value = Arcadia_BigReal_create(thread);
+    Arcadia_BigReal_fromDecimalString(thread, value, Arcadia_String_getBytes(thread, text), Arcadia_String_getNumberOfBytes(thread, text));
+    Arcadia_String* bounds[4] = { scalar->minimum, scalar->exclusiveMinimum, scalar->maximum, scalar->exclusiveMaximum };
+    for (Arcadia_SizeValue i = 0; i < 4; ++i) {
+      if (bounds[i]) {
+        Arcadia_BigReal* bound = Arcadia_BigReal_create(thread);
+        Arcadia_BigReal_fromDecimalString(thread, bound, Arcadia_String_getBytes(thread, bounds[i]), Arcadia_String_getNumberOfBytes(thread, bounds[i]));
+        Arcadia_Integer8Value order = Arcadia_BigReal_compareTo(thread, value, bound);
+        if ((i == 0 && order < 0) || (i == 1 && order <= 0) ||
+            (i == 2 && order > 0) || (i == 3 && order >= 0)) {
+          if (reportMismatch) {
+            Arcadia_DDLS_Diagnostics_numberBoundsError(thread, self->diagnostics);
+            Arcadia_Thread_setStatus(thread, Arcadia_Status_SemanticalError);
+            Arcadia_Thread_jump(thread);
+          }
+          return Arcadia_BooleanValue_False;
+        }
+      }
+    }
     return Arcadia_BooleanValue_True;
   } else if (Arcadia_DDLS_isString(thread, ddlsNode) && Arcadia_DDL_Node_isString(thread, node)) {
     Arcadia_DDLS_ScalarNode* scalar = (Arcadia_DDLS_ScalarNode*)ddlsNode;

@@ -268,6 +268,10 @@ readScalarNode
   } else if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)source->name, &self->NUMBER)) {
     Arcadia_DDLS_ScalarNode* target = Arcadia_DDLS_ScalarNode_create(thread);
     target->name = source->name;
+    target->minimum = source->minimum;
+    target->exclusiveMinimum = source->exclusiveMinimum;
+    target->maximum = source->maximum;
+    target->exclusiveMaximum = source->exclusiveMaximum;
     return target;
   } else if (Arcadia_Object_isEqualTo(thread, (Arcadia_Object*)source->name, &self->STRING)) {
     Arcadia_DDLS_ScalarNode* target = Arcadia_DDLS_ScalarNode_create(thread);
