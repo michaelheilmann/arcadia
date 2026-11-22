@@ -1,0 +1,84 @@
+name: Linux GCC
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+    env:
+      BUILD_DIR: ${{ runner.temp }}/arcadia-build
+      CC: gcc
+      CXX: g++
+
+    steps:
+      - name: Check out Arcadia
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential ninja-build libopenal-dev libflac-dev \
+            fonts-dejavu-core libfreetype-dev libpng-dev libgl-dev libx11-dev
+
+      - name: Install CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '4.1.3'
+
+      - name: Configure GCC / Ninja
+        run: |
+          cmake -S . -B "$BUILD_DIR" -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} \
+            -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
+            -DArcadia.Engine.Visuals.Implementation.OpenGL4.Enabled=TRUE \
+            -DArcadia.Engine.Audials.Implementation.OpenAL.Enabled=TRUE
+
+      - name: Build
+        run: cmake --build "$BUILD_DIR" --parallel 2
+
+      - name: Test
+        run: |
+          ctest --test-dir "$BUILD_DIR" --output-on-failure \
+            --output-junit "$BUILD_DIR/test-results.xml"
+
+      - name: Configure sanitizer tests
+        if: matrix.configuration == 'Debug'
+        run: |
+          cmake -S Runtime/Testing/Tests/Sanitizers -B "$BUILD_DIR/sanitizers" \
+            -G Ninja -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build sanitizer tests
+        if: matrix.configuration == 'Debug'
+        run: cmake --build "$BUILD_DIR/sanitizers" --parallel 2
+
+      - name: Run sanitizer tests
+        if: matrix.configuration == 'Debug'
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          ctest --test-dir "$BUILD_DIR/sanitizers" --output-on-failure \
+            --output-junit "$BUILD_DIR/sanitizer-results.xml"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-gcc-${{ matrix.configuration }}-test-results
+          path: |
+            ${{ runner.temp }}/arcadia-build/test-results.xml
+            ${{ runner.temp }}/arcadia-build/sanitizer-results.xml
+          if-no-files-found: ignore
