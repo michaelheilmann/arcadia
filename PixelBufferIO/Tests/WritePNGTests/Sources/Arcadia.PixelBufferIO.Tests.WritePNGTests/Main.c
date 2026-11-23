@@ -16,6 +16,7 @@
 
 #include "Arcadia/Testing/Include.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -182,6 +183,323 @@ static int
 runBMPUnsupported(void)
 { return Arcadia_Tests_safeExecute(&testBMPUnsupported) ? EXIT_SUCCESS : EXIT_FAILURE; }
 
+
+static uint32_t
+pngRead32
+  (
+    uint8_t const* bytes
+  )
+{
+  return ((uint32_t)bytes[0] << 24) | ((uint32_t)bytes[1] << 16) |
+    ((uint32_t)bytes[2] << 8) | (uint32_t)bytes[3];
+}
+
+static void
+assertExpectedPixel
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_PixelBuffer* image,
+    int x,
+    int y,
+    uint8_t r,
+    uint8_t g,
+    uint8_t b,
+    uint8_t a
+  )
+{
+  Arcadia_Natural8Value actualR, actualG, actualB, actualA;
+  Arcadia_Media_PixelBuffer_getPixelRGBA(thread, image, x, y,
+    &actualR, &actualG, &actualB, &actualA);
+  Arcadia_Tests_assertTrue(thread,
+    actualR == r && actualG == g && actualB == b && actualA == a);
+}
+
+static Arcadia_BooleanValue
+matchesKnownPixels
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_PixelBuffer* image
+  );
+
+// Check independently specified encoded pixels for every supported source
+// byte ordering. All images have nonzero row padding and adjacent contrasts.
+static void
+testEncodedPixels
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (!Arcadia_JumpTarget_save(&jump)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
+
+  Arcadia_String* format = Arcadia_String_createFromCxxString(thread, u8"png");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)format);
+  Arcadia_Imaging_ImageManager* manager = Arcadia_Imaging_ImageManager_getOrCreate(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)manager);
+  Arcadia_List* writers = Arcadia_Imaging_ImageManager_getWriters(thread, manager, format);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)writers);
+  Arcadia_List* readers = Arcadia_Imaging_ImageManager_getReaders(thread, manager, format);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)readers);
+  Arcadia_Tests_assertTrue(thread,
+    Arcadia_Collection_getSize(thread, (Arcadia_Collection*)writers) != 0);
+  Arcadia_Tests_assertEqualSize(thread, 1,
+    Arcadia_Collection_getSize(thread, (Arcadia_Collection*)readers));
+  Arcadia_Imaging_ImageWriter* writer = (Arcadia_Imaging_ImageWriter*)
+    Arcadia_List_getObjectReferenceValueAt(thread, writers, 0);
+  Arcadia_Imaging_ImageReader* reader = (Arcadia_Imaging_ImageReader*)
+    Arcadia_List_getObjectReferenceValueAt(thread, readers, 0);
+
+  Arcadia_List* sources = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sources);
+  Arcadia_ByteArrayBuilder* output = Arcadia_ByteArrayBuilder_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)output);
+  Arcadia_Imaging_ImageWriterParameters* target =
+    Arcadia_Imaging_ImageWriterParameters_createByteBuffer(thread, output, format);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)target);
+
+  Arcadia_Media_PixelFormat const formats[] = {
+    Arcadia_Media_PixelFormat_RedGreenBlueNatural8,
+    Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8,
+    Arcadia_Media_PixelFormat_BlueGreenRedNatural8,
+    Arcadia_Media_PixelFormat_BlueGreenRedAlphaNatural8,
+    Arcadia_Media_PixelFormat_AlphaRedGreenBlueNatural8,
+    Arcadia_Media_PixelFormat_AlphaBlueGreenRedNatural8,
+  };
+  uint8_t const signature[] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+  for (Arcadia_SizeValue i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i) {
+    Arcadia_ByteArrayBuilder_clear(thread, output);
+    Arcadia_Collection_clear(thread, (Arcadia_Collection*)sources);
+    Arcadia_Media_PixelBuffer* pixels =
+      Arcadia_Media_PixelBuffer_create(thread, 5, 3, 2, formats[i]);
+    Arcadia_List_insertBackObjectReferenceValue(thread, sources, pixels);
+    Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 0, 0, 255, 0, 0, 255);
+    Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 1, 0, 0, 255, 0, 128);
+    Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 2, 0, 0, 0, 255, 64);
+    Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 0, 1, 10, 20, 30, 0);
+    Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 1, 1, 240, 120, 60, 192);
+    Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 2, 1, 255, 255, 255, 255);
+    Arcadia_Process_runARMS(Arcadia_Thread_getProcess(thread), false);
+    Arcadia_Imaging_ImageWriter_write(thread, writer, sources, target);
+    Arcadia_SizeValue size = Arcadia_ByteArrayBuilder_getSize(thread, output);
+    Arcadia_Tests_assertTrue(thread, size >= 45);
+    uint8_t const* bytes = (uint8_t const*)Arcadia_ByteArrayBuilder_getBytes(thread, output);
+    Arcadia_Tests_assertTrue(thread, bytes != NULL);
+    Arcadia_Tests_assertTrue(thread, memcmp(bytes, signature, sizeof(signature)) == 0);
+    Arcadia_Tests_assertTrue(thread, pngRead32(bytes + 8) == 13);
+    Arcadia_Tests_assertTrue(thread, memcmp(bytes + 12, "IHDR", 4) == 0);
+    Arcadia_Tests_assertTrue(thread,
+      pngRead32(bytes + 16) == 3 && pngRead32(bytes + 20) == 2);
+    Arcadia_Tests_assertTrue(thread, bytes[24] == 8);
+    Arcadia_Tests_assertTrue(thread, bytes[25] == (i == 0 || i == 2 ? 2 : 6));
+
+    Arcadia_ByteArray* encoded = Arcadia_ByteArrayFactory_borrowReadOnly(thread, bytes, size);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)encoded);
+    Arcadia_Imaging_ImageReaderParameters* input =
+      Arcadia_Imaging_ImageReaderParameters_createByteArray(thread, encoded, format);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)input);
+    Arcadia_List* images = Arcadia_Imaging_ImageReader_read(thread, reader, input);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)images);
+    Arcadia_Tests_assertEqualSize(thread, 1,
+      Arcadia_Collection_getSize(thread, (Arcadia_Collection*)images));
+    Arcadia_Media_PixelBuffer* decoded = (Arcadia_Media_PixelBuffer*)
+      Arcadia_List_getObjectReferenceValueAt(thread, images, 0);
+    Arcadia_Tests_assertTrue(thread,
+      Arcadia_Media_PixelBuffer_getWidth(thread, decoded) == 3 &&
+      Arcadia_Media_PixelBuffer_getHeight(thread, decoded) == 2);
+    Arcadia_Tests_assertTrue(thread,
+      Arcadia_Media_PixelBuffer_getPixelFormat(thread, decoded) ==
+        Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
+    uint8_t const alpha0 = i == 0 || i == 2 ? 255 : 128;
+    uint8_t const alpha1 = i == 0 || i == 2 ? 255 : 64;
+    uint8_t const alpha2 = i == 0 || i == 2 ? 255 : 0;
+    uint8_t const alpha3 = i == 0 || i == 2 ? 255 : 192;
+    assertExpectedPixel(thread, decoded, 0, 0, 255, 0, 0, 255);
+    assertExpectedPixel(thread, decoded, 1, 0, 0, 255, 0, alpha0);
+    assertExpectedPixel(thread, decoded, 2, 0, 0, 0, 255, alpha1);
+    assertExpectedPixel(thread, decoded, 0, 1, 10, 20, 30, alpha2);
+    assertExpectedPixel(thread, decoded, 1, 1, 240, 120, 60, alpha3);
+    assertExpectedPixel(thread, decoded, 2, 1, 255, 255, 255, 255);
+    if (i != 0 && i != 2) {
+      Arcadia_Tests_assertTrue(thread, matchesKnownPixels(thread, decoded));
+    }
+    Arcadia_ValueStack_popValues(thread, 3);
+  }
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+}
+
+static int
+runEncodedPixels
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testEncodedPixels) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+
+static Arcadia_BooleanValue
+matchesKnownPixels
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Media_PixelBuffer* image
+  )
+{
+  static uint8_t const expected[2][3][4] = {
+    { {255, 0, 0, 255}, {0, 255, 0, 128}, {0, 0, 255, 64} },
+    { {10, 20, 30, 0}, {240, 120, 60, 192}, {255, 255, 255, 255} }
+  };
+  if (Arcadia_Media_PixelBuffer_getWidth(thread, image) != 3 ||
+      Arcadia_Media_PixelBuffer_getHeight(thread, image) != 2) {
+    return Arcadia_BooleanValue_False;
+  }
+  for (int y = 0; y < 2; ++y) {
+    for (int x = 0; x < 3; ++x) {
+      Arcadia_Natural8Value r, g, b, a;
+      Arcadia_Media_PixelBuffer_getPixelRGBA(thread, image, x, y, &r, &g, &b, &a);
+      if (r != expected[y][x][0] || g != expected[y][x][1] ||
+          b != expected[y][x][2] || a != expected[y][x][3]) {
+        return Arcadia_BooleanValue_False;
+      }
+    }
+  }
+  return Arcadia_BooleanValue_True;
+}
+
+static void
+testMutationDetection
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static uint8_t const expected[2][3][4] = {
+    { {255, 0, 0, 255}, {0, 255, 0, 128}, {0, 0, 255, 64} },
+    { {10, 20, 30, 0}, {240, 120, 60, 192}, {255, 255, 255, 255} }
+  };
+  Arcadia_Media_PixelBuffer* pixels = Arcadia_Media_PixelBuffer_create(thread,
+    5, 3, 2, Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
+  Arcadia_Object_lock(thread, (Arcadia_Object*)pixels);
+  for (int y = 0; y < 2; ++y) {
+    for (int x = 0; x < 3; ++x) {
+      Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, x, y,
+        expected[y][x][0], expected[y][x][1],
+        expected[y][x][2], expected[y][x][3]);
+    }
+  }
+  Arcadia_Tests_assertTrue(thread, matchesKnownPixels(thread, pixels));
+  Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 0, 0, 0, 0, 255, 255);
+  Arcadia_Tests_assertFalse(thread, matchesKnownPixels(thread, pixels));
+  Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 0, 0, 255, 0, 0, 255);
+  Arcadia_Media_PixelBuffer_swapRows(thread, pixels, 0, 1);
+  Arcadia_Tests_assertFalse(thread, matchesKnownPixels(thread, pixels));
+  Arcadia_Media_PixelBuffer_swapRows(thread, pixels, 0, 1);
+  Arcadia_Media_PixelBuffer_swapColumns(thread, pixels, 0, 1);
+  Arcadia_Tests_assertFalse(thread, matchesKnownPixels(thread, pixels));
+  Arcadia_Media_PixelBuffer_swapColumns(thread, pixels, 0, 1);
+  Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 1, 0, 0, 255, 0, 255);
+  Arcadia_Tests_assertFalse(thread, matchesKnownPixels(thread, pixels));
+  Arcadia_Media_PixelBuffer_setPixelRGBA(thread, pixels, 1, 0, 0, 255, 0, 128);
+  Arcadia_Tests_assertTrue(thread, matchesKnownPixels(thread, pixels));
+  Arcadia_Object_unlock(thread, (Arcadia_Object*)pixels);
+}
+
+static int
+runMutationDetection
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testMutationDetection) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+
+static void
+testCorruptedEncodedPNG
+  (
+    Arcadia_Thread* thread
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget outer;
+  Arcadia_Thread_pushJumpTarget(thread, &outer);
+  if (!Arcadia_JumpTarget_save(&outer)) {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_String* format = Arcadia_String_createFromCxxString(thread, u8"png");
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)format);
+  Arcadia_Imaging_ImageManager* manager = Arcadia_Imaging_ImageManager_getOrCreate(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)manager);
+  Arcadia_List* writers = Arcadia_Imaging_ImageManager_getWriters(thread, manager, format);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)writers);
+  Arcadia_List* readers = Arcadia_Imaging_ImageManager_getReaders(thread, manager, format);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)readers);
+  Arcadia_Tests_assertTrue(thread,
+    Arcadia_Collection_getSize(thread, (Arcadia_Collection*)writers) != 0);
+  Arcadia_Tests_assertEqualSize(thread, 1,
+    Arcadia_Collection_getSize(thread, (Arcadia_Collection*)readers));
+  Arcadia_List* sources = (Arcadia_List*)Arcadia_ArrayList_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)sources);
+  Arcadia_Media_PixelBuffer* pixels = Arcadia_Media_PixelBuffer_create(thread,
+    3, 2, 2, Arcadia_Media_PixelFormat_RedGreenBlueAlphaNatural8);
+  Arcadia_List_insertBackObjectReferenceValue(thread, sources, pixels);
+  Arcadia_Media_PixelBuffer_fill(thread, pixels, 25, 50, 75, 128);
+  Arcadia_ByteArrayBuilder* output = Arcadia_ByteArrayBuilder_create(thread);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)output);
+  Arcadia_Imaging_ImageWriterParameters* target =
+    Arcadia_Imaging_ImageWriterParameters_createByteBuffer(thread, output, format);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)target);
+  Arcadia_Imaging_ImageWriter_write(thread,
+    (Arcadia_Imaging_ImageWriter*)Arcadia_List_getObjectReferenceValueAt(thread, writers, 0),
+    sources, target);
+  Arcadia_SizeValue size = Arcadia_ByteArrayBuilder_getSize(thread, output);
+  Arcadia_Tests_assertTrue(thread, size > 41);
+  uint8_t const* bytes = (uint8_t const*)Arcadia_ByteArrayBuilder_getBytes(thread, output);
+  Arcadia_Tests_assertTrue(thread, pngRead32(bytes + 8) == 13 &&
+    memcmp(bytes + 12, "IHDR", 4) == 0);
+  Arcadia_ByteArray* copy = Arcadia_ByteArrayFactory_createResizable(thread, 0);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)copy);
+  Arcadia_ByteArray_appendBytes(thread, copy, bytes, size);
+  // A changed IHDR width with the old CRC is invalid on both platforms.
+  Arcadia_ByteArray_setAt(thread, copy, 19,
+    (uint8_t)(Arcadia_ByteArray_getAt(thread, copy, 19) ^ 1));
+  Arcadia_Imaging_ImageReaderParameters* input =
+    Arcadia_Imaging_ImageReaderParameters_createByteArray(thread, copy, format);
+  Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)input);
+  Arcadia_JumpTarget inner;
+  Arcadia_Thread_pushJumpTarget(thread, &inner);
+  if (Arcadia_JumpTarget_save(&inner)) {
+    (void)Arcadia_Imaging_ImageReader_read(thread,
+      (Arcadia_Imaging_ImageReader*)Arcadia_List_getObjectReferenceValueAt(thread, readers, 0),
+      input);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, false);
+  } else {
+    Arcadia_Status actual = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
+    Arcadia_Tests_assertTrue(thread, actual == Arcadia_Status_EncodingInvalid);
+  }
+  Arcadia_Thread_popJumpTarget(thread);
+  Arcadia_ValueStack_popValues(thread, Arcadia_ValueStack_getSize(thread) - base);
+}
+
+static int
+runCorruptedEncodedPNG
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testCorruptedEncodedPNG) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 static int
 runTests
   (
@@ -205,6 +523,9 @@ main
     { "WritePNGTests", &runTests },
     { "ManagedPixelStorage", &runManagedPixelStorage },
     { "BMPUnsupported", &runBMPUnsupported },
+    { "EncodedPixels", &runEncodedPixels },
+    { "MutationDetection", &runMutationDetection },
+    { "CorruptedEncodedPNG", &runCorruptedEncodedPNG },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }
