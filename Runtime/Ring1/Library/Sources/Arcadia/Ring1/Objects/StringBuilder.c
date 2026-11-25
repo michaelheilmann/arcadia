@@ -76,26 +76,6 @@ ensureFreeCapacityBytes
     Arcadia_SizeValue requiredFreeCapacity
   );
 
-// Warning: This function does not check if the Bytes are UTF-8 Bytes.
-static void
-prependBytesInternal
-  (
-    Arcadia_Thread* thread,
-    Arcadia_StringBuilder* self,
-    void const* bytes,
-    Arcadia_SizeValue numberOfBytes
-  );
-
-// Warning: This function does not check if the Bytes are UTF-8 Bytes.
-static void
-appendBytesInternal
-  (
-    Arcadia_Thread* thread,
-    Arcadia_StringBuilder* self,
-    void const* bytes,
-    Arcadia_SizeValue numberOfBytes
-  );
-
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*) & Arcadia_StringBuilder_constructImpl,
@@ -236,31 +216,60 @@ ensureFreeCapacityBytes
 }
 
 static void
-prependBytesInternal
+writeEncodedBytes
   (
     Arcadia_Thread* thread,
-    Arcadia_StringBuilder* self,
-    void const* bytes,
+    void* context,
+    Arcadia_Natural8Value const* bytes,
     Arcadia_SizeValue numberOfBytes
   )
 {
-  ensureFreeCapacityBytes(thread, self, numberOfBytes);
-  Arcadia_Memory_copy(thread, self->elements + numberOfBytes, self->elements, self->size);
-  Arcadia_Memory_copy(thread, self->elements, bytes, numberOfBytes);
-  self->size += numberOfBytes;
+  Arcadia_Natural8Value** cursor = context;
+  Arcadia_Memory_copy(thread, *cursor, bytes, numberOfBytes);
+  *cursor += numberOfBytes;
 }
 
 static void
-appendBytesInternal
+insertCodePoints
   (
     Arcadia_Thread* thread,
     Arcadia_StringBuilder* self,
-    void const* bytes,
-    Arcadia_SizeValue numberOfBytes
+    Arcadia_Natural32Value const* codePoints,
+    Arcadia_SizeValue numberOfCodePoints,
+    Arcadia_BooleanValue front
   )
 {
+  if (!numberOfCodePoints) {
+    return;
+  }
+  if (!codePoints || numberOfCodePoints > SIZE_MAX / sizeof(*codePoints)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  // Validate the entire input and calculate its size before changing storage.
+  Arcadia_SizeValue numberOfBytes = 0;
+  for (Arcadia_SizeValue i = 0; i < numberOfCodePoints; ++i) {
+    Arcadia_Natural32Value c = codePoints[i];
+    if (c > 0x10ffff || (c >= 0xd800 && c <= 0xdfff)) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
+      Arcadia_Thread_jump(thread);
+    }
+    Arcadia_SizeValue width = c <= 0x7f ? 1 : c <= 0x7ff ? 2 : c <= 0xffff ? 3 : 4;
+    if (width > SIZE_MAX - numberOfBytes) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);
+      Arcadia_Thread_jump(thread);
+    }
+    numberOfBytes += width;
+  }
   ensureFreeCapacityBytes(thread, self, numberOfBytes);
-  Arcadia_Memory_copy(thread, self->elements + self->size, bytes, numberOfBytes);
+  Arcadia_Natural8Value* cursor = self->elements + self->size;
+  if (front) {
+    if (self->size) {
+      Arcadia_Memory_copy(thread, self->elements + numberOfBytes, self->elements, self->size);
+    }
+    cursor = self->elements;
+  }
+  Arcadia_Unicode_encodeCodePointsUTF8(thread, codePoints, numberOfCodePoints, &cursor, &writeEncodedBytes);
   self->size += numberOfBytes;
 }
 
@@ -284,6 +293,13 @@ Arcadia_StringBuilder_endsWith_pn
     Arcadia_SizeValue numberOfBytes
   )
 {
+  if (!numberOfBytes) {
+    return Arcadia_BooleanValue_True;
+  }
+  if (!bytes) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   if (self->size < numberOfBytes) {
     return Arcadia_BooleanValue_False;
   }
@@ -300,10 +316,105 @@ Arcadia_StringBuilder_startsWith_pn
     Arcadia_SizeValue numberOfBytes
   )
 {
+  if (!numberOfBytes) {
+    return Arcadia_BooleanValue_True;
+  }
+  if (!bytes) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
   if (self->size < numberOfBytes) {
     return Arcadia_BooleanValue_False;
   }
   return !Arcadia_Memory_compare(thread, self->elements, bytes, numberOfBytes);
+}
+
+static void
+getValueBytes
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Value value,
+    Arcadia_Natural8Value const** bytes,
+    Arcadia_SizeValue* size
+  )
+{
+  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
+  Arcadia_Natural8Value const* p = NULL;
+  Arcadia_SizeValue n = 0;
+  if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
+    // The Byte sequence of Arcadia.RuntimeUTF8String is guaranteed to be an UTF8 Byte sequence.
+    Arcadia_RuntimeUTF8String* object = (Arcadia_RuntimeUTF8String*)Arcadia_Value_getRuntimeUTF8StringValue(&value);
+    n = Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, object);
+    p = Arcadia_RuntimeUTF8String_getBytes(thread, object);
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeByteArrayValue_getType(thread))) {
+    Arcadia_RuntimeByteArray* object = (Arcadia_RuntimeByteArray*)Arcadia_Value_getRuntimeByteArrayValue(&value);
+    n = Arcadia_RuntimeByteArray_getNumberOfBytes(thread, object);
+    p = Arcadia_RuntimeByteArray_getBytes(thread, object);
+    if (n && !Arcadia_Unicode_isUTF8(thread, p, n, NULL)) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
+      Arcadia_Thread_jump(thread);
+    }
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread))) {
+    Arcadia_ByteArrayBuilder* object = (Arcadia_ByteArrayBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
+    n = Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, object);
+    p = Arcadia_ByteArrayBuilder_getBytes(thread, object);
+    if (n && !Arcadia_Unicode_isUTF8(thread, p, n, NULL)) {
+      Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
+      Arcadia_Thread_jump(thread);
+    }
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
+    // The Byte sequence of Arcadia.String is guaranteed to be an UTF8 Byte sequence.
+    Arcadia_String* object = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&value);
+    n = Arcadia_String_getNumberOfBytes(thread, object);
+    p = Arcadia_String_getBytes(thread, object);
+  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
+    // The Byte sequence of Arcadia.StringBuilder is guaranteed to be an UTF8 Byte sequence.
+    Arcadia_StringBuilder* object = (Arcadia_StringBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
+    n = Arcadia_StringBuilder_getNumberOfBytes(thread, object);
+    p = Arcadia_StringBuilder_getBytes(thread, object);
+  } else {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  *bytes = p;
+  *size = n;
+}
+
+static void
+insertValueAtByteIndex
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_SizeValue byteIndex,
+    Arcadia_Value value
+  )
+{
+  Arcadia_Natural8Value const* p;
+  Arcadia_SizeValue n;
+  getValueBytes(thread, value, &p, &n);
+  if (!n) {
+    return;
+  }
+  // In the self-insertion case, reconstruct the original bytes from the
+  // unchanged prefix and the relocated suffix after opening the gap.
+  Arcadia_BooleanValue alias = p == self->elements;
+  ensureFreeCapacityBytes(thread, self, n);
+  Arcadia_SizeValue suffixLength = self->size - byteIndex;
+  if (suffixLength) {
+    Arcadia_Memory_copy(thread, self->elements + byteIndex + n, self->elements + byteIndex, suffixLength);
+  }
+  if (alias) {
+    if (byteIndex) {
+      Arcadia_Memory_copy(thread, self->elements + byteIndex, self->elements, byteIndex);
+    }
+    if (suffixLength) {
+      Arcadia_Memory_copy(thread, self->elements + byteIndex + byteIndex,
+                          self->elements + byteIndex + n, suffixLength);
+    }
+  } else {
+    Arcadia_Memory_copy(thread, self->elements + byteIndex, p, n);
+  }
+  self->size += n;
 }
 
 void
@@ -320,51 +431,7 @@ Arcadia_StringBuilder_insertAt
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
     Arcadia_Thread_jump(thread);
   }
-  // byteIndex is the index at which to insert the elements
-  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
-  Arcadia_Natural8Value const* p = NULL;
-  Arcadia_SizeValue n = 0;
-  if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
-    // The Byte sequence of Arcadia.RuntimeUTF8String is guaranteed to be an UTF8 Byte sequence.
-    Arcadia_RuntimeUTF8String* object = (Arcadia_RuntimeUTF8String*)Arcadia_Value_getRuntimeUTF8StringValue(&value);
-    n = Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, object);
-    p = Arcadia_RuntimeUTF8String_getBytes(thread, object);
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeByteArrayValue_getType(thread))) {
-    Arcadia_RuntimeByteArray* object = (Arcadia_RuntimeByteArray*)Arcadia_Value_getRuntimeByteArrayValue(&value);
-    if (!Arcadia_Unicode_isUTF8(thread, p, n, NULL)) {
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
-      Arcadia_Thread_jump(thread);
-    }
-    n = Arcadia_RuntimeByteArray_getNumberOfBytes(thread, object);
-    p = Arcadia_RuntimeByteArray_getBytes(thread, object);
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread))) {
-    Arcadia_ByteArrayBuilder* object = (Arcadia_ByteArrayBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
-    n = Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, object);
-    p = Arcadia_ByteArrayBuilder_getBytes(thread, object);
-    if (!Arcadia_Unicode_isUTF8(thread, p, n, NULL)) {
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
-      Arcadia_Thread_jump(thread);
-    }
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
-    // The Byte sequence of Arcadia.String is guaranteed to be an UTF8 Byte sequence.
-    Arcadia_String* object = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&value);
-    n = Arcadia_String_getNumberOfBytes(thread, object);
-    p = Arcadia_String_getBytes(thread, object);
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
-    // The Byte sequence of Arcadia.StringBuilder is guaranteed to be an UTF8 Byte sequence.
-    Arcadia_StringBuilder* object = (Arcadia_StringBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
-    n = Arcadia_StringBuilder_getNumberOfBytes(thread, object);
-    p = Arcadia_StringBuilder_getBytes(thread, object);
-  } else {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-  ensureFreeCapacityBytes(thread, self, n);
-  if (byteIndex < self->size) {
-    Arcadia_Memory_copy(thread, self->elements + byteIndex, self->elements + byteIndex + n, self->size - byteIndex);
-  }
-  Arcadia_Memory_copy(thread, self->elements + byteIndex, p, n);
-  self->size += n;
+  insertValueAtByteIndex(thread, self, byteIndex, value);
 }
 
 void
@@ -375,47 +442,7 @@ Arcadia_StringBuilder_insertBack
     Arcadia_Value value
   )
 {
-  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
-  Arcadia_Natural8Value const* p = NULL;
-  Arcadia_SizeValue n = 0;
-  if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
-    // The Byte sequence of Arcadia.RuntimeUTF8String is guaranteed to be an UTF8 Byte sequence.
-    Arcadia_RuntimeUTF8String* object = (Arcadia_RuntimeUTF8String*)Arcadia_Value_getRuntimeUTF8StringValue(&value);
-    n = Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, object);
-    p = Arcadia_RuntimeUTF8String_getBytes(thread, object);
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeByteArrayValue_getType(thread))) {
-    Arcadia_RuntimeByteArray* object = (Arcadia_RuntimeByteArray*)Arcadia_Value_getRuntimeByteArrayValue(&value);
-    n = Arcadia_RuntimeByteArray_getNumberOfBytes(thread, object);
-    p = Arcadia_RuntimeByteArray_getBytes(thread, object);
-    if (!Arcadia_Unicode_isUTF8(thread, p, n, NULL)) {
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
-      Arcadia_Thread_jump(thread);
-    }
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread))) {
-    Arcadia_ByteArrayBuilder* object = (Arcadia_ByteArrayBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
-    n = Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, object);
-    p = Arcadia_ByteArrayBuilder_getBytes(thread, object);
-    if (!Arcadia_Unicode_isUTF8(thread, p, n, NULL)) {
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
-      Arcadia_Thread_jump(thread);
-    }
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
-    // The Byte sequence of Arcadia.String is guaranteed to be an UTF8 Byte sequence.
-    Arcadia_String* object = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&value);
-    n = Arcadia_String_getNumberOfBytes(thread, object);
-    p = Arcadia_String_getBytes(thread, object);
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
-    // The Byte sequence of Arcadia.StringBuilder is guaranteed to be an UTF8 Byte sequence.
-    Arcadia_StringBuilder* object = (Arcadia_StringBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
-    n = Arcadia_StringBuilder_getNumberOfBytes(thread, object);
-    p = Arcadia_StringBuilder_getBytes(thread, object);
-  } else {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-  ensureFreeCapacityBytes(thread, self, n);
-  Arcadia_Memory_copy(thread, self->elements + self->size, p, n);
-  self->size += n;
+  insertValueAtByteIndex(thread, self, self->size, value);
 }
 
 void
@@ -426,48 +453,7 @@ Arcadia_StringBuilder_insertFront
     Arcadia_Value value
   )
 {
-  Arcadia_TypeDescriptor* type = Arcadia_Value_getTypeDescriptor(thread, &value);
-  Arcadia_Natural8Value const* p = NULL;
-  Arcadia_SizeValue n = 0;
-  if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeUTF8StringValue_getType(thread))) {
-    // The Byte sequence of Arcadia.RuntimeUTF8String is guaranteed to be an UTF8 Byte sequence.
-    Arcadia_RuntimeUTF8String* object = (Arcadia_RuntimeUTF8String*)Arcadia_Value_getRuntimeUTF8StringValue(&value);
-    n = Arcadia_RuntimeUTF8String_getNumberOfBytes(thread, object);
-    p = Arcadia_RuntimeUTF8String_getBytes(thread, object);
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_RuntimeByteArrayValue_getType(thread))) {
-    Arcadia_RuntimeByteArray* object = (Arcadia_RuntimeByteArray*)Arcadia_Value_getRuntimeByteArrayValue(&value);
-    if (!Arcadia_Unicode_isUTF8(thread, p, n, NULL)) {
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
-      Arcadia_Thread_jump(thread);
-    }
-    n = Arcadia_RuntimeByteArray_getNumberOfBytes(thread, object);
-    p = Arcadia_RuntimeByteArray_getBytes(thread, object);
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_ByteArrayBuilder_getType(thread))) {
-    Arcadia_ByteArrayBuilder* object = (Arcadia_ByteArrayBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
-    n = Arcadia_ByteArrayBuilder_getNumberOfBytes(thread, object);
-    p = Arcadia_ByteArrayBuilder_getBytes(thread, object);
-    if (!Arcadia_Unicode_isUTF8(thread, p, n, NULL)) {
-      Arcadia_Thread_setStatus(thread, Arcadia_Status_EncodingInvalid);
-      Arcadia_Thread_jump(thread);
-    }
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_String_getType(thread))) {
-    // The Byte sequence of Arcadia.String is guaranteed to be an UTF8 Byte sequence.
-    Arcadia_String* object = (Arcadia_String*)Arcadia_Value_getObjectReferenceValue(&value);
-    n = Arcadia_String_getNumberOfBytes(thread, object);
-    p = Arcadia_String_getBytes(thread, object);
-  } else if (Arcadia_TypeDescriptor_isDescendantType(thread, type, _Arcadia_StringBuilder_getType(thread))) {
-    // The Byte sequence of Arcadia.StringBuilder is guaranteed to be an UTF8 Byte sequence.
-    Arcadia_StringBuilder* object = (Arcadia_StringBuilder*)Arcadia_Value_getObjectReferenceValue(&value);
-    n = Arcadia_StringBuilder_getNumberOfBytes(thread, object);
-    p = Arcadia_StringBuilder_getBytes(thread, object);
-  } else {
-    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentTypeInvalid);
-    Arcadia_Thread_jump(thread);
-  }
-  ensureFreeCapacityBytes(thread, self, n);
-  Arcadia_Memory_copy(thread, self->elements + n, self->elements, self->size);
-  Arcadia_Memory_copy(thread, self->elements, p, n);
-  self->size += n;
+  insertValueAtByteIndex(thread, self, 0, value);
 }
 
 void
@@ -477,7 +463,9 @@ Arcadia_StringBuilder_insertBackCodePoint
     Arcadia_StringBuilder* self,
     Arcadia_Natural32Value codePoint
   )
-{ Arcadia_StringBuilder_insertBackCodePoints(thread, self, &codePoint, 1); }
+{
+  Arcadia_StringBuilder_insertBackCodePoints(thread, self, &codePoint, 1);
+}
 
 void
 Arcadia_StringBuilder_insertBackCodePoints
@@ -488,7 +476,7 @@ Arcadia_StringBuilder_insertBackCodePoints
     Arcadia_SizeValue numberOfCodePoints
   )
 {
-  Arcadia_Unicode_encodeCodePointsUTF8(thread, codePoints, numberOfCodePoints, self, (Arcadia_Unicode_EncodeCodePointCallbackFunction*)&appendBytesInternal);
+  insertCodePoints(thread, self, codePoints, numberOfCodePoints, Arcadia_BooleanValue_False);
 }
 
 void
@@ -498,7 +486,9 @@ Arcadia_StringBuilder_insertFrontCodePoint
     Arcadia_StringBuilder* self,
     Arcadia_Natural32Value codePoint
   )
-{ Arcadia_StringBuilder_insertFrontCodePoints(thread, self, &codePoint, 1); }
+{
+  Arcadia_StringBuilder_insertFrontCodePoints(thread, self, &codePoint, 1);
+}
 
 void
 Arcadia_StringBuilder_insertFrontCodePoints
@@ -509,9 +499,7 @@ Arcadia_StringBuilder_insertFrontCodePoints
     Arcadia_SizeValue numberOfCodePoints
   )
 {
-  Arcadia_StringBuilder* temporary = Arcadia_StringBuilder_create(thread);
-  Arcadia_Unicode_encodeCodePointsUTF8(thread, codePoints, numberOfCodePoints, temporary, (Arcadia_Unicode_EncodeCodePointCallbackFunction*)&appendBytesInternal);
-  prependBytesInternal(thread, self, Arcadia_StringBuilder_getBytes(thread, temporary), Arcadia_StringBuilder_getNumberOfBytes(thread, temporary));
+  insertCodePoints(thread, self, codePoints, numberOfCodePoints, Arcadia_BooleanValue_True);
 }
 
 Arcadia_Integer32Value
@@ -545,14 +533,14 @@ Arcadia_StringBuilder_compareTo
     Arcadia_Thread_jump(thread);
   }
   Arcadia_SizeValue k = n <= self->size ? n : self->size;
-  Arcadia_Integer32Value result = Arcadia_Memory_compare(thread, self->elements, p, k);
+  Arcadia_Integer32Value result = k ? Arcadia_Memory_compare(thread, self->elements, p, k) : 0;
   if (result) {
     return result;
   }
   if (n < self->size) {
-    return -1;
-  } else if (n > self->size) {
     return +1;
+  } else if (n > self->size) {
+    return -1;
   } else {
     return 0;
   }
@@ -564,7 +552,9 @@ Arcadia_StringBuilder_clear
     Arcadia_Thread* thread,
     Arcadia_StringBuilder* self
   )
-{ self->size = 0; }
+{
+  self->size = 0;
+}
 
 Arcadia_SizeValue
 Arcadia_StringBuilder_getNumberOfBytes
@@ -572,7 +562,9 @@ Arcadia_StringBuilder_getNumberOfBytes
     Arcadia_Thread* thread,
     Arcadia_StringBuilder const* self
   )
-{ return self->size; }
+{
+  return self->size;
+}
 
 Arcadia_SizeValue
 Arcadia_StringBuilder_getNumberOfCodePoints
@@ -581,8 +573,9 @@ Arcadia_StringBuilder_getNumberOfCodePoints
     Arcadia_StringBuilder* self
   )
 {
-  Arcadia_Value index = Arcadia_Value_makeVoidValue(Arcadia_VoidValue_Void);
-  // It's still linear time, its fine :)
+  if (!self->size) {
+    return 0;
+  }
   _Arcadia_UTF8ArrayIterator  it;
   _Arcadia_UTF8ArrayIterator_initialize(thread, &it, self->elements, self->size);
   Arcadia_JumpTarget jt;
@@ -608,7 +601,9 @@ Arcadia_StringBuilder_getBytes
     Arcadia_Thread* thread,
     Arcadia_StringBuilder const* self
   )
-{ return self->elements; }
+{
+  return self->elements;
+}
 
 void
 Arcadia_StringBuilder_toUpperASCII
@@ -667,4 +662,83 @@ Arcadia_StringBuilder_removeCodePointsBack
     Arcadia_Thread_jump(thread);
   }
   self->size -= offset;
+}
+
+void
+Arcadia_StringBuilder_removeCodePointsAt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_SizeValue codePointIndex,
+    Arcadia_SizeValue numberOfCodePoints
+  )
+{
+  Arcadia_SizeValue first, last;
+  if (numberOfCodePoints > SIZE_MAX - codePointIndex ||
+      !getOffsetFromFront(thread, self, codePointIndex, &first) ||
+      !getOffsetFromFront(thread, self, codePointIndex + numberOfCodePoints, &last)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  if (first == last) {
+    return;
+  }
+  if (last < self->size) {
+    Arcadia_Memory_copy(thread, self->elements + first, self->elements + last, self->size - last);
+  }
+  self->size -= last - first;
+}
+
+void
+Arcadia_StringBuilder_replaceCodePointsAt
+  (
+    Arcadia_Thread* thread,
+    Arcadia_StringBuilder* self,
+    Arcadia_SizeValue codePointIndex,
+    Arcadia_SizeValue numberOfCodePoints,
+    Arcadia_Value value
+  )
+{
+  Arcadia_SizeValue first, last;
+  if (numberOfCodePoints > SIZE_MAX - codePointIndex ||
+      !getOffsetFromFront(thread, self, codePointIndex, &first) ||
+      !getOffsetFromFront(thread, self, codePointIndex + numberOfCodePoints, &last)) {
+    Arcadia_Thread_setStatus(thread, Arcadia_Status_ArgumentValueInvalid);
+    Arcadia_Thread_jump(thread);
+  }
+  Arcadia_Natural8Value const* bytes;
+  Arcadia_SizeValue size;
+  getValueBytes(thread, value, &bytes, &size);
+  Arcadia_SizeValue removed = last - first;
+  if (!removed && !size) {
+    return;
+  }
+  Arcadia_SizeValue suffix = self->size - last;
+  Arcadia_BooleanValue alias = size && bytes == self->elements;
+  if (size > removed) {
+    ensureFreeCapacityBytes(thread, self, size - removed);
+  }
+  if (alias) {
+    // The full original string is the replacement. First copy it into
+    // the replacement range, preserving the suffix by moving it first.
+    // The original prefix and removed bytes remain readable before last.
+    if (suffix) {
+      Arcadia_Memory_copy(thread, self->elements + first + size, self->elements + last, suffix);
+    }
+    if (last) {
+      Arcadia_Memory_copy(thread, self->elements + first, self->elements, last);
+    }
+    if (suffix) {
+      Arcadia_Memory_copy(thread, self->elements + first + last,
+                          self->elements + first + size, suffix);
+    }
+  } else {
+    if (suffix && size != removed) {
+      Arcadia_Memory_copy(thread, self->elements + first + size, self->elements + last, suffix);
+    }
+    if (size) {
+      Arcadia_Memory_copy(thread, self->elements + first, bytes, size);
+    }
+  }
+  self->size = self->size - removed + size;
 }
