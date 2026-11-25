@@ -30,7 +30,7 @@ static const char* SCHEMA =
   "  definition : {\n"
   "    kind : \"Map\",\n"
   "    entries : [\n"
-  "      { kind : \"MapEntry\", name : \"type\", type : { kind : \"String\" } },\n"
+  "      { kind : \"MapEntry\", name : \"type\", type : { kind : \"String\", enum : [\"SoundSourceNode\", \"StreamingSoundSourceNode\"] } },\n"
   "      { kind : \"MapEntry\", name : \"name\", type : { kind : \"String\" } },\n"
   "      { kind : \"MapEntry\", name : \"sampleBuffer\", type : { kind : \"String\" }, optional : true },\n"
   "      { kind : \"MapEntry\", name : \"provider\", type : { kind : \"String\" }, optional : true },\n"

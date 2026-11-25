@@ -55,7 +55,8 @@ testFrequencyDomain
   Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)context);
   const Arcadia_Integer32Value frequencies[] = { positive ? 1 : 0, positive ? 440 : -1,
     positive ? Arcadia_Integer32Value_Maximum : Arcadia_Integer32Value_Minimum };
-  for (size_t i = 0; i < 3; ++i) {
+  // Direct assets also exercise values outside the Integer32 conversion domain.
+  for (size_t i = 0, n = !graph && !positive ? 6 : 3; i < n; ++i) {
     Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
     char text[1024];
     int length;
@@ -67,6 +68,10 @@ testFrequencyDomain
         "{ type: \"Graph.Output\", name: \"output\", referenceType: \"DSP.SineWave\", source: \"tone\" }] },"
         "{ type: \"GraphInstance\", name: \"Tone\", graph: \"ToneGraph\", bindings: ["
         "{ parameter: \"Frequency\", value: %d }] }]", (int)frequencies[i]);
+    } else if (i >= 3) {
+      static const char* const invalid[] = { "2147483648", "-2147483649", "1.5" };
+      length = snprintf(text, sizeof(text), "{ type: \"DSP.%s\", name: \"Tone\", frequency: %s }",
+        sawtooth ? "SawtoothWave" : "SineWave", invalid[i - 3]);
     } else {
       length = snprintf(text, sizeof(text), "{ type: \"DSP.%s\", name: \"Tone\", frequency: %d }",
         sawtooth ? "SawtoothWave" : "SineWave", (int)frequencies[i]);
@@ -108,7 +113,7 @@ testFrequencyDomain
       Arcadia_Thread_popJumpTarget(thread);
       Arcadia_Thread_setStatus(thread, Arcadia_Status_Success);
       Arcadia_Tests_assertTrue(thread, !positive);
-      Arcadia_Tests_assertEqualStatus(thread, Arcadia_Status_SemanticalError, status);
+      Arcadia_Tests_assertEqualStatus(thread, i == 5 ? Arcadia_Status_ConversionFailed : Arcadia_Status_SemanticalError, status);
       // Domain rejection must precede publication of the invalid definition.
       Arcadia_Tests_assertTrue(thread, Arcadia_ADL_Definitions_getDefinitionOrNull(thread, definitions,
         Arcadia_String_createFromCxxString(thread, graph ? "Tone.output" : "Tone")) == NULL);

@@ -88,6 +88,14 @@ testInlineButtonColors
 
   // Invalid inline maps must fail while reading the containing button.
   assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Button\", name: \"Test.BadInlineRed\", left: 0, bottom: 0, width: 20, height: 10, text: \"X\", backgroundColor: { type: \"Color\", red: -1, green: 2, blue: 3 } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Button\", name: \"Test.BadInlineGreen\", left: 0, bottom: 0, width: 20, height: 10, text: \"X\", backgroundColor: { type: \"Color\", red: 1, green: 256, blue: 3 } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Button\", name: \"Test.BadInlineBlue\", left: 0, bottom: 0, width: 20, height: 10, text: \"X\", backgroundColor: { type: \"Color\", red: 1, green: 2, blue: 256 } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Button\", name: \"Test.BadInlineAlpha\", left: 0, bottom: 0, width: 20, height: 10, text: \"X\", backgroundColor: { type: \"Color\", red: 1, green: 2, blue: 3, alpha: -1 } }");
+  assertRecordRejected(thread, context, definitions,
     "{ type: \"UI.Button\", name: \"Test.BadInlineName\", left: 0, bottom: 0, width: 20, height: 10, text: \"X\", backgroundColor: { type: \"Color\", name: \"\", red: 1, green: 2, blue: 3 } }");
   assertRecordRejected(thread, context, definitions,
     "{ type: \"UI.Button\", name: \"Test.BadInlineType\", left: 0, bottom: 0, width: 20, height: 10, text: \"X\", backgroundColor: { type: \"UI.Label\", red: 1, green: 2, blue: 3 } }");
@@ -712,6 +720,12 @@ Arcadia_ADL_Tests_UI_ContainerCompositionTest1
   assertRecordRejected(thread, context, definitions, unknownFieldDDL);
   assertRecordRejected(thread, context, definitions, missingFieldDDL);
   assertRecordRejected(thread, context, definitions, invalidButtonPropertyDDL);
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Toggle\", name: \"Test.NegativeWidth\", left: 0, bottom: 0, width: -1, height: 44, checked: \"true\" }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadOrientation\", left: 0, bottom: 0, width: 10, height: 10, children: [], layout: { type: \"UI.StackLayout\", orientation: \"Diagonal\" } }");
+  assertRecordRejected(thread, context, definitions,
+    "{ type: \"UI.Panel\", name: \"Test.BadGap\", left: 0, bottom: 0, width: 10, height: 10, children: [], layout: { type: \"UI.StackLayout\", orientation: \"Vertical\", gap: -1 } }");
   assertRecordRejected(thread, context, definitions,
     "{ type : \"UI.Button\", name : \"Test.MissingBackground\", left : 0, bottom : 0, width : 120, height : 40, text : \"Missing\" }");
   assertRecordRejected(thread, context, definitions,
