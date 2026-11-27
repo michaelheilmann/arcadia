@@ -99,6 +99,80 @@ runTests
   return EXIT_SUCCESS;
 }
 
+
+static void
+expectConversionFailure
+  (
+    Arcadia_Thread* thread,
+    char const* text,
+    Arcadia_SizeValue width
+  )
+{
+  Arcadia_SizeValue base = Arcadia_ValueStack_getSize(thread);
+  Arcadia_JumpTarget jump;
+  Arcadia_Thread_pushJumpTarget(thread, &jump);
+  if (Arcadia_JumpTarget_save(&jump)) {
+    const Arcadia_Natural8Value* bytes = (const Arcadia_Natural8Value*)text;
+    Arcadia_SizeValue size = strlen(text);
+    switch (width) {
+      case 8: Arcadia_toInteger8(thread, bytes, size); break;
+      case 16: Arcadia_toInteger16(thread, bytes, size); break;
+      case 32: Arcadia_toInteger32(thread, bytes, size); break;
+      case 64: Arcadia_toInteger64(thread, bytes, size); break;
+    }
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Tests_assertTrue(thread, false);
+  } else {
+    Arcadia_Thread_popJumpTarget(thread);
+    Arcadia_Status status = Arcadia_Thread_getStatus(thread);
+    Arcadia_Thread_setStatus(thread, 0);
+    Arcadia_Tests_assertTrue(thread, status == Arcadia_Status_ConversionFailed);
+    Arcadia_Tests_assertEqualSize(thread, base, Arcadia_ValueStack_getSize(thread));
+  }
+}
+
+static void
+testGrammarAndBounds
+  (
+    Arcadia_Thread* thread
+  )
+{
+  static char const* const invalid[] = {
+    "", "+", "-", ".", "+.", "1.", ".5", "1.5", "-1.0",
+    "1e2", "1E-2", "1^2", "1.0e2", "1e", "1x", " 1", "1 ",
+    "9223372036854775808", "-9223372036854775809",
+  };
+  static const Arcadia_SizeValue widths[] = { 8, 16, 32, 64 };
+  for (Arcadia_SizeValue i = 0; i < sizeof(invalid) / sizeof(invalid[0]); ++i) {
+    for (Arcadia_SizeValue j = 0; j < sizeof(widths) / sizeof(widths[0]); ++j) {
+      expectConversionFailure(thread, invalid[i], widths[j]);
+    }
+  }
+  expectConversionFailure(thread, "128", 8);
+  expectConversionFailure(thread, "-129", 8);
+  expectConversionFailure(thread, "32768", 16);
+  expectConversionFailure(thread, "-32769", 16);
+  expectConversionFailure(thread, "2147483648", 32);
+  expectConversionFailure(thread, "-2147483649", 32);
+  Arcadia_Tests_assertTrue(thread, Arcadia_toInteger8(thread, u8"-128", 4) == Arcadia_Integer8Value_Minimum);
+  Arcadia_Tests_assertTrue(thread, Arcadia_toInteger8(thread, u8"127", 3) == Arcadia_Integer8Value_Maximum);
+  Arcadia_Tests_assertTrue(thread, Arcadia_toInteger16(thread, u8"-32768", 6) == Arcadia_Integer16Value_Minimum);
+  Arcadia_Tests_assertTrue(thread, Arcadia_toInteger16(thread, u8"32767", 5) == Arcadia_Integer16Value_Maximum);
+  Arcadia_Tests_assertTrue(thread, Arcadia_toInteger32(thread, u8"-2147483648", 11) == Arcadia_Integer32Value_Minimum);
+  Arcadia_Tests_assertTrue(thread, Arcadia_toInteger32(thread, u8"2147483647", 10) == Arcadia_Integer32Value_Maximum);
+  Arcadia_Tests_assertTrue(thread, Arcadia_toInteger64(thread, u8"-9223372036854775808", 20) == Arcadia_Integer64Value_Minimum);
+  Arcadia_Tests_assertTrue(thread, Arcadia_toInteger64(thread, u8"9223372036854775807", 19) == Arcadia_Integer64Value_Maximum);
+}
+
+static int
+runGrammarAndBounds
+  (
+    void
+  )
+{
+  return Arcadia_Tests_safeExecute(&testGrammarAndBounds) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 int
 main
   (
@@ -108,6 +182,7 @@ main
 {
   static const Arcadia_Testing_Case cases[] = {
     { "StringToIntegerTests", &runTests },
+    { "GrammarAndBounds", &runGrammarAndBounds },
   };
   return Arcadia_Testing_runSuite(argc, argv, cases, sizeof(cases) / sizeof(cases[0]));
 }
