@@ -29,7 +29,7 @@ Arcadia_toInteger16
   )
 {
   Arcadia_Integer64Value v = Arcadia_toInteger64(thread, p, n);
-  if (v < Arcadia_Integer16Value_Minimum && v > Arcadia_Integer16Value_Maximum) {
+  if (v < Arcadia_Integer16Value_Minimum || v > Arcadia_Integer16Value_Maximum) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ConversionFailed);
     Arcadia_Thread_jump(thread);
   }
@@ -46,7 +46,7 @@ Arcadia_toInteger32
   )
 {
   Arcadia_Integer64Value v = Arcadia_toInteger64(thread, p, n);
-  if (v < Arcadia_Integer32Value_Minimum && v > Arcadia_Integer32Value_Maximum) {
+  if (v < Arcadia_Integer32Value_Minimum || v > Arcadia_Integer32Value_Maximum) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ConversionFailed);
     Arcadia_Thread_jump(thread);
   }
@@ -66,7 +66,7 @@ Arcadia_toInteger64
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ConversionFailed);
     Arcadia_Thread_jump(thread);
   }
-  if (numberLiteral.significand.radixPoint.length != 0 && numberLiteral.exponent.length != 0) {
+  if (numberLiteral.significand.radixPoint.length != 0 || numberLiteral.exponent.length != 0) {
     // Radix point is not allowed. Exponent is not allowed
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ConversionFailed);
     Arcadia_Thread_jump(thread);
@@ -123,7 +123,7 @@ Arcadia_toInteger8
   )
 {
   Arcadia_Integer64Value v = Arcadia_toInteger64(thread, p, n);
-  if (v < Arcadia_Integer8Value_Minimum && v > Arcadia_Integer8Value_Maximum) {
+  if (v < Arcadia_Integer8Value_Minimum || v > Arcadia_Integer8Value_Maximum) {
     Arcadia_Thread_setStatus(thread, Arcadia_Status_ConversionFailed);
     Arcadia_Thread_jump(thread);
   }

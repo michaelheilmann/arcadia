@@ -33,11 +33,15 @@ Arcadia_Unicode_isUTF8
   Arcadia_JumpTarget jt;
   Arcadia_Thread_pushJumpTarget(thread, &jt);
   if (Arcadia_JumpTarget_save(&jt)) {
+    Arcadia_SizeValue count = 0;
     while (_Arcadia_UTF8ArrayIterator_hasCodePoint(thread, &it)) {
+      ++count;
       _Arcadia_UTF8ArrayIterator_next(thread, &it);
     }
     Arcadia_BooleanValue result = !_Arcadia_UTF8ArrayIterator_hasError(thread, &it);
-    if (numberOfSymbols) *numberOfSymbols = _Arcadia_UTF8ArrayIterator_getCodePointIndex(thread, &it);
+    if (numberOfSymbols) {
+      *numberOfSymbols = count;
+    }
     Arcadia_Thread_popJumpTarget(thread);
     _Arcadia_UTF8ArrayIterator_uninitialize(thread, &it);
     return result;

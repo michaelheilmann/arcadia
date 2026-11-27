@@ -39,6 +39,38 @@ Arcadia_Ring1_Tests_UnicodeCodePointReader_scalarBoundaries
     Arcadia_Thread* thread
   )
 {
+
+  static const struct {
+    Arcadia_Natural8Value bytes[10];
+    Arcadia_SizeValue size;
+    Arcadia_SizeValue count;
+  } counts[] = {
+    { { 0 }, 0, 0 },
+    { { 'a' }, 1, 1 },
+    { { 0xc3, 0xa9 }, 2, 1 },
+    { { 0xe2, 0x82, 0xac }, 3, 1 },
+    { { 0xf0, 0x9f, 0x98, 0x80 }, 4, 1 },
+    { { 'a', 0xc3, 0xa9, 0xe2, 0x82, 0xac, 0xf0, 0x9f, 0x98, 0x80 }, 10, 4 },
+    { { 'a', 0, 'b' }, 3, 3 },
+  };
+  for (Arcadia_SizeValue i = 0; i < sizeof(counts) / sizeof(counts[0]); ++i) {
+    Arcadia_SizeValue count = SIZE_MAX;
+    Arcadia_Tests_assertTrue(thread, Arcadia_Unicode_isUTF8(thread, counts[i].bytes, counts[i].size, &count));
+    Arcadia_Tests_assertEqualSize(thread, counts[i].count, count);
+    Arcadia_RuntimeUTF8String* runtime = Arcadia_RuntimeUTF8String_create(thread, counts[i].bytes, counts[i].size);
+    Arcadia_Value value = Arcadia_Value_makeRuntimeUTF8StringValue(runtime);
+    Arcadia_ValueStack_pushValue(thread, &value);
+    Arcadia_Tests_assertEqualSize(thread, counts[i].count, Arcadia_RuntimeUTF8String_getNumberOfCodePoints(thread, runtime));
+    Arcadia_String* string = Arcadia_String_create(thread, value);
+    Arcadia_ValueStack_pushObjectReferenceValue(thread, (Arcadia_Object*)string);
+    Arcadia_Tests_assertEqualSize(thread, counts[i].count, Arcadia_String_getNumberOfCodePoints(thread, string));
+    Arcadia_ValueStack_popValues(thread, 2);
+  }
+  static const Arcadia_Natural8Value malformed[] = { 'a', 0xc3 };
+  Arcadia_SizeValue count = SIZE_MAX;
+  Arcadia_Tests_assertFalse(thread, Arcadia_Unicode_isUTF8(thread, malformed, sizeof(malformed), &count));
+  Arcadia_Tests_assertEqualSize(thread, 1, count);
+
   static const Arcadia_Natural8Value bytes[] = {
     0xf0, 0x90, 0x80, 0x80, // U+10000
     0xf0, 0x9f, 0x8f, 0xae, // U+1F3EE
