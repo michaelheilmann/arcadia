@@ -1679,6 +1679,295 @@ classHeader
   }
 }
 
+// Emit reflection only when every member has a resolved runtime type
+// identity and its signature can be represented without losing qualifiers.
+static Arcadia_BooleanValue
+classSupportsMemberMetadata
+  (
+    Writer* w,
+    Arcadia_PDLC_ClassSymbol* c
+  )
+{
+  if (c->isNative) {
+    return Arcadia_BooleanValue_False;
+  }
+  for (Arcadia_SizeValue i = 0; i < size(w, c->members); ++i) {
+    Arcadia_PDLC_Symbol* symbol = at(w, c->members, i);
+    if (symbol->kind == Arcadia_PDLC_SymbolKind_Variable) {
+      Arcadia_PDLC_VariableSymbol* field = (Arcadia_PDLC_VariableSymbol*)symbol;
+      if (!field->isConstant &&
+          (field->recordFields || !field->type || equals(w, field->type->name, "Arcadia.Value"))) {
+        return Arcadia_BooleanValue_False;
+      }
+    } else if (symbol->kind == Arcadia_PDLC_SymbolKind_Method) {
+      Arcadia_PDLC_MethodSymbol* method = (Arcadia_PDLC_MethodSymbol*)symbol;
+      if (method->returnValueType &&
+          equals(w, method->returnValueType->name, "Arcadia.Value")) {
+        return Arcadia_BooleanValue_False;
+      }
+      for (Arcadia_SizeValue j = 0; j < size(w, method->parameters); ++j) {
+        Arcadia_PDLC_VariableSymbol* parameter = at(w, method->parameters, j);
+        if (!parameter->type || isVoid(w, parameter->type) ||
+            equals(w, parameter->type->name, "Arcadia.Value") ||
+            parameter->isReference || parameter->isReadOnly || parameter->isOutput) {
+          return Arcadia_BooleanValue_False;
+        }
+      }
+    }
+  }
+  return Arcadia_BooleanValue_True;
+}
+
+static void
+descriptorTypeExpression
+  (
+    Writer* w,
+    Arcadia_PDLC_Symbol* type
+  )
+{
+  if (isVoid(w, type)) {
+    text(w, "NULL");
+    return;
+  }
+  text(w, "_");
+  if (type->kind == Arcadia_PDLC_SymbolKind_PrimitiveType) {
+    typeName(w, type);
+  } else {
+    string(w, cname(w, type));
+  }
+  text(w, "_getType(thread)");
+}
+
+static void
+classMemberMetadata
+  (
+    Writer* w,
+    Arcadia_PDLC_ClassSymbol* c
+  )
+{
+  Arcadia_SizeValue fieldCount = 0;
+  Arcadia_SizeValue methodCount = 0;
+  for (Arcadia_SizeValue i = 0; i < size(w, c->members); ++i) {
+    Arcadia_PDLC_Symbol* symbol = at(w, c->members, i);
+    if (symbol->kind == Arcadia_PDLC_SymbolKind_Variable &&
+        !((Arcadia_PDLC_VariableSymbol*)symbol)->isConstant) {
+      ++fieldCount;
+    } else if (symbol->kind == Arcadia_PDLC_SymbolKind_Method) {
+      ++methodCount;
+    }
+  }
+
+  // Each adapter invokes the existing typed PDL entry point, which preserves
+  // object virtual dispatch and does not reinterpret native function pointers.
+  Arcadia_SizeValue methodIndex = 0;
+  for (Arcadia_SizeValue i = 0; i < size(w, c->members); ++i) {
+    Arcadia_PDLC_Symbol* symbol = at(w, c->members, i);
+    if (symbol->kind != Arcadia_PDLC_SymbolKind_Method) {
+      continue;
+    }
+    Arcadia_PDLC_MethodSymbol* method = (Arcadia_PDLC_MethodSymbol*)symbol;
+    if (!method->isAbstract && !size(w, method->parameters) &&
+        method->returnValueType && equals(w, method->returnValueType->name, "Arcadia.Size")) {
+      text(w, "static Arcadia_SizeValue\nmethodAdapter_");
+      number(w, methodIndex);
+      text(w, "\n  (\n    Arcadia_Thread* thread,\n    Arcadia_Object* object\n  )\n{\n  return ");
+      string(w, cname(w, symbol));
+      text(w, "(thread, (");
+      string(w, cname(w, (Arcadia_PDLC_Symbol*)c));
+      text(w, "*)object);\n}\n\n");
+    }
+    if (!method->isAbstract && size(w, method->parameters) == 1 &&
+        method->returnValueType && equals(w, method->returnValueType->name, "Arcadia.Size") &&
+        equals
+          (
+            w,
+            ((Arcadia_PDLC_VariableSymbol*)at(w, method->parameters, 0))->type->name,
+            "Arcadia.Size"
+          )) {
+      text(w, "static Arcadia_SizeValue\nmethodAdapter_");
+      number(w, methodIndex);
+      text(w, "\n  (\n    Arcadia_Thread* thread,\n    Arcadia_Object* object,\n");
+      text(w, "    Arcadia_SizeValue argument\n  )\n{\n  return ");
+      string(w, cname(w, symbol));
+      text(w, "(thread, (");
+      string(w, cname(w, (Arcadia_PDLC_Symbol*)c));
+      text(w, "*)object, argument);\n}\n\n");
+    }
+    ++methodIndex;
+  }
+
+  text(w, "static void\npublishMembersImpl\n  (\n    Arcadia_Thread* thread,\n");
+  text(w, "    Arcadia_TypeDescriptorValue owner\n  )\n{\n");
+  if (fieldCount + methodCount) {
+    text(w, "  Arcadia_Name* volatile lockedNames[");
+    number(w, fieldCount + methodCount);
+    text(w, "] = { 0 };\n");
+    text(w, "  volatile Arcadia_SizeValue lockedCount = 0;\n");
+    text(w, "  Arcadia_Process* process = Arcadia_Thread_getProcess(thread);\n");
+  }
+  text(w, "  Arcadia_JumpTarget jumpTarget;\n");
+  text(w, "  Arcadia_Thread_pushJumpTarget(thread, &jumpTarget);\n");
+  text(w, "  if (Arcadia_JumpTarget_save(&jumpTarget)) {\n");
+  if (fieldCount) {
+    text(w, "    Arcadia_FieldSpecification fields[");
+    number(w, fieldCount);
+    text(w, "] = { 0 };\n");
+  }
+  if (methodCount) {
+    text(w, "    Arcadia_MethodSpecification methods[");
+    number(w, methodCount);
+    text(w, "] = { 0 };\n");
+  }
+
+  Arcadia_SizeValue fieldIndex = 0;
+  Arcadia_SizeValue declaredMethodIndex = 0;
+  for (Arcadia_SizeValue i = 0; i < size(w, c->members); ++i) {
+    Arcadia_PDLC_Symbol* symbol = at(w, c->members, i);
+    if (symbol->kind == Arcadia_PDLC_SymbolKind_Variable &&
+        !((Arcadia_PDLC_VariableSymbol*)symbol)->isConstant) {
+      Arcadia_PDLC_VariableSymbol* field = (Arcadia_PDLC_VariableSymbol*)symbol;
+      text(w, "    fields[");
+      number(w, fieldIndex);
+      text(w, "].name = Arcadia_Names_getOrCreateName(thread, u8\"");
+      string(w, symbol->name);
+      text(w, "\", sizeof(u8\"");
+      string(w, symbol->name);
+      text(w, "\") - 1);\n");
+      text(w, "    if (Arcadia_Process_lockObject(process, fields[");
+      number(w, fieldIndex);
+      text(w, "].name)) {\n");
+      text(w, "      Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);\n");
+      text(w, "      Arcadia_Thread_jump(thread);\n    }\n");
+      text(w, "    lockedNames[lockedCount++] = fields[");
+      number(w, fieldIndex);
+      text(w, "].name;\n");
+      text(w, "    fields[");
+      number(w, fieldIndex);
+      text(w, "].valueType = ");
+      descriptorTypeExpression(w, field->type);
+      text(w, ";\n");
+      text(w, "    fields[");
+      number(w, fieldIndex);
+      text(w, "].offset = offsetof(");
+      string(w, cname(w, (Arcadia_PDLC_Symbol*)c));
+      text(w, ", ");
+      memberName(w, symbol->name);
+      text(w, ");\n");
+      text(w, "    fields[");
+      number(w, fieldIndex);
+      text(w, "].storageSize = sizeof(((");
+      string(w, cname(w, (Arcadia_PDLC_Symbol*)c));
+      text(w, "*)0)->");
+      memberName(w, symbol->name);
+      text(w, ");\n");
+      ++fieldIndex;
+    } else if (symbol->kind == Arcadia_PDLC_SymbolKind_Method) {
+      Arcadia_PDLC_MethodSymbol* method = (Arcadia_PDLC_MethodSymbol*)symbol;
+      Arcadia_SizeValue parameterCount = size(w, method->parameters);
+      if (parameterCount) {
+        text(w, "    Arcadia_TypeDescriptorValue parameterTypes_");
+        number(w, declaredMethodIndex);
+        text(w, "[");
+        number(w, parameterCount);
+        text(w, "] = { ");
+        for (Arcadia_SizeValue j = 0; j < parameterCount; ++j) {
+          if (j) {
+            text(w, ", ");
+          }
+          descriptorTypeExpression
+            (
+              w,
+              ((Arcadia_PDLC_VariableSymbol*)at(w, method->parameters, j))->type
+            );
+        }
+        text(w, " };\n");
+      }
+      text(w, "    methods[");
+      number(w, declaredMethodIndex);
+      text(w, "].name = Arcadia_Names_getOrCreateName(thread, u8\"");
+      string(w, symbol->name);
+      text(w, "\", sizeof(u8\"");
+      string(w, symbol->name);
+      text(w, "\") - 1);\n");
+      text(w, "    if (Arcadia_Process_lockObject(process, methods[");
+      number(w, declaredMethodIndex);
+      text(w, "].name)) {\n");
+      text(w, "      Arcadia_Thread_setStatus(thread, Arcadia_Status_AllocationFailed);\n");
+      text(w, "      Arcadia_Thread_jump(thread);\n    }\n");
+      text(w, "    lockedNames[lockedCount++] = methods[");
+      number(w, declaredMethodIndex);
+      text(w, "].name;\n");
+      text(w, "    methods[");
+      number(w, declaredMethodIndex);
+      text(w, "].returnType = ");
+      descriptorTypeExpression(w, method->returnValueType);
+      text(w, ";\n");
+      text(w, "    methods[");
+      number(w, declaredMethodIndex);
+      text(w, "].numberOfParameters = ");
+      number(w, parameterCount);
+      text(w, ";\n");
+      if (parameterCount) {
+        text(w, "    methods[");
+        number(w, declaredMethodIndex);
+        text(w, "].parameterTypes = parameterTypes_");
+        number(w, declaredMethodIndex);
+        text(w, ";\n");
+      }
+      text(w, "    methods[");
+      number(w, declaredMethodIndex);
+      text(w, "].isVirtual = ");
+      text(w, classMethodVirtual(w, method)
+        ? "Arcadia_BooleanValue_True;\n" : "Arcadia_BooleanValue_False;\n");
+      if (!method->isAbstract && !parameterCount && method->returnValueType &&
+          equals(w, method->returnValueType->name, "Arcadia.Size")) {
+        text(w, "    methods[");
+        number(w, declaredMethodIndex);
+        text(w, "].invokeSizeValue0 = &methodAdapter_");
+        number(w, declaredMethodIndex);
+        text(w, ";\n");
+      }
+      if (!method->isAbstract && parameterCount == 1 && method->returnValueType &&
+          equals(w, method->returnValueType->name, "Arcadia.Size") &&
+          equals
+            (
+              w,
+              ((Arcadia_PDLC_VariableSymbol*)at(w, method->parameters, 0))->type->name,
+              "Arcadia.Size"
+            )) {
+        text(w, "    methods[");
+        number(w, declaredMethodIndex);
+        text(w, "].invokeSizeValue1 = &methodAdapter_");
+        number(w, declaredMethodIndex);
+        text(w, ";\n");
+      }
+      ++declaredMethodIndex;
+    }
+  }
+  text(w, "    Arcadia_TypeDescriptor_publishMembers(thread, owner, ");
+  text(w, fieldCount ? "fields, " : "NULL, ");
+  number(w, fieldCount);
+  text(w, ", ");
+  text(w, methodCount ? "methods, " : "NULL, ");
+  number(w, methodCount);
+  text(w, ");\n");
+  text(w, "    Arcadia_Thread_popJumpTarget(thread);\n");
+  if (fieldCount + methodCount) {
+    text(w, "    while (lockedCount) {\n");
+    text(w, "      Arcadia_Process_unlockObject(process, (void*)lockedNames[--lockedCount]);\n");
+    text(w, "    }\n");
+  }
+  text(w, "  } else {\n");
+  text(w, "    Arcadia_Thread_popJumpTarget(thread);\n");
+  if (fieldCount + methodCount) {
+    text(w, "    while (lockedCount) {\n");
+    text(w, "      Arcadia_Process_unlockObject(process, (void*)lockedNames[--lockedCount]);\n");
+    text(w, "    }\n");
+  }
+  text(w, "    Arcadia_Thread_jump(thread);\n");
+  text(w, "  }\n}\n\n");
+}
+
 static void
 classSource
   (
@@ -1755,7 +2044,24 @@ classSource
     if (((Arcadia_PDLC_MethodSymbol*)s)->isAbstract) text(w, "NULL;\n");
     else { string(w, cname(w, s)); text(w, ((Arcadia_PDLC_MethodSymbol*)s)->overrideOf ? "_dispatchImpl;\n" : "_impl;\n"); }
   }
-  text(w, "}\n\nstatic const Arcadia_ObjectType_Operations objectOperations = {\n  Arcadia_ObjectType_Operations_Initializer,\n  .construct = (Arcadia_Object_ConstructCallbackFunction*)constructImpl,\n  .visit = (Arcadia_Object_VisitCallbackFunction*)visitImpl,\n  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)initializeDispatchImpl,\n};\n\nstatic const Arcadia_TypeDescriptor_Operations typeOperations = {\n  Arcadia_TypeDescriptor_Operations_Initializer,\n  .objectTypeOperations = &objectOperations,\n};\n\n");
+  text(w, "}\n\n");
+  text(w, "static const Arcadia_ObjectType_Operations objectOperations = {\n");
+  text(w, "  Arcadia_ObjectType_Operations_Initializer,\n");
+  text(w, "  .construct = (Arcadia_Object_ConstructCallbackFunction*)constructImpl,\n");
+  text(w, "  .visit = (Arcadia_Object_VisitCallbackFunction*)visitImpl,\n");
+  text(w, "  .initializeDispatch = (Arcadia_ObjectDispatch_InitializeCallbackFunction*)initializeDispatchImpl,\n");
+  text(w, "};\n\n");
+  Arcadia_BooleanValue emitMetadata = classSupportsMemberMetadata(w, c);
+  if (emitMetadata) {
+    classMemberMetadata(w, c);
+  }
+  text(w, "static const Arcadia_TypeDescriptor_Operations typeOperations = {\n");
+  text(w, "  Arcadia_TypeDescriptor_Operations_Initializer,\n");
+  text(w, "  .objectTypeOperations = &objectOperations,\n");
+  if (emitMetadata) {
+    text(w, "  .publishMembers = &publishMembersImpl,\n");
+  }
+  text(w, "};\n\n");
   for (Arcadia_SizeValue i = 0; i < size(w, interfaces); ++i) {
     Arcadia_PDLC_InterfaceSymbol* interface = at(w, interfaces, i);
     for (Arcadia_SizeValue j = 0; j < size(w, interface->operations); ++j) {
@@ -1950,6 +2256,9 @@ Arcadia_PDLC_Backend_writeExecutable
     text(&w, "#define "); string(&w, moduleUpperCaseName); text(&w, "_PRIVATE (1)\n");
   }
   text(&w, "#include \"Arcadia/Ring1/Include.h\"\n");
+  if (!header && symbol->kind == Arcadia_PDLC_SymbolKind_Class) {
+    text(&w, "#include <stddef.h>\n");
+  }
   Arcadia_List* includes = (Arcadia_List*)Arcadia_ArrayList_create(thread);
   Arcadia_ValueStack_pushObjectReferenceValue(thread, includes);
   w.includedHeaders = (Arcadia_List*)Arcadia_ArrayList_create(thread);

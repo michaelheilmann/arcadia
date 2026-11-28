@@ -15,6 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Arcadia/Testing/Include.h"
+#include <stddef.h>
 
 #define TEST_PRIVATE (1)
 
@@ -421,6 +422,73 @@ testSizes
   Test_Sized_setLength(thread, self, 0);
   Arcadia_Tests_assertTrue(thread, Test_Sized_getLength(thread, self) == 0);
   Arcadia_Tests_assertTrue(thread, Test_Sized_echo(thread, self, 0) == 0);
+  Arcadia_TypeDescriptorValue sizedType = _Test_Sized_getType(thread);
+  Arcadia_Tests_assertTrue
+    (
+      thread, Arcadia_TypeDescriptor_hasPublishedMembers(thread, sizedType)
+    );
+  Arcadia_Name* lengthName = Arcadia_Names_getOrCreateName
+    (
+      thread, u8"length", sizeof(u8"length") - 1
+    );
+  Arcadia_Name* methodName = Arcadia_Names_getOrCreateName
+    (
+      thread, u8"getLength", sizeof(u8"getLength") - 1
+    );
+  Arcadia_FieldDescriptor const* lengthField =
+    Arcadia_TypeDescriptor_getDeclaredField(thread, sizedType, lengthName);
+  Arcadia_MethodDescriptor const* lengthMethod =
+    Arcadia_TypeDescriptor_getDeclaredMethod(thread, sizedType, methodName);
+  Arcadia_Tests_assertTrue(thread, lengthField != NULL && lengthMethod != NULL);
+  Arcadia_Tests_assertTrue
+    (
+      thread, Arcadia_FieldDescriptor_getValueType(lengthField) == _Arcadia_SizeValue_getType(thread)
+    );
+  Arcadia_Tests_assertEqualSize
+    (
+      thread, offsetof(Test_Sized, length), Arcadia_FieldDescriptor_getOffset(lengthField)
+    );
+  Arcadia_Tests_assertEqualSize
+    (
+      thread, sizeof(Arcadia_SizeValue), Arcadia_FieldDescriptor_getStorageSize(lengthField)
+    );
+  Arcadia_Tests_assertEqualSize
+    (
+      thread, 0, Arcadia_MethodDescriptor_getNumberOfParameters(lengthMethod)
+    );
+  Arcadia_Tests_assertEqualSize
+    (
+      thread, 0,
+      Arcadia_MethodDescriptor_invokeSizeValue0(thread, lengthMethod, (Arcadia_Object*)self)
+    );
+  Arcadia_FieldDescriptor_setSizeValue(thread, lengthField, (Arcadia_Object*)self, 41);
+  Arcadia_Tests_assertEqualSize
+    (
+      thread, 41,
+      Arcadia_MethodDescriptor_invokeSizeValue0(thread, lengthMethod, (Arcadia_Object*)self)
+    );
+  Arcadia_Tests_assertTrue(thread, Test_Sized_getLength(thread, self) == 41);
+  Arcadia_Name* echoName = Arcadia_Names_getOrCreateName
+    (
+      thread, u8"echo", sizeof(u8"echo") - 1
+    );
+  Arcadia_MethodDescriptor const* echoMethod =
+    Arcadia_TypeDescriptor_getDeclaredMethod(thread, sizedType, echoName);
+  Arcadia_Tests_assertTrue(thread, echoMethod != NULL);
+  Arcadia_Tests_assertEqualSize
+    (
+      thread, 1, Arcadia_MethodDescriptor_getNumberOfParameters(echoMethod)
+    );
+  Arcadia_Tests_assertTrue
+    (
+      thread, Arcadia_MethodDescriptor_getParameterType(echoMethod, 0) ==
+      _Arcadia_SizeValue_getType(thread)
+    );
+  Arcadia_Tests_assertEqualSize
+    (
+      thread, 41,
+      Arcadia_MethodDescriptor_invokeSizeValue1(thread, echoMethod, (Arcadia_Object*)self, 41)
+    );
   Arcadia_JumpTarget jump;
   Arcadia_Thread_pushJumpTarget(thread, &jump);
   if (Arcadia_JumpTarget_save(&jump)) {

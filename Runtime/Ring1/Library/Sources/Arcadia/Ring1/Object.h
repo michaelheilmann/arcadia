@@ -80,6 +80,7 @@ struct Arcadia_Object {
 /// @param _cilName, _cilParentName UTF8 string literals for the Common Intermediate Language type names of the type and its parent type.
 #define Arcadia_defineObjectType(_cilName, _cName, _cilParentName, _cParentName, _cTypeOperations) \
   static Arcadia_TypeDescriptorValue g_##_cName##_type = NULL; \
+  static Arcadia_BooleanValue g_##_cName##_publishingMembers = Arcadia_BooleanValue_False; \
   \
   static void \
   _##_cName##_typeDestructing \
@@ -88,6 +89,7 @@ struct Arcadia_Object {
     ) \
   { \
     g_##_cName##_type = NULL; \
+    g_##_cName##_publishingMembers = Arcadia_BooleanValue_False; \
   } \
   \
   Arcadia_TypeDescriptorValue \
@@ -112,6 +114,13 @@ struct Arcadia_Object {
           sizeof(_cName##Dispatch), \
           _cTypeOperations, \
           &_##_cName##_typeDestructing \
+        ); \
+    } \
+    if ((_cTypeOperations)->publishMembers) { \
+      Arcadia_TypeDescriptor_ensureMembers \
+        ( \
+          thread, g_##_cName##_type, (_cTypeOperations)->publishMembers, \
+          &g_##_cName##_publishingMembers \
         ); \
     } \
     return g_##_cName##_type; \

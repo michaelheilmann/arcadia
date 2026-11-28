@@ -65,6 +65,272 @@ typedef struct Arcadia_InterfaceDispatch {
 typedef void (Arcadia_InterfaceDispatch_InitializeCallbackFunction)(Arcadia_Thread* thread, Arcadia_InterfaceDispatch* self);
 
 
+/// The descriptor family is native and independent of Arcadia_Object.
+typedef struct Arcadia_Descriptor Arcadia_Descriptor;
+
+typedef enum Arcadia_DescriptorKind {
+  Arcadia_DescriptorKind_Type = 0,
+  Arcadia_DescriptorKind_Field = 1,
+  Arcadia_DescriptorKind_Method = 2
+} Arcadia_DescriptorKind;
+
+/// All three descriptor kinds share this native representation prefix.
+Arcadia_DescriptorKind
+Arcadia_Descriptor_getKind
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Descriptor const* self
+  );
+
+/// The caller must register referenced type identities before publishing members.
+/// Names are interned Arcadia_Name values; the publisher retains their lifetime.
+/// storageSize is the C storage width, not necessarily the size of valueType:
+/// object-reference fields, for example, occupy a pointer-sized slot.
+typedef struct Arcadia_FieldSpecification {
+  Arcadia_Name* name;
+  Arcadia_TypeDescriptorValue valueType;
+  size_t offset;
+  size_t storageSize;
+} Arcadia_FieldSpecification;
+
+/// A type-correct native adapter for zero-argument instance methods whose
+/// return type is Arcadia.SizeValue. The receiver is guaranteed to be an
+/// instance of the declaring type before the adapter is called.
+typedef Arcadia_SizeValue
+Arcadia_Method_InvokeSizeValue0CallbackFunction
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* object
+  );
+
+/// Exact-signature adapter for one SizeValue parameter and SizeValue result.
+typedef Arcadia_SizeValue
+Arcadia_Method_InvokeSizeValue1CallbackFunction
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Object* object,
+    Arcadia_SizeValue argument
+  );
+
+/// A NULL returnType represents Arcadia.Void. Parameter types are resolved
+/// runtime identities; the two SizeValue adapter slots are optional.
+typedef struct Arcadia_MethodSpecification {
+  Arcadia_Name* name;
+  Arcadia_TypeDescriptorValue returnType;
+  size_t numberOfParameters;
+  Arcadia_TypeDescriptorValue const* parameterTypes;
+  Arcadia_Method_InvokeSizeValue0CallbackFunction* invokeSizeValue0;
+  Arcadia_Method_InvokeSizeValue1CallbackFunction* invokeSizeValue1;
+  Arcadia_BooleanValue isVirtual;
+} Arcadia_MethodSpecification;
+
+/// Called once the owning type identity exists, possibly while referenced
+/// types are still registering. A failed publication can be retried.
+typedef void
+Arcadia_TypeDescriptor_PublishMembersCallbackFunction
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner
+  );
+
+/// Publish both immutable declared-member collections in one transaction.
+/// A type can publish at most once. All input records are copied.
+/// Ring1 type registration and publication are single-threaded operations:
+/// callers must serialize these operations with registry readers. Descriptors
+/// remain valid until teardown of their owning runtime type registry.
+void
+Arcadia_TypeDescriptor_publishMembers
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_FieldSpecification const* fields,
+    size_t numberOfFields,
+    Arcadia_MethodSpecification const* methods,
+    size_t numberOfMethods
+  );
+
+/// True only after both field and method metadata have been published.
+Arcadia_BooleanValue
+Arcadia_TypeDescriptor_hasPublishedMembers
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner
+  );
+
+/// Used by object type identity getters to initialize optional native/PDLC
+/// metadata exactly once. Recursive identity resolution is permitted;
+/// the callback must publish both collections in one transaction.
+void
+Arcadia_TypeDescriptor_ensureMembers
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_TypeDescriptor_PublishMembersCallbackFunction* callback,
+    Arcadia_BooleanValue* inProgress
+  );
+
+/// Declared-only lookup. Returns NULL for absent members.
+/// Raises NotInitialized when the owner has not published metadata.
+Arcadia_FieldDescriptor const*
+Arcadia_TypeDescriptor_getDeclaredField
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  );
+
+Arcadia_MethodDescriptor const*
+Arcadia_TypeDescriptor_getDeclaredMethod
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  );
+
+/// Object inheritance lookup returns the descriptor from its declaring owner.
+Arcadia_FieldDescriptor const*
+Arcadia_TypeDescriptor_getField
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  );
+
+Arcadia_MethodDescriptor const*
+Arcadia_TypeDescriptor_getMethod
+  (
+    Arcadia_Thread* thread,
+    Arcadia_TypeDescriptorValue owner,
+    Arcadia_Name* name
+  );
+
+Arcadia_Name*
+Arcadia_FieldDescriptor_getName
+  (
+    Arcadia_FieldDescriptor const* self
+  );
+
+Arcadia_TypeDescriptorValue
+Arcadia_FieldDescriptor_getDeclaringType
+  (
+    Arcadia_FieldDescriptor const* self
+  );
+
+Arcadia_TypeDescriptorValue
+Arcadia_FieldDescriptor_getValueType
+  (
+    Arcadia_FieldDescriptor const* self
+  );
+size_t
+Arcadia_FieldDescriptor_getOffset
+  (
+    Arcadia_FieldDescriptor const* self
+  );
+
+/// Get the number of bytes reserved for this field in the declaring C layout.
+size_t
+Arcadia_FieldDescriptor_getStorageSize
+  (
+    Arcadia_FieldDescriptor const* self
+  );
+
+Arcadia_Name*
+Arcadia_MethodDescriptor_getName
+  (
+    Arcadia_MethodDescriptor const* self
+  );
+
+Arcadia_TypeDescriptorValue
+Arcadia_MethodDescriptor_getDeclaringType
+  (
+    Arcadia_MethodDescriptor const* self
+  );
+
+Arcadia_TypeDescriptorValue
+Arcadia_MethodDescriptor_getReturnType
+  (
+    Arcadia_MethodDescriptor const* self
+  );
+size_t
+Arcadia_MethodDescriptor_getNumberOfParameters
+  (
+    Arcadia_MethodDescriptor const* self
+  );
+
+Arcadia_TypeDescriptorValue
+Arcadia_MethodDescriptor_getParameterType
+  (
+    Arcadia_MethodDescriptor const* self,
+    size_t index
+  );
+
+/// Read a SizeValue field from an object of its declaring type or a subtype.
+/// Only fields with exact Arcadia.Size type and native sizeof(Arcadia_SizeValue)
+/// storage are supported. No conversion, untyped casts, or GC references.
+Arcadia_SizeValue
+Arcadia_FieldDescriptor_getSizeValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_FieldDescriptor const* self,
+    Arcadia_Object* object
+  );
+
+/// Write a SizeValue field. Object-reference fields use distinct accessors
+/// and are not accepted by this API.
+void
+Arcadia_FieldDescriptor_setSizeValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_FieldDescriptor const* self,
+    Arcadia_Object* object,
+    Arcadia_SizeValue value
+  );
+
+/// Read a native object-reference field. The field's declared value type
+/// must be an object type and its C storage width must be pointer-sized.
+/// The caller must root a returned reference across subsequent allocations.
+Arcadia_Object*
+Arcadia_FieldDescriptor_getObjectReferenceValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_FieldDescriptor const* self,
+    Arcadia_Object* object
+  );
+
+/// Assign a compatible object reference or NULL using ordinary C reference
+/// storage semantics. The containing object's visit callback must trace
+/// the field. This API does not introduce GC write barriers.
+void
+Arcadia_FieldDescriptor_setObjectReferenceValue
+  (
+    Arcadia_Thread* thread,
+    Arcadia_FieldDescriptor const* self,
+    Arcadia_Object* object,
+    Arcadia_Object* value
+  );
+
+/// Invoke a no-argument instance method returning Arcadia.SizeValue.
+/// The runtime receiver selects the most-derived published override.
+/// The caller must root the receiver across a callback that can allocate or
+/// trigger a runtime jump. Missing adapters raise NotImplemented.
+Arcadia_SizeValue
+Arcadia_MethodDescriptor_invokeSizeValue0
+  (
+    Arcadia_Thread* thread,
+    Arcadia_MethodDescriptor const* self,
+    Arcadia_Object* object
+  );
+
+/// Invoke a method with one SizeValue parameter and a SizeValue result.
+Arcadia_SizeValue
+Arcadia_MethodDescriptor_invokeSizeValue1
+  (
+    Arcadia_Thread* thread,
+    Arcadia_MethodDescriptor const* self,
+    Arcadia_Object* object,
+    Arcadia_SizeValue argument
+  );
+
 /// Type operations for object types.
 typedef struct Arcadia_ObjectType_Operations {
   Arcadia_Object_ConstructCallbackFunction* construct;
@@ -81,6 +347,8 @@ typedef struct Arcadia_ObjectType_Operations {
 
 /// Type operations for all types.
 typedef struct Arcadia_TypeDescriptor_Operations {
+
+  Arcadia_TypeDescriptor_PublishMembersCallbackFunction* publishMembers;
 
   /// Pointer to the object type operations if the type is an object type.
   /// The null pointer otherwise.
@@ -393,6 +661,27 @@ _Arcadia_Memory_getType
     Arcadia_Thread* thread
   );
 
+/// @brief Get the native runtime type of the descriptor family.
+Arcadia_TypeDescriptorValue
+_Arcadia_Descriptor_getType
+  (
+    Arcadia_Thread* thread
+  );
+
+/// @brief Get the native runtime type of field-descriptor values.
+Arcadia_TypeDescriptorValue
+_Arcadia_FieldDescriptor_getType
+  (
+    Arcadia_Thread* thread
+  );
+
+/// @brief Get the native runtime type of method-descriptor values.
+Arcadia_TypeDescriptorValue
+_Arcadia_MethodDescriptor_getType
+  (
+    Arcadia_Thread* thread
+  );
+
 /// @brief Get the "Arcadia.TypeDescriptor" type.
 /// @param thread A pointer to the Arcadia_Thread object.
 /// @return The "Arcadia.TypeDescriptor" type.
@@ -492,6 +781,7 @@ _Arcadia_AtomValue_getType
 ///       types.
 #define Arcadia_defineObjectTypeWithInterfaces(_cilName, _cName, _cilParentName, _cParentName, _cTypeOperations, ...) \
   static Arcadia_TypeDescriptorValue g_##_cName##_type = NULL; \
+  static Arcadia_BooleanValue g_##_cName##_publishingMembers = Arcadia_BooleanValue_False; \
   \
   static void \
   _##_cName##_typeDestructing \
@@ -500,6 +790,7 @@ _Arcadia_AtomValue_getType
     ) \
   { \
     g_##_cName##_type = NULL; \
+    g_##_cName##_publishingMembers = Arcadia_BooleanValue_False; \
   } \
   \
   Arcadia_TypeDescriptorValue \
@@ -534,6 +825,13 @@ _Arcadia_AtomValue_getType
           interfaceSpecifications, \
           numberOfInterfaceSpecifications, \
           &_##_cName##_typeDestructing \
+        ); \
+    } \
+    if ((_cTypeOperations)->publishMembers) { \
+      Arcadia_TypeDescriptor_ensureMembers \
+        ( \
+          thread, g_##_cName##_type, (_cTypeOperations)->publishMembers, \
+          &g_##_cName##_publishingMembers \
         ); \
     } \
     return g_##_cName##_type; \

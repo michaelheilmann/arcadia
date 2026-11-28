@@ -45,6 +45,13 @@ typedef void Arcadia_ScalarType;
 /// @brief A pointer to a type or the null pointer.
 typedef Arcadia_TypeDescriptor* Arcadia_TypeDescriptorValue;
 
+/// Native member-descriptor identities are owned by their declaring type,
+/// not by Arcadia_Object or the managed-object collector.
+typedef struct Arcadia_FieldDescriptor Arcadia_FieldDescriptor;
+typedef struct Arcadia_MethodDescriptor Arcadia_MethodDescriptor;
+typedef Arcadia_FieldDescriptor const* Arcadia_FieldDescriptorValue;
+typedef Arcadia_MethodDescriptor const* Arcadia_MethodDescriptorValue;
+
 /// @brief Get the type of a specified name.
 /// @param thread A pointer to this thread.
 /// @param name A poiner to the name.

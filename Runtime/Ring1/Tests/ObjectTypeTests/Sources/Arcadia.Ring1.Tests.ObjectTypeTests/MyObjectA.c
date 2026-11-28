@@ -77,6 +77,7 @@ Arcadia_MyObjectA_constructImpl
     Arcadia_Thread_setStatus(thread, Arcadia_Status_NumberOfArgumentsInvalid);
     Arcadia_Thread_jump(thread);
   }
+  self->reference = NULL;
   Arcadia_LeaveConstructor(Arcadia_MyObjectA);
 }
 
@@ -86,7 +87,8 @@ Arcadia_MyObjectA_destructImpl
     Arcadia_Thread* thread,
     Arcadia_MyObjectA* self
   )
-{ }
+{
+}
 
 static void
 Arcadia_MyObjectA_initializeDispatchImpl
@@ -94,7 +96,8 @@ Arcadia_MyObjectA_initializeDispatchImpl
     Arcadia_Thread* thread,
     Arcadia_MyObjectADispatch* self
   )
-{ }
+{
+}
 
 static void
 Arcadia_MyObjectA_visitImpl
@@ -102,7 +105,11 @@ Arcadia_MyObjectA_visitImpl
     Arcadia_Thread* thread,
     Arcadia_MyObjectA* self
   )
-{ }
+{
+  if (self->reference) {
+    Arcadia_Object_visit(thread, self->reference);
+  }
+}
 
 Arcadia_MyObjectA*
 Arcadia_MyObjectA_create
