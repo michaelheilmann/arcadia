@@ -198,6 +198,27 @@ resetAudioSettings
     Arcadia_Games_Anima_MenuScene* self
   );
 
+static void
+captureOptionsSnapshot
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  );
+
+static void
+restoreOptionsSnapshot
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  );
+
+static void
+commitOptionsSettings
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  );
+
 static const Arcadia_ObjectType_Operations _objectTypeOperations = {
   Arcadia_ObjectType_Operations_Initializer,
   .construct = (Arcadia_Object_ConstructCallbackFunction*)&constructImpl,
@@ -348,43 +369,15 @@ onButtonActivated
   Arcadia_Games_Anima_MenuScene* self = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 2, _Arcadia_Games_Anima_MenuScene_getType(thread));
   Arcadia_Engine_UI_ButtonNode* button = Arcadia_ValueStack_getObjectReferenceValueChecked(thread, 1, _Arcadia_Engine_UI_ButtonNode_getType(thread));
   if (button == self->optionsButton) {
+    captureOptionsSnapshot(thread, self);
     setMode(thread, self, Arcadia_Games_Anima_MenuMode_Options);
   } else if (button == self->applyButton) {
-    // Resolution is the only currently supported explicit Apply action.
-    if (self->optionsTabs &&
-        Arcadia_Engine_UI_TabBarNode_getSelected(thread, self->optionsTabs) &&
-        stringEquals(thread, Arcadia_Engine_UI_WidgetNode_getName(thread,
-          (Arcadia_Engine_UI_WidgetNode*)Arcadia_Engine_UI_TabBarNode_getSelected(thread, self->optionsTabs)),
-          u8"Anima.Tab.Display")) applySelectedResolution(thread, self);
+    commitOptionsSettings(thread, self);
   } else if (button == self->resetButton) {
-    Arcadia_Engine_UI_ButtonNode* selected = self->optionsTabs ? Arcadia_Engine_UI_TabBarNode_getSelected(thread, self->optionsTabs) : NULL;
-    Arcadia_String* name = selected ? Arcadia_Engine_UI_WidgetNode_getName(thread, (Arcadia_Engine_UI_WidgetNode*)selected) : NULL;
-    if (name && stringEquals(thread, name, u8"Anima.Tab.Audio")) {
-      resetAudioSettings(thread, self);
-    } else if (name && stringEquals(thread, name, u8"Anima.Tab.Controls")) {
-      if (self->jumpBindingController) Arcadia_Engine_UI_BindingRowController_reset(thread, self->jumpBindingController);
-      if (self->sprintBindingController) Arcadia_Engine_UI_BindingRowController_reset(thread, self->sprintBindingController);
-    } else if (name && stringEquals(thread, name, u8"Anima.Tab.Display")) {
-      // Restore the configured resolution selection; Apply remains explicit.
-      char const* widthPath[] = { u8"visuals", u8"horizontalResolution" };
-      char const* heightPath[] = { u8"visuals", u8"verticalResolution" };
-      Arcadia_Integer32Value configuredWidth = Arcadia_Engine_ApplicationConfiguration_getInteger32(thread, self->application->configuration, widthPath, 2);
-      Arcadia_Integer32Value configuredHeight = Arcadia_Engine_ApplicationConfiguration_getInteger32(thread, self->application->configuration, heightPath, 2);
-      if (self->availableResolutionModes) {
-        for (Arcadia_SizeValue j = 0, n = Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->availableResolutionModes); j < n; ++j) {
-          Arcadia_Engine_Visuals_DisplayMode* mode = (Arcadia_Engine_Visuals_DisplayMode*)Arcadia_List_getObjectReferenceValueAt(thread, self->availableResolutionModes, j);
-          if (Arcadia_Engine_Visuals_DisplayMode_getHorizontalResolution(thread, mode) == configuredWidth &&
-              Arcadia_Engine_Visuals_DisplayMode_getVerticalResolution(thread, mode) == configuredHeight) {
-            self->selectedResolutionIndex = j;
-            Arcadia_Engine_UI_DropdownController_select(thread, self->resolutionDropdown, j);
-            Arcadia_Engine_UI_LabelNode_setText(thread, self->resolutionLabel,
-              (Arcadia_String*)Arcadia_List_getObjectReferenceValueAt(thread, self->availableResolutionLabels, j));
-            break;
-          }
-        }
-      }
-    }
+    restoreOptionsSnapshot(thread, self);
   } else if (button == self->backButton) {
+    restoreOptionsSnapshot(thread, self);
+    self->optionsSnapshotValid = Arcadia_BooleanValue_False;
     setMode(thread, self, Arcadia_Games_Anima_MenuMode_Start);
   } else if (button == self->exitButton) {
     Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent* event = Arcadia_Engine_Visuals_ApplicationQuitRequestedEvent_create(thread, Arcadia_getTickCount(thread));
@@ -468,19 +461,17 @@ rebuildOptionsContent
     } break;
   }
   if (self->optionsStatusLabel) {
-    char const* message = category == 0 ? u8"Warning: resolution applies in windowed mode; VSync/brightness pending; borderless uses desktop." :
-      category == 1 ? u8"Info: effects, UI and voice levels are saved; routing is pending." :
+    char const* message = category == 0 ? u8"Info: display changes are staged until Apply; VSync/brightness pending; borderless uses desktop." :
+      category == 1 ? u8"Info: audio previews immediately; Apply saves, Back/Reset restores; effects/UI/voice routing pending." :
       category == 2 ? u8"Warning: bindings are session-only; mouse sensitivity is not active yet." :
                       u8"Warning: accessibility settings are not yet applied to rendering.";
     Arcadia_Engine_UI_StatusLabel_set(thread, self->optionsStatusLabel,
       category == 1 ? Arcadia_Engine_UI_StatusSeverity_Informational : Arcadia_Engine_UI_StatusSeverity_Warning,
       Arcadia_String_createFromCxxString(thread, message));
   }
-  // Unsupported accessibility settings have no meaningful Reset action yet.
-  if (self->resetButton) Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->resetButton, category != 3);
-  // There is no meaningful explicit Apply action outside Display at present.
-  if (self->applyButton) Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->applyButton,
-    category == 0 && !isBorderlessFullscreen(thread, self));
+  // Apply and Reset operate on all supported settings across all tabs.
+  if (self->resetButton) Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->resetButton, Arcadia_BooleanValue_True);
+  if (self->applyButton) Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->applyButton, Arcadia_BooleanValue_True);
 }
 
 static Arcadia_String*
@@ -691,11 +682,13 @@ resetAudioSettings
     Arcadia_Games_Anima_MenuScene* self
   )
 {
+  if (!self->optionsSnapshotValid) return;
   for (Arcadia_SizeValue i = 0; i < 5; ++i) {
-    char const* path[] = { u8"audials", _audioVolumeSettings[i].key };
-    Arcadia_Engine_ApplicationConfiguration_setReal64(thread, self->application->configuration,
-      path, 2, _audioVolumeSettings[i].defaultValue);
-    syncVolumeSetting(thread, self, (Arcadia_Games_Anima_AudioCategory)i);
+    Arcadia_Real64Value volume = self->optionsSnapshotVolumes[i];
+    Arcadia_Engine_UI_SliderNode_setValue(thread, getVolumeSlider(self, (Arcadia_Games_Anima_AudioCategory)i), volume);
+    applyAudioCategoryVolume(thread, self, (Arcadia_Games_Anima_AudioCategory)i, volume);
+    Arcadia_Engine_UI_LabelNode_setText(thread, getVolumeValueLabel(self, (Arcadia_Games_Anima_AudioCategory)i),
+      formatVolumeValue(thread, volume));
   }
 }
 
@@ -717,8 +710,7 @@ handleVolumeChanged
   Arcadia_Engine_UI_SliderNode* slider = (Arcadia_Engine_UI_SliderNode*)Arcadia_ValueStack_getObjectReferenceValueChecked
     (thread, 1, _Arcadia_Engine_UI_SliderNode_getType(thread));
   Arcadia_Real64Value volume = Arcadia_Engine_UI_SliderNode_getValue(thread, slider);
-  char const* path[] = { u8"audials", _audioVolumeSettings[category].key };
-  Arcadia_Engine_ApplicationConfiguration_setReal64(thread, self->application->configuration, path, 2, volume);
+  // Live preview only; configuration is changed by Apply.
   applyAudioCategoryVolume(thread, self, category, volume);
   Arcadia_Engine_UI_LabelNode_setText(thread, getVolumeValueLabel(self, category), formatVolumeValue(thread, volume));
 }
@@ -788,12 +780,12 @@ updateResolutionControls
     Arcadia_Games_Anima_MenuScene* self
   )
 {
-  Arcadia_BooleanValue enabled = !isBorderlessFullscreen(thread, self);
+  Arcadia_BooleanValue enabled = !Arcadia_Engine_UI_ToggleNode_getChecked(thread, self->windowModeToggle);
   if (self->resolutionDropdown)
     Arcadia_Engine_UI_DropdownController_setEnabled(thread, self->resolutionDropdown, enabled);
   else if (self->resolutionDropdownButton)
     Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->resolutionDropdownButton, enabled);
-  Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->applyButton, enabled);
+  Arcadia_Engine_UI_ButtonNode_setEnabled(thread, self->applyButton, Arcadia_BooleanValue_True);
 }
 
 static void
@@ -814,35 +806,7 @@ onWindowModeChanged
     _Arcadia_Engine_UI_ToggleNode_getType(thread));
   if (toggle != self->windowModeToggle) return;
 
-  Arcadia_BooleanValue borderless = Arcadia_Engine_UI_ToggleNode_getChecked(thread, toggle);
-  if (!self->application->windows ||
-      !Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->application->windows)) return;
-  Arcadia_Engine_Visuals_Window* window = (Arcadia_Engine_Visuals_Window*)Arcadia_List_getObjectReferenceValueAt(thread,
-    self->application->windows, 0);
-  Arcadia_Integer32Value left, top, right, bottom;
-  Arcadia_Engine_Visuals_DisplayDevice_getBounds(thread, self->displayDevice, &left, &top, &right, &bottom);
-  if (borderless) {
-    Arcadia_Engine_Visuals_Window_setFullscreen(thread, window, Arcadia_BooleanValue_True);
-    Arcadia_Engine_Visuals_Window_setPosition(thread, window, left, top);
-    Arcadia_Engine_Visuals_Window_setSize(thread, window, right - left, bottom - top);
-  } else {
-    char const* horizontalPath[] = { u8"visuals", u8"horizontalResolution" };
-    char const* verticalPath[] = { u8"visuals", u8"verticalResolution" };
-    Arcadia_Integer32Value width = Arcadia_Engine_ApplicationConfiguration_getInteger32(thread,
-      self->application->configuration, horizontalPath, 2);
-    Arcadia_Integer32Value height = Arcadia_Engine_ApplicationConfiguration_getInteger32(thread,
-      self->application->configuration, verticalPath, 2);
-    Arcadia_Engine_Visuals_Window_setFullscreen(thread, window, Arcadia_BooleanValue_False);
-    Arcadia_Engine_Visuals_Window_setSize(thread, window, width, height);
-    Arcadia_Integer32Value windowWidth, windowHeight;
-    Arcadia_Engine_Visuals_WindowBackend_getSize(thread, window->backend, &windowWidth, &windowHeight);
-    Arcadia_Engine_Visuals_Window_setPosition(thread, window,
-      left + ((right - left) - windowWidth) / 2,
-      top + ((bottom - top) - windowHeight) / 2);
-  }
-  char const* path[] = { u8"visuals", u8"windowMode" };
-  Arcadia_Engine_ApplicationConfiguration_setString(thread, self->application->configuration, path, 2,
-    Arcadia_String_createFromCxxString(thread, borderless ? u8"borderless fullscreen window" : u8"windowed"));
+  // The toggle only stages a choice; Apply owns all window changes.
   updateResolutionControls(thread, self);
 }
 
@@ -1060,6 +1024,118 @@ applySelectedResolution
 }
 
 static void
+captureOptionsSnapshot
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  )
+{
+  self->optionsSnapshotBorderless = isBorderlessFullscreen(thread, self);
+  self->optionsSnapshotResolutionIndex = self->selectedResolutionIndex;
+  for (Arcadia_SizeValue i = 0; i < 5; ++i) {
+    self->optionsSnapshotVolumes[i] = Arcadia_Engine_UI_SliderNode_getValue(thread,
+      getVolumeSlider(self, (Arcadia_Games_Anima_AudioCategory)i));
+  }
+  if (self->bindingService) {
+    self->optionsSnapshotJumpBinding = Arcadia_Engine_UI_InputBindingService_get(thread,
+      self->bindingService, self->jumpBindingController->action);
+    self->optionsSnapshotSprintBinding = Arcadia_Engine_UI_InputBindingService_get(thread,
+      self->bindingService, self->sprintBindingController->action);
+  }
+  self->optionsSnapshotVsync = Arcadia_Engine_UI_ToggleNode_getChecked(thread, self->vsyncToggle);
+  self->optionsSnapshotBrightness = Arcadia_Engine_UI_SliderNode_getValue(thread, self->brightnessSlider);
+  self->optionsSnapshotMouseSensitivity = Arcadia_Engine_UI_SliderNode_getValue(thread, self->mouseSensitivitySlider);
+  self->optionsSnapshotSubtitles = Arcadia_Engine_UI_ToggleNode_getChecked(thread, self->subtitlesToggle);
+  self->optionsSnapshotHighContrast = Arcadia_Engine_UI_ToggleNode_getChecked(thread, self->highContrastToggle);
+  self->optionsSnapshotValid = Arcadia_BooleanValue_True;
+}
+
+static void
+restoreOptionsSnapshot
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  )
+{
+  if (!self->optionsSnapshotValid) return;
+  if (self->bindingService) {
+    Arcadia_Engine_UI_InputBindingService_cancelCapture(thread, self->bindingService);
+    // Unbind both actions before restoring. This handles swapped user bindings
+    // without reporting a transient conflict during rollback.
+    Arcadia_Engine_UI_InputBinding unbound = {0};
+    Arcadia_Engine_UI_InputBindingService_assign(thread, self->bindingService,
+      self->jumpBindingController->action, unbound);
+    Arcadia_Engine_UI_InputBindingService_assign(thread, self->bindingService,
+      self->sprintBindingController->action, unbound);
+    Arcadia_Engine_UI_InputBindingService_assign(thread, self->bindingService,
+      self->jumpBindingController->action, self->optionsSnapshotJumpBinding);
+    Arcadia_Engine_UI_InputBindingService_assign(thread, self->bindingService,
+      self->sprintBindingController->action, self->optionsSnapshotSprintBinding);
+    Arcadia_Engine_UI_BindingRowController_refresh(thread, self->jumpBindingController);
+    Arcadia_Engine_UI_BindingRowController_refresh(thread, self->sprintBindingController);
+  }
+  Arcadia_Engine_UI_ToggleNode_setChecked(thread, self->vsyncToggle, self->optionsSnapshotVsync);
+  Arcadia_Engine_UI_SliderNode_setValue(thread, self->brightnessSlider, self->optionsSnapshotBrightness);
+  Arcadia_Engine_UI_SliderNode_setValue(thread, self->mouseSensitivitySlider, self->optionsSnapshotMouseSensitivity);
+  Arcadia_Engine_UI_ToggleNode_setChecked(thread, self->subtitlesToggle, self->optionsSnapshotSubtitles);
+  Arcadia_Engine_UI_ToggleNode_setChecked(thread, self->highContrastToggle, self->optionsSnapshotHighContrast);
+  resetAudioSettings(thread, self);
+  Arcadia_Engine_UI_ToggleNode_setChecked(thread, self->windowModeToggle, self->optionsSnapshotBorderless);
+  self->selectedResolutionIndex = self->optionsSnapshotResolutionIndex;
+  Arcadia_Engine_UI_DropdownController_select(thread, self->resolutionDropdown, self->selectedResolutionIndex);
+  Arcadia_Engine_UI_LabelNode_setText(thread, self->resolutionLabel,
+    (Arcadia_String*)Arcadia_List_getObjectReferenceValueAt(thread,
+      self->availableResolutionLabels, self->selectedResolutionIndex));
+  updateResolutionControls(thread, self);
+}
+
+static void
+commitOptionsSettings
+  (
+    Arcadia_Thread* thread,
+    Arcadia_Games_Anima_MenuScene* self
+  )
+{
+  // Commit audio previews independently of the currently selected tab.
+  // Only Master and Music have live runtime routing today.
+  for (Arcadia_SizeValue i = 0; i < 5; ++i) {
+    char const* path[] = { u8"audials", _audioVolumeSettings[i].key };
+    Arcadia_Engine_ApplicationConfiguration_setReal64(thread, self->application->configuration,
+      path, 2, Arcadia_Engine_UI_SliderNode_getValue(thread,
+        getVolumeSlider(self, (Arcadia_Games_Anima_AudioCategory)i)));
+  }
+
+  Arcadia_BooleanValue borderless = Arcadia_Engine_UI_ToggleNode_getChecked(thread, self->windowModeToggle);
+  Arcadia_BooleanValue displayChanged = !self->optionsSnapshotValid ||
+    borderless != self->optionsSnapshotBorderless ||
+    (!borderless && self->selectedResolutionIndex != self->optionsSnapshotResolutionIndex);
+  // Applying audio or session-only controls must not resize an unchanged window.
+  if (displayChanged && self->application->windows &&
+      Arcadia_Collection_getSize(thread, (Arcadia_Collection*)self->application->windows)) {
+    Arcadia_Engine_Visuals_Window* window = (Arcadia_Engine_Visuals_Window*)Arcadia_List_getObjectReferenceValueAt(thread,
+      self->application->windows, 0);
+    char const* path[] = { u8"visuals", u8"windowMode" };
+    // Set window mode before sizing: borderless takes desktop dimensions, while
+    // windowed mode applies the staged resolution and keeps the desktop mode.
+    if (borderless) {
+      Arcadia_Integer32Value left, top, right, bottom;
+      Arcadia_Engine_Visuals_DisplayDevice_getBounds(thread, self->displayDevice, &left, &top, &right, &bottom);
+      Arcadia_Engine_Visuals_Window_setFullscreen(thread, window, Arcadia_BooleanValue_True);
+      Arcadia_Engine_Visuals_Window_setPosition(thread, window, left, top);
+      Arcadia_Engine_Visuals_Window_setSize(thread, window, right - left, bottom - top);
+      Arcadia_Engine_ApplicationConfiguration_setString(thread, self->application->configuration, path, 2,
+        Arcadia_String_createFromCxxString(thread, u8"borderless fullscreen window"));
+    } else {
+      Arcadia_Engine_Visuals_Window_setFullscreen(thread, window, Arcadia_BooleanValue_False);
+      Arcadia_Engine_ApplicationConfiguration_setString(thread, self->application->configuration, path, 2,
+        Arcadia_String_createFromCxxString(thread, u8"windowed"));
+      applySelectedResolution(thread, self);
+    }
+  }
+  captureOptionsSnapshot(thread, self);
+}
+
+static void
 onOptionsTabChanged
   (
     Arcadia_Thread* thread
@@ -1247,6 +1323,17 @@ constructImpl
   self->availableResolutionLabels = NULL;
   self->displayDevice = NULL;
   self->selectedResolutionIndex = 0;
+  self->optionsSnapshotValid = Arcadia_BooleanValue_False;
+  self->optionsSnapshotBorderless = Arcadia_BooleanValue_False;
+  self->optionsSnapshotResolutionIndex = 0;
+  for (Arcadia_SizeValue i = 0; i < 5; ++i) self->optionsSnapshotVolumes[i] = 0.;
+  self->optionsSnapshotJumpBinding = (Arcadia_Engine_UI_InputBinding){0};
+  self->optionsSnapshotSprintBinding = (Arcadia_Engine_UI_InputBinding){0};
+  self->optionsSnapshotBrightness = 0.;
+  self->optionsSnapshotMouseSensitivity = 0.;
+  self->optionsSnapshotVsync = Arcadia_BooleanValue_False;
+  self->optionsSnapshotSubtitles = Arcadia_BooleanValue_False;
+  self->optionsSnapshotHighContrast = Arcadia_BooleanValue_False;
   self->cameraNode = NULL; self->enterPassNode = NULL; self->viewportNode = NULL; self->canvasNode = NULL;
   self->ambienceNode = NULL;
   self->ambienceBaseVolume = 1.f;
