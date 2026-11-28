@@ -100,6 +100,19 @@ struct Arcadia_Games_Anima_MenuScene {
   Arcadia_List* availableResolutionModes;
   Arcadia_List* availableResolutionLabels;
   Arcadia_SizeValue selectedResolutionIndex;
+  // Transaction baseline captured whenever Options opens or Apply succeeds.
+  Arcadia_BooleanValue optionsSnapshotValid;
+  Arcadia_BooleanValue optionsSnapshotBorderless;
+  Arcadia_SizeValue optionsSnapshotResolutionIndex;
+  Arcadia_Real64Value optionsSnapshotVolumes[5];
+  // Session-only controls participate in Reset/Back even without disk storage.
+  Arcadia_Engine_UI_InputBinding optionsSnapshotJumpBinding;
+  Arcadia_Engine_UI_InputBinding optionsSnapshotSprintBinding;
+  Arcadia_Real64Value optionsSnapshotBrightness;
+  Arcadia_Real64Value optionsSnapshotMouseSensitivity;
+  Arcadia_BooleanValue optionsSnapshotVsync;
+  Arcadia_BooleanValue optionsSnapshotSubtitles;
+  Arcadia_BooleanValue optionsSnapshotHighContrast;
 };
 
 Arcadia_Games_Anima_MenuScene*
