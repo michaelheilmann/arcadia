@@ -23,11 +23,13 @@ Arcadia_declareObjectType(u8"Arcadia.MyObjectA", Arcadia_MyObjectA,
                           u8"Arcadia.Object");
 
 struct Arcadia_MyObjectADispatch {
-  Arcadia_ObjectDispatch parent;
+  Arcadia_ObjectDispatch _parent;
 };
 
 struct Arcadia_MyObjectA {
-  Arcadia_Object parent;
+  Arcadia_Object _parent;
+  Arcadia_SizeValue member;
+  Arcadia_Object* reference;
 };
 
 Arcadia_MyObjectA*

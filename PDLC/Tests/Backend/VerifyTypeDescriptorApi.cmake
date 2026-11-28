@@ -59,3 +59,28 @@ foreach(source IN LISTS generatedSources)
     endif()
   endforeach()
 endforeach()
+
+# A regenerated eligible class must publish one combined field/method metadata
+# set and retain the C ABI of its ordinary typed methods.
+set(sizedSource "${SOURCE_ROOT}/Test/Sized.c.g")
+if(NOT EXISTS "${sizedSource}")
+  message(FATAL_ERROR "Missing generated source for Test.Sized")
+endif()
+file(READ "${sizedSource}" sizedContents)
+set(descriptorFragments
+  "publishMembersImpl"
+  ".publishMembers = &publishMembersImpl"
+  "Arcadia_FieldSpecification fields[1]"
+  "Arcadia_MethodSpecification methods[3]"
+  "offsetof(Test_Sized, length)"
+  "fields[0].storageSize"
+  "methods[0].invokeSizeValue0 = &methodAdapter_0"
+  "methods[2].invokeSizeValue1 = &methodAdapter_2"
+  "Arcadia_TypeDescriptor_publishMembers(thread, owner, fields, 1, methods, 3)"
+)
+foreach(fragment IN LISTS descriptorFragments)
+  string(FIND "${sizedContents}" "${fragment}" index)
+  if(index EQUAL -1)
+    message(FATAL_ERROR "Missing generated descriptor fragment '${fragment}' in Test.Sized")
+  endif()
+endforeach()

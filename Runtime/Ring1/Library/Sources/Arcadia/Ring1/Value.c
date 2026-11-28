@@ -25,6 +25,7 @@
 
 // exit, EXIT_FAILURE
 #include <stdlib.h>
+#include <stdint.h>
 
 void
 Arcadia_Value_visit
@@ -90,6 +91,10 @@ Arcadia_Value_visit
     } break;
     case Arcadia_ValueTag_TypeDescriptor: {
       Arcadia_TypeDescriptor_visit(thread, self->typeDescriptorValue);
+    } break;
+    case Arcadia_ValueTag_FieldDescriptor:
+    case Arcadia_ValueTag_MethodDescriptor: {
+      // Member descriptors are owned by a registry type, not the object collector.
     } break;
     case Arcadia_ValueTag_Void: {
       /* Intentionally empty. */
@@ -169,6 +174,12 @@ Arcadia_Value_getTypeDescriptor
     case Arcadia_ValueTag_TypeDescriptor: {
       return _Arcadia_TypeDescriptor_getType(thread);
     } break;
+    case Arcadia_ValueTag_FieldDescriptor: {
+      return _Arcadia_FieldDescriptor_getType(thread);
+    } break;
+    case Arcadia_ValueTag_MethodDescriptor: {
+      return _Arcadia_MethodDescriptor_getType(thread);
+    } break;
     case Arcadia_ValueTag_Void: {
       return _Arcadia_VoidValue_getType(thread);
     } break;
@@ -242,6 +253,14 @@ Arcadia_Value_isEqualTo
       }
       return self->typeDescriptorValue == other->typeDescriptorValue;
     } break;
+    case Arcadia_ValueTag_FieldDescriptor: {
+      return Arcadia_Value_isFieldDescriptorValue(other)
+          && self->fieldDescriptorValue == other->fieldDescriptorValue;
+    } break;
+    case Arcadia_ValueTag_MethodDescriptor: {
+      return Arcadia_Value_isMethodDescriptorValue(other)
+          && self->methodDescriptorValue == other->methodDescriptorValue;
+    } break;
     case Arcadia_ValueTag_Enumeration: {
       return self->enumerationValue.type == other->enumerationValue.type
           && self->enumerationValue.value == other->enumerationValue.value;
@@ -305,7 +324,9 @@ Arcadia_Value_isLowerThan
       Arcadia_ValueStack_popValues(thread, 1);
       return v;
     } break;
-    case Arcadia_ValueTag_TypeDescriptor: {
+    case Arcadia_ValueTag_TypeDescriptor:
+    case Arcadia_ValueTag_FieldDescriptor:
+    case Arcadia_ValueTag_MethodDescriptor: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
       Arcadia_Thread_jump(thread);
     } break;
@@ -359,7 +380,9 @@ Arcadia_Value_isLowerThanOrEqualTo
       Arcadia_ValueStack_popValues(thread, 1);
       return v;
     } break;
-    case Arcadia_ValueTag_TypeDescriptor: {
+    case Arcadia_ValueTag_TypeDescriptor:
+    case Arcadia_ValueTag_FieldDescriptor:
+    case Arcadia_ValueTag_MethodDescriptor: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
       Arcadia_Thread_jump(thread);
     } break;
@@ -413,7 +436,9 @@ Arcadia_Value_isGreaterThan
       Arcadia_ValueStack_popValues(thread, 1);
       return v;
     } break;
-    case Arcadia_ValueTag_TypeDescriptor: {
+    case Arcadia_ValueTag_TypeDescriptor:
+    case Arcadia_ValueTag_FieldDescriptor:
+    case Arcadia_ValueTag_MethodDescriptor: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
       Arcadia_Thread_jump(thread);
     } break;
@@ -467,7 +492,9 @@ Arcadia_Value_isGreaterThanOrEqualTo
       Arcadia_ValueStack_popValues(thread, 1);
       return v;
     } break;
-    case Arcadia_ValueTag_TypeDescriptor: {
+    case Arcadia_ValueTag_TypeDescriptor:
+    case Arcadia_ValueTag_FieldDescriptor:
+    case Arcadia_ValueTag_MethodDescriptor: {
       Arcadia_Thread_setStatus(thread, Arcadia_Status_OperationInvalid);
       Arcadia_Thread_jump(thread);
     } break;
@@ -532,6 +559,13 @@ Arcadia_Value_getHash
     case Arcadia_ValueTag_TypeDescriptor: {
       return Arcadia_TypeDescriptor_getHash(thread, self->typeDescriptorValue);
     } break;
+    case Arcadia_ValueTag_FieldDescriptor: {
+      // Stable within the declaring type's lifetime; identical values hash alike.
+      return (Arcadia_SizeValue)(uintptr_t)self->fieldDescriptorValue;
+    } break;
+    case Arcadia_ValueTag_MethodDescriptor: {
+      return (Arcadia_SizeValue)(uintptr_t)self->methodDescriptorValue;
+    } break;
     case Arcadia_ValueTag_Enumeration: {
       return (Arcadia_SizeValue)self->enumerationValue.value ^ Arcadia_TypeDescriptor_getHash(thread, self->enumerationValue.type);
     } break;
@@ -582,7 +616,16 @@ Arcadia_Value_isInstanceOf
       return Arcadia_Object_isInstanceOf(thread, self->objectReferenceValue, type);
     } break;
     case Arcadia_ValueTag_TypeDescriptor: {
-      return _Arcadia_TypeDescriptor_getType(thread) == type;
+      return _Arcadia_TypeDescriptor_getType(thread) == type ||
+             _Arcadia_Descriptor_getType(thread) == type;
+    } break;
+    case Arcadia_ValueTag_FieldDescriptor: {
+      return _Arcadia_FieldDescriptor_getType(thread) == type ||
+             _Arcadia_Descriptor_getType(thread) == type;
+    } break;
+    case Arcadia_ValueTag_MethodDescriptor: {
+      return _Arcadia_MethodDescriptor_getType(thread) == type ||
+             _Arcadia_Descriptor_getType(thread) == type;
     } break;
     case Arcadia_ValueTag_Enumeration: {
       return self->enumerationValue.type == type;

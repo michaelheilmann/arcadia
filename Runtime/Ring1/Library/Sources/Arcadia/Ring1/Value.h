@@ -83,6 +83,9 @@
 
 #define Arcadia_ValueTag_Enumeration (20)
 
+#define Arcadia_ValueTag_FieldDescriptor (21)
+#define Arcadia_ValueTag_MethodDescriptor (22)
+
 // The tag for type "Void" must be 0.
 #define Arcadia_ValueTag_Void (0)
 
@@ -122,6 +125,8 @@ typedef struct Arcadia_Value {
     Define(Arcadia, Size, size)
 
     Define(Arcadia, TypeDescriptor, typeDescriptor)
+    Define(Arcadia, FieldDescriptor, fieldDescriptor)
+    Define(Arcadia, MethodDescriptor, methodDescriptor)
 
     Define(Arcadia, Void, void)
 
@@ -206,6 +211,8 @@ Define(Arcadia, Real64, real64)
 Define(Arcadia, Size, size)
 
 Define(Arcadia, TypeDescriptor, typeDescriptor)
+Define(Arcadia, FieldDescriptor, fieldDescriptor)
+Define(Arcadia, MethodDescriptor, methodDescriptor)
 
 Define(Arcadia, Void, void)
 

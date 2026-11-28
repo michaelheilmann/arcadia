@@ -86,7 +86,8 @@ Arcadia_MyObjectB_destructImpl
     Arcadia_Thread* thread,
     Arcadia_MyObjectB* self
   )
-{ }
+{
+}
 
 static void
 Arcadia_MyObjectB_initializeDispatchImpl
@@ -94,7 +95,8 @@ Arcadia_MyObjectB_initializeDispatchImpl
     Arcadia_Thread* thread,
     Arcadia_MyObjectBDispatch* self
   )
-{ }
+{
+}
 
 static void
 Arcadia_MyObjectB_visitImpl
@@ -102,7 +104,11 @@ Arcadia_MyObjectB_visitImpl
     Arcadia_Thread* thread,
     Arcadia_MyObjectB* self
   )
-{ }
+{
+  if (((Arcadia_MyObjectA*)self)->reference) {
+    Arcadia_Object_visit(thread, ((Arcadia_MyObjectA*)self)->reference);
+  }
+}
 
 Arcadia_MyObjectB*
 Arcadia_MyObjectB_create
