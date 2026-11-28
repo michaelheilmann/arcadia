@@ -29,6 +29,8 @@
 #include "Arcadia/Engine/UI/Tests/EventBases/StackLayout.h"
 #include "Arcadia/Engine/UI/Tests/EventBases/Node.h"
 #include "Arcadia/Engine/UI/Tests/EventBases/Populate.h"
+#include "Arcadia/Engine/UI/Tests/EventBases/TextEditState.h"
+#include "Arcadia/Engine/UI/Tests/EventBases/NumericEditState.h"
 
 typedef struct WidgetProbe WidgetProbe;
 typedef struct WidgetProbeDispatch WidgetProbeDispatch;
@@ -214,6 +216,8 @@ runEventHierarchy
   return Arcadia_Tests_safeExecute(&test) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+extern int Arcadia_Engine_UI_Tests_textInputNode(void);
+
 int
 main
   (
@@ -223,6 +227,9 @@ main
 {
   static const Arcadia_Testing_Case cases[] = {
     { "EventHierarchy", &runEventHierarchy },
+    { "TextEditState", &Arcadia_Engine_UI_Tests_textEditState },
+    { "TextInputNode", &Arcadia_Engine_UI_Tests_textInputNode },
+    { "NumericEditState", &Arcadia_Engine_UI_Tests_numericEditState },
     { "Alignment", &Arcadia_Engine_UI_Tests_alignment },
     { "LayoutPanel", &Arcadia_Engine_UI_Tests_layoutPanel },
     { "LayoutPanelInput", &Arcadia_Engine_UI_Tests_layoutPanelInput },
